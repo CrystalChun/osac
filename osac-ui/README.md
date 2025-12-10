@@ -59,7 +59,7 @@ OSAC UI provides a user-friendly interface for managing virtual machines, cluste
 - Node.js 20.x or later
 - npm or yarn
 - Access to a Fulfillment API instance
-- Keycloak server with the `innabox` realm configured
+- Keycloak server with your realm configured
 
 ### Local Development
 
@@ -81,7 +81,7 @@ OSAC UI provides a user-friendly interface for managing virtual machines, cluste
    Edit `.env` and set your configuration:
    ```env
    VITE_API_BASE_URL=https://fulfillment-api.example.com
-   VITE_OIDC_AUTHORITY=https://keycloak.example.com/realms/innabox
+   VITE_OIDC_AUTHORITY=https://keycloak.example.com/realms/your-realm
    VITE_OIDC_CLIENT_ID=osac-ui
    VITE_OIDC_REDIRECT_URI=http://localhost:5173/callback
    ```
@@ -133,7 +133,7 @@ OSAC UI provides a user-friendly interface for managing virtual machines, cluste
 The deployment uses ConfigMaps for runtime configuration:
 - `FULFILLMENT_API_URL`: Backend API endpoint
 - `KEYCLOAK_URL`: Keycloak SSO server
-- `KEYCLOAK_REALM`: Keycloak realm (default: `innabox`)
+- `KEYCLOAK_REALM`: Keycloak realm name
 - `OIDC_CLIENT_ID`: OAuth client ID (default: `osac-ui`)
 - `NAMESPACE`: Kubernetes namespace
 
@@ -217,14 +217,14 @@ osac-ui/
 ### Runtime Configuration (Server-side)
 These are configured via Kubernetes ConfigMap and read by the Express server:
 
-| Variable | Description | Default |
+| Variable | Description | Example |
 |----------|-------------|---------|
 | `PORT` | Server port | `8080` |
-| `FULFILLMENT_API_URL` | Fulfillment API base URL | `https://fulfillment-api-innabox-devel.apps.ostest.test.metalkube.org` |
-| `KEYCLOAK_URL` | Keycloak server URL | `https://keycloak-innabox-devel.apps.ostest.test.metalkube.org` |
-| `KEYCLOAK_REALM` | Keycloak realm name | `innabox` |
+| `FULFILLMENT_API_URL` | Fulfillment API base URL | `https://fulfillment-api.example.com` |
+| `KEYCLOAK_URL` | Keycloak server URL | `https://keycloak.example.com` |
+| `KEYCLOAK_REALM` | Keycloak realm name | `your-realm` |
 | `OIDC_CLIENT_ID` | OAuth client ID | `osac-ui` |
-| `NAMESPACE` | Kubernetes namespace | `innabox-devel` |
+| `NAMESPACE` | Kubernetes namespace | `your-namespace` |
 | `GENERIC_TEMPLATE_ID` | Generic VM template ID | `osac.templates.ocp_virt_vm` |
 
 ### Client Configuration
@@ -233,8 +233,8 @@ The frontend retrieves runtime configuration from `/api/config` endpoint which s
 ### Development Environment (optional)
 For local development, you can create a `.env` file:
 ```env
-VITE_API_BASE_URL=https://fulfillment-api-innabox-devel.apps.ostest.test.metalkube.org
-VITE_KEYCLOAK_URL=https://keycloak-innabox-devel.apps.ostest.test.metalkube.org
+VITE_API_BASE_URL=https://fulfillment-api.example.com
+VITE_KEYCLOAK_URL=https://keycloak.example.com
 ```
 
 ## Contributing
