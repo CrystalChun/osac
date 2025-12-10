@@ -1,6 +1,6 @@
 {
   "title": "虚拟机",
-  "create": "创建虚拟机",
+  "createButton": "创建虚拟机",
   "delete": "删除虚拟机",
   "start": "启动",
   "stop": "停止",

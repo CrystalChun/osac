@@ -1,6 +1,6 @@
 {
   "title": "Clusters Gerenciados",
-  "catalog": "Catálogo de Clusters",
+  "catalogTitle": "Catálogo de Clusters",
   "createButton": "Criar Cluster",
   "delete": "Excluir Cluster",
   "details": "Detalhes do Cluster",
@@ -90,7 +90,7 @@
     "catalogBreadcrumb": "Catálogo de Clusters",
     "nodeConfiguration": {
       "title": "Configuração de Nós",
-      "description": "O cluster será implantado com os seguintes nós worker. Cada nó fornece recursos de computação, memória e armazenamento para suas cargas de trabalho.",
+      "workersDescription": "O cluster será implantado com os seguintes nós worker. Cada nó fornece recursos de computação, memória e armazenamento para suas cargas de trabalho.",
       "workers": "Workers",
       "cpu": "CPU",
       "ram": "RAM",
@@ -143,7 +143,7 @@
     "create": {
       "title": "Criar Modelo de Cluster a partir de Modelo",
       "breadcrumb": "Criar Modelo de Cluster",
-      "description": "Defina um novo modelo de cluster com parâmetros personalizáveis e configurações de nós",
+      "templateDescription": "Defina um novo modelo de cluster com parâmetros personalizáveis e configurações de nós",
       "steps": {
         "templateDetails": "Detalhes do modelo",
         "customParameters": "Parâmetros personalizados"
@@ -159,7 +159,7 @@
           "label": "Título",
           "placeholder": "ex., Meu Cluster Personalizado"
         },
-        "description": {
+        "templateDescriptionField": {
           "label": "Descrição",
           "placeholder": "Descreva o propósito e os recursos deste modelo de cluster"
         },
@@ -192,7 +192,7 @@
             "label": "Valor Padrão",
             "placeholder": "Valor padrão opcional"
           },
-          "description": {
+          "paramDescription": {
             "label": "Descrição",
             "placeholder": "Descreva para que este parâmetro é usado"
           },

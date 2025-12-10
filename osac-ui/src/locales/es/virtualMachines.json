@@ -1,6 +1,6 @@
 {
   "title": "Máquinas Virtuales",
-  "create": "Crear Máquina Virtual",
+  "createButton": "Crear Máquina Virtual",
   "delete": "Eliminar Máquina Virtual",
   "start": "Iniciar",
   "stop": "Detener",

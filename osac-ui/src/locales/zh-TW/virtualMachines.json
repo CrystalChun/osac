@@ -1,6 +1,6 @@
 {
   "title": "虛擬機",
-  "create": {
+  "createButton": {
     "title": "從範本建立虛擬機",
     "breadcrumb": "建立虛擬機",
     "templateBreadcrumb": "虛擬機範本",

@@ -1,6 +1,6 @@
 {
   "title": "Clústeres Administrados",
-  "catalog": "Catálogo de Clústeres",
+  "catalogTitle": "Catálogo de Clústeres",
   "createButton": "Crear Clúster",
   "delete": "Eliminar Clúster",
   "details": "Detalles del Clúster",
@@ -90,7 +90,7 @@
     "catalogBreadcrumb": "Catálogo de Clústeres",
     "nodeConfiguration": {
       "title": "Configuración de Nodos",
-      "description": "El clúster se desplegará con los siguientes nodos worker. Cada nodo proporciona recursos de cómputo, memoria y almacenamiento para tus cargas de trabajo.",
+      "workersDescription": "El clúster se desplegará con los siguientes nodos worker. Cada nodo proporciona recursos de cómputo, memoria y almacenamiento para tus cargas de trabajo.",
       "workers": "Workers",
       "cpu": "CPU",
       "ram": "RAM",
@@ -143,7 +143,7 @@
     "create": {
       "title": "Crear Plantilla de Clúster desde Plantilla",
       "breadcrumb": "Crear Plantilla de Clúster",
-      "description": "Define una nueva plantilla de clúster con parámetros personalizables y configuraciones de nodos",
+      "templateDescription": "Define una nueva plantilla de clúster con parámetros personalizables y configuraciones de nodos",
       "steps": {
         "templateDetails": "Detalles de plantilla",
         "customParameters": "Parámetros personalizados"
@@ -159,7 +159,7 @@
           "label": "Título",
           "placeholder": "ej., Mi Clúster Personalizado"
         },
-        "description": {
+        "templateDescriptionField": {
           "label": "Descripción",
           "placeholder": "Describe el propósito y las características de esta plantilla de clúster"
         },
@@ -192,7 +192,7 @@
             "label": "Valor Predeterminado",
             "placeholder": "Valor predeterminado opcional"
           },
-          "description": {
+          "paramDescription": {
             "label": "Descripción",
             "placeholder": "Describe para qué se utiliza este parámetro"
           },

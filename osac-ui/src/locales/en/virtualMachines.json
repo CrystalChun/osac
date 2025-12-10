@@ -1,6 +1,6 @@
 {
   "title": "Virtual Machines",
-  "create": "Create Virtual Machine",
+  "createButton": "Create Virtual Machine",
   "delete": "Delete Virtual Machine",
   "start": "Start",
   "stop": "Stop",

@@ -1,6 +1,6 @@
 {
   "title": "Managed Clusters",
-  "catalog": "Cluster Catalog",
+  "catalogTitle": "Cluster Catalog",
   "createButton": "Create Cluster",
   "delete": "Delete Cluster",
   "details": "Cluster Details",
@@ -90,7 +90,7 @@
     "catalogBreadcrumb": "Cluster Catalog",
     "nodeConfiguration": {
       "title": "Node Configuration",
-      "description": "The cluster will be deployed with the following worker nodes. Each node provides compute, memory, and storage resources for your workloads.",
+      "workersDescription": "The cluster will be deployed with the following worker nodes. Each node provides compute, memory, and storage resources for your workloads.",
       "workers": "Workers",
       "cpu": "CPU",
       "ram": "RAM",
@@ -143,7 +143,7 @@
     "create": {
       "title": "Create Cluster Template from Template",
       "breadcrumb": "Create Cluster Template",
-      "description": "Define a new cluster template with customizable parameters and node configurations",
+      "templateDescription": "Define a new cluster template with customizable parameters and node configurations",
       "steps": {
         "templateDetails": "Template details",
         "customParameters": "Custom parameters"
@@ -159,7 +159,7 @@
           "label": "Title",
           "placeholder": "e.g., My Custom Cluster"
         },
-        "description": {
+        "templateDescriptionField": {
           "label": "Description",
           "placeholder": "Describe the purpose and features of this cluster template"
         },
@@ -192,7 +192,7 @@
             "label": "Default Value",
             "placeholder": "Optional default value"
           },
-          "description": {
+          "paramDescription": {
             "label": "Description",
             "placeholder": "Describe what this parameter is used for"
           },

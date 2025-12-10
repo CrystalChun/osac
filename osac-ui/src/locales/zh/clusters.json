@@ -76,7 +76,7 @@
     "catalogBreadcrumb": "集群目录",
     "nodeConfiguration": {
       "title": "节点配置",
-      "description": "集群将使用以下工作节点进行部署。每个节点为您的工作负载提供计算、内存和存储资源。",
+      "workersDescription": "集群将使用以下工作节点进行部署。每个节点为您的工作负载提供计算、内存和存储资源。",
       "workers": "工作节点",
       "cpu": "CPU",
       "ram": "内存",
@@ -129,7 +129,7 @@
     "create": {
       "title": "从模板创建集群模板",
       "breadcrumb": "创建集群模板",
-      "description": "定义具有可自定义参数和节点配置的新集群模板",
+      "templateDescription": "定义具有可自定义参数和节点配置的新集群模板",
       "steps": {
         "templateDetails": "模板详情",
         "customParameters": "自定义参数"
@@ -160,11 +160,11 @@
         },
         "mandatoryParameters": {
           "title": "必需参数",
-          "description": "此模板将自动包含以下必需参数：cluster_name、pull_secret 和 ssh_public_key。"
+          "mandatoryParamsDescription": "此模板将自动包含以下必需参数：cluster_name、pull_secret 和 ssh_public_key。"
         },
         "customParameters": {
           "label": "添加自定义参数",
-          "description": "定义具有默认值和描述的附加模板参数",
+          "customParamsDescription": "定义具有默认值和描述的附加模板参数",
           "add": "添加参数",
           "key": {
             "label": "参数键",
