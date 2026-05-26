@@ -1,0 +1,1493 @@
+# Backend API specification for OSAC demo ↔ fulfillment-service alignment
+# Source repo: https://github.com/osac-project/fulfillment-service
+# Proto revision basis: main branch (analyzed 2026-04-17). Open PRs may extend contracts.
+
+agent:
+  name: backend-spec-generator
+  version: 1.0
+  description: >
+    Generate production-ready backend API specifications based on product flows,
+    UI components, and business requirements. Output must be deterministic,
+    structured, and aligned with frontend contracts.
+
+context:
+  product:
+    name: OSAC fulfillment service (demo consumer)
+    domain: Cloud-in-a-box / edge VM and cluster provisioning
+    description: >
+      Go service exposing gRPC (osac.public.v1 / osac.private.v1) and a gRPC-Gateway
+      REST surface under /api/fulfillment/v1 (public) plus /api/private/v1 (private).
+      PostgreSQL persistence; OpenShift deployment uses Bearer tokens (Kubernetes SA JWT).
+
+  source_repository:
+    url: https://github.com/osac-project/fulfillment-service
+    license: Apache-2.0
+    primary_languages:
+      - Go
+
+  architecture:
+    style: modular monolith (single deployable; gRPC + REST gateway + controller)
+    api_style: REST (JSON via grpc-gateway) + gRPC (internal / advanced clients)
+    rest_base_paths:
+      public: /api/fulfillment/v1
+      capabilities: /api/fulfillment/v1/capabilities
+      events_watch: /api/events/v1/events
+      console_access: /api/osac/public/v1/console
+      private: /api/private/v1
+    auth:
+      type: OAuth2 / Bearer JWT (Keycloak / Authorino in cluster integrations)
+      roles:
+        - system
+        - provider_admin
+        - tenant_admin
+        - tenant_user
+        - viewer
+    json_conventions:
+      documentation_and_ui_model: >-
+        Internal TypeScript types and OpenAPI-like snippets in this file may use camelCase for readability.
+      fulfillment_gateway_wire: >-
+        Public REST JSON from fulfillment gRPC-Gateway follows PROTO_JSON: **snake_case** field names
+        (e.g. `memory_gib`, `creation_timestamp`, `boot_disk`, `ip_address`) and **ENUM_STRING** values
+        (e.g. `COMPUTE_INSTANCE_STATE_RUNNING`). Well-known protobuf types may appear as expanded JSON objects
+        (e.g. `google.protobuf.StringValue` with `@type` + `value`). UI code MUST normalize wire payloads at the
+        API client boundary before passing `ComputeInstance` into React components.
+      enums: PROTO_JSON string enums on the wire (e.g. COMPUTE_INSTANCE_STATE_RUNNING)
+      well_known_types: google.protobuf wrappers as documented in compute_instance_type.proto
+
+  osac_bff_runtime_modes:
+    description: >
+      Projects/osac BFF (apps/app-backend) + SPA: how tenant dashboard "Recent activities"
+      (DashboardUtilizationSection sidebar) and the full-page recent-activities flow obtain data.
+    mock:
+      OSAC_API_MODE: mock
+      dashboard_recent_activities:
+        allowed_sources:
+          - Client-side derivation from GET /api/fulfillment/v1/compute_instances (buildRecentActivities)
+          - BFF mock GET /api/events/v1/events (static paginated JSON; not fulfillment-shaped stream)
+    dev:
+      OSAC_API_MODE: dev
+      dashboard_recent_activities:
+        required_api: GET /api/events/v1/events
+        upstream: fulfillment-service osac.public.v1.Events.Watch via gRPC-Gateway
+        bff_behavior: >
+          Proxy /api/events/v1/* to the fulfillment REST gateway with the same Authorization
+          Bearer passthrough used for /api/fulfillment/v1/*. Do not serve the mock static JSON
+          array for this path in dev mode.
+          **As-implemented note:** the BFF currently buffers the full upstream body before replying
+          (Undici + Fastify workaround); long-lived watch still works for many gateways but is not
+          true byte streaming — see `bff_proxy_matrix_dev.implementation_notes` in this file.
+        client_behavior: >
+          Open the long-lived watch (SSE or chunked JSON per gateway deployment); apply optional
+          CEL filter query param; buffer the latest N events for the sidebar; reconnect with
+          exponential backoff. Combine with GET /api/fulfillment/v1/compute_instances only for
+          hydration or reconciliation when event.relatedObjectRefs require fresh object state —
+          not as the sole source of the activity timeline in dev mode.
+        auth: Bearer JWT required (same as other protected fulfillment routes)
+
+  # ---------------------------------------------------------------------------
+  # Non-mock (“real fulfillment”) integration target — mock mode stays as-is
+  # ---------------------------------------------------------------------------
+  osac_real_api_integration:
+    purpose: >
+      When OSAC runs against real fulfillment-service (typically OSAC_API_MODE=dev with
+      FULFILLMENT_API_URL and a working IdP), the SPA + BFF MUST satisfy this contract.
+      **OSAC_API_MODE=mock is unchanged:** BFF continues to serve fixtures; the SPA MAY keep
+      using libs/api-contracts DEMO_*, VM_TEMPLATES, buildRecentActivities(vm list), and
+      synthetic utilization charts exactly as today. Real-mode behavior MUST be gated
+      (env, build flag, or runtime branch) so mock demos do not regress.
+    mock_mode_invariant: >
+      No obligation to wire OIDC, proxy non-fulfillment paths, or remove DEMO_* / VM_TEMPLATES
+      when mock mode is active. Tests and local demos default to mock unless explicitly
+      configured for dev/real.
+    integration_scope:
+      active_modes: [dev]
+      disabled_modes: [mock]
+      enforcement: >
+        Requirements below are mandatory only when OSAC_API_MODE=dev. In OSAC_API_MODE=mock,
+        preserve current fixture-first behavior and session personas.
+
+    bff_dev_startup:
+      active_modes: [dev]
+      description: Fail-fast configuration before the BFF listens — avoids half-configured dev mode.
+      implementation:
+        - apps/app-backend/src/index.ts calls assertFulfillmentDevReady(OSAC_API_MODE, FULFILLMENT_API_URL).
+        - apps/app-backend/src/startupConfig.ts — Vitest: startupConfig.test.ts
+      rules:
+        - When OSAC_API_MODE=dev, FULFILLMENT_API_URL MUST be non-empty and parse as http: or https:; otherwise the process exits with an error (stderr + exit code 1).
+        - When OSAC_API_MODE=mock, FULFILLMENT_API_URL is ignored (upstream not contacted by proxy routes).
+
+    bff_health_endpoints:
+      active_modes: [mock, dev]
+      routes:
+        - GET /health → JSON includes application mode (e.g. `{ status, mode }` echoing OSAC_API_MODE).
+        - GET /ready → readiness JSON for probes.
+
+    bff_cors_and_local_dev_proxy:
+      description: >
+        Local SPA (Vite) talks same-origin `/api` via dev-server proxy to the BFF; browser does not need CORS
+        to the cluster for fulfillment paths. CORS on the BFF remains relevant for alternate dev layouts.
+      implementation:
+        - apps/app-backend/src/app.ts — @fastify/cors with origin disabled in production; in non-production,
+          permissive origin with credentials (tighten to an allowlist when hosting is fixed — OSAC_WORKAROUND_REMOVE(cors-refine)).
+        - apps/app-frontend/vite.config.ts — dev server proxy `/api`, `/health`, `/ready` → BFF (default localhost:3001).
+
+    fulfillment_upstream_tls:
+      active_modes: [dev]
+      description: >
+        BFF → fulfillment HTTP client uses Node Undici when custom TLS trust is required; otherwise
+        global fetch. Scoped to fulfillment upstream only (not global NODE_TLS_REJECT_UNAUTHORIZED).
+      implementation:
+        - apps/app-backend/src/fulfillmentUpstream.ts (createFulfillmentUpstream); Vitest: fulfillmentUpstream.test.ts
+        - Wired from buildApp via FulfillmentProxyRouteConfig.fulfillmentFetch (routes/fulfillmentProxyConfig.ts).
+      environment:
+        FULFILLMENT_TLS_CA_FILE:
+          optional: true
+          behavior: PEM bundle read into Undici Agent connect.ca (prefer full chain). Prefer over NODE_EXTRA_CA_CERTS for Undici reliability.
+        TEMP_FULFILLMENT_TLS_INSECURE:
+          optional: true
+          values: Set to "1" for dev-only upstream TLS verification off (curl -k equivalent).
+          production_rule: MUST refuse when NODE_ENV=production (throws at createFulfillmentUpstream).
+      teardown: fulfillmentUpstream.close() registered on Fastify onClose.
+
+    authentication_oidc:
+      active_modes: [dev]
+      description: Wire capabilities discovery to interactive login and Bearer tokens.
+      steps:
+        - >-
+          On InstitutionalSignIn (or app bootstrap before protected routes), call
+          GET /api/fulfillment/v1/capabilities **without** Authorization; parse authn.trustedTokenIssuers.
+        - >-
+          Run OAuth 2.0 Authorization Code flow with **PKCE** (or org-mandated equivalent)
+          against the chosen issuer; obtain access_token (JWT) and optional refresh_token.
+        - >-
+          Store tokens per browser security guidance (memory + refresh, or httpOnly cookies if BFF participates).
+        - >-
+          Attach Authorization: Bearer with the access_token JWT on every SPA→BFF request that
+          forwards to fulfillment; BFF passes the header through unchanged for proxied paths.
+        - Document logout (revoke or drop session) and token refresh failure UX.
+
+    compute_instances_wire_format_and_ui:
+      active_modes: [mock, dev]
+      description: >-
+        Align tenant dashboard KPI cards, My VMs cards/table, and VM detail views with real fulfillment
+        `GET /api/fulfillment/v1/compute_instances` (and GET by id) wire JSON. Reference capture (2026-05):
+        page envelope `{ size, total, items[] }`; each item uses snake_case fields and PROTO_JSON enums.
+      wire_example_summary:
+        metadata:
+          - name (string)
+          - creation_timestamp (RFC3339 string)
+          - creators (string array; e.g. ["system"])
+          - tenants (string array; tenancy scope from upstream)
+          - version (integer; optimistic concurrency when present)
+          - labels (object, optional)
+        spec:
+          - template (string; e.g. template ref id)
+          - template_parameters (object; may contain protobuf Struct / wrapper shapes with "@type" + fields)
+          - image.source_type, image.source_ref (registry URI or similar)
+          - cores (integer), memory_gib (integer)
+          - boot_disk.size_gib (integer); additional_disks optional
+          - run_strategy — REST create/list uses string values **Always** | **Halted**; legacy proto-style
+            **RUN_STRATEGY_*** strings may still appear on older wire and SHOULD normalize to those labels on read
+          - subnet (string UUID); security_groups optional array
+        status:
+          - state — ENUM string such as COMPUTE_INSTANCE_STATE_RUNNING
+          - conditions — array of { type, status, last_transition_time?, reason?, message? } using CONDITION_* enums on the wire
+          - ip_address (string when assigned)
+      normalization_layer:
+        location: >-
+          Implement once in **libs/api-contracts** and/or **apps/app-frontend/src/api** — e.g.
+          `normalizeComputeInstance(raw)` + `normalizeComputeInstanceList(page)` — invoked from list/get/patch/create
+          responses so all UI consumes **`ComputeInstance`** (`VmPowerState`, camelCase fields in TS types).
+        accepts:
+          - Fulfillment wire (snake_case + proto enum strings)
+          - Legacy mock JSON (camelCase) during migration — normalize both paths to the same UI model.
+        status_state_mapping:
+          description: Map `status.state` wire enum → `VmPowerState` for filters, VmStatusLabel, and dashboard buckets.
+          rules:
+            - COMPUTE_INSTANCE_STATE_RUNNING → running
+            - COMPUTE_INSTANCE_STATE_STOPPED → stopped
+            - COMPUTE_INSTANCE_STATE_PAUSED → paused
+            - COMPUTE_INSTANCE_STATE_STARTING → starting
+            - COMPUTE_INSTANCE_STATE_STOPPING → stopping
+            - COMPUTE_INSTANCE_STATE_DELETING → deleting
+            - COMPUTE_INSTANCE_STATE_ERROR → error
+            - Unknown / unmappable → error (surface distinctly in UI if needed)
+      tenant_user_dashboard_kpis:
+        flow_ref: docs/specs/ui-flows/tenant-user-dashboard.yaml
+        rules:
+          - >-
+            **All VMs** count MUST equal `items.length` from the tenant-visible list response (after client-side tenant filter
+            if applicable), plus any demo-only synthetic rows only in mock mode if product keeps wizard clones — prefer **single source from API**.
+          - >-
+            **Running / Paused / Stopped** counts MUST be derived by aggregating normalized `VmPowerState` over that same list.
+            Do not use static `DEMO_VM_POWER_COUNTS` when real data is loaded from `useComputeInstances` / TanStack Query.
+          - >-
+            Instances in **starting**, **deleting**, or **error** increment **All VMs** but do **not** increment Running/Paused/Stopped
+            unless mapped above; optional future KPI row for “Pending / Other” is out of scope unless added to ui-flow.
+          - Stat card navigation (`/vms?power=…`) MUST filter My VMs using the same normalized state values.
+      my_vms_surfaces:
+        flow_ref: docs/specs/ui-flows/manage-virtual-machines.yaml
+        list_cards_and_table:
+          title: metadata.name
+          status_badge: VmStatusLabel from normalized VmPowerState
+          resources_row:
+            - vCPU — spec.cores
+            - Memory — spec.memory_gib formatted as “N GiB” (TS field memoryGib after normalize)
+            - Storage — boot_disk.size_gib (+ sum additional_disks.size_gib when present); show numeric GiB not only “Configured (n disk(s))” when data exists
+          secondary_rows:
+            - IP — status.ip_address
+            - Created — metadata.creation_timestamp (formatted); TS metadata.createdAt after normalize
+          os_icon_chip:
+            heuristic: >-
+              Derive guest OS family from spec.image.source_ref / template until proto exposes a dedicated display field:
+              e.g. fedora/ubuntu → linux generic icon; `rhel`/`ubi` in ref → rhel; windows in ref → windows.
+          description:
+            note: >-
+              Upstream may omit demo-only `description`; omit card/description line or show “—” when absent.
+        detail_drawer:
+          overview: >-
+            Mirror list fields; include run_strategy, template id, and tenants/creators/version when useful for ops.
+          networking:
+            subnet: >-
+              Wire `spec.subnet` is UUID — display short id and/or resolve friendly name via cached GET virtual_networks/subnets when available.
+          conditions_tab:
+            columns:
+              - type (humanize enum suffix optional)
+              - status (CONDITION_STATUS_* mapped to True/False/Unknown for display)
+              - reason, message
+              - last_transition_time (formatted)
+          power_actions:
+            api: PATCH /api/fulfillment/v1/compute_instances/{id}
+            stop:
+              wire: >-
+                Prefer `spec.run_strategy: Halted` and `status.state: COMPUTE_INSTANCE_STATE_STOPPED` in one PATCH
+                (see compute_instances_update example_requests).
+            start:
+              wire: >-
+                `spec.run_strategy: Always` and `status.state: COMPUTE_INSTANCE_STATE_RUNNING` (or upstream-accepted starting state).
+            restart:
+              orchestration: >-
+                **Not** a single `restart_requested_at` PATCH. **PATCH stop** on click; pending **Restarting** until list shows
+                **stopped** (ignore stale **running**). Then pending **Starting**, **PATCH start**, until list shows **running** or **error**.
+            spa:
+              client: patchComputeInstancePower(id, 'start' | 'stop') — serializeComputeInstancePowerPatch in @osac/api-contracts
+              hook: usePatchVm — non-power PATCH upserts list cache + refetch; **powerAction** PATCH does neither (pending UI + polled list)
+              restart: useVmPowerActionDisplay + vmPowerPendingStore — Restarting until stopped, then Starting until running|error
+              pending_display: useVmPowerActionDisplay — session Map vmId → starting|stopping|restarting; list GET every 10s while pending
+              create_pending: usePendingVmCreations + postCreateWatchStore — placeholder Creating, then Starting until starting→running
+              delete_pending: usePendingVmDeletes — Deleting from confirm until VM absent from list GET
+              list_cache: refetchOnMount always for compute_instances; PENDING_VM_LIST_POLL_MS = 10_000
+          unsupported_actions:
+            clone:
+              status: not_implemented
+              note: >-
+                VmActionsMenu Clone item and list/detail onClone handlers are commented (RESTORE markers).
+                Wizard clone path remains spec-only; BFF rejects clone_drawer entry until wired.
+            migrate:
+              status: not_implemented
+              note: VmActionsMenu Migrate item commented; no fulfillment migrate API in scope.
+          delete_action:
+            api: DELETE /api/fulfillment/v1/compute_instances/{id}
+            prerequisite: >-
+              VM MUST be stopped before DELETE. If the UI shows running or paused, the SPA issues **PATCH stop** first,
+              then DELETE on success (same confirm modal; user sees combined progress).
+            enablement: >-
+              Actions menu Delete available when VM is not **deleting** (running/paused/stopped); stop-then-delete is automatic.
+            ux: >-
+              Confirm in a modal naming the VM; on confirm show **Deleting** immediately (`usePendingVmDeletes`);
+              refetch list on DELETE success; remove card when GET list omits id.
+            modes:
+              mock: BFF removes id from vmStore; 404 when unknown id.
+              dev: BFF proxies DELETE to FULFILLMENT_API_URL with same path and Authorization rules as other fulfillment CRUD.
+            empty_state: >-
+              When conditions array empty or missing, keep “No conditions reported.”
+      mock_mode_alignment:
+        description: >-
+          **OSAC_API_MODE=mock** BFF handlers and **libs/api-contracts** fixture builders MUST emit payloads that
+          normalize into the same **`ComputeInstance`** shape as dev mode, **or** emit snake_case + proto enum strings
+          identical to fulfillment wire so the normalization layer is exercised identically in CI.
+        implementation_options:
+          - >-
+            Preferred: extend `buildVm` / vmStore paths to set `status.state` to proto-style enums and snake_case keys
+            in JSON responses (Fastify serializes object keys as returned).
+          - >-
+            Acceptable interim: keep camelCase mock objects but ensure **normalizeComputeInstance** maps them to the canonical UI model.
+        demo_persona_tenants:
+          note: >-
+            Real items include `metadata.tenants` (e.g. ["shared"]). Mock fixtures may keep demo tenant ids for UX;
+            document filtering rule when mixing provider vs tenant scope (dashboard VM list may need filter by selected persona tenant).
+
+    bff_proxy_matrix_dev:
+      active_modes: [dev]
+      description: When OSAC_API_MODE=dev, forward these prefixes to the fulfillment REST gateway (FULFILLMENT_API_URL).
+      paths:
+        - prefix: /api/fulfillment/v1
+          note: Existing public fulfillment CRUD + capabilities (capabilities may be called without Bearer from browser if same-origin allows).
+        - prefix: /api/events/v1
+          note: Events.Watch — **stream**; BFF MUST NOT replace with mock JSON; forward streaming body and status headers.
+        - prefix: /api/osac/public/v1
+          note: Console.GetAccess and related public paths; forward Authorization.
+      implementation_notes:
+        - >-
+          **Target:** avoid forcing JSON parse on proxied responses; support non-JSON bodies and
+          chunked/event streams via proper streaming passthrough when the stack allows.
+        - >-
+          **Current implementation (apps/app-backend/src/routes/upstreamProxy.ts):** upstream responses
+          are read fully with `arrayBuffer()` then sent to the client (buffered passthrough). Hop-by-hop
+          headers are stripped on the reply; upstream status and remaining headers are forwarded.
+          This is a documented workaround for Undici + Fastify streaming edge cases (search codebase
+          for OSAC_WORKAROUND_REMOVE(proxy-buffer-body)); revisit for true SSE/chunked forwarding for
+          GET /api/events/v1/events when verified.
+        - Register dev proxy routes **before** or **instead of** mock handlers for the same paths.
+        - Do not proxy these paths in OSAC_API_MODE=mock.
+        - >-
+          **TEMP dev Authorization (until SPA OIDC always sends a user JWT):** optional
+          TEMP_FULFILLMENT_STATIC_BEARER on the BFF injects `Authorization: Bearer <token>` upstream
+          only when the incoming request has **no non-empty Bearer** (malformed `Bearer` / `Bearer `
+          counts as absent). It is **never** applied to `GET /api/fulfillment/v1/capabilities` so
+          capabilities matches unauthenticated discovery. TEMP_FULFILLMENT_STATIC_BEARER_FORCE=1
+          (dev only, NODE_ENV≠production) replaces Authorization on other proxied routes — used when
+          the browser holds an expired JWT in sessionStorage. SPA: when sessionStorage has no token,
+          `VITE_DEV_BEARER_TOKEN` may supply a Bearer in dev only (apps/app-frontend/src/api/authToken.ts).
+          Mark all with OSAC_WORKAROUND_REMOVE in code; remove when OIDC/session flow is complete.
+
+    bff_test_harness:
+      active_modes: [mock, dev]
+      description: >
+        Vitest + Fastify inject() lock the BFF integration contract in apps/app-backend.
+        `buildApp()` composes the same route registration as production without listening.
+      locations:
+        - apps/app-backend/src/app.ts
+        - apps/app-backend/src/index.ts
+        - apps/app-backend/src/startupConfig.ts
+        - apps/app-backend/src/fulfillmentUpstream.ts
+        - apps/app-backend/src/routes/fulfillmentProxyConfig.ts
+        - apps/app-backend/src/routes/upstreamProxy.ts
+        - apps/app-backend/src/bff-contract.mock.test.ts
+        - apps/app-backend/src/bff-contract.proxy.test.ts
+        - apps/app-backend/src/startupConfig.test.ts
+        - apps/app-backend/src/fulfillmentUpstream.test.ts
+        - apps/app-backend/vitest.config.ts
+      mock_mode_coverage:
+        - GET /health mode echo
+        - GET /api/fulfillment/v1/capabilities stub shape
+        - GET /api/fulfillment/v1/cluster_templates page envelope
+        - >-
+          GET /api/fulfillment/v1/compute_instance_templates page envelope — required once catalog + wizard
+          alignment ships (see template-catalog-wizard-api-alignment.yaml); extend mock contract tests accordingly.
+        - >-
+          DELETE /api/fulfillment/v1/compute_instances/{id} — removes mock vmStore entry; 404 when missing;
+          empty object body on success (200).
+        - >-
+          PATCH /api/fulfillment/v1/compute_instances/{id} — power actions update vmStore; returns { object };
+          stop sets run_strategy Halted + COMPUTE_INSTANCE_STATE_STOPPED.
+        - GET /api/events/v1/events mock pagination
+        - GET /api/osac/public/v1/console/.../access envelope
+      dev_proxy_coverage:
+        - Upstream URL joins FULFILLMENT_API_URL with request path for fulfillment, events, and osac public prefixes
+        - DELETE /api/fulfillment/v1/compute_instances/{id} forwarded with method, path, and Authorization (same as GET/PATCH)
+        - PATCH /api/fulfillment/v1/compute_instances/{id} forwarded for Start/Stop/Restart power actions
+        - Authorization forwarded from client when present (global fetch mocked)
+        - TEMP_FULFILLMENT_STATIC_BEARER fills Authorization when client omits token (except GET capabilities); FORCE replaces on non-capabilities routes when env set
+        - Empty/malformed Bearer allows static bearer merge on non-capabilities routes
+        - Response status and content-type passthrough; non-JSON upstream body preserved via buffered passthrough (tests assert text/plain survives)
+      limitations:
+        - Tests use inject() + mocked fetch; they assert wiring and headers rather than production SSE chunk timing. Full streaming proxy behavior remains a follow-up per bff_proxy_matrix_dev.implementation_notes.
+
+    jwt_claims_and_authorino_alignment:
+      active_modes: [dev]
+      description: Ensure JWT claims, IdP setup, and Authorino policy produce expected x-subject.
+      requirements:
+        - >-
+          Keycloak (or chosen OIDC provider) MUST issue JWTs with claims required by Authorino
+          policy (`username` and tenant-bearing `groups`, or documented mapped equivalents).
+        - >-
+          `authn.trustedTokenIssuers[].issuerUrl` served by capabilities MUST match the JWT
+          issuer configured in Authorino AuthConfig.
+        - >-
+          In successful authorized requests, Authorino MUST produce x-subject with
+          `{ user, tenants }`; JWT users map tenants from groups, and admin identities map
+          to universal tenant scope (`["*"]`) per policy.
+      mock_mode_behavior: >
+        In OSAC_API_MODE=mock, no real IdP/JWT claim validation is required and x-subject
+        verification is not part of acceptance.
+
+    role_model_alignment:
+      active_modes: [dev]
+      description: Align SPA persona model with fulfillment authorization semantics.
+      options:
+        - id: A
+          label: UI-only tenantAdmin vs tenantUser split
+          detail: >
+            Keep both personas mapped to backend "client" permissions; differences remain
+            UX/navigation-level only.
+        - id: B
+          label: Backend-distinct tenantAdmin and tenantUser
+          detail: >
+            Extend Authorino/service policy so tenantAdmin and tenantUser have distinct
+            backend-authorized operations.
+        - id: C
+          label: Backend-driven role bindings
+          detail: >
+            Drive SPA authorization from fulfillment Roles/RoleBindings APIs and treat welcome
+            personas as entry hints, not the source of truth.
+      constraints:
+        - Selected option MUST be documented in README/runbook before enabling dev mode by default.
+        - OSAC_API_MODE=mock continues using local demo personas regardless of selected dev option.
+
+    client_and_hooks_expansion:
+      active_modes: [dev]
+      description: apps/app-frontend MUST extend api/client.ts (or generated SDK) and hooks.ts (TanStack Query).
+      minimum_operations:
+        - method: GET
+          path: /api/fulfillment/v1/capabilities
+          auth: false
+        - method: GET
+          path: /api/fulfillment/v1/organizations
+          hooks: [listOrganizations, useOrganizations]
+        - method: GET
+          path: /api/fulfillment/v1/organizations/{id}
+          hooks: [getOrganization, useOrganization]
+        - method: GET
+          path: /api/fulfillment/v1/users
+          hooks: [listUsers, useUsers]
+        - method: GET
+          path: /api/fulfillment/v1/virtual_networks
+          hooks: [listVirtualNetworks, useVirtualNetworks]
+        - method: GET
+          path: /api/fulfillment/v1/subnets
+          hooks: [listSubnets, useSubnets]
+        - method: GET
+          path: /api/fulfillment/v1/security_groups
+          hooks: [listSecurityGroups, useSecurityGroups]
+        - method: GET
+          path: /api/events/v1/events
+          note: Stream consumer — useEventStream / useEventsWatch; not plain fetch().json()
+        - method: GET
+          path: /api/fulfillment/v1/compute_instance_templates
+          note: Wizard + catalog alignment with fulfillment VM templates
+        - method: GET
+          path: /api/fulfillment/v1/compute_instance_templates/{id}
+      existing_operations_to_fix:
+        - >-
+          POST /api/fulfillment/v1/compute_instances: HTTP+JSON unmarshaler expects **ComputeInstance** at the JSON
+          **root** (unknown field `"object"` if wrapped as ComputeInstancesCreateRequest). SPA uses
+          `serializeComputeInstanceForCreate()` from `@osac/api-contracts` (proto JSON / snake_case). Mock BFF may also
+          accept legacy `{ "object": … }`.
+        - >-
+          PATCH bodies MUST match fulfillment implicit FieldMask semantics (present fields only).
+        - Wire GET/PATCH/DELETE compute instance and GET cluster_template by id where UI needs them.
+
+    replace_mock_data_sources:
+      description: In dev/real mode, stop sourcing these screens from libs/api-contracts fixtures.
+      mappings:
+        - screen_or_component: CreateVmWizard / TemplateStep / ReviewStep
+          remove: VM_TEMPLATES from @osac/api-contracts as the **only** source for template-path picker lists in dev/real
+          use: >-
+            **Same** fulfillment API and client cache as vm-template-catalog — GET /api/fulfillment/v1/compute_instance_templates
+            (+ GET /api/fulfillment/v1/compute_instance_templates/{id} when detail needed). Normative detail:
+            docs/specs/template-catalog-wizard-api-alignment.yaml.
+        - screen_or_component: CatalogPage / provider global templates
+          remove: Primary reliance on GET /api/fulfillment/v1/cluster_templates for VM template catalog when compute_instance_templates is the VM catalog API upstream
+          use: >-
+            GET /api/fulfillment/v1/compute_instance_templates (+ optional GET by id). Must match wizard template step source
+            (template-catalog-wizard-api-alignment.yaml). cluster_templates remains valid for non-VM cluster-template surfaces if product retains both APIs.
+        - screen_or_component: ProviderTenantOrgsPage / ProviderAdminDashboard org counts
+          remove: DEMO_ORGANIZATIONS
+          use: useOrganizations (GET /api/fulfillment/v1/organizations)
+        - screen_or_component: AdminUsersPage
+          remove: NORTHSTAR_USERS, EVERGREEN_USERS
+          use: useUsers with CEL filter or org scope per RBAC
+        - screen_or_component: AdminNetworksPage / topology
+          remove: VM-only inference where product expects VN/subnet APIs
+          use: useVirtualNetworks, useSubnets, useSecurityGroups + compute_instances for VM placement
+        - screen_or_component: DashboardVmUtilizationSection sidebar + RecentActivitiesPage
+          remove: buildRecentActivities(vm list) as sole source in dev mode
+          use: events stream per osac_bff_runtime_modes.dev
+        - screen_or_component: DashboardPage stat cards
+          remove: DEMO_VM_POWER_COUNTS as primary source in dev mode
+          use: Aggregate counts from GET compute_instances (fulfillment state) or future summary API
+        - screen_or_component: DashboardQuotaSection / AdminQuotaPage
+          remove: DEMO_QUOTA as “real” data in dev mode
+          use: SPEC_GAP — no standard public quota resource in analyzed fulfillment surface;
+            document empty/placeholder UI, product-approved private proxy via BFF only, or wait for upstream quota API
+
+    utilization_metrics_charts:
+      status: spec_gap_accepted
+      description: >
+        DashboardUtilizationSection CPU/memory/GPU/storage line charts have no fulfillment
+        public time-series metrics API in the analyzed contract. Until product adds one:
+      options:
+        - id: A
+          label: Explicit prototype gap
+          detail: Keep deterministic/synthetic series in **both** modes OR show “demo data” in real mode with PatternFly inline alert.
+        - id: B
+          label: New fulfillment API
+          detail: Add tenant metrics endpoint; update this spec with path, query (window, step), and schema.
+        - id: C
+          label: External observability
+          detail: BFF aggregates Prometheus/Grafana or similar; document separate OpenAPI for /api/osac/metrics/* if used.
+
+    typescript_models:
+      description: Align TypeScript with fulfillment proto-JSON, not hand-written demo shapes.
+      policy:
+        - >-
+          **Preferred:** Consume OpenAPI published by fulfillment-service (CI artifact or repo)
+          and codegen into libs/api-contracts or libs/fulfillment-sdk (openapi-typescript, hey-api/openapi-ts, etc.).
+        - >-
+          **Minimum:** Runtime validators (Zod) generated from the same OpenAPI; map proto-JSON
+          to view models in a thin adapter layer.
+        - >-
+          Keep existing demo types (ComputeInstance, ClusterTemplate, PageOfT) for **mock mode only**
+          or as aliases of generated types after proving equivalence.
+      fields_to_reconcile:
+        - Nested metadata, spec, status per proto; enum PROTO_JSON strings; google.protobuf.Any in template parameters.
+
+    rbac_tenant_scoping:
+      description: Tenant isolation comes from fulfillment authz on the JWT; SPA does not invent parallel tenant headers unless product mandates.
+      notes:
+        - Document which JWT claims map to tenant/org for support and debugging.
+        - Provider-admin views use broader list filters; fulfillment enforces scope.
+
+  open_pull_requests_snapshot:
+    fetched_at: '2026-04-17'
+    note: >
+      Titles only; merge may change contracts. PR #421 fixes partial PATCH semantics
+      (preserve absent optional fields; FieldMask for explicit clears)—treat as the
+      intended Update behavior for demo clients once merged.
+    items:
+      - number: 421
+        title: 'MGMT-23918: Fix Update without FieldMask clearing optional spec fields'
+      - number: 420
+        title: 'MGMT-23970: fix blank TEMPLATE and HUB columns in ComputeInstance table output'
+      - number: 419
+        title: "NO-ISSUE: Display identifier if object doesn't have a name"
+      - number: 418
+        title: 'MGMT-23786: Add users and access key APIs'
+      - number: 417
+        title: 'MGMT-23785: Create Organizations server and hook in Organization management through Keycloak'
+      - number: 416
+        title: 'MGMT-23941: Add explicit ClusterSpec fields for cluster configuration'
+      - number: 414
+        title: 'MGMT-23769: Provide up front validation and handling of template prov…'
+      - number: 338
+        title: 'MGMT-23543: Add template inheritance'
+
+  private_api_surface:
+    description: >
+      Package osac.private.v1 mirrors many public resources for controllers and
+      platform automation. HTTP routes use /api/private/v1/<resource> with the same
+      verbs where annotated. Additional private-only domains include hubs, leases,
+      and public IP pools (no matching public REST in main tree at analysis time).
+    demo_ui_policy: >
+      Browser-based demo MUST NOT call private REST unless explicitly running as
+      a platform operator with appropriate network policy and credentials.
+
+  frontend_alignment:
+    source: Projects/osac-demo/specs (FLOW-INDEX + ui-flows/*.yaml)
+    components:
+      - name: InstitutionalSignIn
+        description: Trusted token issuers for IdP hints (VITE_FULFILLMENT_API_URL).
+        data_requirements:
+          - authn.trustedTokenIssuers[].issuerUrl (or equivalent from Capabilities)
+      - name: VmTemplateCatalog
+        description: Gallery of VM/cluster templates by scope.
+        data_requirements:
+          fields:
+            - clusterTemplate.id
+            - clusterTemplate.title
+            - clusterTemplate.description
+          mock_mode:
+            - VM_TEMPLATES / catalog fixtures from api-contracts acceptable
+          dev_mode:
+            - GET /api/fulfillment/v1/cluster_templates (+ GET by id); optional compute_instance_templates
+      - name: CreateVirtualMachineWizard
+        description: >-
+          New / template / clone paths inside Modal + PatternFly Wizard; step validation and draft
+          held in OSAC BFF wizard session API; finalize persists compute instance (demo mock or proxied).
+        data_requirements:
+          - bff.createVmWizard.sessionId
+          - bff.createVmWizard.activeStepId
+          - bff.createVmWizard.stepNav[] (id, label, optional status for WizardNavItem state)
+          - bff.createVmWizard.draft (partial ComputeInstance-shaped object updated each advance)
+          - computeInstanceTemplate.id
+          - computeInstance.spec.template
+          - computeInstance.spec.templateParameters
+          - computeInstance.spec.cores
+          - computeInstance.spec.memoryGib
+          - computeInstance.spec.image
+          - computeInstance.spec.bootDisk
+          - computeInstance.spec.subnet
+          - computeInstance.spec.securityGroups
+          - computeInstance.spec.runStrategy
+          - computeInstance.spec.restartRequestedAt
+      - name: ManageVirtualMachines
+        description: List, filter, power lifecycle, detail, console gating.
+        data_requirements:
+          - computeInstance.id
+          - computeInstance.metadata.name
+          - computeInstance.status.state
+          - computeInstance.status.conditions
+          - computeInstance.status.ipAddress
+          - console.available + console.supportedTypes
+      - name: RecentActivityList
+        description: Activity feed; combine Events watch with object hydration.
+        data_requirements:
+          - event.type
+          - event.timestamp
+          - event.relatedObjectRefs
+      - name: DashboardVmUtilizationSection
+        description: >
+          Tenant user dashboard — utilization line charts (demo/synthetic series in prototype) plus
+          "Recent activities" sidebar preview and link to full-page feed.
+        data_requirements:
+          mock_mode:
+            - GET /api/fulfillment/v1/compute_instances (optional; may seed buildRecentActivities sidebar)
+            - Optional GET /api/events/v1/events (BFF mock JSON)
+          dev_mode:
+            - GET /api/events/v1/events (fulfillment Events.Watch; required for real activity sidebar)
+            - GET /api/fulfillment/v1/compute_instances (optional; stat cards / chart seed / hydration only)
+      - name: TenantAdministration_NetworkTopology
+        description: VN / subnet / VM linkage for topology handoff.
+        data_requirements:
+          - virtualNetwork.id
+          - subnet.id
+          - computeInstance.id + subnet binding
+      - name: AdminUsersPage
+        description: Tenant admin user directory.
+        data_requirements:
+          mock_mode:
+            - NORTHSTAR_USERS / EVERGREEN_USERS fixtures in api-contracts (unchanged)
+          dev_mode:
+            - GET /api/fulfillment/v1/users (CEL filter / RBAC scope per fulfillment)
+      - name: ProviderTenantOrganizationsPage
+        description: Provider-scoped organization list and dashboards that count orgs.
+        data_requirements:
+          mock_mode:
+            - DEMO_ORGANIZATIONS (unchanged)
+          dev_mode:
+            - GET /api/fulfillment/v1/organizations (+ GET by id where drill-down exists)
+      - name: AdminNetworksPage
+        description: Virtual networks, subnets, security groups for tenant admin.
+        data_requirements:
+          mock_mode:
+            - BFF mock list endpoints + VM spec inference where applicable (unchanged)
+          dev_mode:
+            - GET /api/fulfillment/v1/virtual_networks
+            - GET /api/fulfillment/v1/subnets
+            - GET /api/fulfillment/v1/security_groups
+
+  flows:
+    - name: institutional-sign-in
+      description: Discover OIDC issuers before interactive login.
+      steps:
+        - GET /api/fulfillment/v1/capabilities (unauthenticated)
+        - Client obtains access token from chosen issuer (out of band for this spec)
+        - Subsequent calls include Authorization Bearer
+    - name: vm-template-catalog
+      description: Browse VM templates available to the tenant or provider (fulfillment compute_instance_templates).
+      steps:
+        - >-
+          GET /api/fulfillment/v1/compute_instance_templates?filter=&offset=&limit= (primary; PROTO_JSON wire may differ from legacy ClusterTemplate — normalize in client per product decision)
+        - GET /api/fulfillment/v1/compute_instance_templates/{id} when drawer/detail needs full resource
+        - >-
+          cluster_templates list/get remains optional for non-VM cluster surfaces only — do not use as the duplicate source for the same VM catalog rows (template-catalog-wizard-api-alignment.yaml).
+    - name: create-virtual-machine-wizard
+      description: >-
+        BFF-orchestrated wizard sessions (ephemeral UI) compose desired state, then finalize persists
+        the VM; optional fulfillment template GETs may hydrate BFF when not mocked.
+      steps:
+        - POST /api/osac/bff/v1/create-vm-wizard/sessions (entry preset + deployment hint)
+        - Repeat POST /api/osac/bff/v1/create-vm-wizard/sessions/{sessionId}/advance until review complete
+        - Optional POST .../back when user revisits earlier steps via WizardNav
+        - POST /api/osac/bff/v1/create-vm-wizard/sessions/{sessionId}/finalize — BFF validates draft and returns
+          a built **ComputeInstance** (mock: append to vmStore); SPA then **POST /api/fulfillment/v1/compute_instances**
+          with the same payload when OSAC is integrated with real fulfillment (list GET polling is independent).
+        - DELETE /api/osac/bff/v1/create-vm-wizard/sessions/{sessionId} on cancel/close
+        - >-
+          GET /api/fulfillment/v1/compute_instance_templates (list) + optional GET …/{id} for template path —
+          **same data contract as vm-template-catalog**; BFF wizard may cache template snapshot in session after client selection
+        - Optional Poll GET /api/fulfillment/v1/compute_instances/{id} after real upstream create
+    - name: manage-virtual-machines
+      description: Operate lifecycle on existing compute instances.
+      steps:
+        - GET /api/fulfillment/v1/compute_instances with CEL filter for name/state
+        - PATCH /api/fulfillment/v1/compute_instances/{id} for Start and Stop (run_strategy, status.state)
+        - >-
+          Restart — PATCH stop, wait until GET compute_instances shows **stopped**, then PATCH start (SPA orchestrator; see power_actions.restart)
+        - DELETE /api/fulfillment/v1/compute_instances/{id} after stop when needed (confirm modal; PATCH stop then DELETE)
+        - GET /api/osac/public/v1/console/COMPUTE_INSTANCE_RESOURCE_TYPE_COMPUTE_INSTANCE/{id}/access
+    - name: recent-activities
+      description: Stream or poll domain events (SSE/WebSocket mapping depends on gateway).
+      steps:
+        - GET /api/events/v1/events?filter= (long-lived; reconnect with backoff)
+        - Correlate with GETs on affected objects
+    - name: tenant-user-dashboard-activities
+      description: >
+        Dashboard utilization section — "Recent activities" sidebar (and preview list) for tenant user home.
+      runtime_modes:
+        dev:
+          steps:
+            - GET /api/events/v1/events?filter= (fulfillment stream; BFF proxy in dev mode)
+            - Map Event payload fields to sidebar cards (type, time, message, severity as available)
+            - Optional GET /api/fulfillment/v1/compute_instances/{id} when correlating refs
+        mock:
+          steps:
+            - May use buildRecentActivities(compute instances) and/or BFF mock events endpoint
+    - name: tenant-administration
+      description: Tenant-scoped networking and org metadata.
+      steps:
+        - GET/PATCH /api/fulfillment/v1/virtual_networks
+        - GET/PATCH /api/fulfillment/v1/subnets
+        - GET/PATCH /api/fulfillment/v1/security_groups
+        - GET /api/fulfillment/v1/organizations/{tenantId}
+    - name: provider-administration
+      description: Cross-tenant inventory; same endpoints with broader authz.
+      steps:
+        - GET /api/fulfillment/v1/organizations?filter=
+        - GET /api/fulfillment/v1/clusters (provider visibility)
+    - name: vm-console-standalone-demo
+      description: Check console availability before opening serial/VNC session.
+      steps:
+        - GET console access endpoint
+        - gRPC bidi Connect(stream) for real I/O (not exposed as REST)
+
+  # Same-origin OSAC BFF JSON routes (not fulfillment gRPC-gateway paths). Documented here so UI
+  # and BFF implementations share one contract file with fulfillment alignment notes.
+  bff_demo_osac_extensions:
+    create_virtual_machine_wizard:
+      base_path: /api/osac/bff/v1/create-vm-wizard
+      auth: Bearer session (same as other BFF APIs in demo); tenant scoping matches signed-in context.
+      session_storage: >-
+        In-memory map keyed by sessionId for mock mode; production-shaped deployments may use Redis
+        or opaque encrypted cookies — out of scope for this YAML detail.
+      step_ids: >-
+        activeStepId and advance fromStepId use exactly: deployment, guest-os, boot-source, compute,
+        template, clone-source, customization, review. Ordered lists per mode and skipDeployment flag
+        match ui-flow canonical_bff_step_ids; BFF and client MUST use the same strings (see
+        create-virtual-machine-wizard.yaml step_worksheets).
+      endpoints:
+        - name: create_vm_wizard_session_start
+          method: POST
+          path: /sessions
+          description: >-
+            Create a wizard session. Body includes optional deploymentMethod (new|template|clone),
+            entry (dashboard|catalog|clone_drawer), optional presetTemplateId, optional presetCloneSourceVmId.
+            Response returns sessionId, activeStepId, activeIndex, skipDeployment (boolean; when true the
+            ordered path omits deployment — catalog template or clone-drawer preset), stepNav[], full draft
+            snapshot, and optional fieldErrors on error.
+        - name: create_vm_wizard_session_get
+          method: GET
+          path: /sessions/{sessionId}
+          description: >-
+            Return current activeStepId, stepNav, draft — used after errors or focus recovery; not a
+            substitute for URL-routed wizard state (wizard remains ephemeral).
+        - name: create_vm_wizard_advance
+          method: POST
+          path: /sessions/{sessionId}/advance
+          description: >-
+            JSON body includes fromStepId (must match server activeStepId) and draft (WizardState-shaped
+            object merged into server draft). BFF validates the active step, increments activeIndex on success,
+            returns next activeStepId, skipDeployment, stepNav, and draft; 400 with fieldErrors keeps client on same step.
+        - name: create_vm_wizard_back
+          method: POST
+          path: /sessions/{sessionId}/back
+          description: >-
+            Optional explicit back; body may include currentStepId. BFF moves to previous step when allowed;
+            may be folded into advance with direction if implementation prefers a single endpoint.
+        - name: create_vm_wizard_finalize
+          method: POST
+          path: /sessions/{sessionId}/finalize
+          description: >-
+            Validates full draft; mock mode appends to vmStore and returns the **ComputeInstance**; integrated
+            mode returns the composed object for the SPA to **POST /api/fulfillment/v1/compute_instances**.
+            4xx on business validation failure. Session is closed after success.
+        - name: create_vm_wizard_abandon
+          method: DELETE
+          path: /sessions/{sessionId}
+          description: Abandon draft when modal closes without finalize; idempotent.
+      finalize_persistence_note: >-
+        Mock BFF finalize persists to the demo vmStore and returns the object to the SPA. When the UI targets
+        real fulfillment, the SPA MUST still **POST /api/fulfillment/v1/compute_instances** after finalize
+        (same provision path from Dashboard, Catalog, and My VMs) so upstream inventory matches the wizard output;
+        TanStack **GET** list refetch does not substitute for that create. Align request body with
+        contract_note_compute_instance_create for environments where POST is permitted.
+
+requirements:
+  functional:
+    - List collections support offset, limit, optional CEL filter, optional SQL-like order string.
+    - Updates use PATCH with body field presence driving implicit FieldMask in HTTP+JSON.
+    - Optimistic concurrency via optional lock comparing metadata.version when enabled.
+    - Regular users must not bypass policy; respect comments on restricted RPCs in protos.
+    - Capabilities endpoint is unauthenticated and safe for pre-login discovery.
+  non_functional:
+    performance: p95 read list < 500ms for modest page sizes under normal load
+    scalability: horizontally scaled stateless gateway; DB-backed consistency
+    security: TLS everywhere in production; Bearer auth; tenant isolation via authz layer
+    observability: true
+
+contract_note_compute_instance_create: >
+  Proto comments state POST /compute_instances is not for regular end users; users
+  should create via an order/async path. The historical README still mentions
+  ClusterOrders gRPC services; main-branch public protos analyzed here expose
+  ComputeInstances CRUD but with that restriction. Demo implementations should use
+  mock/local create OR a documented platform-only token until a public order API ships.
+
+instructions:
+  - Generate API endpoints per flow and component needs
+  - Ensure each endpoint maps to a clear business capability
+  - Include request/response schemas with types
+  - Define validation rules and error responses
+  - Align naming conventions across endpoints
+  - Reuse entities where possible (DRY principle)
+  - Include pagination, filtering, and sorting where relevant
+  - Apply authentication and role-based access control
+  - Ensure APIs are frontend-consumable and predictable
+
+output_format:
+  type: openapi-like
+  include:
+    - endpoints
+    - methods
+    - request_schema
+    - response_schema
+    - error_codes
+    - auth_rules
+    - example_requests
+    - example_responses
+
+output_constraints:
+  naming: >-
+    Document schemas here often use camelCase; **live fulfillment responses use snake_case PROTO_JSON** per
+    context.architecture.json_conventions.fulfillment_gateway_wire. Generated OpenAPI from protos is authoritative for wire keys.
+  avoid_redundant_endpoints: true
+  read_vs_write: clearly separated by HTTP verb
+  edge_cases: included under each_api.errors
+
+reusable_schemas:
+  PageOfT:
+    type: object
+    properties:
+      size:
+        type: integer
+        format: int32
+      total:
+        type: integer
+        format: int32
+      items:
+        type: array
+        items:
+          type: object
+  ListQuery:
+    type: object
+    properties:
+      offset:
+        type: integer
+        format: int32
+      limit:
+        type: integer
+        format: int32
+      filter:
+        type: string
+        description: CEL expression; see docs/FILTER.md in fulfillment-service
+      order:
+        type: string
+        description: Attribute names from resource model; SQL-like asc/desc
+  Metadata:
+    type: object
+    description: >-
+      See osac/public/v1/metadata_type.proto. On fulfillment wire JSON, prefer creation_timestamp, creators, tenants
+      (snake_case); UI models map to createdAt / normalized lists per compute_instances_wire_format_and_ui.
+    properties:
+      name:
+        type: string
+      version:
+        type: integer
+        format: int64
+      labels:
+        type: object
+        additionalProperties:
+          type: string
+      createdAt:
+        type: string
+        format: date-time
+      creation_timestamp:
+        type: string
+        format: date-time
+        description: Wire JSON alias (snake_case) mapped to UI createdAt
+      creators:
+        type: array
+        items:
+          type: string
+      tenants:
+        type: array
+        items:
+          type: string
+  ClusterTemplateSummary:
+    type: object
+    properties:
+      id:
+        type: string
+      title:
+        type: string
+      description:
+        type: string
+  ClusterTemplate:
+    allOf:
+      - $ref: '#/reusable_schemas/ClusterTemplateSummary'
+      - type: object
+        properties:
+          metadata:
+            $ref: '#/reusable_schemas/Metadata'
+          spec:
+            type: object
+          status:
+            type: object
+  ComputeInstance:
+    type: object
+    description: >-
+      UI-facing shape after normalization. Wire responses use snake_case keys (memory_gib, boot_disk, ip_address, …)
+      and proto enum strings for state; see compute_instances_wire_format_and_ui.
+    properties:
+      id:
+        type: string
+      metadata:
+        $ref: '#/reusable_schemas/Metadata'
+      spec:
+        type: object
+        properties:
+          template:
+            type: string
+          templateParameters:
+            type: object
+            additionalProperties: true
+          template_parameters:
+            type: object
+            description: Wire alias for templateParameters
+            additionalProperties: true
+          cores:
+            type: integer
+          memoryGib:
+            type: integer
+          memory_gib:
+            type: integer
+            description: Wire alias mapped to memoryGib
+          image:
+            type: object
+          bootDisk:
+            type: object
+          boot_disk:
+            type: object
+            description: Wire alias mapped to bootDisk (e.g. { size_gib })
+          additionalDisks:
+            type: array
+            items:
+              type: object
+          additional_disks:
+            type: array
+            items:
+              type: object
+          runStrategy:
+            type: string
+            description: After normalize, **Always** or **Halted** for fulfillment REST create/list
+          run_strategy:
+            type: string
+            description: Wire alias; values **Always** | **Halted** on REST (legacy RUN_STRATEGY_* normalized on read)
+          sshKey:
+            type: string
+          userData:
+            type: string
+          subnet:
+            type: string
+          securityGroups:
+            type: array
+            items:
+              type: string
+          security_groups:
+            type: array
+            items:
+              type: string
+          restartRequestedAt:
+            type: string
+            format: date-time
+      status:
+        type: object
+        properties:
+          state:
+            type: string
+            description: VmPowerState after normalize; wire carries COMPUTE_INSTANCE_STATE_*
+          conditions:
+            type: array
+            items:
+              type: object
+              properties:
+                type: { type: string }
+                status: { type: string }
+                reason: { type: string }
+                message: { type: string }
+                last_transition_time: { type: string, format: date-time }
+          ipAddress:
+            type: string
+          ip_address:
+            type: string
+            description: Wire alias mapped to ipAddress
+          lastRestartedAt:
+            type: string
+            format: date-time
+
+apis:
+  - name: capabilities_get
+    description: Server authn capabilities including trusted token issuers (pre-login).
+    endpoint: /api/fulfillment/v1/capabilities
+    method: GET
+    auth:
+      required: false
+      roles_allowed: []
+    request:
+      schema:
+        type: object
+        properties: {}
+    response:
+      success:
+        status: 200
+        schema:
+          type: object
+          properties:
+            authn:
+              type: object
+      errors:
+        - code: 500_INTERNAL
+          description: Transient server failure
+    example_requests:
+      - |
+        curl -sS https://fulfillment.example/api/fulfillment/v1/capabilities
+    example_responses:
+      - |
+        { "authn": { "trustedTokenIssuers": [ { "issuerUrl": "https://idp.example/realms/osac" } ] } }
+
+  - name: cluster_templates_list
+    description: List VM/cluster templates visible to the caller.
+    endpoint: /api/fulfillment/v1/cluster_templates
+    method: GET
+    auth:
+      required: true
+      roles_allowed: [tenant_user, tenant_admin, provider_admin, viewer]
+    request:
+      schema:
+        allOf:
+          - $ref: '#/reusable_schemas/ListQuery'
+    response:
+      success:
+        status: 200
+        schema:
+          allOf:
+            - $ref: '#/reusable_schemas/PageOfT'
+            - properties:
+                items:
+                  type: array
+                  items:
+                    $ref: '#/reusable_schemas/ClusterTemplateSummary'
+      errors:
+        - code: 401_UNAUTHORIZED
+          description: Missing or invalid bearer token
+        - code: 403_FORBIDDEN
+          description: Insufficient scope for template visibility
+    example_requests:
+      - |
+        curl -sS -H "Authorization: Bearer $TOKEN" \
+          'https://fulfillment.example/api/fulfillment/v1/cluster_templates?limit=20'
+    example_responses:
+      - |
+        { "size": 2, "total": 2, "items": [ { "id": "my-template", "title": "My template" } ] }
+
+  - name: cluster_templates_get
+    description: Fetch one template by id.
+    endpoint: /api/fulfillment/v1/cluster_templates/{id}
+    method: GET
+    auth:
+      required: true
+      roles_allowed: [tenant_user, tenant_admin, provider_admin, viewer]
+    request:
+      schema:
+        type: object
+        properties:
+          id:
+            type: string
+            required: true
+    response:
+      success:
+        status: 200
+        schema:
+          $ref: '#/reusable_schemas/ClusterTemplate'
+      errors:
+        - code: 404_NOT_FOUND
+          description: Unknown template id
+    example_requests:
+      - |
+        curl -sS -H "Authorization: Bearer $TOKEN" \
+          https://fulfillment.example/api/fulfillment/v1/cluster_templates/my-template
+
+  - name: compute_instance_templates_list
+    description: List compute instance (VM) templates for wizard catalog steps.
+    endpoint: /api/fulfillment/v1/compute_instance_templates
+    method: GET
+    auth:
+      required: true
+      roles_allowed: [tenant_user, tenant_admin, provider_admin, viewer]
+    request:
+      schema:
+        allOf:
+          - $ref: '#/reusable_schemas/ListQuery'
+    response:
+      success:
+        status: 200
+        schema:
+          $ref: '#/reusable_schemas/PageOfT'
+
+  - name: compute_instances_list
+    description: My VMs list with CEL filtering (name prefix, state, etc.).
+    endpoint: /api/fulfillment/v1/compute_instances
+    method: GET
+    auth:
+      required: true
+      roles_allowed: [tenant_user, tenant_admin, provider_admin, viewer]
+    request:
+      schema:
+        allOf:
+          - $ref: '#/reusable_schemas/ListQuery'
+          - properties:
+              filter:
+                example: this.metadata.name.startsWith("demo-")
+    response:
+      success:
+        status: 200
+        schema:
+          type: object
+          properties:
+            size:
+              type: integer
+            total:
+              type: integer
+            items:
+              type: array
+              items:
+                $ref: '#/reusable_schemas/ComputeInstance'
+      errors:
+        - code: 400_BAD_REQUEST
+          description: Malformed filter or order expression
+
+  - name: compute_instances_get
+    description: VM detail drawer primary payload.
+    endpoint: /api/fulfillment/v1/compute_instances/{id}
+    method: GET
+    auth:
+      required: true
+      roles_allowed: [tenant_user, tenant_admin, provider_admin, viewer]
+    request:
+      schema:
+        type: object
+        properties:
+          id:
+            type: string
+            required: true
+    response:
+      success:
+        status: 200
+        schema:
+          $ref: '#/reusable_schemas/ComputeInstance'
+      errors:
+        - code: 404_NOT_FOUND
+          description: Unknown compute instance
+
+  - name: compute_instances_create
+    description: Create compute instance (subject to proto policy / platform-only).
+    endpoint: /api/fulfillment/v1/compute_instances
+    method: POST
+    auth:
+      required: true
+      roles_allowed: [system, provider_admin]
+    request:
+      schema:
+        description: >-
+          HTTP body is **ComputeInstance** at the root (same wire as GET item): proto JSON naming
+          (`metadata.creation_timestamp`, `spec.memory_gib`, `spec.boot_disk`, `status.state` as `COMPUTE_INSTANCE_STATE_*`).
+          `spec.template` is mandatory for create per fulfillment proto. (RPC may use a request wrapper; this REST binding does not.)
+        allOf:
+          - $ref: '#/reusable_schemas/ComputeInstance'
+    response:
+      success:
+        status: 200
+        schema:
+          type: object
+          properties:
+            object:
+              $ref: '#/reusable_schemas/ComputeInstance'
+      errors:
+        - code: 403_FORBIDDEN
+          description: End user attempted direct create
+        - code: 409_CONFLICT
+          description: Name or id collision
+
+  - name: compute_instances_update
+    description: Partial update; omitted optionals preserved once PR421 behavior is active.
+    endpoint: /api/fulfillment/v1/compute_instances/{id}
+    method: PATCH
+    auth:
+      required: true
+      roles_allowed: [tenant_user, tenant_admin, provider_admin, system]
+    request:
+      schema:
+        type: object
+        description: Body is ComputeInstance; only set fields participate in implicit mask.
+        properties:
+          metadata:
+            $ref: '#/reusable_schemas/Metadata'
+          spec:
+            type: object
+          status:
+            type: object
+    response:
+      success:
+        status: 200
+        schema:
+          type: object
+          properties:
+            object:
+              $ref: '#/reusable_schemas/ComputeInstance'
+      errors:
+        - code: 412_PRECONDITION_FAILED
+          description: lock=true and metadata.version mismatch
+    example_requests:
+      - |
+        curl -sS -X PATCH -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+          https://fulfillment.example/api/fulfillment/v1/compute_instances/123 \
+          -d '{"spec":{"run_strategy":"Halted"},"status":{"state":"COMPUTE_INSTANCE_STATE_STOPPED"}}'
+      - |
+        curl -sS -X PATCH -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+          https://fulfillment.example/api/fulfillment/v1/compute_instances/123 \
+          -d '{"spec":{"run_strategy":"Always"},"status":{"state":"COMPUTE_INSTANCE_STATE_RUNNING"}}'
+    spa_integration:
+      client: apps/app-frontend/src/api/client.ts — patchComputeInstancePower(id, action)
+      hook: usePatchVm — { id, powerAction: start | stop }; useVmRestartOrchestrator for Restart
+      ui: VmActionsMenu Start/Stop → PATCH; Restart → stop then start when list shows stopped; delete confirm PATCH stop then DELETE
+
+  - name: compute_instances_delete
+    description: >-
+      Delete VM. Fulfillment google.api.http mapping: `delete: "/api/fulfillment/v1/compute_instances/{id}"`.
+      Upstream may transition status to COMPUTE_INSTANCE_STATE_DELETING before removal; demo UI treats
+      successful DELETE as immediate removal from list (mock) or upstream acknowledgment (dev proxy).
+    endpoint: /api/fulfillment/v1/compute_instances/{id}
+    method: DELETE
+    auth:
+      required: true
+      roles_allowed: [tenant_admin, provider_admin, system]
+    request:
+      schema:
+        type: object
+        properties:
+          id:
+            type: string
+            required: true
+    response:
+      success:
+        status: 200
+        schema:
+          type: object
+          properties: {}
+      errors:
+        - code: 404_NOT_FOUND
+          description: Unknown compute instance id
+    example_requests:
+      - |
+        curl -sS -X DELETE -H "Authorization: Bearer $TOKEN" \
+          https://fulfillment.example/api/fulfillment/v1/compute_instances/vm-123
+    spa_integration:
+      client: apps/app-frontend/src/api/client.ts — deleteComputeInstance(id)
+      hook: useDeleteVm — invalidates TanStack Query key compute_instances on success
+      ui: manage-virtual-machines — confirm modal; PATCH stop when not stopped, then DELETE
+
+  - name: console_get_access
+    description: Whether console is available for a compute instance without opening stream.
+    endpoint: /api/osac/public/v1/console/{resourceType}/{resourceId}/access
+    method: GET
+    auth:
+      required: true
+      roles_allowed: [tenant_user, tenant_admin, provider_admin, viewer]
+    request:
+      schema:
+        type: object
+        properties:
+          resourceType:
+            type: string
+            enum:
+              - CONSOLE_RESOURCE_TYPE_COMPUTE_INSTANCE
+              - CONSOLE_RESOURCE_TYPE_HOST
+          resourceId:
+            type: string
+    response:
+      success:
+        status: 200
+        schema:
+          type: object
+          properties:
+            available:
+              type: boolean
+            reason:
+              type: string
+            supportedTypes:
+              type: array
+              items:
+                type: string
+      errors:
+        - code: 404_NOT_FOUND
+          description: Unknown resource
+
+  - name: events_watch
+    description: >
+      Long-lived event stream for activity feed (client must tolerate gaps). OSAC demo: required
+      source for tenant dashboard "Recent activities" in dev mode — see context.osac_bff_runtime_modes.
+    endpoint: /api/events/v1/events
+    method: GET
+    auth:
+      required: true
+      roles_allowed: [tenant_user, tenant_admin, provider_admin, viewer]
+    request:
+      schema:
+        type: object
+        properties:
+          filter:
+            type: string
+            description: CEL on event object
+    response:
+      success:
+        status: 200
+        schema:
+          type: object
+          description: Streaming framing depends on deployment (SSE vs chunked JSON)
+
+  - name: virtual_networks_crud
+    description: Tenant network scope for topology and VM attachment.
+    endpoint: /api/fulfillment/v1/virtual_networks
+    method: GET
+    auth:
+      required: true
+      roles_allowed: [tenant_admin, provider_admin, viewer]
+    request:
+      schema:
+        allOf:
+          - $ref: '#/reusable_schemas/ListQuery'
+    response:
+      success:
+        status: 200
+        schema:
+          $ref: '#/reusable_schemas/PageOfT'
+
+  - name: subnets_crud
+    description: Subnets for VM spec.subnet references.
+    endpoint: /api/fulfillment/v1/subnets
+    method: GET
+    auth:
+      required: true
+      roles_allowed: [tenant_user, tenant_admin, provider_admin, viewer]
+    request:
+      schema:
+        allOf:
+          - $ref: '#/reusable_schemas/ListQuery'
+    response:
+      success:
+        status: 200
+        schema:
+          $ref: '#/reusable_schemas/PageOfT'
+
+  - name: security_groups_crud
+    description: Attachable firewall policy objects for compute instances.
+    endpoint: /api/fulfillment/v1/security_groups
+    method: GET
+    auth:
+      required: true
+      roles_allowed: [tenant_user, tenant_admin, provider_admin, viewer]
+    request:
+      schema:
+        allOf:
+          - $ref: '#/reusable_schemas/ListQuery'
+    response:
+      success:
+        status: 200
+        schema:
+          $ref: '#/reusable_schemas/PageOfT'
+
+  - name: organizations_list_get
+    description: Directory of tenant organizations for provider admin and org metadata.
+    endpoint: /api/fulfillment/v1/organizations
+    method: GET
+    auth:
+      required: true
+      roles_allowed: [provider_admin, tenant_admin, viewer]
+    request:
+      schema:
+        allOf:
+          - $ref: '#/reusable_schemas/ListQuery'
+    response:
+      success:
+        status: 200
+        schema:
+          $ref: '#/reusable_schemas/PageOfT'
+
+  - name: clusters_list_get
+    description: Managed clusters inventory (kubeconfig/password are separate routes).
+    endpoint: /api/fulfillment/v1/clusters
+    method: GET
+    auth:
+      required: true
+      roles_allowed: [provider_admin, tenant_admin, viewer]
+    request:
+      schema:
+        allOf:
+          - $ref: '#/reusable_schemas/ListQuery'
+    response:
+      success:
+        status: 200
+        schema:
+          $ref: '#/reusable_schemas/PageOfT'
+
+  - name: private_compute_instances_signal
+    description: >
+      gRPC-only Signal on private ComputeInstances (no google.api.http). Controllers
+      use this to request reconciliation; not for browser clients.
+    endpoint: osac.private.v1.ComputeInstances/Signal
+    method: GRPC
+    auth:
+      required: true
+      roles_allowed: [system]
+    request:
+      schema:
+        type: object
+        properties:
+          id:
+            type: string
+    response:
+      success:
+        status: 0
+        schema:
+          type: object
+          properties: {}
+
+  - name: private_rest_mirror_example
+    description: Example private REST mirror for automation (subset of full private API).
+    endpoint: /api/private/v1/compute_instances/{id}
+    method: GET
+    auth:
+      required: true
+      roles_allowed: [system]
+    request:
+      schema:
+        type: object
+        properties:
+          id:
+            type: string
+            required: true
+    response:
+      success:
+        status: 200
+        schema:
+          $ref: '#/reusable_schemas/ComputeInstance'

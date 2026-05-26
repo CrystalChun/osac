@@ -1,58 +1,47 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: osac-ui
-  namespace: innabox-devel
+  name: osac
+  namespace: osac-dev
   labels:
-    app: osac-ui
+    app: osac
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: osac-ui
+      app: osac
   template:
     metadata:
       labels:
-        app: osac-ui
+        app: osac
     spec:
-      serviceAccountName: osac-ui
-      imagePullSecrets:
-      - name: quay-pull-secret
       containers:
-      - name: console
-        image: quay.io/eerez/osac-ui:latest
-        imagePullPolicy: Always
-        envFrom:
-        - configMapRef:
-            name: osac-ui-config
-        ports:
-        - containerPort: 8080
-          name: http
-          protocol: TCP
-        volumeMounts:
-        - name: os-images
-          mountPath: /app/config
-          readOnly: true
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 8080
-          initialDelaySeconds: 10
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /health
-            port: 8080
-          initialDelaySeconds: 5
-          periodSeconds: 5
-        resources:
-          requests:
-            memory: "128Mi"
-            cpu: "100m"
-          limits:
-            memory: "256Mi"
-            cpu: "200m"
-      volumes:
-      - name: os-images
-        configMap:
-          name: osac-ui-os-images
+        - name: osac
+          image: osac:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: osac-config
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi

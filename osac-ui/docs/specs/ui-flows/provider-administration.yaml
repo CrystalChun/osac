@@ -1,0 +1,229 @@
+flow: Provider administration
+statechart_ref: ../statecharts/provider-administration.statechart.yaml
+
+rbac:
+  required_permissions_by_step:
+    pad_dashboard_home:
+      view_provider_dashboard: view_provider_dashboard
+      open_tenant_organizations_tile: manage_tenants
+      open_resource_allocation_tile: manage_resource_allocation
+      open_global_templates_tile: manage_global_templates
+      open_infrastructure_tile: view_infrastructure
+    pad_tenant_organizations:
+      view_tenant_organizations: manage_tenants
+    pad_resource_allocation_placeholder:
+      view_resource_allocation_placeholder: manage_resource_allocation
+    pad_global_templates:
+      view_global_templates: manage_global_templates
+      create_from_template: create_from_template
+    pad_infrastructure_topology:
+      view_infrastructure_topology: view_topology
+    pad_security_placeholder:
+      view_security_placeholder: view_infrastructure
+    pad_platform_settings_placeholder:
+      view_platform_settings_placeholder: view_infrastructure
+
+applies_when: >-
+  Authenticated shell with demoShellRole providerAdmin and Vertexa (vertexa) tenant context after
+  Provider Admin same-tab sign-in — not tenant user or tenant admin org workspaces.
+
+steps:
+  - id: pad_dashboard_home
+    title: Provider admin dashboard
+    goal: Cross-tenant summary with navigation into tenant orgs resource allocation global templates and system areas.
+
+    ui:
+      components:
+        - PageSection
+        - Stack
+        - Flex
+        - Title
+        - Card
+        - Button
+    ui_policy:
+      prefer_patternfly_primitives: true
+      minimize_raw_div_wrappers: true
+      max_raw_div_wrappers: 1
+
+    states:
+      - ready
+      - loading
+      - empty_no_data
+      - error_load_failed
+      - success_populated
+
+    interactions:
+      - Click dashboard tiles to navigate tenant organizations resource allocation global templates or infrastructure per handler mapping.
+
+  - id: pad_tenant_organizations
+    title: Tenant organizations
+    goal: Review provider-scoped tenant org table demo.
+
+    ui:
+      components:
+        - PageSection
+        - Stack
+        - Flex
+        - Title
+        - Table
+    ui_policy:
+      prefer_patternfly_primitives: true
+      minimize_raw_div_wrappers: true
+      max_raw_div_wrappers: 1
+
+    states:
+      - ready
+      - loading
+      - empty_no_tenants
+      - error_load_failed
+      - success_populated
+
+    interactions:
+      - Read table rows and actions if present in prototype.
+
+  - id: pad_resource_allocation_placeholder
+    title: Resource allocation (placeholder)
+    goal: Describe capacity pools and fair share limits scope.
+
+    ui:
+      components:
+        - PageSection
+        - Title
+        - Content
+    ui_policy:
+      prefer_patternfly_primitives: true
+      minimize_raw_div_wrappers: true
+      max_raw_div_wrappers: 0
+
+    states:
+      - placeholder_static
+
+    interactions:
+      - Read only.
+
+  - id: pad_global_templates
+    title: Global templates
+    goal: Provider-wide template gallery same component as tenant catalog.
+
+    ui:
+      components:
+        - PageSection
+        - Stack
+        - Flex
+        - Gallery
+        - Card
+        - Drawer
+        - SearchInput
+    ui_policy:
+      prefer_patternfly_primitives: true
+      minimize_raw_div_wrappers: true
+      max_raw_div_wrappers: 1
+
+    states:
+      - ready
+      - provision_may_be_blocked_vertexa
+
+    interactions:
+      - Browse templates open create wizard entries subject to App provisioning guard for vertexa tenant.
+
+  - id: pad_infrastructure_topology
+    title: Infrastructure topology
+    goal: Platform network view without VM detail drill-through wired in prototype.
+
+    ui:
+      components:
+        - PageSection
+        - Stack
+        - Title
+        - NetworkTopologyPage
+    ui_policy:
+      prefer_patternfly_primitives: true
+      minimize_raw_div_wrappers: true
+      max_raw_div_wrappers: 1
+
+    states:
+      - ready
+      - topology_vm_click_no_op
+
+    interactions:
+      - Click VM nodes when handler is stub no navigation to VM detail.
+
+  - id: pad_security_placeholder
+    title: Security and compliance (placeholder)
+    goal: Platform policies encryption audit exports scope.
+
+    ui:
+      components:
+        - PageSection
+        - Title
+        - Content
+    ui_policy:
+      prefer_patternfly_primitives: true
+      minimize_raw_div_wrappers: true
+      max_raw_div_wrappers: 0
+
+    states:
+      - placeholder_static
+
+    interactions:
+      - Read only.
+
+  - id: pad_platform_settings_placeholder
+    title: Platform settings (placeholder)
+    goal: Feature flags integrations maintenance APIs scope.
+
+    ui:
+      components:
+        - PageSection
+        - Title
+        - Content
+    ui_policy:
+      prefer_patternfly_primitives: true
+      minimize_raw_div_wrappers: true
+      max_raw_div_wrappers: 0
+
+    states:
+      - placeholder_static
+
+    interactions:
+      - Read only.
+
+transitions:
+  - from: auth_post_login_transition
+    action: complete login as provider admin
+    to: pad_dashboard_home
+  - from: shell_primary_workspace
+    action: select provider dashboard nav
+    to: pad_dashboard_home
+  - from: pad_dashboard_home
+    action: navigate to tenant organizations tile
+    to: pad_tenant_organizations
+  - from: pad_dashboard_home
+    action: navigate to resource allocation tile
+    to: pad_resource_allocation_placeholder
+  - from: pad_dashboard_home
+    action: navigate to global templates tile
+    to: pad_global_templates
+  - from: pad_dashboard_home
+    action: navigate to infrastructure tile
+    to: pad_infrastructure_topology
+  - from: shell_primary_workspace
+    action: select tenant organizations nav
+    to: pad_tenant_organizations
+  - from: shell_primary_workspace
+    action: select resource allocation nav
+    to: pad_resource_allocation_placeholder
+  - from: shell_primary_workspace
+    action: select global templates nav
+    to: pad_global_templates
+  - from: shell_primary_workspace
+    action: select infrastructure nav under system
+    to: pad_infrastructure_topology
+  - from: shell_primary_workspace
+    action: select security compliance nav under system
+    to: pad_security_placeholder
+  - from: shell_primary_workspace
+    action: select platform settings nav under system
+    to: pad_platform_settings_placeholder
+
+validation_rules: []

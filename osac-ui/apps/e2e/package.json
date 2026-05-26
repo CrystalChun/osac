@@ -1,0 +1,12 @@
+{
+  "name": "@osac/e2e",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "e2e": "cypress open --config baseUrl=http://localhost:5173",
+    "e2e:ci": "cypress run --config baseUrl=http://localhost:5173"
+  },
+  "devDependencies": {
+    "cypress": "^14.0.0"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "extends": "../../libs/config/tsconfig.base.json",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "allowImportingTsExtensions": false,
+    "noEmit": true,
+    "outDir": "dist",
+    "paths": {
+      "@osac/api-contracts": ["../../libs/api-contracts/src/index.ts"]
+    }
+  },
+  "include": ["src"]
+}

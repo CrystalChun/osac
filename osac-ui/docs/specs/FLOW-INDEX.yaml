@@ -1,0 +1,235 @@
+# OSAC demo — flow specification index (agentic SDLC)
+# Source prototype: Projects/osac-demo/src (App.tsx orchestrates shell, auth, nav)
+# Visual implementation: PatternFly 6 — see design-system.yaml (packages, tokens, layout, a11y).
+#
+# Each file under ui-flows/ is self-contained: steps, transitions, and inferred states.
+# Cross-flow links are named actions (same string in multiple files where applicable).
+
+version: 1
+repository_path: Projects/osac-demo
+generated_for: spec-driven UI implementation and QA
+
+ai-hints:
+  summary: >-
+    Master catalog for OSAC UX flow specs. Read this file first, then rbac.yaml for role and
+    permission definitions, statecharts for machine semantics, ui-flows for UX detail, then
+    design-system.yaml and backend-fulfillment.yaml for implementation constraints.
+    For **dev/real** SPA↔fulfillment integration (OIDC via capabilities, BFF proxy matrix including
+    events and console paths, client/hooks for orgs/users/networks/events, replacing VM_TEMPLATES/DEMO_*,
+    TS alignment, utilization chart gap), see **context.osac_real_api_integration** in
+    backend-fulfillment.yaml; mock mode remains unchanged per that section.
+  readOrder:
+    - FLOW-INDEX.yaml
+    - rbac.yaml
+    - template-catalog-wizard-api-alignment.yaml
+    - statecharts/<flow-id>.statechart.yaml
+    - ui-flows/<flow-id>.yaml
+    - design-system.yaml
+    - backend-fulfillment.yaml
+
+design_system_spec:
+  file: design-system.yaml
+  summary: >-
+    Single source for PatternFly 6 visual policy — required packages, page/shell layout, design tokens
+    and theming, accessibility, charts/topology notes, and mapping from reusable_components_across_flows to PF primitives.
+
+rbac_spec:
+  file: rbac.yaml
+  summary: Canonical role and permission manifest used by UX flow gating and statechart guards.
+
+statechart_specs:
+  directory: statecharts/
+  convention: One <flow-id>.statechart.yaml per flow; step ids mirror ui-flows transitions and guards map to rbac permissions.
+  files:
+    - id: welcome-and-role-selection
+      file: statecharts/welcome-and-role-selection.statechart.yaml
+    - id: institutional-sign-in
+      file: statecharts/institutional-sign-in.statechart.yaml
+    - id: application-shell-session
+      file: statecharts/application-shell-session.statechart.yaml
+    - id: tenant-user-dashboard
+      file: statecharts/tenant-user-dashboard.statechart.yaml
+    - id: vm-template-catalog
+      file: statecharts/vm-template-catalog.statechart.yaml
+    - id: create-virtual-machine-wizard
+      file: statecharts/create-virtual-machine-wizard.statechart.yaml
+    - id: manage-virtual-machines
+      file: statecharts/manage-virtual-machines.statechart.yaml
+    - id: recent-activities
+      file: statecharts/recent-activities.statechart.yaml
+    - id: tenant-administration
+      file: statecharts/tenant-administration.statechart.yaml
+    - id: provider-administration
+      file: statecharts/provider-administration.statechart.yaml
+    - id: vm-console-standalone-demo
+      file: statecharts/vm-console-standalone-demo.statechart.yaml
+
+implementation_specs:
+  - id: osac-fullstack-demo-implementation
+    file: demo-application-build-spec.yaml
+    summary: >-
+      Agent-executable monorepo build order for Projects/osac (BFF, UI, contracts, tests,
+      deploy) tied to this FLOW-INDEX, ui-flows/, and backend-fulfillment.yaml.
+  - id: template-catalog-wizard-api-alignment
+    file: template-catalog-wizard-api-alignment.yaml
+    summary: >-
+      Catalog + CreateVmWizard template step share GET compute_instance_templates; copy-paste **implementer_agent.prompt_implementation**.
+
+backend_specs:
+  - id: fulfillment-service-rest-grpc
+    file: backend-fulfillment.yaml
+    summary: >-
+      Agentic OpenAPI-like contract for osac-project/fulfillment-service (public
+      /api/fulfillment/v1, events, console access, private /api/private/v1) aligned
+      to UX flow specs.
+
+flows:
+  - id: welcome-and-role-selection
+    file: ui-flows/welcome-and-role-selection.yaml
+    summary: >-
+      Welcome landing titled Red Hat OSAC Prototypes — every demo persona (Provider Admin, tenant org User/Admin for Northstar
+      Bank and Bluestone Financial Group) applies tenant and role in session then navigates to
+      institutional sign-in in the same tab; optional osac-entry cold load is documented in
+      routing_matrix and entry_bootstrap in that file.
+  - id: institutional-sign-in
+    file: ui-flows/institutional-sign-in.yaml
+    summary: >-
+      Institutional sign-in uses one configurable shell (InstitutionalSignInPage) for Vertexa,
+      Northstar, and Bluestone; branding_profiles supply per-tenant copy and affordances.
+      Trusted issuers optional; post-login delay then role-specific shell (tenant user vs tenant admin vs provider admin).
+  - id: application-shell-session
+    file: ui-flows/application-shell-session.yaml
+    summary: >-
+      Masthead identity, operating mode label, tenant trust strip, and sidebar nav differ by role;
+      theme, account menu, logout, breadcrumb for recent activities; Vertexa aggregates tenant VMs in prototype.
+  - id: tenant-user-dashboard
+    file: ui-flows/tenant-user-dashboard.yaml
+    summary: >-
+      VMaaS home — power-state KPI cards derived from normalized compute_instances list (not static demo counts when API data exists);
+      create VM; deep links into My VMs with filters. Recent activities sidebar in dev per backend-fulfillment.yaml osac_bff_runtime_modes.
+  - id: vm-template-catalog
+    file: ui-flows/vm-template-catalog.yaml
+    summary: >-
+      Template gallery (tenant/admin/provider); data from GET **compute_instance_templates** per template-catalog-wizard-api-alignment.yaml;
+      opens create wizard from template.
+  - id: create-virtual-machine-wizard
+    file: ui-flows/create-virtual-machine-wizard.yaml
+    summary: >-
+      Modal PatternFly Wizard — template path uses **same** compute_instance_templates inventory as catalog (shared query); BFF sessions for advance/finalize.
+  - id: manage-virtual-machines
+    file: ui-flows/manage-virtual-machines.yaml
+    summary: >-
+      My VMs list/cards/table aligned with fulfillment compute_instances wire format after normalization (resources, IP, conditions);
+      filters, detail drawer, power lifecycle (start/stop/restart/delete; clone/migrate not in menu), console demo launch.
+  - id: recent-activities
+    file: ui-flows/recent-activities.yaml
+    summary: Full-page activity feed from masthead bell (breadcrumb return).
+  - id: tenant-administration
+    file: ui-flows/tenant-administration.yaml
+    summary: Tenant admin dashboard, users, quota, networks topology with VM handoff, placeholders.
+  - id: provider-administration
+    file: ui-flows/provider-administration.yaml
+    summary: Provider dashboard, tenant orgs, allocation/templates placeholders, infra topology (no VM drill-through in prototype).
+  - id: vm-console-standalone-demo
+    file: ui-flows/vm-console-standalone-demo.yaml
+    summary: Query-param driven full-page console demo (?demo=vm-console).
+
+# Logical surfaces; implement with PatternFly 6 per design-system.yaml flow_component_mapping.
+reusable_components_across_flows:
+  - PageShell
+  - Masthead
+  - SidebarNav
+  - Modal
+  - Wizard
+  - Form
+  - Table
+  - Card
+  - Gallery
+  - Breadcrumb
+  - Tabs
+  - Alert
+  - Label
+  - Dropdown
+  - SearchInput
+  - ToggleGroup
+  - DescriptionList
+  - NetworkTopology
+  - DonutChart
+  - LineChart
+  - RecentActivityList
+
+cross_flow_entry_points:
+  - from_step: wrs_role_selected_pre_auth
+    to_step: auth_sign_in_form
+    documented_in: ui-flows/welcome-and-role-selection.yaml
+    browser_target: same_tab
+    note: >-
+      After any welcome persona selection, session holds tenant and role; app routes to
+      institutional sign-in in this tab.
+
+cross_flow_notes:
+  - Transitions may reference step ids defined in other YAML files; see canonical_step_ids.
+  - >-
+    Bluestone Financial Group on the welcome card maps to demo tenant id evergreen; osac-entry
+    values remain evergreen-user and evergreen-admin for optional deep links.
+  - >-
+    Tenant org User/Admin paths use wrs_welcome_landing → wrs_role_selected_pre_auth →
+    auth_sign_in_form in the same tab, matching Provider Admin.
+
+canonical_step_ids:
+  description: >-
+    Step ids are globally unique across flow files so transitions can reference
+    any step. Prefixes wrs auth shell tud vmc cvm mvm ra tad pad vcd match flow files.
+  ids:
+    - wrs_welcome_landing
+    - wrs_role_selected_pre_auth
+    - auth_sign_in_form
+    - auth_post_login_transition
+    - shell_primary_workspace
+    - shell_notifications_entry
+    - shell_utility_stubs
+    - tud_dashboard_home
+    - tud_sparse_placeholder_page
+    - vmc_catalog_grid
+    - vmc_catalog_provider_global
+    - cvm_modal_closed
+    - cvm_modal_open
+    - cvm_wizard_deployment_details
+    - cvm_wizard_guest_os
+    - cvm_wizard_boot_source
+    - cvm_wizard_compute
+    - cvm_wizard_template
+    - cvm_wizard_source_clone
+    - cvm_wizard_customization
+    - cvm_wizard_review_create
+    - mvm_list_view
+    - mvm_detail_drawer
+    - mvm_topology_handoff
+    - ra_activity_feed
+    - tad_dashboard_home
+    - tad_users
+    - tad_quota
+    - tad_networks_topology
+    - tad_storage_placeholder
+    - tad_org_settings_placeholder
+    - tad_org_security_placeholder
+    - pad_dashboard_home
+    - pad_tenant_organizations
+    - pad_resource_allocation_placeholder
+    - pad_global_templates
+    - pad_infrastructure_topology
+    - pad_security_placeholder
+    - pad_platform_settings_placeholder
+    - vcd_console_page
+
+bonus_ux_gaps_and_edge_cases:
+  - >-
+    Invalid or unknown osac-entry on cold load is ignored per welcome entry_bootstrap; user
+    remains able to pick a persona from the welcome page.
+  - Login forms accept empty password; no client validation_error state in prototype.
+  - Forgot password, Help, Settings masthead actions are no-ops (preventDefault only).
+  - Account settings menu item prevents default with no navigation.
+  - Provider admin Network topology wires onOpenVirtualMachineDetail to a stub (no handoff to VM detail).
+  - Vertexa tenant user path is not used for VM creation from catalog (App guards selectedDemoTenant === vertexa for template/new provision).
+  - Trusted token issuers load only when VITE_FULFILLMENT_API_URL is set; otherwise undefined with no explicit error UI.
+  - Session persistence across refresh is absent (all client state).

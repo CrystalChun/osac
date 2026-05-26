@@ -1,16 +1,28 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: osac-ui
-  namespace: innabox-devel
-  labels:
-    app: osac-ui
+  name: osac
+  namespace: osac-dev
 spec:
-  type: ClusterIP
-  ports:
-  - port: 8080
-    targetPort: 8080
-    protocol: TCP
-    name: http
   selector:
-    app: osac-ui
+    app: osac
+  ports:
+    - port: 80
+      targetPort: 8080
+      protocol: TCP
+      name: http
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: osac
+  namespace: osac-dev
+spec:
+  to:
+    kind: Service
+    name: osac
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
