@@ -4,10 +4,11 @@
 #   podman run --rm -p 8080:8080 -e OSAC_API_MODE=mock osac:latest
 
 # ── Stage 1: install workspace dependencies ────────────────────────────────
-FROM node:22-slim AS deps
+FROM registry.access.redhat.com/ubi9/nodejs-22-minimal:9.8 AS deps
+USER root
 WORKDIR /app
 
-RUN npm install -g pnpm
+RUN npm install -g pnpm@9
 
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml* ./
 COPY libs/config/package.json ./libs/config/
@@ -36,11 +37,17 @@ COPY libs/ ./libs/
 COPY apps/app-backend/ ./apps/app-backend/
 COPY --from=spa-builder /app/apps/app-backend/public ./apps/app-backend/public
 
+# Compile shared lib first so pnpm deploy picks up JS output, not raw TS
+RUN pnpm --filter @osac/api-contracts run build
+
 # Transpile TypeScript → dist/
-RUN pnpm --filter @osac/app-backend run build 2>/dev/null || true
+RUN pnpm --filter @osac/app-backend run build
+
+# Create a self-contained deployment bundle with all production deps resolved
+RUN pnpm deploy --filter @osac/app-backend --prod /deploy
 
 # ── Stage 4: production image ──────────────────────────────────────────────
-FROM node:22-slim AS production
+FROM registry.access.redhat.com/ubi9/nodejs-22-minimal:9.8 AS production
 WORKDIR /app
 
 ENV NODE_ENV=production
@@ -51,13 +58,9 @@ ENV LOG_LEVEL=info
 
 COPY --from=bff-builder /app/apps/app-backend/dist ./dist
 COPY --from=bff-builder /app/apps/app-backend/public ./public
-COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/apps/app-backend/node_modules ./apps/app-backend/node_modules 2>/dev/null || true
+COPY --from=bff-builder /deploy/node_modules ./node_modules
 
 EXPOSE 8080
-USER node
-
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s \
-  CMD node -e "fetch('http://localhost:8080/health').then(r => r.ok ? process.exit(0) : process.exit(1)).catch(() => process.exit(1))"
+USER 1001
 
 CMD ["node", "dist/index.js"]

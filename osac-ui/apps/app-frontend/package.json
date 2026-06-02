@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b tsconfig.build.json && vite build",
     "preview": "vite preview",
     "lint": "eslint src",
     "test": "vitest run"
@@ -22,7 +22,7 @@
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-router-dom": "^7.0.0",
-    "victory-core": "^37.3.6"
+    "victory": "^37.3.6"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",

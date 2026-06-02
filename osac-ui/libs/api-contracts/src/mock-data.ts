@@ -464,6 +464,10 @@ function fulfillmentProtoState(state: VmPowerState): string {
     starting: 'COMPUTE_INSTANCE_STATE_STARTING',
     deleting: 'COMPUTE_INSTANCE_STATE_DELETING',
     error: 'COMPUTE_INSTANCE_STATE_ERROR',
+    stopping: 'COMPUTE_INSTANCE_STATE_STOPPING',
+    creating: 'COMPUTE_INSTANCE_STATE_CREATING',
+    restarting: 'COMPUTE_INSTANCE_STATE_RESTARTING',
+    still_provisioning: 'COMPUTE_INSTANCE_STATE_STILL_PROVISIONING'
   }
   return m[state]
 }
