@@ -1,69 +1,82 @@
 /**
  * flow: institutional-sign-in
- * step: auth_sign_in_form → auth_post_login_transition
+ * step: auth_sign_in_redirect
  *
- * Renders InstitutionalSignInPage (spec sign_in_shell); tenant-specific visuals come from
- * branding_profiles via institutionalBrandingByTenant.
+ * Automatically initiates the OIDC Authorization Code + PKCE flow via the Go proxy BFF as soon
+ * as this page is rendered. The user never needs to click anything — landing here means "start
+ * login". On error a retry button is shown.
  */
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { Bullseye, Button, Spinner, Title } from '@patternfly/react-core'
 import { useSession } from '../../contexts/SessionContext'
-import { InstitutionalSignInPage } from '../../components/login/InstitutionalSignInPage'
-import { getFulfillmentCapabilities } from '../../api/client'
-import { setAccessToken } from '../../api/authToken'
 
-function isLikelyJwt(value: string): boolean {
-  return /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(value)
+async function startOIDCLogin(): Promise<void> {
+  const redirectBase = encodeURIComponent(window.location.origin)
+  const resp = await fetch(`/api/login?redirect_base=${redirectBase}`, {
+    credentials: 'include',
+  })
+  if (!resp.ok) {
+    const text = await resp.text().catch(() => '')
+    throw new Error(text || `Failed to start login (HTTP ${resp.status})`)
+  }
+  const { url } = (await resp.json()) as { url?: string }
+  if (!url) throw new Error('No authorization URL returned by proxy')
+  window.location.href = url
 }
 
 export function SignInPage() {
-  const { loginEmail, loginSuccess, logout } = useSession()
+  const { logout } = useSession()
   const navigate = useNavigate()
-  const [trustedIssuers, setTrustedIssuers] = useState<string[]>([])
-  const [submitError, setSubmitError] = useState<string | null>(null)
+  const calledRef = useRef(false)
+  const [error, setError] = useState<string | null>(null)
+
+  function triggerLogin() {
+    setError(null)
+    calledRef.current = false // allow retry
+    startOIDCLogin().catch((err: Error) => {
+      setError(err.message)
+    })
+  }
 
   useEffect(() => {
-    let mounted = true
-    void getFulfillmentCapabilities()
-      .then((capabilities) => {
-        if (!mounted) return
-        const issuers = capabilities.authn.trustedTokenIssuers.map((issuer) => issuer.issuerUrl)
-        setTrustedIssuers(issuers)
-      })
-      .catch(() => {
-        if (!mounted) return
-        setTrustedIssuers([])
-      })
-    return () => {
-      mounted = false
-    }
+    if (calledRef.current) return
+    calledRef.current = true
+    triggerLogin()
   }, [])
 
   function handleChooseAnother() {
-    logout()
+    logout().catch(() => undefined)
     navigate('/')
   }
 
-  function handleLogin(email: string, password: string) {
-    setSubmitError(null)
-    if (trustedIssuers.length > 0) {
-      const token = password.trim()
-      if (!isLikelyJwt(token)) {
-        setSubmitError('Dev mode requires a JWT access token in the password field.')
-        return
-      }
-      setAccessToken(token)
-    }
-    loginSuccess(email, password)
+  if (error) {
+    return (
+      <Bullseye style={{ height: '100vh' }}>
+        <div style={{ textAlign: 'center' }}>
+          <Title headingLevel="h1" size="xl" style={{ marginBottom: '1rem' }}>
+            Sign-in failed
+          </Title>
+          <p style={{ marginBottom: '1.5rem', color: 'var(--pf-t--global--text--color--subtle)' }}>
+            {error}
+          </p>
+          <Button variant="primary" onClick={triggerLogin} style={{ marginRight: '0.5rem' }}>
+            Retry
+          </Button>
+          <Button variant="link" onClick={handleChooseAnother}>
+            Choose another account
+          </Button>
+        </div>
+      </Bullseye>
+    )
   }
 
   return (
-    <InstitutionalSignInPage
-      defaultEmail={loginEmail}
-      onLoginSuccess={handleLogin}
-      onChooseAnother={handleChooseAnother}
-      trustedIssuers={trustedIssuers}
-      submitError={submitError}
-    />
+    <Bullseye style={{ height: '100vh' }}>
+      <div style={{ textAlign: 'center' }}>
+        <Spinner aria-label="Redirecting to sign in…" style={{ marginBottom: '1rem' }} />
+        <p style={{ color: 'var(--pf-t--global--text--color--subtle)' }}>Redirecting to sign in…</p>
+      </div>
+    </Bullseye>
   )
 }

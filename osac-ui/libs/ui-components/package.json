@@ -6,10 +6,6 @@
   "exports": {
     ".": "./src/index.ts"
   },
-  "scripts": {
-    "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
-  },
   "dependencies": {
     "@osac/api-contracts": "workspace:*",
     "@patternfly/patternfly": "^6.4.0",
@@ -21,15 +17,9 @@
     "react-dom": "^19.2.4"
   },
   "devDependencies": {
-    "@storybook/addon-a11y": "^8.0.0",
-    "@storybook/addon-essentials": "^8.0.0",
-    "@storybook/react": "^8.0.0",
-    "@storybook/react-vite": "^8.0.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
-    "storybook": "^8.0.0",
-    "typescript": "~5.9.3",
-    "vite": "^8.0.1"
+    "typescript": "~5.9.3"
   },
   "peerDependencies": {
     "react": "^19.2.4",

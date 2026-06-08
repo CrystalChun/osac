@@ -1,9 +1,9 @@
-# Multi-stage build: one image runs the BFF + serves the SPA bundle
+# Multi-stage build: one image runs the Go proxy + serves the SPA bundle
 # Usage:
 #   podman build -t osac:latest -f Containerfile .
-#   podman run --rm -p 8080:8080 -e OSAC_API_MODE=mock osac:latest
+#   podman run --rm -p 8080:8080 -e FULFILLMENT_API_URL=https://fulfillment.example.com osac:latest
 
-# ── Stage 1: install workspace dependencies ────────────────────────────────
+# ── Stage 1: install SPA workspace dependencies ───────────────────────────
 FROM registry.access.redhat.com/ubi9/nodejs-22-minimal:9.8 AS deps
 USER root
 WORKDIR /app
@@ -13,8 +13,8 @@ RUN npm install -g pnpm@9
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml* tsconfig.base.json ./
 COPY libs/api-contracts/package.json ./libs/api-contracts/
 COPY libs/ui-components/package.json ./libs/ui-components/
-COPY apps/app-backend/package.json ./apps/app-backend/
 COPY apps/app-frontend/package.json ./apps/app-frontend/
+COPY apps/e2e/package.json ./apps/e2e/
 
 RUN pnpm install --frozen-lockfile
 
@@ -25,41 +25,35 @@ WORKDIR /app
 COPY libs/ ./libs/
 COPY apps/app-frontend/ ./apps/app-frontend/
 
-# Build frontend (output goes to apps/app-backend/public per vite.config.ts)
+# SPA output goes to apps/app-frontend/dist (configured in vite.config.ts outDir)
 RUN pnpm --filter @osac/app-frontend run build
 
-# ── Stage 3: build BFF ────────────────────────────────────────────────────
-FROM deps AS bff-builder
-WORKDIR /app
+# ── Stage 3: build Go proxy ───────────────────────────────────────────────
+FROM registry.access.redhat.com/ubi9/go-toolset:1.25 AS proxy-builder
+USER root
+WORKDIR /build
 
-COPY libs/ ./libs/
-COPY apps/app-backend/ ./apps/app-backend/
-COPY --from=spa-builder /app/apps/app-backend/public ./apps/app-backend/public
+COPY proxy/go.mod proxy/go.sum ./
+RUN go mod download
 
-# Compile shared lib first so pnpm deploy picks up JS output, not raw TS
-RUN pnpm --filter @osac/api-contracts run build
-
-# Transpile TypeScript → dist/
-RUN pnpm --filter @osac/app-backend run build
-
-# Create a self-contained deployment bundle with all production deps resolved
-RUN pnpm deploy --filter @osac/app-backend --prod /deploy
+COPY proxy/ ./
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o osac-proxy .
 
 # ── Stage 4: production image ──────────────────────────────────────────────
-FROM registry.access.redhat.com/ubi9/nodejs-22-minimal:9.8 AS production
+FROM registry.access.redhat.com/ubi9/ubi-minimal:9.5 AS production
 WORKDIR /app
 
-ENV NODE_ENV=production
 ENV PORT=8080
 ENV HOST=0.0.0.0
-ENV OSAC_API_MODE=mock
 ENV LOG_LEVEL=info
 
-COPY --from=bff-builder /app/apps/app-backend/dist ./dist
-COPY --from=bff-builder /app/apps/app-backend/public ./public
-COPY --from=bff-builder /deploy/node_modules ./node_modules
+# Copy the compiled Go binary
+COPY --from=proxy-builder /build/osac-proxy ./osac-proxy
+
+# Copy the built SPA (vite outDir = apps/app-frontend/dist)
+COPY --from=spa-builder /app/apps/app-frontend/dist ./public
 
 EXPOSE 8080
 USER 1001
 
-CMD ["node", "dist/index.js"]
+CMD ["./osac-proxy"]

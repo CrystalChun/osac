@@ -165,13 +165,9 @@ export interface ConsoleAccess {
 // Capabilities
 // ---------------------------------------------------------------------------
 
-export interface TrustedTokenIssuer {
-  issuerUrl: string
-}
-
 export interface FulfillmentCapabilities {
   authn: {
-    trustedTokenIssuers: TrustedTokenIssuer[]
+    trustedTokenIssuers: string[]
   }
 }
 

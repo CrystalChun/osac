@@ -1,6 +1,6 @@
 # OSAC — VM-as-a-Service Frontend
 
-OSAC is a fullstack demo application for an OpenShift-based VM-as-a-Service platform. It provides a multi-tenant UI built with React + PatternFly 6, backed by a Fastify BFF (Backend-for-Frontend) that can run against built-in mock data or proxy to a real upstream fulfillment API.
+OSAC is a fullstack demo application for an OpenShift-based VM-as-a-Service platform. It provides a multi-tenant UI built with React + PatternFly 6, backed by a Go chi reverse proxy that forwards requests to the upstream fulfillment API.
 
 ---
 
@@ -26,17 +26,17 @@ OSAC is a fullstack demo application for an OpenShift-based VM-as-a-Service plat
 ```
 osac/
 ├── apps/
-│   ├── app-backend/        # Fastify BFF — serves API and embeds SPA in prod
 │   ├── app-frontend/       # React SPA (PatternFly 6, React Router, TanStack Query)
 │   └── e2e/                # Cypress end-to-end tests
 ├── libs/
 │   ├── api-contracts/      # Shared TypeScript types + mock data
 │   ├── config/             # Shared ESLint, Prettier, tsconfig base
 │   └── ui-components/      # Shared PatternFly components (LightDarkToggle, VmStatusLabel, …)
+├── proxy/                  # Go chi reverse proxy — forwards /api/* to FULFILLMENT_API_URL
 ├── deploy/
 │   ├── dev/                # OpenShift manifests — development namespace
 │   └── integration/        # OpenShift manifests — integration namespace
-├── Containerfile           # Multi-stage build (SPA + BFF → single image)
+├── Containerfile           # Multi-stage build (SPA + Go proxy → single image)
 └── package.json            # Root pnpm workspace scripts
 ```
 
@@ -49,6 +49,7 @@ osac/
 | ------- | --------------- |
 | Node.js | 20              |
 | pnpm    | 9               |
+| Go      | 1.23            |
 
 
 Install pnpm if you don't have it:
@@ -65,18 +66,15 @@ pnpm install
 
 ---
 
-## Quick start (mock mode)
+## Quick start (development)
 
-Mock mode uses built-in fixture data — no external services needed.
+You need a running fulfillment API. Point `FULFILLMENT_API_URL` at it, then open **two terminals** from the repo root:
 
-Open **two terminals** from the repo root:
-
-**Terminal 1 — BFF:**
+**Terminal 1 — Go proxy:**
 
 ```bash
-pnpm dev:backend
-# Server starts on http://localhost:3001
-# Logs: {"msg":"OSAC BFF running at http://0.0.0.0:3001 [mode=mock]"}
+FULFILLMENT_API_URL=https://fulfillment.your-env.example.com pnpm dev:proxy
+# Server starts on http://localhost:8080
 ```
 
 **Terminal 2 — SPA:**
@@ -84,79 +82,46 @@ pnpm dev:backend
 ```bash
 pnpm dev:frontend
 # Vite dev server starts on http://localhost:5173
-# All /api/* requests are proxied to :3001 automatically
+# All /api/* requests are proxied to :8080 automatically
 ```
 
 Open [http://localhost:5173](http://localhost:5173).
 
+> **No upstream yet?** See `docs/mock-data.md` for documentation on the former Fastify mock layer and what fixtures the SPA still imports client-side.
+
 ---
 
-## Running modes explained
+## Proxy
 
-### Mock mode (default)
+The Go chi proxy (`proxy/`) is a pure reverse proxy. It has no mock mode — it always forwards to `FULFILLMENT_API_URL`.
 
-The BFF serves all data from in-memory fixtures defined in `libs/api-contracts/src/mock-data.ts`. No upstream API is needed. VM state is persisted within the BFF process lifetime (restarting the BFF resets it).
+Proxied path prefixes:
 
-```bash
-# Explicit (same as default):
-OSAC_API_MODE=mock pnpm dev:backend
-```
+| Prefix                      | Destination                          |
+| --------------------------- | ------------------------------------ |
+| `/api/fulfillment/v1/*`     | `$FULFILLMENT_API_URL` + original path |
+| `/api/events/v1/*`          | `$FULFILLMENT_API_URL` + original path |
+| `/api/osac/public/v1/*`     | `$FULFILLMENT_API_URL` + original path |
 
-Mocked endpoints:
-
-
-| Endpoint                                           | Description                                   |
-| -------------------------------------------------- | --------------------------------------------- |
-| `GET /api/fulfillment/v1/compute_instances`        | List VMs (Northstar + Bluestone fixture data) |
-| `POST /api/fulfillment/v1/compute_instances`       | Create VM (stored in process memory)          |
-| `PATCH /api/fulfillment/v1/compute_instances/:id`  | Update VM power state / spec                  |
-| `DELETE /api/fulfillment/v1/compute_instances/:id` | Delete VM                                     |
-| `GET /api/fulfillment/v1/compute_instance_templates` | List VM templates                              |
-| `GET /api/fulfillment/v1/organizations`            | List tenant organizations                     |
-| `GET /api/fulfillment/v1/virtual_networks`         | List virtual networks                         |
-| `GET /api/fulfillment/v1/subnets`                  | List subnets                                  |
-| `GET /api/fulfillment/v1/security_groups`          | List security groups                          |
-| `GET /api/fulfillment/v1/capabilities`             | Auth capabilities stub                        |
-| `GET /health`                                      | Health probe                                  |
-| `GET /ready`                                       | Readiness probe                               |
-
-
-### Dev mode (real upstream API)
-
-Set `OSAC_API_MODE=dev` and `FULFILLMENT_API_URL` so the BFF can forward browser traffic to the fulfillment REST gateway. The BFF **exits at startup** if `dev` is set without a valid `FULFILLMENT_API_URL`.
-
-```bash
-OSAC_API_MODE=dev \
-FULFILLMENT_API_URL=https://fulfillment.your-env.example.com \
-pnpm dev:backend
-```
-
-**Today:** in dev mode the BFF proxies `**/api/fulfillment/v1/*`**, `**/api/events/v1/*`**, and `**/api/osac/public/v1/***` to `FULFILLMENT_API_URL`, forwards inbound `Authorization` unchanged, and returns upstream status and headers. Responses are **buffered** in the BFF (full body read before reply) as a documented Undici/Fastify workaround — see `docs/specs/backend-fulfillment.yaml` (`bff_proxy_matrix_dev.implementation_notes`); true streaming for long-lived event watches is a follow-up. **`TEMP_FULFILLMENT_STATIC_BEARER`** on the BFF can supply upstream Bearer when the client sends none (**not** on `GET /api/fulfillment/v1/capabilities`); **`TEMP_FULFILLMENT_STATIC_BEARER_FORCE=1`** (dev only) overrides an expired browser JWT on other routes. **`VITE_DEV_BEARER_TOKEN`** on the SPA fills Bearer in dev when sessionStorage has no token (see `apps/app-frontend/.env.example`). **`OSAC_API_MODE=dev` requires `FULFILLMENT_API_URL`** or the BFF exits at startup. TLS to a private PKI uses **`FULFILLMENT_TLS_CA_FILE`** or the temporary **`TEMP_FULFILLMENT_TLS_INSECURE=1`** (dev only; refused in production). Details: [docs/runbook.md](docs/runbook.md). See [Authorization (dev mode and fulfillment RBAC)](#authorization-dev-mode-and-fulfillment-rbac). Much of the SPA still reads `DEMO_*` fixtures and `VM_TEMPLATES` from `libs/api-contracts` even in dev mode.
-
-**Spec target — non-mock flow:** `docs/specs/backend-fulfillment.yaml` → `context.osac_real_api_integration` — wire full **OIDC Authorization Code + PKCE** from `GET /api/fulfillment/v1/capabilities`, extend the SPA client and TanStack hooks for organizations, users, networks, and events, replace mock-only data where fulfillment has resources, align TypeScript with published fulfillment OpenAPI (or codegen), and treat utilization charts as an explicit gap or product-owned metrics API. **Mock mode (`OSAC_API_MODE=mock`) stays unchanged.**
-
-> **Note:** Interactive OIDC in the SPA is still incomplete vs that spec; dev mode can use a pasted JWT when capabilities list trusted issuers (see [Authorization](#authorization-dev-mode-and-fulfillment-rbac) and [What needs real integration](#what-needs-real-integration-or-further-testing)).
+`/health` and `/ready` are handled locally and return JSON `{ "status": "ok" }` / `{ "status": "ready" }`.
 
 ### Environment variables reference
 
 
-| Variable              | Default   | Description                                                                  |
-| --------------------- | --------- | ---------------------------------------------------------------------------- |
-| `PORT`                | `3001`    | BFF listen port                                                              |
-| `HOST`                | `0.0.0.0` | BFF listen host                                                              |
-| `LOG_LEVEL`           | `info`    | Fastify log level (`trace` / `debug` / `info` / `warn` / `error`)            |
-| `OSAC_API_MODE`       | `mock`    | `mock` — built-in fixtures; `dev` — proxy to upstream                        |
-| `FULFILLMENT_API_URL` | *(unset)* | Required when `OSAC_API_MODE=dev`. Base URL of the upstream fulfillment API. |
-| `FULFILLMENT_TLS_CA_FILE` | *(unset)* | Optional PEM bundle for BFF → fulfillment TLS (private PKI). |
-| `TEMP_FULFILLMENT_TLS_INSECURE` | *(unset)* | Set to `1` for dev-only upstream TLS verification off; refused when `NODE_ENV=production`. |
-| `TEMP_FULFILLMENT_STATIC_BEARER` | *(unset)* | TEMP: upstream `Authorization: Bearer …` when the client sends no non-empty Bearer (not used on `GET /api/fulfillment/v1/capabilities` — see runbook). |
-| `TEMP_FULFILLMENT_STATIC_BEARER_FORCE` | *(unset)* | TEMP dev only: replace client Bearer on proxied routes except that GET capabilities (see runbook). |
-| `NODE_ENV`            | *(unset)* | Set to `production` in the container image                                   |
+| Variable                           | Default   | Description                                                                                            |
+| ---------------------------------- | --------- | ------------------------------------------------------------------------------------------------------ |
+| `FULFILLMENT_API_URL`              | *(required)* | Base URL of the upstream fulfillment API (e.g. `https://fulfillment.example.com`).                 |
+| `PORT`                             | `8080`    | Proxy listen port.                                                                                     |
+| `HOST`                             | `0.0.0.0` | Proxy listen host.                                                                                     |
+| `LOG_LEVEL`                        | `info`    | Log level: `debug`, `info`, `warn`, `error`.                                                           |
+| `FULFILLMENT_TLS_CA_FILE`          | *(unset)* | PEM bundle for proxy → fulfillment TLS (private PKI).                                                  |
+| `FULFILLMENT_TLS_INSECURE`    | *(unset)* | Set to `1` to skip TLS verification for upstream (dev only).       |
+| `TEMP_FULFILLMENT_STATIC_BEARER`   | *(unset)* | TEMP: inject `Authorization: Bearer …` when the client sends no non-empty Bearer. |
+| `OIDC_CLIENT_ID` | `osac-ui` | client_id registered in the IdP for this UI application. |
+| `OIDC_TLS_INSECURE` | *(unset)* | Set to `1` to skip TLS verification for auth provider (dev only). |
 
 
-Copy `apps/app-backend/.env.example` to `apps/app-backend/.env` and adjust values for your environment.
-
-**SPA (Vite dev):** optional `VITE_DEV_BEARER_TOKEN` — see `apps/app-frontend/.env.example`. Public API contract: [buf.build/osac-project/public-api](https://buf.build/osac-project/public-api) (this repo uses REST via the BFF proxy until Connect/gRPC-Web is confirmed on the live gateway).
+**SPA (Vite dev):** optional `VITE_DEV_BEARER_TOKEN` — see `apps/app-frontend/.env.example`. Public API contract: [buf.build/osac-project/public-api](https://buf.build/osac-project/public-api) (this repo uses REST via the proxy until Connect/gRPC-Web is confirmed on the live gateway).
 
 ---
 
@@ -345,18 +310,16 @@ flowchart TB
 | RBAC — nav and route guards        | ✅      | Nav items and routes are role-gated                                                                                 |
 
 
-### Backend (Fastify BFF)
+### Backend (Go chi proxy)
 
 
-| Area                      | Status | Notes                                                                                                                                                               |
-| ------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Mock fulfillment routes   | ✅      | Full CRUD for VMs; read-only for templates, orgs, networks                                                                                                          |
-| Upstream proxy (dev mode) | ✅      | `/api/fulfillment/v1/`*, `/api/events/v1/`*, `/api/osac/public/v1/*` — buffered passthrough + TLS upstream (`fulfillmentUpstream.ts`); **spec:** `docs/specs/backend-fulfillment.yaml` `bff_proxy_matrix_dev` |
-| Health / readiness probes | ✅      | `/health` and `/ready`                                                                                                                                              |
-| SPA static file serving   | ✅      | Serves `public/` in production; SPA fallback for client-side routing                                                                                                |
-| CORS                      | ✅      | Open in dev, disabled in production                                                                                                                                 |
-| Event stream endpoint     | ✅      | Mock: static JSON; **dev:** proxy `/api/events/v1/`* to fulfillment (buffered passthrough today — streaming follow-up per spec)                                                                            |
-| Console access            | ✅      | Mock: stub URLs; **dev:** proxy `/api/osac/public/v1/`* to fulfillment                                                                                              |
+| Area                           | Status | Notes                                                                                                                                 |
+| ------------------------------ | ------ | ------------------------------------------------------------------------------------------------------------------------------------- |
+| Upstream proxy                 | ✅      | `/api/fulfillment/v1/*`, `/api/events/v1/*`, `/api/osac/public/v1/*` — buffered passthrough; **spec:** `docs/specs/backend-fulfillment.yaml` `bff_proxy_matrix_dev` |
+| Health / readiness probes      | ✅      | `/health` and `/ready`                                                                                                                |                                              |
+| TLS upstream                   | ✅      | Custom CA via `FULFILLMENT_TLS_CA_FILE`; dev-only insecure skip via `FULFILLMENT_TLS_INSECURE`                                   |
+| Authorization passthrough      | ✅      | Inbound `Authorization` header forwarded; static bearer workarounds via `TEMP_FULFILLMENT_STATIC_BEARER`                              |
+| Mock mode                      | ❌      | Removed — see `docs/mock-data.md` for how mock data was structured and what the SPA still imports client-side                        |
 
 
 ### Shared libraries
@@ -512,17 +475,17 @@ oc get route osac -n osac-dev
 Run all scripts from the **repo root**:
 
 
-| Script                     | Description                                                 |
-| -------------------------- | ----------------------------------------------------------- |
-| `pnpm dev:backend`         | Start BFF in mock mode with hot-reload (`tsx watch`)        |
-| `pnpm dev:frontend`        | Start Vite dev server with HMR on `:5173`                   |
-| `pnpm build`               | Production build for all packages                           |
-| `pnpm lint`                | ESLint across all packages                                  |
-| `pnpm check:pf-primitives` | Guardrail: disallowed raw HTML for layout in `app-frontend` |
-| `pnpm test`                | Vitest unit tests across all packages                       |
-| `pnpm storybook`           | Start Storybook for `@osac/ui-components`                   |
-| `pnpm build-storybook`     | Build static Storybook                                      |
-| `pnpm e2e:ci`              | Run Cypress E2E tests headlessly                            |
+| Script                     | Description                                                                      |
+| -------------------------- | -------------------------------------------------------------------------------- |
+| `pnpm dev:proxy`           | Start Go chi proxy (`proxy/`) on `:8080`; requires `FULFILLMENT_API_URL`         |
+| `pnpm dev:frontend`        | Start Vite dev server with HMR on `:5173`; proxies `/api/*` to `:8080`           |
+| `pnpm build`               | Build SPA (`apps/app-frontend/dist`) and compile Go proxy binary                 |
+| `pnpm lint`                | ESLint across all packages                                                       |
+| `pnpm check:pf-primitives` | Guardrail: disallowed raw HTML for layout in `app-frontend`                      |
+| `pnpm test`                | Vitest unit tests across all packages                                            |
+| `pnpm storybook`           | Start Storybook for `@osac/ui-components`                                        |
+| `pnpm build-storybook`     | Build static Storybook                                                           |
+| `pnpm e2e:ci`              | Run Cypress E2E tests headlessly                                                 |
 
 
 ---
@@ -578,18 +541,10 @@ apps/app-frontend/src/
       createVmWizard/              # Wizard steps, types, constants, stepIds
       VmDetailDrawer.tsx, VmTable.tsx, VmActionsMenu.tsx, TemplateCard.tsx, …
 
-apps/app-backend/src/
-  index.ts          # Fastify listen — assertFulfillmentDevReady, buildApp
-  startupConfig.ts # OSAC_API_MODE=dev requires valid FULFILLMENT_API_URL
-  fulfillmentUpstream.ts # Undici Agent for FULFILLMENT_TLS_CA_FILE / TEMP_FULFILLMENT_TLS_INSECURE
-  app.ts            # buildApp() — composable app for tests + production
-  bff-contract.*.test.ts  # Vitest inject() — mock + dev proxy contract (see backend-fulfillment bff_test_harness)
-  routes/
-    fulfillmentProxyConfig.ts # Shared proxy route options (fulfillmentFetch, static bearer)
-    fulfillment.ts  # /api/fulfillment/v1/* — mock + proxy
-    upstreamProxy.ts # buffered passthrough to FULFILLMENT_API_URL (dev); fulfillmentUpstream.ts TLS Agent
-    events.ts       # /api/events/v1/* — mock + proxy
-    console.ts      # /api/osac/public/v1/* — mock + proxy
+proxy/
+  main.go           # Go chi reverse proxy — config, TLS, proxy handler, static serving
+  go.mod / go.sum   # Go module (github.com/go-chi/chi/v5)
+  Makefile          # build / run / lint / clean
 ```
 
 **Routing recap:** `App.tsx` imports shell and auth pages from `pages/shell` and `pages/auth`. Logged-in routes live under `AppShell` (`pages/shell/AppShell.tsx`) and map to `tenant/`*, `admin/`*, and `provider/*` paths per role (see `docs/specs/ui-flows/application-shell-session.yaml` for the canonical matrix).

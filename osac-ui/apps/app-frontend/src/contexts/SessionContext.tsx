@@ -1,7 +1,14 @@
-import { createContext, useCallback, useContext, useLayoutEffect, useRef, useState } from 'react'
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react'
 import type { DemoShellRole, DemoTenantId } from '@osac/api-contracts'
 import { demoLoginEmailForRole } from '@osac/api-contracts'
-import { clearAccessToken } from '../api/authToken'
 
 // ---------------------------------------------------------------------------
 // Query-param helpers (run once at startup)
@@ -20,6 +27,55 @@ function readOsacEntry(): { tenant: DemoTenantId; role: DemoShellRole } | null {
   return map[raw] ?? null
 }
 
+const PERSONA_STORAGE_KEY = 'osac.persona'
+
+function savePersonaToStorage(tenant: DemoTenantId | null, role: DemoShellRole) {
+  if (typeof window === 'undefined') return
+  if (tenant) {
+    sessionStorage.setItem(PERSONA_STORAGE_KEY, JSON.stringify({ tenant, role }))
+  } else {
+    sessionStorage.removeItem(PERSONA_STORAGE_KEY)
+  }
+}
+
+function loadPersonaFromStorage(): { tenant: DemoTenantId; role: DemoShellRole } | null {
+  if (typeof window === 'undefined') return null
+  try {
+    const raw = sessionStorage.getItem(PERSONA_STORAGE_KEY)
+    if (!raw) return null
+    return JSON.parse(raw) as { tenant: DemoTenantId; role: DemoShellRole }
+  } catch {
+    return null
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Auth API helpers
+// ---------------------------------------------------------------------------
+
+const EXPIRATION_KEY = 'osac.sessionExpiry'
+
+async function fetchLoginInfo(): Promise<{ username: string } | null> {
+  try {
+    const resp = await fetch('/api/login/info', { credentials: 'include' })
+    if (resp.status === 401) return null
+    if (!resp.ok) return null
+    return (await resp.json()) as { username: string }
+  } catch {
+    return null
+  }
+}
+
+async function fetchRefresh(): Promise<{ expiresIn: number } | null> {
+  try {
+    const resp = await fetch('/api/login/refresh', { credentials: 'include' })
+    if (!resp.ok) return null
+    return (await resp.json()) as { expiresIn: number }
+  } catch {
+    return null
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Context shape
 // ---------------------------------------------------------------------------
@@ -33,15 +89,17 @@ interface SessionContextValue {
   selectedTenant: DemoTenantId | null
   role: DemoShellRole
   isLoggedIn: boolean
-  isLoginLoading: boolean
+  isAuthLoading: boolean
   isDarkTheme: boolean
   topologyDetailRequest: TopologyVmDetailRequest | null
   loginEmail: string
+  username: string | null
   // Actions
   selectProviderAdmin: () => void
   selectTenantPersona: (tenant: DemoTenantId, role: DemoShellRole) => void
-  loginSuccess: (email: string, password: string) => void
-  logout: () => void
+  /** Called by AuthCallback after the proxy sets the session cookie. */
+  onLoginComplete: (expiresIn: number) => Promise<void>
+  logout: () => Promise<void>
   setIsDarkTheme: (dark: boolean) => void
   openTopologyDetailRequest: (vmId: string) => void
   clearTopologyDetailRequest: () => void
@@ -69,17 +127,21 @@ export function SessionProvider({
   const osacEntry = useRef(readOsacEntry())
   const osacEntryWelcomeRedirectConsumedRef = useRef(false)
 
+  const storedPersona = loadPersonaFromStorage()
+  const initialPersona = osacEntry.current ?? storedPersona
+
   const [selectedTenant, setSelectedTenant] = useState<DemoTenantId | null>(
-    () => osacEntry.current?.tenant ?? null,
+    () => initialPersona?.tenant ?? null,
   )
-  const [role, setRole] = useState<DemoShellRole>(() => osacEntry.current?.role ?? 'tenantUser')
+  const [role, setRole] = useState<DemoShellRole>(() => initialPersona?.role ?? 'tenantUser')
   const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [isLoginLoading, setIsLoginLoading] = useState(false)
+  const [isAuthLoading, setIsAuthLoading] = useState(true)
   const [isDarkTheme, setIsDarkTheme] = useState(false)
+  const [username, setUsername] = useState<string | null>(null)
   const [topologyDetailRequest, setTopologyDetailRequest] =
     useState<TopologyVmDetailRequest | null>(null)
 
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Remove osac-entry from URL on first render
   useState(() => {
@@ -98,43 +160,84 @@ export function SessionProvider({
     root.dataset.osacTheme = isDarkTheme ? 'dark' : 'light'
   }, [isDarkTheme])
 
+  // On mount: check if there is an existing session (e.g. page reload).
+  useEffect(() => {
+    void fetchLoginInfo().then((info) => {
+      if (info) {
+        setIsLoggedIn(true)
+        setUsername(info.username)
+        // Restore persona from storage if the user reloaded the page.
+        const saved = loadPersonaFromStorage()
+        if (saved && !selectedTenant) {
+          setSelectedTenant(saved.tenant)
+          setRole(saved.role)
+        }
+      }
+      setIsAuthLoading(false)
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const scheduleRefresh = useCallback((expiresIn: number) => {
+    if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current)
+    if (expiresIn <= 0) return
+    // Refresh 30 seconds before expiry; minimum 5 seconds.
+    const delay = Math.max((expiresIn - 30) * 1000, 5000)
+    refreshTimerRef.current = setTimeout(() => {
+      void fetchRefresh().then((result) => {
+        if (result) {
+          sessionStorage.setItem(EXPIRATION_KEY, String(Date.now() + result.expiresIn * 1000))
+          scheduleRefresh(result.expiresIn)
+        }
+      })
+    }, delay)
+  }, [])
+
+  const onLoginComplete = useCallback(
+    async (expiresIn: number) => {
+      const info = await fetchLoginInfo()
+      if (info) {
+        setIsLoggedIn(true)
+        setUsername(info.username)
+        sessionStorage.setItem(EXPIRATION_KEY, String(Date.now() + expiresIn * 1000))
+        scheduleRefresh(expiresIn)
+        onNavigateAfterLogin(role)
+      }
+    },
+    [role, onNavigateAfterLogin, scheduleRefresh],
+  )
+
+  const logout = useCallback(async () => {
+    if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current)
+    try {
+      await fetch('/api/logout', { method: 'POST', credentials: 'include' })
+    } catch {
+      // ignore
+    }
+    sessionStorage.removeItem(EXPIRATION_KEY)
+    savePersonaToStorage(null, 'tenantUser')
+    setIsLoggedIn(false)
+    setUsername(null)
+    setSelectedTenant(null)
+    setRole('tenantUser')
+    setTopologyDetailRequest(null)
+    onNavigateToWelcome()
+  }, [onNavigateToWelcome])
+
   const loginEmail = selectedTenant ? demoLoginEmailForRole(selectedTenant, role) : ''
 
   const selectProviderAdmin = useCallback(() => {
     setSelectedTenant('vertexa')
     setRole('providerAdmin')
+    savePersonaToStorage('vertexa', 'providerAdmin')
   }, [])
 
   const selectTenantPersona = useCallback((tenant: DemoTenantId, r: DemoShellRole) => {
     if (tenant === 'vertexa') return
     setSelectedTenant(tenant)
     setRole(r)
+    savePersonaToStorage(tenant, r)
   }, [])
-
-  const loginSuccess = useCallback(
-    (_email: string, _password: string) => {
-      setIsLoginLoading(true)
-      if (timerRef.current) clearTimeout(timerRef.current)
-      timerRef.current = setTimeout(() => {
-        timerRef.current = null
-        setIsLoginLoading(false)
-        setIsLoggedIn(true)
-        onNavigateAfterLogin(role)
-      }, 2000)
-    },
-    [onNavigateAfterLogin, role],
-  )
-
-  const logout = useCallback(() => {
-    if (timerRef.current) clearTimeout(timerRef.current)
-    clearAccessToken()
-    setIsLoggedIn(false)
-    setIsLoginLoading(false)
-    setSelectedTenant(null)
-    setRole('tenantUser')
-    setTopologyDetailRequest(null)
-    onNavigateToWelcome()
-  }, [onNavigateToWelcome])
 
   const openTopologyDetailRequest = useCallback((vmId: string) => {
     setTopologyDetailRequest((prev) => ({ vmId, seq: (prev?.seq ?? 0) + 1 }))
@@ -155,13 +258,14 @@ export function SessionProvider({
         selectedTenant,
         role,
         isLoggedIn,
-        isLoginLoading,
+        isAuthLoading,
         isDarkTheme,
         topologyDetailRequest,
         loginEmail,
+        username,
         selectProviderAdmin,
         selectTenantPersona,
-        loginSuccess,
+        onLoginComplete,
         logout,
         setIsDarkTheme,
         openTopologyDetailRequest,

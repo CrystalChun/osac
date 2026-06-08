@@ -31,6 +31,7 @@ interface Props {
   onChooseAnother: () => void
   trustedIssuers?: string[]
   submitError?: string | null
+  isSubmitting?: boolean
 }
 
 function renderHeaderMark(spec: HeaderMarkSpec) {
@@ -67,8 +68,9 @@ export function InstitutionalSignInPage({
   onChooseAnother,
   trustedIssuers,
   submitError,
+  isSubmitting,
 }: Props) {
-  const { selectedTenant, isLoginLoading } = useSession()
+  const { selectedTenant, isAuthLoading } = useSession()
 
   if (!selectedTenant) {
     return null
@@ -120,7 +122,7 @@ export function InstitutionalSignInPage({
                     emailLabel={branding.emailLabel}
                     emailType={branding.emailType}
                     showRememberMe={branding.showRememberMe}
-                    isLoading={isLoginLoading}
+                    isLoading={isAuthLoading || !!isSubmitting}
                     onSubmit={onLoginSuccess}
                     onChooseAnother={onChooseAnother}
                     trustedIssuers={trustedIssuers}

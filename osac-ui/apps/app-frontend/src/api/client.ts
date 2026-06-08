@@ -19,8 +19,6 @@ import {
   serializeComputeInstanceForCreate,
   serializeComputeInstancePowerPatch,
 } from '@osac/api-contracts'
-import { buildAuthHeaders } from './authToken'
-
 const BASE = '/api/fulfillment/v1'
 
 async function parseJson(res: Response): Promise<unknown> {
@@ -38,7 +36,8 @@ function unwrapFulfillmentObject(data: unknown): unknown {
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
-    headers: buildAuthHeaders({ 'Content-Type': 'application/json', ...init?.headers }),
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json', ...init?.headers },
     ...init,
   })
   if (!res.ok) {
@@ -72,7 +71,8 @@ export async function listComputeInstances(
   const qs = q.toString()
   const path = `/compute_instances${qs ? `?${qs}` : ''}`
   const res = await fetch(`${BASE}${path}`, {
-    headers: buildAuthHeaders({ 'Content-Type': 'application/json' }),
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
   })
   if (!res.ok) {
     const body = await res.text().catch(() => '')
@@ -83,7 +83,8 @@ export async function listComputeInstances(
 
 export async function getComputeInstance(id: string): Promise<ComputeInstance> {
   const res = await fetch(`${BASE}/compute_instances/${encodeURIComponent(id)}`, {
-    headers: buildAuthHeaders({ 'Content-Type': 'application/json' }),
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
   })
   if (!res.ok) {
     const body = await res.text().catch(() => '')
@@ -98,7 +99,8 @@ export async function createComputeInstance(
 ): Promise<ComputeInstance> {
   const res = await fetch(`${BASE}/compute_instances`, {
     method: 'POST',
-    headers: buildAuthHeaders({ 'Content-Type': 'application/json' }),
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
     /** Fulfillment HTTP unmarshals **ComputeInstance** at root (not `{ "object": … }`). */
     body: JSON.stringify(serializeComputeInstanceForCreate(vm, opts)),
   })
@@ -118,7 +120,8 @@ export async function patchComputeInstance(
 ): Promise<ComputeInstance> {
   const res = await fetch(`${BASE}/compute_instances/${encodeURIComponent(id)}`, {
     method: 'PATCH',
-    headers: buildAuthHeaders({ 'Content-Type': 'application/json' }),
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(patch),
   })
   if (!res.ok) {
@@ -137,7 +140,8 @@ export async function patchComputeInstancePower(
 ): Promise<ComputeInstance> {
   const res = await fetch(`${BASE}/compute_instances/${encodeURIComponent(id)}`, {
     method: 'PATCH',
-    headers: buildAuthHeaders({ 'Content-Type': 'application/json' }),
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(serializeComputeInstancePowerPatch(action)),
   })
   if (!res.ok) {
@@ -153,8 +157,7 @@ export async function patchComputeInstancePower(
 export async function deleteComputeInstance(id: string): Promise<void> {
   const res = await fetch(`${BASE}/compute_instances/${encodeURIComponent(id)}`, {
     method: 'DELETE',
-    /** No Content-Type without a body — Fastify rejects empty JSON bodies (FST_ERR_CTP_EMPTY_JSON_BODY). */
-    headers: buildAuthHeaders(),
+    credentials: 'include',
   })
   if (!res.ok) {
     const body = await res.text().catch(() => '')
@@ -182,7 +185,8 @@ export async function listComputeInstanceTemplates(
   const qs = q.toString()
   const path = `/compute_instance_templates${qs ? `?${qs}` : ''}`
   const res = await fetch(`${BASE}${path}`, {
-    headers: buildAuthHeaders({ 'Content-Type': 'application/json' }),
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
   })
   if (!res.ok) {
     const body = await res.text().catch(() => '')
@@ -193,7 +197,8 @@ export async function listComputeInstanceTemplates(
 
 export async function getComputeInstanceTemplate(id: string): Promise<ClusterTemplate> {
   const res = await fetch(`${BASE}/compute_instance_templates/${encodeURIComponent(id)}`, {
-    headers: buildAuthHeaders({ 'Content-Type': 'application/json' }),
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
   })
   if (!res.ok) {
     const body = await res.text().catch(() => '')

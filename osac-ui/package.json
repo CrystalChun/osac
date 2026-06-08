@@ -4,15 +4,13 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev:backend": "OSAC_API_MODE=mock pnpm --filter @osac/app-backend run dev",
+    "dev:proxy": "cd proxy && nodemon --watch 'proxy/**/*' --exec 'go run' main.go --signal SIGTERM",
     "dev:frontend": "pnpm --filter @osac/app-frontend run dev",
-    "build": "pnpm -r run build",
+    "build": "pnpm --filter @osac/app-frontend run build && cd proxy && go build -o osac-proxy .",
     "lint": "eslint \"{apps,libs}/*/src/**\" && prettier --check \"{apps,libs}/*/src/**/*.{js,jsx,ts,tsx}\"",
     "format": "prettier --write \"{apps,libs}/*/src/**/*.{js,jsx,ts,tsx}\"",
     "check:pf-primitives": "node scripts/check-pf-primitives.mjs",
     "test": "pnpm -r run test",
-    "storybook": "pnpm --filter @osac/ui-components run storybook",
-    "build-storybook": "pnpm --filter @osac/ui-components run build-storybook",
     "e2e:ci": "pnpm --filter @osac/e2e run e2e:ci",
     "graph:statecharts": "node scripts/statechart-graph.mjs --all --format both --out-dir docs/specs/graphs"
   },
@@ -22,6 +20,7 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.0.1",
     "globals": "^17.4.0",
+    "nodemon": "^3.1.14",
     "prettier": "^3.0.0",
     "typescript-eslint": "^8.57.0",
     "yaml": "^2.7.0"

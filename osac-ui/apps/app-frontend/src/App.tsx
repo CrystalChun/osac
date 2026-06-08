@@ -1,8 +1,9 @@
 import { useCallback, useRef } from 'react'
 import { BrowserRouter, Navigate, Route, Routes, useNavigate } from 'react-router-dom'
+import { Bullseye, Spinner } from '@patternfly/react-core'
 import type { DemoShellRole } from '@osac/api-contracts'
 import { SessionProvider, useSession } from './contexts/SessionContext'
-import { SignInPage, WelcomePage } from './pages/auth'
+import { AuthCallback, SignInPage } from './pages/auth'
 import { AppShell } from './pages/shell'
 
 function InnerApp() {
@@ -31,27 +32,27 @@ function InnerApp() {
 }
 
 function AppRoutes() {
-  const { isLoggedIn, selectedTenant } = useSession()
+  const { isLoggedIn, isAuthLoading } = useSession()
+
+  // Show a full-page spinner while we check for an existing session on mount.
+  if (isAuthLoading) {
+    return (
+      <Bullseye style={{ height: '100vh' }}>
+        <Spinner aria-label="Loading…" />
+      </Bullseye>
+    )
+  }
 
   return (
     <Routes>
-      <Route path="/" element={<WelcomePage />} />
+      {/* OIDC callback — must be accessible before auth is resolved. */}
+      <Route path="/callback" element={<AuthCallback />} />
       <Route
-        path="/sign-in"
-        element={
-          isLoggedIn || !selectedTenant ? (
-            <Navigate to={isLoggedIn ? '/dashboard' : '/'} replace />
-          ) : (
-            <SignInPage />
-          )
-        }
+        path="/"
+        element={isLoggedIn ? <Navigate to="/dashboard" replace /> : <SignInPage />}
       />
-      <Route
-        path="/*"
-        element={
-          isLoggedIn ? <AppShell /> : <Navigate to={selectedTenant ? '/sign-in' : '/'} replace />
-        }
-      />
+
+      <Route path="/*" element={isLoggedIn ? <AppShell /> : <Navigate to="/" replace />} />
     </Routes>
   )
 }

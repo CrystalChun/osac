@@ -3,8 +3,6 @@
  */
 import type { ComputeInstance } from '@osac/api-contracts'
 import type { WizardState } from '../components/vm/createVmWizard/types'
-import { buildAuthHeaders } from './authToken'
-
 const BASE = '/api/osac/bff/v1/create-vm-wizard'
 
 export class CreateVmWizardApiError extends Error {
@@ -47,7 +45,8 @@ async function parseJson(res: Response): Promise<unknown> {
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
-    headers: buildAuthHeaders({ 'Content-Type': 'application/json', ...(init?.headers ?? {}) }),
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json', ...(init?.headers ?? {}) },
     ...init,
   })
   const body = (await parseJson(res)) as {
@@ -104,7 +103,7 @@ export function finalizeWizardSession(
 export async function abandonWizardSession(sessionId: string): Promise<void> {
   const res = await fetch(`${BASE}/sessions/${encodeURIComponent(sessionId)}`, {
     method: 'DELETE',
-    headers: buildAuthHeaders(),
+    credentials: 'include',
   })
   if (!res.ok && res.status !== 404) {
     const text = await res.text().catch(() => '')

@@ -31,3 +31,22 @@ jobs:
 
       - name: Run lint
         run: pnpm run lint
+
+  lint-proxy:
+    name: Lint proxy (Go)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: proxy/go.mod
+          cache: false
+
+      - name: Run golangci-lint
+        uses: golangci/golangci-lint-action@v7
+        with:
+          version: v2.12.2
+          working-directory: proxy
