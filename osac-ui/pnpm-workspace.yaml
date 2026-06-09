@@ -2,5 +2,6 @@ packages:
   - apps/*
   - libs/*
 allowBuilds:
+  "@bufbuild/buf": true
   cypress: true
   esbuild: true

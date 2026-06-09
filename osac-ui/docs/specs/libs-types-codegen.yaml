@@ -1,0 +1,215 @@
+  # Spec: Generate TypeScript types from fulfillment-service proto definitions
+# Source of truth for creating libs/types and wiring it into the monorepo.
+
+version: 1
+id: libs-types-codegen
+title: Introduce libs/types — buf-generated TypeScript types from fulfillment-service protos
+
+related_specs:
+  - docs/specs/backend-fulfillment.yaml
+  - docs/specs/template-catalog-wizard-api-alignment.yaml
+
+problem_statement:
+  description: >-
+    TypeScript types consumed by the frontend and the BFF mock handlers are hand-written
+    in libs/api-contracts/src/types.ts and can silently drift from the actual fulfillment
+    REST API. The fulfillment-service publishes its proto definitions to
+    buf.build/osac-project/public-api on every tagged release. A code-generation step
+    that reads directly from those protos is the canonical way to keep types in sync.
+  current_pain:
+    - Manual edits to types.ts required on every upstream field rename or addition.
+    - No compile-time signal when a wire field name changes in the fulfillment service.
+    - The hand-written types use camelCase (UI model) instead of the wire snake_case,
+      conflating two concerns in one file.
+
+goals:
+  - Introduce a new libs/types workspace package that generates TypeScript from
+    buf.build/osac-project/public-api using @bufbuild/protoc-gen-es.
+  - Generated types represent the proto/wire layer (snake_case field names, PROTO_JSON
+    enums such as COMPUTE_INSTANCE_STATE_RUNNING).
+  - libs/api-contracts retains the UI-model types (VmPowerState camelCase enum,
+    normalizers) that are distinct from the wire types and are not generated.
+  - A single pnpm script (gen-types) regenerates libs/types and must be run after
+    upgrading the fulfillment-service release tag.
+
+non_goals:
+  - Removing or replacing the normalization layer in libs/api-contracts; that stays.
+  - Adopting the @bufbuild/connect-es client or gRPC-Web transport; the BFF proxy
+    continues to use plain fetch against the REST gateway.
+  - Generating service client stubs (only types/message shapes are needed).
+
+source_of_truth:
+  upstream_repo: https://github.com/osac-project/fulfillment-service
+  proto_path: proto/public
+  versioning: >-
+    Default ref is main, which always tracks the latest proto definitions.
+    Optionally pin to a release tag (e.g. v0.0.62) for reproducible generation.
+    Regenerate and commit src/ whenever upstream protos change.
+  access: >-
+    Public GitHub repo — no buf.build account or BUF_TOKEN required.
+    buf fetches proto files directly from the git tag via HTTPS.
+
+architecture:
+  new_package:
+    path: libs/types
+    name: "@osac/types"
+    visibility: private (consumed within the monorepo only)
+    type: "ESM (type: module)"
+    contents:
+      - buf.gen.yaml         # buf generation config
+      - buf.lock             # pinned buf dependency lockfile (committed)
+      - src/                 # generated output — committed to allow offline use
+      - package.json
+      - tsconfig.json
+
+  buf_generation:
+    plugin: buf.build/bufbuild/es
+    plugin_version: v2.12.0
+    input:
+      type: git_repo
+      url: https://github.com/osac-project/fulfillment-service.git
+      branch: main        # tracks the default branch; pin to a tag for stability
+      subdir: proto/public
+    output: src/
+    options:
+      - target=ts           # emit .ts files (not .js + .d.ts)
+    include_imports: true   # also generate google/api/ and other imported proto types
+    include_wkt: true       # also generate google/protobuf well-known types
+    result: >-
+      One *_pb.ts file per proto file under src/osac/public/v1/.
+      Each file exports message classes and enum values using the @bufbuild/protobuf
+      runtime (camelCase accessors, snake_case JSON names for serialization).
+    note: >-
+      No buf.build account or BUF_TOKEN needed. buf clones the repo at the
+      pinned tag over HTTPS and generates locally. The remote plugin
+      buf.build/bufbuild/es is fetched from the public buf.build plugin registry
+      which does not require authentication.
+
+  runtime_dependency:
+    package: "@bufbuild/protobuf"
+    role: >-
+      Required at runtime by generated files for Message base class and enum helpers.
+      Add as a regular dependency (not devDependency) of libs/types so consuming
+      packages inherit it transitively.
+
+  consuming_packages:
+    - libs/api-contracts:
+        usage: >-
+          Import wire-layer types to type the raw API response before normalization.
+          Example: normalizeComputeInstance(raw: ComputeInstance) where ComputeInstance
+          is imported from @osac/types.
+        migration_note: >-
+          The hand-written interfaces in types.ts that duplicate proto fields can be
+          removed incrementally as normalizers are updated to use @osac/types imports.
+          Do not do a bulk removal in the same PR as the initial codegen setup.
+
+wire_format_notes:
+  json_field_names: >-
+    gRPC-Gateway REST uses snake_case field names on the wire (e.g. memory_gib,
+    creation_timestamp, ip_address). The @bufbuild/protobuf runtime's toJson() /
+    fromJson() methods also use snake_case, matching the gateway. The generated
+    TypeScript accessor properties are camelCase (e.g. message.memoryGib) while
+    the JSON key is snake_case — this duality is handled by the runtime, not by
+    hand-written normalizers.
+  enum_strings: >-
+    Enums on the wire are PROTO_JSON strings (e.g. COMPUTE_INSTANCE_STATE_RUNNING).
+    The generated enum in TypeScript is a numeric enum; use the generated
+    ComputeInstanceState enum values and the runtime's JSON helpers when
+    parsing/serializing.
+
+implementation_steps:
+  1_scaffold_package:
+    description: Create libs/types directory with package.json and tsconfig.json.
+    files:
+      libs/types/package.json:
+        name: "@osac/types"
+        version: "0.0.0"
+        private: true
+        type: module
+        exports:
+          ".": "./src/index.ts"
+        scripts:
+          gen-types: "buf generate"
+        dependencies:
+          "@bufbuild/protobuf": "^2"
+        devDependencies:
+          "@bufbuild/buf": "^1"
+      libs/types/tsconfig.json:
+        extends: "../config/tsconfig.base.json"
+        include: ["src"]
+
+  2_buf_config:
+    description: >-
+      Create buf.gen.yaml in libs/types. Pin the git ref to the current
+      fulfillment-service release tag. No buf.lock needed for git inputs.
+    file: libs/types/buf.gen.yaml
+    content: |
+      version: v2
+      plugins:
+        - remote: buf.build/bufbuild/es:v2
+          out: src
+          opt:
+            - target=ts
+      inputs:
+        - git_repo: https://github.com/osac-project/fulfillment-service.git
+          branch: main
+          subdir: proto/public
+
+  3_generate:
+    description: >-
+      Run buf generate from libs/types to populate src/. Commit the generated
+      files so the monorepo works offline and CI requires no credentials.
+      buf fetches proto sources from the pinned GitHub tag over HTTPS.
+    command: pnpm --filter @osac/types run gen-types
+
+  4_index_export:
+    description: >-
+      Create libs/types/src/index.ts that re-exports all generated proto modules
+      relevant to the SPA. Import only from the public API (osac/public/v1/).
+    example: |
+      export * from './osac/public/v1/compute_instance_type_pb.js'
+      export * from './osac/public/v1/compute_instance_templates_service_pb.js'
+      export * from './osac/public/v1/metadata_type_pb.js'
+      export * from './osac/public/v1/event_type_pb.js'
+      export * from './osac/public/v1/capabilities_service_pb.js'
+      // add others as the SPA consumes them
+
+  5_update_normalizers:
+    description: >-
+      Update computeInstanceNormalize.ts and computeInstanceTemplateNormalize.ts
+      in libs/api-contracts to import raw wire types from @osac/types instead of
+      relying on the hand-written interfaces. This is an incremental step; do one
+      normalizer at a time and keep the build green.
+    import_example: |
+      import type { ComputeInstance } from '@osac/types'
+
+  6_root_script:
+    description: Add a gen-types convenience script to the root package.json.
+    addition: |
+      "gen-types": "pnpm --filter @osac/types run gen-types"
+
+  7_gitignore:
+    description: >-
+      Generated files in libs/types/src/ ARE committed (see step 3). Do NOT add
+      libs/types/src/ to .gitignore. No buf.lock file is generated for git inputs.
+
+verification:
+  - pnpm --filter @osac/types run gen-types completes without error.
+  - libs/types/src/osac/public/v1/compute_instance_type_pb.ts exists and exports
+    ComputeInstance and ComputeInstanceState.
+  - pnpm build succeeds across all packages.
+  - pnpm lint passes (generated files are excluded from lint via tsconfig includes).
+  - The normalizeComputeInstance function accepts a raw ComputeInstance from @osac/types
+    and TypeScript does not report type errors.
+
+upgrade_workflow:
+  trigger: fulfillment-service proto files changed on main (or a new release consumed).
+  steps:
+    1: Run pnpm gen-types from repo root (ref=main always fetches latest).
+    2: Review generated diff for new/removed/renamed fields.
+    3: Update normalizers in libs/api-contracts if field shapes changed.
+    4: Run pnpm build && pnpm lint to confirm no type errors.
+    5: Commit regenerated src/ together with any normalizer updates.
+  optional_pinning: >-
+    If reproducible generation is required (e.g. release branches), change ref
+    in libs/types/buf.gen.yaml from main to the specific tag before running gen-types.

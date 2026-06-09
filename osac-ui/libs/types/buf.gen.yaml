@@ -1,0 +1,12 @@
+version: v2
+plugins:
+  - remote: buf.build/bufbuild/es:v2.12.0
+    out: src
+    opt:
+      - target=ts
+    include_imports: true
+    include_wkt: true
+inputs:
+  - git_repo: https://github.com/osac-project/fulfillment-service.git
+    branch: main
+    subdir: proto/public
