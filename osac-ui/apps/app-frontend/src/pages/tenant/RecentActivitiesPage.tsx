@@ -2,7 +2,7 @@
  * flow: recent-activities
  * step: ra_activity_feed
  */
-import { useMemo } from 'react'
+import { useMemo } from 'react';
 import {
   Content,
   DataList,
@@ -15,20 +15,20 @@ import {
   Stack,
   StackItem,
   Title,
-} from '@patternfly/react-core'
-import { buildRecentActivities } from '@osac/api-contracts'
-import { useComputeInstances } from '../../api/hooks'
+} from '@patternfly/react-core';
+import { buildRecentActivities } from '@osac/api-contracts';
+import { useComputeInstances } from '../../api/hooks';
 
 const SEVERITY_COLOR: Record<string, 'green' | 'orange' | 'red' | 'blue' | 'grey'> = {
   success: 'green',
   warning: 'orange',
   danger: 'red',
   info: 'blue',
-}
+};
 
-export function RecentActivitiesPage() {
-  const { data: vms = [] } = useComputeInstances()
-  const activities = useMemo(() => buildRecentActivities(vms, 30), [vms])
+export const RecentActivitiesPage = () => {
+  const { data: vms = [] } = useComputeInstances();
+  const activities = useMemo(() => buildRecentActivities(vms, 30), [vms]);
 
   return (
     <PageSection>
@@ -109,5 +109,5 @@ export function RecentActivitiesPage() {
         </StackItem>
       </Stack>
     </PageSection>
-  )
-}
+  );
+};

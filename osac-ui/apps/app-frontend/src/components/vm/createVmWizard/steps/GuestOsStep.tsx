@@ -1,5 +1,5 @@
-import { RedhatIcon } from '@patternfly/react-icons/dist/esm/icons/redhat-icon'
-import { WindowsIcon } from '@patternfly/react-icons/dist/esm/icons/windows-icon'
+import { RedhatIcon } from '@patternfly/react-icons/dist/esm/icons/redhat-icon';
+import { WindowsIcon } from '@patternfly/react-icons/dist/esm/icons/windows-icon';
 import {
   Card,
   CardBody,
@@ -14,27 +14,27 @@ import {
   Stack,
   StackItem,
   Title,
-} from '@patternfly/react-core'
-import guestOsTuxLinuxUrl from '../../../../assets/guest-os-tux-linux.png'
-import { GUEST_OS_FAMILIES, OS_TYPES } from '../constants'
-import type { UpdateFn, WizardState } from '../types'
+} from '@patternfly/react-core';
+import guestOsTuxLinuxUrl from '../../../../assets/guest-os-tux-linux.png';
+import { GUEST_OS_FAMILIES, OS_TYPES } from '../constants';
+import type { UpdateFn, WizardState } from '../types';
 
 const FAMILY_ICONS = {
   rhel: RedhatIcon,
   windows: WindowsIcon,
-} as const
+} as const;
 
 const FAMILY_ICON_COLORS: Record<keyof typeof FAMILY_ICONS, string> = {
   rhel: '#EE0000',
   windows: '#0078D4',
-}
+};
 
-const VERSION_PLACEHOLDER = 'Select a version…'
-const NEED_OS_PLACEHOLDER = 'You need to choose an OS first.'
+const VERSION_PLACEHOLDER = 'Select a version…';
+const NEED_OS_PLACEHOLDER = 'You need to choose an OS first.';
 
-export function GuestOsStep({ state, update }: { state: WizardState; update: UpdateFn }) {
-  const familySelected = !!state.osFamilyNew
-  const versions = familySelected ? (OS_TYPES[state.osFamilyNew] ?? []) : []
+export const GuestOsStep = ({ state, update }: { state: WizardState; update: UpdateFn }) => {
+  const familySelected = !!state.osFamilyNew;
+  const versions = familySelected ? (OS_TYPES[state.osFamilyNew] ?? []) : [];
 
   return (
     <Stack hasGutter>
@@ -53,8 +53,8 @@ export function GuestOsStep({ state, update }: { state: WizardState; update: Upd
       <StackItem>
         <div className="osac-deploy-options" role="radiogroup" aria-labelledby="guest-os-heading">
           {GUEST_OS_FAMILIES.map((opt) => {
-            const selected = state.osFamilyNew === opt.id
-            const PfIcon = opt.id === 'linux' ? null : FAMILY_ICONS[opt.id]
+            const selected = state.osFamilyNew === opt.id;
+            const PfIcon = opt.id === 'linux' ? null : FAMILY_ICONS[opt.id];
             return (
               <div key={opt.id} className="osac-deploy-options__cell">
                 <Card
@@ -65,8 +65,8 @@ export function GuestOsStep({ state, update }: { state: WizardState; update: Upd
                   isClickable
                   isSelected={selected}
                   onClick={() => {
-                    update('osFamilyNew', opt.id)
-                    update('osTypeNew', '')
+                    update('osFamilyNew', opt.id);
+                    update('osTypeNew', '');
                   }}
                   ouiaId={`guest-os-option-${opt.id}`}
                   style={{
@@ -116,8 +116,8 @@ export function GuestOsStep({ state, update }: { state: WizardState; update: Upd
                           aria-label={opt.title}
                           isChecked={selected}
                           onChange={() => {
-                            update('osFamilyNew', opt.id)
-                            update('osTypeNew', '')
+                            update('osFamilyNew', opt.id);
+                            update('osTypeNew', '');
                           }}
                         />
                       </FlexItem>
@@ -152,7 +152,7 @@ export function GuestOsStep({ state, update }: { state: WizardState; update: Upd
                   </CardBody>
                 </Card>
               </div>
-            )
+            );
           })}
         </div>
       </StackItem>
@@ -176,5 +176,5 @@ export function GuestOsStep({ state, update }: { state: WizardState; update: Upd
         </FormGroup>
       </StackItem>
     </Stack>
-  )
-}
+  );
+};

@@ -1,2 +1,2 @@
-export { AuthCallback } from './AuthCallback'
-export { SignInPage } from './SignInPage'
+export { AuthCallback } from './AuthCallback';
+export { SignInPage } from './SignInPage';

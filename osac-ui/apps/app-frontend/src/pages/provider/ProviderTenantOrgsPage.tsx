@@ -2,12 +2,12 @@
  * flow: provider-administration
  * step: pad_tenant_organizations
  */
-import { Label, PageSection } from '@patternfly/react-core'
-import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table'
-import { DEMO_ORGANIZATIONS } from '@osac/api-contracts'
-import { PageHeader } from '../../components/layout'
+import { Label, PageSection } from '@patternfly/react-core';
+import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
+import { DEMO_ORGANIZATIONS } from '@osac/api-contracts';
+import { PageHeader } from '../../components/layout';
 
-export function ProviderTenantOrgsPage() {
+export const ProviderTenantOrgsPage = () => {
   return (
     <PageSection>
       <PageHeader
@@ -59,5 +59,5 @@ export function ProviderTenantOrgsPage() {
         </Tbody>
       </Table>
     </PageSection>
-  )
-}
+  );
+};

@@ -1,4 +1,4 @@
-import type { VmPowerState } from './types.js'
+import type { VmPowerState } from './types.js';
 
 /** States where the VM is mid-transition; UI shows a spinner beside the status badge. */
 export const VM_TRANSITION_POWER_STATES: readonly VmPowerState[] = [
@@ -8,10 +8,10 @@ export const VM_TRANSITION_POWER_STATES: readonly VmPowerState[] = [
   'deleting',
   'creating',
   'still_provisioning',
-]
+];
 
-const TRANSITION_SET = new Set<VmPowerState>(VM_TRANSITION_POWER_STATES)
+const TRANSITION_SET = new Set<VmPowerState>(VM_TRANSITION_POWER_STATES);
 
-export function isVmTransitionPowerState(state: VmPowerState): boolean {
-  return TRANSITION_SET.has(state)
-}
+export const isVmTransitionPowerState = (state: VmPowerState): boolean => {
+  return TRANSITION_SET.has(state);
+};

@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { ReactNode } from 'react';
 import {
   Button,
   Card,
@@ -9,23 +9,23 @@ import {
   Content,
   Flex,
   FlexItem,
-} from '@patternfly/react-core'
+} from '@patternfly/react-core';
 
 interface DashboardActionTileProps {
-  icon: ReactNode
-  title: string
-  description: string
-  actionLabel: string
-  onAction: () => void
+  icon: ReactNode;
+  title: string;
+  description: string;
+  actionLabel: string;
+  onAction: () => void;
 }
 
-export function DashboardActionTile({
+export const DashboardActionTile = ({
   icon,
   title,
   description,
   actionLabel,
   onAction,
-}: DashboardActionTileProps) {
+}: DashboardActionTileProps) => {
   return (
     <Card isFullHeight>
       <CardHeader>
@@ -50,5 +50,5 @@ export function DashboardActionTile({
         </Button>
       </CardFooter>
     </Card>
-  )
-}
+  );
+};

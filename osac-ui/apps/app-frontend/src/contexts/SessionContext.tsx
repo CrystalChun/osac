@@ -6,259 +6,287 @@ import {
   useLayoutEffect,
   useRef,
   useState,
-} from 'react'
-import type { DemoShellRole, DemoTenantId } from '@osac/api-contracts'
-import { demoLoginEmailForRole } from '@osac/api-contracts'
+} from 'react';
+import type { DemoShellRole, DemoTenantId } from '@osac/api-contracts';
+import { demoLoginEmailForRole } from '@osac/api-contracts';
 
 // ---------------------------------------------------------------------------
 // Query-param helpers (run once at startup)
 // ---------------------------------------------------------------------------
 
-function readOsacEntry(): { tenant: DemoTenantId; role: DemoShellRole } | null {
-  if (typeof window === 'undefined') return null
-  const p = new URLSearchParams(window.location.search)
-  const raw = p.get('osac-entry')?.trim().toLowerCase() ?? ''
+const readOsacEntry = (): { tenant: DemoTenantId; role: DemoShellRole } | null => {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+  const p = new URLSearchParams(window.location.search);
+  const raw = p.get('osac-entry')?.trim().toLowerCase() ?? '';
   const map: Record<string, { tenant: DemoTenantId; role: DemoShellRole }> = {
     'northstar-user': { tenant: 'northstar', role: 'tenantUser' },
     'northstar-admin': { tenant: 'northstar', role: 'tenantAdmin' },
     'evergreen-user': { tenant: 'evergreen', role: 'tenantUser' },
     'evergreen-admin': { tenant: 'evergreen', role: 'tenantAdmin' },
+  };
+  return map[raw] ?? null;
+};
+
+const PERSONA_STORAGE_KEY = 'osac.persona';
+
+const savePersonaToStorage = (tenant: DemoTenantId | null, role: DemoShellRole) => {
+  if (typeof window === 'undefined') {
+    return;
   }
-  return map[raw] ?? null
-}
-
-const PERSONA_STORAGE_KEY = 'osac.persona'
-
-function savePersonaToStorage(tenant: DemoTenantId | null, role: DemoShellRole) {
-  if (typeof window === 'undefined') return
   if (tenant) {
-    sessionStorage.setItem(PERSONA_STORAGE_KEY, JSON.stringify({ tenant, role }))
+    sessionStorage.setItem(PERSONA_STORAGE_KEY, JSON.stringify({ tenant, role }));
   } else {
-    sessionStorage.removeItem(PERSONA_STORAGE_KEY)
+    sessionStorage.removeItem(PERSONA_STORAGE_KEY);
   }
-}
+};
 
-function loadPersonaFromStorage(): { tenant: DemoTenantId; role: DemoShellRole } | null {
-  if (typeof window === 'undefined') return null
-  try {
-    const raw = sessionStorage.getItem(PERSONA_STORAGE_KEY)
-    if (!raw) return null
-    return JSON.parse(raw) as { tenant: DemoTenantId; role: DemoShellRole }
-  } catch {
-    return null
+const loadPersonaFromStorage = (): { tenant: DemoTenantId; role: DemoShellRole } | null => {
+  if (typeof window === 'undefined') {
+    return null;
   }
-}
+  try {
+    const raw = sessionStorage.getItem(PERSONA_STORAGE_KEY);
+    if (!raw) {
+      return null;
+    }
+    return JSON.parse(raw) as { tenant: DemoTenantId; role: DemoShellRole };
+  } catch {
+    return null;
+  }
+};
 
 // ---------------------------------------------------------------------------
 // Auth API helpers
 // ---------------------------------------------------------------------------
 
-const EXPIRATION_KEY = 'osac.sessionExpiry'
+const EXPIRATION_KEY = 'osac.sessionExpiry';
 
-async function fetchLoginInfo(): Promise<{ username: string } | null> {
+const fetchLoginInfo = async (): Promise<{ username: string } | null> => {
   try {
-    const resp = await fetch('/api/login/info', { credentials: 'include' })
-    if (resp.status === 401) return null
-    if (!resp.ok) return null
-    return (await resp.json()) as { username: string }
+    const resp = await fetch('/api/login/info', { credentials: 'include' });
+    if (resp.status === 401) {
+      return null;
+    }
+    if (!resp.ok) {
+      return null;
+    }
+    return (await resp.json()) as { username: string };
   } catch {
-    return null
+    return null;
   }
-}
+};
 
-async function fetchRefresh(): Promise<{ expiresIn: number } | null> {
+const fetchRefresh = async (): Promise<{ expiresIn: number } | null> => {
   try {
-    const resp = await fetch('/api/login/refresh', { credentials: 'include' })
-    if (!resp.ok) return null
-    return (await resp.json()) as { expiresIn: number }
+    const resp = await fetch('/api/login/refresh', { credentials: 'include' });
+    if (!resp.ok) {
+      return null;
+    }
+    return (await resp.json()) as { expiresIn: number };
   } catch {
-    return null
+    return null;
   }
-}
+};
 
 // ---------------------------------------------------------------------------
 // Context shape
 // ---------------------------------------------------------------------------
 
 export interface TopologyVmDetailRequest {
-  vmId: string
-  seq: number
+  vmId: string;
+  seq: number;
 }
 
 interface SessionContextValue {
-  selectedTenant: DemoTenantId | null
-  role: DemoShellRole
-  isLoggedIn: boolean
-  isAuthLoading: boolean
-  isDarkTheme: boolean
-  topologyDetailRequest: TopologyVmDetailRequest | null
-  loginEmail: string
-  username: string | null
+  selectedTenant: DemoTenantId | null;
+  role: DemoShellRole;
+  isLoggedIn: boolean;
+  isAuthLoading: boolean;
+  isDarkTheme: boolean;
+  topologyDetailRequest: TopologyVmDetailRequest | null;
+  loginEmail: string;
+  username: string | null;
   // Actions
-  selectProviderAdmin: () => void
-  selectTenantPersona: (tenant: DemoTenantId, role: DemoShellRole) => void
+  selectProviderAdmin: () => void;
+  selectTenantPersona: (tenant: DemoTenantId, role: DemoShellRole) => void;
   /** Called by AuthCallback after the proxy sets the session cookie. */
-  onLoginComplete: (expiresIn: number) => Promise<void>
-  logout: () => Promise<void>
-  setIsDarkTheme: (dark: boolean) => void
-  openTopologyDetailRequest: (vmId: string) => void
-  clearTopologyDetailRequest: () => void
+  onLoginComplete: (expiresIn: number) => Promise<void>;
+  logout: () => Promise<void>;
+  setIsDarkTheme: (dark: boolean) => void;
+  openTopologyDetailRequest: (vmId: string) => void;
+  clearTopologyDetailRequest: () => void;
   /** One-shot for cold `?osac-entry=` loads; Welcome uses this so Back from sign-in is not trapped. */
-  consumeInitialOsacEntryDeepLinkRedirect: () => boolean
+  consumeInitialOsacEntryDeepLinkRedirect: () => boolean;
 }
 
-const SessionContext = createContext<SessionContextValue | null>(null)
+const SessionContext = createContext<SessionContextValue | null>(null);
 
 // ---------------------------------------------------------------------------
 // Provider
 // ---------------------------------------------------------------------------
 
 interface SessionProviderProps {
-  children: React.ReactNode
-  onNavigateAfterLogin: (role: DemoShellRole) => void
-  onNavigateToWelcome: () => void
+  children: React.ReactNode;
+  onNavigateAfterLogin: (role: DemoShellRole) => void;
+  onNavigateToWelcome: () => void;
 }
 
-export function SessionProvider({
+export const SessionProvider = ({
   children,
   onNavigateAfterLogin,
   onNavigateToWelcome,
-}: SessionProviderProps) {
-  const osacEntry = useRef(readOsacEntry())
-  const osacEntryWelcomeRedirectConsumedRef = useRef(false)
+}: SessionProviderProps) => {
+  const osacEntry = useRef(readOsacEntry());
+  const osacEntryWelcomeRedirectConsumedRef = useRef(false);
 
-  const storedPersona = loadPersonaFromStorage()
-  const initialPersona = osacEntry.current ?? storedPersona
+  const storedPersona = loadPersonaFromStorage();
+  const initialPersona = osacEntry.current ?? storedPersona;
 
   const [selectedTenant, setSelectedTenant] = useState<DemoTenantId | null>(
     () => initialPersona?.tenant ?? null,
-  )
-  const [role, setRole] = useState<DemoShellRole>(() => initialPersona?.role ?? 'tenantUser')
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [isAuthLoading, setIsAuthLoading] = useState(true)
-  const [isDarkTheme, setIsDarkTheme] = useState(false)
-  const [username, setUsername] = useState<string | null>(null)
+  );
+  const [role, setRole] = useState<DemoShellRole>(() => initialPersona?.role ?? 'tenantUser');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
+  const [isDarkTheme, setIsDarkTheme] = useState(false);
+  const [username, setUsername] = useState<string | null>(null);
   const [topologyDetailRequest, setTopologyDetailRequest] =
-    useState<TopologyVmDetailRequest | null>(null)
+    useState<TopologyVmDetailRequest | null>(null);
 
-  const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Remove osac-entry from URL on first render
   useState(() => {
-    if (typeof window === 'undefined') return
-    const p = new URLSearchParams(window.location.search)
-    if (!p.has('osac-entry')) return
-    p.delete('osac-entry')
-    const qs = p.toString()
-    window.history.replaceState({}, '', `${window.location.pathname}${qs ? `?${qs}` : ''}`)
-  })
+    if (typeof window === 'undefined') {
+      return;
+    }
+    const p = new URLSearchParams(window.location.search);
+    if (!p.has('osac-entry')) {
+      return;
+    }
+    p.delete('osac-entry');
+    const qs = p.toString();
+    window.history.replaceState({}, '', `${window.location.pathname}${qs ? `?${qs}` : ''}`);
+  });
 
   // Theme sync to DOM
   useLayoutEffect(() => {
-    const root = document.documentElement
-    root.classList.toggle('pf-v6-theme-dark', isDarkTheme)
-    root.dataset.osacTheme = isDarkTheme ? 'dark' : 'light'
-  }, [isDarkTheme])
+    const root = document.documentElement;
+    root.classList.toggle('pf-v6-theme-dark', isDarkTheme);
+    root.dataset.osacTheme = isDarkTheme ? 'dark' : 'light';
+  }, [isDarkTheme]);
 
   // On mount: check if there is an existing session (e.g. page reload).
   useEffect(() => {
     void fetchLoginInfo().then((info) => {
       if (info) {
-        setIsLoggedIn(true)
-        setUsername(info.username)
+        setIsLoggedIn(true);
+        setUsername(info.username);
         // Restore persona from storage if the user reloaded the page.
-        const saved = loadPersonaFromStorage()
+        const saved = loadPersonaFromStorage();
         if (saved && !selectedTenant) {
-          setSelectedTenant(saved.tenant)
-          setRole(saved.role)
+          setSelectedTenant(saved.tenant);
+          setRole(saved.role);
         }
       }
-      setIsAuthLoading(false)
-    })
+      setIsAuthLoading(false);
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, []);
 
   const scheduleRefresh = useCallback((expiresIn: number) => {
-    if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current)
-    if (expiresIn <= 0) return
+    if (refreshTimerRef.current) {
+      clearTimeout(refreshTimerRef.current);
+    }
+    if (expiresIn <= 0) {
+      return;
+    }
     // Refresh 30 seconds before expiry; minimum 5 seconds.
-    const delay = Math.max((expiresIn - 30) * 1000, 5000)
+    const delay = Math.max((expiresIn - 30) * 1000, 5000);
     refreshTimerRef.current = setTimeout(() => {
       void fetchRefresh().then((result) => {
         if (result) {
-          sessionStorage.setItem(EXPIRATION_KEY, String(Date.now() + result.expiresIn * 1000))
-          scheduleRefresh(result.expiresIn)
+          sessionStorage.setItem(EXPIRATION_KEY, String(Date.now() + result.expiresIn * 1000));
+          scheduleRefresh(result.expiresIn);
         }
-      })
-    }, delay)
-  }, [])
+      });
+    }, delay);
+  }, []);
 
   const onLoginComplete = useCallback(
     async (expiresIn: number) => {
-      const info = await fetchLoginInfo()
+      const info = await fetchLoginInfo();
       if (info) {
-        setIsLoggedIn(true)
-        setUsername(info.username)
-        sessionStorage.setItem(EXPIRATION_KEY, String(Date.now() + expiresIn * 1000))
-        scheduleRefresh(expiresIn)
-        onNavigateAfterLogin(role)
+        setIsLoggedIn(true);
+        setUsername(info.username);
+        sessionStorage.setItem(EXPIRATION_KEY, String(Date.now() + expiresIn * 1000));
+        scheduleRefresh(expiresIn);
+        onNavigateAfterLogin(role);
       }
     },
     [role, onNavigateAfterLogin, scheduleRefresh],
-  )
+  );
 
   const logout = useCallback(async () => {
-    const resp = await fetch('/api/logout', { method: 'POST', credentials: 'include' })
+    const resp = await fetch('/api/logout', { method: 'POST', credentials: 'include' });
     if (!resp.ok) {
-      let text = ''
+      let text = '';
       try {
-        text = await resp.text()
+        text = await resp.text();
       } catch (e) {
         // eslint-disable-next-line no-console
-        console.warn('Failed to parse logout response', e)
+        console.warn('Failed to parse logout response', e);
       }
-      throw new Error(`Logout failed (HTTP ${resp.status})${text ? `: ${text}` : ''}`)
+      throw new Error(`Logout failed (HTTP ${resp.status})${text ? `: ${text}` : ''}`);
     }
     if (refreshTimerRef.current) {
-      clearTimeout(refreshTimerRef.current)
+      clearTimeout(refreshTimerRef.current);
     }
-    sessionStorage.removeItem(EXPIRATION_KEY)
-    savePersonaToStorage(null, 'tenantUser')
-    setIsLoggedIn(false)
-    setUsername(null)
-    setSelectedTenant(null)
-    setRole('tenantUser')
-    setTopologyDetailRequest(null)
-    onNavigateToWelcome()
-  }, [onNavigateToWelcome])
+    sessionStorage.removeItem(EXPIRATION_KEY);
+    savePersonaToStorage(null, 'tenantUser');
+    setIsLoggedIn(false);
+    setUsername(null);
+    setSelectedTenant(null);
+    setRole('tenantUser');
+    setTopologyDetailRequest(null);
+    onNavigateToWelcome();
+  }, [onNavigateToWelcome]);
 
-  const loginEmail = selectedTenant ? demoLoginEmailForRole(selectedTenant, role) : ''
+  const loginEmail = selectedTenant ? demoLoginEmailForRole(selectedTenant, role) : '';
 
   const selectProviderAdmin = useCallback(() => {
-    setSelectedTenant('vertexa')
-    setRole('providerAdmin')
-    savePersonaToStorage('vertexa', 'providerAdmin')
-  }, [])
+    setSelectedTenant('vertexa');
+    setRole('providerAdmin');
+    savePersonaToStorage('vertexa', 'providerAdmin');
+  }, []);
 
   const selectTenantPersona = useCallback((tenant: DemoTenantId, r: DemoShellRole) => {
-    if (tenant === 'vertexa') return
-    setSelectedTenant(tenant)
-    setRole(r)
-    savePersonaToStorage(tenant, r)
-  }, [])
+    if (tenant === 'vertexa') {
+      return;
+    }
+    setSelectedTenant(tenant);
+    setRole(r);
+    savePersonaToStorage(tenant, r);
+  }, []);
 
   const openTopologyDetailRequest = useCallback((vmId: string) => {
-    setTopologyDetailRequest((prev) => ({ vmId, seq: (prev?.seq ?? 0) + 1 }))
-  }, [])
+    setTopologyDetailRequest((prev) => ({ vmId, seq: (prev?.seq ?? 0) + 1 }));
+  }, []);
 
-  const clearTopologyDetailRequest = useCallback(() => setTopologyDetailRequest(null), [])
+  const clearTopologyDetailRequest = useCallback(() => setTopologyDetailRequest(null), []);
 
   const consumeInitialOsacEntryDeepLinkRedirect = useCallback(() => {
-    if (!osacEntry.current) return false
-    if (osacEntryWelcomeRedirectConsumedRef.current) return false
-    osacEntryWelcomeRedirectConsumedRef.current = true
-    return true
-  }, [])
+    if (!osacEntry.current) {
+      return false;
+    }
+    if (osacEntryWelcomeRedirectConsumedRef.current) {
+      return false;
+    }
+    osacEntryWelcomeRedirectConsumedRef.current = true;
+    return true;
+  }, []);
 
   return (
     <SessionContext.Provider
@@ -283,11 +311,13 @@ export function SessionProvider({
     >
       {children}
     </SessionContext.Provider>
-  )
-}
+  );
+};
 
-export function useSession(): SessionContextValue {
-  const ctx = useContext(SessionContext)
-  if (!ctx) throw new Error('useSession must be used inside SessionProvider')
-  return ctx
-}
+export const useSession = (): SessionContextValue => {
+  const ctx = useContext(SessionContext);
+  if (!ctx) {
+    throw new Error('useSession must be used inside SessionProvider');
+  }
+  return ctx;
+};

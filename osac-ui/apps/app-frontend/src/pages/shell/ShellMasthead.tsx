@@ -1,8 +1,8 @@
-import { BarsIcon } from '@patternfly/react-icons/dist/esm/icons/bars-icon'
-import { BellIcon } from '@patternfly/react-icons/dist/esm/icons/bell-icon'
-import { CogIcon } from '@patternfly/react-icons/dist/esm/icons/cog-icon'
-import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons/dist/esm/icons/outlined-question-circle-icon'
-import { UserIcon } from '@patternfly/react-icons/dist/esm/icons/user-icon'
+import { BarsIcon } from '@patternfly/react-icons/dist/esm/icons/bars-icon';
+import { BellIcon } from '@patternfly/react-icons/dist/esm/icons/bell-icon';
+import { CogIcon } from '@patternfly/react-icons/dist/esm/icons/cog-icon';
+import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons/dist/esm/icons/outlined-question-circle-icon';
+import { UserIcon } from '@patternfly/react-icons/dist/esm/icons/user-icon';
 import {
   Button,
   Content,
@@ -24,23 +24,23 @@ import {
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
-} from '@patternfly/react-core'
-import type { MouseEvent } from 'react'
-import type { DemoShellRole, DemoTenantId, TenantSovereignty } from '@osac/api-contracts'
-import { demoOperatingModeLabel } from '@osac/api-contracts'
+} from '@patternfly/react-core';
+import type { MouseEvent } from 'react';
+import type { DemoShellRole, DemoTenantId, TenantSovereignty } from '@osac/api-contracts';
+import { demoOperatingModeLabel } from '@osac/api-contracts';
 
 interface ShellMastheadProps {
-  selectedTenant: DemoTenantId | null
-  role: DemoShellRole
-  displayName: string
-  sovereignty: TenantSovereignty | null
-  isUserMenuOpen: boolean
-  setIsUserMenuOpen: (open: boolean) => void
-  onLogout: () => void
-  onOpenActivities: () => void
+  selectedTenant: DemoTenantId | null;
+  role: DemoShellRole;
+  displayName: string;
+  sovereignty: TenantSovereignty | null;
+  isUserMenuOpen: boolean;
+  setIsUserMenuOpen: (open: boolean) => void;
+  onLogout: () => void;
+  onOpenActivities: () => void;
 }
 
-export function ShellMasthead({
+export const ShellMasthead = ({
   selectedTenant,
   role,
   displayName,
@@ -49,7 +49,7 @@ export function ShellMasthead({
   setIsUserMenuOpen,
   onLogout,
   onOpenActivities,
-}: ShellMastheadProps) {
+}: ShellMastheadProps) => {
   return (
     <Masthead display={{ default: 'inline' }}>
       <MastheadMain>
@@ -205,5 +205,5 @@ export function ShellMasthead({
         </Flex>
       </MastheadContent>
     </Masthead>
-  )
-}
+  );
+};

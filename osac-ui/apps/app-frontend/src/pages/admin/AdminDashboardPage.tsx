@@ -2,13 +2,13 @@
  * flow: tenant-administration
  * step: tad_dashboard_home
  */
-import { useNavigate } from 'react-router-dom'
-import { Flex, Gallery, GalleryItem, PageSection, Title } from '@patternfly/react-core'
-import { DEMO_TENANT_LABEL } from '@osac/api-contracts'
-import { useSession } from '../../contexts/SessionContext'
-import { useComputeInstances } from '../../api/hooks'
-import { DashboardActionTile, DashboardMetricCard } from '../../components/dashboard'
-import { PageHeader } from '../../components/layout'
+import { useNavigate } from 'react-router-dom';
+import { Flex, Gallery, GalleryItem, PageSection, Title } from '@patternfly/react-core';
+import { DEMO_TENANT_LABEL } from '@osac/api-contracts';
+import { useSession } from '../../contexts/SessionContext';
+import { useComputeInstances } from '../../api/hooks';
+import { DashboardActionTile, DashboardMetricCard } from '../../components/dashboard';
+import { PageHeader } from '../../components/layout';
 
 const TILES = [
   {
@@ -46,13 +46,13 @@ const TILES = [
     desc: 'Disk pools, snapshots, and backup policies.',
     path: '/admin/storage',
   },
-]
+];
 
-export function AdminDashboardPage() {
-  const navigate = useNavigate()
-  const { selectedTenant } = useSession()
-  const { data: vms = [] } = useComputeInstances()
-  const tenantLabel = selectedTenant ? DEMO_TENANT_LABEL[selectedTenant] : 'Tenant'
+export const AdminDashboardPage = () => {
+  const navigate = useNavigate();
+  const { selectedTenant } = useSession();
+  const { data: vms = [] } = useComputeInstances();
+  const tenantLabel = selectedTenant ? DEMO_TENANT_LABEL[selectedTenant] : 'Tenant';
 
   return (
     <PageSection>
@@ -92,5 +92,5 @@ export function AdminDashboardPage() {
         ))}
       </Gallery>
     </PageSection>
-  )
-}
+  );
+};

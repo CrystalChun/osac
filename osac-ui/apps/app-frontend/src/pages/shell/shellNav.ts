@@ -1,19 +1,19 @@
-import type { DemoShellRole } from '@osac/api-contracts'
+import type { DemoShellRole } from '@osac/api-contracts';
 
 export type NavRow =
   | { kind: 'link'; id: string; label: string; path: string }
   | {
-      kind: 'expand'
-      label: string
-      groupId: string
-      children: { id: string; label: string; path: string }[]
-    }
+      kind: 'expand';
+      label: string;
+      groupId: string;
+      children: { id: string; label: string; path: string }[];
+    };
 
 const TENANT_USER_NAV: NavRow[] = [
   { kind: 'link', id: 'dashboard', label: 'Dashboard', path: '/dashboard' },
   { kind: 'link', id: 'compute-vms', label: 'My VMs', path: '/vms' },
   { kind: 'link', id: 'catalog', label: 'Templates', path: '/templates' },
-]
+];
 
 const TENANT_ADMIN_NAV: NavRow[] = [
   { kind: 'link', id: 'admin-dashboard', label: 'Dashboard', path: '/admin/dashboard' },
@@ -45,7 +45,7 @@ const TENANT_ADMIN_NAV: NavRow[] = [
       { id: 'admin-org-security', label: 'Security & Compliance', path: '/admin/security' },
     ],
   },
-]
+];
 
 const PROVIDER_ADMIN_NAV: NavRow[] = [
   { kind: 'link', id: 'provider-dashboard', label: 'Dashboard', path: '/provider/dashboard' },
@@ -69,7 +69,7 @@ const PROVIDER_ADMIN_NAV: NavRow[] = [
       { id: 'provider-settings', label: 'Platform settings', path: '/provider/settings' },
     ],
   },
-]
+];
 
 export const DEFAULT_EXPANDED_GROUP_IDS = [
   'nav-admin-mgmt',
@@ -77,10 +77,14 @@ export const DEFAULT_EXPANDED_GROUP_IDS = [
   'nav-admin-org',
   'nav-provider-mgmt',
   'nav-provider-system',
-]
+];
 
-export function navRowsForRole(role: DemoShellRole): NavRow[] {
-  if (role === 'providerAdmin') return PROVIDER_ADMIN_NAV
-  if (role === 'tenantAdmin') return TENANT_ADMIN_NAV
-  return TENANT_USER_NAV
-}
+export const navRowsForRole = (role: DemoShellRole): NavRow[] => {
+  if (role === 'providerAdmin') {
+    return PROVIDER_ADMIN_NAV;
+  }
+  if (role === 'tenantAdmin') {
+    return TENANT_ADMIN_NAV;
+  }
+  return TENANT_USER_NAV;
+};

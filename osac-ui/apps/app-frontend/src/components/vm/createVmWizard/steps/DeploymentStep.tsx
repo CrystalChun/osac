@@ -1,6 +1,6 @@
-import { BlueprintIcon } from '@patternfly/react-icons/dist/esm/icons/blueprint-icon'
-import { CloneIcon } from '@patternfly/react-icons/dist/esm/icons/clone-icon'
-import { DesktopIcon } from '@patternfly/react-icons/dist/esm/icons/desktop-icon'
+import { BlueprintIcon } from '@patternfly/react-icons/dist/esm/icons/blueprint-icon';
+import { CloneIcon } from '@patternfly/react-icons/dist/esm/icons/clone-icon';
+import { DesktopIcon } from '@patternfly/react-icons/dist/esm/icons/desktop-icon';
 /**
  * WIZARD_TEMPLATE_ONLY: this step is not mounted (wizard is template-only). Kept for RESTORE when
  * fulfillment supports "new" and "clone" creation methods — wire back in CreateVmWizard `renderStepBody`.
@@ -17,14 +17,14 @@ import {
   Stack,
   StackItem,
   Title,
-} from '@patternfly/react-core'
-import type { DeploymentMode, UpdateFn, WizardState } from '../types'
+} from '@patternfly/react-core';
+import type { DeploymentMode, UpdateFn, WizardState } from '../types';
 
 const OPTIONS: {
-  value: DeploymentMode
-  title: string
-  description: string
-  Icon: typeof DesktopIcon
+  value: DeploymentMode;
+  title: string;
+  description: string;
+  Icon: typeof DesktopIcon;
 }[] = [
   {
     value: 'new',
@@ -44,9 +44,9 @@ const OPTIONS: {
     description: "Duplicate an existing virtual machine's configuration as a starting point.",
     Icon: CloneIcon,
   },
-]
+];
 
-export function DeploymentStep({ state, update }: { state: WizardState; update: UpdateFn }) {
+export const DeploymentStep = ({ state, update }: { state: WizardState; update: UpdateFn }) => {
   return (
     <Stack hasGutter>
       <StackItem>
@@ -68,8 +68,8 @@ export function DeploymentStep({ state, update }: { state: WizardState; update: 
           aria-labelledby="deployment-step-heading"
         >
           {OPTIONS.map((opt) => {
-            const selected = state.mode === opt.value
-            const Icon = opt.Icon
+            const selected = state.mode === opt.value;
+            const Icon = opt.Icon;
             return (
               <div key={opt.value} className="osac-deploy-options__cell">
                 <Card
@@ -153,10 +153,10 @@ export function DeploymentStep({ state, update }: { state: WizardState; update: 
                   </CardBody>
                 </Card>
               </div>
-            )
+            );
           })}
         </div>
       </StackItem>
     </Stack>
-  )
-}
+  );
+};

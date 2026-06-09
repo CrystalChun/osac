@@ -1,5 +1,5 @@
-import { RedhatIcon } from '@patternfly/react-icons/dist/esm/icons/redhat-icon'
-import { WindowsIcon } from '@patternfly/react-icons/dist/esm/icons/windows-icon'
+import { RedhatIcon } from '@patternfly/react-icons/dist/esm/icons/redhat-icon';
+import { WindowsIcon } from '@patternfly/react-icons/dist/esm/icons/windows-icon';
 /**
  * flow: manage-virtual-machines
  * step: mvm_detail_drawer
@@ -26,42 +26,44 @@ import {
   TabTitleText,
   Tabs,
   Title,
-} from '@patternfly/react-core'
-import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table'
-import { useState } from 'react'
-import type { ComputeInstance, VmPowerState } from '@osac/api-contracts'
+} from '@patternfly/react-core';
+import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
+import { useState } from 'react';
+import type { ComputeInstance, VmPowerState } from '@osac/api-contracts';
 import {
   formatConditionStatusForDisplay,
   resolveVmOsForUi,
   shortSubnetDisplay,
-} from '@osac/api-contracts'
-import linuxMascotUrl from '../../assets/guest-os-tux-linux.png'
-import { VmStatusLabel } from '@osac/ui-components'
-import { VmActionsMenu } from './VmActionsMenu'
+} from '@osac/api-contracts';
+import linuxMascotUrl from '../../assets/guest-os-tux-linux.png';
+import { VmStatusLabel } from '@osac/ui-components';
+import { VmActionsMenu } from './VmActionsMenu';
 
 interface Props {
-  vm: ComputeInstance | null
-  effectiveState: VmPowerState
-  onClose: () => void
-  onPower: (action: 'start' | 'stop' | 'restart') => void
-  onDelete?: () => void
+  vm: ComputeInstance | null;
+  effectiveState: VmPowerState;
+  onClose: () => void;
+  onPower: (action: 'start' | 'stop' | 'restart') => void;
+  onDelete?: () => void;
   /* RESTORE when fulfillment supports clone: onClone?: () => void */
-  isRestarting?: boolean
-  isPowerActionPending?: boolean
-  onOpenConsole: () => void
+  isRestarting?: boolean;
+  isPowerActionPending?: boolean;
+  onOpenConsole: () => void;
 }
 
-function humanizeConditionType(type: string): string {
-  return type.replace(/^CONDITION_TYPE_/i, '').replace(/_/g, ' ') || type
-}
+const humanizeConditionType = (type: string): string => {
+  return type.replace(/^CONDITION_TYPE_/i, '').replace(/_/g, ' ') || type;
+};
 
-function formatIsoDate(iso?: string): string {
-  if (!iso?.trim()) return '—'
-  const t = Date.parse(iso.trim())
-  return Number.isNaN(t) ? iso : new Date(t).toLocaleString()
-}
+const formatIsoDate = (iso?: string): string => {
+  if (!iso?.trim()) {
+    return '—';
+  }
+  const t = Date.parse(iso.trim());
+  return Number.isNaN(t) ? iso : new Date(t).toLocaleString();
+};
 
-export function VmDetailDrawer({
+export const VmDetailDrawer = ({
   vm,
   effectiveState,
   onClose,
@@ -70,24 +72,26 @@ export function VmDetailDrawer({
   isRestarting = false,
   isPowerActionPending = false,
   onOpenConsole,
-}: Props) {
-  const [activeTab, setActiveTab] = useState(0)
+}: Props) => {
+  const [activeTab, setActiveTab] = useState(0);
 
-  if (!vm) return null
+  if (!vm) {
+    return null;
+  }
 
-  const isConsoleAvailable = effectiveState === 'running'
+  const isConsoleAvailable = effectiveState === 'running';
   const consoleSummary =
     effectiveState === 'running'
       ? 'Console is available for this virtual machine.'
       : effectiveState === 'paused'
         ? 'Console is unavailable while the virtual machine is paused.'
-        : 'Console is unavailable while the virtual machine is stopped.'
+        : 'Console is unavailable while the virtual machine is stopped.';
 
-  const uiOs = resolveVmOsForUi(vm)
-  const osLabel = uiOs === 'rhel' ? 'RHEL' : uiOs === 'windows' ? 'Windows' : 'Linux'
+  const uiOs = resolveVmOsForUi(vm);
+  const osLabel = uiOs === 'rhel' ? 'RHEL' : uiOs === 'windows' ? 'Windows' : 'Linux';
 
-  const tenantsLine = vm.metadata.tenants?.length ? vm.metadata.tenants.join(', ') : '—'
-  const creatorsLine = vm.metadata.creators?.length ? vm.metadata.creators.join(', ') : '—'
+  const tenantsLine = vm.metadata.tenants?.length ? vm.metadata.tenants.join(', ') : '—';
+  const creatorsLine = vm.metadata.creators?.length ? vm.metadata.creators.join(', ') : '—';
 
   return (
     <Stack hasGutter>
@@ -349,5 +353,5 @@ export function VmDetailDrawer({
         </div>
       </StackItem>
     </Stack>
-  )
-}
+  );
+};

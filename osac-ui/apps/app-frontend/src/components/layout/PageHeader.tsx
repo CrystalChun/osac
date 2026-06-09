@@ -1,14 +1,19 @@
-import type { ReactNode } from 'react'
-import { Content, Flex, FlexItem, Title } from '@patternfly/react-core'
+import type { ReactNode } from 'react';
+import { Content, Flex, FlexItem, Title } from '@patternfly/react-core';
 
 interface PageHeaderProps {
-  title: ReactNode
-  description?: ReactNode
-  descriptionMaxWidth?: string
-  actions?: ReactNode
+  title: ReactNode;
+  description?: ReactNode;
+  descriptionMaxWidth?: string;
+  actions?: ReactNode;
 }
 
-export function PageHeader({ title, description, descriptionMaxWidth, actions }: PageHeaderProps) {
+export const PageHeader = ({
+  title,
+  description,
+  descriptionMaxWidth,
+  actions,
+}: PageHeaderProps) => {
   return (
     <Flex
       className="osac-page-toolbar-sticky"
@@ -38,5 +43,5 @@ export function PageHeader({ title, description, descriptionMaxWidth, actions }:
         </FlexItem>
       )}
     </Flex>
-  )
-}
+  );
+};

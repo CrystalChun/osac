@@ -1,11 +1,11 @@
-import { Content, Stack, StackItem, Title } from '@patternfly/react-core'
+import { Content, Stack, StackItem, Title } from '@patternfly/react-core';
 
 interface PlaceholderPageProps {
-  title: string
-  lede: string
+  title: string;
+  lede: string;
 }
 
-export function PlaceholderPage({ title, lede }: PlaceholderPageProps) {
+export const PlaceholderPage = ({ title, lede }: PlaceholderPageProps) => {
   return (
     <Stack hasGutter style={{ maxWidth: '48rem' }}>
       <StackItem>
@@ -27,5 +27,5 @@ export function PlaceholderPage({ title, lede }: PlaceholderPageProps) {
         </Content>
       </StackItem>
     </Stack>
-  )
-}
+  );
+};

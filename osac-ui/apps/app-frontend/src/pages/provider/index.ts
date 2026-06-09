@@ -1,3 +1,3 @@
-export { ProviderAdminDashboardPage } from './ProviderAdminDashboardPage'
-export { ProviderTenantOrgsPage } from './ProviderTenantOrgsPage'
-export { ProviderInfraTopologyPage } from './ProviderInfraTopologyPage'
+export { ProviderAdminDashboardPage } from './ProviderAdminDashboardPage';
+export { ProviderTenantOrgsPage } from './ProviderTenantOrgsPage';
+export { ProviderInfraTopologyPage } from './ProviderInfraTopologyPage';

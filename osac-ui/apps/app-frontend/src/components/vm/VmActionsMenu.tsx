@@ -1,37 +1,37 @@
-import { EllipsisVIcon } from '@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon'
-import { useState } from 'react'
-import { Dropdown, DropdownItem, DropdownList, MenuToggle } from '@patternfly/react-core'
-import type { ComputeInstance, VmPowerState } from '@osac/api-contracts'
+import { EllipsisVIcon } from '@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon';
+import { useState } from 'react';
+import { Dropdown, DropdownItem, DropdownList, MenuToggle } from '@patternfly/react-core';
+import type { ComputeInstance, VmPowerState } from '@osac/api-contracts';
 
 interface VmActionsMenuProps {
-  vm: ComputeInstance
-  effectiveState?: VmPowerState
+  vm: ComputeInstance;
+  effectiveState?: VmPowerState;
   /** True while stop→wait-for-stopped→start restart orchestration is in progress for this VM. */
-  isRestarting?: boolean
+  isRestarting?: boolean;
   /** True while a pending Starting/Stopping/Restarting badge is active for this VM. */
-  isPowerActionPending?: boolean
-  onPower: (action: 'start' | 'stop' | 'restart') => void
-  onDelete?: () => void
+  isPowerActionPending?: boolean;
+  onPower: (action: 'start' | 'stop' | 'restart') => void;
+  onDelete?: () => void;
   /* RESTORE when fulfillment supports clone — expose onClone?: () => void */
   /* RESTORE when fulfillment supports migrate — expose onMigrate?: () => void */
 }
 
-export function VmActionsMenu({
+export const VmActionsMenu = ({
   vm,
   effectiveState,
   isRestarting = false,
   isPowerActionPending = false,
   onPower,
   onDelete,
-}: VmActionsMenuProps) {
-  const [open, setOpen] = useState(false)
-  const state = effectiveState ?? vm.status.state
+}: VmActionsMenuProps) => {
+  const [open, setOpen] = useState(false);
+  const state = effectiveState ?? vm.status.state;
 
-  const pending = isPowerActionPending || isRestarting
-  const canStart = state === 'stopped' && !pending
-  const canStop = (state === 'running' || state === 'paused') && !pending
-  const canRestart = (state === 'running' || state === 'paused') && !isRestarting && !pending
-  const canDelete = typeof onDelete === 'function' && state !== 'deleting' && state !== 'starting'
+  const pending = isPowerActionPending || isRestarting;
+  const canStart = state === 'stopped' && !pending;
+  const canStop = (state === 'running' || state === 'paused') && !pending;
+  const canRestart = (state === 'running' || state === 'paused') && !isRestarting && !pending;
+  const canDelete = typeof onDelete === 'function' && state !== 'deleting' && state !== 'starting';
 
   return (
     <Dropdown
@@ -54,9 +54,11 @@ export function VmActionsMenu({
           value="start"
           isDisabled={!canStart}
           onClick={() => {
-            if (!canStart) return
-            onPower('start')
-            setOpen(false)
+            if (!canStart) {
+              return;
+            }
+            onPower('start');
+            setOpen(false);
           }}
         >
           Start
@@ -65,9 +67,11 @@ export function VmActionsMenu({
           value="stop"
           isDisabled={!canStop}
           onClick={() => {
-            if (!canStop) return
-            onPower('stop')
-            setOpen(false)
+            if (!canStop) {
+              return;
+            }
+            onPower('stop');
+            setOpen(false);
           }}
         >
           Stop
@@ -76,9 +80,11 @@ export function VmActionsMenu({
           value="restart"
           isDisabled={!canRestart}
           onClick={() => {
-            if (!canRestart) return
-            onPower('restart')
-            setOpen(false)
+            if (!canRestart) {
+              return;
+            }
+            onPower('restart');
+            setOpen(false);
           }}
         >
           Restart
@@ -93,14 +99,16 @@ export function VmActionsMenu({
           value="delete"
           isDisabled={!canDelete}
           onClick={() => {
-            if (!canDelete) return
-            onDelete?.()
-            setOpen(false)
+            if (!canDelete) {
+              return;
+            }
+            onDelete?.();
+            setOpen(false);
           }}
         >
           Delete
         </DropdownItem>
       </DropdownList>
     </Dropdown>
-  )
-}
+  );
+};

@@ -8,8 +8,8 @@
  * Layout uses only PF primitives (Gallery, Flex) and PF design tokens.
  * No custom CSS classes — see design-system.yaml layout_and_shell.implementation_policy.
  */
-import { useMemo } from 'react'
-import { ChartDonut } from '@patternfly/react-charts/victory'
+import { useMemo } from 'react';
+import { ChartDonut } from '@patternfly/react-charts/victory';
 import {
   Card,
   CardBody,
@@ -21,21 +21,25 @@ import {
   Gallery,
   GalleryItem,
   Title,
-} from '@patternfly/react-core'
-import { DEMO_QUOTA } from '@osac/api-contracts'
-import type { DemoTenantId } from '@osac/api-contracts'
+} from '@patternfly/react-core';
+import { DEMO_QUOTA } from '@osac/api-contracts';
+import type { DemoTenantId } from '@osac/api-contracts';
 
 interface DashboardQuotaSectionProps {
-  selectedTenant: DemoTenantId | null
+  selectedTenant: DemoTenantId | null;
 }
 
-export function DashboardQuotaSection({ selectedTenant }: DashboardQuotaSectionProps) {
+export const DashboardQuotaSection = ({ selectedTenant }: DashboardQuotaSectionProps) => {
   const quota = useMemo(() => {
-    if (!selectedTenant || selectedTenant === 'vertexa') return []
-    return DEMO_QUOTA[selectedTenant] ?? []
-  }, [selectedTenant])
+    if (!selectedTenant || selectedTenant === 'vertexa') {
+      return [];
+    }
+    return DEMO_QUOTA[selectedTenant] ?? [];
+  }, [selectedTenant]);
 
-  if (!quota.length) return null
+  if (!quota.length) {
+    return null;
+  }
 
   return (
     <section aria-label="Resource quota" style={{ marginTop: 'var(--pf-t--global--spacer--xl)' }}>
@@ -45,9 +49,9 @@ export function DashboardQuotaSection({ selectedTenant }: DashboardQuotaSectionP
 
       <Gallery hasGutter minWidths={{ default: '180px' }}>
         {quota.map((entry) => {
-          const pct = entry.limit > 0 ? Math.round((entry.used / entry.limit) * 100) : 0
-          const available = Math.max(0, entry.limit - entry.used)
-          const usedColor = pct >= 90 ? '#C9190B' : pct >= 75 ? '#F0AB00' : '#0066CC'
+          const pct = entry.limit > 0 ? Math.round((entry.used / entry.limit) * 100) : 0;
+          const available = Math.max(0, entry.limit - entry.used);
+          const usedColor = pct >= 90 ? '#C9190B' : pct >= 75 ? '#F0AB00' : '#0066CC';
 
           return (
             <GalleryItem key={entry.resource}>
@@ -98,9 +102,9 @@ export function DashboardQuotaSection({ selectedTenant }: DashboardQuotaSectionP
                 </CardBody>
               </Card>
             </GalleryItem>
-          )
+          );
         })}
       </Gallery>
     </section>
-  )
-}
+  );
+};

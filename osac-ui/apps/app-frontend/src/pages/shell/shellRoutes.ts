@@ -1,9 +1,9 @@
-import type { DemoShellRole } from '@osac/api-contracts'
+import type { DemoShellRole } from '@osac/api-contracts';
 
 export interface ShellPlaceholderRoute {
-  path: string
-  title: string
-  lede: string
+  path: string;
+  title: string;
+  lede: string;
 }
 
 export const ADMIN_PLACEHOLDER_ROUTES: ShellPlaceholderRoute[] = [
@@ -22,7 +22,7 @@ export const ADMIN_PLACEHOLDER_ROUTES: ShellPlaceholderRoute[] = [
     title: 'Security & Compliance',
     lede: 'Audit logs, policy packs, and compliance reporting.',
   },
-]
+];
 
 export const PROVIDER_PLACEHOLDER_ROUTES: ShellPlaceholderRoute[] = [
   {
@@ -40,10 +40,14 @@ export const PROVIDER_PLACEHOLDER_ROUTES: ShellPlaceholderRoute[] = [
     title: 'Platform settings',
     lede: 'Feature flags, integrations, maintenance windows, and API endpoints.',
   },
-]
+];
 
-export function defaultRouteForRole(role: DemoShellRole): string {
-  if (role === 'providerAdmin') return '/provider/dashboard'
-  if (role === 'tenantAdmin') return '/admin/dashboard'
-  return '/dashboard'
-}
+export const defaultRouteForRole = (role: DemoShellRole): string => {
+  if (role === 'providerAdmin') {
+    return '/provider/dashboard';
+  }
+  if (role === 'tenantAdmin') {
+    return '/admin/dashboard';
+  }
+  return '/dashboard';
+};

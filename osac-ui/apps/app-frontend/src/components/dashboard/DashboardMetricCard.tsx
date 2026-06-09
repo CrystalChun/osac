@@ -1,11 +1,11 @@
-import { Card, CardBody, Content, Stack, StackItem, Title } from '@patternfly/react-core'
+import { Card, CardBody, Content, Stack, StackItem, Title } from '@patternfly/react-core';
 
 interface DashboardMetricCardProps {
-  label: string
-  value: number
+  label: string;
+  value: number;
 }
 
-export function DashboardMetricCard({ label, value }: DashboardMetricCardProps) {
+export const DashboardMetricCard = ({ label, value }: DashboardMetricCardProps) => {
   return (
     <Card isCompact style={{ minWidth: 120 }}>
       <CardBody>
@@ -26,5 +26,5 @@ export function DashboardMetricCard({ label, value }: DashboardMetricCardProps) 
         </Stack>
       </CardBody>
     </Card>
-  )
-}
+  );
+};

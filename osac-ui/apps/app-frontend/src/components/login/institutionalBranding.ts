@@ -2,33 +2,33 @@
  * Per-tenant branding for institutional sign-in (docs/specs/ui-flows/institutional-sign-in.yaml
  * branding_profiles + pre_login theme/document behavior reflected in layout).
  */
-import type { DemoTenantId } from '@osac/api-contracts'
-import type { CSSProperties } from 'react'
+import type { DemoTenantId } from '@osac/api-contracts';
+import type { CSSProperties } from 'react';
 
 export type HeaderMarkSpec =
   | {
-      kind: 'letter'
-      letter: string
-      boxGradient: string
-      borderRadius: string
+      kind: 'letter';
+      letter: string;
+      boxGradient: string;
+      borderRadius: string;
     }
-  | { kind: 'emoji'; emoji: string }
+  | { kind: 'emoji'; emoji: string };
 
 export interface InstitutionalBranding {
   /** Matches spec branding_profiles[].id */
-  profileId: string
-  displayName: string
-  tagline: string
-  cardTitle: string
-  emailLabel: string
-  emailType: 'email' | 'text'
-  showRememberMe: boolean
-  pageBackground: string
-  titleColor: string
-  subtitleColor: string
-  cardStyle: CSSProperties
-  cardTitleStyle?: CSSProperties
-  headerMark: HeaderMarkSpec
+  profileId: string;
+  displayName: string;
+  tagline: string;
+  cardTitle: string;
+  emailLabel: string;
+  emailType: 'email' | 'text';
+  showRememberMe: boolean;
+  pageBackground: string;
+  titleColor: string;
+  subtitleColor: string;
+  cardStyle: CSSProperties;
+  cardTitleStyle?: CSSProperties;
+  headerMark: HeaderMarkSpec;
 }
 
 export const institutionalBrandingByTenant: Record<DemoTenantId, InstitutionalBranding> = {
@@ -86,4 +86,4 @@ export const institutionalBrandingByTenant: Record<DemoTenantId, InstitutionalBr
       borderRadius: '50%',
     },
   },
-}
+};

@@ -1,5 +1,5 @@
-import { type QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import type { ClusterTemplate, ComputeInstance } from '@osac/api-contracts'
+import { type QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import type { ClusterTemplate, ComputeInstance } from '@osac/api-contracts';
 import {
   type ListComputeInstancesParams,
   createComputeInstance,
@@ -8,16 +8,16 @@ import {
   listComputeInstances,
   patchComputeInstance,
   patchComputeInstancePower,
-} from './client'
-import type { ComputeInstancePowerAction } from '@osac/api-contracts'
-import { upsertComputeInstanceInCache } from './computeInstancesCache'
+} from './client';
+import type { ComputeInstancePowerAction } from '@osac/api-contracts';
+import { upsertComputeInstanceInCache } from './computeInstancesCache';
 
 /** Poll VM list so CLI / out-of-band server changes update dashboard + My VMs without a full reload. */
-const COMPUTE_INSTANCES_REFETCH_MS = 30_000
+const COMPUTE_INSTANCES_REFETCH_MS = 30_000;
 /** While create/power/delete pending UI is active, refresh list more often than the default interval. */
-export const PENDING_VM_LIST_POLL_MS = 10_000
+export const PENDING_VM_LIST_POLL_MS = 10_000;
 /** Templates change less often than VM state; still refresh catalog / wizard. */
-const COMPUTE_INSTANCE_TEMPLATES_REFETCH_MS = 60_000
+const COMPUTE_INSTANCE_TEMPLATES_REFETCH_MS = 60_000;
 
 // ---------------------------------------------------------------------------
 // Query keys
@@ -28,18 +28,18 @@ export const queryKeys = {
     ['compute_instances', params ?? {}] as const,
   /** Shared VM template list — CatalogPage + wizard TemplateStep (template-catalog-wizard-api-alignment). */
   computeInstanceTemplates: ['compute_instance_templates'] as const,
-}
+};
 
 /** Refetch every active `compute_instances` query (list + dashboard KPIs) after mutations. */
-export function refetchComputeInstancesQueries(qc: QueryClient) {
-  return qc.refetchQueries({ queryKey: ['compute_instances'] })
-}
+export const refetchComputeInstancesQueries = (qc: QueryClient) => {
+  return qc.refetchQueries({ queryKey: ['compute_instances'] });
+};
 
 // ---------------------------------------------------------------------------
 // Compute instances
 // ---------------------------------------------------------------------------
 
-export function useComputeInstances(params: ListComputeInstancesParams = {}) {
+export const useComputeInstances = (params: ListComputeInstancesParams = {}) => {
   return useQuery({
     queryKey: queryKeys.computeInstances(params),
     queryFn: () => listComputeInstances(params),
@@ -49,29 +49,29 @@ export function useComputeInstances(params: ListComputeInstancesParams = {}) {
     refetchInterval: COMPUTE_INSTANCES_REFETCH_MS,
     refetchIntervalInBackground: false,
     select: (data) => data.items,
-  })
-}
+  });
+};
 
 export type ProvisionVmInput = {
-  vm: Partial<ComputeInstance>
+  vm: Partial<ComputeInstance>;
   /** When true, POST body must include `spec.template`; other set `spec` fields are still serialized. */
-  specTemplateOnly?: boolean
-}
+  specTemplateOnly?: boolean;
+};
 
-export function useProvisionVm() {
+export const useProvisionVm = () => {
   return useMutation({
     mutationFn: ({ vm, specTemplateOnly }: ProvisionVmInput) =>
       createComputeInstance(vm, specTemplateOnly ? { specTemplateOnly: true } : undefined),
     /** List updates via usePendingVmCreations polled refetch; avoid caching premature `running`. */
-  })
-}
+  });
+};
 
 export type PatchVmInput =
   | { id: string; patch: Partial<ComputeInstance> }
-  | { id: string; powerAction: ComputeInstancePowerAction }
+  | { id: string; powerAction: ComputeInstancePowerAction };
 
-export function usePatchVm() {
-  const qc = useQueryClient()
+export const usePatchVm = () => {
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: (input: PatchVmInput) =>
       'powerAction' in input
@@ -79,25 +79,27 @@ export function usePatchVm() {
         : patchComputeInstance(input.id, input.patch),
     onSuccess: async (updated, input) => {
       /** Power actions use pending badges + polled list; immediate refetch/upsert shows stale terminal state. */
-      if ('powerAction' in input) return
-      upsertComputeInstanceInCache(qc, updated)
-      await refetchComputeInstancesQueries(qc)
+      if ('powerAction' in input) {
+        return;
+      }
+      upsertComputeInstanceInCache(qc, updated);
+      await refetchComputeInstancesQueries(qc);
     },
-  })
-}
+  });
+};
 
-export function useDeleteVm() {
-  const qc = useQueryClient()
+export const useDeleteVm = () => {
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => deleteComputeInstance(id),
     onSuccess: async () => {
       /** Keep VM in cache until list omits it; pending delete overlay until then. */
-      await refetchComputeInstancesQueries(qc)
+      await refetchComputeInstancesQueries(qc);
     },
-  })
-}
+  });
+};
 
-export function useComputeInstanceTemplates() {
+export const useComputeInstanceTemplates = () => {
   return useQuery({
     queryKey: queryKeys.computeInstanceTemplates,
     queryFn: () => listComputeInstanceTemplates({}),
@@ -105,15 +107,15 @@ export function useComputeInstanceTemplates() {
     refetchInterval: COMPUTE_INSTANCE_TEMPLATES_REFETCH_MS,
     refetchIntervalInBackground: false,
     select: (data) => data.items,
-  })
-}
+  });
+};
 
 // ---------------------------------------------------------------------------
 // Derived helpers
 // ---------------------------------------------------------------------------
 
 /** Returns (running, paused, stopped) counts derived from a VM list */
-export function useVmPowerCounts(params: ListComputeInstancesParams = {}) {
+export const useVmPowerCounts = (params: ListComputeInstancesParams = {}) => {
   return useQuery({
     queryKey: queryKeys.computeInstances(params),
     queryFn: () => listComputeInstances(params),
@@ -122,17 +124,21 @@ export function useVmPowerCounts(params: ListComputeInstancesParams = {}) {
     refetchInterval: COMPUTE_INSTANCES_REFETCH_MS,
     refetchIntervalInBackground: false,
     select: (data) => {
-      const counts = { running: 0, paused: 0, stopped: 0, total: data.items.length }
+      const counts = { running: 0, paused: 0, stopped: 0, total: data.items.length };
       for (const vm of data.items) {
-        const s = vm.status.state
-        if (s === 'running') counts.running++
-        else if (s === 'paused') counts.paused++
-        else if (s === 'stopped') counts.stopped++
+        const s = vm.status.state;
+        if (s === 'running') {
+          counts.running++;
+        } else if (s === 'paused') {
+          counts.paused++;
+        } else if (s === 'stopped') {
+          counts.stopped++;
+        }
       }
-      return counts
+      return counts;
     },
-  })
-}
+  });
+};
 
 // Re-export template type for convenience
-export type { ComputeInstance, ClusterTemplate }
+export type { ComputeInstance, ClusterTemplate };

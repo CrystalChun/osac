@@ -1,50 +1,50 @@
 export interface CreateVmWizardHandle {
-  open: () => void
-  openFromTemplate: (templateId: string) => void
-  openFromClone: (sourceVmId: string) => void
+  open: () => void;
+  openFromTemplate: (templateId: string) => void;
+  openFromClone: (sourceVmId: string) => void;
 }
 
-export type DeploymentMode = 'new' | 'template' | 'clone'
+export type DeploymentMode = 'new' | 'template' | 'clone';
 
 export interface WizardState {
-  mode: DeploymentMode
-  osFamilyNew: string
-  osTypeNew: string
-  bootSource: 'volume' | 'none' | null
-  cpuNew: string
-  memoryNew: string
+  mode: DeploymentMode;
+  osFamilyNew: string;
+  osTypeNew: string;
+  bootSource: 'volume' | 'none' | null;
+  cpuNew: string;
+  memoryNew: string;
   /** Optional cloud-init / user-data for new path; BFF may map to spec.userData when non-empty. */
-  cloudInitUserDataNew: string
-  selectedTemplateId: string | null
+  cloudInitUserDataNew: string;
+  selectedTemplateId: string | null;
   /** Template path: boot disk size (GiB), integer string; maps to `spec.boot_disk.size_gib`. */
-  templateBootDiskSizeGib: string
+  templateBootDiskSizeGib: string;
   /** vCPU count; maps to `spec.cores` (int32). Seeded from template defaults in the UI. */
-  templateCores: string
+  templateCores: string;
   /** Memory in GiB; maps to `spec.memory_gib`. Seeded from template defaults. */
-  templateMemoryGib: string
+  templateMemoryGib: string;
   /** Fulfillment REST `run_strategy`: `Always` or `Halted`. */
-  templateRunStrategy: string
+  templateRunStrategy: string;
   /** Optional subnet fulfillment id; maps to `spec.subnet`. */
-  templateSubnetId: string
+  templateSubnetId: string;
   /** Comma-separated security group fulfillment ids; maps to `spec.security_groups`. */
-  templateSecurityGroupsRaw: string
+  templateSecurityGroupsRaw: string;
   /** SSH public key; maps to `spec.ssh_key`. */
-  templateSshPublicKey: string
+  templateSshPublicKey: string;
   /** Cloud-init / ignition-style payload; maps to `spec.user_data`. */
-  templateUserData: string
+  templateUserData: string;
   /** Optional image `source_type` (proto enum string); maps with `templateImageSourceRef` to `spec.image`. */
-  templateImageSourceType: string
+  templateImageSourceType: string;
   /** Optional image reference (e.g. registry URI); maps with `templateImageSourceType` to `spec.image`. */
-  templateImageSourceRef: string
+  templateImageSourceRef: string;
   /**
    * Optional extra data disks as comma-separated GiB sizes (e.g. `50, 100`);
    * maps to `spec.additional_disks` as `{ size_gib }[]`.
    */
-  templateAdditionalDisksGibRaw: string
-  templateVmName: string
-  cloneSourceVmId: string | null
-  cloneNewName: string
-  startAfterCreate: boolean
+  templateAdditionalDisksGibRaw: string;
+  templateVmName: string;
+  cloneSourceVmId: string | null;
+  cloneNewName: string;
+  startAfterCreate: boolean;
 }
 
-export type UpdateFn = <K extends keyof WizardState>(key: K, value: WizardState[K]) => void
+export type UpdateFn = <K extends keyof WizardState>(key: K, value: WizardState[K]) => void;

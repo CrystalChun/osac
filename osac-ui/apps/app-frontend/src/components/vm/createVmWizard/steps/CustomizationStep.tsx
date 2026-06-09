@@ -13,9 +13,9 @@ import {
   TextArea,
   TextInput,
   Title,
-} from '@patternfly/react-core'
-import { useLayoutEffect, useMemo, useState } from 'react'
-import { useComputeInstanceTemplates } from '../../../../api/hooks'
+} from '@patternfly/react-core';
+import { useLayoutEffect, useMemo, useState } from 'react';
+import { useComputeInstanceTemplates } from '../../../../api/hooks';
 import {
   TEMPLATE_BOOT_DISK_MAX_GIB,
   TEMPLATE_BOOT_DISK_MIN_GIB,
@@ -28,80 +28,84 @@ import {
   parseTemplateBootDiskGibInput,
   parseTemplateCoresInput,
   parseTemplateMemoryGibInput,
-} from '../constants'
-import type { UpdateFn, WizardState } from '../types'
+} from '../constants';
+import type { UpdateFn, WizardState } from '../types';
 
 const RUN_STRATEGY_OPTIONS = [
   { value: 'Always', label: 'Always' },
   { value: 'Halted', label: 'Halted' },
-] as const
+] as const;
 
 const IMAGE_SOURCE_TYPE_OPTIONS = [
   { value: '', label: 'Use template default image' },
   { value: 'SOURCE_TYPE_REGISTRY', label: 'Container registry' },
-] as const
+] as const;
 
-type CustomizationTabKey = 'overview' | 'storage' | 'network' | 'ssh' | 'advanced'
+type CustomizationTabKey = 'overview' | 'storage' | 'network' | 'ssh' | 'advanced';
 
-export function CustomizationStep({ state, update }: { state: WizardState; update: UpdateFn }) {
-  const [activeTab, setActiveTab] = useState<CustomizationTabKey>('overview')
-  const { data: templates = [] } = useComputeInstanceTemplates()
+export const CustomizationStep = ({ state, update }: { state: WizardState; update: UpdateFn }) => {
+  const [activeTab, setActiveTab] = useState<CustomizationTabKey>('overview');
+  const { data: templates = [] } = useComputeInstanceTemplates();
 
   const selectedTemplate = useMemo(
     () => templates.find((t) => t.id === state.selectedTemplateId) ?? null,
     [templates, state.selectedTemplateId],
-  )
+  );
 
   const bootDiskInvalid =
     state.mode === 'template' &&
     state.templateBootDiskSizeGib.trim().length > 0 &&
-    parseTemplateBootDiskGibInput(state.templateBootDiskSizeGib) === null
+    parseTemplateBootDiskGibInput(state.templateBootDiskSizeGib) === null;
 
   const coresInvalid =
     state.mode === 'template' &&
     state.templateCores.trim().length > 0 &&
-    parseTemplateCoresInput(state.templateCores) === null
+    parseTemplateCoresInput(state.templateCores) === null;
 
   const memoryInvalid =
     state.mode === 'template' &&
     state.templateMemoryGib.trim().length > 0 &&
-    parseTemplateMemoryGibInput(state.templateMemoryGib) === null
+    parseTemplateMemoryGibInput(state.templateMemoryGib) === null;
 
   const additionalDisksInvalid =
     state.mode === 'template' &&
     state.templateAdditionalDisksGibRaw.trim().length > 0 &&
-    parseTemplateAdditionalDisksGibInput(state.templateAdditionalDisksGibRaw) === null
+    parseTemplateAdditionalDisksGibInput(state.templateAdditionalDisksGibRaw) === null;
 
   /** Seed numeric fields from catalog template when still empty / invalid. */
   useLayoutEffect(() => {
-    if (state.mode !== 'template' || !state.selectedTemplateId || !selectedTemplate) return
-    if (selectedTemplate.id !== state.selectedTemplateId) return
-
-    const desiredBoot = String(defaultTemplateBootDiskGib(selectedTemplate))
-    const bootParsed = parseTemplateBootDiskGibInput(state.templateBootDiskSizeGib)
-    const bootRaw = state.templateBootDiskSizeGib.trim()
-    const apiDefault = selectedTemplate.defaultBootDiskSizeGib
-
-    if (bootRaw === '' || bootParsed === null) {
-      update('templateBootDiskSizeGib', desiredBoot)
-    } else if (apiDefault !== undefined && bootParsed === 40 && apiDefault !== 40) {
-      update('templateBootDiskSizeGib', String(apiDefault))
+    if (state.mode !== 'template' || !state.selectedTemplateId || !selectedTemplate) {
+      return;
+    }
+    if (selectedTemplate.id !== state.selectedTemplateId) {
+      return;
     }
 
-    const dc = String(selectedTemplate.defaultCores ?? 2)
+    const desiredBoot = String(defaultTemplateBootDiskGib(selectedTemplate));
+    const bootParsed = parseTemplateBootDiskGibInput(state.templateBootDiskSizeGib);
+    const bootRaw = state.templateBootDiskSizeGib.trim();
+    const apiDefault = selectedTemplate.defaultBootDiskSizeGib;
+
+    if (bootRaw === '' || bootParsed === null) {
+      update('templateBootDiskSizeGib', desiredBoot);
+    } else if (apiDefault !== undefined && bootParsed === 40 && apiDefault !== 40) {
+      update('templateBootDiskSizeGib', String(apiDefault));
+    }
+
+    const dc = String(selectedTemplate.defaultCores ?? 2);
     if (
       state.templateCores.trim() === '' ||
       parseTemplateCoresInput(state.templateCores) === null
     ) {
-      update('templateCores', dc)
+      update('templateCores', dc);
     }
 
-    const dm = String(selectedTemplate.defaultMemoryGib ?? 8)
+    const dm = String(selectedTemplate.defaultMemoryGib ?? 8);
     if (
       state.templateMemoryGib.trim() === '' ||
       parseTemplateMemoryGibInput(state.templateMemoryGib) === null
     ) {
-      update('templateMemoryGib', dm)
+      update('templateMemoryGib', dm);
     }
   }, [
     state.mode,
@@ -111,7 +115,7 @@ export function CustomizationStep({ state, update }: { state: WizardState; updat
     state.templateMemoryGib,
     selectedTemplate,
     update,
-  ])
+  ]);
 
   return (
     <Stack hasGutter>
@@ -332,5 +336,5 @@ export function CustomizationStep({ state, update }: { state: WizardState; updat
         )}
       </StackItem>
     </Stack>
-  )
-}
+  );
+};

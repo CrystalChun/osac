@@ -7,22 +7,22 @@ import {
   PageSidebarBody,
   Stack,
   StackItem,
-} from '@patternfly/react-core'
-import { LightDarkToggle } from '@osac/ui-components'
-import type { NavRow } from './shellNav'
+} from '@patternfly/react-core';
+import { LightDarkToggle } from '@osac/ui-components';
+import type { NavRow } from './shellNav';
 
 interface ShellSidebarProps {
-  navRows: NavRow[]
-  pathname: string
-  expandedGroups: Set<string>
-  onToggleGroup: (groupId: string, expanded: boolean) => void
-  onNavigate: (path: string) => void
-  isDarkTheme: boolean
-  setIsDarkTheme: (dark: boolean) => void
-  onLogout: () => void
+  navRows: NavRow[];
+  pathname: string;
+  expandedGroups: Set<string>;
+  onToggleGroup: (groupId: string, expanded: boolean) => void;
+  onNavigate: (path: string) => void;
+  isDarkTheme: boolean;
+  setIsDarkTheme: (dark: boolean) => void;
+  onLogout: () => void;
 }
 
-export function ShellSidebar({
+export const ShellSidebar = ({
   navRows,
   pathname,
   expandedGroups,
@@ -31,7 +31,7 @@ export function ShellSidebar({
   isDarkTheme,
   setIsDarkTheme,
   onLogout,
-}: ShellSidebarProps) {
+}: ShellSidebarProps) => {
   return (
     <PageSidebar>
       <PageSidebarBody isFilled>
@@ -48,13 +48,13 @@ export function ShellSidebar({
                         isActive={pathname === row.path}
                         to={row.path}
                         onClick={(e) => {
-                          e.preventDefault()
-                          onNavigate(row.path)
+                          e.preventDefault();
+                          onNavigate(row.path);
                         }}
                       >
                         {row.label}
                       </NavItem>
-                    )
+                    );
                   }
                   return (
                     <NavExpandable
@@ -73,15 +73,15 @@ export function ShellSidebar({
                           isActive={pathname === child.path}
                           to={child.path}
                           onClick={(e) => {
-                            e.preventDefault()
-                            onNavigate(child.path)
+                            e.preventDefault();
+                            onNavigate(child.path);
                           }}
                         >
                           {child.label}
                         </NavItem>
                       ))}
                     </NavExpandable>
-                  )
+                  );
                 })}
               </NavList>
             </Nav>
@@ -100,5 +100,5 @@ export function ShellSidebar({
         </Stack>
       </PageSidebarBody>
     </PageSidebar>
-  )
-}
+  );
+};

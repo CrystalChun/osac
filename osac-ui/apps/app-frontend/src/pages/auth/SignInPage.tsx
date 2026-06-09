@@ -6,49 +6,53 @@
  * as this page is rendered. The user never needs to click anything — landing here means "start
  * login". On error a retry button is shown.
  */
-import { useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Bullseye, Button, Spinner, Title } from '@patternfly/react-core'
-import { useSession } from '../../contexts/SessionContext'
+import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Bullseye, Button, Spinner, Title } from '@patternfly/react-core';
+import { useSession } from '../../contexts/SessionContext';
 
-async function startOIDCLogin(): Promise<void> {
-  const redirectBase = encodeURIComponent(window.location.origin)
+const startOIDCLogin = async (): Promise<void> => {
+  const redirectBase = encodeURIComponent(window.location.origin);
   const resp = await fetch(`/api/login?redirect_base=${redirectBase}`, {
     credentials: 'include',
-  })
+  });
   if (!resp.ok) {
-    const text = await resp.text().catch(() => '')
-    throw new Error(text || `Failed to start login (HTTP ${resp.status})`)
+    const text = await resp.text().catch(() => '');
+    throw new Error(text || `Failed to start login (HTTP ${resp.status})`);
   }
-  const { url } = (await resp.json()) as { url?: string }
-  if (!url) throw new Error('No authorization URL returned by proxy')
-  window.location.href = url
-}
+  const { url } = (await resp.json()) as { url?: string };
+  if (!url) {
+    throw new Error('No authorization URL returned by proxy');
+  }
+  window.location.href = url;
+};
 
-export function SignInPage() {
-  const { logout } = useSession()
-  const navigate = useNavigate()
-  const calledRef = useRef(false)
-  const [error, setError] = useState<string | null>(null)
+export const SignInPage = () => {
+  const { logout } = useSession();
+  const navigate = useNavigate();
+  const calledRef = useRef(false);
+  const [error, setError] = useState<string | null>(null);
 
-  function triggerLogin() {
-    setError(null)
-    calledRef.current = false // allow retry
+  const triggerLogin = () => {
+    setError(null);
+    calledRef.current = false; // allow retry
     startOIDCLogin().catch((err: Error) => {
-      setError(err.message)
-    })
-  }
+      setError(err.message);
+    });
+  };
 
   useEffect(() => {
-    if (calledRef.current) return
-    calledRef.current = true
-    triggerLogin()
-  }, [])
+    if (calledRef.current) {
+      return;
+    }
+    calledRef.current = true;
+    triggerLogin();
+  }, []);
 
-  function handleChooseAnother() {
-    logout().catch(() => undefined)
-    navigate('/')
-  }
+  const handleChooseAnother = () => {
+    logout().catch(() => undefined);
+    navigate('/');
+  };
 
   if (error) {
     return (
@@ -68,7 +72,7 @@ export function SignInPage() {
           </Button>
         </div>
       </Bullseye>
-    )
+    );
   }
 
   return (
@@ -78,5 +82,5 @@ export function SignInPage() {
         <p style={{ color: 'var(--pf-t--global--text--color--subtle)' }}>Redirecting to sign in…</p>
       </div>
     </Bullseye>
-  )
-}
+  );
+};

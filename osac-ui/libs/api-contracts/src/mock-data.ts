@@ -6,8 +6,8 @@ import type {
   OsType,
   OsacEvent,
   VmPowerState,
-} from './types.js'
-import { normalizeComputeInstance } from './computeInstanceNormalize.js'
+} from './types.js';
+import { normalizeComputeInstance } from './computeInstanceNormalize.js';
 
 // ---------------------------------------------------------------------------
 // Demo tenant metadata
@@ -17,58 +17,64 @@ export const DEMO_TENANT_LABEL: Record<DemoTenantId, string> = {
   northstar: 'Northstar Bank',
   evergreen: 'Bluestone Financial Group',
   vertexa: 'Vertexa Cloud Solutions',
-}
+};
 
-export const DEMO_PROVIDER_ADMIN_DISPLAY_NAME = 'Alex Johnson'
+export const DEMO_PROVIDER_ADMIN_DISPLAY_NAME = 'Alex Johnson';
 
 export const DEMO_TENANT_DISPLAY_USER: Record<DemoTenantId, string> = {
   northstar: 'Casey Morgan',
   evergreen: 'Priya Nair',
   vertexa: 'Alex Johnson',
-}
+};
 
 export const DEMO_TENANT_DISPLAY_ADMIN: Record<DemoTenantId, string> = {
   northstar: 'J. Lee',
   evergreen: 'Marcus Chen',
   vertexa: 'Alex Johnson',
-}
+};
 
 export const DEMO_TENANT_LOGIN_EMAIL_USER: Record<DemoTenantId, string> = {
   northstar: 'cmorgan@northstarbank.com',
   evergreen: 'priya.nair@bluestonefinancial.com',
   vertexa: 'alex.johnson@vertexacloud.com',
-}
+};
 
 export const DEMO_TENANT_LOGIN_EMAIL_ADMIN: Record<DemoTenantId, string> = {
   northstar: 'jlee@northstarbank.com',
   evergreen: 'marcus.chen@bluestonefinancial.com',
   vertexa: 'alex.johnson@vertexacloud.com',
-}
+};
 
-export const DEMO_VERTEXA_PROVIDER_LOGIN_EMAIL = 'alex.johnson@vertexacloud.com'
+export const DEMO_VERTEXA_PROVIDER_LOGIN_EMAIL = 'alex.johnson@vertexacloud.com';
 
-export function demoLoginEmailForRole(
+export const demoLoginEmailForRole = (
   tenant: DemoTenantId,
   role: 'providerAdmin' | 'tenantAdmin' | 'tenantUser',
-): string {
-  if (role === 'tenantAdmin') return DEMO_TENANT_LOGIN_EMAIL_ADMIN[tenant]
-  return DEMO_TENANT_LOGIN_EMAIL_USER[tenant]
-}
+): string => {
+  if (role === 'tenantAdmin') {
+    return DEMO_TENANT_LOGIN_EMAIL_ADMIN[tenant];
+  }
+  return DEMO_TENANT_LOGIN_EMAIL_USER[tenant];
+};
 
-export function demoOperatingModeLabel(
+export const demoOperatingModeLabel = (
   role: 'providerAdmin' | 'tenantAdmin' | 'tenantUser',
-): string {
-  if (role === 'providerAdmin') return 'Provider console'
-  if (role === 'tenantAdmin') return 'Tenant admin'
-  return 'VMaaS workspace'
-}
+): string => {
+  if (role === 'providerAdmin') {
+    return 'Provider console';
+  }
+  if (role === 'tenantAdmin') {
+    return 'Tenant admin';
+  }
+  return 'VMaaS workspace';
+};
 
 export interface TenantSovereignty {
-  regionEmoji: string
-  regionAriaLabel: string
-  regionLine: string
-  complianceLabels: { text: string; color: 'blue' | 'green' | 'orange' | 'grey' }[]
-  egressNote?: string
+  regionEmoji: string;
+  regionAriaLabel: string;
+  regionLine: string;
+  complianceLabels: { text: string; color: 'blue' | 'green' | 'orange' | 'grey' }[];
+  egressNote?: string;
 }
 
 export const DEMO_TENANT_SOVEREIGNTY: Record<DemoTenantId, TenantSovereignty> = {
@@ -101,42 +107,42 @@ export const DEMO_TENANT_SOVEREIGNTY: Record<DemoTenantId, TenantSovereignty> = 
       { text: 'SOC 2', color: 'blue' },
     ],
   },
-}
+};
 
 // ---------------------------------------------------------------------------
 // VM power counts per tenant
 // ---------------------------------------------------------------------------
 
 interface VmPowerCounts {
-  running: number
-  paused: number
-  stopped: number
+  running: number;
+  paused: number;
+  stopped: number;
 }
 
 export const DEMO_VM_POWER_COUNTS: Record<DemoTenantId, VmPowerCounts> = {
   northstar: { running: 12, paused: 3, stopped: 5 },
   evergreen: { running: 8, paused: 1, stopped: 4 },
   vertexa: { running: 20, paused: 4, stopped: 9 },
-}
+};
 
-export function demoVmPowerTotal(tenant: DemoTenantId): number {
-  const c = DEMO_VM_POWER_COUNTS[tenant]
-  return c.running + c.paused + c.stopped
-}
+export const demoVmPowerTotal = (tenant: DemoTenantId): number => {
+  const c = DEMO_VM_POWER_COUNTS[tenant];
+  return c.running + c.paused + c.stopped;
+};
 
 // ---------------------------------------------------------------------------
 // VM seed data builders
 // ---------------------------------------------------------------------------
 
 interface VmBlueprint {
-  name: string
-  os: OsType
-  state: VmPowerState
-  cores: number
-  memoryGib: number
-  subnet?: string
-  ipAddress?: string
-  description?: string
+  name: string;
+  os: OsType;
+  state: VmPowerState;
+  cores: number;
+  memoryGib: number;
+  subnet?: string;
+  ipAddress?: string;
+  description?: string;
 }
 
 const NORTHSTAR_VMS: VmBlueprint[] = [
@@ -328,7 +334,7 @@ const NORTHSTAR_VMS: VmBlueprint[] = [
     subnet: 'legacy-east-1a',
     description: 'Decommissioned batch processor',
   },
-]
+];
 
 const EVERGREEN_VMS: VmBlueprint[] = [
   {
@@ -454,9 +460,9 @@ const EVERGREEN_VMS: VmBlueprint[] = [
     subnet: 'dev-ca-1a',
     description: 'Test VM 1',
   },
-]
+];
 
-function fulfillmentProtoState(state: VmPowerState): string {
+const fulfillmentProtoState = (state: VmPowerState): string => {
   const m: Record<VmPowerState, string> = {
     running: 'COMPUTE_INSTANCE_STATE_RUNNING',
     stopped: 'COMPUTE_INSTANCE_STATE_STOPPED',
@@ -468,34 +474,34 @@ function fulfillmentProtoState(state: VmPowerState): string {
     creating: 'COMPUTE_INSTANCE_STATE_CREATING',
     restarting: 'COMPUTE_INSTANCE_STATE_RESTARTING',
     still_provisioning: 'COMPUTE_INSTANCE_STATE_STILL_PROVISIONING',
-  }
-  return m[state]
-}
+  };
+  return m[state];
+};
 
-function mockImageWire(os: OsType): { source_type: string; source_ref: string } {
+const mockImageWire = (os: OsType): { source_type: string; source_ref: string } => {
   if (os === 'windows') {
     return {
       source_type: 'SOURCE_TYPE_REGISTRY',
       source_ref: 'mcr.microsoft.com/windows/server:latest',
-    }
+    };
   }
   if (os === 'rhel') {
     return {
       source_type: 'SOURCE_TYPE_REGISTRY',
       source_ref: 'registry.redhat.io/rhel9:latest',
-    }
+    };
   }
   return {
     source_type: 'SOURCE_TYPE_REGISTRY',
     source_ref: 'docker.io/library/ubuntu:22.04',
-  }
-}
+  };
+};
 
 /** Seed VMs as fulfillment-shaped wire + normalize — matches PROTO_JSON path in dev. */
-function buildVm(blueprint: VmBlueprint, tenant: DemoTenantId, index: number): ComputeInstance {
-  const id = `vm-${tenant}-${index.toString().padStart(3, '0')}`
-  const createdMs = Date.now() - (index + 1) * 86400000
-  const bootGib = Math.max(32, blueprint.memoryGib * 2)
+const buildVm = (blueprint: VmBlueprint, tenant: DemoTenantId, index: number): ComputeInstance => {
+  const id = `vm-${tenant}-${index.toString().padStart(3, '0')}`;
+  const createdMs = Date.now() - (index + 1) * 86400000;
+  const bootGib = Math.max(32, blueprint.memoryGib * 2);
   const wire = {
     id,
     metadata: {
@@ -539,14 +545,14 @@ function buildVm(blueprint: VmBlueprint, tenant: DemoTenantId, index: number): C
     description: blueprint.description,
     os: blueprint.os,
     createdAtMs: createdMs,
-  }
-  return normalizeComputeInstance(wire)
-}
+  };
+  return normalizeComputeInstance(wire);
+};
 
-export function buildVmsForTenant(tenant: DemoTenantId): ComputeInstance[] {
-  const blueprints = tenant === 'northstar' ? NORTHSTAR_VMS : EVERGREEN_VMS
-  return blueprints.map((b, i) => buildVm(b, tenant, i))
-}
+export const buildVmsForTenant = (tenant: DemoTenantId): ComputeInstance[] => {
+  const blueprints = tenant === 'northstar' ? NORTHSTAR_VMS : EVERGREEN_VMS;
+  return blueprints.map((b, i) => buildVm(b, tenant, i));
+};
 
 // ---------------------------------------------------------------------------
 // VM templates
@@ -670,19 +676,19 @@ export const VM_TEMPLATES: ClusterTemplate[] = [
     tags: ['Compliance', 'OpenSCAP', 'Security', 'Linux'],
     icon: 'linux',
   },
-]
+];
 
 // ---------------------------------------------------------------------------
 // Users (for tenant admin user management)
 // ---------------------------------------------------------------------------
 
 export interface DemoUser {
-  id: string
-  name: string
-  email: string
-  role: 'tenantAdmin' | 'tenantUser'
-  status: 'active' | 'inactive'
-  lastLogin?: string
+  id: string;
+  name: string;
+  email: string;
+  role: 'tenantAdmin' | 'tenantUser';
+  status: 'active' | 'inactive';
+  lastLogin?: string;
 }
 
 export const NORTHSTAR_USERS: DemoUser[] = [
@@ -726,7 +732,7 @@ export const NORTHSTAR_USERS: DemoUser[] = [
     status: 'inactive',
     lastLogin: '2 weeks ago',
   },
-]
+];
 
 export const EVERGREEN_USERS: DemoUser[] = [
   {
@@ -761,13 +767,13 @@ export const EVERGREEN_USERS: DemoUser[] = [
     status: 'inactive',
     lastLogin: '1 month ago',
   },
-]
+];
 
 // ---------------------------------------------------------------------------
 // Recent activities (events)
 // ---------------------------------------------------------------------------
 
-export function buildRecentActivities(vms: ComputeInstance[], count = 20): OsacEvent[] {
+export const buildRecentActivities = (vms: ComputeInstance[], count = 20): OsacEvent[] => {
   const eventTypes = [
     { type: 'VM started', severity: 'success' as const },
     { type: 'VM stopped', severity: 'info' as const },
@@ -777,11 +783,11 @@ export function buildRecentActivities(vms: ComputeInstance[], count = 20): OsacE
     { type: 'VM power action failed', severity: 'danger' as const },
     { type: 'Snapshot created', severity: 'success' as const },
     { type: 'Template applied', severity: 'success' as const },
-  ]
-  const now = Date.now()
+  ];
+  const now = Date.now();
   return Array.from({ length: count }, (_, i) => {
-    const vm = vms[i % Math.max(vms.length, 1)]
-    const et = eventTypes[i % eventTypes.length]
+    const vm = vms[i % Math.max(vms.length, 1)];
+    const et = eventTypes[i % eventTypes.length];
     return {
       id: `event-${i}`,
       type: et.type,
@@ -789,9 +795,9 @@ export function buildRecentActivities(vms: ComputeInstance[], count = 20): OsacE
       message: vm ? `${et.type} for ${vm.metadata.name}` : et.type,
       severity: et.severity,
       relatedObjectRefs: vm ? [{ kind: 'ComputeInstance', id: vm.id, name: vm.metadata.name }] : [],
-    }
-  })
-}
+    };
+  });
+};
 
 // ---------------------------------------------------------------------------
 // Organizations (for provider admin)
@@ -814,17 +820,17 @@ export const DEMO_ORGANIZATIONS: Organization[] = [
     status: 'active',
     vmCount: 13,
   },
-]
+];
 
 // ---------------------------------------------------------------------------
 // Quota data (for tenant admin)
 // ---------------------------------------------------------------------------
 
 export interface QuotaEntry {
-  resource: string
-  used: number
-  limit: number
-  unit: string
+  resource: string;
+  used: number;
+  limit: number;
+  unit: string;
 }
 
 export const DEMO_QUOTA: Record<'northstar' | 'evergreen', QuotaEntry[]> = {
@@ -842,4 +848,4 @@ export const DEMO_QUOTA: Record<'northstar' | 'evergreen', QuotaEntry[]> = {
     { resource: 'Virtual Machines', used: 13, limit: 30, unit: 'VMs' },
     { resource: 'Public IPs', used: 3, limit: 8, unit: 'IPs' },
   ],
-}
+};

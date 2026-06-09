@@ -4,8 +4,8 @@
  *
  * Authenticated application shell — masthead, sidebar nav (role-based), breadcrumb.
  */
-import { type ReactNode, useCallback, useMemo, useState } from 'react'
-import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import { type ReactNode, useCallback, useMemo, useState } from 'react';
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import {
   Alert,
   Button,
@@ -15,17 +15,17 @@ import {
   ModalHeader,
   Page,
   PageSection,
-} from '@patternfly/react-core'
+} from '@patternfly/react-core';
 
 import {
   DEMO_PROVIDER_ADMIN_DISPLAY_NAME,
   DEMO_TENANT_DISPLAY_ADMIN,
   DEMO_TENANT_DISPLAY_USER,
   DEMO_TENANT_SOVEREIGNTY,
-} from '@osac/api-contracts'
-import { PlaceholderPage } from '@osac/ui-components'
-import { getErrorMessage } from '@osac/ui-components/src/utils/error'
-import { useSession } from '../../contexts/SessionContext'
+} from '@osac/api-contracts';
+import { PlaceholderPage } from '@osac/ui-components';
+import { getErrorMessage } from '@osac/ui-components/src/utils/error';
+import { useSession } from '../../contexts/SessionContext';
 
 // Pages
 import {
@@ -34,81 +34,90 @@ import {
   RecentActivitiesPage,
   TenantSparsePlaceholderPage,
   VmListPage,
-} from '../tenant'
-import { AdminDashboardPage, AdminNetworksPage, AdminQuotaPage, AdminUsersPage } from '../admin'
+} from '../tenant';
+import { AdminDashboardPage, AdminNetworksPage, AdminQuotaPage, AdminUsersPage } from '../admin';
 import {
   ProviderAdminDashboardPage,
   ProviderInfraTopologyPage,
   ProviderTenantOrgsPage,
-} from '../provider'
-import { ShellBreadcrumb } from './ShellBreadcrumb'
-import { ShellMasthead } from './ShellMasthead'
-import { ShellSidebar } from './ShellSidebar'
-import { DEFAULT_EXPANDED_GROUP_IDS, navRowsForRole } from './shellNav'
+} from '../provider';
+import { ShellBreadcrumb } from './ShellBreadcrumb';
+import { ShellMasthead } from './ShellMasthead';
+import { ShellSidebar } from './ShellSidebar';
+import { DEFAULT_EXPANDED_GROUP_IDS, navRowsForRole } from './shellNav';
 import {
   ADMIN_PLACEHOLDER_ROUTES,
   PROVIDER_PLACEHOLDER_ROUTES,
   defaultRouteForRole,
-} from './shellRoutes'
+} from './shellRoutes';
 
 // ---------------------------------------------------------------------------
 // AppShell component
 // ---------------------------------------------------------------------------
 
-export function AppShell() {
-  const navigate = useNavigate()
-  const location = useLocation()
+export const AppShell = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const { selectedTenant, role, isDarkTheme, setIsDarkTheme, logout, openTopologyDetailRequest } =
-    useSession()
+    useSession();
 
-  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(
     () => new Set(DEFAULT_EXPANDED_GROUP_IDS),
-  )
-  const [logoutError, setLogoutError] = useState<string>()
+  );
+  const [logoutError, setLogoutError] = useState<string>();
 
   const handleLogout = useCallback(async () => {
     try {
-      await logout()
+      await logout();
     } catch (err) {
-      setLogoutError(getErrorMessage(err))
+      setLogoutError(getErrorMessage(err));
     }
-  }, [logout])
+  }, [logout]);
 
-  const isRecentActivities = location.pathname === '/activities'
+  const isRecentActivities = location.pathname === '/activities';
 
-  const navRows = useMemo(() => navRowsForRole(role), [role])
+  const navRows = useMemo(() => navRowsForRole(role), [role]);
   const handleSidebarNavigate = useCallback(
     (path: string) => {
-      const isReselect = path === location.pathname
+      const isReselect = path === location.pathname;
       navigate(path, {
         replace: isReselect,
         state: {
           navReselect: isReselect,
           navSelectSeq: Date.now(),
         },
-      })
+      });
     },
     [location.pathname, navigate],
-  )
+  );
 
   const toggleGroup = useCallback((groupId: string, expanded: boolean) => {
     setExpandedGroups((prev) => {
-      const next = new Set(prev)
-      if (expanded) next.add(groupId)
-      else next.delete(groupId)
-      return next
-    })
-  }, [])
+      const next = new Set(prev);
+      if (expanded) {
+        next.add(groupId);
+      } else {
+        next.delete(groupId);
+      }
+      return next;
+    });
+  }, []);
 
   const displayName = useMemo(() => {
-    if (!selectedTenant) return ''
-    if (role === 'providerAdmin') return DEMO_PROVIDER_ADMIN_DISPLAY_NAME
-    if (role === 'tenantAdmin') return DEMO_TENANT_DISPLAY_ADMIN[selectedTenant]
-    return DEMO_TENANT_DISPLAY_USER[selectedTenant]
-  }, [role, selectedTenant])
+    if (!selectedTenant) {
+      return '';
+    }
+    if (role === 'providerAdmin') {
+      return DEMO_PROVIDER_ADMIN_DISPLAY_NAME;
+    }
+    if (role === 'tenantAdmin') {
+      return DEMO_TENANT_DISPLAY_ADMIN[selectedTenant];
+    }
+    return DEMO_TENANT_DISPLAY_USER[selectedTenant];
+  }, [role, selectedTenant]);
 
-  const sovereignty = selectedTenant ? DEMO_TENANT_SOVEREIGNTY[selectedTenant] : null
+  const sovereignty = selectedTenant ? DEMO_TENANT_SOVEREIGNTY[selectedTenant] : null;
   const masthead = (
     <ShellMasthead
       selectedTenant={selectedTenant}
@@ -120,7 +129,7 @@ export function AppShell() {
       onLogout={handleLogout}
       onOpenActivities={() => navigate('/activities')}
     />
-  )
+  );
 
   const sidebar = (
     <ShellSidebar
@@ -133,17 +142,17 @@ export function AppShell() {
       setIsDarkTheme={setIsDarkTheme}
       onLogout={handleLogout}
     />
-  )
+  );
 
   const breadcrumb = (
     <ShellBreadcrumb isRecentActivities={isRecentActivities} role={role} onNavigate={navigate} />
-  )
+  );
 
   // ---------------------------------------------------------------------------
   // Main content routes
   // ---------------------------------------------------------------------------
 
-  const defaultRoute = defaultRouteForRole(role)
+  const defaultRoute = defaultRouteForRole(role);
 
   return (
     <>
@@ -220,9 +229,9 @@ export function AppShell() {
         </Routes>
       </Page>
     </>
-  )
-}
+  );
+};
 
-function PageWrapper({ children }: { children: ReactNode }) {
-  return <PageSection>{children}</PageSection>
-}
+const PageWrapper = ({ children }: { children: ReactNode }) => {
+  return <PageSection>{children}</PageSection>;
+};

@@ -2,13 +2,13 @@
  * flow: provider-administration
  * step: pad_infrastructure_topology
  */
-import { PageSection } from '@patternfly/react-core'
-import { NetworkTopologyPage } from '@osac/ui-components'
-import { useComputeInstances } from '../../api/hooks'
-import { PageHeader } from '../../components/layout'
+import { PageSection } from '@patternfly/react-core';
+import { NetworkTopologyPage } from '@osac/ui-components';
+import { useComputeInstances } from '../../api/hooks';
+import { PageHeader } from '../../components/layout';
 
-export function ProviderInfraTopologyPage() {
-  const { data: vms = [] } = useComputeInstances()
+export const ProviderInfraTopologyPage = () => {
+  const { data: vms = [] } = useComputeInstances();
 
   return (
     <PageSection isFilled>
@@ -19,5 +19,5 @@ export function ProviderInfraTopologyPage() {
       {/* Provider topology — VM node click is no-op per spec */}
       <NetworkTopologyPage vms={vms} />
     </PageSection>
-  )
-}
+  );
+};

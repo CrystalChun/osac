@@ -9,18 +9,18 @@ import {
   Stack,
   StackItem,
   Title,
-} from '@patternfly/react-core'
-import type { ComputeInstance } from '@osac/api-contracts'
-import { type ReactNode, useMemo, useState } from 'react'
-import { useComputeInstanceTemplates } from '../../../../api/hooks'
+} from '@patternfly/react-core';
+import type { ComputeInstance } from '@osac/api-contracts';
+import { type ReactNode, useMemo, useState } from 'react';
+import { useComputeInstanceTemplates } from '../../../../api/hooks';
 import {
   parseTemplateAdditionalDisksGibInput,
   parseTemplateBootDiskGibInput,
   parseTemplateCoresInput,
   parseTemplateMemoryGibInput,
   parseTemplateSecurityGroupsInput,
-} from '../constants'
-import type { UpdateFn, WizardState } from '../types'
+} from '../constants';
+import type { UpdateFn, WizardState } from '../types';
 
 /*
 RESTORE for "new" path review:
@@ -31,36 +31,36 @@ function bootSourceSummary(bootSource: WizardState['bootSource']): string {
 }
 */
 
-export function ReviewStep({
+export const ReviewStep = ({
   state,
   update,
   vms = [],
 }: {
-  state: WizardState
-  update: UpdateFn
-  vms?: ComputeInstance[]
-}) {
-  void vms
-  const { data: templates = [] } = useComputeInstanceTemplates()
+  state: WizardState;
+  update: UpdateFn;
+  vms?: ComputeInstance[];
+}) => {
+  void vms;
+  const { data: templates = [] } = useComputeInstanceTemplates();
   const tpl = useMemo(
     () =>
       state.selectedTemplateId
         ? (templates.find((t) => t.id === state.selectedTemplateId) ?? null)
         : null,
     [templates, state.selectedTemplateId],
-  )
+  );
   /*
   RESTORE for clone review:
   const sourceVm = state.cloneSourceVmId ? vms.find((vm) => vm.id === state.cloneSourceVmId) ?? null : null
   */
 
-  const templateBootDiskGib = parseTemplateBootDiskGibInput(state.templateBootDiskSizeGib)
-  const templateCores = parseTemplateCoresInput(state.templateCores)
-  const templateMemoryGib = parseTemplateMemoryGibInput(state.templateMemoryGib)
-  const additionalDisks = parseTemplateAdditionalDisksGibInput(state.templateAdditionalDisksGibRaw)
-  const securityGroups = parseTemplateSecurityGroupsInput(state.templateSecurityGroupsRaw)
+  const templateBootDiskGib = parseTemplateBootDiskGibInput(state.templateBootDiskSizeGib);
+  const templateCores = parseTemplateCoresInput(state.templateCores);
+  const templateMemoryGib = parseTemplateMemoryGibInput(state.templateMemoryGib);
+  const additionalDisks = parseTemplateAdditionalDisksGibInput(state.templateAdditionalDisksGibRaw);
+  const securityGroups = parseTemplateSecurityGroupsInput(state.templateSecurityGroupsRaw);
 
-  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({})
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
 
   const renderSection = (id: string, title: string, content: ReactNode) => (
     <ExpandableSection
@@ -75,7 +75,7 @@ export function ReviewStep({
     >
       {content}
     </ExpandableSection>
-  )
+  );
 
   const renderTemplateSections = () => (
     <>
@@ -182,7 +182,7 @@ export function ReviewStep({
         </DescriptionList>,
       )}
     </>
-  )
+  );
 
   /*
   WIZARD_TEMPLATE_ONLY — RESTORE when "new" path returns:
@@ -254,5 +254,5 @@ export function ReviewStep({
         {renderTemplateSections()}
       </StackItem>
     </Stack>
-  )
-}
+  );
+};

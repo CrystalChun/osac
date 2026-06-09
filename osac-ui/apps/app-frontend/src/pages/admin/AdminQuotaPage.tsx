@@ -15,21 +15,21 @@ import {
   Progress,
   ProgressSize,
   ProgressVariant,
-} from '@patternfly/react-core'
-import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table'
-import { DEMO_QUOTA } from '@osac/api-contracts'
-import type { QuotaEntry } from '@osac/api-contracts'
-import { useSession } from '../../contexts/SessionContext'
-import { PageHeader } from '../../components/layout'
+} from '@patternfly/react-core';
+import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
+import { DEMO_QUOTA } from '@osac/api-contracts';
+import type { QuotaEntry } from '@osac/api-contracts';
+import { useSession } from '../../contexts/SessionContext';
+import { PageHeader } from '../../components/layout';
 
-function QuotaBar({ entry }: { entry: QuotaEntry }) {
-  const pct = entry.limit > 0 ? Math.min(100, (entry.used / entry.limit) * 100) : 0
+const QuotaBar = ({ entry }: { entry: QuotaEntry }) => {
+  const pct = entry.limit > 0 ? Math.min(100, (entry.used / entry.limit) * 100) : 0;
   const variant =
     pct >= 90
       ? ProgressVariant.danger
       : pct >= 70
         ? ProgressVariant.warning
-        : ProgressVariant.success
+        : ProgressVariant.success;
 
   return (
     <Flex
@@ -68,14 +68,14 @@ function QuotaBar({ entry }: { entry: QuotaEntry }) {
         {pct.toFixed(0)}% used
       </Content>
     </Flex>
-  )
-}
+  );
+};
 
-export function AdminQuotaPage() {
-  const { selectedTenant } = useSession()
+export const AdminQuotaPage = () => {
+  const { selectedTenant } = useSession();
   const tenant =
-    selectedTenant === 'northstar' || selectedTenant === 'evergreen' ? selectedTenant : 'northstar'
-  const quota = DEMO_QUOTA[tenant]
+    selectedTenant === 'northstar' || selectedTenant === 'evergreen' ? selectedTenant : 'northstar';
+  const quota = DEMO_QUOTA[tenant];
 
   return (
     <PageSection>
@@ -138,5 +138,5 @@ export function AdminQuotaPage() {
         </GalleryItem>
       </Gallery>
     </PageSection>
-  )
-}
+  );
+};

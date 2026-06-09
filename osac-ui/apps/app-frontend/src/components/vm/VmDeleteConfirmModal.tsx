@@ -10,21 +10,21 @@ import {
   ModalFooter,
   ModalHeader,
   Spinner,
-} from '@patternfly/react-core'
-import type { ComputeInstance } from '@osac/api-contracts'
+} from '@patternfly/react-core';
+import type { ComputeInstance } from '@osac/api-contracts';
 
 interface VmDeleteConfirmModalProps {
-  vm: ComputeInstance | null
-  isOpen: boolean
-  isPending: boolean
+  vm: ComputeInstance | null;
+  isOpen: boolean;
+  isPending: boolean;
   /** When true, copy explains the VM will be stopped via PATCH before DELETE. */
-  willStopFirst?: boolean
-  errorMessage?: string | null
-  onClose: () => void
-  onConfirm: () => void
+  willStopFirst?: boolean;
+  errorMessage?: string | null;
+  onClose: () => void;
+  onConfirm: () => void;
 }
 
-export function VmDeleteConfirmModal({
+export const VmDeleteConfirmModal = ({
   vm,
   isOpen,
   isPending,
@@ -32,8 +32,10 @@ export function VmDeleteConfirmModal({
   errorMessage,
   onClose,
   onConfirm,
-}: VmDeleteConfirmModalProps) {
-  if (!vm) return null
+}: VmDeleteConfirmModalProps) => {
+  if (!vm) {
+    return null;
+  }
 
   return (
     <Modal
@@ -70,5 +72,5 @@ export function VmDeleteConfirmModal({
         </Button>
       </ModalFooter>
     </Modal>
-  )
-}
+  );
+};

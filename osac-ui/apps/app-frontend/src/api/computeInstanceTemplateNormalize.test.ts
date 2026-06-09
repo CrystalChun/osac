@@ -1,8 +1,8 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest';
 import {
   normalizeComputeInstanceTemplate,
   normalizeComputeInstanceTemplatePage,
-} from '@osac/api-contracts'
+} from '@osac/api-contracts';
 
 describe('normalizeComputeInstanceTemplate', () => {
   it('maps snake_case wire fields to ClusterTemplate', () => {
@@ -16,14 +16,14 @@ describe('normalizeComputeInstanceTemplate', () => {
       default_memory_gib: 16,
       tags: ['a', 'b'],
       icon: 'linux',
-    })
-    expect(t.id).toBe('tpl-1')
-    expect(t.metadata.createdAt).toBe('2025-01-01T00:00:00Z')
-    expect(t.workloadProfile).toBe('machine-learning')
-    expect(t.defaultCores).toBe(4)
-    expect(t.defaultMemoryGib).toBe(16)
-    expect(t.tags).toEqual(['a', 'b'])
-  })
+    });
+    expect(t.id).toBe('tpl-1');
+    expect(t.metadata.createdAt).toBe('2025-01-01T00:00:00Z');
+    expect(t.workloadProfile).toBe('machine-learning');
+    expect(t.defaultCores).toBe(4);
+    expect(t.defaultMemoryGib).toBe(16);
+    expect(t.tags).toEqual(['a', 'b']);
+  });
 
   it('maps defaults.boot_disk.size_gib to defaultBootDiskSizeGib', () => {
     const t = normalizeComputeInstanceTemplate({
@@ -31,9 +31,9 @@ describe('normalizeComputeInstanceTemplate', () => {
       title: 'Disky',
       metadata: { name: 'tpl-disk' },
       defaults: { boot_disk: { size_gib: 64 } },
-    })
-    expect(t.defaultBootDiskSizeGib).toBe(64)
-  })
+    });
+    expect(t.defaultBootDiskSizeGib).toBe(64);
+  });
 
   it('maps spec_defaults.boot_disk.size_gib when defaults omit boot_disk', () => {
     const t = normalizeComputeInstanceTemplate({
@@ -45,11 +45,11 @@ describe('normalizeComputeInstanceTemplate', () => {
         memory_gib: 2,
         boot_disk: { size_gib: 10 },
       },
-    })
-    expect(t.defaultBootDiskSizeGib).toBe(10)
-    expect(t.defaultCores).toBe(2)
-    expect(t.defaultMemoryGib).toBe(2)
-  })
+    });
+    expect(t.defaultBootDiskSizeGib).toBe(10);
+    expect(t.defaultCores).toBe(2);
+    expect(t.defaultMemoryGib).toBe(2);
+  });
 
   it('normalizes page envelope', () => {
     const page = normalizeComputeInstanceTemplatePage({
@@ -62,9 +62,9 @@ describe('normalizeComputeInstanceTemplate', () => {
           metadata: { name: 'x' },
         },
       ],
-    })
-    expect(page.total).toBe(10)
-    expect(page.items).toHaveLength(1)
-    expect(page.items[0].title).toBe('X')
-  })
-})
+    });
+    expect(page.total).toBe(10);
+    expect(page.items).toHaveLength(1);
+    expect(page.items[0].title).toBe('X');
+  });
+});

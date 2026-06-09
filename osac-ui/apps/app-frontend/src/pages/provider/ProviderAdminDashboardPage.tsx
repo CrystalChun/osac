@@ -2,12 +2,12 @@
  * flow: provider-administration
  * step: pad_dashboard_home
  */
-import { useNavigate } from 'react-router-dom'
-import { Flex, Gallery, GalleryItem, PageSection, Title } from '@patternfly/react-core'
-import { DEMO_ORGANIZATIONS } from '@osac/api-contracts'
-import { useComputeInstances } from '../../api/hooks'
-import { DashboardActionTile, DashboardMetricCard } from '../../components/dashboard'
-import { PageHeader } from '../../components/layout'
+import { useNavigate } from 'react-router-dom';
+import { Flex, Gallery, GalleryItem, PageSection, Title } from '@patternfly/react-core';
+import { DEMO_ORGANIZATIONS } from '@osac/api-contracts';
+import { useComputeInstances } from '../../api/hooks';
+import { DashboardActionTile, DashboardMetricCard } from '../../components/dashboard';
+import { PageHeader } from '../../components/layout';
 
 const PROVIDER_TILES = [
   {
@@ -38,12 +38,12 @@ const PROVIDER_TILES = [
     desc: 'View platform infrastructure topology.',
     path: '/provider/infrastructure',
   },
-]
+];
 
-export function ProviderAdminDashboardPage() {
-  const navigate = useNavigate()
-  const { data: vms = [] } = useComputeInstances()
-  const totalVms = DEMO_ORGANIZATIONS.reduce((acc, o) => acc + (o.vmCount ?? 0), 0)
+export const ProviderAdminDashboardPage = () => {
+  const navigate = useNavigate();
+  const { data: vms = [] } = useComputeInstances();
+  const totalVms = DEMO_ORGANIZATIONS.reduce((acc, o) => acc + (o.vmCount ?? 0), 0);
 
   return (
     <PageSection>
@@ -86,5 +86,5 @@ export function ProviderAdminDashboardPage() {
         ))}
       </Gallery>
     </PageSection>
-  )
-}
+  );
+};

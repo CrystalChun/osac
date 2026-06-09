@@ -2,8 +2,8 @@
  * flow: tenant-user-dashboard
  * step: tud_dashboard_home
  */
-import { useCallback, useMemo, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useCallback, useMemo, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Button,
   Card,
@@ -15,55 +15,59 @@ import {
   GalleryItem,
   PageSection,
   Title,
-} from '@patternfly/react-core'
-import type { ComputeInstance, VmPowerState } from '@osac/api-contracts'
-import { DEMO_TENANT_DISPLAY_USER } from '@osac/api-contracts'
-import type { CreateVmWizardHandle, DeploymentMode } from '../../components/vm/CreateVmWizard'
-import { CreateVmWizard } from '../../components/vm/CreateVmWizard'
-import { PageHeader } from '../../components/layout'
-import { DashboardQuotaSection, DashboardUtilizationSection } from '../../components/dashboard'
-import { useSession } from '../../contexts/SessionContext'
-import { useComputeInstances, useProvisionVm } from '../../api/hooks'
+} from '@patternfly/react-core';
+import type { ComputeInstance, VmPowerState } from '@osac/api-contracts';
+import { DEMO_TENANT_DISPLAY_USER } from '@osac/api-contracts';
+import type { CreateVmWizardHandle, DeploymentMode } from '../../components/vm/CreateVmWizard';
+import { CreateVmWizard } from '../../components/vm/CreateVmWizard';
+import { PageHeader } from '../../components/layout';
+import { DashboardQuotaSection, DashboardUtilizationSection } from '../../components/dashboard';
+import { useSession } from '../../contexts/SessionContext';
+import { useComputeInstances, useProvisionVm } from '../../api/hooks';
 
 interface StatCard {
-  key: string
-  label: string
-  value: number
-  valueColor: string
-  caption: string
-  powerFilter: VmPowerState | null
+  key: string;
+  label: string;
+  value: number;
+  valueColor: string;
+  caption: string;
+  powerFilter: VmPowerState | null;
 }
 
-export function DashboardPage() {
-  const navigate = useNavigate()
-  const { selectedTenant, isDarkTheme } = useSession()
-  const wizardRef = useRef<CreateVmWizardHandle>(null)
-  const { data: vms = [] } = useComputeInstances()
-  const provisionVm = useProvisionVm()
+export const DashboardPage = () => {
+  const navigate = useNavigate();
+  const { selectedTenant, isDarkTheme } = useSession();
+  const wizardRef = useRef<CreateVmWizardHandle>(null);
+  const { data: vms = [] } = useComputeInstances();
+  const provisionVm = useProvisionVm();
 
   const handleWizardProvision = useCallback(
     (vm: ComputeInstance, meta: { mode: DeploymentMode }) => {
-      provisionVm.mutate({ vm, specTemplateOnly: meta.mode === 'template' })
+      provisionVm.mutate({ vm, specTemplateOnly: meta.mode === 'template' });
     },
     [provisionVm],
-  )
+  );
 
-  const tenant = selectedTenant ?? 'northstar'
-  const displayName = selectedTenant ? DEMO_TENANT_DISPLAY_USER[selectedTenant] : ''
+  const tenant = selectedTenant ?? 'northstar';
+  const displayName = selectedTenant ? DEMO_TENANT_DISPLAY_USER[selectedTenant] : '';
 
   /** KPIs from normalized GET compute_instances (spec: starting/deleting/error count in All only). */
   const powerCounts = useMemo(() => {
-    let running = 0
-    let paused = 0
-    let stopped = 0
+    let running = 0;
+    let paused = 0;
+    let stopped = 0;
     for (const v of vms) {
-      const s = v.status.state
-      if (s === 'running') running++
-      else if (s === 'paused') paused++
-      else if (s === 'stopped') stopped++
+      const s = v.status.state;
+      if (s === 'running') {
+        running++;
+      } else if (s === 'paused') {
+        paused++;
+      } else if (s === 'stopped') {
+        stopped++;
+      }
     }
-    return { running, paused, stopped, all: vms.length }
-  }, [vms])
+    return { running, paused, stopped, all: vms.length };
+  }, [vms]);
 
   const stats: StatCard[] = [
     {
@@ -98,19 +102,19 @@ export function DashboardPage() {
       caption: 'Powered off — storage may still incur cost',
       powerFilter: 'stopped',
     },
-  ]
+  ];
 
   const handleStatCardClick = useCallback(
     (powerFilter: VmPowerState | null) => {
-      const path = powerFilter ? `/vms?power=${powerFilter}` : '/vms'
-      navigate(path)
+      const path = powerFilter ? `/vms?power=${powerFilter}` : '/vms';
+      navigate(path);
     },
     [navigate],
-  )
+  );
 
   const handleOpenCreateVm = useCallback(() => {
-    wizardRef.current?.open()
-  }, [])
+    wizardRef.current?.open();
+  }, []);
 
   return (
     <PageSection isFilled>
@@ -184,5 +188,5 @@ export function DashboardPage() {
       {/* Resource quota donuts */}
       <DashboardQuotaSection selectedTenant={selectedTenant} />
     </PageSection>
-  )
-}
+  );
+};

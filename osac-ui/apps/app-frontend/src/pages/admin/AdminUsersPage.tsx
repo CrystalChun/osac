@@ -2,15 +2,15 @@
  * flow: tenant-administration
  * step: tad_users
  */
-import { Button, Label, PageSection } from '@patternfly/react-core'
-import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table'
-import { EVERGREEN_USERS, NORTHSTAR_USERS } from '@osac/api-contracts'
-import { useSession } from '../../contexts/SessionContext'
-import { PageHeader } from '../../components/layout'
+import { Button, Label, PageSection } from '@patternfly/react-core';
+import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
+import { EVERGREEN_USERS, NORTHSTAR_USERS } from '@osac/api-contracts';
+import { useSession } from '../../contexts/SessionContext';
+import { PageHeader } from '../../components/layout';
 
-export function AdminUsersPage() {
-  const { selectedTenant } = useSession()
-  const users = selectedTenant === 'northstar' ? NORTHSTAR_USERS : EVERGREEN_USERS
+export const AdminUsersPage = () => {
+  const { selectedTenant } = useSession();
+  const users = selectedTenant === 'northstar' ? NORTHSTAR_USERS : EVERGREEN_USERS;
 
   return (
     <PageSection>
@@ -73,5 +73,5 @@ export function AdminUsersPage() {
         </Tbody>
       </Table>
     </PageSection>
-  )
-}
+  );
+};

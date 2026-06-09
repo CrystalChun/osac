@@ -1,4 +1,4 @@
-import { FilterIcon } from '@patternfly/react-icons/dist/esm/icons/filter-icon'
+import { FilterIcon } from '@patternfly/react-icons/dist/esm/icons/filter-icon';
 /**
  * flow: tenant-user-dashboard
  * step: tud_dashboard_home — VM utilization trends + recent activities preview
@@ -9,8 +9,8 @@ import { FilterIcon } from '@patternfly/react-icons/dist/esm/icons/filter-icon'
  * Layout uses only PF primitives (Grid, Gallery, Stack, Flex) and PF design tokens.
  * No custom CSS classes — see design-system.yaml layout_and_shell.implementation_policy.
  */
-import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Card,
   CardBody,
@@ -31,21 +31,21 @@ import {
   Stack,
   StackItem,
   Title,
-} from '@patternfly/react-core'
-import { Chart, ChartAxis, ChartGroup, ChartLine } from '@patternfly/react-charts/victory'
-import { buildRecentActivities } from '@osac/api-contracts'
-import { useComputeInstances } from '../../api/hooks'
+} from '@patternfly/react-core';
+import { Chart, ChartAxis, ChartGroup, ChartLine } from '@patternfly/react-charts/victory';
+import { buildRecentActivities } from '@osac/api-contracts';
+import { useComputeInstances } from '../../api/hooks';
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
-type UtilizationPeriod = '24h' | '7d' | '30d' | '90d'
+type UtilizationPeriod = '24h' | '7d' | '30d' | '90d';
 
 interface PeriodOption {
-  value: UtilizationPeriod
-  label: string
-  points: number
+  value: UtilizationPeriod;
+  label: string;
+  points: number;
 }
 
 const PERIOD_OPTIONS: PeriodOption[] = [
@@ -53,43 +53,47 @@ const PERIOD_OPTIONS: PeriodOption[] = [
   { value: '7d', label: 'Last 7 days', points: 14 },
   { value: '30d', label: 'Last 30 days', points: 30 },
   { value: '90d', label: 'Last 90 days', points: 18 },
-]
+];
 
 // ---------------------------------------------------------------------------
 // Demo data generator — deterministic sine-wave shaped time series
 // ---------------------------------------------------------------------------
 
 interface ChartPoint {
-  x: number
-  y: number
-  tickLabel: string
+  x: number;
+  y: number;
+  tickLabel: string;
 }
 
-function buildUtilizationData(
+const buildUtilizationData = (
   period: UtilizationPeriod,
   metricKey: 'cpu' | 'memory' | 'gpu' | 'storage',
   vmCount: number,
-): ChartPoint[] {
-  const opt = PERIOD_OPTIONS.find((o) => o.value === period) ?? PERIOD_OPTIONS[1]
-  const n = opt.points
+): ChartPoint[] => {
+  const opt = PERIOD_OPTIONS.find((o) => o.value === period) ?? PERIOD_OPTIONS[1];
+  const n = opt.points;
   const bases: Record<string, [number, number]> = {
     cpu: [55 + (vmCount % 10) * 2, 14],
     memory: [68 + (vmCount % 7) * 3, 11],
     gpu: [40 + (vmCount % 8) * 4, 17],
     storage: [72 + (vmCount % 5) * 2, 7],
-  }
-  const [base, amp] = bases[metricKey]
+  };
+  const [base, amp] = bases[metricKey];
   return Array.from({ length: n }, (_, i) => {
-    const phase = (i / n) * Math.PI * 4 + metricKey.length
-    const noise = Math.sin(phase) * amp + Math.cos(phase * 1.7) * (amp / 2)
-    const y = Math.min(99, Math.max(4, base + noise))
-    let tickLabel = ''
-    if (period === '24h') tickLabel = `${i}h`
-    else if (period === '7d') tickLabel = `D${i + 1}`
-    else tickLabel = `W${i + 1}`
-    return { x: i, y: Math.round(y * 10) / 10, tickLabel }
-  })
-}
+    const phase = (i / n) * Math.PI * 4 + metricKey.length;
+    const noise = Math.sin(phase) * amp + Math.cos(phase * 1.7) * (amp / 2);
+    const y = Math.min(99, Math.max(4, base + noise));
+    let tickLabel = '';
+    if (period === '24h') {
+      tickLabel = `${i}h`;
+    } else if (period === '7d') {
+      tickLabel = `D${i + 1}`;
+    } else {
+      tickLabel = `W${i + 1}`;
+    }
+    return { x: i, y: Math.round(y * 10) / 10, tickLabel };
+  });
+};
 
 // ---------------------------------------------------------------------------
 // Metric configuration
@@ -120,7 +124,7 @@ const METRICS = [
     subtitle: 'Pool utilization from fleet disk footprint',
     color: '#3E8635',
   },
-]
+];
 
 // ---------------------------------------------------------------------------
 // Component
@@ -128,27 +132,27 @@ const METRICS = [
 
 interface DashboardUtilizationSectionProps {
   /** Reserved for future chart theme adaptation (dark/light). */
-  isDarkTheme?: boolean
+  isDarkTheme?: boolean;
 }
 
-export function DashboardUtilizationSection(_props: DashboardUtilizationSectionProps) {
-  const navigate = useNavigate()
-  const { data: vms = [] } = useComputeInstances()
-  const [period, setPeriod] = useState<UtilizationPeriod>('7d')
-  const [menuOpen, setMenuOpen] = useState(false)
+export const DashboardUtilizationSection = (_props: DashboardUtilizationSectionProps) => {
+  const navigate = useNavigate();
+  const { data: vms = [] } = useComputeInstances();
+  const [period, setPeriod] = useState<UtilizationPeriod>('7d');
+  const [menuOpen, setMenuOpen] = useState(false);
 
-  const currentPeriod = PERIOD_OPTIONS.find((o) => o.value === period) ?? PERIOD_OPTIONS[1]
+  const currentPeriod = PERIOD_OPTIONS.find((o) => o.value === period) ?? PERIOD_OPTIONS[1];
 
   const chartDataMap = useMemo(
     () =>
       METRICS.reduce<Record<string, ChartPoint[]>>((acc, m) => {
-        acc[m.key] = buildUtilizationData(period, m.key, vms.length)
-        return acc
+        acc[m.key] = buildUtilizationData(period, m.key, vms.length);
+        return acc;
       }, {}),
     [period, vms.length],
-  )
+  );
 
-  const activities = useMemo(() => buildRecentActivities(vms, 6), [vms])
+  const activities = useMemo(() => buildRecentActivities(vms, 6), [vms]);
 
   return (
     <section
@@ -193,8 +197,8 @@ export function DashboardUtilizationSection(_props: DashboardUtilizationSectionP
                       key={opt.value}
                       isSelected={period === opt.value}
                       onClick={() => {
-                        setPeriod(opt.value)
-                        setMenuOpen(false)
+                        setPeriod(opt.value);
+                        setMenuOpen(false);
                       }}
                     >
                       {opt.label}
@@ -207,9 +211,9 @@ export function DashboardUtilizationSection(_props: DashboardUtilizationSectionP
 
           <Gallery hasGutter minWidths={{ default: '280px' }}>
             {METRICS.map((m) => {
-              const data = chartDataMap[m.key] ?? []
-              const n = data.length
-              const tickPositions = n > 1 ? [0, Math.floor(n / 2), n - 1] : [0]
+              const data = chartDataMap[m.key] ?? [];
+              const n = data.length;
+              const tickPositions = n > 1 ? [0, Math.floor(n / 2), n - 1] : [0];
               return (
                 <GalleryItem key={m.key}>
                   <Card component="article">
@@ -258,7 +262,7 @@ export function DashboardUtilizationSection(_props: DashboardUtilizationSectionP
                     </CardBody>
                   </Card>
                 </GalleryItem>
-              )
+              );
             })}
           </Gallery>
         </GridItem>
@@ -287,7 +291,7 @@ export function DashboardUtilizationSection(_props: DashboardUtilizationSectionP
                         ? 'red'
                         : item.severity === 'warning'
                           ? 'orange'
-                          : 'blue'
+                          : 'blue';
                   return (
                     <StackItem key={item.id}>
                       <Stack hasGutter={false}>
@@ -328,7 +332,7 @@ export function DashboardUtilizationSection(_props: DashboardUtilizationSectionP
                         </StackItem>
                       </Stack>
                     </StackItem>
-                  )
+                  );
                 })}
               </Stack>
             </CardBody>
@@ -336,5 +340,5 @@ export function DashboardUtilizationSection(_props: DashboardUtilizationSectionP
         </GridItem>
       </Grid>
     </section>
-  )
-}
+  );
+};

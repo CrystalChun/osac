@@ -2,25 +2,25 @@
  * flow: manage-virtual-machines
  * step: mvm_list_view
  */
-import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table'
-import type { ComputeInstance, VmPowerState } from '@osac/api-contracts'
-import { resolveVmOsForUi } from '@osac/api-contracts'
-import { VmStatusLabel } from '@osac/ui-components'
-import { VmActionsMenu } from './VmActionsMenu'
+import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
+import type { ComputeInstance, VmPowerState } from '@osac/api-contracts';
+import { resolveVmOsForUi } from '@osac/api-contracts';
+import { VmStatusLabel } from '@osac/ui-components';
+import { VmActionsMenu } from './VmActionsMenu';
 
 interface VmTableProps {
-  vms: ComputeInstance[]
-  getState: (vm: ComputeInstance) => VmPowerState
-  onSelect: (vm: ComputeInstance) => void
-  onPower: (vm: ComputeInstance, action: 'start' | 'stop' | 'restart') => void
-  isRestarting?: (vm: ComputeInstance) => boolean
-  isPowerActionPending?: (vm: ComputeInstance) => boolean
-  isPendingCreation?: (vm: ComputeInstance) => boolean
-  onDelete?: (vm: ComputeInstance) => void
+  vms: ComputeInstance[];
+  getState: (vm: ComputeInstance) => VmPowerState;
+  onSelect: (vm: ComputeInstance) => void;
+  onPower: (vm: ComputeInstance, action: 'start' | 'stop' | 'restart') => void;
+  isRestarting?: (vm: ComputeInstance) => boolean;
+  isPowerActionPending?: (vm: ComputeInstance) => boolean;
+  isPendingCreation?: (vm: ComputeInstance) => boolean;
+  onDelete?: (vm: ComputeInstance) => void;
   /* RESTORE when fulfillment supports clone: onClone?: (vm: ComputeInstance) => void */
 }
 
-export function VmTable({
+export const VmTable = ({
   vms,
   getState,
   onSelect,
@@ -29,7 +29,7 @@ export function VmTable({
   isPowerActionPending,
   isPendingCreation,
   onDelete,
-}: VmTableProps) {
+}: VmTableProps) => {
   return (
     <Table aria-label="Virtual machines" variant="compact">
       <Thead>
@@ -45,9 +45,9 @@ export function VmTable({
       </Thead>
       <Tbody>
         {vms.map((vm) => {
-          const state = getState(vm)
-          const pending = isPendingCreation?.(vm) ?? false
-          const locked = pending || state === 'deleting'
+          const state = getState(vm);
+          const pending = isPendingCreation?.(vm) ?? false;
+          const locked = pending || state === 'deleting';
           return (
             <Tr
               key={vm.id}
@@ -81,9 +81,9 @@ export function VmTable({
                 )}
               </Td>
             </Tr>
-          )
+          );
         })}
       </Tbody>
     </Table>
-  )
-}
+  );
+};

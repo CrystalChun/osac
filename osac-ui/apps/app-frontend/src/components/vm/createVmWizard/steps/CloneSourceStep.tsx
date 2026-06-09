@@ -1,5 +1,5 @@
-import { RedhatIcon } from '@patternfly/react-icons/dist/esm/icons/redhat-icon'
-import { WindowsIcon } from '@patternfly/react-icons/dist/esm/icons/windows-icon'
+import { RedhatIcon } from '@patternfly/react-icons/dist/esm/icons/redhat-icon';
+import { WindowsIcon } from '@patternfly/react-icons/dist/esm/icons/windows-icon';
 /**
  * flow: create-virtual-machine-wizard
  * step: cvm_wizard_source_clone
@@ -23,19 +23,19 @@ import {
   StackItem,
   TextInput,
   Title,
-} from '@patternfly/react-core'
-import type { ComputeInstance } from '@osac/api-contracts'
-import linuxMascotUrl from '../../../../assets/guest-os-tux-linux.png'
-import { VmStatusLabel } from '@osac/ui-components'
-import { useMemo, useState } from 'react'
-import type { UpdateFn, WizardState } from '../types'
+} from '@patternfly/react-core';
+import type { ComputeInstance } from '@osac/api-contracts';
+import linuxMascotUrl from '../../../../assets/guest-os-tux-linux.png';
+import { VmStatusLabel } from '@osac/ui-components';
+import { useMemo, useState } from 'react';
+import type { UpdateFn, WizardState } from '../types';
 
 interface CloneSourceStepProps {
-  state: WizardState
-  update: UpdateFn
-  search: string
-  setSearch: (s: string) => void
-  vms: ComputeInstance[]
+  state: WizardState;
+  update: UpdateFn;
+  search: string;
+  setSearch: (s: string) => void;
+  vms: ComputeInstance[];
 }
 
 const OS_FILTER_OPTIONS = [
@@ -43,19 +43,23 @@ const OS_FILTER_OPTIONS = [
   { value: 'rhel', label: 'RHEL' },
   { value: 'windows', label: 'Microsoft Windows' },
   { value: 'linux', label: 'Linux' },
-] as const
+] as const;
 
 const STATE_FILTER_OPTIONS = [
   { value: 'all', label: 'All states' },
   { value: 'running', label: 'Running' },
   { value: 'stopped', label: 'Stopped' },
   { value: 'paused', label: 'Paused' },
-] as const
+] as const;
 
-function OsIcon({ os }: { os?: string }) {
-  const style = { width: 28, height: 28 } as const
-  if (os === 'windows') return <WindowsIcon style={{ ...style, color: '#0078D4' }} />
-  if (os === 'rhel') return <RedhatIcon style={{ ...style, color: '#EE0000' }} />
+const OsIcon = ({ os }: { os?: string }) => {
+  const style = { width: 28, height: 28 } as const;
+  if (os === 'windows') {
+    return <WindowsIcon style={{ ...style, color: '#0078D4' }} />;
+  }
+  if (os === 'rhel') {
+    return <RedhatIcon style={{ ...style, color: '#EE0000' }} />;
+  }
   return (
     <img
       src={linuxMascotUrl}
@@ -64,33 +68,37 @@ function OsIcon({ os }: { os?: string }) {
       height={28}
       style={{ display: 'block', objectFit: 'contain' }}
     />
-  )
-}
+  );
+};
 
-function formatCreatedDate(value?: string): string {
-  if (!value) return 'Not set'
-  const parsed = Date.parse(value)
-  if (Number.isNaN(parsed)) return value
-  return new Date(parsed).toLocaleDateString()
-}
+const formatCreatedDate = (value?: string): string => {
+  if (!value) {
+    return 'Not set';
+  }
+  const parsed = Date.parse(value);
+  if (Number.isNaN(parsed)) {
+    return value;
+  }
+  return new Date(parsed).toLocaleDateString();
+};
 
-function ownerFromVm(vm: ComputeInstance): string {
+const ownerFromVm = (vm: ComputeInstance): string => {
   return (
     vm.metadata.labels?.owner ??
     vm.metadata.labels?.createdBy ??
     vm.metadata.labels?.tenant ??
     'Not set'
-  )
-}
+  );
+};
 
-function storageSummary(vm: ComputeInstance): string {
+const storageSummary = (vm: ComputeInstance): string => {
   if (vm.spec.bootDisk || vm.spec.additionalDisks?.length) {
-    return `Storage configured (${(vm.spec.additionalDisks?.length ?? 0) + (vm.spec.bootDisk ? 1 : 0)} disk(s))`
+    return `Storage configured (${(vm.spec.additionalDisks?.length ?? 0) + (vm.spec.bootDisk ? 1 : 0)} disk(s))`;
   }
-  return 'Storage not specified'
-}
+  return 'Storage not specified';
+};
 
-function DetailField({ label, value }: { label: string; value: string }) {
+const DetailField = ({ label, value }: { label: string; value: string }) => {
   return (
     <Stack hasGutter={false}>
       <StackItem>
@@ -116,10 +124,10 @@ function DetailField({ label, value }: { label: string; value: string }) {
         </Content>
       </StackItem>
     </Stack>
-  )
-}
+  );
+};
 
-function InlineDetailField({ label, value }: { label: string; value: string }) {
+const InlineDetailField = ({ label, value }: { label: string; value: string }) => {
   return (
     <Content
       component="p"
@@ -142,36 +150,46 @@ function InlineDetailField({ label, value }: { label: string; value: string }) {
       </span>
       <span style={{ textAlign: 'center' }}>{value}</span>
     </Content>
-  )
-}
+  );
+};
 
-export function CloneSourceStep({ state, update, search, setSearch, vms }: CloneSourceStepProps) {
-  const [osFilter, setOsFilter] = useState<string>('all')
-  const [stateFilter, setStateFilter] = useState<string>('all')
+export const CloneSourceStep = ({
+  state,
+  update,
+  search,
+  setSearch,
+  vms,
+}: CloneSourceStepProps) => {
+  const [osFilter, setOsFilter] = useState<string>('all');
+  const [stateFilter, setStateFilter] = useState<string>('all');
 
   const filtered = useMemo(() => {
-    let list = [...vms]
-    if (osFilter !== 'all') list = list.filter((vm) => (vm.os ?? 'linux') === osFilter)
-    if (stateFilter !== 'all') list = list.filter((vm) => vm.status.state === stateFilter)
+    let list = [...vms];
+    if (osFilter !== 'all') {
+      list = list.filter((vm) => (vm.os ?? 'linux') === osFilter);
+    }
+    if (stateFilter !== 'all') {
+      list = list.filter((vm) => vm.status.state === stateFilter);
+    }
     if (search.trim()) {
-      const q = search.toLowerCase().trim()
+      const q = search.toLowerCase().trim();
       list = list.filter(
         (vm) =>
           vm.metadata.name.toLowerCase().includes(q) ||
           vm.id.toLowerCase().includes(q) ||
           (vm.os ?? '').toLowerCase().includes(q),
-      )
+      );
     }
-    return list
-  }, [vms, osFilter, stateFilter, search])
+    return list;
+  }, [vms, osFilter, stateFilter, search]);
 
   const clearFilters = () => {
-    setOsFilter('all')
-    setStateFilter('all')
-    setSearch('')
-  }
+    setOsFilter('all');
+    setStateFilter('all');
+    setSearch('');
+  };
 
-  const countPhrase = `${filtered.length} ${filtered.length === 1 ? 'virtual machine' : 'virtual machines'} available`
+  const countPhrase = `${filtered.length} ${filtered.length === 1 ? 'virtual machine' : 'virtual machines'} available`;
 
   return (
     <Stack hasGutter>
@@ -269,7 +287,7 @@ export function CloneSourceStep({ state, update, search, setSearch, vms }: Clone
             </Content>
           ) : null}
           {filtered.map((vm) => {
-            const selected = state.cloneSourceVmId === vm.id
+            const selected = state.cloneSourceVmId === vm.id;
             return (
               <div key={vm.id}>
                 <Card
@@ -279,8 +297,8 @@ export function CloneSourceStep({ state, update, search, setSearch, vms }: Clone
                   isClickable
                   isSelected={selected}
                   onClick={() => {
-                    update('cloneSourceVmId', vm.id)
-                    update('cloneNewName', `${vm.metadata.name}-clone`)
+                    update('cloneSourceVmId', vm.id);
+                    update('cloneNewName', `${vm.metadata.name}-clone`);
                   }}
                   style={{
                     cursor: 'pointer',
@@ -311,8 +329,8 @@ export function CloneSourceStep({ state, update, search, setSearch, vms }: Clone
                               aria-label={vm.metadata.name}
                               isChecked={selected}
                               onChange={() => {
-                                update('cloneSourceVmId', vm.id)
-                                update('cloneNewName', `${vm.metadata.name}-clone`)
+                                update('cloneSourceVmId', vm.id);
+                                update('cloneNewName', `${vm.metadata.name}-clone`);
                               }}
                             />
                           </StackItem>
@@ -372,10 +390,10 @@ export function CloneSourceStep({ state, update, search, setSearch, vms }: Clone
                   </CardBody>
                 </Card>
               </div>
-            )
+            );
           })}
         </div>
       </StackItem>
     </Stack>
-  )
-}
+  );
+};

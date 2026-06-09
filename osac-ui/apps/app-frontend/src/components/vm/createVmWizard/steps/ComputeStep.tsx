@@ -6,10 +6,10 @@ import {
   StackItem,
   TextInput,
   Title,
-} from '@patternfly/react-core'
-import type { UpdateFn, WizardState } from '../types'
+} from '@patternfly/react-core';
+import type { UpdateFn, WizardState } from '../types';
 
-export function ComputeStep({ state, update }: { state: WizardState; update: UpdateFn }) {
+export const ComputeStep = ({ state, update }: { state: WizardState; update: UpdateFn }) => {
   return (
     <Stack hasGutter>
       <StackItem>
@@ -47,5 +47,5 @@ export function ComputeStep({ state, update }: { state: WizardState; update: Upd
         </Form>
       </StackItem>
     </Stack>
-  )
-}
+  );
+};

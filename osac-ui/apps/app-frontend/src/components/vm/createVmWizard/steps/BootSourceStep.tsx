@@ -1,7 +1,7 @@
-import { Content, Radio, Stack, StackItem, Title } from '@patternfly/react-core'
-import type { UpdateFn, WizardState } from '../types'
+import { Content, Radio, Stack, StackItem, Title } from '@patternfly/react-core';
+import type { UpdateFn, WizardState } from '../types';
 
-export function BootSourceStep({ state, update }: { state: WizardState; update: UpdateFn }) {
+export const BootSourceStep = ({ state, update }: { state: WizardState; update: UpdateFn }) => {
   return (
     <Stack hasGutter>
       <StackItem>
@@ -43,5 +43,5 @@ export function BootSourceStep({ state, update }: { state: WizardState; update: 
         </div>
       </StackItem>
     </Stack>
-  )
-}
+  );
+};

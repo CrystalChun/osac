@@ -1,9 +1,9 @@
-import { EyeIcon } from '@patternfly/react-icons/dist/esm/icons/eye-icon'
-import { EyeSlashIcon } from '@patternfly/react-icons/dist/esm/icons/eye-slash-icon'
+import { EyeIcon } from '@patternfly/react-icons/dist/esm/icons/eye-icon';
+import { EyeSlashIcon } from '@patternfly/react-icons/dist/esm/icons/eye-slash-icon';
 /**
  * Shared login form — used by InstitutionalSignInPage (institutional-sign-in flow).
  */
-import { useCallback, useState } from 'react'
+import { useCallback, useState } from 'react';
 import {
   Alert,
   Button,
@@ -14,21 +14,21 @@ import {
   InputGroupItem,
   Spinner,
   TextInput,
-} from '@patternfly/react-core'
+} from '@patternfly/react-core';
 
 interface LoginFormProps {
-  defaultEmail: string
-  emailLabel?: string
-  emailType?: 'email' | 'text'
-  showRememberMe?: boolean
-  isLoading: boolean
-  onSubmit: (email: string, password: string) => void
-  onChooseAnother: () => void
-  trustedIssuers?: string[]
-  submitError?: string | null
+  defaultEmail: string;
+  emailLabel?: string;
+  emailType?: 'email' | 'text';
+  showRememberMe?: boolean;
+  isLoading: boolean;
+  onSubmit: (email: string, password: string) => void;
+  onChooseAnother: () => void;
+  trustedIssuers?: string[];
+  submitError?: string | null;
 }
 
-export function LoginForm({
+export const LoginForm = ({
   defaultEmail,
   emailLabel = 'Email address',
   emailType = 'email',
@@ -38,20 +38,22 @@ export function LoginForm({
   onChooseAnother,
   trustedIssuers,
   submitError,
-}: LoginFormProps) {
-  const [email, setEmail] = useState(defaultEmail)
-  const [password, setPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
-  const [rememberMe, setRememberMe] = useState(false)
+}: LoginFormProps) => {
+  const [email, setEmail] = useState(defaultEmail);
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
   const handleSubmit = useCallback(
     (e: React.FormEvent) => {
-      e.preventDefault()
-      if (isLoading) return
-      onSubmit(email, password)
+      e.preventDefault();
+      if (isLoading) {
+        return;
+      }
+      onSubmit(email, password);
     },
     [email, password, isLoading, onSubmit],
-  )
+  );
 
   return (
     <Form onSubmit={handleSubmit}>
@@ -144,5 +146,5 @@ export function LoginForm({
         Choose another institution
       </Button>
     </Form>
-  )
-}
+  );
+};

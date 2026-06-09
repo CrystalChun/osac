@@ -1,14 +1,16 @@
-import { Breadcrumb, BreadcrumbItem, Button } from '@patternfly/react-core'
-import type { DemoShellRole } from '@osac/api-contracts'
+import { Breadcrumb, BreadcrumbItem, Button } from '@patternfly/react-core';
+import type { DemoShellRole } from '@osac/api-contracts';
 
 interface ShellBreadcrumbProps {
-  isRecentActivities: boolean
-  role: DemoShellRole
-  onNavigate: (path: string) => void
+  isRecentActivities: boolean;
+  role: DemoShellRole;
+  onNavigate: (path: string) => void;
 }
 
-export function ShellBreadcrumb({ isRecentActivities, role, onNavigate }: ShellBreadcrumbProps) {
-  if (!isRecentActivities) return undefined
+export const ShellBreadcrumb = ({ isRecentActivities, role, onNavigate }: ShellBreadcrumbProps) => {
+  if (!isRecentActivities) {
+    return undefined;
+  }
 
   return (
     <Breadcrumb>
@@ -17,7 +19,7 @@ export function ShellBreadcrumb({ isRecentActivities, role, onNavigate }: ShellB
           variant="link"
           isInline
           onClick={() => {
-            onNavigate(role === 'providerAdmin' ? '/provider/dashboard' : '/dashboard')
+            onNavigate(role === 'providerAdmin' ? '/provider/dashboard' : '/dashboard');
           }}
         >
           Dashboard
@@ -25,5 +27,5 @@ export function ShellBreadcrumb({ isRecentActivities, role, onNavigate }: ShellB
       </BreadcrumbItem>
       <BreadcrumbItem isActive>Recent activities</BreadcrumbItem>
     </Breadcrumb>
-  )
-}
+  );
+};

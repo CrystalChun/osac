@@ -5,96 +5,104 @@ import {
   type PendingPowerWatch,
   type VmPendingPowerAction,
   createPendingPowerWatch,
-} from './vmPowerDisplay'
+} from './vmPowerDisplay';
 
 export interface VmPowerPendingEntry {
-  action: VmPendingPowerAction
-  watch: PendingPowerWatch
-  inRestartCycle: boolean
-  restartStartSent: boolean
+  action: VmPendingPowerAction;
+  watch: PendingPowerWatch;
+  inRestartCycle: boolean;
+  restartStartSent: boolean;
 }
 
-const pendingByVmId = new Map<string, VmPowerPendingEntry>()
-const listeners = new Set<() => void>()
+const pendingByVmId = new Map<string, VmPowerPendingEntry>();
+const listeners = new Set<() => void>();
 
-function notify(): void {
+const notify = (): void => {
   for (const listener of listeners) {
-    listener()
+    listener();
   }
-}
+};
 
-export function subscribePowerPending(listener: () => void): () => void {
-  listeners.add(listener)
-  return () => listeners.delete(listener)
-}
+export const subscribePowerPending = (listener: () => void): (() => void) => {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+};
 
-export function getPendingPowerAction(vmId: string): VmPendingPowerAction | undefined {
-  return pendingByVmId.get(vmId)?.action
-}
+export const getPendingPowerAction = (vmId: string): VmPendingPowerAction | undefined => {
+  return pendingByVmId.get(vmId)?.action;
+};
 
-export function getPowerWatch(vmId: string): PendingPowerWatch | undefined {
-  return pendingByVmId.get(vmId)?.watch
-}
+export const getPowerWatch = (vmId: string): PendingPowerWatch | undefined => {
+  return pendingByVmId.get(vmId)?.watch;
+};
 
-export function setPowerWatch(vmId: string, watch: PendingPowerWatch): void {
-  const entry = pendingByVmId.get(vmId)
-  if (!entry) return
-  pendingByVmId.set(vmId, { ...entry, watch })
-  notify()
-}
+export const setPowerWatch = (vmId: string, watch: PendingPowerWatch): void => {
+  const entry = pendingByVmId.get(vmId);
+  if (!entry) {
+    return;
+  }
+  pendingByVmId.set(vmId, { ...entry, watch });
+  notify();
+};
 
-export function isInRestartCycle(vmId: string): boolean {
-  return pendingByVmId.get(vmId)?.inRestartCycle ?? false
-}
+export const isInRestartCycle = (vmId: string): boolean => {
+  return pendingByVmId.get(vmId)?.inRestartCycle ?? false;
+};
 
-export function isRestartStartSent(vmId: string): boolean {
-  return pendingByVmId.get(vmId)?.restartStartSent ?? false
-}
+export const isRestartStartSent = (vmId: string): boolean => {
+  return pendingByVmId.get(vmId)?.restartStartSent ?? false;
+};
 
-export function markRestartStartSent(vmId: string): void {
-  const entry = pendingByVmId.get(vmId)
-  if (!entry) return
-  pendingByVmId.set(vmId, { ...entry, restartStartSent: true })
-  notify()
-}
+export const markRestartStartSent = (vmId: string): void => {
+  const entry = pendingByVmId.get(vmId);
+  if (!entry) {
+    return;
+  }
+  pendingByVmId.set(vmId, { ...entry, restartStartSent: true });
+  notify();
+};
 
-export function setPowerPending(
+export const setPowerPending = (
   vmId: string,
   action: VmPendingPowerAction,
   opts?: { restartCycle?: boolean },
-): void {
+): void => {
   pendingByVmId.set(vmId, {
     action,
     watch: createPendingPowerWatch(),
     inRestartCycle: opts?.restartCycle ?? action === 'restarting',
     restartStartSent: false,
-  })
-  notify()
-}
+  });
+  notify();
+};
 
-export function updatePowerPendingAction(vmId: string, action: VmPendingPowerAction): void {
-  const entry = pendingByVmId.get(vmId)
-  if (!entry) return
-  pendingByVmId.set(vmId, { ...entry, action })
-  notify()
-}
+export const updatePowerPendingAction = (vmId: string, action: VmPendingPowerAction): void => {
+  const entry = pendingByVmId.get(vmId);
+  if (!entry) {
+    return;
+  }
+  pendingByVmId.set(vmId, { ...entry, action });
+  notify();
+};
 
-export function clearPowerPending(vmId: string): void {
-  if (pendingByVmId.delete(vmId)) notify()
-}
+export const clearPowerPending = (vmId: string): void => {
+  if (pendingByVmId.delete(vmId)) {
+    notify();
+  }
+};
 
-export function listPendingPowerVmIds(): string[] {
-  return [...pendingByVmId.keys()]
-}
+export const listPendingPowerVmIds = (): string[] => {
+  return [...pendingByVmId.keys()];
+};
 
-export function hasAnyPowerPending(): boolean {
-  return pendingByVmId.size > 0
-}
+export const hasAnyPowerPending = (): boolean => {
+  return pendingByVmId.size > 0;
+};
 
 /** @internal test helper */
-export function clearAllPowerPending(): void {
+export const clearAllPowerPending = (): void => {
   if (pendingByVmId.size > 0) {
-    pendingByVmId.clear()
-    notify()
+    pendingByVmId.clear();
+    notify();
   }
-}
+};

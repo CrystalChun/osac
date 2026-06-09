@@ -1,13 +1,13 @@
-import { BarsIcon } from '@patternfly/react-icons/dist/esm/icons/bars-icon'
-import { RedhatIcon } from '@patternfly/react-icons/dist/esm/icons/redhat-icon'
-import { ThLargeIcon } from '@patternfly/react-icons/dist/esm/icons/th-large-icon'
-import { WindowsIcon } from '@patternfly/react-icons/dist/esm/icons/windows-icon'
+import { BarsIcon } from '@patternfly/react-icons/dist/esm/icons/bars-icon';
+import { RedhatIcon } from '@patternfly/react-icons/dist/esm/icons/redhat-icon';
+import { ThLargeIcon } from '@patternfly/react-icons/dist/esm/icons/th-large-icon';
+import { WindowsIcon } from '@patternfly/react-icons/dist/esm/icons/windows-icon';
 /**
  * flow: manage-virtual-machines
  * steps: mvm_list_view, mvm_detail_drawer
  */
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   Bullseye,
   Button,
@@ -30,49 +30,55 @@ import {
   StackItem,
   ToggleGroup,
   ToggleGroupItem,
-} from '@patternfly/react-core'
-import type { ComputeInstance, VmPowerState } from '@osac/api-contracts'
-import { formatVmStorageGiBLine, resolveVmOsForUi } from '@osac/api-contracts'
-import linuxMascotUrl from '../../assets/guest-os-tux-linux.png'
-import { VmStatusLabel } from '@osac/ui-components'
-import { useSession } from '../../contexts/SessionContext'
+} from '@patternfly/react-core';
+import type { ComputeInstance, VmPowerState } from '@osac/api-contracts';
+import { formatVmStorageGiBLine, resolveVmOsForUi } from '@osac/api-contracts';
+import linuxMascotUrl from '../../assets/guest-os-tux-linux.png';
+import { VmStatusLabel } from '@osac/ui-components';
+import { useSession } from '../../contexts/SessionContext';
 import {
   refetchComputeInstancesQueries,
   useComputeInstances,
   useDeleteVm,
   usePatchVm,
   useProvisionVm,
-} from '../../api/hooks'
-import { useQueryClient } from '@tanstack/react-query'
-import { listPostCreateWatchIds } from '../../api/postCreateWatchStore'
-import { isPendingVmClientId } from '../../api/pendingVmCreation'
-import { pinProvisioningVmsToListEnd } from '../../api/vmListDisplayOrder'
-import { usePendingVmCreations } from '../../api/usePendingVmCreations'
-import { usePendingVmDeletes } from '../../api/usePendingVmDeletes'
-import { useVmPowerActionDisplay } from '../../api/useVmPowerActionDisplay'
-import { VmDeleteConfirmModal } from '../../components/vm/VmDeleteConfirmModal'
-import { PageHeader } from '../../components/layout'
-import { VmDetailDrawer } from '../../components/vm/VmDetailDrawer'
-import type { CreateVmWizardHandle, DeploymentMode } from '../../components/vm/CreateVmWizard'
-import { CreateVmWizard } from '../../components/vm/CreateVmWizard'
-import { VmActionsMenu } from '../../components/vm/VmActionsMenu'
-import { VmTable } from '../../components/vm/VmTable'
+} from '../../api/hooks';
+import { useQueryClient } from '@tanstack/react-query';
+import { listPostCreateWatchIds } from '../../api/postCreateWatchStore';
+import { isPendingVmClientId } from '../../api/pendingVmCreation';
+import { pinProvisioningVmsToListEnd } from '../../api/vmListDisplayOrder';
+import { usePendingVmCreations } from '../../api/usePendingVmCreations';
+import { usePendingVmDeletes } from '../../api/usePendingVmDeletes';
+import { useVmPowerActionDisplay } from '../../api/useVmPowerActionDisplay';
+import { VmDeleteConfirmModal } from '../../components/vm/VmDeleteConfirmModal';
+import { PageHeader } from '../../components/layout';
+import { VmDetailDrawer } from '../../components/vm/VmDetailDrawer';
+import type { CreateVmWizardHandle, DeploymentMode } from '../../components/vm/CreateVmWizard';
+import { CreateVmWizard } from '../../components/vm/CreateVmWizard';
+import { VmActionsMenu } from '../../components/vm/VmActionsMenu';
+import { VmTable } from '../../components/vm/VmTable';
 
-type ListMode = 'cards' | 'table'
-type VmPowerFilter = VmPowerState | 'all'
-type VmOsFilter = 'all' | 'linux' | 'rhel' | 'windows'
+type ListMode = 'cards' | 'table';
+type VmPowerFilter = VmPowerState | 'all';
+type VmOsFilter = 'all' | 'linux' | 'rhel' | 'windows';
 
-const ALLOWED_POWER_FILTERS: readonly VmPowerFilter[] = ['all', 'running', 'stopped', 'paused']
+const ALLOWED_POWER_FILTERS: readonly VmPowerFilter[] = ['all', 'running', 'stopped', 'paused'];
 
-function normalizePowerFilter(value: string | null): VmPowerFilter {
-  if (!value) return 'all'
-  return ALLOWED_POWER_FILTERS.includes(value as VmPowerFilter) ? (value as VmPowerFilter) : 'all'
-}
+const normalizePowerFilter = (value: string | null): VmPowerFilter => {
+  if (!value) {
+    return 'all';
+  }
+  return ALLOWED_POWER_FILTERS.includes(value as VmPowerFilter) ? (value as VmPowerFilter) : 'all';
+};
 
-function VmOsIcon({ os, size = 16 }: { os?: ComputeInstance['os']; size?: number }) {
-  const style = { width: size, height: size, display: 'block' } as const
-  if (os === 'windows') return <WindowsIcon style={{ ...style, color: '#0078D4' }} />
-  if (os === 'rhel') return <RedhatIcon style={{ ...style, color: '#EE0000' }} />
+const VmOsIcon = ({ os, size = 16 }: { os?: ComputeInstance['os']; size?: number }) => {
+  const style = { width: size, height: size, display: 'block' } as const;
+  if (os === 'windows') {
+    return <WindowsIcon style={{ ...style, color: '#0078D4' }} />;
+  }
+  if (os === 'rhel') {
+    return <RedhatIcon style={{ ...style, color: '#EE0000' }} />;
+  }
   return (
     <img
       src={linuxMascotUrl}
@@ -81,10 +87,10 @@ function VmOsIcon({ os, size = 16 }: { os?: ComputeInstance['os']; size?: number
       height={size}
       style={{ ...style, objectFit: 'contain' }}
     />
-  )
-}
+  );
+};
 
-function VmInlineDetailField({ label, value }: { label: string; value: string }) {
+const VmInlineDetailField = ({ label, value }: { label: string; value: string }) => {
   return (
     <Content
       component="p"
@@ -107,10 +113,10 @@ function VmInlineDetailField({ label, value }: { label: string; value: string })
       </span>
       <span style={{ textAlign: 'center' }}>{value}</span>
     </Content>
-  )
-}
+  );
+};
 
-function VmDetailField({ label, value }: { label: string; value: string }) {
+const VmDetailField = ({ label, value }: { label: string; value: string }) => {
   return (
     <Stack hasGutter={false}>
       <StackItem>
@@ -136,45 +142,45 @@ function VmDetailField({ label, value }: { label: string; value: string }) {
         </Content>
       </StackItem>
     </Stack>
-  )
-}
+  );
+};
 
-function openVmConsole(vm: ComputeInstance) {
-  const base = `${window.location.origin}${window.location.pathname}`
+const openVmConsole = (vm: ComputeInstance) => {
+  const base = `${window.location.origin}${window.location.pathname}`;
   const q = new URLSearchParams({
     demo: 'vm-console',
     vm: vm.id,
     name: vm.metadata.name,
     os: resolveVmOsForUi(vm),
-  })
-  window.open(`${base}?${q.toString()}`, '_blank', 'noopener,noreferrer')
-}
+  });
+  window.open(`${base}?${q.toString()}`, '_blank', 'noopener,noreferrer');
+};
 
-export function VmListPage() {
-  const { selectedTenant, role, topologyDetailRequest, clearTopologyDetailRequest } = useSession()
-  const [searchParams] = useSearchParams()
-  const wizardRef = useRef<CreateVmWizardHandle>(null)
+export const VmListPage = () => {
+  const { selectedTenant, role, topologyDetailRequest, clearTopologyDetailRequest } = useSession();
+  const [searchParams] = useSearchParams();
+  const wizardRef = useRef<CreateVmWizardHandle>(null);
 
-  const [search, setSearch] = useState('')
-  const [listMode, setListMode] = useState<ListMode>('cards')
+  const [search, setSearch] = useState('');
+  const [listMode, setListMode] = useState<ListMode>('cards');
   const [powerFilter, setPowerFilter] = useState<VmPowerFilter>(() =>
     normalizePowerFilter(searchParams.get('power')),
-  )
-  const [osFilter, setOsFilter] = useState<VmOsFilter>('all')
-  const [selectedVm, setSelectedVm] = useState<ComputeInstance | null>(null)
-  const [vmToDelete, setVmToDelete] = useState<ComputeInstance | null>(null)
+  );
+  const [osFilter, setOsFilter] = useState<VmOsFilter>('all');
+  const [selectedVm, setSelectedVm] = useState<ComputeInstance | null>(null);
+  const [vmToDelete, setVmToDelete] = useState<ComputeInstance | null>(null);
 
-  const queryClient = useQueryClient()
-  const { data: vms = [], isLoading } = useComputeInstances()
-  const provisionVm = useProvisionVm()
-  const patchVm = usePatchVm()
-  const deleteVm = useDeleteVm()
+  const queryClient = useQueryClient();
+  const { data: vms = [], isLoading } = useComputeInstances();
+  const provisionVm = useProvisionVm();
+  const patchVm = usePatchVm();
+  const deleteVm = useDeleteVm();
   const refetchInstances = useCallback(
     () => refetchComputeInstancesQueries(queryClient),
     [queryClient],
-  )
+  );
   const { getDisplayState, runPowerAction, isPowerActionPending, isRestarting } =
-    useVmPowerActionDisplay(vms, patchVm.mutate, { refetchInstances })
+    useVmPowerActionDisplay(vms, patchVm.mutate, { refetchInstances });
   const {
     registerPending,
     noteCreateSuccess,
@@ -182,108 +188,125 @@ export function VmListPage() {
     pendingInstances,
     getCreationDisplayState,
     getPostCreateDisplayState,
-  } = usePendingVmCreations(vms, { refetchInstances })
-  const { markPendingDelete, clearPendingDelete, isPendingDelete } = usePendingVmDeletes(vms)
+  } = usePendingVmCreations(vms, { refetchInstances });
+  const { markPendingDelete, clearPendingDelete, isPendingDelete } = usePendingVmDeletes(vms);
 
   const handleWizardProvision = useCallback(
     (vm: ComputeInstance, meta: { mode: DeploymentMode }) => {
-      const clientId = registerPending(vm)
+      const clientId = registerPending(vm);
       provisionVm.mutate(
         { vm, specTemplateOnly: meta.mode === 'template' },
         {
           onSuccess: (created) => {
-            noteCreateSuccess(clientId, created.id)
+            noteCreateSuccess(clientId, created.id);
           },
           onError: () => {
-            dismissPending(clientId)
+            dismissPending(clientId);
           },
         },
-      )
+      );
     },
     [dismissPending, noteCreateSuccess, provisionVm, registerPending],
-  )
+  );
 
-  const isPendingCreation = useCallback((vm: ComputeInstance) => isPendingVmClientId(vm.id), [])
+  const isPendingCreation = useCallback((vm: ComputeInstance) => isPendingVmClientId(vm.id), []);
 
   const getVmDisplayState = useCallback(
     (vm: ComputeInstance) => {
-      if (isPendingDelete(vm.id)) return 'deleting'
-      if (isPendingVmClientId(vm.id)) return getCreationDisplayState(vm.id)
-      const postCreate = getPostCreateDisplayState(vm)
-      if (postCreate) return postCreate
-      return getDisplayState(vm)
+      if (isPendingDelete(vm.id)) {
+        return 'deleting';
+      }
+      if (isPendingVmClientId(vm.id)) {
+        return getCreationDisplayState(vm.id);
+      }
+      const postCreate = getPostCreateDisplayState(vm);
+      if (postCreate) {
+        return postCreate;
+      }
+      return getDisplayState(vm);
     },
     [getCreationDisplayState, getPostCreateDisplayState, getDisplayState, isPendingDelete],
-  )
+  );
 
   useEffect(() => {
-    if (!topologyDetailRequest) return
-    const vm = vms.find((v) => v.id === topologyDetailRequest.vmId)
-    if (vm) setSelectedVm(vm)
-    clearTopologyDetailRequest()
-  }, [topologyDetailRequest, vms, clearTopologyDetailRequest])
+    if (!topologyDetailRequest) {
+      return;
+    }
+    const vm = vms.find((v) => v.id === topologyDetailRequest.vmId);
+    if (vm) {
+      setSelectedVm(vm);
+    }
+    clearTopologyDetailRequest();
+  }, [topologyDetailRequest, vms, clearTopologyDetailRequest]);
 
   useEffect(() => {
     setSelectedVm((current) => {
-      if (!current) return current
-      return vms.find((v) => v.id === current.id) ?? null
-    })
-  }, [vms])
+      if (!current) {
+        return current;
+      }
+      return vms.find((v) => v.id === current.id) ?? null;
+    });
+  }, [vms]);
 
   const handlePowerAction = useCallback(
     (vm: ComputeInstance, action: 'start' | 'stop' | 'restart') => {
-      runPowerAction(vm, action)
+      runPowerAction(vm, action);
     },
     [runPowerAction],
-  )
+  );
 
   const filteredVms = useMemo(() => {
-    const pending = powerFilter === 'all' ? pendingInstances() : []
-    const merged = [...vms, ...pending]
+    const pending = powerFilter === 'all' ? pendingInstances() : [];
+    const merged = [...vms, ...pending];
     const filtered = merged.filter((vm) => {
-      const matchesSearch = !search || vm.metadata.name.toLowerCase().includes(search.toLowerCase())
-      const matchesOs = osFilter === 'all' || resolveVmOsForUi(vm) === osFilter
+      const matchesSearch =
+        !search || vm.metadata.name.toLowerCase().includes(search.toLowerCase());
+      const matchesOs = osFilter === 'all' || resolveVmOsForUi(vm) === osFilter;
       if (isPendingVmClientId(vm.id) || isPendingDelete(vm.id)) {
-        return matchesSearch && matchesOs
+        return matchesSearch && matchesOs;
       }
-      const state = getVmDisplayState(vm)
-      const matchesPower = powerFilter === 'all' || state === powerFilter
-      return matchesSearch && matchesPower && matchesOs
-    })
-    return pinProvisioningVmsToListEnd(filtered, listPostCreateWatchIds())
-  }, [getVmDisplayState, isPendingDelete, osFilter, pendingInstances, powerFilter, search, vms])
+      const state = getVmDisplayState(vm);
+      const matchesPower = powerFilter === 'all' || state === powerFilter;
+      return matchesSearch && matchesPower && matchesOs;
+    });
+    return pinProvisioningVmsToListEnd(filtered, listPostCreateWatchIds());
+  }, [getVmDisplayState, isPendingDelete, osFilter, pendingInstances, powerFilter, search, vms]);
 
-  const tenant = selectedTenant && selectedTenant !== 'vertexa' ? selectedTenant : 'northstar'
+  const tenant = selectedTenant && selectedTenant !== 'vertexa' ? selectedTenant : 'northstar';
 
   const handleOpenCreateVm = useCallback(() => {
-    wizardRef.current?.open()
-  }, [])
+    wizardRef.current?.open();
+  }, []);
 
   const handleRequestDelete = useCallback((vm: ComputeInstance) => {
-    setVmToDelete(vm)
-  }, [])
+    setVmToDelete(vm);
+  }, []);
 
   const handleConfirmDelete = useCallback(() => {
-    if (!vmToDelete) return
-    const id = vmToDelete.id
-    const live = vms.find((v) => v.id === id) ?? vmToDelete
-    const state = live.status.state
+    if (!vmToDelete) {
+      return;
+    }
+    const id = vmToDelete.id;
+    const live = vms.find((v) => v.id === id) ?? vmToDelete;
+    const state = live.status.state;
 
-    markPendingDelete(id)
-    setVmToDelete(null)
-    if (selectedVm?.id === id) setSelectedVm(null)
+    markPendingDelete(id);
+    setVmToDelete(null);
+    if (selectedVm?.id === id) {
+      setSelectedVm(null);
+    }
 
     const finishDelete = () => {
       deleteVm.mutate(id, {
         onError: () => {
-          clearPendingDelete(id)
+          clearPendingDelete(id);
         },
-      })
-    }
+      });
+    };
 
     if (state === 'stopped') {
-      finishDelete()
-      return
+      finishDelete();
+      return;
     }
 
     patchVm.mutate(
@@ -291,17 +314,19 @@ export function VmListPage() {
       {
         onSuccess: () => finishDelete(),
         onError: () => {
-          clearPendingDelete(id)
+          clearPendingDelete(id);
         },
       },
-    )
-  }, [clearPendingDelete, deleteVm, markPendingDelete, patchVm, selectedVm?.id, vmToDelete, vms])
+    );
+  }, [clearPendingDelete, deleteVm, markPendingDelete, patchVm, selectedVm?.id, vmToDelete, vms]);
 
-  const vmToDeleteLive = vmToDelete ? (vms.find((v) => v.id === vmToDelete.id) ?? vmToDelete) : null
-  const deleteWillStopFirst = vmToDeleteLive != null && vmToDeleteLive.status.state !== 'stopped'
-  const deleteBusy = deleteVm.isPending || patchVm.isPending
+  const vmToDeleteLive = vmToDelete
+    ? (vms.find((v) => v.id === vmToDelete.id) ?? vmToDelete)
+    : null;
+  const deleteWillStopFirst = vmToDeleteLive != null && vmToDeleteLive.status.state !== 'stopped';
+  const deleteBusy = deleteVm.isPending || patchVm.isPending;
 
-  const detailState = selectedVm ? getVmDisplayState(selectedVm) : 'stopped'
+  const detailState = selectedVm ? getVmDisplayState(selectedVm) : 'stopped';
 
   return (
     <PageSection isFilled>
@@ -319,9 +344,9 @@ export function VmListPage() {
         }
         onClose={() => {
           if (!deleteBusy) {
-            setVmToDelete(null)
-            deleteVm.reset()
-            patchVm.reset()
+            setVmToDelete(null);
+            deleteVm.reset();
+            patchVm.reset();
           }
         }}
         onConfirm={handleConfirmDelete}
@@ -447,14 +472,14 @@ export function VmListPage() {
           ) : listMode === 'cards' ? (
             <Gallery hasGutter className="osac-vm-card-grid" minWidths={{ default: '360px' }}>
               {filteredVms.map((vm) => {
-                const state = getVmDisplayState(vm)
-                const pendingCreate = isPendingCreation(vm)
-                const pendingDelete = isPendingDelete(vm.id)
-                const locked = pendingCreate || pendingDelete
+                const state = getVmDisplayState(vm);
+                const pendingCreate = isPendingCreation(vm);
+                const pendingDelete = isPendingDelete(vm.id);
+                const locked = pendingCreate || pendingDelete;
                 const createdDate = vm.metadata.createdAt
                   ? new Date(vm.metadata.createdAt).toLocaleDateString()
-                  : 'Not set'
-                const ipAddress = locked ? '—' : vm.status.ipAddress || 'Not set'
+                  : 'Not set';
+                const ipAddress = locked ? '—' : vm.status.ipAddress || 'Not set';
                 return (
                   <GalleryItem key={vm.id}>
                     <Card
@@ -488,8 +513,8 @@ export function VmListPage() {
                                         size="sm"
                                         onMouseDown={(event) => event.stopPropagation()}
                                         onClick={(event) => {
-                                          event.stopPropagation()
-                                          openVmConsole(vm)
+                                          event.stopPropagation();
+                                          openVmConsole(vm);
                                         }}
                                         aria-label={`Open console for ${vm.metadata.name}`}
                                         style={{
@@ -586,7 +611,7 @@ export function VmListPage() {
                       </CardBody>
                     </Card>
                   </GalleryItem>
-                )
+                );
               })}
             </Gallery>
           ) : (
@@ -605,5 +630,5 @@ export function VmListPage() {
         </>
       )}
     </PageSection>
-  )
-}
+  );
+};

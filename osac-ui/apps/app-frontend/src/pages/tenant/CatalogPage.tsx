@@ -1,10 +1,10 @@
-import { RedhatIcon } from '@patternfly/react-icons/dist/esm/icons/redhat-icon'
-import { WindowsIcon } from '@patternfly/react-icons/dist/esm/icons/windows-icon'
+import { RedhatIcon } from '@patternfly/react-icons/dist/esm/icons/redhat-icon';
+import { WindowsIcon } from '@patternfly/react-icons/dist/esm/icons/windows-icon';
 /**
  * flow: vm-template-catalog
  * steps: vmc_catalog_grid, vmc_catalog_provider_global
  */
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Alert,
   Bullseye,
@@ -38,38 +38,38 @@ import {
   StackItem,
   Switch,
   Title,
-} from '@patternfly/react-core'
-import type { ClusterTemplate, ComputeInstance } from '@osac/api-contracts'
-import { useLocation } from 'react-router-dom'
-import linuxMascotUrl from '../../assets/guest-os-tux-linux.png'
-import { useSession } from '../../contexts/SessionContext'
-import { useComputeInstanceTemplates, useComputeInstances, useProvisionVm } from '../../api/hooks'
-import { PageHeader } from '../../components/layout'
-import type { CreateVmWizardHandle, DeploymentMode } from '../../components/vm/CreateVmWizard'
-import { CreateVmWizard } from '../../components/vm/CreateVmWizard'
-import { TemplateCard } from '../../components/vm/TemplateCard'
+} from '@patternfly/react-core';
+import type { ClusterTemplate, ComputeInstance } from '@osac/api-contracts';
+import { useLocation } from 'react-router-dom';
+import linuxMascotUrl from '../../assets/guest-os-tux-linux.png';
+import { useSession } from '../../contexts/SessionContext';
+import { useComputeInstanceTemplates, useComputeInstances, useProvisionVm } from '../../api/hooks';
+import { PageHeader } from '../../components/layout';
+import type { CreateVmWizardHandle, DeploymentMode } from '../../components/vm/CreateVmWizard';
+import { CreateVmWizard } from '../../components/vm/CreateVmWizard';
+import { TemplateCard } from '../../components/vm/TemplateCard';
 
 interface Props {
-  isProviderGlobal?: boolean
+  isProviderGlobal?: boolean;
 }
 
-type OsFilterKey = 'rhel' | 'windows' | 'linux'
-type WorkloadFilterKey = 'highPerformance' | 'machineLearning' | 'dataProcessing' | 'analytics'
+type OsFilterKey = 'rhel' | 'windows' | 'linux';
+type WorkloadFilterKey = 'highPerformance' | 'machineLearning' | 'dataProcessing' | 'analytics';
 
 const OS_FILTER_CONFIG: Array<{
-  key: OsFilterKey
-  label: string
-  matches: (template: ClusterTemplate) => boolean
+  key: OsFilterKey;
+  label: string;
+  matches: (template: ClusterTemplate) => boolean;
 }> = [
   { key: 'rhel', label: 'RHEL', matches: (template) => template.icon === 'rhel' },
   { key: 'windows', label: 'Windows', matches: (template) => template.icon === 'windows' },
   { key: 'linux', label: 'Linux', matches: (template) => template.icon === 'linux' },
-]
+];
 
 const WORKLOAD_FILTER_CONFIG: Array<{
-  key: WorkloadFilterKey
-  label: string
-  matches: (template: ClusterTemplate) => boolean
+  key: WorkloadFilterKey;
+  label: string;
+  matches: (template: ClusterTemplate) => boolean;
 }> = [
   {
     key: 'highPerformance',
@@ -91,21 +91,29 @@ const WORKLOAD_FILTER_CONFIG: Array<{
     label: 'Analytics',
     matches: (template) => template.workloadProfile === 'analytics',
   },
-]
+];
 
-function searchableTemplateText(template: ClusterTemplate): string {
+const searchableTemplateText = (template: ClusterTemplate): string => {
   const subtitle =
     template.description && template.description.trim().length > 0
       ? template.description
-      : template.metadata.name
+      : template.metadata.name;
   const workloadLabel = (() => {
-    if (!template.workloadProfile) return template.workload ?? 'General'
-    if (template.workloadProfile === 'high-performance') return 'High performance'
-    if (template.workloadProfile === 'machine-learning') return 'Machine learning'
-    if (template.workloadProfile === 'data-processing') return 'Data processing'
-    return 'Analytics'
-  })()
-  const bootDiskGib = template.defaultBootDiskSizeGib ?? 40
+    if (!template.workloadProfile) {
+      return template.workload ?? 'General';
+    }
+    if (template.workloadProfile === 'high-performance') {
+      return 'High performance';
+    }
+    if (template.workloadProfile === 'machine-learning') {
+      return 'Machine learning';
+    }
+    if (template.workloadProfile === 'data-processing') {
+      return 'Data processing';
+    }
+    return 'Analytics';
+  })();
+  const bootDiskGib = template.defaultBootDiskSizeGib ?? 40;
 
   return [
     template.title,
@@ -128,32 +136,48 @@ function searchableTemplateText(template: ClusterTemplate): string {
   ]
     .filter(Boolean)
     .join(' ')
-    .toLowerCase()
-}
+    .toLowerCase();
+};
 
-function guestOperatingSystem(template: ClusterTemplate): string {
-  if (template.icon === 'windows') return 'Microsoft Windows'
-  if (template.icon === 'rhel') return 'Red Hat Enterprise Linux'
-  return 'Linux'
-}
+const guestOperatingSystem = (template: ClusterTemplate): string => {
+  if (template.icon === 'windows') {
+    return 'Microsoft Windows';
+  }
+  if (template.icon === 'rhel') {
+    return 'Red Hat Enterprise Linux';
+  }
+  return 'Linux';
+};
 
-function workloadLabel(template: ClusterTemplate): string {
-  if (!template.workloadProfile) return template.workload ?? 'General'
-  if (template.workloadProfile === 'high-performance') return 'High performance'
-  if (template.workloadProfile === 'machine-learning') return 'Machine learning'
-  if (template.workloadProfile === 'data-processing') return 'Data processing'
-  return 'Analytics'
-}
+const workloadLabel = (template: ClusterTemplate): string => {
+  if (!template.workloadProfile) {
+    return template.workload ?? 'General';
+  }
+  if (template.workloadProfile === 'high-performance') {
+    return 'High performance';
+  }
+  if (template.workloadProfile === 'machine-learning') {
+    return 'Machine learning';
+  }
+  if (template.workloadProfile === 'data-processing') {
+    return 'Data processing';
+  }
+  return 'Analytics';
+};
 
-function drawerSubtitle(template: ClusterTemplate): string {
-  const source = template.description?.trim() || template.metadata.name
-  return source.length <= 88 ? source : `${source.slice(0, 87)}…`
-}
+const drawerSubtitle = (template: ClusterTemplate): string => {
+  const source = template.description?.trim() || template.metadata.name;
+  return source.length <= 88 ? source : `${source.slice(0, 87)}…`;
+};
 
-function OsIcon({ icon }: { icon?: string }) {
-  const style = { width: 28, height: 28 } as const
-  if (icon === 'windows') return <WindowsIcon style={{ ...style, color: '#0078D4' }} />
-  if (icon === 'rhel') return <RedhatIcon style={{ ...style, color: '#EE0000' }} />
+const OsIcon = ({ icon }: { icon?: string }) => {
+  const style = { width: 28, height: 28 } as const;
+  if (icon === 'windows') {
+    return <WindowsIcon style={{ ...style, color: '#0078D4' }} />;
+  }
+  if (icon === 'rhel') {
+    return <RedhatIcon style={{ ...style, color: '#EE0000' }} />;
+  }
   return (
     <img
       src={linuxMascotUrl}
@@ -162,27 +186,27 @@ function OsIcon({ icon }: { icon?: string }) {
       height={28}
       style={{ display: 'block', objectFit: 'contain' }}
     />
-  )
-}
+  );
+};
 
-export function CatalogPage({ isProviderGlobal = false }: Props) {
-  const location = useLocation()
-  const { selectedTenant } = useSession()
-  const [search, setSearch] = useState('')
+export const CatalogPage = ({ isProviderGlobal = false }: Props) => {
+  const location = useLocation();
+  const { selectedTenant } = useSession();
+  const [search, setSearch] = useState('');
   const [osFilters, setOsFilters] = useState<Record<OsFilterKey, boolean>>({
     rhel: false,
     windows: false,
     linux: false,
-  })
+  });
   const [workloadFilters, setWorkloadFilters] = useState<Record<WorkloadFilterKey, boolean>>({
     highPerformance: false,
     machineLearning: false,
     dataProcessing: false,
     analytics: false,
-  })
-  const [selectedTemplate, setSelectedTemplate] = useState<ClusterTemplate | null>(null)
-  const wizardRef = useRef<CreateVmWizardHandle>(null)
-  const drawerTitleRef = useRef<HTMLHeadingElement>(null)
+  });
+  const [selectedTemplate, setSelectedTemplate] = useState<ClusterTemplate | null>(null);
+  const wizardRef = useRef<CreateVmWizardHandle>(null);
+  const drawerTitleRef = useRef<HTMLHeadingElement>(null);
 
   const {
     data: templates = [],
@@ -190,84 +214,84 @@ export function CatalogPage({ isProviderGlobal = false }: Props) {
     isError: templatesError,
     error: templatesErrorDetail,
     refetch: refetchTemplates,
-  } = useComputeInstanceTemplates()
-  const { data: vms = [] } = useComputeInstances()
-  const provisionVm = useProvisionVm()
+  } = useComputeInstanceTemplates();
+  const { data: vms = [] } = useComputeInstances();
+  const provisionVm = useProvisionVm();
 
-  const tenant = selectedTenant && selectedTenant !== 'vertexa' ? selectedTenant : 'northstar'
+  const tenant = selectedTenant && selectedTenant !== 'vertexa' ? selectedTenant : 'northstar';
 
   const handleWizardProvision = useCallback(
     (vm: ComputeInstance, meta: { mode: DeploymentMode }) => {
-      provisionVm.mutate({ vm, specTemplateOnly: meta.mode === 'template' })
+      provisionVm.mutate({ vm, specTemplateOnly: meta.mode === 'template' });
     },
     [provisionVm],
-  )
-  const searchTerm = search.trim().toLowerCase()
+  );
+  const searchTerm = search.trim().toLowerCase();
 
   const activeOsFilterKeys = useMemo(
     () =>
       (Object.entries(osFilters) as Array<[OsFilterKey, boolean]>).filter(([, active]) => active),
     [osFilters],
-  )
+  );
   const activeWorkloadFilterKeys = useMemo(
     () =>
       (Object.entries(workloadFilters) as Array<[WorkloadFilterKey, boolean]>).filter(
         ([, active]) => active,
       ),
     [workloadFilters],
-  )
+  );
 
   const filtered = useMemo(() => {
     return templates.filter((template) => {
       const matchesSearch =
-        searchTerm.length === 0 || searchableTemplateText(template).includes(searchTerm)
+        searchTerm.length === 0 || searchableTemplateText(template).includes(searchTerm);
 
       const matchesOsGroup =
         activeOsFilterKeys.length === 0 ||
         activeOsFilterKeys.some(([key]) =>
           OS_FILTER_CONFIG.find((config) => config.key === key)?.matches(template),
-        )
+        );
 
       const matchesWorkloadGroup =
         activeWorkloadFilterKeys.length === 0 ||
         activeWorkloadFilterKeys.some(([key]) =>
           WORKLOAD_FILTER_CONFIG.find((config) => config.key === key)?.matches(template),
-        )
+        );
 
-      return matchesSearch && matchesOsGroup && matchesWorkloadGroup
-    })
-  }, [templates, searchTerm, activeOsFilterKeys, activeWorkloadFilterKeys])
+      return matchesSearch && matchesOsGroup && matchesWorkloadGroup;
+    });
+  }, [templates, searchTerm, activeOsFilterKeys, activeWorkloadFilterKeys]);
 
   const handleOpenFromTemplate = useCallback((tpl: ClusterTemplate) => {
-    wizardRef.current?.openFromTemplate(tpl.id)
-    setSelectedTemplate(null)
-  }, [])
+    wizardRef.current?.openFromTemplate(tpl.id);
+    setSelectedTemplate(null);
+  }, []);
 
   const clearCategoryFilters = useCallback(() => {
-    setOsFilters({ rhel: false, windows: false, linux: false })
+    setOsFilters({ rhel: false, windows: false, linux: false });
     setWorkloadFilters({
       highPerformance: false,
       machineLearning: false,
       dataProcessing: false,
       analytics: false,
-    })
-  }, [])
-  const hasAnyCategoryFilter = activeOsFilterKeys.length > 0 || activeWorkloadFilterKeys.length > 0
+    });
+  }, []);
+  const hasAnyCategoryFilter = activeOsFilterKeys.length > 0 || activeWorkloadFilterKeys.length > 0;
 
   const locationState =
     location.state && typeof location.state === 'object'
       ? (location.state as { navReselect?: boolean; navSelectSeq?: number })
-      : null
+      : null;
   useEffect(() => {
     if (locationState?.navReselect) {
-      setSelectedTemplate(null)
+      setSelectedTemplate(null);
     }
-  }, [locationState?.navReselect, locationState?.navSelectSeq])
+  }, [locationState?.navReselect, locationState?.navSelectSeq]);
   useEffect(() => {
     if (selectedTemplate) {
-      drawerTitleRef.current?.focus()
+      drawerTitleRef.current?.focus();
     }
-  }, [selectedTemplate])
+  }, [selectedTemplate]);
 
   const catalogContent = (
     <Sidebar
@@ -380,8 +404,8 @@ export function CatalogPage({ isProviderGlobal = false }: Props) {
                           onClick={() => setSelectedTemplate(template)}
                           onKeyDown={(event) => {
                             if (event.key === 'Enter' || event.key === ' ') {
-                              event.preventDefault()
-                              setSelectedTemplate(template)
+                              event.preventDefault();
+                              setSelectedTemplate(template);
                             }
                           }}
                         >
@@ -397,7 +421,7 @@ export function CatalogPage({ isProviderGlobal = false }: Props) {
         </Stack>
       </SidebarContent>
     </Sidebar>
-  )
+  );
 
   return (
     <PageSection isFilled className="tenant-vm-templates-catalog-root">
@@ -422,7 +446,7 @@ export function CatalogPage({ isProviderGlobal = false }: Props) {
             <Button
               variant="primary"
               onClick={(event) => {
-                event.preventDefault()
+                event.preventDefault();
               }}
             >
               Add template
@@ -484,7 +508,7 @@ export function CatalogPage({ isProviderGlobal = false }: Props) {
                         className="tenant-vm-template-drawer-head-create"
                         variant="primary"
                         onClick={() => {
-                          handleOpenFromTemplate(selectedTemplate)
+                          handleOpenFromTemplate(selectedTemplate);
                         }}
                       >
                         Create virtual machine
@@ -574,5 +598,5 @@ export function CatalogPage({ isProviderGlobal = false }: Props) {
         )}
       </div>
     </PageSection>
-  )
-}
+  );
+};

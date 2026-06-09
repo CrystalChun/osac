@@ -1,8 +1,8 @@
-import { Flex, FlexItem, Label, Spinner } from '@patternfly/react-core'
-import { type VmPowerState, isVmTransitionPowerState } from '@osac/api-contracts'
+import { Flex, FlexItem, Label, Spinner } from '@patternfly/react-core';
+import { type VmPowerState, isVmTransitionPowerState } from '@osac/api-contracts';
 
 interface VmStatusLabelProps {
-  state: VmPowerState
+  state: VmPowerState;
 }
 
 const STATE_MAP: Record<
@@ -19,11 +19,11 @@ const STATE_MAP: Record<
   error: { color: 'red', text: 'Error' },
   creating: { color: 'blue', text: 'Creating' },
   still_provisioning: { color: 'blue', text: 'Still provisioning' },
-}
+};
 
-export function VmStatusLabel({ state }: VmStatusLabelProps) {
-  const { color, text } = STATE_MAP[state] ?? { color: 'grey', text: state }
-  const inTransition = isVmTransitionPowerState(state)
+export const VmStatusLabel = ({ state }: VmStatusLabelProps) => {
+  const { color, text } = STATE_MAP[state] ?? { color: 'grey', text: state };
+  const inTransition = isVmTransitionPowerState(state);
 
   return (
     <Flex alignItems={{ default: 'alignItemsCenter' }} spaceItems={{ default: 'spaceItemsSm' }}>
@@ -38,5 +38,5 @@ export function VmStatusLabel({ state }: VmStatusLabelProps) {
         </Label>
       </FlexItem>
     </Flex>
-  )
-}
+  );
+};

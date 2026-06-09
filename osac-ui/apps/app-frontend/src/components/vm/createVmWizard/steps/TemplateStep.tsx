@@ -1,5 +1,5 @@
-import { RedhatIcon } from '@patternfly/react-icons/dist/esm/icons/redhat-icon'
-import { WindowsIcon } from '@patternfly/react-icons/dist/esm/icons/windows-icon'
+import { RedhatIcon } from '@patternfly/react-icons/dist/esm/icons/redhat-icon';
+import { WindowsIcon } from '@patternfly/react-icons/dist/esm/icons/windows-icon';
 import {
   Alert,
   Bullseye,
@@ -19,25 +19,25 @@ import {
   Stack,
   StackItem,
   Title,
-} from '@patternfly/react-core'
-import { useMemo, useState } from 'react'
-import type { ClusterTemplate, TemplateWorkloadProfile } from '@osac/api-contracts'
-import linuxMascotUrl from '../../../../assets/guest-os-tux-linux.png'
-import { useComputeInstanceTemplates } from '../../../../api/hooks'
-import { defaultTemplateBootDiskGib } from '../constants'
-import type { UpdateFn, WizardState } from '../types'
+} from '@patternfly/react-core';
+import { useMemo, useState } from 'react';
+import type { ClusterTemplate, TemplateWorkloadProfile } from '@osac/api-contracts';
+import linuxMascotUrl from '../../../../assets/guest-os-tux-linux.png';
+import { useComputeInstanceTemplates } from '../../../../api/hooks';
+import { defaultTemplateBootDiskGib } from '../constants';
+import type { UpdateFn, WizardState } from '../types';
 
-function applySelectedTemplate(tpl: ClusterTemplate, update: UpdateFn) {
-  update('selectedTemplateId', tpl.id)
-  update('templateBootDiskSizeGib', String(defaultTemplateBootDiskGib(tpl)))
-}
+const applySelectedTemplate = (tpl: ClusterTemplate, update: UpdateFn) => {
+  update('selectedTemplateId', tpl.id);
+  update('templateBootDiskSizeGib', String(defaultTemplateBootDiskGib(tpl)));
+};
 
 const OS_FILTER_OPTIONS = [
   { value: 'all', label: 'All operating systems' },
   { value: 'rhel', label: 'RHEL' },
   { value: 'windows', label: 'Microsoft Windows' },
   { value: 'linux', label: 'Linux' },
-] as const
+] as const;
 
 const WORKLOAD_FILTER_OPTIONS: { value: 'all' | TemplateWorkloadProfile; label: string }[] = [
   { value: 'all', label: 'All workloads' },
@@ -45,24 +45,30 @@ const WORKLOAD_FILTER_OPTIONS: { value: 'all' | TemplateWorkloadProfile; label: 
   { value: 'analytics', label: 'Analytics' },
   { value: 'machine-learning', label: 'Machine learning' },
   { value: 'data-processing', label: 'Data processing' },
-]
+];
 
 const WORKLOAD_LABELS: Record<TemplateWorkloadProfile, string> = {
   'high-performance': 'High performance',
   analytics: 'Analytics',
   'machine-learning': 'Machine learning',
   'data-processing': 'Data processing',
-}
+};
 
-function truncateDescription(text: string, max = 120): string {
-  if (text.length <= max) return text
-  return `${text.slice(0, max - 1)}…`
-}
+const truncateDescription = (text: string, max = 120): string => {
+  if (text.length <= max) {
+    return text;
+  }
+  return `${text.slice(0, max - 1)}…`;
+};
 
-function OsIcon({ icon }: { icon?: string }) {
-  const style = { width: 28, height: 28 } as const
-  if (icon === 'windows') return <WindowsIcon style={{ ...style, color: '#0078D4' }} />
-  if (icon === 'rhel') return <RedhatIcon style={{ ...style, color: '#EE0000' }} />
+const OsIcon = ({ icon }: { icon?: string }) => {
+  const style = { width: 28, height: 28 } as const;
+  if (icon === 'windows') {
+    return <WindowsIcon style={{ ...style, color: '#0078D4' }} />;
+  }
+  if (icon === 'rhel') {
+    return <RedhatIcon style={{ ...style, color: '#EE0000' }} />;
+  }
   return (
     <img
       src={linuxMascotUrl}
@@ -71,13 +77,13 @@ function OsIcon({ icon }: { icon?: string }) {
       height={28}
       style={{ display: 'block', objectFit: 'contain' }}
     />
-  )
-}
+  );
+};
 
-export function TemplateStep({ state, update }: { state: WizardState; update: UpdateFn }) {
-  const [osFilter, setOsFilter] = useState<string>('all')
-  const [workloadFilter, setWorkloadFilter] = useState<string>('all')
-  const [search, setSearch] = useState('')
+export const TemplateStep = ({ state, update }: { state: WizardState; update: UpdateFn }) => {
+  const [osFilter, setOsFilter] = useState<string>('all');
+  const [workloadFilter, setWorkloadFilter] = useState<string>('all');
+  const [search, setSearch] = useState('');
 
   const {
     data: templates = [],
@@ -85,36 +91,36 @@ export function TemplateStep({ state, update }: { state: WizardState; update: Up
     isError: templatesError,
     error: templatesErrorDetail,
     refetch: refetchTemplates,
-  } = useComputeInstanceTemplates()
+  } = useComputeInstanceTemplates();
 
   const filtered = useMemo(() => {
-    let list: ClusterTemplate[] = [...templates]
+    let list: ClusterTemplate[] = [...templates];
     if (osFilter !== 'all') {
-      list = list.filter((t) => (t.icon ?? 'linux') === osFilter)
+      list = list.filter((t) => (t.icon ?? 'linux') === osFilter);
     }
     if (workloadFilter !== 'all') {
-      list = list.filter((t) => t.workloadProfile === workloadFilter)
+      list = list.filter((t) => t.workloadProfile === workloadFilter);
     }
     if (search.trim()) {
-      const q = search.toLowerCase().trim()
+      const q = search.toLowerCase().trim();
       list = list.filter(
         (t) =>
           t.title.toLowerCase().includes(q) ||
           (t.description ?? '').toLowerCase().includes(q) ||
           (t.tags ?? []).some((tag) => tag.toLowerCase().includes(q)),
-      )
+      );
     }
-    return list
-  }, [templates, osFilter, workloadFilter, search])
+    return list;
+  }, [templates, osFilter, workloadFilter, search]);
 
   const clearFilters = () => {
-    setOsFilter('all')
-    setWorkloadFilter('all')
-    setSearch('')
-  }
+    setOsFilter('all');
+    setWorkloadFilter('all');
+    setSearch('');
+  };
 
-  const count = filtered.length
-  const countPhrase = `${count} ${count === 1 ? 'template' : 'templates'} available`
+  const count = filtered.length;
+  const countPhrase = `${count} ${count === 1 ? 'template' : 'templates'} available`;
 
   return (
     <Stack hasGutter>
@@ -233,11 +239,11 @@ export function TemplateStep({ state, update }: { state: WizardState; update: Up
           {!templatesLoading &&
             !templatesError &&
             filtered.map((tpl) => {
-              const selected = state.selectedTemplateId === tpl.id
-              const cores = tpl.defaultCores ?? 2
-              const mem = tpl.defaultMemoryGib ?? 8
-              const diskGib = defaultTemplateBootDiskGib(tpl)
-              const profile = tpl.workloadProfile
+              const selected = state.selectedTemplateId === tpl.id;
+              const cores = tpl.defaultCores ?? 2;
+              const mem = tpl.defaultMemoryGib ?? 8;
+              const diskGib = defaultTemplateBootDiskGib(tpl);
+              const profile = tpl.workloadProfile;
               return (
                 <div key={tpl.id}>
                   <Card
@@ -325,10 +331,10 @@ export function TemplateStep({ state, update }: { state: WizardState; update: Up
                     </CardBody>
                   </Card>
                 </div>
-              )
+              );
             })}
         </div>
       </StackItem>
     </Stack>
-  )
-}
+  );
+};

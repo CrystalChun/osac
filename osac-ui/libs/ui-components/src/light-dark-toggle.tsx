@@ -1,25 +1,25 @@
-import { MoonIcon } from '@patternfly/react-icons/dist/esm/icons/moon-icon'
-import { SunIcon } from '@patternfly/react-icons/dist/esm/icons/sun-icon'
-import { Button, Flex, FlexItem } from '@patternfly/react-core'
+import { MoonIcon } from '@patternfly/react-icons/dist/esm/icons/moon-icon';
+import { SunIcon } from '@patternfly/react-icons/dist/esm/icons/sun-icon';
+import { Button, Flex, FlexItem } from '@patternfly/react-core';
 
 interface LightDarkToggleProps {
-  isDark: boolean
-  onChange: (isDark: boolean) => void
-  'aria-label'?: string
+  isDark: boolean;
+  onChange: (isDark: boolean) => void;
+  'aria-label'?: string;
   /** Shell variant shows a landing shortcut next to the toggle. */
-  variant?: 'landing' | 'shell'
-  landingOnSelect?: () => void
-  landingAriaLabel?: string
+  variant?: 'landing' | 'shell';
+  landingOnSelect?: () => void;
+  landingAriaLabel?: string;
 }
 
-export function LightDarkToggle({
+export const LightDarkToggle = ({
   isDark,
   onChange,
   'aria-label': ariaLabel = 'Toggle theme',
   variant,
   landingOnSelect,
   landingAriaLabel,
-}: LightDarkToggleProps) {
+}: LightDarkToggleProps) => {
   return (
     <Flex alignItems={{ default: 'alignItemsCenter' }} spaceItems={{ default: 'spaceItemsXs' }}>
       {variant === 'shell' && landingOnSelect && (
@@ -46,5 +46,5 @@ export function LightDarkToggle({
         </Button>
       </FlexItem>
     </Flex>
-  )
-}
+  );
+};

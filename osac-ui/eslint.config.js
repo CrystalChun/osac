@@ -28,6 +28,10 @@ export default defineConfig(
       '@typescript-eslint/no-floating-promises': 'off',
       '@typescript-eslint/no-unsafe-enum-comparison': 'off',
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+      'prefer-arrow-callback': 'error',
+      'func-style': ['error', 'expression', { allowArrowFunctions: true }],
+      'semi': ['error', 'always'],
+      'curly': ['error', 'all'],
     },
   },
 

@@ -1,4 +1,4 @@
-import type { ComputeInstance } from '@osac/api-contracts'
+import type { ComputeInstance } from '@osac/api-contracts';
 import {
   Button,
   Card,
@@ -10,38 +10,38 @@ import {
   Stack,
   StackItem,
   Title,
-} from '@patternfly/react-core'
+} from '@patternfly/react-core';
 
 interface NetworkTopologyProps {
-  vms: ComputeInstance[]
-  onOpenVirtualMachineDetail?: (vmId: string) => void
+  vms: ComputeInstance[];
+  onOpenVirtualMachineDetail?: (vmId: string) => void;
 }
 
 interface SubnetGroup {
-  subnet: string
-  vms: ComputeInstance[]
+  subnet: string;
+  vms: ComputeInstance[];
 }
 
-function groupBySubnet(vms: ComputeInstance[]): SubnetGroup[] {
-  const map = new Map<string, ComputeInstance[]>()
+const groupBySubnet = (vms: ComputeInstance[]): SubnetGroup[] => {
+  const map = new Map<string, ComputeInstance[]>();
   for (const vm of vms) {
-    const key = vm.spec.subnet ?? 'default'
-    const list = map.get(key) ?? []
-    list.push(vm)
-    map.set(key, list)
+    const key = vm.spec.subnet ?? 'default';
+    const list = map.get(key) ?? [];
+    list.push(vm);
+    map.set(key, list);
   }
-  return Array.from(map.entries()).map(([subnet, vms]) => ({ subnet, vms }))
-}
+  return Array.from(map.entries()).map(([subnet, vms]) => ({ subnet, vms }));
+};
 
 const STATE_COLOR: Record<string, string> = {
   running: 'var(--pf-t--global--color--status--success--default)',
   paused: 'var(--pf-t--global--color--status--warning--default)',
   stopped: 'var(--pf-t--global--color--status--danger--default)',
   starting: 'var(--pf-t--global--color--status--info--default)',
-}
+};
 
-export function NetworkTopologyPage({ vms, onOpenVirtualMachineDetail }: NetworkTopologyProps) {
-  const groups = groupBySubnet(vms)
+export const NetworkTopologyPage = ({ vms, onOpenVirtualMachineDetail }: NetworkTopologyProps) => {
+  const groups = groupBySubnet(vms);
 
   return (
     <Stack hasGutter style={{ padding: 'var(--pf-t--global--spacer--md)', minHeight: '400px' }}>
@@ -71,8 +71,8 @@ export function NetworkTopologyPage({ vms, onOpenVirtualMachineDetail }: Network
                   <Flex flexWrap={{ default: 'wrap' }} spaceItems={{ default: 'spaceItemsSm' }}>
                     {group.vms.map((vm) => {
                       const stateColor =
-                        STATE_COLOR[vm.status.state] ?? 'var(--pf-t--global--text--color--subtle)'
-                      const isClickable = !!onOpenVirtualMachineDetail
+                        STATE_COLOR[vm.status.state] ?? 'var(--pf-t--global--text--color--subtle)';
+                      const isClickable = !!onOpenVirtualMachineDetail;
                       return (
                         <FlexItem key={vm.id}>
                           <Button
@@ -142,7 +142,7 @@ export function NetworkTopologyPage({ vms, onOpenVirtualMachineDetail }: Network
                             </Stack>
                           </Button>
                         </FlexItem>
-                      )
+                      );
                     })}
                   </Flex>
                 </StackItem>
@@ -152,5 +152,5 @@ export function NetworkTopologyPage({ vms, onOpenVirtualMachineDetail }: Network
         </StackItem>
       ))}
     </Stack>
-  )
-}
+  );
+};

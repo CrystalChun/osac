@@ -2,15 +2,15 @@
  * flow: manage-virtual-machines
  * Placeholder VMs on My VMs until compute_instances includes the VM; then post-create display until status stabilizes.
  */
-import { useCallback, useEffect, useRef, useState } from 'react'
-import type { ComputeInstance, VmPowerState } from '@osac/api-contracts'
-import { PENDING_VM_LIST_POLL_MS } from './hooks'
+import { useCallback, useEffect, useRef, useState } from 'react';
+import type { ComputeInstance, VmPowerState } from '@osac/api-contracts';
+import { PENDING_VM_LIST_POLL_MS } from './hooks';
 import {
   deletePostCreateWatch,
   getPostCreateWatch,
   listPostCreateWatchIds,
   setPostCreateWatch,
-} from './postCreateWatchStore'
+} from './postCreateWatchStore';
 import {
   type PendingVmCreation,
   advancePostCreateWatch,
@@ -19,122 +19,136 @@ import {
   matchesPendingCreation,
   pendingToComputeInstance,
   resolveCreationDisplayState,
-} from './pendingVmCreation'
+} from './pendingVmCreation';
 
 type UsePendingVmCreationsOptions = {
-  refetchInstances?: () => Promise<unknown>
-}
+  refetchInstances?: () => Promise<unknown>;
+};
 
-export function usePendingVmCreations(
+export const usePendingVmCreations = (
   listedVms: ComputeInstance[],
   options: UsePendingVmCreationsOptions = {},
-) {
-  const { refetchInstances } = options
-  const pendingRef = useRef<PendingVmCreation[]>([])
-  const [pending, setPending] = useState<PendingVmCreation[]>([])
-  const [watchedVmIds, setWatchedVmIds] = useState<string[]>(() => listPostCreateWatchIds())
-  const [, tick] = useState(0)
+) => {
+  const { refetchInstances } = options;
+  const pendingRef = useRef<PendingVmCreation[]>([]);
+  const [pending, setPending] = useState<PendingVmCreation[]>([]);
+  const [watchedVmIds, setWatchedVmIds] = useState<string[]>(() => listPostCreateWatchIds());
+  const [, tick] = useState(0);
 
   const syncPending = useCallback(() => {
-    setPending([...pendingRef.current])
-  }, [])
+    setPending([...pendingRef.current]);
+  }, []);
 
   const syncWatched = useCallback(() => {
-    setWatchedVmIds(listPostCreateWatchIds())
-  }, [])
+    setWatchedVmIds(listPostCreateWatchIds());
+  }, []);
 
   const registerPending = useCallback(
     (draft: Partial<ComputeInstance>) => {
-      const clientId = createPendingVmClientId()
-      pendingRef.current = [...pendingRef.current, { clientId, draft, startedAtMs: Date.now() }]
-      syncPending()
-      return clientId
+      const clientId = createPendingVmClientId();
+      pendingRef.current = [...pendingRef.current, { clientId, draft, startedAtMs: Date.now() }];
+      syncPending();
+      return clientId;
     },
     [syncPending],
-  )
+  );
 
   const noteCreateSuccess = useCallback(
     (clientId: string, serverId: string) => {
-      const entry = pendingRef.current.find((p) => p.clientId === clientId)
-      if (entry) entry.serverId = serverId
-      syncPending()
+      const entry = pendingRef.current.find((p) => p.clientId === clientId);
+      if (entry) {
+        entry.serverId = serverId;
+      }
+      syncPending();
     },
     [syncPending],
-  )
+  );
 
   const dismissPending = useCallback(
     (clientId: string) => {
-      pendingRef.current = pendingRef.current.filter((p) => p.clientId !== clientId)
-      syncPending()
+      pendingRef.current = pendingRef.current.filter((p) => p.clientId !== clientId);
+      syncPending();
     },
     [syncPending],
-  )
+  );
 
-  const hasActiveProvisioning = pending.length > 0 || watchedVmIds.length > 0
+  const hasActiveProvisioning = pending.length > 0 || watchedVmIds.length > 0;
 
   useEffect(() => {
-    if (!hasActiveProvisioning || !refetchInstances) return
+    if (!hasActiveProvisioning || !refetchInstances) {
+      return;
+    }
     const id = window.setInterval(() => {
-      void refetchInstances()
-    }, PENDING_VM_LIST_POLL_MS)
-    return () => window.clearInterval(id)
-  }, [hasActiveProvisioning, refetchInstances])
+      void refetchInstances();
+    }, PENDING_VM_LIST_POLL_MS);
+    return () => window.clearInterval(id);
+  }, [hasActiveProvisioning, refetchInstances]);
 
   useEffect(() => {
-    let changed = false
+    let changed = false;
 
     for (const p of [...pendingRef.current]) {
-      const vm = listedVms.find((v) => matchesPendingCreation(p, v))
-      if (!vm) continue
-      pendingRef.current = pendingRef.current.filter((x) => x.clientId !== p.clientId)
-      if (!getPostCreateWatch(vm.id)) {
-        setPostCreateWatch(createPostCreateWatch(vm.id, p.startedAtMs))
+      const vm = listedVms.find((v) => matchesPendingCreation(p, v));
+      if (!vm) {
+        continue;
       }
-      changed = true
+      pendingRef.current = pendingRef.current.filter((x) => x.clientId !== p.clientId);
+      if (!getPostCreateWatch(vm.id)) {
+        setPostCreateWatch(createPostCreateWatch(vm.id, p.startedAtMs));
+      }
+      changed = true;
     }
 
     for (const vmId of listPostCreateWatchIds()) {
-      const vm = listedVms.find((v) => v.id === vmId)
-      if (!vm) continue
-      const watch = getPostCreateWatch(vmId)
-      if (!watch) continue
-      const { watch: next, clear } = advancePostCreateWatch(vm.status.state, watch)
-      if (clear) {
-        deletePostCreateWatch(vmId)
-      } else {
-        setPostCreateWatch(next)
+      const vm = listedVms.find((v) => v.id === vmId);
+      if (!vm) {
+        continue;
       }
-      changed = true
+      const watch = getPostCreateWatch(vmId);
+      if (!watch) {
+        continue;
+      }
+      const { watch: next, clear } = advancePostCreateWatch(vm.status.state, watch);
+      if (clear) {
+        deletePostCreateWatch(vmId);
+      } else {
+        setPostCreateWatch(next);
+      }
+      changed = true;
     }
 
     if (changed) {
-      syncPending()
-      syncWatched()
+      syncPending();
+      syncWatched();
     }
-  }, [listedVms, syncPending, syncWatched])
+  }, [listedVms, syncPending, syncWatched]);
 
   useEffect(() => {
-    if (!hasActiveProvisioning) return
-    const id = window.setInterval(() => tick((n) => n + 1), 60_000)
-    return () => window.clearInterval(id)
-  }, [hasActiveProvisioning])
+    if (!hasActiveProvisioning) {
+      return;
+    }
+    const id = window.setInterval(() => tick((n) => n + 1), 60_000);
+    return () => window.clearInterval(id);
+  }, [hasActiveProvisioning]);
 
-  const pendingInstances = useCallback(() => pending.map(pendingToComputeInstance), [pending])
+  const pendingInstances = useCallback(() => pending.map(pendingToComputeInstance), [pending]);
 
   const getCreationDisplayState = useCallback(
     (clientId: string) => {
-      const entry = pending.find((p) => p.clientId === clientId)
-      if (!entry) return 'creating' as const
-      return resolveCreationDisplayState(entry.startedAtMs)
+      const entry = pending.find((p) => p.clientId === clientId);
+      if (!entry) {
+        return 'creating' as const;
+      }
+      return resolveCreationDisplayState(entry.startedAtMs);
     },
     [pending],
-  )
+  );
 
   const getPostCreateDisplayState = useCallback((vm: ComputeInstance): VmPowerState | undefined => {
-    return getPostCreateWatch(vm.id)?.displayOverride
-  }, [])
+    return getPostCreateWatch(vm.id)?.displayOverride;
+  }, []);
 
-  const isPostCreateWatched = useCallback((vmId: string) => getPostCreateWatch(vmId) != null, [])
+  const isPostCreateWatched = useCallback((vmId: string) => getPostCreateWatch(vmId) != null, []);
 
   return {
     registerPending,
@@ -145,5 +159,5 @@ export function usePendingVmCreations(
     getPostCreateDisplayState,
     isPostCreateWatched,
     hasPending: pending.length > 0,
-  }
-}
+  };
+};

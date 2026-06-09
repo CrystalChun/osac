@@ -1,4 +1,4 @@
-import type { DeploymentMode } from './types'
+import type { DeploymentMode } from './types';
 
 /**
  * ---------------------------------------------------------------------------
@@ -7,9 +7,9 @@ import type { DeploymentMode } from './types'
  * history for `getStepIds` / `getWizardOrderedSteps` using `mode` + `skipDeployment`.
  * ---------------------------------------------------------------------------
  */
-export function getStepIds(_mode: DeploymentMode): string[] {
-  return ['template', 'customization', 'review']
-}
+export const getStepIds = (_mode: DeploymentMode): string[] => {
+  return ['template', 'customization', 'review'];
+};
 
 /*
 RESTORE when fulfillment supports new + clone:
@@ -22,9 +22,12 @@ export function getStepIds(mode: DeploymentMode): string[] {
 */
 
 /** Aligns with BFF orderedStepIds when catalog/clone presets skip the deployment step. */
-export function getWizardOrderedSteps(_mode: DeploymentMode, _skipDeployment: boolean): string[] {
-  return ['template', 'customization', 'review']
-}
+export const getWizardOrderedSteps = (
+  _mode: DeploymentMode,
+  _skipDeployment: boolean,
+): string[] => {
+  return ['template', 'customization', 'review'];
+};
 
 /*
 RESTORE:

@@ -19,22 +19,22 @@ import {
   Stack,
   StackItem,
   Title,
-} from '@patternfly/react-core'
-import { LoginForm } from './LoginForm'
-import { useSession } from '../../contexts/SessionContext'
-import type { HeaderMarkSpec } from './institutionalBranding'
-import { institutionalBrandingByTenant } from './institutionalBranding'
+} from '@patternfly/react-core';
+import { LoginForm } from './LoginForm';
+import { useSession } from '../../contexts/SessionContext';
+import type { HeaderMarkSpec } from './institutionalBranding';
+import { institutionalBrandingByTenant } from './institutionalBranding';
 
 interface Props {
-  defaultEmail: string
-  onLoginSuccess: (email: string, password: string) => void
-  onChooseAnother: () => void
-  trustedIssuers?: string[]
-  submitError?: string | null
-  isSubmitting?: boolean
+  defaultEmail: string;
+  onLoginSuccess: (email: string, password: string) => void;
+  onChooseAnother: () => void;
+  trustedIssuers?: string[];
+  submitError?: string | null;
+  isSubmitting?: boolean;
 }
 
-function renderHeaderMark(spec: HeaderMarkSpec) {
+const renderHeaderMark = (spec: HeaderMarkSpec) => {
   if (spec.kind === 'emoji') {
     return (
       <Content
@@ -43,7 +43,7 @@ function renderHeaderMark(spec: HeaderMarkSpec) {
       >
         {spec.emoji}
       </Content>
-    )
+    );
   }
   return (
     <Bullseye
@@ -59,24 +59,24 @@ function renderHeaderMark(spec: HeaderMarkSpec) {
     >
       {spec.letter}
     </Bullseye>
-  )
-}
+  );
+};
 
-export function InstitutionalSignInPage({
+export const InstitutionalSignInPage = ({
   defaultEmail,
   onLoginSuccess,
   onChooseAnother,
   trustedIssuers,
   submitError,
   isSubmitting,
-}: Props) {
-  const { selectedTenant, isAuthLoading } = useSession()
+}: Props) => {
+  const { selectedTenant, isAuthLoading } = useSession();
 
   if (!selectedTenant) {
-    return null
+    return null;
   }
 
-  const branding = institutionalBrandingByTenant[selectedTenant]
+  const branding = institutionalBrandingByTenant[selectedTenant];
 
   return (
     <Page style={{ minHeight: '100%', background: branding.pageBackground }}>
@@ -135,5 +135,5 @@ export function InstitutionalSignInPage({
         </Bullseye>
       </PageSection>
     </Page>
-  )
-}
+  );
+};
