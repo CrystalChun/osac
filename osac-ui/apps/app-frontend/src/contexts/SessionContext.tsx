@@ -208,11 +208,19 @@ export function SessionProvider({
   )
 
   const logout = useCallback(async () => {
-    if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current)
-    try {
-      await fetch('/api/logout', { method: 'POST', credentials: 'include' })
-    } catch {
-      // ignore
+    const resp = await fetch('/api/logout', { method: 'POST', credentials: 'include' })
+    if (!resp.ok) {
+      let text = ''
+      try {
+        text = await resp.text()
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.warn('Failed to parse logout response', e)
+      }
+      throw new Error(`Logout failed (HTTP ${resp.status})${text ? `: ${text}` : ''}`)
+    }
+    if (refreshTimerRef.current) {
+      clearTimeout(refreshTimerRef.current)
     }
     sessionStorage.removeItem(EXPIRATION_KEY)
     savePersonaToStorage(null, 'tenantUser')

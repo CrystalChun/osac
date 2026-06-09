@@ -217,8 +217,32 @@ func (h *Handler) GetLoginRefresh(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(loginCallbackResponse{ExpiresIn: tr.ExpiresIn}) //nolint:errcheck
 }
 
-// PostLogout handles POST /api/logout — expires all session cookies.
+// PostLogout handles POST /api/logout — logs out from Keycloak and expires all session cookies.
 func (h *Handler) PostLogout(w http.ResponseWriter, r *http.Request) {
+	tokenData := LookupSessionCookies(r)
+
+	if tokenData != nil {
+		issuerURL, err := h.issuerURL()
+		if err != nil {
+			log.WithError(err).Error("failed to get OIDC issuer URL for logout")
+			http.Error(w, "could not determine OIDC issuer", http.StatusBadGateway)
+			return
+		}
+
+		oidcCfg, err := FetchOIDCConfig(issuerURL, h.OIDCHTTPClient)
+		if err != nil {
+			log.WithError(err).Error("OIDC discovery failed during logout")
+			http.Error(w, "OIDC discovery failed", http.StatusBadGateway)
+			return
+		}
+
+		if err := EndSession(oidcCfg, h.ClientID, tokenData.RefreshToken, tokenData.IDToken, h.OIDCHTTPClient); err != nil {
+			log.WithError(err).Error("Keycloak end_session failed")
+			http.Error(w, "logout from identity provider failed", http.StatusBadGateway)
+			return
+		}
+	}
+
 	ClearSessionCookies(w, r)
 	w.WriteHeader(http.StatusNoContent)
 }

@@ -116,6 +116,53 @@ func ExchangeCode(cfg *OIDCConfig, clientID, code, verifier, redirectURI string,
 	return postTokenEndpoint(cfg.TokenEndpoint, params, httpClient)
 }
 
+// EndSession calls the IdP end_session endpoint to invalidate the session server-side.
+// It sends client_id and refresh_token (for Keycloak back-channel logout) as well as
+// id_token_hint when available.
+// If httpClient is nil, http.DefaultClient is used.
+func EndSession(cfg *OIDCConfig, clientID, refreshToken, idToken string, httpClient *http.Client) error {
+	if cfg.EndSessionEndpoint == "" {
+		return fmt.Errorf("OIDC end_session_endpoint not available")
+	}
+	if httpClient == nil {
+		httpClient = http.DefaultClient
+	}
+
+	params := url.Values{}
+	params.Set("client_id", clientID)
+	if refreshToken != "" {
+		params.Set("refresh_token", refreshToken)
+	}
+	if idToken != "" {
+		params.Set("id_token_hint", idToken)
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, cfg.EndSessionEndpoint,
+		strings.NewReader(params.Encode()))
+	if err != nil {
+		return fmt.Errorf("build end_session request: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	resp, err := httpClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("end_session request: %w", err)
+	}
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			log.WithError(err).Warn("failed to close end_session response body")
+		}
+	}()
+
+	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNoContent {
+		return fmt.Errorf("end_session endpoint returned HTTP %d", resp.StatusCode)
+	}
+	return nil
+}
+
 // RefreshTokens exchanges a refresh token for new tokens at the IdP token endpoint.
 // If httpClient is nil, http.DefaultClient is used.
 func RefreshTokens(cfg *OIDCConfig, clientID, refreshToken string, httpClient *http.Client) (*TokenResponse, error) {

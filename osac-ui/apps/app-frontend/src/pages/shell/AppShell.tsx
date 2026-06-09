@@ -6,7 +6,16 @@
  */
 import { type ReactNode, useCallback, useMemo, useState } from 'react'
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
-import { Page, PageSection } from '@patternfly/react-core'
+import {
+  Alert,
+  Button,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  Page,
+  PageSection,
+} from '@patternfly/react-core'
 
 import {
   DEMO_PROVIDER_ADMIN_DISPLAY_NAME,
@@ -15,6 +24,7 @@ import {
   DEMO_TENANT_SOVEREIGNTY,
 } from '@osac/api-contracts'
 import { PlaceholderPage } from '@osac/ui-components'
+import { getErrorMessage } from '@osac/ui-components/src/utils/error'
 import { useSession } from '../../contexts/SessionContext'
 
 // Pages
@@ -55,6 +65,15 @@ export function AppShell() {
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(
     () => new Set(DEFAULT_EXPANDED_GROUP_IDS),
   )
+  const [logoutError, setLogoutError] = useState<string>()
+
+  const handleLogout = useCallback(async () => {
+    try {
+      await logout()
+    } catch (err) {
+      setLogoutError(getErrorMessage(err))
+    }
+  }, [logout])
 
   const isRecentActivities = location.pathname === '/activities'
 
@@ -98,7 +117,7 @@ export function AppShell() {
       sovereignty={sovereignty}
       isUserMenuOpen={isUserMenuOpen}
       setIsUserMenuOpen={setIsUserMenuOpen}
-      onLogout={logout}
+      onLogout={handleLogout}
       onOpenActivities={() => navigate('/activities')}
     />
   )
@@ -112,7 +131,7 @@ export function AppShell() {
       onNavigate={handleSidebarNavigate}
       isDarkTheme={isDarkTheme}
       setIsDarkTheme={setIsDarkTheme}
-      onLogout={logout}
+      onLogout={handleLogout}
     />
   )
 
@@ -127,65 +146,80 @@ export function AppShell() {
   const defaultRoute = defaultRouteForRole(role)
 
   return (
-    <Page masthead={masthead} sidebar={sidebar} breadcrumb={breadcrumb} isManagedSidebar>
-      <Routes>
-        {/* Tenant user routes */}
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/vms/*" element={<VmListPage />} />
-        <Route path="/templates" element={<CatalogPage />} />
-        <Route path="/activities" element={<RecentActivitiesPage />} />
+    <>
+      {logoutError && (
+        <Modal variant="small" isOpen onClose={() => setLogoutError(undefined)}>
+          <ModalHeader title="Logout failed" titleIconVariant="danger" />
+          <ModalBody>
+            <Alert variant="danger" isInline title={logoutError ?? ''} />
+          </ModalBody>
+          <ModalFooter>
+            <Button variant="primary" onClick={() => setLogoutError(undefined)}>
+              Close
+            </Button>
+          </ModalFooter>
+        </Modal>
+      )}
+      <Page masthead={masthead} sidebar={sidebar} breadcrumb={breadcrumb} isManagedSidebar>
+        <Routes>
+          {/* Tenant user routes */}
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/vms/*" element={<VmListPage />} />
+          <Route path="/templates" element={<CatalogPage />} />
+          <Route path="/activities" element={<RecentActivitiesPage />} />
 
-        {/* Tenant admin routes */}
-        <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
-        <Route path="/admin/users" element={<AdminUsersPage />} />
-        <Route path="/admin/quota" element={<AdminQuotaPage />} />
-        <Route path="/admin/templates" element={<CatalogPage />} />
-        <Route
-          path="/admin/networks"
-          element={<AdminNetworksPage onOpenVmDetail={openTopologyDetailRequest} />}
-        />
-        {ADMIN_PLACEHOLDER_ROUTES.map((route) => (
+          {/* Tenant admin routes */}
+          <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+          <Route path="/admin/users" element={<AdminUsersPage />} />
+          <Route path="/admin/quota" element={<AdminQuotaPage />} />
+          <Route path="/admin/templates" element={<CatalogPage />} />
           <Route
-            key={route.path}
-            path={route.path}
+            path="/admin/networks"
+            element={<AdminNetworksPage onOpenVmDetail={openTopologyDetailRequest} />}
+          />
+          {ADMIN_PLACEHOLDER_ROUTES.map((route) => (
+            <Route
+              key={route.path}
+              path={route.path}
+              element={
+                <PageWrapper>
+                  <PlaceholderPage title={route.title} lede={route.lede} />
+                </PageWrapper>
+              }
+            />
+          ))}
+
+          {/* Provider admin routes */}
+          <Route path="/provider/dashboard" element={<ProviderAdminDashboardPage />} />
+          <Route path="/provider/organizations" element={<ProviderTenantOrgsPage />} />
+          {PROVIDER_PLACEHOLDER_ROUTES.map((route) => (
+            <Route
+              key={route.path}
+              path={route.path}
+              element={
+                <PageWrapper>
+                  <PlaceholderPage title={route.title} lede={route.lede} />
+                </PageWrapper>
+              }
+            />
+          ))}
+          <Route path="/provider/templates" element={<CatalogPage isProviderGlobal />} />
+          <Route path="/provider/infrastructure" element={<ProviderInfraTopologyPage />} />
+
+          {/* Fallback */}
+          <Route
+            path="*"
             element={
-              <PageWrapper>
-                <PlaceholderPage title={route.title} lede={route.lede} />
-              </PageWrapper>
+              role === 'tenantUser' ? (
+                <TenantSparsePlaceholderPage />
+              ) : (
+                <Navigate to={defaultRoute} replace />
+              )
             }
           />
-        ))}
-
-        {/* Provider admin routes */}
-        <Route path="/provider/dashboard" element={<ProviderAdminDashboardPage />} />
-        <Route path="/provider/organizations" element={<ProviderTenantOrgsPage />} />
-        {PROVIDER_PLACEHOLDER_ROUTES.map((route) => (
-          <Route
-            key={route.path}
-            path={route.path}
-            element={
-              <PageWrapper>
-                <PlaceholderPage title={route.title} lede={route.lede} />
-              </PageWrapper>
-            }
-          />
-        ))}
-        <Route path="/provider/templates" element={<CatalogPage isProviderGlobal />} />
-        <Route path="/provider/infrastructure" element={<ProviderInfraTopologyPage />} />
-
-        {/* Fallback */}
-        <Route
-          path="*"
-          element={
-            role === 'tenantUser' ? (
-              <TenantSparsePlaceholderPage />
-            ) : (
-              <Navigate to={defaultRoute} replace />
-            )
-          }
-        />
-      </Routes>
-    </Page>
+        </Routes>
+      </Page>
+    </>
   )
 }
 

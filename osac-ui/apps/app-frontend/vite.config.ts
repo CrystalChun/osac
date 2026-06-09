@@ -7,7 +7,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@osac/api-contracts': resolve(__dirname, '../../libs/api-contracts/src/index.ts'),
-      '@osac/ui-components': resolve(__dirname, '../../libs/ui-components/src/index.ts'),
+      '@osac/ui-components': resolve(__dirname, '../../libs/ui-components'),
     },
   },
   server: {
