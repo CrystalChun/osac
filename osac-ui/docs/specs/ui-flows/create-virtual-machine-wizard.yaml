@@ -10,45 +10,41 @@ template_inventory_alignment:
 applies_when: >-
   Authenticated tenant user or tenant admin workspace. Wizard is always a Modal layered over the
   current route; wizard progress is not represented in the URL (no path segment or query param for
-  step index). Step order, validation, and persistence of the in-progress draft are orchestrated by
-  the OSAC BFF create-vm-wizard session API (see backend-fulfillment.yaml bff_demo_osac_extensions).
+  step index). Step order, validation, and in-progress draft are held **client-side** in React state
+  (see backend-fulfillment.yaml create_virtual_machine_wizard_client_orchestration).
 
 current_product_note_wizard_template_only: >-
-  Shipped demo wizard is **template-only**: ordered steps **template → customization → review** (no deployment
+  Shipped wizard is **template-only**: ordered steps **template → customization → review** (no deployment
   picker). Multi-path worksheets below remain for RESTORE when new/clone return. Template customization
   maps draft fields to fulfillment **ComputeInstance.spec** top-level keys (e.g. cores, memory_gib, boot_disk,
   additional_disks, run_strategy **Always** | **Halted**, subnet, security_groups, ssh_key, user_data, optional
-  image)—the wizard does **not** populate **template_parameters** for this path. After BFF finalize returns the
-  built **ComputeInstance**, the SPA issues **POST /api/fulfillment/v1/compute_instances** (same handler from
-  Dashboard, Catalog, and My VMs) when talking to real fulfillment; mock BFF finalize still appends to the
-  in-memory VM store. **GET** list polling for compute instances does not replace or cancel that POST.
+  image)—the wizard does **not** populate **template_parameters** for this path. On finalize the SPA builds
+  **ComputeInstance** JSON via `buildComputeInstanceFromWizardDraft` and **POST**s to
+  **POST /api/fulfillment/v1/compute_instances** (same handler from Dashboard, Catalog, and My VMs).
+  **GET** list polling for compute instances does not replace or cancel that POST.
 
 terminology:
   wizard_chrome: >-
     PatternFly 6 Wizard hosted inside Modal: WizardHeader, WizardBody with a left-hand WizardNav
     (one WizardNavItem per ordered step for the active path), step body in the main column,
-    WizardFooter with Back / Next or Create virtual machine / Cancel grouped in a Flex row with
-    horizontal gap; footer actions are start-aligned (left). Modal must not duplicate the WizardHeader
-    close control when the wizard body is active (single close affordance). Only steps returned in the
-    BFF session ordered list are shown; clone never includes customization or guest/boot/compute steps.
-  bff_step_orchestration: >-
-    Opening the modal creates a BFF wizard session. Advancing (Next), moving back (Back), and
-    finalizing (Create virtual machine) call the BFF; the BFF validates the current step, updates a
-    server-held draft, returns structured errors on failure, and on finalize builds the **ComputeInstance**
-    (mock: persists to vmStore). The SPA then **POST**s that object to fulfillment when integrated.
-    Client may optimistically disable Next but must treat BFF responses as authoritative for step transitions
-    and review summary. POST /advance body includes fromStepId and draft (full WizardState-shaped object merged server-side).
+    WizardFooter with Back / Next or Create virtual machine / Cancel grouped in a Flex row.
+    Modal must not duplicate the WizardHeader close control when the wizard body is active.
+    **Shipped path:** only template, customization, and review steps appear in WizardNav.
+  client_step_orchestration: >-
+    Opening the modal initializes client-side wizard state (WizardState in React). Advancing (Next),
+    moving back (Back), and finalizing (Create virtual machine) run local step validation in
+    wizardBuild.ts; on finalize the SPA builds the ComputeInstance payload and calls
+    POST /api/fulfillment/v1/compute_instances via TanStack mutation (useProvisionVm).
+    Server-held BFF wizard sessions were removed; do not reintroduce without an upstream contract.
   ephemeral_wizard_routing: >-
-    No SPA route or bookmark encodes wizard state; closing the modal or calling session DELETE
-    abandons the draft. Re-open starts a new session unless a future spec adds recovery.
+    No SPA route or bookmark encodes wizard state; closing the modal abandons the draft.
+    Re-open starts a fresh client-side draft.
   three_paths: >-
-    Exactly three deployment methods: new (from scratch), template (from catalog / global templates),
-    clone (from existing VM). Entry presets (template id, clone source id) seed the BFF session
-    without adding a fourth path.
+    Prototype defined three deployment methods (new, template, clone). **Shipped:** template-only.
+    Worksheets for new/clone paths below are retained for RESTORE.
   client_nav_draft_sync: >-
-    While waiting for the first advance from deployment, the SPA may change draft.mode locally;
-    WizardNav order is derived from local draft.mode plus session.skipDeployment so the sidebar
-    matches the path the user selected before Next commits the draft to the BFF.
+    WizardNav order is derived from local draft.mode and entry presets (catalog template id).
+    For template-only product, nav is fixed [template, customization, review].
 
 canonical_bff_step_ids:
   description: >-
@@ -66,6 +62,12 @@ canonical_bff_step_ids:
       template_ordered: [template, customization, review]
       clone_ordered: [clone-source, review]
     response_flag: skipDeployment boolean true when the deployment step is omitted from ordering.
+
+step_worksheets_status:
+  status: prototype_restore_only
+  note: >-
+    step_worksheets and validation_rules below describe the prototype multi-path + BFF session model.
+    Shipped product uses client_step_orchestration (template → customization → review only).
 
 step_worksheets:
   deployment:
@@ -660,12 +662,13 @@ transitions:
 
 validation_rules:
   - field: bff_authoritative_validation
+    status: prototype_restore_only
     rules:
       - rule: bff_advance_and_finalize_are_authoritative
         note: >-
-          Client-side rules below improve UX (disable Next, inline hints). The BFF wizard session
-          advance and finalize endpoints return canonical validation errors and step boundaries; UI
-          must reconcile to BFF responses after each request.
+          **RESTORE / not shipped.** Prototype BFF session advance/finalize was authoritative.
+          Shipped wizard uses client_step_orchestration and validateWizardStep / validateWizardForFinalize
+          in wizardBuild.ts instead.
 
   - field: guest_os_family_and_type
     when: deployment equals new

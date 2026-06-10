@@ -1,6 +1,13 @@
 flow: VM console standalone demo
 statechart_ref: ../statecharts/vm-console-standalone-demo.statechart.yaml
 
+implementation_status:
+  status: deferred
+  note: >-
+    Console launch and GET /api/osac/public/v1/console/.../access not wired in My VMs UI. The
+    mvm_detail_drawer → vcd_console_page transition in manage-virtual-machines.yaml is commented
+    RESTORE. This flow spec is retained for future console integration.
+
 rbac:
   required_permissions_by_step:
     vcd_console_page:

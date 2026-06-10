@@ -1,0 +1,4 @@
+/* Full-viewport loading states (App shell bootstrap). */
+.osac-app-loading {
+  height: 100vh;
+}

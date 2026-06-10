@@ -8,8 +8,9 @@ import {
   Stack,
   StackItem,
 } from '@patternfly/react-core';
-import { LightDarkToggle } from '@osac/ui-components';
+import { LightDarkToggle } from '@osac/ui-components/LightDarkToggle';
 import type { NavRow } from './shellNav';
+import './ShellSidebar.css';
 
 interface ShellSidebarProps {
   navRows: NavRow[];
@@ -19,7 +20,6 @@ interface ShellSidebarProps {
   onNavigate: (path: string) => void;
   isDarkTheme: boolean;
   setIsDarkTheme: (dark: boolean) => void;
-  onLogout: () => void;
 }
 
 export const ShellSidebar = ({
@@ -30,12 +30,11 @@ export const ShellSidebar = ({
   onNavigate,
   isDarkTheme,
   setIsDarkTheme,
-  onLogout,
 }: ShellSidebarProps) => {
   return (
     <PageSidebar>
       <PageSidebarBody isFilled>
-        <Stack style={{ minHeight: '100%', width: '100%' }}>
+        <Stack className="osac-shell-sidebar__stack">
           <StackItem isFilled>
             <Nav aria-label="Primary navigation">
               <NavList>
@@ -92,8 +91,6 @@ export const ShellSidebar = ({
               variant="shell"
               isDark={isDarkTheme}
               onChange={setIsDarkTheme}
-              landingOnSelect={onLogout}
-              landingAriaLabel="Back to welcome — choose institution and role"
               aria-label="Toggle theme"
             />
           </StackItem>

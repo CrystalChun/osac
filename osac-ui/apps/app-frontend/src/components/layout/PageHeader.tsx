@@ -1,19 +1,29 @@
 import type { ReactNode } from 'react';
+import './PageHeader.css';
 import { Content, Flex, FlexItem, Title } from '@patternfly/react-core';
+
+type PageHeaderDescriptionWidth = 'medium' | 'wide';
 
 interface PageHeaderProps {
   title: ReactNode;
   description?: ReactNode;
-  descriptionMaxWidth?: string;
+  descriptionWidth?: PageHeaderDescriptionWidth;
   actions?: ReactNode;
 }
 
-export const PageHeader = ({
-  title,
-  description,
-  descriptionMaxWidth,
-  actions,
-}: PageHeaderProps) => {
+const DESCRIPTION_WIDTH_CLASS: Record<PageHeaderDescriptionWidth, string> = {
+  medium: 'osac-page-toolbar-sticky__description--medium',
+  wide: 'osac-page-toolbar-sticky__description--wide',
+};
+
+export const PageHeader = ({ title, description, descriptionWidth, actions }: PageHeaderProps) => {
+  const descriptionClass = [
+    'osac-page-toolbar-sticky__description',
+    descriptionWidth ? DESCRIPTION_WIDTH_CLASS[descriptionWidth] : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
+
   return (
     <Flex
       className="osac-page-toolbar-sticky"
@@ -21,27 +31,16 @@ export const PageHeader = ({
       alignItems={actions ? { default: 'alignItemsFlexStart' } : undefined}
     >
       <FlexItem className="osac-page-toolbar-sticky__lead">
-        <Title headingLevel="h1" size="2xl" style={{ margin: 0 }}>
+        <Title headingLevel="h1" size="2xl" className="osac-page-toolbar-sticky__title">
           {title}
         </Title>
         {description && (
-          <Content
-            component="p"
-            style={{
-              margin: 0,
-              color: 'var(--pf-t--global--text--color--subtle)',
-              ...(descriptionMaxWidth ? { maxWidth: descriptionMaxWidth } : {}),
-            }}
-          >
+          <Content component="p" className={descriptionClass}>
             {description}
           </Content>
         )}
       </FlexItem>
-      {actions && (
-        <FlexItem className="osac-page-toolbar-sticky__actions" style={{ flexShrink: 0 }}>
-          {actions}
-        </FlexItem>
-      )}
+      {actions && <FlexItem className="osac-page-toolbar-sticky__actions">{actions}</FlexItem>}
     </Flex>
   );
 };

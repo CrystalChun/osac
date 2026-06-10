@@ -7,8 +7,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import type { DemoShellRole, DemoTenantId } from '@osac/api-contracts';
-import { demoLoginEmailForRole } from '@osac/api-contracts';
+import type { DemoShellRole, DemoTenantId } from '@osac/api-contracts/types';
 
 // ---------------------------------------------------------------------------
 // Query-param helpers (run once at startup)
@@ -106,19 +105,14 @@ interface SessionContextValue {
   isAuthLoading: boolean;
   isDarkTheme: boolean;
   topologyDetailRequest: TopologyVmDetailRequest | null;
-  loginEmail: string;
   username: string | null;
   // Actions
-  selectProviderAdmin: () => void;
-  selectTenantPersona: (tenant: DemoTenantId, role: DemoShellRole) => void;
   /** Called by AuthCallback after the proxy sets the session cookie. */
   onLoginComplete: (expiresIn: number) => Promise<void>;
   logout: () => Promise<void>;
   setIsDarkTheme: (dark: boolean) => void;
   openTopologyDetailRequest: (vmId: string) => void;
   clearTopologyDetailRequest: () => void;
-  /** One-shot for cold `?osac-entry=` loads; Welcome uses this so Back from sign-in is not trapped. */
-  consumeInitialOsacEntryDeepLinkRedirect: () => boolean;
 }
 
 const SessionContext = createContext<SessionContextValue | null>(null);
@@ -139,7 +133,6 @@ export const SessionProvider = ({
   onNavigateToWelcome,
 }: SessionProviderProps) => {
   const osacEntry = useRef(readOsacEntry());
-  const osacEntryWelcomeRedirectConsumedRef = useRef(false);
 
   const storedPersona = loadPersonaFromStorage();
   const initialPersona = osacEntry.current ?? storedPersona;
@@ -157,8 +150,8 @@ export const SessionProvider = ({
 
   const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Remove osac-entry from URL on first render
-  useState(() => {
+  // Remove osac-entry from URL on first render (persona already captured in ref above).
+  useLayoutEffect(() => {
     if (typeof window === 'undefined') {
       return;
     }
@@ -169,7 +162,7 @@ export const SessionProvider = ({
     p.delete('osac-entry');
     const qs = p.toString();
     window.history.replaceState({}, '', `${window.location.pathname}${qs ? `?${qs}` : ''}`);
-  });
+  }, []);
 
   // Theme sync to DOM
   useLayoutEffect(() => {
@@ -254,39 +247,11 @@ export const SessionProvider = ({
     onNavigateToWelcome();
   }, [onNavigateToWelcome]);
 
-  const loginEmail = selectedTenant ? demoLoginEmailForRole(selectedTenant, role) : '';
-
-  const selectProviderAdmin = useCallback(() => {
-    setSelectedTenant('vertexa');
-    setRole('providerAdmin');
-    savePersonaToStorage('vertexa', 'providerAdmin');
-  }, []);
-
-  const selectTenantPersona = useCallback((tenant: DemoTenantId, r: DemoShellRole) => {
-    if (tenant === 'vertexa') {
-      return;
-    }
-    setSelectedTenant(tenant);
-    setRole(r);
-    savePersonaToStorage(tenant, r);
-  }, []);
-
   const openTopologyDetailRequest = useCallback((vmId: string) => {
     setTopologyDetailRequest((prev) => ({ vmId, seq: (prev?.seq ?? 0) + 1 }));
   }, []);
 
   const clearTopologyDetailRequest = useCallback(() => setTopologyDetailRequest(null), []);
-
-  const consumeInitialOsacEntryDeepLinkRedirect = useCallback(() => {
-    if (!osacEntry.current) {
-      return false;
-    }
-    if (osacEntryWelcomeRedirectConsumedRef.current) {
-      return false;
-    }
-    osacEntryWelcomeRedirectConsumedRef.current = true;
-    return true;
-  }, []);
 
   return (
     <SessionContext.Provider
@@ -297,16 +262,12 @@ export const SessionProvider = ({
         isAuthLoading,
         isDarkTheme,
         topologyDetailRequest,
-        loginEmail,
         username,
-        selectProviderAdmin,
-        selectTenantPersona,
         onLoginComplete,
         logout,
         setIsDarkTheme,
         openTopologyDetailRequest,
         clearTopologyDetailRequest,
-        consumeInitialOsacEntryDeepLinkRedirect,
       }}
     >
       {children}

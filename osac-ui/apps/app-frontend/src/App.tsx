@@ -1,10 +1,12 @@
 import { useCallback, useRef } from 'react';
+import './App.css';
 import { BrowserRouter, Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import { Bullseye, Spinner } from '@patternfly/react-core';
-import type { DemoShellRole } from '@osac/api-contracts';
+import type { DemoShellRole } from '@osac/api-contracts/types';
 import { SessionProvider, useSession } from './contexts/SessionContext';
-import { AuthCallback, SignInPage } from './pages/auth';
-import { AppShell } from './pages/shell';
+import { AuthCallback } from './pages/auth/AuthCallback';
+import { SignInPage } from './pages/auth/SignInPage';
+import { AppShell } from './pages/shell/AppShell';
 
 const InnerApp = () => {
   const navigate = useNavigate();
@@ -41,7 +43,7 @@ const AppRoutes = () => {
   // Show a full-page spinner while we check for an existing session on mount.
   if (isAuthLoading) {
     return (
-      <Bullseye style={{ height: '100vh' }}>
+      <Bullseye className="osac-app-loading">
         <Spinner aria-label="Loading…" />
       </Bullseye>
     );

@@ -1,0 +1,16 @@
+.osac-admin-dashboard__metrics {
+  margin-bottom: var(--pf-t--global--spacer--xl);
+}
+
+.osac-admin-dashboard__alert {
+  margin-bottom: var(--pf-t--global--spacer--lg);
+}
+
+.osac-admin-dashboard__section-title {
+  margin-bottom: var(--pf-t--global--spacer--md);
+}
+
+.osac-admin-dashboard__loading {
+  width: 100%;
+  min-height: 80px;
+}

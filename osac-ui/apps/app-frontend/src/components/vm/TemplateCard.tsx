@@ -1,5 +1,3 @@
-import { RedhatIcon } from '@patternfly/react-icons/dist/esm/icons/redhat-icon';
-import { WindowsIcon } from '@patternfly/react-icons/dist/esm/icons/windows-icon';
 import {
   Card,
   CardBody,
@@ -12,8 +10,9 @@ import {
   Stack,
   StackItem,
 } from '@patternfly/react-core';
-import type { ClusterTemplate } from '@osac/api-contracts';
-import linuxMascotUrl from '../../assets/guest-os-tux-linux.png';
+import type { ClusterTemplate, OsType } from '@osac/api-contracts/types';
+import { GuestOsIcon } from '../shared/GuestOsIcon';
+import './TemplateCard.css';
 
 interface TemplateCardProps {
   template: ClusterTemplate;
@@ -42,25 +41,6 @@ const workloadLabel = (template: ClusterTemplate): string => {
   return 'Analytics';
 };
 
-const OsIcon = ({ icon }: { icon?: string }) => {
-  const style = { width: 28, height: 28 } as const;
-  if (icon === 'windows') {
-    return <WindowsIcon style={{ ...style, color: '#0078D4' }} />;
-  }
-  if (icon === 'rhel') {
-    return <RedhatIcon style={{ ...style, color: '#EE0000' }} />;
-  }
-  return (
-    <img
-      src={linuxMascotUrl}
-      alt=""
-      width={28}
-      height={28}
-      style={{ display: 'block', objectFit: 'contain' }}
-    />
-  );
-};
-
 export const TemplateCard = ({ template }: TemplateCardProps) => {
   const cpu = `${template.defaultCores ?? 2} vCPU`;
   const memory = `${template.defaultMemoryGib ?? 8} GiB`;
@@ -78,7 +58,7 @@ export const TemplateCard = ({ template }: TemplateCardProps) => {
             spaceItems={{ default: 'spaceItemsXs' }}
           >
             <FlexItem className="tenant-vm-template-card__icon-tile">
-              <OsIcon icon={template.icon} />
+              <GuestOsIcon os={(template.icon ?? 'linux') as OsType} size="lg" />
             </FlexItem>
             <FlexItem>
               <Stack hasGutter>

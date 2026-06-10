@@ -11,7 +11,8 @@ import {
   ModalHeader,
   Spinner,
 } from '@patternfly/react-core';
-import type { ComputeInstance } from '@osac/api-contracts';
+import type { ComputeInstance } from '@osac/api-contracts/types';
+import './VmDeleteConfirmModal.css';
 
 interface VmDeleteConfirmModalProps {
   vm: ComputeInstance | null;
@@ -54,11 +55,7 @@ export const VmDeleteConfirmModal = ({
           ? 'This virtual machine is still running. It will be stopped first, then deleted permanently. This action cannot be undone.'
           : 'This permanently deletes the virtual machine. This action cannot be undone.'}
         {errorMessage ? (
-          <Alert
-            variant="danger"
-            title="Delete failed"
-            style={{ marginTop: 'var(--pf-t--global--spacer--md)' }}
-          >
+          <Alert variant="danger" title="Delete failed" className="osac-vm-delete-modal__hint">
             {errorMessage}
           </Alert>
         ) : null}

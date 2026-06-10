@@ -1,7 +1,7 @@
 import { EllipsisVIcon } from '@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon';
 import { useState } from 'react';
 import { Dropdown, DropdownItem, DropdownList, MenuToggle } from '@patternfly/react-core';
-import type { ComputeInstance, VmPowerState } from '@osac/api-contracts';
+import type { ComputeInstance, VmPowerState } from '@osac/api-contracts/types';
 
 interface VmActionsMenuProps {
   vm: ComputeInstance;

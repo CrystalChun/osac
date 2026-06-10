@@ -4,9 +4,33 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+    "./types": {
+      "types": "./dist/types.d.ts",
+      "import": "./dist/types.js"
+    },
+    "./vmPowerState": {
+      "types": "./dist/vmPowerState.d.ts",
+      "import": "./dist/vmPowerState.js"
+    },
+    "./shellLabels": {
+      "types": "./dist/shellLabels.d.ts",
+      "import": "./dist/shellLabels.js"
+    },
+    "./organizationNormalize": {
+      "types": "./dist/organizationNormalize.d.ts",
+      "import": "./dist/organizationNormalize.js"
+    },
+    "./userNormalize": {
+      "types": "./dist/userNormalize.d.ts",
+      "import": "./dist/userNormalize.js"
+    },
+    "./computeInstanceNormalize": {
+      "types": "./dist/computeInstanceNormalize.d.ts",
+      "import": "./dist/computeInstanceNormalize.js"
+    },
+    "./computeInstanceTemplateNormalize": {
+      "types": "./dist/computeInstanceTemplateNormalize.d.ts",
+      "import": "./dist/computeInstanceTemplateNormalize.js"
     }
   },
   "devDependencies": {

@@ -1,6 +1,11 @@
 flow: Welcome and role selection
 statechart_ref: ../statecharts/welcome-and-role-selection.statechart.yaml
 
+implementation_status:
+  status: deferred
+  replaced_by: OIDC SignInPage + AuthCallback (apps/app-frontend/src/pages/auth/)
+  note: Retained for prototype reference only — not shipped in osac-ui.
+
 rbac:
   required_permissions_by_step:
     wrs_welcome_landing:

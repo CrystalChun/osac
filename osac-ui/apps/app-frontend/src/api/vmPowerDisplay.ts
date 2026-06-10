@@ -2,7 +2,7 @@
  * Pending power-action badges until GET compute_instances reports a terminal state.
  * See docs/specs/ui-flows/manage-virtual-machines.yaml (pending power display).
  */
-import type { VmPowerState } from '@osac/api-contracts';
+import type { VmPowerState } from '@osac/api-contracts/types';
 
 export type VmPendingPowerAction = 'starting' | 'stopping' | 'restarting';
 

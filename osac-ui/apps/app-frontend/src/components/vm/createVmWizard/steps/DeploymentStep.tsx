@@ -53,11 +53,7 @@ export const DeploymentStep = ({ state, update }: { state: WizardState; update: 
         <Title id="deployment-step-heading" headingLevel="h2" size="xl">
           Select a creation method
         </Title>
-        <Content
-          component="p"
-          className="pf-v6-u-color-text-subtle"
-          style={{ marginTop: 'var(--pf-t--global--spacer--sm)', maxWidth: 720 }}
-        >
+        <Content component="p" className="pf-v6-u-color-text-subtle osac-wizard-step__intro">
           Choose your preferred path to begin. We recommend creating from a template.
         </Content>
       </StackItem>
@@ -81,31 +77,15 @@ export const DeploymentStep = ({ state, update }: { state: WizardState; update: 
                   isSelected={selected}
                   onClick={() => update('mode', opt.value)}
                   ouiaId={`deploy-option-${opt.value}`}
-                  style={{
-                    cursor: 'pointer',
-                    boxSizing: 'border-box',
-                    borderWidth: '1px',
-                    borderStyle: 'solid',
-                    borderColor: selected
-                      ? 'var(--pf-t--global--color--brand--default)'
-                      : 'var(--pf-t--global--border--color--default)',
-                    borderRadius: 'var(--pf-t--global--border--radius--medium)',
-                  }}
                 >
-                  <CardHeader style={{ flexShrink: 0 }}>
+                  <CardHeader className="osac-deploy-options__card-header">
                     <Flex
                       justifyContent={{ default: 'justifyContentSpaceBetween' }}
                       alignItems={{ default: 'alignItemsFlexStart' }}
-                      style={{ width: '100%' }}
+                      className="osac-deploy-options__card-header-row"
                     >
                       <FlexItem>
-                        <Icon
-                          style={{
-                            color: 'var(--pf-t--global--icon--color--subtle)',
-                            width: 28,
-                            height: 28,
-                          }}
-                        />
+                        <Icon className="osac-deploy-options__option-icon" aria-hidden />
                       </FlexItem>
                       <FlexItem>
                         <Radio
@@ -119,12 +99,9 @@ export const DeploymentStep = ({ state, update }: { state: WizardState; update: 
                     </Flex>
                   </CardHeader>
                   <CardBody>
-                    <Stack hasGutter style={{ flex: 1 }}>
+                    <Stack hasGutter className="osac-deploy-options__card-body-stack">
                       <StackItem>
-                        <Content
-                          component="h3"
-                          style={{ fontWeight: 600, margin: 0, fontSize: '1rem' }}
-                        >
+                        <Content component="h3" className="osac-deploy-options__option-title">
                           {opt.title}
                         </Content>
                       </StackItem>
@@ -140,11 +117,7 @@ export const DeploymentStep = ({ state, update }: { state: WizardState; update: 
                       <StackItem>
                         <Content
                           component="p"
-                          className="pf-v6-u-color-text-subtle"
-                          style={{
-                            margin: 0,
-                            fontSize: 'var(--pf-t--global--font--size--body--sm)',
-                          }}
+                          className="pf-v6-u-color-text-subtle osac-deploy-options__option-description"
                         >
                           {opt.description}
                         </Content>

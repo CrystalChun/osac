@@ -3,7 +3,7 @@
  * Placeholder VMs on My VMs until compute_instances includes the VM; then post-create display until status stabilizes.
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { ComputeInstance, VmPowerState } from '@osac/api-contracts';
+import type { ComputeInstance, VmPowerState } from '@osac/api-contracts/types';
 import { PENDING_VM_LIST_POLL_MS } from './hooks';
 import {
   deletePostCreateWatch,

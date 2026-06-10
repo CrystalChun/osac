@@ -1,111 +1,48 @@
-flow: Tenant user dashboard
-statechart_ref: ../statecharts/tenant-user-dashboard.statechart.yaml
-design_system_ref: ../design-system.yaml
+id: tenant-user-dashboard
+title: Tenant User Dashboard Statechart
+source_flow: ../ui-flows/tenant-user-dashboard.yaml
+rbac_ref: ../rbac.yaml
 
-rbac:
-  required_permissions_by_step:
-    tud_dashboard_home:
-      view_dashboard: view_dashboard
-      open_create_vm_modal: open_create_vm
-      open_my_vms: view_my_vms
-      open_recent_activities: view_recent_activities
-    tud_sparse_placeholder_page:
-      open_sparse_nav_page: navigate_shell_sections
+implementation_status:
+  as_of: '2026-06'
+  shipped: KPI cards + create VM only
+  deferred: utilization charts, quota, recent activities
 
-applies_when: >-
-  Authenticated shell with demoShellRole tenantUser after Northstar Bank or Bluestone Financial Group
-  (tenant id evergreen) sign-in — not provider admin and not tenant admin.
+context:
+  role: tenantUser
+  tenantId: null
 
-steps:
-  - id: tud_dashboard_home
-    title: VM workspace dashboard
-    goal: Summarize fleet VM counts by power state, utilization trends, and quota; launch create VM or drill into lists.
+initial: tud_dashboard_home
 
-    ui:
-      components:
-        - PageSection
-        - PageHeader
-        - Gallery
-        - Title
-        - Button
-        - Card
-        - Content
-        - Label
-        - Dropdown
-        - CreateVmWizard
-        - DashboardVmUtilizationSection
-        - DashboardVmQuotaSection
-        - LineChart
-        - DonutChart
-    ui_policy:
-      prefer_patternfly_primitives: true
-      avoid_raw_div_for_structure: true
-      minimize_raw_div_wrappers: true
-      avoid_custom_css: true
-      max_raw_div_wrappers: 1
-      custom_css_policy_ref: ../design-system.yaml#layout_and_shell.implementation_policy
+states:
+  tud_dashboard_home:
+    permissions:
+      - view_dashboard
+      - open_create_vm
+      - view_my_vms
+    on:
+      CLICK_CREATE_VM:
+        target: cvm_wizard_template
+        guard: can(role, "open_create_vm")
+      CLICK_STAT_CARD:
+        target: mvm_list_view
+        guard: can(role, "view_my_vms")
+      NAV_SPARSE:
+        target: tud_sparse_placeholder_page
 
-    states:
-      - ready
-      - loading
-      - empty_no_stats
-      - error_load_metrics
-      - success_populated
-      - interaction_stat_card_hover
-      - utilization_period_selected
+  tud_sparse_placeholder_page:
+    permissions: [navigate_shell_sections]
+    on:
+      NAV_DASHBOARD:
+        target: tud_dashboard_home
 
-    interactions:
-      - Click Create virtual machine to open create VM modal wizard at deployment step.
-      - Click All VMs stat card to navigate My VMs without power filter.
-      - Click Running Paused or Stopped stat cards to navigate My VMs with matching power filter intent.
-      - Select utilization time period (24h, 7d, 30d, 90d) from the period dropdown to update all four line charts.
-      - Click the Recent activities card in the utilization section to navigate to the full activity feed.
-      - Apply PatternFly token-based spacing/typography and avoid layout custom CSS except documented exceptions.
+  mvm_list_view:
+    external: manage-virtual-machines.statechart.yaml#mvm_list_view
 
-  - id: tud_sparse_placeholder_page
-    title: Sparse shell page for unknown or non-dashboard nav
-    goal: Show minimal page chrome when tenant user navigates to a nav item without dedicated content in prototype.
+  cvm_wizard_template:
+    external: create-virtual-machine-wizard.statechart.yaml#cvm_wizard_template
 
-    ui:
-      components:
-        - PageSection
-        - Title
-    ui_policy:
-      prefer_patternfly_primitives: true
-      avoid_raw_div_for_structure: true
-      minimize_raw_div_wrappers: true
-      avoid_custom_css: true
-      max_raw_div_wrappers: 0
-      custom_css_policy_ref: ../design-system.yaml#layout_and_shell.implementation_policy
-
-    states:
-      - ready
-      - empty_content
-
-    interactions:
-      - Select a sidebar item that maps to sparse layout in prototype.
-
-transitions:
-  - from: auth_post_login_transition
-    action: complete login as tenant user
-    to: tud_dashboard_home
-  - from: shell_primary_workspace
-    action: select dashboard nav while tenant user
-    to: tud_dashboard_home
-  - from: tud_dashboard_home
-    action: click all VMs stat card
-    to: mvm_list_view
-  - from: tud_dashboard_home
-    action: click running paused or stopped stat card
-    to: mvm_list_view
-  - from: tud_dashboard_home
-    action: click create virtual machine
-    to: cvm_modal_open
-  - from: tud_dashboard_home
-    action: open recent activities from utilization section
-    to: ra_activity_feed
-  - from: shell_primary_workspace
-    action: tenant user selects non implemented primary nav
-    to: tud_sparse_placeholder_page
-
-validation_rules: []
+ai-hints:
+  summary: >-
+    Shipped dashboard shows four power-state KPI cards from compute_instances list and opens
+    template-only create wizard. Transitions to ra_activity_feed and utilization states are deferred.

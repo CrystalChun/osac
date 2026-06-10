@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import './DashboardActionTile.css';
 import {
   Button,
   Card,
@@ -40,7 +41,7 @@ export const DashboardActionTile = ({
         </CardTitle>
       </CardHeader>
       <CardBody>
-        <Content component="p" style={{ color: 'var(--pf-t--global--text--color--subtle)' }}>
+        <Content component="p" className="osac-dashboard-action-tile__description">
           {description}
         </Content>
       </CardBody>

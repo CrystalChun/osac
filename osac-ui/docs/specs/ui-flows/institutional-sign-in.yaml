@@ -1,6 +1,11 @@
 flow: Institutional sign-in
 statechart_ref: ../statecharts/institutional-sign-in.statechart.yaml
 
+implementation_status:
+  status: deferred
+  replaced_by: OIDC via Go proxy (proxy/auth/)
+  note: Retained for prototype reference only — not shipped in osac-ui.
+
 rbac:
   required_permissions_by_step:
     auth_sign_in_form:

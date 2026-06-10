@@ -3,7 +3,7 @@
  * Optimistic **Deleting** badge from confirm until the VM is absent from compute_instances list.
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { ComputeInstance } from '@osac/api-contracts';
+import type { ComputeInstance } from '@osac/api-contracts/types';
 
 export const usePendingVmDeletes = (listedVms: ComputeInstance[]) => {
   const pendingRef = useRef<Set<string>>(new Set());

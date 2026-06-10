@@ -1,15 +1,17 @@
 import { type QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type { ClusterTemplate, ComputeInstance } from '@osac/api-contracts';
+import type { ClusterTemplate, ComputeInstance } from '@osac/api-contracts/types';
 import {
   type ListComputeInstancesParams,
   createComputeInstance,
   deleteComputeInstance,
   listComputeInstanceTemplates,
   listComputeInstances,
+  listOrganizations,
+  listUsers,
   patchComputeInstance,
   patchComputeInstancePower,
 } from './client';
-import type { ComputeInstancePowerAction } from '@osac/api-contracts';
+import type { ComputeInstancePowerAction } from '@osac/api-contracts/computeInstanceNormalize';
 import { upsertComputeInstanceInCache } from './computeInstancesCache';
 
 /** Poll VM list so CLI / out-of-band server changes update dashboard + My VMs without a full reload. */
@@ -28,6 +30,8 @@ export const queryKeys = {
     ['compute_instances', params ?? {}] as const,
   /** Shared VM template list — CatalogPage + wizard TemplateStep (template-catalog-wizard-api-alignment). */
   computeInstanceTemplates: ['compute_instance_templates'] as const,
+  organizations: ['organizations'] as const,
+  users: ['users'] as const,
 };
 
 /** Refetch every active `compute_instances` query (list + dashboard KPIs) after mutations. */
@@ -106,6 +110,24 @@ export const useComputeInstanceTemplates = () => {
     staleTime: 60_000,
     refetchInterval: COMPUTE_INSTANCE_TEMPLATES_REFETCH_MS,
     refetchIntervalInBackground: false,
+    select: (data) => data.items,
+  });
+};
+
+export const useOrganizations = () => {
+  return useQuery({
+    queryKey: queryKeys.organizations,
+    queryFn: () => listOrganizations({}),
+    staleTime: 60_000,
+    select: (data) => data.items,
+  });
+};
+
+export const useUsers = () => {
+  return useQuery({
+    queryKey: queryKeys.users,
+    queryFn: () => listUsers({}),
+    staleTime: 60_000,
     select: (data) => data.items,
   });
 };

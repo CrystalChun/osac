@@ -1,0 +1,38 @@
+.osac-page-toolbar-sticky {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--pf-t--global--spacer--md);
+  margin-bottom: var(--pf-t--global--spacer--lg);
+}
+
+.osac-page-toolbar-sticky__lead {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pf-t--global--spacer--xs);
+  min-width: 0;
+}
+
+.osac-page-toolbar-sticky__title {
+  margin: 0;
+}
+
+.osac-page-toolbar-sticky__description {
+  margin: 0;
+  color: var(--pf-t--global--text--color--subtle);
+}
+
+.osac-page-toolbar-sticky__description--medium {
+  max-width: 48rem;
+}
+
+.osac-page-toolbar-sticky__description--wide {
+  max-width: 920px;
+}
+
+.osac-page-toolbar-sticky__actions {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: flex-end;
+}

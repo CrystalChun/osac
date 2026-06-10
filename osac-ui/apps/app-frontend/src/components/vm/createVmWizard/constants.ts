@@ -1,4 +1,5 @@
-import { type ClusterTemplate, normalizeRunStrategyWire } from '@osac/api-contracts';
+import { normalizeRunStrategyWire } from '@osac/api-contracts/computeInstanceNormalize';
+import type { ClusterTemplate } from '@osac/api-contracts/types';
 import type { WizardState } from './types';
 
 /** WIZARD_TEMPLATE_ONLY: wizard UI is template-only; other modes kept in types for RESTORE. */
@@ -116,9 +117,9 @@ export const INITIAL_STATE: WizardState = {
   startAfterCreate: true,
 };
 
-/** Merge BFF draft over defaults so omitted keys (older sessions) keep sensible defaults. */
-export const draftFromSession = (serverDraft: Partial<WizardState>): WizardState => {
-  const merged = { ...INITIAL_STATE, ...serverDraft };
+/** Merge partial draft over defaults (e.g. catalog preset template id). */
+export const mergeWizardDraft = (partial: Partial<WizardState>): WizardState => {
+  const merged = { ...INITIAL_STATE, ...partial };
   merged.templateRunStrategy =
     normalizeRunStrategyWire(merged.templateRunStrategy) ?? INITIAL_STATE.templateRunStrategy;
   return merged;

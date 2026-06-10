@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   normalizeComputeInstanceTemplate,
   normalizeComputeInstanceTemplatePage,
-} from '@osac/api-contracts';
+} from '@osac/api-contracts/computeInstanceTemplateNormalize';
 
 describe('normalizeComputeInstanceTemplate', () => {
   it('maps snake_case wire fields to ClusterTemplate', () => {

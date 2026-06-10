@@ -16,42 +16,42 @@ import {
   PageSection,
   Title,
 } from '@patternfly/react-core';
-import type { ComputeInstance, VmPowerState } from '@osac/api-contracts';
-import { DEMO_TENANT_DISPLAY_USER } from '@osac/api-contracts';
+import type { ComputeInstance, VmPowerState } from '@osac/api-contracts/types';
 import type { CreateVmWizardHandle, DeploymentMode } from '../../components/vm/CreateVmWizard';
 import { CreateVmWizard } from '../../components/vm/CreateVmWizard';
-import { PageHeader } from '../../components/layout';
-import { DashboardQuotaSection, DashboardUtilizationSection } from '../../components/dashboard';
+import { PageHeader } from '../../components/layout/PageHeader';
+import '../../components/dashboard/DashboardVmStatCard.css';
+import './DashboardPage.css';
 import { useSession } from '../../contexts/SessionContext';
 import { useComputeInstances, useProvisionVm } from '../../api/hooks';
+
+type StatValueTone = 'default' | 'running' | 'paused' | 'stopped';
 
 interface StatCard {
   key: string;
   label: string;
   value: number;
-  valueColor: string;
+  valueTone: StatValueTone;
   caption: string;
   powerFilter: VmPowerState | null;
 }
 
 export const DashboardPage = () => {
   const navigate = useNavigate();
-  const { selectedTenant, isDarkTheme } = useSession();
+  const { username } = useSession();
   const wizardRef = useRef<CreateVmWizardHandle>(null);
   const { data: vms = [] } = useComputeInstances();
   const provisionVm = useProvisionVm();
 
   const handleWizardProvision = useCallback(
-    (vm: ComputeInstance, meta: { mode: DeploymentMode }) => {
-      provisionVm.mutate({ vm, specTemplateOnly: meta.mode === 'template' });
+    async (vm: Partial<ComputeInstance>, meta: { mode: DeploymentMode }) => {
+      await provisionVm.mutateAsync({ vm, specTemplateOnly: meta.mode === 'template' });
     },
     [provisionVm],
   );
 
-  const tenant = selectedTenant ?? 'northstar';
-  const displayName = selectedTenant ? DEMO_TENANT_DISPLAY_USER[selectedTenant] : '';
+  const displayName = username?.trim() || 'there';
 
-  /** KPIs from normalized GET compute_instances (spec: starting/deleting/error count in All only). */
   const powerCounts = useMemo(() => {
     let running = 0;
     let paused = 0;
@@ -74,7 +74,7 @@ export const DashboardPage = () => {
       key: 'all-vms',
       label: 'All VMs',
       value: powerCounts.all,
-      valueColor: 'var(--pf-t--global--text--color--regular)',
+      valueTone: 'default',
       caption: 'Total VMs across your workspaces',
       powerFilter: null,
     },
@@ -82,7 +82,7 @@ export const DashboardPage = () => {
       key: 'running',
       label: 'Running',
       value: powerCounts.running,
-      valueColor: 'var(--pf-t--global--color--status--success--default)',
+      valueTone: 'running',
       caption: 'On and ready for workloads',
       powerFilter: 'running',
     },
@@ -90,7 +90,7 @@ export const DashboardPage = () => {
       key: 'paused',
       label: 'Paused',
       value: powerCounts.paused,
-      valueColor: 'var(--pf-t--global--color--status--warning--default)',
+      valueTone: 'paused',
       caption: 'Suspended with memory and disks retained',
       powerFilter: 'paused',
     },
@@ -98,7 +98,7 @@ export const DashboardPage = () => {
       key: 'stopped',
       label: 'Stopped',
       value: powerCounts.stopped,
-      valueColor: 'var(--pf-t--global--color--status--danger--default)',
+      valueTone: 'stopped',
       caption: 'Powered off — storage may still incur cost',
       powerFilter: 'stopped',
     },
@@ -118,17 +118,12 @@ export const DashboardPage = () => {
 
   return (
     <PageSection isFilled>
-      <CreateVmWizard
-        ref={wizardRef}
-        existingVms={vms}
-        tenant={tenant !== 'vertexa' ? tenant : 'northstar'}
-        onProvision={handleWizardProvision}
-      />
+      <CreateVmWizard ref={wizardRef} existingVms={vms} onProvision={handleWizardProvision} />
 
       <PageHeader
         title={`Welcome, ${displayName}`}
         description="This workspace is for VM as a Service — create, run, and manage virtual machines."
-        descriptionMaxWidth="48rem"
+        descriptionWidth="medium"
         actions={
           <Button variant="primary" onClick={handleOpenCreateVm}>
             Create virtual machine
@@ -136,7 +131,6 @@ export const DashboardPage = () => {
         }
       />
 
-      {/* VM stat cards */}
       <Gallery hasGutter className="osac-dashboard-vm-stats-grid">
         {stats.map((stat) => (
           <GalleryItem key={stat.key}>
@@ -152,28 +146,19 @@ export const DashboardPage = () => {
                   selectableActionAriaLabel: `${stat.label}, ${stat.value}. ${stat.caption}`,
                 }}
               >
-                <CardTitle
-                  component="h2"
-                  style={{
-                    fontSize: 'var(--pf-t--global--font--size--heading--xs)',
-                    fontWeight: 'var(--pf-t--global--font--weight--heading--bold)',
-                  }}
-                >
+                <CardTitle component="h2" className="osac-dashboard-stat__title">
                   {stat.label}
                 </CardTitle>
               </CardHeader>
               <CardBody>
-                <Title headingLevel="h3" size="4xl" style={{ color: stat.valueColor, margin: 0 }}>
+                <Title
+                  headingLevel="h3"
+                  size="4xl"
+                  className={`osac-dashboard-stat__value osac-dashboard-stat__value--${stat.valueTone}`}
+                >
                   {stat.value}
                 </Title>
-                <Content
-                  component="p"
-                  style={{
-                    marginTop: 'var(--pf-t--global--spacer--xs)',
-                    color: 'var(--pf-t--global--text--color--subtle)',
-                    fontSize: 'var(--pf-t--global--font--size--body--sm)',
-                  }}
-                >
+                <Content component="p" className="osac-dashboard-stat__caption">
                   {stat.caption}
                 </Content>
               </CardBody>
@@ -181,12 +166,6 @@ export const DashboardPage = () => {
           </GalleryItem>
         ))}
       </Gallery>
-
-      {/* VM utilization trends + recent activities preview */}
-      <DashboardUtilizationSection isDarkTheme={isDarkTheme} />
-
-      {/* Resource quota donuts */}
-      <DashboardQuotaSection selectedTenant={selectedTenant} />
     </PageSection>
   );
 };

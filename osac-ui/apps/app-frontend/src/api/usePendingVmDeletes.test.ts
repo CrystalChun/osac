@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { act, renderHook } from '@testing-library/react';
-import type { ComputeInstance } from '@osac/api-contracts';
+import type { ComputeInstance } from '@osac/api-contracts/types';
 import { usePendingVmDeletes } from './usePendingVmDeletes';
 
 const vm = (id: string): ComputeInstance => {

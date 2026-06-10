@@ -1,7 +1,5 @@
 import { BarsIcon } from '@patternfly/react-icons/dist/esm/icons/bars-icon';
-import { RedhatIcon } from '@patternfly/react-icons/dist/esm/icons/redhat-icon';
 import { ThLargeIcon } from '@patternfly/react-icons/dist/esm/icons/th-large-icon';
-import { WindowsIcon } from '@patternfly/react-icons/dist/esm/icons/windows-icon';
 /**
  * flow: manage-virtual-machines
  * steps: mvm_list_view, mvm_detail_drawer
@@ -31,10 +29,13 @@ import {
   ToggleGroup,
   ToggleGroupItem,
 } from '@patternfly/react-core';
-import type { ComputeInstance, VmPowerState } from '@osac/api-contracts';
-import { formatVmStorageGiBLine, resolveVmOsForUi } from '@osac/api-contracts';
-import linuxMascotUrl from '../../assets/guest-os-tux-linux.png';
-import { VmStatusLabel } from '@osac/ui-components';
+import type { ComputeInstance, VmPowerState } from '@osac/api-contracts/types';
+import {
+  formatVmStorageGiBLine,
+  resolveVmOsForUi,
+} from '@osac/api-contracts/computeInstanceNormalize';
+import { VmStatusLabel } from '@osac/ui-components/VmStatusLabel';
+import { GuestOsIcon } from '../../components/shared/GuestOsIcon';
 import { useSession } from '../../contexts/SessionContext';
 import {
   refetchComputeInstancesQueries,
@@ -51,7 +52,10 @@ import { usePendingVmCreations } from '../../api/usePendingVmCreations';
 import { usePendingVmDeletes } from '../../api/usePendingVmDeletes';
 import { useVmPowerActionDisplay } from '../../api/useVmPowerActionDisplay';
 import { VmDeleteConfirmModal } from '../../components/vm/VmDeleteConfirmModal';
-import { PageHeader } from '../../components/layout';
+import { PageHeader } from '../../components/layout/PageHeader';
+import '../../components/dashboard/DashboardVmStatCard.css';
+import '../../components/shared/DetailField.css';
+import './VmListPage.css';
 import { VmDetailDrawer } from '../../components/vm/VmDetailDrawer';
 import type { CreateVmWizardHandle, DeploymentMode } from '../../components/vm/CreateVmWizard';
 import { CreateVmWizard } from '../../components/vm/CreateVmWizard';
@@ -71,47 +75,11 @@ const normalizePowerFilter = (value: string | null): VmPowerFilter => {
   return ALLOWED_POWER_FILTERS.includes(value as VmPowerFilter) ? (value as VmPowerFilter) : 'all';
 };
 
-const VmOsIcon = ({ os, size = 16 }: { os?: ComputeInstance['os']; size?: number }) => {
-  const style = { width: size, height: size, display: 'block' } as const;
-  if (os === 'windows') {
-    return <WindowsIcon style={{ ...style, color: '#0078D4' }} />;
-  }
-  if (os === 'rhel') {
-    return <RedhatIcon style={{ ...style, color: '#EE0000' }} />;
-  }
-  return (
-    <img
-      src={linuxMascotUrl}
-      alt=""
-      width={size}
-      height={size}
-      style={{ ...style, objectFit: 'contain' }}
-    />
-  );
-};
-
 const VmInlineDetailField = ({ label, value }: { label: string; value: string }) => {
   return (
-    <Content
-      component="p"
-      style={{
-        margin: 0,
-        fontSize: 'var(--pf-t--global--font--size--body--sm)',
-        display: 'grid',
-        gridTemplateColumns: '96px minmax(120px, 1fr)',
-        columnGap: '1.25rem',
-        alignItems: 'center',
-      }}
-    >
-      <span
-        style={{
-          fontWeight: 500,
-          color: 'rgba(32, 37, 43, 0.82)',
-        }}
-      >
-        {label}
-      </span>
-      <span style={{ textAlign: 'center' }}>{value}</span>
+    <Content component="p" className="osac-inline-detail-field">
+      <span className="osac-inline-detail-field__label">{label}</span>
+      <span className="osac-inline-detail-field__value">{value}</span>
     </Content>
   );
 };
@@ -120,24 +88,12 @@ const VmDetailField = ({ label, value }: { label: string; value: string }) => {
   return (
     <Stack hasGutter={false}>
       <StackItem>
-        <Content
-          component="small"
-          style={{
-            margin: 0,
-            textTransform: 'uppercase',
-            letterSpacing: '0.02em',
-            fontWeight: 500,
-            color: 'rgba(32, 37, 43, 0.82)',
-          }}
-        >
+        <Content component="small" className="osac-detail-field__label">
           {label}
         </Content>
       </StackItem>
       <StackItem>
-        <Content
-          component="p"
-          style={{ margin: 0, fontSize: 'var(--pf-t--global--font--size--body--sm)' }}
-        >
+        <Content component="p" className="osac-detail-field__value">
           {value}
         </Content>
       </StackItem>
@@ -145,19 +101,8 @@ const VmDetailField = ({ label, value }: { label: string; value: string }) => {
   );
 };
 
-const openVmConsole = (vm: ComputeInstance) => {
-  const base = `${window.location.origin}${window.location.pathname}`;
-  const q = new URLSearchParams({
-    demo: 'vm-console',
-    vm: vm.id,
-    name: vm.metadata.name,
-    os: resolveVmOsForUi(vm),
-  });
-  window.open(`${base}?${q.toString()}`, '_blank', 'noopener,noreferrer');
-};
-
 export const VmListPage = () => {
-  const { selectedTenant, role, topologyDetailRequest, clearTopologyDetailRequest } = useSession();
+  const { role, topologyDetailRequest, clearTopologyDetailRequest } = useSession();
   const [searchParams] = useSearchParams();
   const wizardRef = useRef<CreateVmWizardHandle>(null);
 
@@ -192,19 +137,18 @@ export const VmListPage = () => {
   const { markPendingDelete, clearPendingDelete, isPendingDelete } = usePendingVmDeletes(vms);
 
   const handleWizardProvision = useCallback(
-    (vm: ComputeInstance, meta: { mode: DeploymentMode }) => {
+    async (vm: Partial<ComputeInstance>, meta: { mode: DeploymentMode }) => {
       const clientId = registerPending(vm);
-      provisionVm.mutate(
-        { vm, specTemplateOnly: meta.mode === 'template' },
-        {
-          onSuccess: (created) => {
-            noteCreateSuccess(clientId, created.id);
-          },
-          onError: () => {
-            dismissPending(clientId);
-          },
-        },
-      );
+      try {
+        const created = await provisionVm.mutateAsync({
+          vm,
+          specTemplateOnly: meta.mode === 'template',
+        });
+        noteCreateSuccess(clientId, created.id);
+      } catch {
+        dismissPending(clientId);
+        throw new Error('Provisioning failed');
+      }
     },
     [dismissPending, noteCreateSuccess, provisionVm, registerPending],
   );
@@ -271,8 +215,6 @@ export const VmListPage = () => {
     });
     return pinProvisioningVmsToListEnd(filtered, listPostCreateWatchIds());
   }, [getVmDisplayState, isPendingDelete, osFilter, pendingInstances, powerFilter, search, vms]);
-
-  const tenant = selectedTenant && selectedTenant !== 'vertexa' ? selectedTenant : 'northstar';
 
   const handleOpenCreateVm = useCallback(() => {
     wizardRef.current?.open();
@@ -351,12 +293,7 @@ export const VmListPage = () => {
         }}
         onConfirm={handleConfirmDelete}
       />
-      <CreateVmWizard
-        ref={wizardRef}
-        existingVms={vms}
-        tenant={tenant}
-        onProvision={handleWizardProvision}
-      />
+      <CreateVmWizard ref={wizardRef} existingVms={vms} onProvision={handleWizardProvision} />
 
       {selectedVm ? (
         /* RESTORE clone when fulfillment supports it:
@@ -370,14 +307,13 @@ export const VmListPage = () => {
           onDelete={() => handleRequestDelete(selectedVm)}
           isRestarting={isRestarting(selectedVm.id)}
           isPowerActionPending={isPowerActionPending(selectedVm.id)}
-          onOpenConsole={() => openVmConsole(selectedVm)}
         />
       ) : (
         <>
           <PageHeader
             title="My VMs"
             description="View and filter instances. Use the layout toggle for grid cards (same style as templates) or a compact table."
-            descriptionMaxWidth="920px"
+            descriptionWidth="wide"
             actions={
               role === 'tenantUser' ? (
                 <Button variant="primary" onClick={handleOpenCreateVm}>
@@ -387,14 +323,14 @@ export const VmListPage = () => {
             }
           />
 
-          <Divider style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }} />
+          <Divider className="osac-vm-list__divider" />
 
           <Flex
             justifyContent={{ default: 'justifyContentSpaceBetween' }}
             alignItems={{ default: 'alignItemsFlexStart', md: 'alignItemsCenter' }}
             flexWrap={{ default: 'wrap' }}
             gap={{ default: 'gapMd' }}
-            style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}
+            className="osac-vm-list__toolbar"
           >
             <Flex
               spaceItems={{ default: 'spaceItemsSm' }}
@@ -407,7 +343,7 @@ export const VmListPage = () => {
                   value={search}
                   onChange={(_e, v) => setSearch(v)}
                   onClear={() => setSearch('')}
-                  style={{ minWidth: 220 }}
+                  className="osac-vm-list__search"
                 />
               </FlexItem>
               <FlexItem>
@@ -416,7 +352,7 @@ export const VmListPage = () => {
                   value={powerFilter}
                   onChange={(_e, v) => setPowerFilter(normalizePowerFilter(v))}
                   aria-label="Filter VMs by status"
-                  style={{ minWidth: 180 }}
+                  className="osac-vm-list__filter"
                 >
                   <FormSelectOption value="all" label="All statuses" />
                   <FormSelectOption value="running" label="Running" />
@@ -430,7 +366,7 @@ export const VmListPage = () => {
                   value={osFilter}
                   onChange={(_e, v) => setOsFilter(v as VmOsFilter)}
                   aria-label="Filter VMs by operating system"
-                  style={{ minWidth: 180 }}
+                  className="osac-vm-list__filter"
                 >
                   <FormSelectOption value="all" label="All operating systems" />
                   <FormSelectOption value="linux" label="Linux" />
@@ -460,11 +396,11 @@ export const VmListPage = () => {
           </Flex>
 
           {isLoading ? (
-            <Bullseye style={{ padding: 'var(--pf-t--global--spacer--2xl)' }}>
+            <Bullseye className="osac-vm-list__loading">
               <Spinner aria-label="Loading virtual machines" />
             </Bullseye>
           ) : filteredVms.length === 0 ? (
-            <Content component="p" style={{ color: 'var(--pf-t--global--text--color--subtle)' }}>
+            <Content component="p" className="osac-vm-list__empty">
               {search || powerFilter !== 'all' || osFilter !== 'all'
                 ? 'No virtual machines match your filters.'
                 : 'No virtual machines yet. Create one to get started.'}
@@ -484,50 +420,24 @@ export const VmListPage = () => {
                   <GalleryItem key={vm.id}>
                     <Card
                       isClickable={!locked}
-                      className="osac-dashboard-vm-stat-card"
+                      className="osac-dashboard-vm-stat-card osac-vm-card"
                       onClick={locked ? undefined : () => setSelectedVm(vm)}
-                      style={{
-                        border: '1px solid var(--pf-t--global--border--color--default)',
-                        borderRadius: 'var(--pf-t--global--border--radius--medium)',
-                      }}
                     >
                       <CardHeader>
-                        <Stack hasGutter style={{ width: '100%' }}>
+                        <Stack hasGutter className="osac-vm-card__header-stack">
                           <StackItem>
                             <Flex
                               alignItems={{ default: 'alignItemsCenter' }}
                               justifyContent={{ default: 'justifyContentSpaceBetween' }}
                             >
                               <FlexItem>
-                                <VmOsIcon os={resolveVmOsForUi(vm)} size={24} />
+                                <GuestOsIcon os={resolveVmOsForUi(vm)} size="md" />
                               </FlexItem>
                               <FlexItem>
                                 <Flex
                                   alignItems={{ default: 'alignItemsCenter' }}
                                   spaceItems={{ default: 'spaceItemsSm' }}
                                 >
-                                  {!locked ? (
-                                    <FlexItem>
-                                      <Button
-                                        variant="secondary"
-                                        size="sm"
-                                        onMouseDown={(event) => event.stopPropagation()}
-                                        onClick={(event) => {
-                                          event.stopPropagation();
-                                          openVmConsole(vm);
-                                        }}
-                                        aria-label={`Open console for ${vm.metadata.name}`}
-                                        style={{
-                                          backgroundColor: '#fff',
-                                          color: '#0066cc',
-                                          borderColor: '#0066cc',
-                                          borderWidth: '1px',
-                                        }}
-                                      >
-                                        Console
-                                      </Button>
-                                    </FlexItem>
-                                  ) : null}
                                   <FlexItem>
                                     <VmStatusLabel state={state} />
                                   </FlexItem>
@@ -561,21 +471,14 @@ export const VmListPage = () => {
                       </CardHeader>
                       <CardBody>
                         {vm.description && (
-                          <Content
-                            component="p"
-                            style={{
-                              color: 'var(--pf-t--global--text--color--subtle)',
-                              fontSize: 'var(--pf-t--global--font--size--body--sm)',
-                              marginTop: 'var(--pf-t--global--spacer--xs)',
-                            }}
-                          >
+                          <Content component="p" className="osac-vm-card__description">
                             {vm.description}
                           </Content>
                         )}
                         <Flex
                           gap={{ default: 'gapLg' }}
                           flexWrap={{ default: 'wrap' }}
-                          style={{ marginTop: 'var(--pf-t--global--spacer--xs)' }}
+                          className="osac-vm-card__specs-row"
                         >
                           <FlexItem>
                             <VmDetailField
@@ -596,11 +499,8 @@ export const VmListPage = () => {
                             />
                           </FlexItem>
                         </Flex>
-                        <Divider style={{ marginTop: 'var(--pf-t--global--spacer--sm)' }} />
-                        <Stack
-                          hasGutter={false}
-                          style={{ marginTop: 'var(--pf-t--global--spacer--sm)' }}
-                        >
+                        <Divider className="osac-vm-card__divider" />
+                        <Stack hasGutter={false} className="osac-vm-card__meta-stack">
                           <StackItem>
                             <VmInlineDetailField label="IP address" value={ipAddress} />
                           </StackItem>

@@ -2,6 +2,16 @@ flow: Application shell session
 statechart_ref: ../statecharts/application-shell-session.statechart.yaml
 design_system_ref: ../design-system.yaml
 
+implementation_status:
+  as_of: '2026-06'
+  nav_source: apps/app-frontend/src/pages/shell/shellNav.ts
+  deferred:
+    - Masthead notifications bell (recent activities)
+    - Help and Settings masthead actions
+    - Sidebar landing shortcut that clears VM session state
+    - Quota control, Storage, Organization settings, Security nav (tenant admin)
+    - Resource allocation, Security, Platform settings nav (provider admin)
+
 rbac:
   required_permissions_by_step:
     shell_primary_workspace:
@@ -10,35 +20,29 @@ rbac:
       open_account_menu: navigate_shell_sections
       logout: logout
       toggle_theme: use_theme_toggle
-    shell_notifications_entry:
-      open_recent_activities: view_recent_activities
-    shell_utility_stubs:
-      open_help_or_settings_stub: navigate_shell_sections
 
 steps:
   - id: shell_primary_workspace
     title: Primary workspace shell
-    goal: Navigate primary areas via sidebar while viewing masthead identity, operating mode, and tenant trust strip.
+    goal: Navigate primary areas via sidebar while viewing masthead identity and operating mode label.
 
     role_variants:
       tenant_user:
-        sidebar_nav: Dashboard, My VMs, Templates (VMaaS workspace)
-        masthead: Tenant masthead logo; user display name; operating mode label for tenant user persona
-        fleet_scope: Virtual machines for the signed-in tenant only (northstar or evergreen)
+        sidebar_nav: Dashboard, My VMs, Templates (see TENANT_USER_NAV in shellNav.ts)
+        masthead: User display name; operating mode label for tenant user persona
+        fleet_scope: Virtual machines for the signed-in tenant
       tenant_admin:
         sidebar_nav: >-
-          Dashboard; expandable Management (Users, Quota control, Template catalog); Infrastructure
-          (Networks, Storage); Organization (Organization settings, Security & Compliance)
-        masthead: Tenant masthead logo; admin display name; operating mode label for tenant admin persona
-        fleet_scope: Same tenant as user path; admin pages show tenant-scoped administration content
+          Dashboard; expandable Management (Users, Template catalog); Networks
+          (see TENANT_ADMIN_NAV in shellNav.ts)
+        masthead: Admin display name; operating mode label for tenant admin persona
+        fleet_scope: Tenant-scoped administration content
       provider_admin:
         sidebar_nav: >-
-          Dashboard; expandable Management (Tenant organizations, Resource allocation, Global templates);
-          System (Infrastructure, Security & Compliance, Platform settings)
-        masthead: Vertexa masthead logo; provider admin display name; operating mode label for provider persona
-        fleet_scope: >-
-          Prototype aggregates Northstar Bank and Bluestone Financial Group (tenant id evergreen) VM
-          fleets when selectedDemoTenant is vertexa (provider console view across tenant orgs)
+          Dashboard; expandable Management (Tenant organizations, Global templates); Infrastructure
+          (see PROVIDER_ADMIN_NAV in shellNav.ts)
+        masthead: Provider admin display name; operating mode label for provider persona
+        fleet_scope: Provider-wide org and template views
 
     ui:
       components:
@@ -51,7 +55,6 @@ steps:
         - MastheadLogo
         - Dropdown
         - Label
-        - Toolbar
         - SidebarNav
         - ThemeToggle
     ui_policy:
@@ -73,66 +76,23 @@ steps:
       - theme_dark
 
     interactions:
-      - Select sidebar nav item to change main content and reset topology-driven filters when leaving My VMs.
+      - Select sidebar nav item to change main content route.
       - Re-select My VMs while already on My VMs to return from VM detail to list view.
-      - Re-select Templates or Global templates or Template catalog while active to reset catalog drawer or grid.
+      - Re-select Templates while active to reset catalog drawer or grid.
       - Expand or collapse sidebar groups for tenant admin or provider admin.
-      - Open account menu; click log out to clear session state and return to welcome landing.
+      - Open account menu; click log out to clear OIDC session and return to SignInPage (/).
       - Toggle light or dark theme from sidebar footer control.
-      - Use landing shortcut on theme control to discard in-session created VMs and return to welcome landing.
-
-  - id: shell_notifications_entry
-    title: Notifications affordance
-    goal: Open full-page recent activities from masthead bell.
-
-    ui:
-      components:
-        - Button
-        - Toolbar
-
-    states:
-      - recent_activities_closed
-      - recent_activities_open
-
-    interactions:
-      - Click bell icon to open recent activities overlay route within shell.
-
-  - id: shell_utility_stubs
-    title: Help and settings (stubbed)
-    goal: Placeholder clicks that do not navigate.
-
-    ui:
-      components:
-        - Button
-
-    states:
-      - stub_no_navigation
-
-    interactions:
-      - Click help or settings with handler preventing default.
 
 transitions:
   - from: shell_primary_workspace
     action: select different primary nav item
     to: shell_primary_workspace
   - from: shell_primary_workspace
-    action: click masthead bell
-    to: shell_notifications_entry
-  - from: shell_notifications_entry
-    action: render recent activities full page content
-    to: ra_activity_feed
-  - from: shell_notifications_entry
-    action: select any primary nav item from sidebar before activities render
-    to: shell_primary_workspace
-  - from: shell_primary_workspace
-    action: click help or settings
-    to: shell_utility_stubs
-  - from: shell_primary_workspace
     action: account menu log out
-    to: wrs_welcome_landing
-  - from: shell_primary_workspace
-    action: theme control landing shortcut
-    to: wrs_welcome_landing
+    to: auth_sign_in_form
+  - from: auth_post_login_transition
+    action: user authenticated and shell rendered
+    to: shell_primary_workspace
   - from: tud_dashboard_home
     action: user authenticated and shell rendered
     to: shell_primary_workspace

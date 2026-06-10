@@ -1,9 +1,3 @@
-import { RedhatIcon } from '@patternfly/react-icons/dist/esm/icons/redhat-icon';
-import { WindowsIcon } from '@patternfly/react-icons/dist/esm/icons/windows-icon';
-/**
- * flow: manage-virtual-machines
- * step: mvm_detail_drawer
- */
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -29,14 +23,15 @@ import {
 } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 import { useState } from 'react';
-import type { ComputeInstance, VmPowerState } from '@osac/api-contracts';
+import './VmDetailDrawer.css';
+import type { ComputeInstance, VmPowerState } from '@osac/api-contracts/types';
 import {
   formatConditionStatusForDisplay,
   resolveVmOsForUi,
   shortSubnetDisplay,
-} from '@osac/api-contracts';
-import linuxMascotUrl from '../../assets/guest-os-tux-linux.png';
-import { VmStatusLabel } from '@osac/ui-components';
+} from '@osac/api-contracts/computeInstanceNormalize';
+import { GuestOsIcon } from '../shared/GuestOsIcon';
+import { VmStatusLabel } from '@osac/ui-components/VmStatusLabel';
 import { VmActionsMenu } from './VmActionsMenu';
 
 interface Props {
@@ -48,7 +43,6 @@ interface Props {
   /* RESTORE when fulfillment supports clone: onClone?: () => void */
   isRestarting?: boolean;
   isPowerActionPending?: boolean;
-  onOpenConsole: () => void;
 }
 
 const humanizeConditionType = (type: string): string => {
@@ -71,21 +65,12 @@ export const VmDetailDrawer = ({
   onDelete,
   isRestarting = false,
   isPowerActionPending = false,
-  onOpenConsole,
 }: Props) => {
   const [activeTab, setActiveTab] = useState(0);
 
   if (!vm) {
     return null;
   }
-
-  const isConsoleAvailable = effectiveState === 'running';
-  const consoleSummary =
-    effectiveState === 'running'
-      ? 'Console is available for this virtual machine.'
-      : effectiveState === 'paused'
-        ? 'Console is unavailable while the virtual machine is paused.'
-        : 'Console is unavailable while the virtual machine is stopped.';
 
   const uiOs = resolveVmOsForUi(vm);
   const osLabel = uiOs === 'rhel' ? 'RHEL' : uiOs === 'windows' ? 'Windows' : 'Linux';
@@ -115,10 +100,7 @@ export const VmDetailDrawer = ({
           </StackItem>
           {vm.description && (
             <StackItem>
-              <Content
-                component="p"
-                style={{ color: 'var(--pf-t--global--text--color--subtle)', margin: 0 }}
-              >
+              <Content component="p" className="osac-vm-detail__description">
                 {vm.description}
               </Content>
             </StackItem>
@@ -140,10 +122,7 @@ export const VmDetailDrawer = ({
                 className="osac-vm-detail-tabs"
               >
                 <Tab eventKey={0} title={<TabTitleText>Overview</TabTitleText>}>
-                  <PageSection
-                    hasBodyWrapper={false}
-                    style={{ padding: 'var(--pf-t--global--spacer--md) 0' }}
-                  >
+                  <PageSection hasBodyWrapper={false} className="osac-vm-detail__tab-panel">
                     <DescriptionList isCompact>
                       <DescriptionListGroup>
                         <DescriptionListTerm>Name</DescriptionListTerm>
@@ -156,19 +135,7 @@ export const VmDetailDrawer = ({
                             alignItems={{ default: 'alignItemsCenter' }}
                             spaceItems={{ default: 'spaceItemsSm' }}
                           >
-                            {uiOs === 'windows' ? (
-                              <WindowsIcon style={{ width: 16, height: 16, color: '#0078D4' }} />
-                            ) : uiOs === 'rhel' ? (
-                              <RedhatIcon style={{ width: 16, height: 16, color: '#EE0000' }} />
-                            ) : (
-                              <img
-                                src={linuxMascotUrl}
-                                alt=""
-                                width={16}
-                                height={16}
-                                style={{ objectFit: 'contain' }}
-                              />
-                            )}
+                            <GuestOsIcon os={uiOs} size="sm" />
                             <span>{osLabel}</span>
                           </Flex>
                         </DescriptionListDescription>
@@ -228,10 +195,7 @@ export const VmDetailDrawer = ({
                 </Tab>
 
                 <Tab eventKey={1} title={<TabTitleText>Networking</TabTitleText>}>
-                  <PageSection
-                    hasBodyWrapper={false}
-                    style={{ padding: 'var(--pf-t--global--spacer--md) 0' }}
-                  >
+                  <PageSection hasBodyWrapper={false} className="osac-vm-detail__tab-panel">
                     <DescriptionList isCompact>
                       <DescriptionListGroup>
                         <DescriptionListTerm>IP address</DescriptionListTerm>
@@ -256,10 +220,7 @@ export const VmDetailDrawer = ({
                 </Tab>
 
                 <Tab eventKey={2} title={<TabTitleText>Conditions</TabTitleText>}>
-                  <PageSection
-                    hasBodyWrapper={false}
-                    style={{ padding: 'var(--pf-t--global--spacer--md) 0' }}
-                  >
+                  <PageSection hasBodyWrapper={false} className="osac-vm-detail__tab-panel">
                     {vm.status.conditions && vm.status.conditions.length > 0 ? (
                       <Table aria-label="Virtual machine conditions" variant="compact">
                         <Thead>
@@ -288,10 +249,7 @@ export const VmDetailDrawer = ({
                         </Tbody>
                       </Table>
                     ) : (
-                      <Content
-                        component="p"
-                        style={{ color: 'var(--pf-t--global--text--color--subtle)' }}
-                      >
+                      <Content component="p" className="osac-vm-detail__empty-state">
                         No conditions reported.
                       </Content>
                     )}
@@ -306,9 +264,9 @@ export const VmDetailDrawer = ({
               <Flex
                 justifyContent={{ default: 'justifyContentSpaceBetween' }}
                 alignItems={{ default: 'alignItemsCenter' }}
-                style={{ width: '100%' }}
+                className="osac-vm-detail-actions__header-row"
               >
-                <CardTitle>Console</CardTitle>
+                <CardTitle>Actions</CardTitle>
                 <VmActionsMenu
                   vm={vm}
                   effectiveState={effectiveState}
@@ -325,25 +283,7 @@ export const VmDetailDrawer = ({
                   <VmStatusLabel state={effectiveState} />
                 </StackItem>
                 <StackItem>
-                  <Content
-                    component="p"
-                    style={{ margin: 0, color: 'var(--pf-t--global--text--color--subtle)' }}
-                  >
-                    {consoleSummary}
-                  </Content>
-                </StackItem>
-                <StackItem>
-                  <Button
-                    variant="primary"
-                    isBlock
-                    isDisabled={!isConsoleAvailable}
-                    onClick={onOpenConsole}
-                  >
-                    Open console
-                  </Button>
-                </StackItem>
-                <StackItem>
-                  <Content component="p" style={{ margin: 0 }}>
+                  <Content component="p" className="osac-vm-detail-actions__ip-line">
                     <strong>IP address:</strong> {vm.status.ipAddress ?? '—'}
                   </Content>
                 </StackItem>

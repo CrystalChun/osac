@@ -1,0 +1,11 @@
+.osac-dashboard-metric {
+  min-width: 120px;
+}
+
+.osac-dashboard-metric__value {
+  margin: 0;
+}
+
+.osac-dashboard-metric__label {
+  color: var(--pf-t--global--text--color--subtle);
+}

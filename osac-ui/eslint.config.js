@@ -35,28 +35,6 @@ export default defineConfig(
     },
   },
 
-  // Backend: Node.js globals, Fastify-friendly async rules
-  {
-    files: ['apps/app-backend/src/**/*.ts'],
-    languageOptions: {
-      globals: { ...globals.node },
-    },
-    rules: {
-      '@typescript-eslint/require-await': 'off',
-      'no-console': 'off',
-    },
-  },
-  {
-    files: ['apps/app-backend/src/**/*.test.ts'],
-    rules: {
-      '@typescript-eslint/no-unsafe-assignment': 'off',
-      '@typescript-eslint/no-unsafe-member-access': 'off',
-      '@typescript-eslint/no-unsafe-call': 'off',
-      '@typescript-eslint/no-unsafe-argument': 'off',
-      '@typescript-eslint/no-base-to-string': 'off',
-    },
-  },
-
   // Frontend + UI components: React rules
   {
     files: ['apps/app-frontend/src/**/*.{ts,tsx}', 'libs/ui-components/src/**/*.{ts,tsx}'],

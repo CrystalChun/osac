@@ -1,5 +1,3 @@
-import { RedhatIcon } from '@patternfly/react-icons/dist/esm/icons/redhat-icon';
-import { WindowsIcon } from '@patternfly/react-icons/dist/esm/icons/windows-icon';
 /**
  * flow: create-virtual-machine-wizard
  * step: cvm_wizard_source_clone
@@ -24,10 +22,11 @@ import {
   TextInput,
   Title,
 } from '@patternfly/react-core';
-import type { ComputeInstance } from '@osac/api-contracts';
-import linuxMascotUrl from '../../../../assets/guest-os-tux-linux.png';
-import { VmStatusLabel } from '@osac/ui-components';
+import type { ComputeInstance } from '@osac/api-contracts/types';
+import { VmStatusLabel } from '@osac/ui-components/VmStatusLabel';
+import '../../../shared/DetailField.css';
 import { useMemo, useState } from 'react';
+import { GuestOsIcon } from '../../../shared/GuestOsIcon';
 import type { UpdateFn, WizardState } from '../types';
 
 interface CloneSourceStepProps {
@@ -51,25 +50,6 @@ const STATE_FILTER_OPTIONS = [
   { value: 'stopped', label: 'Stopped' },
   { value: 'paused', label: 'Paused' },
 ] as const;
-
-const OsIcon = ({ os }: { os?: string }) => {
-  const style = { width: 28, height: 28 } as const;
-  if (os === 'windows') {
-    return <WindowsIcon style={{ ...style, color: '#0078D4' }} />;
-  }
-  if (os === 'rhel') {
-    return <RedhatIcon style={{ ...style, color: '#EE0000' }} />;
-  }
-  return (
-    <img
-      src={linuxMascotUrl}
-      alt=""
-      width={28}
-      height={28}
-      style={{ display: 'block', objectFit: 'contain' }}
-    />
-  );
-};
 
 const formatCreatedDate = (value?: string): string => {
   if (!value) {
@@ -102,24 +82,12 @@ const DetailField = ({ label, value }: { label: string; value: string }) => {
   return (
     <Stack hasGutter={false}>
       <StackItem>
-        <Content
-          component="small"
-          style={{
-            margin: 0,
-            textTransform: 'uppercase',
-            letterSpacing: '0.02em',
-            fontWeight: 500,
-            color: 'rgba(32, 37, 43, 0.82)',
-          }}
-        >
+        <Content component="small" className="osac-detail-field__label">
           {label}
         </Content>
       </StackItem>
       <StackItem>
-        <Content
-          component="p"
-          style={{ margin: 0, fontSize: 'var(--pf-t--global--font--size--body--sm)' }}
-        >
+        <Content component="p" className="osac-detail-field__value">
           {value}
         </Content>
       </StackItem>
@@ -129,26 +97,9 @@ const DetailField = ({ label, value }: { label: string; value: string }) => {
 
 const InlineDetailField = ({ label, value }: { label: string; value: string }) => {
   return (
-    <Content
-      component="p"
-      style={{
-        margin: 0,
-        fontSize: 'var(--pf-t--global--font--size--body--sm)',
-        display: 'grid',
-        gridTemplateColumns: '96px minmax(120px, 1fr)',
-        columnGap: '1.25rem',
-        alignItems: 'center',
-      }}
-    >
-      <span
-        style={{
-          fontWeight: 500,
-          color: 'rgba(32, 37, 43, 0.82)',
-        }}
-      >
-        {label}
-      </span>
-      <span style={{ textAlign: 'center' }}>{value}</span>
+    <Content component="p" className="osac-inline-detail-field">
+      <span className="osac-inline-detail-field__label">{label}</span>
+      <span className="osac-inline-detail-field__value">{value}</span>
     </Content>
   );
 };
@@ -197,11 +148,7 @@ export const CloneSourceStep = ({
         <Title id="clone-source-heading" headingLevel="h2" size="xl">
           Source virtual machine
         </Title>
-        <Content
-          component="p"
-          className="pf-v6-u-color-text-subtle"
-          style={{ marginTop: 'var(--pf-t--global--spacer--sm)', maxWidth: 720 }}
-        >
+        <Content component="p" className="pf-v6-u-color-text-subtle osac-wizard-step__intro">
           Select a virtual machine to clone.
         </Content>
       </StackItem>
@@ -230,7 +177,7 @@ export const CloneSourceStep = ({
               value={osFilter}
               onChange={(_e, v) => setOsFilter(v)}
               aria-label="Filter source VMs by operating system"
-              style={{ minWidth: 200 }}
+              className="osac-wizard-clone__filter-os"
             >
               {OS_FILTER_OPTIONS.map((o) => (
                 <FormSelectOption key={o.value} value={o.value} label={o.label} />
@@ -243,7 +190,7 @@ export const CloneSourceStep = ({
               value={stateFilter}
               onChange={(_e, v) => setStateFilter(v)}
               aria-label="Filter source VMs by state"
-              style={{ minWidth: 180 }}
+              className="osac-wizard-clone__filter-state"
             >
               {STATE_FILTER_OPTIONS.map((o) => (
                 <FormSelectOption key={o.value} value={o.value} label={o.label} />
@@ -255,7 +202,7 @@ export const CloneSourceStep = ({
               Clear filters
             </Button>
           </FlexItem>
-          <FlexItem flex={{ default: 'flex_1' }} style={{ minWidth: 220 }}>
+          <FlexItem flex={{ default: 'flex_1' }} className="osac-wizard-clone__search-item">
             <SearchInput
               id="clone-search"
               placeholder="Search source VMs…"
@@ -267,7 +214,7 @@ export const CloneSourceStep = ({
         </Flex>
       </StackItem>
       <StackItem>
-        <Content component="p" style={{ margin: 0, fontWeight: 600 }}>
+        <Content component="p" className="osac-wizard-clone__count">
           {countPhrase}
         </Content>
       </StackItem>
@@ -280,8 +227,7 @@ export const CloneSourceStep = ({
           {filtered.length === 0 ? (
             <Content
               component="p"
-              className="pf-v6-u-color-text-subtle"
-              style={{ gridColumn: '1 / -1', margin: 0 }}
+              className="pf-v6-u-color-text-subtle osac-clone-source-cards__empty"
             >
               No virtual machines match your filters or search.
             </Content>
@@ -292,7 +238,7 @@ export const CloneSourceStep = ({
               <div key={vm.id}>
                 <Card
                   id={`clone-source-card-${vm.id}`}
-                  className="osac-template-cards__card osac-clone-source-cards__card"
+                  className="osac-clone-source-cards__card"
                   isCompact
                   isClickable
                   isSelected={selected}
@@ -300,28 +246,18 @@ export const CloneSourceStep = ({
                     update('cloneSourceVmId', vm.id);
                     update('cloneNewName', `${vm.metadata.name}-clone`);
                   }}
-                  style={{
-                    cursor: 'pointer',
-                    boxSizing: 'border-box',
-                    borderWidth: '1px',
-                    borderStyle: 'solid',
-                    borderColor: selected
-                      ? 'var(--pf-t--global--color--brand--default)'
-                      : 'var(--pf-t--global--border--color--default)',
-                    borderRadius: 'var(--pf-t--global--border--radius--medium)',
-                  }}
                 >
-                  <CardHeader style={{ flexShrink: 0 }}>
+                  <CardHeader className="osac-clone-source-cards__card-header">
                     <Flex
                       justifyContent={{ default: 'justifyContentSpaceBetween' }}
                       alignItems={{ default: 'alignItemsFlexStart' }}
-                      style={{ width: '100%' }}
+                      className="osac-clone-source-cards__card-header-row"
                     >
                       <FlexItem>
-                        <OsIcon os={vm.os} />
+                        <GuestOsIcon os={vm.os ?? 'linux'} size="lg" />
                       </FlexItem>
                       <FlexItem>
-                        <Stack hasGutter={false} style={{ alignItems: 'flex-end' }}>
+                        <Stack hasGutter={false} className="osac-clone-source-cards__card-actions">
                           <StackItem>
                             <Radio
                               id={`clone-source-radio-${vm.id}`}
@@ -344,10 +280,7 @@ export const CloneSourceStep = ({
                   <CardBody>
                     <Stack hasGutter>
                       <StackItem>
-                        <Content
-                          component="h3"
-                          style={{ fontWeight: 600, margin: 0, fontSize: '1rem' }}
-                        >
+                        <Content component="h3" className="osac-clone-source-cards__title">
                           {vm.metadata.name}
                         </Content>
                       </StackItem>

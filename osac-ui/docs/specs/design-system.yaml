@@ -50,16 +50,22 @@ layout_and_shell:
   implementation_policy:
     prefer_patternfly_layout_primitives: true
     avoid_raw_div_for_structure: true
-    avoid_custom_css_for_layout: true
-      custom_css_policy: >-
-        Do NOT write custom CSS classes for layout, spacing, or structure. Use PatternFly layout
-        components (Grid/GridItem, Gallery/GalleryItem, Flex/FlexItem, Stack/StackItem, Split/SplitItem)
-        and PF design tokens (var(--pf-t--global--spacer--*), var(--pf-t--global--font--*), etc.) via
-        inline style props instead. Custom CSS is only permitted for: (1) chart SVG bounding box
-        containers (@patternfly/react-charts/victory require explicit pixel height — add a
-        pf-primitive-exception comment), (2) app-level scrollport rules in global.css that PF Page
-        layout requires, and (3) institution-specific logo/brand accent overrides scoped to a data
-        attribute. All other custom CSS classes are a spec violation.
+    avoid_custom_css_for_layout: false
+    custom_css_policy: >-
+      Layout and visual styling use BEM block classes (prefix osac-*) co-located with components
+      as PascalCase .css files (e.g. VmListPage.tsx + VmListPage.css with import './VmListPage.css').
+      Shared patterns without a dedicated component (DetailField, DataTable) live under
+      components/shared/*.css. App-level scrollport rules stay in styles/global.css (imported from
+      main.tsx). Combine PatternFly layout primitives (Grid, Gallery, Flex, Stack, PageSection) with
+      these blocks — do not use React inline style={{…}} props for layout or spacing. PF design tokens
+      (var(--pf-t--global--spacer--*), var(--pf-t--global--font--*), etc.) belong in CSS.
+      Permitted exceptions: (1) chart SVG bounding box containers (@patternfly/react-charts/victory
+      require explicit pixel height — add a pf-primitive-exception comment), (2) app-level scrollport
+      rules in global.css, (3) institution-specific logo/brand accent overrides scoped to a data attribute.
+    libs_ui_components_css: >-
+      Shared components in libs/ui-components use PascalCase file names with co-located CSS
+      (e.g. LightDarkToggle.tsx + LightDarkToggle.css). Import via wildcard subpath exports
+      (e.g. @osac/ui-components/LightDarkToggle) — no barrel index.ts.
     enforce_with_automated_check: true
     automated_check_command: pnpm check:pf-primitives
     automated_check_alignment: >-
@@ -87,8 +93,9 @@ layout_and_shell:
     - PageSection for main content regions
   landing_unauthenticated:
     description: >-
-      Welcome uses role columns with PatternFly icons (crown, users, user) and buttons; institutional
-      login uses Card, Alert, Form, Button, Title, Content per ui-flows.
+      Shipped sign-in uses SignInPage with OIDC redirect via Go proxy. Deferred welcome landing and
+      institutional Card/Form login are documented in ui-flows/welcome-and-role-selection.yaml and
+      ui-flows/institutional-sign-in.yaml.
 
 theming:
   description: >-

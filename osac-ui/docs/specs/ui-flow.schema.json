@@ -273,7 +273,7 @@
         },
         "avoid_custom_css": {
           "type": "boolean",
-          "description": "When true, implementations must not introduce custom CSS classes for layout or spacing. Use PF layout primitives (Grid/GridItem, Gallery/GalleryItem, Flex/FlexItem, Stack/StackItem, Split/SplitItem) and PF design tokens via inline style props instead. Only exceptions: chart SVG bounding box containers (add pf-primitive-exception comment) and global scrollport rules in global.css."
+          "description": "When true, prefer BEM block CSS (osac-* co-located with components as PascalCase .css files) and PF layout primitives instead of inline style props. Chart SVG height wrappers and global scrollport rules remain exceptions per design-system.yaml."
         }
       },
       "additionalProperties": false

@@ -6,18 +6,29 @@
 # Cross-flow links are named actions (same string in multiple files where applicable).
 
 version: 1
-repository_path: Projects/osac-demo
+repository_path: osac-ui
 generated_for: spec-driven UI implementation and QA
+
+implementation_status:
+  as_of: '2026-06'
+  stack: >-
+    React SPA (apps/app-frontend) + Go chi proxy (proxy/) + fulfillment REST. OIDC sign-in via proxy;
+    no Fastify BFF, no OSAC_API_MODE=mock, no fixture imports from libs/api-contracts.
+  auth_entry: >-
+    SignInPage + AuthCallback (OIDC PKCE). Welcome landing, institutional sign-in, and osac-entry
+    persona picker flows are **deferred** — see deferred_flows below.
+  styling: >-
+    BEM block CSS co-located with components (PascalCase .css per component; global scrollport in styles/global.css).
+    See design-system.yaml layout_and_shell.implementation_policy.
 
 ai-hints:
   summary: >-
     Master catalog for OSAC UX flow specs. Read this file first, then rbac.yaml for role and
     permission definitions, statecharts for machine semantics, ui-flows for UX detail, then
     design-system.yaml and backend-fulfillment.yaml for implementation constraints.
-    For **dev/real** SPA↔fulfillment integration (OIDC via capabilities, BFF proxy matrix including
-    events and console paths, client/hooks for orgs/users/networks/events, replacing VM_TEMPLATES/DEMO_*,
-    TS alignment, utilization chart gap), see **context.osac_real_api_integration** in
-    backend-fulfillment.yaml; mock mode remains unchanged per that section.
+    For SPA↔fulfillment integration (OIDC via Go proxy, client/hooks for orgs/users/events, no fixture
+    data from libs/api-contracts mock layer), see **context.osac_proxy_integration** in
+    backend-fulfillment.yaml.
   readOrder:
     - FLOW-INDEX.yaml
     - rbac.yaml
@@ -68,8 +79,9 @@ implementation_specs:
   - id: osac-fullstack-demo-implementation
     file: demo-application-build-spec.yaml
     summary: >-
-      Agent-executable monorepo build order for Projects/osac (BFF, UI, contracts, tests,
-      deploy) tied to this FLOW-INDEX, ui-flows/, and backend-fulfillment.yaml.
+      Agent-executable monorepo build order (Go proxy, UI, contracts, tests, deploy) tied to this
+      FLOW-INDEX, ui-flows/, and backend-fulfillment.yaml. **Historical sections referencing
+      apps/app-backend BFF may be stale** — prefer README and context.osac_proxy_integration.
   - id: template-catalog-wizard-api-alignment
     file: template-catalog-wizard-api-alignment.yaml
     summary: >-
@@ -83,56 +95,97 @@ backend_specs:
       /api/fulfillment/v1, events, console access, private /api/private/v1) aligned
       to UX flow specs.
 
-flows:
-  - id: welcome-and-role-selection
-    file: ui-flows/welcome-and-role-selection.yaml
-    summary: >-
-      Welcome landing titled Red Hat OSAC Prototypes — every demo persona (Provider Admin, tenant org User/Admin for Northstar
-      Bank and Bluestone Financial Group) applies tenant and role in session then navigates to
-      institutional sign-in in the same tab; optional osac-entry cold load is documented in
-      routing_matrix and entry_bootstrap in that file.
-  - id: institutional-sign-in
-    file: ui-flows/institutional-sign-in.yaml
-    summary: >-
-      Institutional sign-in uses one configurable shell (InstitutionalSignInPage) for Vertexa,
-      Northstar, and Bluestone; branding_profiles supply per-tenant copy and affordances.
-      Trusted issuers optional; post-login delay then role-specific shell (tenant user vs tenant admin vs provider admin).
+implemented_flows:
   - id: application-shell-session
     file: ui-flows/application-shell-session.yaml
     summary: >-
-      Masthead identity, operating mode label, tenant trust strip, and sidebar nav differ by role;
-      theme, account menu, logout, breadcrumb for recent activities; Vertexa aggregates tenant VMs in prototype.
+      Masthead identity, operating mode label, sidebar nav by role (see shellNav.ts), theme toggle,
+      account menu, logout to OIDC sign-in. No masthead bell, Help, or Settings.
   - id: tenant-user-dashboard
     file: ui-flows/tenant-user-dashboard.yaml
     summary: >-
-      VMaaS home — power-state KPI cards derived from normalized compute_instances list (not static demo counts when API data exists);
-      create VM; deep links into My VMs with filters. Recent activities sidebar in dev per backend-fulfillment.yaml osac_bff_runtime_modes.
+      VMaaS home — four power-state KPI cards from normalized compute_instances; create VM modal;
+      stat-card deep links into My VMs with power filter. Utilization, quota, and recent-activities
+      rail are **deferred**.
   - id: vm-template-catalog
     file: ui-flows/vm-template-catalog.yaml
     summary: >-
-      Template gallery (tenant/admin/provider); data from GET **compute_instance_templates** per template-catalog-wizard-api-alignment.yaml;
-      opens create wizard from template.
+      Template gallery (tenant/admin/provider); GET compute_instance_templates per
+      template-catalog-wizard-api-alignment.yaml; opens template-only create wizard.
   - id: create-virtual-machine-wizard
     file: ui-flows/create-virtual-machine-wizard.yaml
     summary: >-
-      Modal PatternFly Wizard — template path uses **same** compute_instance_templates inventory as catalog (shared query); BFF sessions for advance/finalize.
+      Modal PatternFly Wizard — **shipped template-only** path (template → customization → review);
+      client-side draft in wizardBuild.ts; finalize POST compute_instances. Multi-path BFF worksheets
+      retained for RESTORE.
   - id: manage-virtual-machines
     file: ui-flows/manage-virtual-machines.yaml
     summary: >-
-      My VMs list/cards/table aligned with fulfillment compute_instances wire format after normalization (resources, IP, conditions);
-      filters, detail drawer, power lifecycle (start/stop/restart/delete; clone/migrate not in menu), console demo launch.
-  - id: recent-activities
-    file: ui-flows/recent-activities.yaml
-    summary: Full-page activity feed from masthead bell (breadcrumb return).
+      My VMs list/cards/table from fulfillment compute_instances; filters, detail drawer (Actions card,
+      no console launch), power lifecycle (start/stop/restart/delete). Clone/migrate/console deferred.
   - id: tenant-administration
     file: ui-flows/tenant-administration.yaml
-    summary: Tenant admin dashboard, users, quota, networks topology with VM handoff, placeholders.
+    summary: >-
+      Tenant admin dashboard, users, networks topology, template catalog. Quota and org/storage/security
+      placeholder nav items are **not shipped** — see shellNav.ts.
   - id: provider-administration
     file: ui-flows/provider-administration.yaml
-    summary: Provider dashboard, tenant orgs, allocation/templates placeholders, infra topology (no VM drill-through in prototype).
+    summary: >-
+      Provider dashboard, tenant orgs, global templates, infrastructure topology. Resource allocation
+      and security/platform placeholder nav items are **not shipped**.
+
+deferred_flows:
+  description: >-
+    Spec files retained for prototype reference and future work. Not implemented in osac-ui as of 2026-06.
+  flows:
+    - id: welcome-and-role-selection
+      file: ui-flows/welcome-and-role-selection.yaml
+      replaced_by: OIDC SignInPage (apps/app-frontend/src/pages/auth/SignInPage.tsx)
+    - id: institutional-sign-in
+      file: ui-flows/institutional-sign-in.yaml
+      replaced_by: OIDC via Go proxy (proxy/auth/)
+    - id: recent-activities
+      file: ui-flows/recent-activities.yaml
+      reason: No events sidebar or full-page feed in current dashboard/shell
+    - id: vm-console-standalone-demo
+      file: ui-flows/vm-console-standalone-demo.yaml
+      reason: Console launch and GET console/access not wired in My VMs UI
+
+# Backward-compatible merged index (see implemented_flows / deferred_flows for scope)
+flows:
+  - id: application-shell-session
+    file: ui-flows/application-shell-session.yaml
+    status: implemented
+  - id: tenant-user-dashboard
+    file: ui-flows/tenant-user-dashboard.yaml
+    status: implemented
+  - id: vm-template-catalog
+    file: ui-flows/vm-template-catalog.yaml
+    status: implemented
+  - id: create-virtual-machine-wizard
+    file: ui-flows/create-virtual-machine-wizard.yaml
+    status: implemented
+  - id: manage-virtual-machines
+    file: ui-flows/manage-virtual-machines.yaml
+    status: implemented
+  - id: tenant-administration
+    file: ui-flows/tenant-administration.yaml
+    status: partial
+  - id: provider-administration
+    file: ui-flows/provider-administration.yaml
+    status: partial
+  - id: welcome-and-role-selection
+    file: ui-flows/welcome-and-role-selection.yaml
+    status: deferred
+  - id: institutional-sign-in
+    file: ui-flows/institutional-sign-in.yaml
+    status: deferred
+  - id: recent-activities
+    file: ui-flows/recent-activities.yaml
+    status: deferred
   - id: vm-console-standalone-demo
     file: ui-flows/vm-console-standalone-demo.yaml
-    summary: Query-param driven full-page console demo (?demo=vm-console).
+    status: deferred
 
 # Logical surfaces; implement with PatternFly 6 per design-system.yaml flow_component_mapping.
 reusable_components_across_flows:
@@ -156,25 +209,23 @@ reusable_components_across_flows:
   - NetworkTopology
   - DonutChart
   - LineChart
-  - RecentActivityList
 
 cross_flow_entry_points:
-  - from_step: wrs_role_selected_pre_auth
-    to_step: auth_sign_in_form
-    documented_in: ui-flows/welcome-and-role-selection.yaml
+  - from_step: auth_sign_in_form
+    to_step: shell_primary_workspace
+    documented_in: ui-flows/application-shell-session.yaml
     browser_target: same_tab
     note: >-
-      After any welcome persona selection, session holds tenant and role; app routes to
-      institutional sign-in in this tab.
+      After OIDC callback, session holds role from fulfillment capabilities/userinfo; app routes to
+      role-specific dashboard.
 
 cross_flow_notes:
   - Transitions may reference step ids defined in other YAML files; see canonical_step_ids.
   - >-
-    Bluestone Financial Group on the welcome card maps to demo tenant id evergreen; osac-entry
-    values remain evergreen-user and evergreen-admin for optional deep links.
+    Deferred welcome/institutional specs document prototype persona ids for reference; shipped app
+    derives role from OIDC + fulfillment capabilities.
   - >-
-    Tenant org User/Admin paths use wrs_welcome_landing → wrs_role_selected_pre_auth →
-    auth_sign_in_form in the same tab, matching Provider Admin.
+    Shipped auth path: SignInPage → AuthCallback → shell_primary_workspace (no welcome landing step).
 
 canonical_step_ids:
   description: >-
@@ -223,13 +274,8 @@ canonical_step_ids:
     - vcd_console_page
 
 bonus_ux_gaps_and_edge_cases:
-  - >-
-    Invalid or unknown osac-entry on cold load is ignored per welcome entry_bootstrap; user
-    remains able to pick a persona from the welcome page.
-  - Login forms accept empty password; no client validation_error state in prototype.
-  - Forgot password, Help, Settings masthead actions are no-ops (preventDefault only).
+  - Help and Settings masthead actions are not rendered in shipped shell.
   - Account settings menu item prevents default with no navigation.
-  - Provider admin Network topology wires onOpenVirtualMachineDetail to a stub (no handoff to VM detail).
-  - Vertexa tenant user path is not used for VM creation from catalog (App guards selectedDemoTenant === vertexa for template/new provision).
-  - Trusted token issuers load only when VITE_FULFILLMENT_API_URL is set; otherwise undefined with no explicit error UI.
-  - Session persistence across refresh is absent (all client state).
+  - Provider admin infrastructure topology does not hand off to VM detail.
+  - OIDC tokens persist in sessionStorage; logout clears session and returns to SignInPage.
+  - Capabilities discovery runs via GET /api/fulfillment/v1/capabilities through the Go proxy.

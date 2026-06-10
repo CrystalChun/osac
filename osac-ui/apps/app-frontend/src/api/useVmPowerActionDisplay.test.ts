@@ -1,6 +1,6 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { ComputeInstance } from '@osac/api-contracts';
+import type { ComputeInstance } from '@osac/api-contracts/types';
 import { clearAllPowerPending } from './vmPowerPendingStore';
 import { useVmPowerActionDisplay } from './useVmPowerActionDisplay';
 

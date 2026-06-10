@@ -2,12 +2,23 @@
  * flow: provider-administration
  * step: pad_tenant_organizations
  */
-import { Label, PageSection } from '@patternfly/react-core';
+import { useEffect } from 'react';
+import { Alert, Bullseye, Button, Label, PageSection, Spinner } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
-import { DEMO_ORGANIZATIONS } from '@osac/api-contracts';
-import { PageHeader } from '../../components/layout';
+import { useOrganizations } from '../../api/hooks';
+import { PageHeader } from '../../components/layout/PageHeader';
+import '../../components/shared/DataTable.css';
 
 export const ProviderTenantOrgsPage = () => {
+  const { data: organizations = [], isPending, isError, error, refetch } = useOrganizations();
+
+  useEffect(() => {
+    if (isError && error) {
+      // eslint-disable-next-line no-console -- diagnostics only; user sees generic Alert copy
+      console.error('Failed to load organizations', error);
+    }
+  }, [isError, error]);
+
   return (
     <PageSection>
       <PageHeader
@@ -15,49 +26,61 @@ export const ProviderTenantOrgsPage = () => {
         description="All tenant organizations registered on this platform."
       />
 
-      <Table aria-label="Tenant organizations">
-        <Thead>
-          <Tr>
-            <Th>Organization</Th>
-            <Th>ID</Th>
-            <Th>Description</Th>
-            <Th>VMs</Th>
-            <Th>Status</Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          {DEMO_ORGANIZATIONS.map((org) => (
-            <Tr key={org.id}>
-              <Td dataLabel="Organization" style={{ fontWeight: 600 }}>
-                {org.displayName}
-              </Td>
-              <Td
-                dataLabel="ID"
-                style={{
-                  color: 'var(--pf-t--global--text--color--subtle)',
-                }}
-              >
-                {org.metadata.name}
-              </Td>
-              <Td
-                dataLabel="Description"
-                style={{
-                  color: 'var(--pf-t--global--text--color--subtle)',
-                  maxWidth: '320px',
-                }}
-              >
-                {org.description}
-              </Td>
-              <Td dataLabel="VMs">{org.vmCount ?? '—'}</Td>
-              <Td dataLabel="Status">
-                <Label color={org.status === 'active' ? 'green' : 'grey'} isCompact>
-                  {org.status ?? 'unknown'}
-                </Label>
-              </Td>
+      {isPending ? (
+        <Bullseye className="osac-data-table__loading">
+          <Spinner aria-label="Loading organizations" />
+        </Bullseye>
+      ) : isError ? (
+        <Alert
+          variant="danger"
+          isInline
+          title="Could not load organizations"
+          actionLinks={
+            <Button variant="link" isInline onClick={() => void refetch()}>
+              Retry
+            </Button>
+          }
+        >
+          Unable to load organizations right now. Please try again.
+        </Alert>
+      ) : organizations.length === 0 ? (
+        <Alert variant="info" isInline title="No organizations found">
+          No tenant organizations are registered on this platform yet.
+        </Alert>
+      ) : (
+        <Table aria-label="Tenant organizations">
+          <Thead>
+            <Tr>
+              <Th>Organization</Th>
+              <Th>ID</Th>
+              <Th>Description</Th>
+              <Th>VMs</Th>
+              <Th>Status</Th>
             </Tr>
-          ))}
-        </Tbody>
-      </Table>
+          </Thead>
+          <Tbody>
+            {organizations.map((org) => (
+              <Tr key={org.id}>
+                <Td dataLabel="Organization" className="osac-data-table__primary-cell">
+                  {org.displayName}
+                </Td>
+                <Td dataLabel="ID" className="osac-data-table__muted-cell">
+                  {org.metadata.name}
+                </Td>
+                <Td dataLabel="Description" className="osac-data-table__description-cell">
+                  {org.description ?? '—'}
+                </Td>
+                <Td dataLabel="VMs">{org.vmCount ?? '—'}</Td>
+                <Td dataLabel="Status">
+                  <Label color={org.status === 'active' ? 'green' : 'grey'} isCompact>
+                    {org.status ?? 'unknown'}
+                  </Label>
+                </Td>
+              </Tr>
+            ))}
+          </Tbody>
+        </Table>
+      )}
     </PageSection>
   );
 };

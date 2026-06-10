@@ -1,0 +1,12 @@
+.osac-placeholder-page {
+  max-width: 48rem;
+}
+
+.osac-placeholder-page__description {
+  color: var(--pf-t--global--text--color--subtle);
+}
+
+.osac-placeholder-page__note {
+  color: var(--pf-t--global--text--color--subtle);
+  font-style: italic;
+}

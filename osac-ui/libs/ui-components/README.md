@@ -19,4 +19,4 @@ This package is for shared, reusable UI building blocks used across multiple app
 - Shared candidates: shell toggles, status labels, generic topology/placeholder building blocks.
 - App-local candidates: route-level page composition, feature wizards, flow-specific drawer/content logic.
 
-When an app-local component becomes reused across multiple domains, promote it into this package and export it from `src/index.ts`.
+When an app-local component becomes reused across multiple domains, promote it into this package as a PascalCase file under `src/` (e.g. `VmStatusLabel.tsx` + `VmStatusLabel.css`). Import via the wildcard export: `@osac/ui-components/VmStatusLabel`.

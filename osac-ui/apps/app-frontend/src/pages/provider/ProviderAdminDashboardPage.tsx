@@ -2,12 +2,22 @@
  * flow: provider-administration
  * step: pad_dashboard_home
  */
+import {
+  Alert,
+  Bullseye,
+  Flex,
+  Gallery,
+  GalleryItem,
+  PageSection,
+  Spinner,
+  Title,
+} from '@patternfly/react-core';
 import { useNavigate } from 'react-router-dom';
-import { Flex, Gallery, GalleryItem, PageSection, Title } from '@patternfly/react-core';
-import { DEMO_ORGANIZATIONS } from '@osac/api-contracts';
-import { useComputeInstances } from '../../api/hooks';
-import { DashboardActionTile, DashboardMetricCard } from '../../components/dashboard';
-import { PageHeader } from '../../components/layout';
+import { useComputeInstances, useOrganizations } from '../../api/hooks';
+import { DashboardActionTile } from '../../components/dashboard/DashboardActionTile';
+import { DashboardMetricCard } from '../../components/dashboard/DashboardMetricCard';
+import { PageHeader } from '../../components/layout/PageHeader';
+import '../../components/dashboard/AdminDashboardSection.css';
 
 const PROVIDER_TILES = [
   {
@@ -16,13 +26,6 @@ const PROVIDER_TILES = [
     icon: '🏢',
     desc: 'Manage and view all tenant organizations.',
     path: '/provider/organizations',
-  },
-  {
-    id: 'resource-allocation',
-    label: 'Resource allocation',
-    icon: '⚖️',
-    desc: 'Manage capacity pools and fair-share limits.',
-    path: '/provider/allocation',
   },
   {
     id: 'global-templates',
@@ -43,33 +46,53 @@ const PROVIDER_TILES = [
 export const ProviderAdminDashboardPage = () => {
   const navigate = useNavigate();
   const { data: vms = [] } = useComputeInstances();
-  const totalVms = DEMO_ORGANIZATIONS.reduce((acc, o) => acc + (o.vmCount ?? 0), 0);
+  const {
+    data: organizations = [],
+    isPending: orgsPending,
+    isError: orgsError,
+  } = useOrganizations();
+
+  const activeTenants = organizations.filter((o) => o.status === 'active').length;
 
   return (
     <PageSection>
-      <PageHeader
-        title="Provider Dashboard"
-        description="Cross-tenant platform overview for Vertexa Cloud Solutions."
-      />
+      <PageHeader title="Provider Dashboard" description="Cross-tenant platform overview." />
+
+      {orgsError ? (
+        <Alert
+          variant="warning"
+          isInline
+          title="Organization metrics unavailable"
+          className="osac-admin-dashboard__alert"
+        >
+          Tenant organization counts could not be loaded from the API. VM totals below still reflect
+          compute instances visible to your account.
+        </Alert>
+      ) : null}
 
       <Flex
+        className="osac-admin-dashboard__metrics"
         spaceItems={{ default: 'spaceItemsMd' }}
         flexWrap={{ default: 'wrap' }}
-        style={{ marginBottom: 'var(--pf-t--global--spacer--xl)' }}
       >
-        <DashboardMetricCard label="Tenant orgs" value={DEMO_ORGANIZATIONS.length} />
-        <DashboardMetricCard label="Total VMs" value={vms.length + totalVms} />
-        <DashboardMetricCard
-          label="Active tenants"
-          value={DEMO_ORGANIZATIONS.filter((o) => o.status === 'active').length}
-        />
+        {orgsPending ? (
+          <Bullseye className="osac-admin-dashboard__loading">
+            <Spinner aria-label="Loading organization metrics" />
+          </Bullseye>
+        ) : (
+          <>
+            <DashboardMetricCard label="Total VMs" value={vms.length} />
+            {!orgsError ? (
+              <>
+                <DashboardMetricCard label="Tenant orgs" value={organizations.length} />
+                <DashboardMetricCard label="Active tenants" value={activeTenants} />
+              </>
+            ) : null}
+          </>
+        )}
       </Flex>
 
-      <Title
-        headingLevel="h2"
-        size="xl"
-        style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}
-      >
+      <Title headingLevel="h2" size="xl" className="osac-admin-dashboard__section-title">
         Management areas
       </Title>
       <Gallery hasGutter minWidths={{ default: '220px' }}>
@@ -79,7 +102,7 @@ export const ProviderAdminDashboardPage = () => {
               icon={tile.icon}
               title={tile.label}
               description={tile.desc}
-              actionLabel="Open →"
+              actionLabel={`Go to ${tile.label.toLowerCase()} →`}
               onAction={() => navigate(tile.path)}
             />
           </GalleryItem>

@@ -1,0 +1,31 @@
+/* Shared label/value field patterns (VM cards, clone source step). */
+.osac-detail-field__label {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-weight: 500;
+  color: var(--pf-t--global--text--color--subtle);
+}
+
+.osac-detail-field__value {
+  margin: 0;
+  font-size: var(--pf-t--global--font--size--body--sm);
+}
+
+.osac-inline-detail-field {
+  margin: 0;
+  font-size: var(--pf-t--global--font--size--body--sm);
+  display: grid;
+  grid-template-columns: 96px minmax(120px, 1fr);
+  column-gap: 1.25rem;
+  align-items: center;
+}
+
+.osac-inline-detail-field__label {
+  font-weight: 500;
+  color: var(--pf-t--global--text--color--subtle);
+}
+
+.osac-inline-detail-field__value {
+  text-align: center;
+}

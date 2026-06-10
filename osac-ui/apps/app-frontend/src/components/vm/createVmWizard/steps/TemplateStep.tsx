@@ -1,5 +1,3 @@
-import { RedhatIcon } from '@patternfly/react-icons/dist/esm/icons/redhat-icon';
-import { WindowsIcon } from '@patternfly/react-icons/dist/esm/icons/windows-icon';
 import {
   Alert,
   Bullseye,
@@ -21,9 +19,9 @@ import {
   Title,
 } from '@patternfly/react-core';
 import { useMemo, useState } from 'react';
-import type { ClusterTemplate, TemplateWorkloadProfile } from '@osac/api-contracts';
-import linuxMascotUrl from '../../../../assets/guest-os-tux-linux.png';
+import type { ClusterTemplate, OsType, TemplateWorkloadProfile } from '@osac/api-contracts/types';
 import { useComputeInstanceTemplates } from '../../../../api/hooks';
+import { GuestOsIcon } from '../../../shared/GuestOsIcon';
 import { defaultTemplateBootDiskGib } from '../constants';
 import type { UpdateFn, WizardState } from '../types';
 
@@ -59,25 +57,6 @@ const truncateDescription = (text: string, max = 120): string => {
     return text;
   }
   return `${text.slice(0, max - 1)}…`;
-};
-
-const OsIcon = ({ icon }: { icon?: string }) => {
-  const style = { width: 28, height: 28 } as const;
-  if (icon === 'windows') {
-    return <WindowsIcon style={{ ...style, color: '#0078D4' }} />;
-  }
-  if (icon === 'rhel') {
-    return <RedhatIcon style={{ ...style, color: '#EE0000' }} />;
-  }
-  return (
-    <img
-      src={linuxMascotUrl}
-      alt=""
-      width={28}
-      height={28}
-      style={{ display: 'block', objectFit: 'contain' }}
-    />
-  );
 };
 
 export const TemplateStep = ({ state, update }: { state: WizardState; update: UpdateFn }) => {
@@ -128,11 +107,7 @@ export const TemplateStep = ({ state, update }: { state: WizardState; update: Up
         <Title id="template-step-heading" headingLevel="h2" size="xl">
           Templates
         </Title>
-        <Content
-          component="p"
-          className="pf-v6-u-color-text-subtle"
-          style={{ marginTop: 'var(--pf-t--global--spacer--sm)', maxWidth: 720 }}
-        >
+        <Content component="p" className="pf-v6-u-color-text-subtle osac-wizard-step__intro">
           Select a template to create your virtual machine from
         </Content>
       </StackItem>
@@ -173,7 +148,7 @@ export const TemplateStep = ({ state, update }: { state: WizardState; update: Up
               Clear filters
             </Button>
           </FlexItem>
-          <FlexItem flex={{ default: 'flex_1' }} style={{ minWidth: 200 }}>
+          <FlexItem flex={{ default: 'flex_1' }} className="osac-wizard-template__search-item">
             <SearchInput
               placeholder="Search templates…"
               value={search}
@@ -190,10 +165,13 @@ export const TemplateStep = ({ state, update }: { state: WizardState; update: Up
           flexWrap={{ default: 'wrap' }}
           alignItems={{ default: 'alignItemsBaseline' }}
         >
-          <Content component="p" style={{ margin: 0, fontWeight: 600 }}>
+          <Content component="p" className="osac-wizard-template__count">
             {templatesLoading ? 'Loading templates…' : countPhrase}
           </Content>
-          <Content component="p" className="pf-v6-u-color-text-subtle" style={{ margin: 0 }}>
+          <Content
+            component="p"
+            className="pf-v6-u-color-text-subtle osac-wizard-template__count-hint"
+          >
             Select one to continue.
           </Content>
         </Flex>
@@ -223,16 +201,12 @@ export const TemplateStep = ({ state, update }: { state: WizardState; update: Up
           aria-labelledby="template-step-heading"
         >
           {templatesLoading ? (
-            <Bullseye style={{ padding: 'var(--pf-t--global--spacer--xl)', gridColumn: '1 / -1' }}>
+            <Bullseye className="osac-template-cards__loading">
               <Spinner aria-label="Loading templates" />
             </Bullseye>
           ) : null}
           {!templatesLoading && !templatesError && count === 0 ? (
-            <Content
-              component="p"
-              className="pf-v6-u-color-text-subtle"
-              style={{ gridColumn: '1 / -1', margin: 0 }}
-            >
+            <Content component="p" className="pf-v6-u-color-text-subtle osac-template-cards__empty">
               No templates match your filters or search. Try clearing filters or changing keywords.
             </Content>
           ) : null}
@@ -254,25 +228,15 @@ export const TemplateStep = ({ state, update }: { state: WizardState; update: Up
                     isSelected={selected}
                     onClick={() => applySelectedTemplate(tpl, update)}
                     ouiaId={`template-option-${tpl.id}`}
-                    style={{
-                      cursor: 'pointer',
-                      boxSizing: 'border-box',
-                      borderWidth: '1px',
-                      borderStyle: 'solid',
-                      borderColor: selected
-                        ? 'var(--pf-t--global--color--brand--default)'
-                        : 'var(--pf-t--global--border--color--default)',
-                      borderRadius: 'var(--pf-t--global--border--radius--medium)',
-                    }}
                   >
-                    <CardHeader style={{ flexShrink: 0 }}>
+                    <CardHeader className="osac-template-cards__card-header">
                       <Flex
                         justifyContent={{ default: 'justifyContentSpaceBetween' }}
                         alignItems={{ default: 'alignItemsFlexStart' }}
-                        style={{ width: '100%' }}
+                        className="osac-template-cards__card-header-row"
                       >
                         <FlexItem>
-                          <OsIcon icon={tpl.icon} />
+                          <GuestOsIcon os={(tpl.icon ?? 'linux') as OsType} size="lg" />
                         </FlexItem>
                         <FlexItem>
                           <Radio
@@ -288,10 +252,7 @@ export const TemplateStep = ({ state, update }: { state: WizardState; update: Up
                     <CardBody>
                       <Stack hasGutter>
                         <StackItem>
-                          <Content
-                            component="h3"
-                            style={{ fontWeight: 600, margin: 0, fontSize: '1rem' }}
-                          >
+                          <Content component="h3" className="osac-template-cards__title">
                             {tpl.title}
                           </Content>
                         </StackItem>
@@ -299,24 +260,14 @@ export const TemplateStep = ({ state, update }: { state: WizardState; update: Up
                           <StackItem>
                             <Content
                               component="p"
-                              className="pf-v6-u-color-text-subtle"
-                              style={{
-                                margin: 0,
-                                fontSize: 'var(--pf-t--global--font--size--body--sm)',
-                              }}
+                              className="pf-v6-u-color-text-subtle osac-template-cards__description"
                             >
                               {truncateDescription(tpl.description)}
                             </Content>
                           </StackItem>
                         ) : null}
                         <StackItem>
-                          <Content
-                            component="p"
-                            style={{
-                              margin: 0,
-                              fontSize: 'var(--pf-t--global--font--size--body--sm)',
-                            }}
-                          >
+                          <Content component="p" className="osac-template-cards__specs">
                             {cores} vCPU · {mem} GiB memory · {diskGib} GiB disk
                           </Content>
                         </StackItem>

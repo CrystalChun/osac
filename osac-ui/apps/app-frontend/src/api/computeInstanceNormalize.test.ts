@@ -9,7 +9,7 @@ import {
   serializeComputeInstancePowerPatch,
   serializeTemplateParametersWire,
   totalStorageGiBFromSpec,
-} from '@osac/api-contracts';
+} from '@osac/api-contracts/computeInstanceNormalize';
 
 /** Fixture aligned with docs/specs/backend-fulfillment.yaml compute_instances_wire_format_and_ui */
 const wireVm = {

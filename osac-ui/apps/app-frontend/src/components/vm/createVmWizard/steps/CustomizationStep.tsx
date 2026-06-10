@@ -123,11 +123,7 @@ export const CustomizationStep = ({ state, update }: { state: WizardState; updat
         <Title id="customization-heading" headingLevel="h2" size="xl">
           Customization
         </Title>
-        <Content
-          component="p"
-          className="pf-v6-u-color-text-subtle"
-          style={{ marginTop: 'var(--pf-t--global--spacer--sm)', maxWidth: 720 }}
-        >
+        <Content component="p" className="pf-v6-u-color-text-subtle osac-wizard-step__intro">
           Adjust compute, storage, networking, and access for this virtual machine.
         </Content>
       </StackItem>
@@ -150,10 +146,10 @@ export const CustomizationStep = ({ state, update }: { state: WizardState; updat
             aria-label="Virtual machine customization"
             activeKey={activeTab}
             onSelect={(_e, k) => setActiveTab(k as CustomizationTabKey)}
-            style={{ marginTop: 'var(--pf-t--global--spacer--md)' }}
+            className="osac-wizard-customization__tabs"
           >
             <Tab key="overview" eventKey="overview" title={<TabTitleText>Overview</TabTitleText>}>
-              <Stack hasGutter style={{ paddingTop: 'var(--pf-t--global--spacer--md)' }}>
+              <Stack hasGutter className="osac-wizard-customization__tab-panel">
                 <Form>
                   <FormGroup label="vCPU count" fieldId="template-cores" isRequired>
                     <TextInput
@@ -199,7 +195,7 @@ export const CustomizationStep = ({ state, update }: { state: WizardState; updat
               </Stack>
             </Tab>
             <Tab key="storage" eventKey="storage" title={<TabTitleText>Storage</TabTitleText>}>
-              <Stack hasGutter style={{ paddingTop: 'var(--pf-t--global--spacer--md)' }}>
+              <Stack hasGutter className="osac-wizard-customization__tab-panel">
                 <Form>
                   <FormGroup
                     label="Boot disk size (GiB)"
@@ -246,7 +242,7 @@ export const CustomizationStep = ({ state, update }: { state: WizardState; updat
               </Stack>
             </Tab>
             <Tab key="network" eventKey="network" title={<TabTitleText>Network</TabTitleText>}>
-              <Stack hasGutter style={{ paddingTop: 'var(--pf-t--global--spacer--md)' }}>
+              <Stack hasGutter className="osac-wizard-customization__tab-panel">
                 <Form>
                   <FormGroup label="Subnet" fieldId="template-subnet">
                     <TextInput
@@ -273,7 +269,7 @@ export const CustomizationStep = ({ state, update }: { state: WizardState; updat
               </Stack>
             </Tab>
             <Tab key="ssh" eventKey="ssh" title={<TabTitleText>SSH</TabTitleText>}>
-              <Stack hasGutter style={{ paddingTop: 'var(--pf-t--global--spacer--md)' }}>
+              <Stack hasGutter className="osac-wizard-customization__tab-panel">
                 <Form>
                   <FormGroup label="SSH public key" fieldId="template-ssh-key">
                     <TextArea
@@ -294,7 +290,7 @@ export const CustomizationStep = ({ state, update }: { state: WizardState; updat
               eventKey="advanced"
               title={<TabTitleText>Image &amp; user data</TabTitleText>}
             >
-              <Stack hasGutter style={{ paddingTop: 'var(--pf-t--global--spacer--md)' }}>
+              <Stack hasGutter className="osac-wizard-customization__tab-panel">
                 <Form>
                   <FormGroup label="Image source type" fieldId="template-image-source-type">
                     <FormSelect

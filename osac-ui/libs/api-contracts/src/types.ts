@@ -126,19 +126,6 @@ export interface ClusterTemplate extends ClusterTemplateSummary {
 }
 
 // ---------------------------------------------------------------------------
-// Events
-// ---------------------------------------------------------------------------
-
-export interface OsacEvent {
-  id: string;
-  type: string;
-  timestamp: string;
-  relatedObjectRefs?: { kind: string; id: string; name?: string }[];
-  message?: string;
-  severity?: 'info' | 'warning' | 'danger' | 'success';
-}
-
-// ---------------------------------------------------------------------------
 // Organizations
 // ---------------------------------------------------------------------------
 
@@ -152,13 +139,17 @@ export interface Organization {
 }
 
 // ---------------------------------------------------------------------------
-// Console access
+// Users
 // ---------------------------------------------------------------------------
 
-export interface ConsoleAccess {
-  available: boolean;
-  reason?: string;
-  supportedTypes?: string[];
+export interface User {
+  id: string;
+  metadata: Metadata;
+  displayName: string;
+  email?: string;
+  role?: string;
+  status?: string;
+  lastLogin?: string;
 }
 
 // ---------------------------------------------------------------------------

@@ -2,10 +2,11 @@
  * flow: application-shell-session
  * step: shell_primary_workspace
  *
- * Authenticated application shell — masthead, sidebar nav (role-based), breadcrumb.
+ * Authenticated application shell — masthead, sidebar nav (role-based).
  */
-import { type ReactNode, useCallback, useMemo, useState } from 'react';
+import { type ReactElement, useCallback, useMemo, useState } from 'react';
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import type { DemoShellRole } from '@osac/api-contracts/types';
 import {
   Alert,
   Button,
@@ -14,52 +15,49 @@ import {
   ModalFooter,
   ModalHeader,
   Page,
-  PageSection,
 } from '@patternfly/react-core';
 
-import {
-  DEMO_PROVIDER_ADMIN_DISPLAY_NAME,
-  DEMO_TENANT_DISPLAY_ADMIN,
-  DEMO_TENANT_DISPLAY_USER,
-  DEMO_TENANT_SOVEREIGNTY,
-} from '@osac/api-contracts';
-import { PlaceholderPage } from '@osac/ui-components';
-import { getErrorMessage } from '@osac/ui-components/src/utils/error';
 import { useSession } from '../../contexts/SessionContext';
+import { getErrorMessage } from '@osac/ui-components/utils/error';
 
-// Pages
-import {
-  CatalogPage,
-  DashboardPage,
-  RecentActivitiesPage,
-  TenantSparsePlaceholderPage,
-  VmListPage,
-} from '../tenant';
-import { AdminDashboardPage, AdminNetworksPage, AdminQuotaPage, AdminUsersPage } from '../admin';
-import {
-  ProviderAdminDashboardPage,
-  ProviderInfraTopologyPage,
-  ProviderTenantOrgsPage,
-} from '../provider';
-import { ShellBreadcrumb } from './ShellBreadcrumb';
+import { CatalogPage } from '../tenant/CatalogPage';
+import { DashboardPage } from '../tenant/DashboardPage';
+import { VmListPage } from '../tenant/VmListPage';
+import { AdminDashboardPage } from '../admin/AdminDashboardPage';
+import { AdminNetworksPage } from '../admin/AdminNetworksPage';
+import { AdminUsersPage } from '../admin/AdminUsersPage';
+import { ProviderAdminDashboardPage } from '../provider/ProviderAdminDashboardPage';
+import { ProviderInfraTopologyPage } from '../provider/ProviderInfraTopologyPage';
+import { ProviderTenantOrgsPage } from '../provider/ProviderTenantOrgsPage';
 import { ShellMasthead } from './ShellMasthead';
 import { ShellSidebar } from './ShellSidebar';
 import { DEFAULT_EXPANDED_GROUP_IDS, navRowsForRole } from './shellNav';
-import {
-  ADMIN_PLACEHOLDER_ROUTES,
-  PROVIDER_PLACEHOLDER_ROUTES,
-  defaultRouteForRole,
-} from './shellRoutes';
+import { defaultRouteForRole } from './shellRoutes';
 
-// ---------------------------------------------------------------------------
-// AppShell component
-// ---------------------------------------------------------------------------
+const RoleRoute = ({
+  allow,
+  role,
+  fallback,
+  children,
+}: {
+  allow: DemoShellRole[];
+  role: DemoShellRole;
+  fallback: string;
+  children: ReactElement;
+}) => (allow.includes(role) ? children : <Navigate to={fallback} replace />);
 
 export const AppShell = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { selectedTenant, role, isDarkTheme, setIsDarkTheme, logout, openTopologyDetailRequest } =
-    useSession();
+  const {
+    selectedTenant,
+    role,
+    isDarkTheme,
+    setIsDarkTheme,
+    logout,
+    openTopologyDetailRequest,
+    username,
+  } = useSession();
 
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(
@@ -74,8 +72,6 @@ export const AppShell = () => {
       setLogoutError(getErrorMessage(err));
     }
   }, [logout]);
-
-  const isRecentActivities = location.pathname === '/activities';
 
   const navRows = useMemo(() => navRowsForRole(role), [role]);
   const handleSidebarNavigate = useCallback(
@@ -105,52 +101,14 @@ export const AppShell = () => {
   }, []);
 
   const displayName = useMemo(() => {
-    if (!selectedTenant) {
-      return '';
+    if (username?.trim()) {
+      return username.trim();
     }
     if (role === 'providerAdmin') {
-      return DEMO_PROVIDER_ADMIN_DISPLAY_NAME;
+      return 'Provider admin';
     }
-    if (role === 'tenantAdmin') {
-      return DEMO_TENANT_DISPLAY_ADMIN[selectedTenant];
-    }
-    return DEMO_TENANT_DISPLAY_USER[selectedTenant];
-  }, [role, selectedTenant]);
-
-  const sovereignty = selectedTenant ? DEMO_TENANT_SOVEREIGNTY[selectedTenant] : null;
-  const masthead = (
-    <ShellMasthead
-      selectedTenant={selectedTenant}
-      role={role}
-      displayName={displayName}
-      sovereignty={sovereignty}
-      isUserMenuOpen={isUserMenuOpen}
-      setIsUserMenuOpen={setIsUserMenuOpen}
-      onLogout={handleLogout}
-      onOpenActivities={() => navigate('/activities')}
-    />
-  );
-
-  const sidebar = (
-    <ShellSidebar
-      navRows={navRows}
-      pathname={location.pathname}
-      expandedGroups={expandedGroups}
-      onToggleGroup={toggleGroup}
-      onNavigate={handleSidebarNavigate}
-      isDarkTheme={isDarkTheme}
-      setIsDarkTheme={setIsDarkTheme}
-      onLogout={handleLogout}
-    />
-  );
-
-  const breadcrumb = (
-    <ShellBreadcrumb isRecentActivities={isRecentActivities} role={role} onNavigate={navigate} />
-  );
-
-  // ---------------------------------------------------------------------------
-  // Main content routes
-  // ---------------------------------------------------------------------------
+    return 'Signed-in user';
+  }, [role, username]);
 
   const defaultRoute = defaultRouteForRole(role);
 
@@ -169,69 +127,125 @@ export const AppShell = () => {
           </ModalFooter>
         </Modal>
       )}
-      <Page masthead={masthead} sidebar={sidebar} breadcrumb={breadcrumb} isManagedSidebar>
-        <Routes>
-          {/* Tenant user routes */}
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/vms/*" element={<VmListPage />} />
-          <Route path="/templates" element={<CatalogPage />} />
-          <Route path="/activities" element={<RecentActivitiesPage />} />
-
-          {/* Tenant admin routes */}
-          <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
-          <Route path="/admin/users" element={<AdminUsersPage />} />
-          <Route path="/admin/quota" element={<AdminQuotaPage />} />
-          <Route path="/admin/templates" element={<CatalogPage />} />
-          <Route
-            path="/admin/networks"
-            element={<AdminNetworksPage onOpenVmDetail={openTopologyDetailRequest} />}
+      <Page
+        masthead={
+          <ShellMasthead
+            selectedTenant={selectedTenant}
+            role={role}
+            displayName={displayName}
+            isUserMenuOpen={isUserMenuOpen}
+            setIsUserMenuOpen={setIsUserMenuOpen}
+            onLogout={handleLogout}
           />
-          {ADMIN_PLACEHOLDER_ROUTES.map((route) => (
-            <Route
-              key={route.path}
-              path={route.path}
-              element={
-                <PageWrapper>
-                  <PlaceholderPage title={route.title} lede={route.lede} />
-                </PageWrapper>
-              }
-            />
-          ))}
-
-          {/* Provider admin routes */}
-          <Route path="/provider/dashboard" element={<ProviderAdminDashboardPage />} />
-          <Route path="/provider/organizations" element={<ProviderTenantOrgsPage />} />
-          {PROVIDER_PLACEHOLDER_ROUTES.map((route) => (
-            <Route
-              key={route.path}
-              path={route.path}
-              element={
-                <PageWrapper>
-                  <PlaceholderPage title={route.title} lede={route.lede} />
-                </PageWrapper>
-              }
-            />
-          ))}
-          <Route path="/provider/templates" element={<CatalogPage isProviderGlobal />} />
-          <Route path="/provider/infrastructure" element={<ProviderInfraTopologyPage />} />
-
-          {/* Fallback */}
+        }
+        sidebar={
+          <ShellSidebar
+            navRows={navRows}
+            pathname={location.pathname}
+            expandedGroups={expandedGroups}
+            onToggleGroup={toggleGroup}
+            onNavigate={handleSidebarNavigate}
+            isDarkTheme={isDarkTheme}
+            setIsDarkTheme={setIsDarkTheme}
+          />
+        }
+        isManagedSidebar
+      >
+        <Routes>
           <Route
-            path="*"
+            path="/dashboard"
             element={
-              role === 'tenantUser' ? (
-                <TenantSparsePlaceholderPage />
-              ) : (
-                <Navigate to={defaultRoute} replace />
-              )
+              <RoleRoute allow={['tenantUser', 'tenantAdmin']} role={role} fallback={defaultRoute}>
+                <DashboardPage />
+              </RoleRoute>
             }
           />
+          <Route
+            path="/vms/*"
+            element={
+              <RoleRoute allow={['tenantUser', 'tenantAdmin']} role={role} fallback={defaultRoute}>
+                <VmListPage />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="/templates"
+            element={
+              <RoleRoute allow={['tenantUser', 'tenantAdmin']} role={role} fallback={defaultRoute}>
+                <CatalogPage />
+              </RoleRoute>
+            }
+          />
+
+          <Route
+            path="/admin/dashboard"
+            element={
+              <RoleRoute allow={['tenantAdmin']} role={role} fallback={defaultRoute}>
+                <AdminDashboardPage />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="/admin/users"
+            element={
+              <RoleRoute allow={['tenantAdmin']} role={role} fallback={defaultRoute}>
+                <AdminUsersPage />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="/admin/templates"
+            element={
+              <RoleRoute allow={['tenantAdmin']} role={role} fallback={defaultRoute}>
+                <CatalogPage />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="/admin/networks"
+            element={
+              <RoleRoute allow={['tenantAdmin']} role={role} fallback={defaultRoute}>
+                <AdminNetworksPage onOpenVmDetail={openTopologyDetailRequest} />
+              </RoleRoute>
+            }
+          />
+
+          <Route
+            path="/provider/dashboard"
+            element={
+              <RoleRoute allow={['providerAdmin']} role={role} fallback={defaultRoute}>
+                <ProviderAdminDashboardPage />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="/provider/organizations"
+            element={
+              <RoleRoute allow={['providerAdmin']} role={role} fallback={defaultRoute}>
+                <ProviderTenantOrgsPage />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="/provider/templates"
+            element={
+              <RoleRoute allow={['providerAdmin']} role={role} fallback={defaultRoute}>
+                <CatalogPage isProviderGlobal />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="/provider/infrastructure"
+            element={
+              <RoleRoute allow={['providerAdmin']} role={role} fallback={defaultRoute}>
+                <ProviderInfraTopologyPage />
+              </RoleRoute>
+            }
+          />
+
+          <Route path="*" element={<Navigate to={defaultRoute} replace />} />
         </Routes>
       </Page>
     </>
   );
-};
-
-const PageWrapper = ({ children }: { children: ReactNode }) => {
-  return <PageSection>{children}</PageSection>;
 };

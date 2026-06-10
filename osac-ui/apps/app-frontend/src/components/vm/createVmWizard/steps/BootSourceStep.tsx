@@ -8,11 +8,7 @@ export const BootSourceStep = ({ state, update }: { state: WizardState; update: 
         <Title id="boot-source-heading" headingLevel="h2" size="xl">
           Boot source
         </Title>
-        <Content
-          component="p"
-          className="pf-v6-u-color-text-subtle"
-          style={{ marginTop: 'var(--pf-t--global--spacer--sm)', maxWidth: 720 }}
-        >
+        <Content component="p" className="pf-v6-u-color-text-subtle osac-wizard-step__intro">
           Choose how the virtual machine will start. You can attach storage later if needed.
         </Content>
       </StackItem>

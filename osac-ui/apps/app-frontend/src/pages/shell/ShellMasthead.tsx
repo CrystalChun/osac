@@ -1,11 +1,6 @@
 import { BarsIcon } from '@patternfly/react-icons/dist/esm/icons/bars-icon';
-import { BellIcon } from '@patternfly/react-icons/dist/esm/icons/bell-icon';
-import { CogIcon } from '@patternfly/react-icons/dist/esm/icons/cog-icon';
-import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons/dist/esm/icons/outlined-question-circle-icon';
 import { UserIcon } from '@patternfly/react-icons/dist/esm/icons/user-icon';
 import {
-  Button,
-  Content,
   Dropdown,
   DropdownItem,
   DropdownList,
@@ -20,35 +15,27 @@ import {
   MenuToggle,
   PageToggleButton,
   Title,
-  Toolbar,
-  ToolbarContent,
-  ToolbarGroup,
-  ToolbarItem,
 } from '@patternfly/react-core';
-import type { MouseEvent } from 'react';
-import type { DemoShellRole, DemoTenantId, TenantSovereignty } from '@osac/api-contracts';
-import { demoOperatingModeLabel } from '@osac/api-contracts';
+import type { DemoShellRole, DemoTenantId } from '@osac/api-contracts/types';
+import { operatingModeLabel } from '@osac/api-contracts/shellLabels';
+import './ShellMasthead.css';
 
 interface ShellMastheadProps {
   selectedTenant: DemoTenantId | null;
   role: DemoShellRole;
   displayName: string;
-  sovereignty: TenantSovereignty | null;
   isUserMenuOpen: boolean;
   setIsUserMenuOpen: (open: boolean) => void;
   onLogout: () => void;
-  onOpenActivities: () => void;
 }
 
 export const ShellMasthead = ({
-  selectedTenant,
+  selectedTenant: _selectedTenant,
   role,
   displayName,
-  sovereignty,
   isUserMenuOpen,
   setIsUserMenuOpen,
   onLogout,
-  onOpenActivities,
 }: ShellMastheadProps) => {
   return (
     <Masthead display={{ default: 'inline' }}>
@@ -60,12 +47,8 @@ export const ShellMasthead = ({
         </MastheadToggle>
         <MastheadLogo>
           <MastheadBrand>
-            <Title headingLevel="h4" size="lg" style={{ margin: 0, whiteSpace: 'nowrap' }}>
-              {selectedTenant === 'vertexa'
-                ? '✦ Vertexa Cloud'
-                : selectedTenant === 'northstar'
-                  ? '⭐ Northstar Bank'
-                  : '◆ Bluestone'}
+            <Title headingLevel="h4" size="lg" className="osac-masthead__brand-title">
+              Red Hat OSAC
             </Title>
           </MastheadBrand>
         </MastheadLogo>
@@ -77,130 +60,41 @@ export const ShellMasthead = ({
           direction={{ default: 'row' }}
           flexWrap={{ default: 'wrap' }}
           alignItems={{ default: 'alignItemsCenter' }}
-          justifyContent={{
-            default: sovereignty ? 'justifyContentSpaceBetween' : 'justifyContentFlexEnd',
-          }}
+          justifyContent={{ default: 'justifyContentFlexEnd' }}
           spaceItems={{ default: 'spaceItemsMd' }}
-          style={{ width: '100%', minWidth: 0, flex: 1 }}
         >
-          {sovereignty ? (
-            <Flex
-              className="osac-masthead-context-cluster osac-masthead-tenant-trust-strip"
-              aria-label="Data residency and compliance"
-              direction={{ default: 'column' }}
-              flexWrap={{ default: 'wrap' }}
-              alignItems={{ default: 'alignItemsCenter' }}
-              spaceItems={{ default: 'spaceItemsMd' }}
-            >
-              <Flex
-                className="osac-masthead-tenant-trust-strip__residency"
-                spaceItems={{ default: 'spaceItemsXs' }}
-              >
-                <Content
-                  component="small"
-                  className="osac-masthead-region-flag"
-                  role="img"
-                  aria-label={sovereignty.regionAriaLabel}
-                  style={{ margin: 0, lineHeight: 1, display: 'inline-flex', alignItems: 'center' }}
+          <Flex className="osac-masthead-user-cluster" spaceItems={{ default: 'spaceItemsSm' }}>
+            <Dropdown
+              isOpen={isUserMenuOpen}
+              onSelect={() => setIsUserMenuOpen(false)}
+              onOpenChange={setIsUserMenuOpen}
+              popperProps={{ position: 'right' }}
+              toggle={(ref) => (
+                <MenuToggle
+                  ref={ref}
+                  isExpanded={isUserMenuOpen}
+                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                  icon={<UserIcon />}
+                  aria-label="Account menu"
                 >
-                  {sovereignty.regionEmoji}
-                </Content>
-                <Content
-                  component="small"
-                  className="osac-masthead-region-line"
-                  title={sovereignty.regionLine}
-                  style={{ margin: 0, lineHeight: 1.2, display: 'inline-block' }}
-                >
-                  {sovereignty.regionLine}
-                </Content>
-              </Flex>
-              <Flex
-                className="osac-masthead-tenant-trust-strip__compliance"
-                spaceItems={{ default: 'spaceItemsXs' }}
-              >
-                {sovereignty.complianceLabels.map((tag) => (
-                  <Label key={tag.text} color={tag.color} variant="outline" isCompact>
-                    {tag.text}
-                  </Label>
-                ))}
-              </Flex>
-            </Flex>
-          ) : null}
-          <Flex
-            direction={{ default: 'row' }}
-            alignItems={{ default: 'alignItemsCenter' }}
-            spaceItems={{ default: 'spaceItemsSm' }}
-            flexWrap={{ default: 'nowrap' }}
-          >
-            <Toolbar>
-              <ToolbarContent alignItems="center">
-                <ToolbarGroup
-                  align={{ default: 'alignEnd' }}
-                  variant="action-group-plain"
-                  gap={{ default: 'gapSm' }}
-                >
-                  <ToolbarItem>
-                    <Button
-                      variant="plain"
-                      aria-label="Recent activities"
-                      onClick={onOpenActivities}
-                    >
-                      <BellIcon />
-                    </Button>
-                  </ToolbarItem>
-                  <ToolbarItem>
-                    <Button variant="plain" aria-label="Help" onClick={(e) => e.preventDefault()}>
-                      <OutlinedQuestionCircleIcon />
-                    </Button>
-                  </ToolbarItem>
-                  <ToolbarItem>
-                    <Button
-                      variant="plain"
-                      aria-label="Settings"
-                      onClick={(e) => e.preventDefault()}
-                    >
-                      <CogIcon />
-                    </Button>
-                  </ToolbarItem>
-                </ToolbarGroup>
-              </ToolbarContent>
-            </Toolbar>
-            <Flex className="osac-masthead-user-cluster" spaceItems={{ default: 'spaceItemsSm' }}>
-              <Dropdown
-                isOpen={isUserMenuOpen}
-                onSelect={() => setIsUserMenuOpen(false)}
-                onOpenChange={setIsUserMenuOpen}
-                popperProps={{ position: 'right' }}
-                toggle={(ref) => (
-                  <MenuToggle
-                    ref={ref}
-                    isExpanded={isUserMenuOpen}
-                    onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                    icon={<UserIcon />}
-                    aria-label="Account menu"
+                  {displayName}
+                  <Label
+                    color="grey"
+                    variant="outline"
+                    isCompact
+                    className="osac-masthead-operating-mode"
                   >
-                    {displayName}
-                    <Label
-                      color="grey"
-                      variant="outline"
-                      isCompact
-                      className="osac-masthead-operating-mode"
-                    >
-                      {demoOperatingModeLabel(role)}
-                    </Label>
-                  </MenuToggle>
-                )}
-              >
-                <DropdownList>
-                  <DropdownItem value="profile" onClick={(e: MouseEvent) => e.preventDefault()}>
-                    Account settings
-                  </DropdownItem>
-                  <DropdownItem value="logout" onClick={onLogout}>
-                    Log out
-                  </DropdownItem>
-                </DropdownList>
-              </Dropdown>
-            </Flex>
+                    {operatingModeLabel(role)}
+                  </Label>
+                </MenuToggle>
+              )}
+            >
+              <DropdownList>
+                <DropdownItem value="logout" onClick={onLogout}>
+                  Log out
+                </DropdownItem>
+              </DropdownList>
+            </Dropdown>
           </Flex>
         </Flex>
       </MastheadContent>

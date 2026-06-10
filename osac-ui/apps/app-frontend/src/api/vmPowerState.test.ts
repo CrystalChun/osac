@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isVmTransitionPowerState } from '@osac/api-contracts';
+import { isVmTransitionPowerState } from '@osac/api-contracts/vmPowerState';
 
 describe('isVmTransitionPowerState', () => {
   it('returns true for in-action states', () => {

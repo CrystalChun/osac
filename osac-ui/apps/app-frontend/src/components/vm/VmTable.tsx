@@ -3,9 +3,10 @@
  * step: mvm_list_view
  */
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
-import type { ComputeInstance, VmPowerState } from '@osac/api-contracts';
-import { resolveVmOsForUi } from '@osac/api-contracts';
-import { VmStatusLabel } from '@osac/ui-components';
+import type { ComputeInstance, VmPowerState } from '@osac/api-contracts/types';
+import { resolveVmOsForUi } from '@osac/api-contracts/computeInstanceNormalize';
+import { VmStatusLabel } from '@osac/ui-components/VmStatusLabel';
+import './VmTable.css';
 import { VmActionsMenu } from './VmActionsMenu';
 
 interface VmTableProps {
@@ -58,7 +59,7 @@ export const VmTable = ({
               <Td dataLabel="Status">
                 <VmStatusLabel state={state} />
               </Td>
-              <Td dataLabel="OS" style={{ textTransform: 'capitalize' }}>
+              <Td dataLabel="OS" className="osac-vm-table__os-cell">
                 {resolveVmOsForUi(vm)}
               </Td>
               <Td dataLabel="vCPU">{vm.spec.cores ?? '—'}</Td>

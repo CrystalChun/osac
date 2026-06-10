@@ -3,9 +3,8 @@
   "compilerOptions": {
     "jsx": "react-jsx",
     "paths": {
-      "@osac/api-contracts": ["../../libs/api-contracts/src/index.ts"],
-      "@osac/ui-components": ["../../libs/ui-components/src/index.ts"],
-      "@osac/ui-components/*": ["../../libs/ui-components/*"]
+      "@osac/api-contracts/*": ["../../libs/api-contracts/src/*"],
+      "@osac/ui-components/*": ["../../libs/ui-components/src/*"]
     }
   },
   "include": ["src"]

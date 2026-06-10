@@ -4,11 +4,12 @@
  */
 import { useNavigate } from 'react-router-dom';
 import { Flex, Gallery, GalleryItem, PageSection, Title } from '@patternfly/react-core';
-import { DEMO_TENANT_LABEL } from '@osac/api-contracts';
 import { useSession } from '../../contexts/SessionContext';
-import { useComputeInstances } from '../../api/hooks';
-import { DashboardActionTile, DashboardMetricCard } from '../../components/dashboard';
-import { PageHeader } from '../../components/layout';
+import { useComputeInstances, useUsers } from '../../api/hooks';
+import { DashboardActionTile } from '../../components/dashboard/DashboardActionTile';
+import { DashboardMetricCard } from '../../components/dashboard/DashboardMetricCard';
+import { PageHeader } from '../../components/layout/PageHeader';
+import '../../components/dashboard/AdminDashboardSection.css';
 
 const TILES = [
   {
@@ -17,13 +18,6 @@ const TILES = [
     icon: '👥',
     desc: 'Manage tenant users and access.',
     path: '/admin/users',
-  },
-  {
-    id: 'quota',
-    label: 'Quota control',
-    icon: '📊',
-    desc: 'View and adjust vCPU, memory, and storage quotas.',
-    path: '/admin/quota',
   },
   {
     id: 'templates',
@@ -39,43 +33,33 @@ const TILES = [
     desc: 'Visualize virtual networks and VM topology.',
     path: '/admin/networks',
   },
-  {
-    id: 'storage',
-    label: 'Storage',
-    icon: '💾',
-    desc: 'Disk pools, snapshots, and backup policies.',
-    path: '/admin/storage',
-  },
 ];
 
 export const AdminDashboardPage = () => {
   const navigate = useNavigate();
-  const { selectedTenant } = useSession();
+  const { username } = useSession();
   const { data: vms = [] } = useComputeInstances();
-  const tenantLabel = selectedTenant ? DEMO_TENANT_LABEL[selectedTenant] : 'Tenant';
+  const { data: users = [] } = useUsers();
+  const tenantLabel = username ?? 'your organization';
 
   return (
     <PageSection>
       <PageHeader title="Dashboard" description={`Tenant administration for ${tenantLabel}`} />
 
       <Flex
+        className="osac-admin-dashboard__metrics"
         spaceItems={{ default: 'spaceItemsMd' }}
         flexWrap={{ default: 'wrap' }}
-        style={{ marginBottom: 'var(--pf-t--global--spacer--xl)' }}
       >
         <DashboardMetricCard label="Total VMs" value={vms.length} />
         <DashboardMetricCard
           label="Running"
           value={vms.filter((v) => v.status.state === 'running').length}
         />
-        <DashboardMetricCard label="Users" value={selectedTenant === 'northstar' ? 5 : 4} />
+        <DashboardMetricCard label="Users" value={users.length} />
       </Flex>
 
-      <Title
-        headingLevel="h2"
-        size="xl"
-        style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}
-      >
+      <Title headingLevel="h2" size="xl" className="osac-admin-dashboard__section-title">
         Administration areas
       </Title>
       <Gallery hasGutter minWidths={{ default: '220px' }}>

@@ -10,7 +10,7 @@ import {
   StackItem,
   Title,
 } from '@patternfly/react-core';
-import type { ComputeInstance } from '@osac/api-contracts';
+import type { ComputeInstance } from '@osac/api-contracts/types';
 import { type ReactNode, useMemo, useState } from 'react';
 import { useComputeInstanceTemplates } from '../../../../api/hooks';
 import {
@@ -223,11 +223,7 @@ export const ReviewStep = ({
         <Title id="review-heading" headingLevel="h2" size="xl">
           Review and create
         </Title>
-        <Content
-          component="p"
-          className="pf-v6-u-color-text-subtle"
-          style={{ marginTop: 'var(--pf-t--global--spacer--sm)', maxWidth: 720 }}
-        >
+        <Content component="p" className="pf-v6-u-color-text-subtle osac-wizard-step__intro">
           Confirm the choices below, then create the virtual machine.
         </Content>
       </StackItem>

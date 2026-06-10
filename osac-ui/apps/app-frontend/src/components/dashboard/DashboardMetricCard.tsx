@@ -1,3 +1,4 @@
+import './DashboardMetricCard.css';
 import { Card, CardBody, Content, Stack, StackItem, Title } from '@patternfly/react-core';
 
 interface DashboardMetricCardProps {
@@ -7,19 +8,16 @@ interface DashboardMetricCardProps {
 
 export const DashboardMetricCard = ({ label, value }: DashboardMetricCardProps) => {
   return (
-    <Card isCompact style={{ minWidth: 120 }}>
+    <Card isCompact className="osac-dashboard-metric">
       <CardBody>
         <Stack>
           <StackItem>
-            <Title headingLevel="h3" size="3xl" style={{ margin: 0 }}>
+            <Title headingLevel="h3" size="3xl" className="osac-dashboard-metric__value">
               {value}
             </Title>
           </StackItem>
           <StackItem>
-            <Content
-              component="small"
-              style={{ color: 'var(--pf-t--global--text--color--subtle)' }}
-            >
+            <Content component="small" className="osac-dashboard-metric__label">
               {label}
             </Content>
           </StackItem>

@@ -1,0 +1,31 @@
+/* Application shell — masthead layout. */
+.osac-masthead-content {
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  min-width: 0;
+}
+
+.osac-masthead-content-rail {
+  width: 100%;
+  min-width: 0;
+  flex: 1;
+}
+
+.osac-masthead__brand-title {
+  margin: 0;
+  white-space: nowrap;
+}
+
+.osac-masthead-user-cluster {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: var(--pf-t--global--spacer--xs);
+  flex-shrink: 0;
+}
+
+.osac-masthead-operating-mode {
+  margin-inline-start: 0;
+}

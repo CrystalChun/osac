@@ -1,16 +1,18 @@
 flow: Recent activities
 statechart_ref: ../statecharts/recent-activities.statechart.yaml
 
+implementation_status:
+  status: deferred
+  note: >-
+    No masthead bell, dashboard sidebar, or /activities route in shipped UI. Spec retained for when
+    GET /api/events/v1/events client integration returns.
+
 backend:
-  description: Full-page activity feed; align with backend-fulfillment.yaml flows.recent-activities and context.osac_bff_runtime_modes.
-  dev:
-    primary: GET /api/events/v1/events (fulfillment Events.Watch; BFF must proxy in OSAC_API_MODE=dev)
-    implementation_note: >-
-      The BFF currently buffers the upstream response before returning it (backend-fulfillment.yaml
-      bff_proxy_matrix_dev.implementation_notes). Client streaming/SSE consumption may still work for many gateways;
-      treat low-latency chunk delivery as a future improvement when true streaming passthrough lands.
-  mock:
-    note: May use BFF mock JSON or client-derived activities until stream integration ships.
+  description: Full-page activity feed; align with backend-fulfillment.yaml flows.recent-activities.
+  primary: GET /api/events/v1/events (fulfillment Events.Watch; proxied by Go chi proxy with session cookie auth)
+  implementation_note: >-
+    The proxy may buffer the upstream response before returning it. The SPA uses listRecentEvents in
+    api/client.ts (JSON page or newline-delimited stream body) with TanStack Query polling.
 
 rbac:
   required_permissions_by_step:

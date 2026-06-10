@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import type { ComputeInstance } from '@osac/api-contracts';
+import type { ComputeInstance } from '@osac/api-contracts/types';
 import { clearAllPostCreateWatches } from './postCreateWatchStore';
 import {
   STILL_PROVISIONING_AFTER_MS,

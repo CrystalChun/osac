@@ -3,7 +3,7 @@
  * Immediate Starting / Stopping / Restarting badges; reconcile on each compute_instances list update.
  */
 import { useCallback, useEffect, useSyncExternalStore } from 'react';
-import type { ComputeInstance } from '@osac/api-contracts';
+import type { ComputeInstance } from '@osac/api-contracts/types';
 import { PENDING_VM_LIST_POLL_MS, type PatchVmInput } from './hooks';
 import {
   advancePendingPowerWatch,

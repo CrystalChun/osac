@@ -2,7 +2,7 @@
  * flow: manage-virtual-machines
  * Client-side VM placeholders after create wizard until compute_instances list includes the VM.
  */
-import type { ComputeInstance, VmPowerState } from '@osac/api-contracts';
+import type { ComputeInstance, VmPowerState } from '@osac/api-contracts/types';
 
 export const PENDING_VM_CLIENT_ID_PREFIX = 'pending-vm-';
 

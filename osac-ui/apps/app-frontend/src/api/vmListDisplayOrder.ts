@@ -2,7 +2,7 @@
  * Keep provisioning placeholders and newly created VMs at the end of the list.
  */
 import { isPendingVmClientId } from './pendingVmCreation';
-import type { ComputeInstance } from '@osac/api-contracts';
+import type { ComputeInstance } from '@osac/api-contracts/types';
 
 export const pinProvisioningVmsToListEnd = (
   vms: ComputeInstance[],

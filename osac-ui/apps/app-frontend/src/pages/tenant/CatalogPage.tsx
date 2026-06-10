@@ -1,9 +1,3 @@
-import { RedhatIcon } from '@patternfly/react-icons/dist/esm/icons/redhat-icon';
-import { WindowsIcon } from '@patternfly/react-icons/dist/esm/icons/windows-icon';
-/**
- * flow: vm-template-catalog
- * steps: vmc_catalog_grid, vmc_catalog_provider_global
- */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Alert,
@@ -39,15 +33,15 @@ import {
   Switch,
   Title,
 } from '@patternfly/react-core';
-import type { ClusterTemplate, ComputeInstance } from '@osac/api-contracts';
+import type { ClusterTemplate, ComputeInstance, OsType } from '@osac/api-contracts/types';
 import { useLocation } from 'react-router-dom';
-import linuxMascotUrl from '../../assets/guest-os-tux-linux.png';
-import { useSession } from '../../contexts/SessionContext';
 import { useComputeInstanceTemplates, useComputeInstances, useProvisionVm } from '../../api/hooks';
-import { PageHeader } from '../../components/layout';
+import { GuestOsIcon } from '../../components/shared/GuestOsIcon';
+import { PageHeader } from '../../components/layout/PageHeader';
 import type { CreateVmWizardHandle, DeploymentMode } from '../../components/vm/CreateVmWizard';
 import { CreateVmWizard } from '../../components/vm/CreateVmWizard';
 import { TemplateCard } from '../../components/vm/TemplateCard';
+import './CatalogPage.css';
 
 interface Props {
   isProviderGlobal?: boolean;
@@ -170,28 +164,8 @@ const drawerSubtitle = (template: ClusterTemplate): string => {
   return source.length <= 88 ? source : `${source.slice(0, 87)}…`;
 };
 
-const OsIcon = ({ icon }: { icon?: string }) => {
-  const style = { width: 28, height: 28 } as const;
-  if (icon === 'windows') {
-    return <WindowsIcon style={{ ...style, color: '#0078D4' }} />;
-  }
-  if (icon === 'rhel') {
-    return <RedhatIcon style={{ ...style, color: '#EE0000' }} />;
-  }
-  return (
-    <img
-      src={linuxMascotUrl}
-      alt=""
-      width={28}
-      height={28}
-      style={{ display: 'block', objectFit: 'contain' }}
-    />
-  );
-};
-
 export const CatalogPage = ({ isProviderGlobal = false }: Props) => {
   const location = useLocation();
-  const { selectedTenant } = useSession();
   const [search, setSearch] = useState('');
   const [osFilters, setOsFilters] = useState<Record<OsFilterKey, boolean>>({
     rhel: false,
@@ -218,11 +192,9 @@ export const CatalogPage = ({ isProviderGlobal = false }: Props) => {
   const { data: vms = [] } = useComputeInstances();
   const provisionVm = useProvisionVm();
 
-  const tenant = selectedTenant && selectedTenant !== 'vertexa' ? selectedTenant : 'northstar';
-
   const handleWizardProvision = useCallback(
-    (vm: ComputeInstance, meta: { mode: DeploymentMode }) => {
-      provisionVm.mutate({ vm, specTemplateOnly: meta.mode === 'template' });
+    async (vm: Partial<ComputeInstance>, meta: { mode: DeploymentMode }) => {
+      await provisionVm.mutateAsync({ vm, specTemplateOnly: meta.mode === 'template' });
     },
     [provisionVm],
   );
@@ -385,7 +357,7 @@ export const CatalogPage = ({ isProviderGlobal = false }: Props) => {
               </StackItem>
               <StackItem>
                 {templatesLoading ? (
-                  <Bullseye style={{ padding: 'var(--pf-t--global--spacer--2xl)' }}>
+                  <Bullseye className="osac-catalog__loading">
                     <Spinner aria-label="Loading templates" />
                   </Bullseye>
                 ) : filtered.length === 0 ? (
@@ -428,14 +400,13 @@ export const CatalogPage = ({ isProviderGlobal = false }: Props) => {
       <CreateVmWizard
         ref={wizardRef}
         existingVms={vms}
-        tenant={tenant}
         onProvision={handleWizardProvision}
         defaultMode="template"
       />
 
       <PageHeader
         title={isProviderGlobal ? 'Global templates' : 'VM templates'}
-        descriptionMaxWidth="48rem"
+        descriptionWidth="medium"
         description={
           isProviderGlobal
             ? 'Browse global templates and inspect details before launching a virtual machine.'
@@ -477,7 +448,7 @@ export const CatalogPage = ({ isProviderGlobal = false }: Props) => {
                       spaceItems={{ default: 'spaceItemsMd' }}
                     >
                       <FlexItem className="tenant-vm-template-card__icon-tile">
-                        <OsIcon icon={selectedTemplate.icon} />
+                        <GuestOsIcon os={(selectedTemplate.icon ?? 'linux') as OsType} size="lg" />
                       </FlexItem>
                       <FlexItem>
                         <Stack hasGutter={false}>

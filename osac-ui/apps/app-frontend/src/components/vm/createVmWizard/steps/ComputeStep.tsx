@@ -16,11 +16,7 @@ export const ComputeStep = ({ state, update }: { state: WizardState; update: Upd
         <Title id="compute-resources-heading" headingLevel="h2" size="xl">
           Compute resources
         </Title>
-        <Content
-          component="p"
-          className="pf-v6-u-color-text-subtle"
-          style={{ marginTop: 'var(--pf-t--global--spacer--sm)', maxWidth: 720 }}
-        >
+        <Content component="p" className="pf-v6-u-color-text-subtle osac-wizard-step__intro">
           Set vCPU and memory for this instance. Adjust to match your workload.
         </Content>
       </StackItem>

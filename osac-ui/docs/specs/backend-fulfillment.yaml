@@ -54,117 +54,117 @@ context:
       enums: PROTO_JSON string enums on the wire (e.g. COMPUTE_INSTANCE_STATE_RUNNING)
       well_known_types: google.protobuf wrappers as documented in compute_instance_type.proto
 
-  osac_bff_runtime_modes:
+  osac_deferred_ui_features:
     description: >
-      Projects/osac BFF (apps/app-backend) + SPA: how tenant dashboard "Recent activities"
-      (DashboardUtilizationSection sidebar) and the full-page recent-activities flow obtain data.
-    mock:
-      OSAC_API_MODE: mock
-      dashboard_recent_activities:
-        allowed_sources:
-          - Client-side derivation from GET /api/fulfillment/v1/compute_instances (buildRecentActivities)
-          - BFF mock GET /api/events/v1/events (static paginated JSON; not fulfillment-shaped stream)
-    dev:
-      OSAC_API_MODE: dev
-      dashboard_recent_activities:
-        required_api: GET /api/events/v1/events
-        upstream: fulfillment-service osac.public.v1.Events.Watch via gRPC-Gateway
-        bff_behavior: >
-          Proxy /api/events/v1/* to the fulfillment REST gateway with the same Authorization
-          Bearer passthrough used for /api/fulfillment/v1/*. Do not serve the mock static JSON
-          array for this path in dev mode.
-          **As-implemented note:** the BFF currently buffers the full upstream body before replying
-          (Undici + Fastify workaround); long-lived watch still works for many gateways but is not
-          true byte streaming — see `bff_proxy_matrix_dev.implementation_notes` in this file.
-        client_behavior: >
-          Open the long-lived watch (SSE or chunked JSON per gateway deployment); apply optional
-          CEL filter query param; buffer the latest N events for the sidebar; reconnect with
-          exponential backoff. Combine with GET /api/fulfillment/v1/compute_instances only for
-          hydration or reconciliation when event.relatedObjectRefs require fresh object state —
-          not as the sole source of the activity timeline in dev mode.
-        auth: Bearer JWT required (same as other protected fulfillment routes)
+      Documented in ui-flow specs but not shipped in osac-ui as of 2026-06. Do not assume fixture or
+      mock fallbacks for these surfaces.
+    items:
+      - Tenant dashboard utilization charts and quota cards
+      - Recent activities sidebar and full-page feed (GET /api/events/v1/events client not wired)
+      - VM console launch (GET /api/osac/public/v1/console/.../access)
+      - Welcome landing persona picker and institutional sign-in forms (replaced by OIDC)
 
   # ---------------------------------------------------------------------------
-  # Non-mock (“real fulfillment”) integration target — mock mode stays as-is
+  # Go chi proxy integration (mock mode and Fastify BFF removed — 2026)
   # ---------------------------------------------------------------------------
+  osac_proxy_integration:
+    purpose: >
+      OSAC SPA + Go chi proxy (proxy/) always require FULFILLMENT_API_URL and OIDC_CLIENT_ID for auth.
+      The SPA MUST NOT import fixture data from a removed mock layer; all screens use fulfillment
+      REST via /api/fulfillment/v1, /api/events/v1, and /api/osac/public/v1 unless documented as spec gaps.
+    implementation:
+      proxy_entry: proxy/main.go
+      spa_api_client: apps/app-frontend/src/api/client.ts
+      vite_dev_proxy: apps/app-frontend/vite.config.ts — /api, /health, /ready → proxy (default localhost:8080)
+    proxied_prefixes:
+      - /api/fulfillment/v1
+      - /api/events/v1
+      - /api/osac/public/v1
+    auth:
+      flow: OIDC Authorization Code + PKCE via proxy/auth (SignInPage, AuthCallback)
+      bearer_passthrough: >-
+        Proxy forwards Authorization header from browser to fulfillment upstream on proxied routes.
+      temp_dev_bearer: TEMP_FULFILLMENT_STATIC_BEARER on proxy when client sends no non-empty Bearer
+    removed:
+      - apps/app-backend Fastify BFF and OSAC_API_MODE=mock
+      - libs/api-contracts mock-data.ts (DEMO_*, VM_TEMPLATES, buildRecentActivities, etc.)
+      - /api/osac/bff/v1/create-vm-wizard BFF session API — wizard orchestration is client-side
+    create_virtual_machine_wizard_client_orchestration:
+      description: >
+        CreateVmWizard holds WizardState in React. Step validation runs in wizardBuild.ts;
+        finalize builds Partial<ComputeInstance> and POSTs via useProvisionVm → createComputeInstance.
+      steps:
+        - GET /api/fulfillment/v1/compute_instance_templates (TemplateStep, shared with catalog)
+        - Client validate template + customization steps
+        - POST /api/fulfillment/v1/compute_instances on finalize
+
+  # Legacy name retained for cross-references. Sections below referencing apps/app-backend,
+  # OSAC_API_MODE=mock, or BFF handlers are **historical** unless they appear under osac_proxy_integration.
   osac_real_api_integration:
     purpose: >
-      When OSAC runs against real fulfillment-service (typically OSAC_API_MODE=dev with
-      FULFILLMENT_API_URL and a working IdP), the SPA + BFF MUST satisfy this contract.
-      **OSAC_API_MODE=mock is unchanged:** BFF continues to serve fixtures; the SPA MAY keep
-      using libs/api-contracts DEMO_*, VM_TEMPLATES, buildRecentActivities(vm list), and
-      synthetic utilization charts exactly as today. Real-mode behavior MUST be gated
-      (env, build flag, or runtime branch) so mock demos do not regress.
+      When OSAC runs against real fulfillment-service (FULFILLMENT_API_URL + OIDC), the SPA + Go proxy
+      MUST satisfy this contract. Mock mode and fixture imports are removed.
     mock_mode_invariant: >
-      No obligation to wire OIDC, proxy non-fulfillment paths, or remove DEMO_* / VM_TEMPLATES
-      when mock mode is active. Tests and local demos default to mock unless explicitly
-      configured for dev/real.
+      **Removed.** Do not reintroduce fixture-first behavior or libs/api-contracts DEMO_* without
+      an explicit product decision and new spec section.
     integration_scope:
-      active_modes: [dev]
-      disabled_modes: [mock]
+      active_modes: [proxy]
+      disabled_modes: [mock, bff]
       enforcement: >
-        Requirements below are mandatory only when OSAC_API_MODE=dev. In OSAC_API_MODE=mock,
-        preserve current fixture-first behavior and session personas.
+        Requirements below apply to the shipped Go proxy + SPA stack. Ignore historical mock/BFF-only notes.
 
-    bff_dev_startup:
-      active_modes: [dev]
-      description: Fail-fast configuration before the BFF listens — avoids half-configured dev mode.
+    proxy_startup:
+      active_modes: [proxy]
+      description: Fail-fast when FULFILLMENT_API_URL is missing or invalid.
       implementation:
-        - apps/app-backend/src/index.ts calls assertFulfillmentDevReady(OSAC_API_MODE, FULFILLMENT_API_URL).
-        - apps/app-backend/src/startupConfig.ts — Vitest: startupConfig.test.ts
+        - proxy/config/config.go — required FULFILLMENT_API_URL at startup
       rules:
-        - When OSAC_API_MODE=dev, FULFILLMENT_API_URL MUST be non-empty and parse as http: or https:; otherwise the process exits with an error (stderr + exit code 1).
-        - When OSAC_API_MODE=mock, FULFILLMENT_API_URL is ignored (upstream not contacted by proxy routes).
+        - FULFILLMENT_API_URL MUST be non-empty and parse as http: or https:; otherwise the process exits with an error.
 
-    bff_health_endpoints:
-      active_modes: [mock, dev]
+    proxy_health_endpoints:
+      active_modes: [proxy]
       routes:
-        - GET /health → JSON includes application mode (e.g. `{ status, mode }` echoing OSAC_API_MODE).
-        - GET /ready → readiness JSON for probes.
+        - 'GET /health → JSON `{ "status": "ok" }`'
+        - 'GET /ready → JSON `{ "status": "ready" }`'
 
-    bff_cors_and_local_dev_proxy:
+    local_dev_proxy:
       description: >
-        Local SPA (Vite) talks same-origin `/api` via dev-server proxy to the BFF; browser does not need CORS
-        to the cluster for fulfillment paths. CORS on the BFF remains relevant for alternate dev layouts.
+        Local SPA (Vite) talks same-origin `/api` via dev-server proxy to the Go proxy; browser does not
+        need CORS to the cluster for fulfillment paths.
       implementation:
-        - apps/app-backend/src/app.ts — @fastify/cors with origin disabled in production; in non-production,
-          permissive origin with credentials (tighten to an allowlist when hosting is fixed — OSAC_WORKAROUND_REMOVE(cors-refine)).
-        - apps/app-frontend/vite.config.ts — dev server proxy `/api`, `/health`, `/ready` → BFF (default localhost:3001).
+        - apps/app-frontend/vite.config.ts — dev server proxy `/api`, `/health`, `/ready` → proxy (default localhost:8080).
 
     fulfillment_upstream_tls:
-      active_modes: [dev]
+      active_modes: [proxy]
       description: >
-        BFF → fulfillment HTTP client uses Node Undici when custom TLS trust is required; otherwise
-        global fetch. Scoped to fulfillment upstream only (not global NODE_TLS_REJECT_UNAUTHORIZED).
-      implementation:
-        - apps/app-backend/src/fulfillmentUpstream.ts (createFulfillmentUpstream); Vitest: fulfillmentUpstream.test.ts
-        - Wired from buildApp via FulfillmentProxyRouteConfig.fulfillmentFetch (routes/fulfillmentProxyConfig.ts).
+        Go proxy → fulfillment HTTP client TLS configuration for private PKI upstreams.
       environment:
         FULFILLMENT_TLS_CA_FILE:
           optional: true
-          behavior: PEM bundle read into Undici Agent connect.ca (prefer full chain). Prefer over NODE_EXTRA_CA_CERTS for Undici reliability.
-        TEMP_FULFILLMENT_TLS_INSECURE:
+          behavior: PEM bundle for upstream TLS trust.
+        FULFILLMENT_TLS_INSECURE:
           optional: true
-          values: Set to "1" for dev-only upstream TLS verification off (curl -k equivalent).
-          production_rule: MUST refuse when NODE_ENV=production (throws at createFulfillmentUpstream).
-      teardown: fulfillmentUpstream.close() registered on Fastify onClose.
+          values: Set to "1" for dev-only upstream TLS verification off.
 
     authentication_oidc:
-      active_modes: [dev]
+      active_modes: [proxy]
       description: Wire capabilities discovery to interactive login and Bearer tokens.
       steps:
         - >-
-          On InstitutionalSignIn (or app bootstrap before protected routes), call
-          GET /api/fulfillment/v1/capabilities **without** Authorization; parse authn.trustedTokenIssuers.
+          On SignInPage (or app bootstrap), call GET /api/fulfillment/v1/capabilities without
+          Authorization; parse authn.trustedTokenIssuers from response.
         - >-
-          Run OAuth 2.0 Authorization Code flow with **PKCE** (or org-mandated equivalent)
-          against the chosen issuer; obtain access_token (JWT) and optional refresh_token.
+          Run OAuth 2.0 Authorization Code flow with PKCE via Go proxy auth handlers; obtain access_token JWT.
         - >-
-          Store tokens per browser security guidance (memory + refresh, or httpOnly cookies if BFF participates).
+          **Target:** keep auth state in proxy-managed session (Secure, HttpOnly, SameSite cookies); avoid
+          persisting raw access tokens in Web Storage when cookie-based sessions are available.
         - >-
-          Attach Authorization: Bearer with the access_token JWT on every SPA→BFF request that
-          forwards to fulfillment; BFF passes the header through unchanged for proxied paths.
-        - Document logout (revoke or drop session) and token refresh failure UX.
+          **Current SPA:** may store Bearer tokens in sessionStorage for dev; proxy forwards Authorization
+          on SPA → proxy → fulfillment requests. Document logout (proxy session clear) and token refresh failure UX.
+
+    bff_dev_startup:
+      status: removed
+      note: Historical — apps/app-backend Fastify BFF removed; see proxy_startup.
 
     compute_instances_wire_format_and_ui:
       active_modes: [mock, dev]
@@ -755,8 +755,13 @@ context:
   # Same-origin OSAC BFF JSON routes (not fulfillment gRPC-gateway paths). Documented here so UI
   # and BFF implementations share one contract file with fulfillment alignment notes.
   bff_demo_osac_extensions:
+    status: removed
+    note: >
+      The create-vm-wizard BFF session API (/api/osac/bff/v1/create-vm-wizard) and Fastify mock layer
+      were removed. See context.osac_proxy_integration.create_virtual_machine_wizard_client_orchestration.
     create_virtual_machine_wizard:
       base_path: /api/osac/bff/v1/create-vm-wizard
+      removed: true
       auth: Bearer session (same as other BFF APIs in demo); tenant scoping matches signed-in context.
       session_storage: >-
         In-memory map keyed by sessionId for mock mode; production-shaped deployments may use Redis

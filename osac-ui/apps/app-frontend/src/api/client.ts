@@ -1,24 +1,32 @@
 /**
- * BFF API client — always routes through /api on the same origin.
- * Vite dev server proxies /api → backend:3001.
- * In production the BFF serves both the SPA and the API.
+ * API client — routes through /api on the same origin (Go chi proxy).
+ * Vite dev server proxies /api → proxy:8080.
  */
 import type {
   ClusterTemplate,
   ComputeInstance,
   FulfillmentCapabilities,
+  Organization,
   PageOfT,
-} from '@osac/api-contracts';
+  User,
+} from '@osac/api-contracts/types';
+import type {
+  ComputeInstancePowerAction,
+  SerializeComputeInstanceForCreateOptions,
+} from '@osac/api-contracts/computeInstanceNormalize';
 import {
-  type ComputeInstancePowerAction,
-  type SerializeComputeInstanceForCreateOptions,
   normalizeComputeInstance,
   normalizeComputeInstancePage,
-  normalizeComputeInstanceTemplate,
-  normalizeComputeInstanceTemplatePage,
   serializeComputeInstanceForCreate,
   serializeComputeInstancePowerPatch,
-} from '@osac/api-contracts';
+} from '@osac/api-contracts/computeInstanceNormalize';
+import {
+  normalizeComputeInstanceTemplate,
+  normalizeComputeInstanceTemplatePage,
+} from '@osac/api-contracts/computeInstanceTemplateNormalize';
+import { normalizeOrganizationPage } from '@osac/api-contracts/organizationNormalize';
+import { normalizeUserPage } from '@osac/api-contracts/userNormalize';
+
 const BASE = '/api/fulfillment/v1';
 
 const parseJson = async (res: Response): Promise<unknown> => {
@@ -36,7 +44,18 @@ const unwrapFulfillmentObject = (data: unknown): unknown => {
   return data;
 };
 
-const request = async <T>(path: string, init?: RequestInit): Promise<T> => {
+const buildQueryString = (params: { filter?: string; limit?: number; offset?: number }): string => {
+  const q = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (value != null) {
+      q.set(key, String(value));
+    }
+  }
+  const qs = q.toString();
+  return qs ? `?${qs}` : '';
+};
+
+const fulfillmentFetch = async (path: string, init?: RequestInit): Promise<Response> => {
   const res = await fetch(`${BASE}${path}`, {
     credentials: 'include',
     headers: { 'Content-Type': 'application/json', ...init?.headers },
@@ -46,11 +65,15 @@ const request = async <T>(path: string, init?: RequestInit): Promise<T> => {
     const body = await res.text().catch(() => '');
     throw new Error(`API ${res.status}: ${body || res.statusText}`);
   }
-  return (await parseJson(res)) as T;
+  return res;
+};
+
+const fulfillmentJson = async (path: string, init?: RequestInit): Promise<unknown> => {
+  return parseJson(await fulfillmentFetch(path, init));
 };
 
 export const getFulfillmentCapabilities = (): Promise<FulfillmentCapabilities> => {
-  return request<FulfillmentCapabilities>('/capabilities');
+  return fulfillmentJson('/capabilities') as Promise<FulfillmentCapabilities>;
 };
 
 // ---------------------------------------------------------------------------
@@ -66,57 +89,27 @@ export interface ListComputeInstancesParams {
 export const listComputeInstances = async (
   params: ListComputeInstancesParams = {},
 ): Promise<PageOfT<ComputeInstance>> => {
-  const q = new URLSearchParams();
-  if (params.filter) {
-    q.set('filter', params.filter);
-  }
-  if (params.limit != null) {
-    q.set('limit', String(params.limit));
-  }
-  if (params.offset != null) {
-    q.set('offset', String(params.offset));
-  }
-  const qs = q.toString();
-  const path = `/compute_instances${qs ? `?${qs}` : ''}`;
-  const res = await fetch(`${BASE}${path}`, {
-    credentials: 'include',
-    headers: { 'Content-Type': 'application/json' },
-  });
-  if (!res.ok) {
-    const body = await res.text().catch(() => '');
-    throw new Error(`API ${res.status}: ${body || res.statusText}`);
-  }
-  return normalizeComputeInstancePage(await parseJson(res));
+  const path = `/compute_instances${buildQueryString(params)}`;
+  return normalizeComputeInstancePage(await fulfillmentJson(path));
 };
 
 export const getComputeInstance = async (id: string): Promise<ComputeInstance> => {
-  const res = await fetch(`${BASE}/compute_instances/${encodeURIComponent(id)}`, {
-    credentials: 'include',
-    headers: { 'Content-Type': 'application/json' },
-  });
-  if (!res.ok) {
-    const body = await res.text().catch(() => '');
-    throw new Error(`API ${res.status}: ${body || res.statusText}`);
-  }
-  return normalizeComputeInstance(await parseJson(res));
+  return normalizeComputeInstance(
+    await fulfillmentJson(`/compute_instances/${encodeURIComponent(id)}`),
+  );
 };
 
 export const createComputeInstance = async (
   vm: Partial<ComputeInstance>,
   opts?: SerializeComputeInstanceForCreateOptions,
 ): Promise<ComputeInstance> => {
-  const res = await fetch(`${BASE}/compute_instances`, {
-    method: 'POST',
-    credentials: 'include',
-    headers: { 'Content-Type': 'application/json' },
-    /** Fulfillment HTTP unmarshals **ComputeInstance** at root (not `{ "object": … }`). */
-    body: JSON.stringify(serializeComputeInstanceForCreate(vm, opts)),
-  });
-  if (!res.ok) {
-    const body = await res.text().catch(() => '');
-    throw new Error(`API ${res.status}: ${body || res.statusText}`);
-  }
-  const raw = unwrapFulfillmentObject(await parseJson(res));
+  const raw = unwrapFulfillmentObject(
+    await fulfillmentJson('/compute_instances', {
+      method: 'POST',
+      /** Fulfillment HTTP unmarshals **ComputeInstance** at root (not `{ "object": … }`). */
+      body: JSON.stringify(serializeComputeInstanceForCreate(vm, opts)),
+    }),
+  );
   if (raw == null || typeof raw !== 'object') {
     throw new Error('API: missing object in create response');
   }
@@ -127,17 +120,12 @@ export const patchComputeInstance = async (
   id: string,
   patch: Partial<ComputeInstance>,
 ): Promise<ComputeInstance> => {
-  const res = await fetch(`${BASE}/compute_instances/${encodeURIComponent(id)}`, {
-    method: 'PATCH',
-    credentials: 'include',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(patch),
-  });
-  if (!res.ok) {
-    const body = await res.text().catch(() => '');
-    throw new Error(`API ${res.status}: ${body || res.statusText}`);
-  }
-  const raw = unwrapFulfillmentObject(await parseJson(res));
+  const raw = unwrapFulfillmentObject(
+    await fulfillmentJson(`/compute_instances/${encodeURIComponent(id)}`, {
+      method: 'PATCH',
+      body: JSON.stringify(patch),
+    }),
+  );
   if (raw == null || typeof raw !== 'object') {
     throw new Error('API: missing object in patch response');
   }
@@ -148,17 +136,12 @@ export const patchComputeInstancePower = async (
   id: string,
   action: ComputeInstancePowerAction,
 ): Promise<ComputeInstance> => {
-  const res = await fetch(`${BASE}/compute_instances/${encodeURIComponent(id)}`, {
-    method: 'PATCH',
-    credentials: 'include',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(serializeComputeInstancePowerPatch(action)),
-  });
-  if (!res.ok) {
-    const body = await res.text().catch(() => '');
-    throw new Error(`API ${res.status}: ${body || res.statusText}`);
-  }
-  const raw = unwrapFulfillmentObject(await parseJson(res));
+  const raw = unwrapFulfillmentObject(
+    await fulfillmentJson(`/compute_instances/${encodeURIComponent(id)}`, {
+      method: 'PATCH',
+      body: JSON.stringify(serializeComputeInstancePowerPatch(action)),
+    }),
+  );
   if (raw == null || typeof raw !== 'object') {
     throw new Error('API: missing object in patch response');
   }
@@ -166,14 +149,7 @@ export const patchComputeInstancePower = async (
 };
 
 export const deleteComputeInstance = async (id: string): Promise<void> => {
-  const res = await fetch(`${BASE}/compute_instances/${encodeURIComponent(id)}`, {
-    method: 'DELETE',
-    credentials: 'include',
-  });
-  if (!res.ok) {
-    const body = await res.text().catch(() => '');
-    throw new Error(`API ${res.status}: ${body || res.statusText}`);
-  }
+  await fulfillmentFetch(`/compute_instances/${encodeURIComponent(id)}`, { method: 'DELETE' });
 };
 
 // ---------------------------------------------------------------------------
@@ -189,37 +165,44 @@ export interface ListComputeInstanceTemplatesParams {
 export const listComputeInstanceTemplates = async (
   params: ListComputeInstanceTemplatesParams = {},
 ): Promise<PageOfT<ClusterTemplate>> => {
-  const q = new URLSearchParams();
-  if (params.filter) {
-    q.set('filter', params.filter);
-  }
-  if (params.limit != null) {
-    q.set('limit', String(params.limit));
-  }
-  if (params.offset != null) {
-    q.set('offset', String(params.offset));
-  }
-  const qs = q.toString();
-  const path = `/compute_instance_templates${qs ? `?${qs}` : ''}`;
-  const res = await fetch(`${BASE}${path}`, {
-    credentials: 'include',
-    headers: { 'Content-Type': 'application/json' },
-  });
-  if (!res.ok) {
-    const body = await res.text().catch(() => '');
-    throw new Error(`API ${res.status}: ${body || res.statusText}`);
-  }
-  return normalizeComputeInstanceTemplatePage(await parseJson(res));
+  const path = `/compute_instance_templates${buildQueryString(params)}`;
+  return normalizeComputeInstanceTemplatePage(await fulfillmentJson(path));
 };
 
 export const getComputeInstanceTemplate = async (id: string): Promise<ClusterTemplate> => {
-  const res = await fetch(`${BASE}/compute_instance_templates/${encodeURIComponent(id)}`, {
-    credentials: 'include',
-    headers: { 'Content-Type': 'application/json' },
-  });
-  if (!res.ok) {
-    const body = await res.text().catch(() => '');
-    throw new Error(`API ${res.status}: ${body || res.statusText}`);
-  }
-  return normalizeComputeInstanceTemplate(await parseJson(res));
+  return normalizeComputeInstanceTemplate(
+    await fulfillmentJson(`/compute_instance_templates/${encodeURIComponent(id)}`),
+  );
+};
+
+// ---------------------------------------------------------------------------
+// Organizations
+// ---------------------------------------------------------------------------
+
+export interface ListOrganizationsParams {
+  filter?: string;
+  limit?: number;
+  offset?: number;
+}
+
+export const listOrganizations = async (
+  params: ListOrganizationsParams = {},
+): Promise<PageOfT<Organization>> => {
+  const path = `/organizations${buildQueryString(params)}`;
+  return normalizeOrganizationPage(await fulfillmentJson(path));
+};
+
+// ---------------------------------------------------------------------------
+// Users
+// ---------------------------------------------------------------------------
+
+export interface ListUsersParams {
+  filter?: string;
+  limit?: number;
+  offset?: number;
+}
+
+export const listUsers = async (params: ListUsersParams = {}): Promise<PageOfT<User>> => {
+  const path = `/users${buildQueryString(params)}`;
+  return normalizeUserPage(await fulfillmentJson(path));
 };

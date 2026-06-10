@@ -3,7 +3,7 @@
   "compilerOptions": {
     "jsx": "react-jsx",
     "paths": {
-      "@osac/api-contracts": ["../../libs/api-contracts/src/index.ts"]
+      "@osac/api-contracts/*": ["../../libs/api-contracts/src/*"]
     }
   },
   "include": ["src"]

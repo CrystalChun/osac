@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { QueryClient } from '@tanstack/react-query';
-import type { ComputeInstance, PageOfT } from '@osac/api-contracts';
+import type { ComputeInstance, PageOfT } from '@osac/api-contracts/types';
 import {
   removeComputeInstanceFromCache,
   upsertComputeInstanceInCache,

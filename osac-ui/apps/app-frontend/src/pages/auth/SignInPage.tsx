@@ -10,6 +10,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bullseye, Button, Spinner, Title } from '@patternfly/react-core';
 import { useSession } from '../../contexts/SessionContext';
+import './SignInPage.css';
 
 const startOIDCLogin = async (): Promise<void> => {
   const redirectBase = encodeURIComponent(window.location.origin);
@@ -56,15 +57,13 @@ export const SignInPage = () => {
 
   if (error) {
     return (
-      <Bullseye style={{ height: '100vh' }}>
-        <div style={{ textAlign: 'center' }}>
-          <Title headingLevel="h1" size="xl" style={{ marginBottom: '1rem' }}>
+      <Bullseye className="osac-auth-sign-in">
+        <div className="osac-auth-sign-in__panel">
+          <Title headingLevel="h1" size="xl" className="osac-auth-sign-in__title">
             Sign-in failed
           </Title>
-          <p style={{ marginBottom: '1.5rem', color: 'var(--pf-t--global--text--color--subtle)' }}>
-            {error}
-          </p>
-          <Button variant="primary" onClick={triggerLogin} style={{ marginRight: '0.5rem' }}>
+          <p className="osac-auth-sign-in__message">{error}</p>
+          <Button variant="primary" onClick={triggerLogin} className="osac-auth-sign-in__retry">
             Retry
           </Button>
           <Button variant="link" onClick={handleChooseAnother}>
@@ -76,10 +75,12 @@ export const SignInPage = () => {
   }
 
   return (
-    <Bullseye style={{ height: '100vh' }}>
-      <div style={{ textAlign: 'center' }}>
-        <Spinner aria-label="Redirecting to sign in…" style={{ marginBottom: '1rem' }} />
-        <p style={{ color: 'var(--pf-t--global--text--color--subtle)' }}>Redirecting to sign in…</p>
+    <Bullseye className="osac-auth-sign-in">
+      <div className="osac-auth-sign-in__panel">
+        <Spinner aria-label="Redirecting to sign in…" className="osac-auth-sign-in__spinner" />
+        <p className="osac-auth-sign-in__message osac-auth-sign-in__message--compact">
+          Redirecting to sign in…
+        </p>
       </div>
     </Bullseye>
   );

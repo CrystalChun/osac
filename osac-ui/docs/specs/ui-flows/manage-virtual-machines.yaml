@@ -1,6 +1,13 @@
 flow: Manage virtual machines
 statechart_ref: ../statecharts/manage-virtual-machines.statechart.yaml
 
+implementation_status:
+  as_of: '2026-06'
+  deferred:
+    - Console launch (launch_console permission, vcd_console_page transition)
+    - Clone and migrate actions in VmActionsMenu
+    - Full-page detail with dedicated console side card (shipped: drawer with Actions card only)
+
 primary_api:
   list: GET /api/fulfillment/v1/compute_instances
   patch: PATCH /api/fulfillment/v1/compute_instances/{id}
@@ -16,7 +23,6 @@ rbac:
     mvm_detail_drawer:
       view_vm_detail: view_my_vms
       perform_power_action: operate_vm_power
-      launch_console: launch_console
     mvm_topology_handoff:
       open_vm_from_topology: open_vm_from_topology
 
@@ -109,8 +115,8 @@ steps:
       - Re-select My VMs nav to return from detail to list.
 
   - id: mvm_detail_drawer
-    title: Virtual machine detail layout
-    goal: Inspect VM properties in full-page detail tabs, use a dedicated console side card, and return to list from breadcrumb.
+    title: Virtual machine detail drawer
+    goal: Inspect VM properties in a drawer layout with Actions card; return to list from breadcrumb or close.
 
     ui:
       components:
@@ -139,18 +145,15 @@ steps:
       - guest_os_running
       - guest_os_stopped
       - guest_os_paused
-      - console_unavailable_stopped
-      - console_unavailable_paused
-      - console_launch_enabled
 
     interactions:
       - Read breadcrumb in upper-left: My VMs -> selected VM name.
       - Click My VMs breadcrumb item to return to the list view.
-      - Review two-card detail layout: large primary card for tabbed VM properties and smaller right-side console card.
+      - Review two-column drawer layout: primary card for tabbed VM properties and right-side Actions card (status, IP, power menu).
       - Navigate tabs within detail.
       - >-
-        Use the console card to view status and launch console; actions menu matches list (start, stop, restart, delete;
-        no clone or migrate).
+        Actions card shows VmStatusLabel, IP address, and VmActionsMenu (start, stop, restart, delete;
+        no clone, migrate, or console launch).
       - Delete from detail actions menu follows the same confirm + PATCH stop (when needed) + DELETE contract as the list view.
       - >-
         Overview tab: vCPU/Memory/Storage/Created align with wire-normalized spec + metadata (camelCase in TS after normalize).
@@ -211,9 +214,10 @@ transitions:
   - from: mvm_topology_handoff
     action: shell switches to My VMs and consumes open request
     to: mvm_detail_drawer
-  - from: mvm_detail_drawer
-    action: launch console while running opens new tab with demo query
-    to: vcd_console_page
+  # RESTORE when console launch is wired:
+  # - from: mvm_detail_drawer
+  #   action: launch console while running opens new tab with demo query
+  #   to: vcd_console_page
 
 # RESTORE validation_rules when clone from My VMs actions is supported:
 # validation_rules:

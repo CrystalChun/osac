@@ -1,0 +1,25 @@
+.tenant-vm-template-card__header {
+  align-items: flex-start;
+}
+
+.tenant-vm-template-card__title {
+  margin: 0;
+  font-size: var(--pf-t--global--font--size--body--sm);
+  font-weight: var(--pf-t--global--font--weight--heading--regular);
+}
+
+.tenant-vm-template-card__subtitle {
+  color: var(--pf-t--global--text--color--subtle);
+  line-height: 1.35;
+}
+
+.tenant-vm-template-card__resource-row {
+  font-size: var(--pf-t--global--font--size--body--sm);
+  color: var(--pf-t--global--text--color--subtle);
+}
+
+.tenant-vm-template-card__workload-line {
+  margin: 0;
+  color: var(--pf-t--global--text--color--subtle);
+  font-size: var(--pf-t--global--font--size--body--xs);
+}

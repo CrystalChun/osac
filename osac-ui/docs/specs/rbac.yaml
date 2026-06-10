@@ -242,10 +242,12 @@ ai-hints:
     - vm lifecycle actions must remain tenant-scoped and must not cross tenant boundaries
   integration_modes:
     dev: >-
-      With OSAC_API_MODE=dev, this manifest must be reconciled with
-      backend-fulfillment.yaml context.osac_real_api_integration.role_model_alignment and
-      jwt_claims_and_authorino_alignment. SPA personas are valid only if they map to
-      backend-enforced permissions and tenant scope from JWT/Authorino.
-    mock: >-
-      With OSAC_API_MODE=mock, this manifest continues to drive local demo navigation and
-      guards without requiring real IdP tokens, Authorino checks, or fulfillment RoleBindings.
+      Shipped stack uses Go chi proxy + OIDC. Reconcile this manifest with
+      backend-fulfillment.yaml context.osac_proxy_integration and role_model_alignment.
+      SPA role (tenantUser, tenantAdmin, providerAdmin) comes from fulfillment capabilities/userinfo.
+    mock:
+      status: removed
+      note: >-
+        OSAC_API_MODE=mock and fixture-first navigation were removed. Permissions for deferred flows
+        (choose_persona, view_recent_activities, launch_console, view_quota) remain in this file for
+        future work — not enforced in shipped UI.
