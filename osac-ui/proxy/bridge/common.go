@@ -23,6 +23,23 @@ func GetOIDCTlsConfig() (*tls.Config, error) {
 		return tlsConfig, nil
 	}
 
+	caFile := config.OIDCTlsCaFile
+	if caFile == "" {
+		return tlsConfig, nil
+	}
+
+	caCert, err := os.ReadFile(caFile)
+	if err != nil {
+		return nil, err
+	}
+
+	caCertPool, err := x509.SystemCertPool()
+	if err != nil {
+		return nil, err
+	}
+	caCertPool.AppendCertsFromPEM(caCert)
+	tlsConfig.RootCAs = caCertPool
+
 	return tlsConfig, nil
 }
 

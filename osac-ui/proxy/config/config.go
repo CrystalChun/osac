@@ -16,6 +16,8 @@ var (
 	FulfillmentTlsInsecure = getEnvVar("FULFILLMENT_TLS_INSECURE", "") == "1"
 	// OIDCClientID is the client_id registered in the IdP for this UI application.
 	OIDCClientID = getEnvVar("OIDC_CLIENT_ID", "osac-ui")
+	// OIDCTlsCaFile CA file for the OIDC IdP (discovery, token exchange, refresh).
+	OIDCTlsCaFile = getEnvVar("OIDC_TLS_CA_FILE", "")
 	// OIDCTlsInsecure disables TLS certificate verification when contacting the OIDC IdP
 	// (discovery, token exchange, refresh). For development only.
 	OIDCTlsInsecure = getEnvVar("OIDC_TLS_INSECURE", "") == "1"
