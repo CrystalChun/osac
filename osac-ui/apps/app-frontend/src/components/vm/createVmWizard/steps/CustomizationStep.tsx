@@ -15,7 +15,7 @@ import {
   Title,
 } from '@patternfly/react-core';
 import { useLayoutEffect, useMemo, useState } from 'react';
-import { useComputeInstanceTemplates } from '../../../../api/hooks';
+import { useComputeInstanceCatalogItems, useComputeInstanceTemplates } from '../../../../api/hooks';
 import {
   TEMPLATE_BOOT_DISK_MAX_GIB,
   TEMPLATE_BOOT_DISK_MIN_GIB,
@@ -29,7 +29,7 @@ import {
   parseTemplateCoresInput,
   parseTemplateMemoryGibInput,
 } from '../constants';
-import type { UpdateFn, WizardState } from '../types';
+import { type UpdateFn, type WizardState, resolveUnderlyingTemplate } from '../types';
 
 const RUN_STRATEGY_OPTIONS = [
   { value: 'Always', label: 'Always' },
@@ -45,11 +45,17 @@ type CustomizationTabKey = 'overview' | 'storage' | 'network' | 'ssh' | 'advance
 
 export const CustomizationStep = ({ state, update }: { state: WizardState; update: UpdateFn }) => {
   const [activeTab, setActiveTab] = useState<CustomizationTabKey>('overview');
+  const { data: catalogItems = [] } = useComputeInstanceCatalogItems();
   const { data: templates = [] } = useComputeInstanceTemplates();
 
+  const selectedCatalogItem = useMemo(
+    () => catalogItems.find((item) => item.id === state.selectedCatalogItemId) ?? null,
+    [catalogItems, state.selectedCatalogItemId],
+  );
+
   const selectedTemplate = useMemo(
-    () => templates.find((t) => t.id === state.selectedTemplateId) ?? null,
-    [templates, state.selectedTemplateId],
+    () => resolveUnderlyingTemplate(selectedCatalogItem, templates),
+    [selectedCatalogItem, templates],
   );
 
   const bootDiskInvalid =
@@ -74,10 +80,10 @@ export const CustomizationStep = ({ state, update }: { state: WizardState; updat
 
   /** Seed numeric fields from catalog template when still empty / invalid. */
   useLayoutEffect(() => {
-    if (state.mode !== 'template' || !state.selectedTemplateId || !selectedTemplate) {
+    if (state.mode !== 'template' || !state.selectedCatalogItemId || !selectedTemplate) {
       return;
     }
-    if (selectedTemplate.id !== state.selectedTemplateId) {
+    if (selectedCatalogItem?.id !== state.selectedCatalogItemId) {
       return;
     }
 
@@ -109,10 +115,11 @@ export const CustomizationStep = ({ state, update }: { state: WizardState; updat
     }
   }, [
     state.mode,
-    state.selectedTemplateId,
+    state.selectedCatalogItemId,
     state.templateBootDiskSizeGib,
     state.templateCores,
     state.templateMemoryGib,
+    selectedCatalogItem,
     selectedTemplate,
     update,
   ]);

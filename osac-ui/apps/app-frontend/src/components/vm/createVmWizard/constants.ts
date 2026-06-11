@@ -99,7 +99,7 @@ export const INITIAL_STATE: WizardState = {
   cpuNew: '2',
   memoryNew: '4',
   cloudInitUserDataNew: '',
-  selectedTemplateId: null,
+  selectedCatalogItemId: null,
   templateBootDiskSizeGib: '',
   templateCores: '',
   templateMemoryGib: '',
@@ -117,7 +117,7 @@ export const INITIAL_STATE: WizardState = {
   startAfterCreate: true,
 };
 
-/** Merge partial draft over defaults (e.g. catalog preset template id). */
+/** Merge partial draft over defaults (e.g. catalog preset catalog item id). */
 export const mergeWizardDraft = (partial: Partial<WizardState>): WizardState => {
   const merged = { ...INITIAL_STATE, ...partial };
   merged.templateRunStrategy =

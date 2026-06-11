@@ -271,6 +271,36 @@ describe('serializeComputeInstanceForCreate', () => {
     const body = serializeComputeInstanceForCreate(vm, { specTemplateOnly: true });
     expect(body.spec).toBeUndefined();
   });
+
+  it('with specCatalogItemOnly requires catalog_item and still serializes other spec fields', () => {
+    const vm = normalizeComputeInstance({
+      ...wireVm,
+      spec: {
+        ...wireVm.spec,
+        template: undefined,
+        catalog_item: 'catalog-rhel-9',
+      },
+    });
+    vm.spec.catalogItem = 'catalog-rhel-9';
+    delete vm.spec.template;
+    const body = serializeComputeInstanceForCreate(vm, { specCatalogItemOnly: true });
+    expect(body.spec).toMatchObject({
+      catalog_item: 'catalog-rhel-9',
+      cores: 4,
+      memory_gib: 8,
+      boot_disk: { size_gib: 64 },
+    });
+    expect(body.spec).not.toHaveProperty('template');
+  });
+
+  it('with specCatalogItemOnly omits spec when catalog_item is missing', () => {
+    const vm = normalizeComputeInstance({
+      ...wireVm,
+      spec: { ...wireVm.spec, template: undefined, catalog_item: undefined },
+    });
+    const body = serializeComputeInstanceForCreate(vm, { specCatalogItemOnly: true });
+    expect(body.spec).toBeUndefined();
+  });
 });
 
 describe('serializeComputeInstancePowerPatch', () => {

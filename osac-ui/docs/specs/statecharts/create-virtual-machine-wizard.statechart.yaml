@@ -12,7 +12,7 @@ context:
   role: null
   tenantId: null
   deploymentMethod: template
-  selectedTemplateId: null
+  selectedCatalogItemId: null
   isSubmitting: false
   validationError: null
 

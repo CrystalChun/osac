@@ -47,7 +47,9 @@ export type VmPowerState =
 
 export interface ComputeInstanceSpec {
   template?: string;
-  /** Template param values (ProtoJSON Any map). The create-from-template wizard does not populate this; use top-level `spec` fields instead. */
+  /** Reference to a published compute instance catalog item (mutually exclusive with template on create). */
+  catalogItem?: string;
+  /** Template param values (ProtoJSON Any map). The create-from-catalog wizard does not populate this; use top-level `spec` fields instead. */
   templateParameters?: Record<string, unknown>;
   cores?: number;
   memoryGib?: number;
@@ -123,6 +125,22 @@ export interface ClusterTemplate extends ClusterTemplateSummary {
   tags?: string[];
   /** OS family for icon + filter: rhel | windows | linux */
   icon?: string;
+}
+
+// ---------------------------------------------------------------------------
+// Compute instance catalog items (curated VM offerings)
+// ---------------------------------------------------------------------------
+
+export interface ComputeInstanceCatalogItem {
+  id: string;
+  metadata: Metadata;
+  title: string;
+  description?: string;
+  /** Underlying compute_instance_template id. */
+  template: string;
+  published: boolean;
+  /** Deferred: dynamic customization from field_definitions. */
+  fieldDefinitions?: Record<string, unknown>[];
 }
 
 // ---------------------------------------------------------------------------

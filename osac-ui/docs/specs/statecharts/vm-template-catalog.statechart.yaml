@@ -16,7 +16,7 @@ context:
     dataProcessing: false
     analytics: false
   searchTerm: ''
-  selectedTemplateId: null
+  selectedCatalogItemId: null
   templateDetailTab: details
 
 initial: vmc_catalog_grid

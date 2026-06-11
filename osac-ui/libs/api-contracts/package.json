@@ -31,6 +31,10 @@
     "./computeInstanceTemplateNormalize": {
       "types": "./dist/computeInstanceTemplateNormalize.d.ts",
       "import": "./dist/computeInstanceTemplateNormalize.js"
+    },
+    "./computeInstanceCatalogItemNormalize": {
+      "types": "./dist/computeInstanceCatalogItemNormalize.d.ts",
+      "import": "./dist/computeInstanceCatalogItemNormalize.js"
     }
   },
   "devDependencies": {

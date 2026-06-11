@@ -12,7 +12,7 @@ import {
 } from '@patternfly/react-core';
 import type { ComputeInstance } from '@osac/api-contracts/types';
 import { type ReactNode, useMemo, useState } from 'react';
-import { useComputeInstanceTemplates } from '../../../../api/hooks';
+import { useComputeInstanceCatalogItems, useComputeInstanceTemplates } from '../../../../api/hooks';
 import {
   parseTemplateAdditionalDisksGibInput,
   parseTemplateBootDiskGibInput,
@@ -20,7 +20,7 @@ import {
   parseTemplateMemoryGibInput,
   parseTemplateSecurityGroupsInput,
 } from '../constants';
-import type { UpdateFn, WizardState } from '../types';
+import { type UpdateFn, type WizardState, resolveUnderlyingTemplate } from '../types';
 
 /*
 RESTORE for "new" path review:
@@ -41,13 +41,18 @@ export const ReviewStep = ({
   vms?: ComputeInstance[];
 }) => {
   void vms;
+  const { data: catalogItems = [] } = useComputeInstanceCatalogItems();
   const { data: templates = [] } = useComputeInstanceTemplates();
-  const tpl = useMemo(
+  const catalogItem = useMemo(
     () =>
-      state.selectedTemplateId
-        ? (templates.find((t) => t.id === state.selectedTemplateId) ?? null)
+      state.selectedCatalogItemId
+        ? (catalogItems.find((item) => item.id === state.selectedCatalogItemId) ?? null)
         : null,
-    [templates, state.selectedTemplateId],
+    [catalogItems, state.selectedCatalogItemId],
+  );
+  const tpl = useMemo(
+    () => resolveUnderlyingTemplate(catalogItem, templates),
+    [catalogItem, templates],
   );
   /*
   RESTORE for clone review:
@@ -84,8 +89,14 @@ export const ReviewStep = ({
         'Overview',
         <DescriptionList isCompact>
           <DescriptionListGroup>
-            <DescriptionListTerm>Template</DescriptionListTerm>
-            <DescriptionListDescription>{tpl?.title ?? '—'}</DescriptionListDescription>
+            <DescriptionListTerm>Catalog item</DescriptionListTerm>
+            <DescriptionListDescription>{catalogItem?.title ?? '—'}</DescriptionListDescription>
+          </DescriptionListGroup>
+          <DescriptionListGroup>
+            <DescriptionListTerm>Underlying template</DescriptionListTerm>
+            <DescriptionListDescription>
+              {tpl?.title ?? catalogItem?.template ?? '—'}
+            </DescriptionListDescription>
           </DescriptionListGroup>
           <DescriptionListGroup>
             <DescriptionListTerm>VM name</DescriptionListTerm>

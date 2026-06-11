@@ -142,7 +142,7 @@ export const VmListPage = () => {
       try {
         const created = await provisionVm.mutateAsync({
           vm,
-          specTemplateOnly: meta.mode === 'template',
+          specCatalogItemOnly: meta.mode === 'template',
         });
         noteCreateSuccess(clientId, created.id);
       } catch {

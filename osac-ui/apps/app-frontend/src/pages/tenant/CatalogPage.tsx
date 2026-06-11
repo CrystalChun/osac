@@ -33,9 +33,19 @@ import {
   Switch,
   Title,
 } from '@patternfly/react-core';
-import type { ClusterTemplate, ComputeInstance, OsType } from '@osac/api-contracts/types';
+import type {
+  ClusterTemplate,
+  ComputeInstance,
+  ComputeInstanceCatalogItem,
+  OsType,
+} from '@osac/api-contracts/types';
 import { useLocation } from 'react-router-dom';
-import { useComputeInstanceTemplates, useComputeInstances, useProvisionVm } from '../../api/hooks';
+import {
+  useComputeInstanceCatalogItems,
+  useComputeInstanceTemplates,
+  useComputeInstances,
+  useProvisionVm,
+} from '../../api/hooks';
 import { GuestOsIcon } from '../../components/shared/GuestOsIcon';
 import { PageHeader } from '../../components/layout/PageHeader';
 import type { CreateVmWizardHandle, DeploymentMode } from '../../components/vm/CreateVmWizard';
@@ -159,8 +169,35 @@ const workloadLabel = (template: ClusterTemplate): string => {
   return 'Analytics';
 };
 
-const drawerSubtitle = (template: ClusterTemplate): string => {
-  const source = template.description?.trim() || template.metadata.name;
+const searchableCatalogItemText = (
+  item: ComputeInstanceCatalogItem,
+  template: ClusterTemplate | undefined,
+): string => {
+  const templateText = template ? searchableTemplateText(template) : '';
+  return [item.title, item.description, item.metadata.name, item.template, templateText]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+};
+
+const resolveTemplateForCatalogItem = (
+  item: ComputeInstanceCatalogItem,
+  templates: ClusterTemplate[],
+): ClusterTemplate => {
+  const found = templates.find((t) => t.id === item.template);
+  if (found) {
+    return found;
+  }
+  return {
+    id: item.template,
+    title: item.title,
+    metadata: item.metadata,
+    description: item.description,
+  };
+};
+
+const drawerSubtitleForCatalogItem = (item: ComputeInstanceCatalogItem): string => {
+  const source = item.description?.trim() || item.metadata.name;
   return source.length <= 88 ? source : `${source.slice(0, 87)}…`;
 };
 
@@ -178,23 +215,25 @@ export const CatalogPage = ({ isProviderGlobal = false }: Props) => {
     dataProcessing: false,
     analytics: false,
   });
-  const [selectedTemplate, setSelectedTemplate] = useState<ClusterTemplate | null>(null);
+  const [selectedCatalogItem, setSelectedCatalogItem] = useState<ComputeInstanceCatalogItem | null>(
+    null,
+  );
   const wizardRef = useRef<CreateVmWizardHandle>(null);
   const drawerTitleRef = useRef<HTMLHeadingElement>(null);
 
   const {
-    data: templates = [],
-    isPending: templatesLoading,
-    isError: templatesError,
-    error: templatesErrorDetail,
-    refetch: refetchTemplates,
-  } = useComputeInstanceTemplates();
+    data: catalogItems = [],
+    isPending: catalogLoading,
+    isError: catalogError,
+    refetch: refetchCatalogItems,
+  } = useComputeInstanceCatalogItems();
+  const { data: templates = [], isPending: templatesLoading } = useComputeInstanceTemplates();
   const { data: vms = [] } = useComputeInstances();
   const provisionVm = useProvisionVm();
 
   const handleWizardProvision = useCallback(
     async (vm: Partial<ComputeInstance>, meta: { mode: DeploymentMode }) => {
-      await provisionVm.mutateAsync({ vm, specTemplateOnly: meta.mode === 'template' });
+      await provisionVm.mutateAsync({ vm, specCatalogItemOnly: meta.mode === 'template' });
     },
     [provisionVm],
   );
@@ -213,30 +252,38 @@ export const CatalogPage = ({ isProviderGlobal = false }: Props) => {
     [workloadFilters],
   );
 
+  const templateById = useMemo(
+    () => new Map(templates.map((template) => [template.id, template])),
+    [templates],
+  );
+
   const filtered = useMemo(() => {
-    return templates.filter((template) => {
+    return catalogItems.filter((item) => {
+      const template = templateById.get(item.template);
       const matchesSearch =
-        searchTerm.length === 0 || searchableTemplateText(template).includes(searchTerm);
+        searchTerm.length === 0 || searchableCatalogItemText(item, template).includes(searchTerm);
 
       const matchesOsGroup =
         activeOsFilterKeys.length === 0 ||
-        activeOsFilterKeys.some(([key]) =>
-          OS_FILTER_CONFIG.find((config) => config.key === key)?.matches(template),
-        );
+        (template != null &&
+          activeOsFilterKeys.some(([key]) =>
+            OS_FILTER_CONFIG.find((config) => config.key === key)?.matches(template),
+          ));
 
       const matchesWorkloadGroup =
         activeWorkloadFilterKeys.length === 0 ||
-        activeWorkloadFilterKeys.some(([key]) =>
-          WORKLOAD_FILTER_CONFIG.find((config) => config.key === key)?.matches(template),
-        );
+        (template != null &&
+          activeWorkloadFilterKeys.some(([key]) =>
+            WORKLOAD_FILTER_CONFIG.find((config) => config.key === key)?.matches(template),
+          ));
 
       return matchesSearch && matchesOsGroup && matchesWorkloadGroup;
     });
-  }, [templates, searchTerm, activeOsFilterKeys, activeWorkloadFilterKeys]);
+  }, [catalogItems, templateById, searchTerm, activeOsFilterKeys, activeWorkloadFilterKeys]);
 
-  const handleOpenFromTemplate = useCallback((tpl: ClusterTemplate) => {
-    wizardRef.current?.openFromTemplate(tpl.id);
-    setSelectedTemplate(null);
+  const handleOpenFromCatalogItem = useCallback((item: ComputeInstanceCatalogItem) => {
+    wizardRef.current?.openFromCatalogItem(item.id);
+    setSelectedCatalogItem(null);
   }, []);
 
   const clearCategoryFilters = useCallback(() => {
@@ -256,14 +303,14 @@ export const CatalogPage = ({ isProviderGlobal = false }: Props) => {
       : null;
   useEffect(() => {
     if (locationState?.navReselect) {
-      setSelectedTemplate(null);
+      setSelectedCatalogItem(null);
     }
   }, [locationState?.navReselect, locationState?.navSelectSeq]);
   useEffect(() => {
-    if (selectedTemplate) {
+    if (selectedCatalogItem) {
       drawerTitleRef.current?.focus();
     }
-  }, [selectedTemplate]);
+  }, [selectedCatalogItem]);
 
   const catalogContent = (
     <Sidebar
@@ -321,18 +368,16 @@ export const CatalogPage = ({ isProviderGlobal = false }: Props) => {
       </SidebarPanel>
       <SidebarContent>
         <Stack hasGutter>
-          {templatesError ? (
+          {catalogError ? (
             <StackItem>
               <Stack hasGutter>
                 <StackItem>
-                  <Alert variant="danger" title="Could not load templates">
-                    {templatesErrorDetail instanceof Error
-                      ? templatesErrorDetail.message
-                      : 'Request failed'}
+                  <Alert variant="danger" title="Could not load catalog items">
+                    Unable to load catalog items right now. Please try again.
                   </Alert>
                 </StackItem>
                 <StackItem>
-                  <Button variant="primary" onClick={() => void refetchTemplates()}>
+                  <Button variant="primary" onClick={() => void refetchCatalogItems()}>
                     Retry
                   </Button>
                 </StackItem>
@@ -343,7 +388,7 @@ export const CatalogPage = ({ isProviderGlobal = false }: Props) => {
               <StackItem>
                 <SearchInput
                   className="osac-template-catalog-search"
-                  placeholder="Search templates"
+                  placeholder="Search catalog items"
                   value={search}
                   onChange={(_e, value) => setSearch(value)}
                   onClear={() => setSearch('')}
@@ -352,39 +397,42 @@ export const CatalogPage = ({ isProviderGlobal = false }: Props) => {
               </StackItem>
               <StackItem>
                 <Content component="small" className="osac-template-catalog-count">
-                  {templatesLoading ? '…' : filtered.length} templates
+                  {catalogLoading ? '…' : filtered.length} catalog items
                 </Content>
               </StackItem>
               <StackItem>
-                {templatesLoading ? (
+                {catalogLoading || templatesLoading ? (
                   <Bullseye className="osac-catalog__loading">
-                    <Spinner aria-label="Loading templates" />
+                    <Spinner aria-label="Loading catalog items" />
                   </Bullseye>
                 ) : filtered.length === 0 ? (
                   <Content component="p" className="osac-template-empty-state">
-                    No templates match your current filters and search.
+                    No catalog items match your current filters and search.
                   </Content>
                 ) : (
                   <Gallery hasGutter className="osac-template-gallery">
-                    {filtered.map((template) => (
-                      <GalleryItem key={template.id}>
-                        <div
-                          className="tenant-vm-catalog-template-card-wrap"
-                          role="button"
-                          tabIndex={0}
-                          aria-label={`Open template details for ${template.title}`}
-                          onClick={() => setSelectedTemplate(template)}
-                          onKeyDown={(event) => {
-                            if (event.key === 'Enter' || event.key === ' ') {
-                              event.preventDefault();
-                              setSelectedTemplate(template);
-                            }
-                          }}
-                        >
-                          <TemplateCard template={template} />
-                        </div>
-                      </GalleryItem>
-                    ))}
+                    {filtered.map((item) => {
+                      const cardTemplate = resolveTemplateForCatalogItem(item, templates);
+                      return (
+                        <GalleryItem key={item.id}>
+                          <div
+                            className="tenant-vm-catalog-template-card-wrap"
+                            role="button"
+                            tabIndex={0}
+                            aria-label={`Open catalog item details for ${item.title}`}
+                            onClick={() => setSelectedCatalogItem(item)}
+                            onKeyDown={(event) => {
+                              if (event.key === 'Enter' || event.key === ' ') {
+                                event.preventDefault();
+                                setSelectedCatalogItem(item);
+                              }
+                            }}
+                          >
+                            <TemplateCard template={cardTemplate} />
+                          </div>
+                        </GalleryItem>
+                      );
+                    })}
                   </Gallery>
                 )}
               </StackItem>
@@ -405,12 +453,12 @@ export const CatalogPage = ({ isProviderGlobal = false }: Props) => {
       />
 
       <PageHeader
-        title={isProviderGlobal ? 'Global templates' : 'VM templates'}
+        title={isProviderGlobal ? 'Global catalog' : 'VM catalog'}
         descriptionWidth="medium"
         description={
           isProviderGlobal
-            ? 'Browse global templates and inspect details before launching a virtual machine.'
-            : 'Browse templates by operating system and workload.'
+            ? 'Browse published catalog items and inspect details before launching a virtual machine.'
+            : 'Browse catalog items by operating system and workload.'
         }
         actions={
           isProviderGlobal ? (
@@ -428,7 +476,7 @@ export const CatalogPage = ({ isProviderGlobal = false }: Props) => {
       <div className="tenant-vm-templates-header-separator" aria-hidden />
 
       <div className="tenant-vm-templates-drawer-host">
-        {selectedTemplate ? (
+        {selectedCatalogItem ? (
           <Drawer
             isExpanded
             isInline={false}
@@ -442,120 +490,133 @@ export const CatalogPage = ({ isProviderGlobal = false }: Props) => {
                   className="tenant-vm-template-drawer-panel"
                   aria-labelledby="tenant-vm-template-drawer-title"
                 >
-                  <DrawerHead className="tenant-vm-template-drawer-head">
-                    <Flex
-                      alignItems={{ default: 'alignItemsFlexStart' }}
-                      spaceItems={{ default: 'spaceItemsMd' }}
-                    >
-                      <FlexItem className="tenant-vm-template-card__icon-tile">
-                        <GuestOsIcon os={(selectedTemplate.icon ?? 'linux') as OsType} size="lg" />
-                      </FlexItem>
-                      <FlexItem>
-                        <Stack hasGutter={false}>
-                          <StackItem>
-                            <Title
-                              headingLevel="h2"
-                              size="xl"
-                              tabIndex={-1}
-                              id="tenant-vm-template-drawer-title"
-                              ref={drawerTitleRef}
+                  {(() => {
+                    const displayTemplate = resolveTemplateForCatalogItem(
+                      selectedCatalogItem,
+                      templates,
+                    );
+                    return (
+                      <>
+                        <DrawerHead className="tenant-vm-template-drawer-head">
+                          <Flex
+                            alignItems={{ default: 'alignItemsFlexStart' }}
+                            spaceItems={{ default: 'spaceItemsMd' }}
+                          >
+                            <FlexItem className="tenant-vm-template-card__icon-tile">
+                              <GuestOsIcon
+                                os={(displayTemplate.icon ?? 'linux') as OsType}
+                                size="lg"
+                              />
+                            </FlexItem>
+                            <FlexItem>
+                              <Stack hasGutter={false}>
+                                <StackItem>
+                                  <Title
+                                    headingLevel="h2"
+                                    size="xl"
+                                    tabIndex={-1}
+                                    id="tenant-vm-template-drawer-title"
+                                    ref={drawerTitleRef}
+                                  >
+                                    {selectedCatalogItem.title}
+                                  </Title>
+                                </StackItem>
+                                <StackItem>
+                                  <Content
+                                    component="small"
+                                    className="tenant-vm-template-drawer-subtitle"
+                                  >
+                                    {drawerSubtitleForCatalogItem(selectedCatalogItem)}
+                                  </Content>
+                                </StackItem>
+                              </Stack>
+                            </FlexItem>
+                          </Flex>
+                          <DrawerActions>
+                            <Button
+                              className="tenant-vm-template-drawer-head-create"
+                              variant="primary"
+                              onClick={() => {
+                                handleOpenFromCatalogItem(selectedCatalogItem);
+                              }}
                             >
-                              {selectedTemplate.title}
-                            </Title>
-                          </StackItem>
-                          <StackItem>
-                            <Content
-                              component="small"
-                              className="tenant-vm-template-drawer-subtitle"
-                            >
-                              {drawerSubtitle(selectedTemplate)}
-                            </Content>
-                          </StackItem>
-                        </Stack>
-                      </FlexItem>
-                    </Flex>
-                    <DrawerActions>
-                      <Button
-                        className="tenant-vm-template-drawer-head-create"
-                        variant="primary"
-                        onClick={() => {
-                          handleOpenFromTemplate(selectedTemplate);
-                        }}
-                      >
-                        Create virtual machine
-                      </Button>
-                      <DrawerCloseButton onClick={() => setSelectedTemplate(null)} />
-                    </DrawerActions>
-                  </DrawerHead>
-                  <DrawerPanelBody className="tenant-vm-template-drawer-body tenant-vm-template-drawer-scroll">
-                    <Stack className="tenant-vm-template-detail-stack">
-                      <StackItem>
-                        <DescriptionList isCompact>
-                          <DescriptionListGroup>
-                            <DescriptionListTerm>Guest operating system</DescriptionListTerm>
-                            <DescriptionListDescription>
-                              {guestOperatingSystem(selectedTemplate)}
-                            </DescriptionListDescription>
-                          </DescriptionListGroup>
-                          <DescriptionListGroup>
-                            <DescriptionListTerm>CPU</DescriptionListTerm>
-                            <DescriptionListDescription>
-                              {selectedTemplate.defaultCores ?? 2} vCPU
-                            </DescriptionListDescription>
-                          </DescriptionListGroup>
-                          <DescriptionListGroup>
-                            <DescriptionListTerm>Memory</DescriptionListTerm>
-                            <DescriptionListDescription>
-                              {selectedTemplate.defaultMemoryGib ?? 8} GiB
-                            </DescriptionListDescription>
-                          </DescriptionListGroup>
-                          <DescriptionListGroup>
-                            <DescriptionListTerm>Storage</DescriptionListTerm>
-                            <DescriptionListDescription>
-                              {selectedTemplate.defaultBootDiskSizeGib ?? 40} GiB boot disk
-                            </DescriptionListDescription>
-                          </DescriptionListGroup>
-                          <DescriptionListGroup>
-                            <DescriptionListTerm>Workload</DescriptionListTerm>
-                            <DescriptionListDescription>
-                              {workloadLabel(selectedTemplate)}
-                            </DescriptionListDescription>
-                          </DescriptionListGroup>
-                        </DescriptionList>
-                      </StackItem>
-                      <StackItem>
-                        <Stack hasGutter>
-                          <StackItem>
-                            <Switch
-                              id="template-detail-headless-mode"
-                              label="Headless mode"
-                              aria-label="Headless mode"
-                              isChecked={false}
-                              isDisabled
-                            />
-                          </StackItem>
-                          <StackItem>
-                            <Switch
-                              id="template-detail-guest-log-access"
-                              label="Guest system log access"
-                              aria-label="Guest system log access"
-                              isChecked
-                              isDisabled
-                            />
-                          </StackItem>
-                          <StackItem>
-                            <Switch
-                              id="template-detail-deletion-protection"
-                              label="Deletion protection"
-                              aria-label="Deletion protection"
-                              isChecked={false}
-                              isDisabled
-                            />
-                          </StackItem>
-                        </Stack>
-                      </StackItem>
-                    </Stack>
-                  </DrawerPanelBody>
+                              Create virtual machine
+                            </Button>
+                            <DrawerCloseButton onClick={() => setSelectedCatalogItem(null)} />
+                          </DrawerActions>
+                        </DrawerHead>
+                        <DrawerPanelBody className="tenant-vm-template-drawer-body tenant-vm-template-drawer-scroll">
+                          <Stack className="tenant-vm-template-detail-stack">
+                            <StackItem>
+                              <DescriptionList isCompact>
+                                <DescriptionListGroup>
+                                  <DescriptionListTerm>Guest operating system</DescriptionListTerm>
+                                  <DescriptionListDescription>
+                                    {guestOperatingSystem(displayTemplate)}
+                                  </DescriptionListDescription>
+                                </DescriptionListGroup>
+                                <DescriptionListGroup>
+                                  <DescriptionListTerm>CPU</DescriptionListTerm>
+                                  <DescriptionListDescription>
+                                    {displayTemplate.defaultCores ?? 2} vCPU
+                                  </DescriptionListDescription>
+                                </DescriptionListGroup>
+                                <DescriptionListGroup>
+                                  <DescriptionListTerm>Memory</DescriptionListTerm>
+                                  <DescriptionListDescription>
+                                    {displayTemplate.defaultMemoryGib ?? 8} GiB
+                                  </DescriptionListDescription>
+                                </DescriptionListGroup>
+                                <DescriptionListGroup>
+                                  <DescriptionListTerm>Storage</DescriptionListTerm>
+                                  <DescriptionListDescription>
+                                    {displayTemplate.defaultBootDiskSizeGib ?? 40} GiB boot disk
+                                  </DescriptionListDescription>
+                                </DescriptionListGroup>
+                                <DescriptionListGroup>
+                                  <DescriptionListTerm>Workload</DescriptionListTerm>
+                                  <DescriptionListDescription>
+                                    {workloadLabel(displayTemplate)}
+                                  </DescriptionListDescription>
+                                </DescriptionListGroup>
+                              </DescriptionList>
+                            </StackItem>
+                            <StackItem>
+                              <Stack hasGutter>
+                                <StackItem>
+                                  <Switch
+                                    id="template-detail-headless-mode"
+                                    label="Headless mode"
+                                    aria-label="Headless mode"
+                                    isChecked={false}
+                                    isDisabled
+                                  />
+                                </StackItem>
+                                <StackItem>
+                                  <Switch
+                                    id="template-detail-guest-log-access"
+                                    label="Guest system log access"
+                                    aria-label="Guest system log access"
+                                    isChecked
+                                    isDisabled
+                                  />
+                                </StackItem>
+                                <StackItem>
+                                  <Switch
+                                    id="template-detail-deletion-protection"
+                                    label="Deletion protection"
+                                    aria-label="Deletion protection"
+                                    isChecked={false}
+                                    isDisabled
+                                  />
+                                </StackItem>
+                              </Stack>
+                            </StackItem>
+                          </Stack>
+                        </DrawerPanelBody>
+                      </>
+                    );
+                  })()}
                 </DrawerPanelContent>
               }
             >

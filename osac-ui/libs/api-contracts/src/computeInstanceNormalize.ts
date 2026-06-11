@@ -249,6 +249,7 @@ const normalizeSpec = (raw: Record<string, unknown>): ComputeInstanceSpec => {
 
   return {
     template: readStr(raw, 'template'),
+    catalogItem: readStr(raw, 'catalog_item', 'catalogItem'),
     templateParameters: templateParameters,
     cores: readNum(raw, 'cores'),
     memoryGib: readNum(raw, 'memory_gib', 'memoryGib'),
@@ -593,7 +594,7 @@ const appendComputeInstanceSpecOptionalWire = (
 
 const serializeSpecForCreate = (
   spec: ComputeInstanceSpec | undefined,
-  opts?: { templateOnly?: boolean },
+  opts?: { templateOnly?: boolean; catalogItemOnly?: boolean },
 ): Record<string, unknown> | undefined => {
   if (!spec) {
     return undefined;
@@ -601,10 +602,16 @@ const serializeSpecForCreate = (
   if (opts?.templateOnly && !spec.template) {
     return undefined;
   }
+  if (opts?.catalogItemOnly && !spec.catalogItem) {
+    return undefined;
+  }
 
   const o: Record<string, unknown> = {};
   if (spec.template) {
     o.template = spec.template;
+  }
+  if (spec.catalogItem) {
+    o.catalog_item = spec.catalogItem;
   }
   const tpWire = serializeTemplateParametersWire(spec.templateParameters);
   if (tpWire) {
@@ -618,9 +625,14 @@ const serializeSpecForCreate = (
 export interface SerializeComputeInstanceForCreateOptions {
   /**
    * When true (template wizard create), **`spec.template` is required**; other fields on `spec` are
-   * still serialized when set, per `ComputeInstanceSpec` (e.g. `boot_disk`, `cores`, `template_parameters` Any map).
+   * still serialized when set, per `ComputeInstanceSpec`.
    */
   specTemplateOnly?: boolean;
+  /**
+   * When true (catalog-item wizard create), **`spec.catalog_item` is required**; other fields on
+   * `spec` are still serialized when set. Mutually exclusive with `spec.template` on create.
+   */
+  specCatalogItemOnly?: boolean;
 }
 
 /**
@@ -641,7 +653,11 @@ export const serializeComputeInstanceForCreate = (
   }
   const sp = serializeSpecForCreate(
     vm.spec,
-    opts?.specTemplateOnly ? { templateOnly: true } : undefined,
+    opts?.specCatalogItemOnly
+      ? { catalogItemOnly: true }
+      : opts?.specTemplateOnly
+        ? { templateOnly: true }
+        : undefined,
   );
   if (sp) {
     wire.spec = sp;

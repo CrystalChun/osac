@@ -18,7 +18,7 @@ import {
 } from '@patternfly/react-core';
 import type { ComputeInstance } from '@osac/api-contracts/types';
 import { forwardRef, useCallback, useImperativeHandle, useMemo, useState } from 'react';
-import { useComputeInstanceTemplates } from '../../api/hooks';
+import { useComputeInstanceCatalogItems, useComputeInstanceTemplates } from '../../api/hooks';
 import { INITIAL_STATE, mergeWizardDraft } from './createVmWizard/constants';
 import { getWizardOrderedSteps } from './createVmWizard/stepIds';
 import { CustomizationStep, ReviewStep, TemplateStep } from './createVmWizard/steps/WizardSteps';
@@ -29,10 +29,11 @@ import {
   validateWizardForFinalize,
   validateWizardStep,
 } from './createVmWizard/wizardBuild';
+import { resolveUnderlyingTemplate } from './createVmWizard/types';
 export type { CreateVmWizardHandle, DeploymentMode } from './createVmWizard/types';
 
 const STEP_LABELS: Record<string, string> = {
-  template: 'Templates',
+  template: 'Catalog',
   customization: 'Customization',
   review: 'Review',
 };
@@ -59,6 +60,7 @@ export const CreateVmWizard = forwardRef<CreateVmWizardHandle, Props>(
     );
     const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
     const [pending, setPending] = useState(false);
+    const { data: catalogItems = [] } = useComputeInstanceCatalogItems();
     const { data: templates = [] } = useComputeInstanceTemplates();
 
     const resetLocal = useCallback(() => {
@@ -82,8 +84,8 @@ export const CreateVmWizard = forwardRef<CreateVmWizardHandle, Props>(
       open() {
         openWizard();
       },
-      openFromTemplate(templateId) {
-        openWizard({ selectedTemplateId: templateId });
+      openFromCatalogItem(catalogItemId) {
+        openWizard({ selectedCatalogItemId: catalogItemId });
       },
       openFromClone(_sourceVmId) {
         void _sourceVmId;
@@ -129,10 +131,11 @@ export const CreateVmWizard = forwardRef<CreateVmWizardHandle, Props>(
           setPending(false);
           return;
         }
-        const template = draft.selectedTemplateId
-          ? (templates.find((t) => t.id === draft.selectedTemplateId) ?? null)
+        const catalogItem = draft.selectedCatalogItemId
+          ? (catalogItems.find((item) => item.id === draft.selectedCatalogItemId) ?? null)
           : null;
-        const vm = buildComputeInstanceFromWizardDraft(draft, template);
+        const underlyingTemplate = resolveUnderlyingTemplate(catalogItem, templates);
+        const vm = buildComputeInstanceFromWizardDraft(draft, catalogItem, underlyingTemplate);
         try {
           await Promise.resolve(onProvision(vm, { mode: draft.mode }));
           setIsOpen(false);
@@ -146,7 +149,16 @@ export const CreateVmWizard = forwardRef<CreateVmWizardHandle, Props>(
       }
 
       setActiveIndex((i) => Math.min(orderedSteps.length - 1, i + 1));
-    }, [activeStepId, draft, isReview, onProvision, orderedSteps.length, resetLocal, templates]);
+    }, [
+      activeStepId,
+      catalogItems,
+      draft,
+      isReview,
+      onProvision,
+      orderedSteps.length,
+      resetLocal,
+      templates,
+    ]);
 
     const renderStepBody = (stepId: string) => {
       switch (stepId) {
@@ -195,8 +207,8 @@ export const CreateVmWizard = forwardRef<CreateVmWizardHandle, Props>(
           height="min(680px, calc(100vh - 120px))"
           header={
             <WizardHeader
-              title="Create virtual machine from template"
-              description="Select a template, customize, and provision."
+              title="Create virtual machine from catalog item"
+              description="Select a catalog item, customize, and provision."
               onClose={close}
               closeButtonAriaLabel="Close wizard"
             />

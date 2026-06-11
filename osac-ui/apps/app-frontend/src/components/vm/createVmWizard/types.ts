@@ -1,6 +1,8 @@
+import type { ClusterTemplate, ComputeInstanceCatalogItem } from '@osac/api-contracts/types';
+
 export interface CreateVmWizardHandle {
   open: () => void;
-  openFromTemplate: (templateId: string) => void;
+  openFromCatalogItem: (catalogItemId: string) => void;
   openFromClone: (sourceVmId: string) => void;
 }
 
@@ -15,12 +17,12 @@ export interface WizardState {
   memoryNew: string;
   /** Optional cloud-init / user-data for new path; BFF may map to spec.userData when non-empty. */
   cloudInitUserDataNew: string;
-  selectedTemplateId: string | null;
-  /** Template path: boot disk size (GiB), integer string; maps to `spec.boot_disk.size_gib`. */
+  selectedCatalogItemId: string | null;
+  /** Catalog path: boot disk size (GiB), integer string; maps to `spec.boot_disk.size_gib`. */
   templateBootDiskSizeGib: string;
-  /** vCPU count; maps to `spec.cores` (int32). Seeded from template defaults in the UI. */
+  /** vCPU count; maps to `spec.cores` (int32). Seeded from underlying template defaults in the UI. */
   templateCores: string;
-  /** Memory in GiB; maps to `spec.memory_gib`. Seeded from template defaults. */
+  /** Memory in GiB; maps to `spec.memory_gib`. Seeded from underlying template defaults. */
   templateMemoryGib: string;
   /** Fulfillment REST `run_strategy`: `Always` or `Halted`. */
   templateRunStrategy: string;
@@ -48,3 +50,14 @@ export interface WizardState {
 }
 
 export type UpdateFn = <K extends keyof WizardState>(key: K, value: WizardState[K]) => void;
+
+/** Resolve the underlying compute_instance_template for customization defaults. */
+export const resolveUnderlyingTemplate = (
+  catalogItem: ComputeInstanceCatalogItem | null | undefined,
+  templates: ClusterTemplate[],
+): ClusterTemplate | null => {
+  if (!catalogItem?.template) {
+    return null;
+  }
+  return templates.find((t) => t.id === catalogItem.template) ?? null;
+};

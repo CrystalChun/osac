@@ -8,9 +8,6 @@ import {
   Content,
   Flex,
   FlexItem,
-  FormSelect,
-  FormSelectOption,
-  Label,
   Radio,
   SearchInput,
   Spinner,
@@ -19,37 +16,18 @@ import {
   Title,
 } from '@patternfly/react-core';
 import { useMemo, useState } from 'react';
-import type { ClusterTemplate, OsType, TemplateWorkloadProfile } from '@osac/api-contracts/types';
-import { useComputeInstanceTemplates } from '../../../../api/hooks';
-import { GuestOsIcon } from '../../../shared/GuestOsIcon';
+import type { ClusterTemplate, ComputeInstanceCatalogItem } from '@osac/api-contracts/types';
+import { useComputeInstanceCatalogItems, useComputeInstanceTemplates } from '../../../../api/hooks';
 import { defaultTemplateBootDiskGib } from '../constants';
-import type { UpdateFn, WizardState } from '../types';
+import { type UpdateFn, type WizardState, resolveUnderlyingTemplate } from '../types';
 
-const applySelectedTemplate = (tpl: ClusterTemplate, update: UpdateFn) => {
-  update('selectedTemplateId', tpl.id);
-  update('templateBootDiskSizeGib', String(defaultTemplateBootDiskGib(tpl)));
-};
-
-const OS_FILTER_OPTIONS = [
-  { value: 'all', label: 'All operating systems' },
-  { value: 'rhel', label: 'RHEL' },
-  { value: 'windows', label: 'Microsoft Windows' },
-  { value: 'linux', label: 'Linux' },
-] as const;
-
-const WORKLOAD_FILTER_OPTIONS: { value: 'all' | TemplateWorkloadProfile; label: string }[] = [
-  { value: 'all', label: 'All workloads' },
-  { value: 'high-performance', label: 'High performance' },
-  { value: 'analytics', label: 'Analytics' },
-  { value: 'machine-learning', label: 'Machine learning' },
-  { value: 'data-processing', label: 'Data processing' },
-];
-
-const WORKLOAD_LABELS: Record<TemplateWorkloadProfile, string> = {
-  'high-performance': 'High performance',
-  analytics: 'Analytics',
-  'machine-learning': 'Machine learning',
-  'data-processing': 'Data processing',
+const applySelectedCatalogItem = (
+  item: ComputeInstanceCatalogItem,
+  underlyingTemplate: ClusterTemplate | null,
+  update: UpdateFn,
+) => {
+  update('selectedCatalogItemId', item.id);
+  update('templateBootDiskSizeGib', String(defaultTemplateBootDiskGib(underlyingTemplate)));
 };
 
 const truncateDescription = (text: string, max = 120): string => {
@@ -60,101 +38,57 @@ const truncateDescription = (text: string, max = 120): string => {
 };
 
 export const TemplateStep = ({ state, update }: { state: WizardState; update: UpdateFn }) => {
-  const [osFilter, setOsFilter] = useState<string>('all');
-  const [workloadFilter, setWorkloadFilter] = useState<string>('all');
   const [search, setSearch] = useState('');
 
   const {
-    data: templates = [],
-    isPending: templatesLoading,
-    isError: templatesError,
-    error: templatesErrorDetail,
-    refetch: refetchTemplates,
-  } = useComputeInstanceTemplates();
+    data: catalogItems = [],
+    isPending: catalogLoading,
+    isError: catalogError,
+    refetch: refetchCatalogItems,
+  } = useComputeInstanceCatalogItems();
+  const { data: templates = [] } = useComputeInstanceTemplates();
 
   const filtered = useMemo(() => {
-    let list: ClusterTemplate[] = [...templates];
-    if (osFilter !== 'all') {
-      list = list.filter((t) => (t.icon ?? 'linux') === osFilter);
-    }
-    if (workloadFilter !== 'all') {
-      list = list.filter((t) => t.workloadProfile === workloadFilter);
-    }
+    let list = [...catalogItems];
     if (search.trim()) {
       const q = search.toLowerCase().trim();
       list = list.filter(
-        (t) =>
-          t.title.toLowerCase().includes(q) ||
-          (t.description ?? '').toLowerCase().includes(q) ||
-          (t.tags ?? []).some((tag) => tag.toLowerCase().includes(q)),
+        (item) =>
+          item.title.toLowerCase().includes(q) ||
+          (item.description ?? '').toLowerCase().includes(q) ||
+          item.metadata.name.toLowerCase().includes(q),
       );
     }
     return list;
-  }, [templates, osFilter, workloadFilter, search]);
-
-  const clearFilters = () => {
-    setOsFilter('all');
-    setWorkloadFilter('all');
-    setSearch('');
-  };
+  }, [catalogItems, search]);
 
   const count = filtered.length;
-  const countPhrase = `${count} ${count === 1 ? 'template' : 'templates'} available`;
+  const countPhrase = `${count} ${count === 1 ? 'catalog item' : 'catalog items'} available`;
 
   return (
     <Stack hasGutter>
       <StackItem>
         <Title id="template-step-heading" headingLevel="h2" size="xl">
-          Templates
+          Catalog
         </Title>
         <Content component="p" className="pf-v6-u-color-text-subtle osac-wizard-step__intro">
-          Select a template to create your virtual machine from
+          Select a catalog item to create your virtual machine from
         </Content>
       </StackItem>
       <StackItem>
         <Flex
           direction={{ default: 'column', md: 'row' }}
           flexWrap={{ default: 'wrap' }}
-          alignItems={{ default: 'alignItemsFlexStart', md: 'alignItemsFlexEnd' }}
+          alignItems={{ default: 'alignItemsFlexEnd' }}
           gap={{ default: 'gapMd' }}
-          justifyContent={{ default: 'justifyContentFlexStart' }}
         >
-          <FlexItem>
-            <FormSelect
-              id="template-filter-os"
-              value={osFilter}
-              onChange={(_e, v) => setOsFilter(v)}
-              aria-label="Filter templates by operating system"
-            >
-              {OS_FILTER_OPTIONS.map((o) => (
-                <FormSelectOption key={o.value} value={o.value} label={o.label} />
-              ))}
-            </FormSelect>
-          </FlexItem>
-          <FlexItem>
-            <FormSelect
-              id="template-filter-workload"
-              value={workloadFilter}
-              onChange={(_e, v) => setWorkloadFilter(v)}
-              aria-label="Filter templates by workload"
-            >
-              {WORKLOAD_FILTER_OPTIONS.map((o) => (
-                <FormSelectOption key={o.value} value={o.value} label={o.label} />
-              ))}
-            </FormSelect>
-          </FlexItem>
-          <FlexItem>
-            <Button variant="link" onClick={clearFilters} isInline>
-              Clear filters
-            </Button>
-          </FlexItem>
           <FlexItem flex={{ default: 'flex_1' }} className="osac-wizard-template__search-item">
             <SearchInput
-              placeholder="Search templates…"
+              placeholder="Search catalog items…"
               value={search}
               onChange={(_e, v) => setSearch(v)}
               onClear={() => setSearch('')}
-              aria-label="Search templates"
+              aria-label="Search catalog items"
             />
           </FlexItem>
         </Flex>
@@ -166,7 +100,7 @@ export const TemplateStep = ({ state, update }: { state: WizardState; update: Up
           alignItems={{ default: 'alignItemsBaseline' }}
         >
           <Content component="p" className="osac-wizard-template__count">
-            {templatesLoading ? 'Loading templates…' : countPhrase}
+            {catalogLoading ? 'Loading catalog items…' : countPhrase}
           </Content>
           <Content
             component="p"
@@ -176,18 +110,16 @@ export const TemplateStep = ({ state, update }: { state: WizardState; update: Up
           </Content>
         </Flex>
       </StackItem>
-      {templatesError ? (
+      {catalogError ? (
         <StackItem>
           <Stack hasGutter>
             <StackItem>
-              <Alert variant="danger" title="Could not load templates">
-                {templatesErrorDetail instanceof Error
-                  ? templatesErrorDetail.message
-                  : 'Request failed'}
+              <Alert variant="danger" title="Could not load catalog items">
+                Unable to load catalog items right now. Please try again.
               </Alert>
             </StackItem>
             <StackItem>
-              <Button variant="primary" onClick={() => void refetchTemplates()}>
+              <Button variant="primary" onClick={() => void refetchCatalogItems()}>
                 Retry
               </Button>
             </StackItem>
@@ -200,34 +132,34 @@ export const TemplateStep = ({ state, update }: { state: WizardState; update: Up
           role="radiogroup"
           aria-labelledby="template-step-heading"
         >
-          {templatesLoading ? (
+          {catalogLoading ? (
             <Bullseye className="osac-template-cards__loading">
-              <Spinner aria-label="Loading templates" />
+              <Spinner aria-label="Loading catalog items" />
             </Bullseye>
           ) : null}
-          {!templatesLoading && !templatesError && count === 0 ? (
+          {!catalogLoading && !catalogError && count === 0 ? (
             <Content component="p" className="pf-v6-u-color-text-subtle osac-template-cards__empty">
-              No templates match your filters or search. Try clearing filters or changing keywords.
+              No catalog items match your search. Try changing keywords.
             </Content>
           ) : null}
-          {!templatesLoading &&
-            !templatesError &&
-            filtered.map((tpl) => {
-              const selected = state.selectedTemplateId === tpl.id;
-              const cores = tpl.defaultCores ?? 2;
-              const mem = tpl.defaultMemoryGib ?? 8;
-              const diskGib = defaultTemplateBootDiskGib(tpl);
-              const profile = tpl.workloadProfile;
+          {!catalogLoading &&
+            !catalogError &&
+            filtered.map((item) => {
+              const selected = state.selectedCatalogItemId === item.id;
+              const underlyingTemplate = resolveUnderlyingTemplate(item, templates);
+              const cores = underlyingTemplate?.defaultCores ?? 2;
+              const mem = underlyingTemplate?.defaultMemoryGib ?? 8;
+              const diskGib = defaultTemplateBootDiskGib(underlyingTemplate);
               return (
-                <div key={tpl.id}>
+                <div key={item.id}>
                   <Card
-                    id={`template-card-${tpl.id}`}
+                    id={`catalog-item-card-${item.id}`}
                     className="osac-template-cards__card"
                     isCompact
                     isClickable
                     isSelected={selected}
-                    onClick={() => applySelectedTemplate(tpl, update)}
-                    ouiaId={`template-option-${tpl.id}`}
+                    onClick={() => applySelectedCatalogItem(item, underlyingTemplate, update)}
+                    ouiaId={`catalog-item-option-${item.id}`}
                   >
                     <CardHeader className="osac-template-cards__card-header">
                       <Flex
@@ -236,33 +168,32 @@ export const TemplateStep = ({ state, update }: { state: WizardState; update: Up
                         className="osac-template-cards__card-header-row"
                       >
                         <FlexItem>
-                          <GuestOsIcon os={(tpl.icon ?? 'linux') as OsType} size="lg" />
+                          <Content component="h3" className="osac-template-cards__title">
+                            {item.title}
+                          </Content>
                         </FlexItem>
                         <FlexItem>
                           <Radio
-                            id={`template-radio-${tpl.id}`}
-                            name="selectedCatalogTemplate"
-                            aria-label={tpl.title}
+                            id={`catalog-item-radio-${item.id}`}
+                            name="selectedCatalogItem"
+                            aria-label={item.title}
                             isChecked={selected}
-                            onChange={() => applySelectedTemplate(tpl, update)}
+                            onChange={() =>
+                              applySelectedCatalogItem(item, underlyingTemplate, update)
+                            }
                           />
                         </FlexItem>
                       </Flex>
                     </CardHeader>
                     <CardBody>
                       <Stack hasGutter>
-                        <StackItem>
-                          <Content component="h3" className="osac-template-cards__title">
-                            {tpl.title}
-                          </Content>
-                        </StackItem>
-                        {tpl.description ? (
+                        {item.description ? (
                           <StackItem>
                             <Content
                               component="p"
                               className="pf-v6-u-color-text-subtle osac-template-cards__description"
                             >
-                              {truncateDescription(tpl.description)}
+                              {truncateDescription(item.description)}
                             </Content>
                           </StackItem>
                         ) : null}
@@ -271,13 +202,6 @@ export const TemplateStep = ({ state, update }: { state: WizardState; update: Up
                             {cores} vCPU · {mem} GiB memory · {diskGib} GiB disk
                           </Content>
                         </StackItem>
-                        {profile ? (
-                          <StackItem>
-                            <Label isCompact color="grey">
-                              {WORKLOAD_LABELS[profile]}
-                            </Label>
-                          </StackItem>
-                        ) : null}
                       </Stack>
                     </CardBody>
                   </Card>

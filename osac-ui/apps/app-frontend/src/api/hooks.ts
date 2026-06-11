@@ -4,6 +4,7 @@ import {
   type ListComputeInstancesParams,
   createComputeInstance,
   deleteComputeInstance,
+  listComputeInstanceCatalogItems,
   listComputeInstanceTemplates,
   listComputeInstances,
   listOrganizations,
@@ -18,8 +19,8 @@ import { upsertComputeInstanceInCache } from './computeInstancesCache';
 const COMPUTE_INSTANCES_REFETCH_MS = 30_000;
 /** While create/power/delete pending UI is active, refresh list more often than the default interval. */
 export const PENDING_VM_LIST_POLL_MS = 10_000;
-/** Templates change less often than VM state; still refresh catalog / wizard. */
-const COMPUTE_INSTANCE_TEMPLATES_REFETCH_MS = 60_000;
+/** Catalog items change less often than VM state; still refresh catalog / wizard. */
+const COMPUTE_INSTANCE_CATALOG_ITEMS_REFETCH_MS = 60_000;
 
 // ---------------------------------------------------------------------------
 // Query keys
@@ -28,8 +29,10 @@ const COMPUTE_INSTANCE_TEMPLATES_REFETCH_MS = 60_000;
 export const queryKeys = {
   computeInstances: (params?: ListComputeInstancesParams) =>
     ['compute_instances', params ?? {}] as const,
-  /** Shared VM template list — CatalogPage + wizard TemplateStep (template-catalog-wizard-api-alignment). */
+  /** Templates — used for customization defaults (underlying template ref on catalog items). */
   computeInstanceTemplates: ['compute_instance_templates'] as const,
+  /** Published catalog items — CatalogPage + wizard catalog step (shared cache). */
+  computeInstanceCatalogItems: ['compute_instance_catalog_items'] as const,
   organizations: ['organizations'] as const,
   users: ['users'] as const,
 };
@@ -58,14 +61,23 @@ export const useComputeInstances = (params: ListComputeInstancesParams = {}) => 
 
 export type ProvisionVmInput = {
   vm: Partial<ComputeInstance>;
-  /** When true, POST body must include `spec.template`; other set `spec` fields are still serialized. */
+  /** When true, POST body must include `spec.catalog_item`; other set `spec` fields are still serialized. */
+  specCatalogItemOnly?: boolean;
+  /** @deprecated Use specCatalogItemOnly for wizard create-from-catalog. */
   specTemplateOnly?: boolean;
 };
 
 export const useProvisionVm = () => {
   return useMutation({
-    mutationFn: ({ vm, specTemplateOnly }: ProvisionVmInput) =>
-      createComputeInstance(vm, specTemplateOnly ? { specTemplateOnly: true } : undefined),
+    mutationFn: ({ vm, specCatalogItemOnly, specTemplateOnly }: ProvisionVmInput) =>
+      createComputeInstance(
+        vm,
+        specCatalogItemOnly
+          ? { specCatalogItemOnly: true }
+          : specTemplateOnly
+            ? { specTemplateOnly: true }
+            : undefined,
+      ),
     /** List updates via usePendingVmCreations polled refetch; avoid caching premature `running`. */
   });
 };
@@ -108,9 +120,20 @@ export const useComputeInstanceTemplates = () => {
     queryKey: queryKeys.computeInstanceTemplates,
     queryFn: () => listComputeInstanceTemplates({}),
     staleTime: 60_000,
-    refetchInterval: COMPUTE_INSTANCE_TEMPLATES_REFETCH_MS,
+    refetchInterval: COMPUTE_INSTANCE_CATALOG_ITEMS_REFETCH_MS,
     refetchIntervalInBackground: false,
     select: (data) => data.items,
+  });
+};
+
+export const useComputeInstanceCatalogItems = () => {
+  return useQuery({
+    queryKey: queryKeys.computeInstanceCatalogItems,
+    queryFn: () => listComputeInstanceCatalogItems({}),
+    staleTime: 60_000,
+    refetchInterval: COMPUTE_INSTANCE_CATALOG_ITEMS_REFETCH_MS,
+    refetchIntervalInBackground: false,
+    select: (data) => data.items.filter((item) => item.published),
   });
 };
 

@@ -5,6 +5,7 @@
 import type {
   ClusterTemplate,
   ComputeInstance,
+  ComputeInstanceCatalogItem,
   FulfillmentCapabilities,
   Organization,
   PageOfT,
@@ -20,6 +21,10 @@ import {
   serializeComputeInstanceForCreate,
   serializeComputeInstancePowerPatch,
 } from '@osac/api-contracts/computeInstanceNormalize';
+import {
+  normalizeComputeInstanceCatalogItem,
+  normalizeComputeInstanceCatalogItemPage,
+} from '@osac/api-contracts/computeInstanceCatalogItemNormalize';
 import {
   normalizeComputeInstanceTemplate,
   normalizeComputeInstanceTemplatePage,
@@ -172,6 +177,31 @@ export const listComputeInstanceTemplates = async (
 export const getComputeInstanceTemplate = async (id: string): Promise<ClusterTemplate> => {
   return normalizeComputeInstanceTemplate(
     await fulfillmentJson(`/compute_instance_templates/${encodeURIComponent(id)}`),
+  );
+};
+
+// ---------------------------------------------------------------------------
+// Compute instance catalog items (VM wizard + catalog)
+// ---------------------------------------------------------------------------
+
+export interface ListComputeInstanceCatalogItemsParams {
+  filter?: string;
+  limit?: number;
+  offset?: number;
+}
+
+export const listComputeInstanceCatalogItems = async (
+  params: ListComputeInstanceCatalogItemsParams = {},
+): Promise<PageOfT<ComputeInstanceCatalogItem>> => {
+  const path = `/compute_instance_catalog_items${buildQueryString(params)}`;
+  return normalizeComputeInstanceCatalogItemPage(await fulfillmentJson(path));
+};
+
+export const getComputeInstanceCatalogItem = async (
+  id: string,
+): Promise<ComputeInstanceCatalogItem> => {
+  return normalizeComputeInstanceCatalogItem(
+    await fulfillmentJson(`/compute_instance_catalog_items/${encodeURIComponent(id)}`),
   );
 };
 

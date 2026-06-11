@@ -45,7 +45,7 @@ export const DashboardPage = () => {
 
   const handleWizardProvision = useCallback(
     async (vm: Partial<ComputeInstance>, meta: { mode: DeploymentMode }) => {
-      await provisionVm.mutateAsync({ vm, specTemplateOnly: meta.mode === 'template' });
+      await provisionVm.mutateAsync({ vm, specCatalogItemOnly: meta.mode === 'template' });
     },
     [provisionVm],
   );

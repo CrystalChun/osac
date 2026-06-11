@@ -1,4 +1,8 @@
-import type { ClusterTemplate, ComputeInstance } from '@osac/api-contracts/types';
+import type {
+  ClusterTemplate,
+  ComputeInstance,
+  ComputeInstanceCatalogItem,
+} from '@osac/api-contracts/types';
 import { normalizeRunStrategyWire } from '@osac/api-contracts/computeInstanceNormalize';
 import type { WizardState } from './types';
 import {
@@ -14,8 +18,8 @@ import {
 export const validateWizardStep = (stepId: string, draft: WizardState): Record<string, string> => {
   switch (stepId) {
     case 'template':
-      if (!draft.selectedTemplateId) {
-        return { selectedTemplateId: 'Select a template' };
+      if (!draft.selectedCatalogItemId) {
+        return { selectedCatalogItemId: 'Select a catalog item' };
       }
       return {};
     case 'customization': {
@@ -50,27 +54,28 @@ export const validateWizardForFinalize = (draft: WizardState): Record<string, st
       return errors;
     }
   }
-  if (!draft.selectedTemplateId) {
-    return { selectedTemplateId: 'Select a template' };
+  if (!draft.selectedCatalogItemId) {
+    return { selectedCatalogItemId: 'Select a catalog item' };
   }
   return {};
 };
 
 /**
  * Build a partial ComputeInstance from the wizard draft for POST /compute_instances.
- * Maps draft fields to fulfillment spec (camelCase TS model; spec.image uses source_type/source_ref
- * keys accepted by serializeImageWire; serialized snake_case at API boundary).
+ * Uses `spec.catalog_item` (not `spec.template`). `template_parameters` is left empty for now.
  */
 export const buildComputeInstanceFromWizardDraft = (
   draft: WizardState,
-  template: ClusterTemplate | null | undefined,
+  catalogItem: ComputeInstanceCatalogItem | null | undefined,
+  underlyingTemplate: ClusterTemplate | null | undefined,
 ): Partial<ComputeInstance> => {
+  const template = underlyingTemplate ?? null;
   const cores = parseTemplateCoresInput(draft.templateCores) ?? template?.defaultCores ?? 2;
   const memoryGib =
     parseTemplateMemoryGibInput(draft.templateMemoryGib) ?? template?.defaultMemoryGib ?? 4;
   const bootDiskGib =
     parseTemplateBootDiskGibInput(draft.templateBootDiskSizeGib) ??
-    defaultTemplateBootDiskGib(template ?? null);
+    defaultTemplateBootDiskGib(template);
   const additionalDisksGib =
     parseTemplateAdditionalDisksGibInput(draft.templateAdditionalDisksGibRaw) ?? [];
   const runStrategy =
@@ -79,7 +84,7 @@ export const buildComputeInstanceFromWizardDraft = (
   const securityGroups = parseTemplateSecurityGroupsInput(draft.templateSecurityGroupsRaw);
 
   const spec: ComputeInstance['spec'] = {
-    template: draft.selectedTemplateId ?? undefined,
+    catalogItem: catalogItem?.id ?? draft.selectedCatalogItemId ?? undefined,
     cores,
     memoryGib,
     bootDisk: { sizeGib: bootDiskGib },

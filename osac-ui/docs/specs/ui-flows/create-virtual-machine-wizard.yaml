@@ -4,8 +4,9 @@ statechart_ref: ../statecharts/create-virtual-machine-wizard.statechart.yaml
 template_inventory_alignment:
   normative_spec: ../template-catalog-wizard-api-alignment.yaml
   rule: >-
-    The **template** wizard step MUST NOT use embedded **VM_TEMPLATES** from @osac/api-contracts as the sole source for picker cards.
-    It MUST reuse the same **compute_instance_templates** client + TanStack Query as **vm-template-catalog** (CatalogPage).
+    The **catalog** wizard step MUST NOT use embedded template lists as the sole source for picker cards.
+    It MUST reuse the same **compute_instance_catalog_items** client + TanStack Query as **vm-template-catalog** (CatalogPage).
+    Underlying **compute_instance_templates** are fetched separately for customization defaults via the catalog item's `template` reference.
 
 applies_when: >-
   Authenticated tenant user or tenant admin workspace. Wizard is always a Modal layered over the
@@ -14,12 +15,12 @@ applies_when: >-
   (see backend-fulfillment.yaml create_virtual_machine_wizard_client_orchestration).
 
 current_product_note_wizard_template_only: >-
-  Shipped wizard is **template-only**: ordered steps **template → customization → review** (no deployment
-  picker). Multi-path worksheets below remain for RESTORE when new/clone return. Template customization
+  Shipped wizard is **catalog-item-only**: ordered steps **catalog → customization → review** (no deployment
+  picker). Multi-path worksheets below remain for RESTORE when new/clone return. Catalog customization
   maps draft fields to fulfillment **ComputeInstance.spec** top-level keys (e.g. cores, memory_gib, boot_disk,
   additional_disks, run_strategy **Always** | **Halted**, subnet, security_groups, ssh_key, user_data, optional
-  image)—the wizard does **not** populate **template_parameters** for this path. On finalize the SPA builds
-  **ComputeInstance** JSON via `buildComputeInstanceFromWizardDraft` and **POST**s to
+  image)—the wizard does **not** populate **template_parameters** or **field_definitions** yet. On finalize the SPA builds
+  **ComputeInstance** JSON with **`spec.catalog_item`** (not `spec.template`) via `buildComputeInstanceFromWizardDraft` and **POST**s to
   **POST /api/fulfillment/v1/compute_instances** (same handler from Dashboard, Catalog, and My VMs).
   **GET** list polling for compute instances does not replace or cancel that POST.
 
