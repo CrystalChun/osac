@@ -40,7 +40,8 @@ type loginCallbackResponse struct {
 }
 
 type loginInfoResponse struct {
-	Username string `json:"username"`
+	Username string   `json:"username"`
+	Roles    []string `json:"roles"`
 }
 
 // GetLogin handles GET /api/login — starts the OIDC Authorization Code + PKCE flow.
@@ -158,15 +159,22 @@ func (h *Handler) GetLoginInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Prefer the ID token for user info (richer claims); fall back to access token.
-	jwtToken := tokenData.IDToken
-	if jwtToken == "" {
-		jwtToken = tokenData.AccessToken
+	// Use the ID token for user identity (richer OIDC claims); fall back to access token.
+	idToken := tokenData.IDToken
+	if idToken == "" {
+		idToken = tokenData.AccessToken
+	}
+	// Use the access token for roles: Keycloak only includes realm_access.roles
+	// in the access token (not the ID token) by default.
+	roleToken := tokenData.AccessToken
+	if roleToken == "" {
+		roleToken = idToken
 	}
 
-	username := UsernameFromToken(jwtToken)
+	username := UsernameFromToken(idToken)
+	roles := RolesFromToken(roleToken)
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(loginInfoResponse{Username: username}) //nolint:errcheck
+	json.NewEncoder(w).Encode(loginInfoResponse{Username: username, Roles: roles}) //nolint:errcheck
 }
 
 // GetLoginRefresh handles GET /api/login/refresh — refreshes the session using the refresh token.

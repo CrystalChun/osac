@@ -2,7 +2,22 @@ import { DemoShellRole } from '@osac/api-contracts/types';
 import { getErrorMessage } from '@osac/ui-components/utils/error';
 import * as React from 'react';
 
-const fetchLoginInfo = async (): Promise<{ username: string } | null> => {
+const ROLE_MAP: Record<string, DemoShellRole> = {
+  'cloud-provider-admin': 'providerAdmin',
+  'tenant-admin': 'tenantAdmin',
+};
+
+const roleFromRoles = (roles: string[]): DemoShellRole => {
+  for (const r of roles) {
+    const mapped = ROLE_MAP[r];
+    if (mapped) {
+      return mapped;
+    }
+  }
+  return 'tenantUser';
+};
+
+const fetchLoginInfo = async (): Promise<{ username: string; roles: string[] } | null> => {
   try {
     const resp = await fetch('/api/login/info', { credentials: 'include' });
     if (resp.status === 401) {
@@ -11,7 +26,7 @@ const fetchLoginInfo = async (): Promise<{ username: string } | null> => {
     if (!resp.ok) {
       return null;
     }
-    return (await resp.json()) as { username: string };
+    return (await resp.json()) as { username: string; roles: string[] };
   } catch {
     return null;
   }
@@ -118,7 +133,7 @@ export const useOIDCLogin = (): [
         if (result) {
           setError(undefined);
           setUsername(result.username);
-          setRole('tenantUser');
+          setRole(roleFromRoles(result.roles ?? []));
           setIsLoading(false);
           scheduleRefresh();
         } else {

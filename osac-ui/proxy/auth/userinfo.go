@@ -32,7 +32,7 @@ func UsernameFromToken(token string) string {
 	if err != nil {
 		return ""
 	}
-	for _, key := range []string{"preferred_username", "email", "sub"} {
+	for _, key := range []string{"preferred_username", "username", "email", "sub"} {
 		if v, ok := claims[key]; ok {
 			if s, ok := v.(string); ok && s != "" {
 				return s
@@ -40,4 +40,29 @@ func UsernameFromToken(token string) string {
 		}
 	}
 	return ""
+}
+
+// RolesFromToken extracts the raw role strings from a JWT access or ID token.
+// Roles are read from the standard Keycloak claim path realm_access.roles.
+// Returns an empty slice when the claim is absent or the token is invalid.
+func RolesFromToken(token string) []string {
+	claims, err := jwtClaims(token)
+	if err != nil {
+		return nil
+	}
+	realmAccess, ok := claims["realm_access"].(map[string]interface{})
+	if !ok {
+		return nil
+	}
+	rawRoles, ok := realmAccess["roles"].([]interface{})
+	if !ok {
+		return nil
+	}
+	roles := make([]string, 0, len(rawRoles))
+	for _, r := range rawRoles {
+		if s, ok := r.(string); ok && s != "" {
+			roles = append(roles, s)
+		}
+	}
+	return roles
 }
