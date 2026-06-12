@@ -4,16 +4,13 @@
  */
 import { PageSection } from '@patternfly/react-core';
 import { NetworkTopologyPage } from '@osac/ui-components/NetworkTopologyPage';
-import { useSession } from '../../contexts/SessionContext';
 import { useComputeInstances } from '../../api/hooks';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { PageDataSection } from '../../components/layout/PageDataSection';
 
-interface Props {
-  onOpenVmDetail?: (vmId: string) => void;
-}
+import { useSession } from '@osac/ui-components/hooks/use-session';
 
-export const AdminNetworksPage = ({ onOpenVmDetail }: Props) => {
+export const AdminNetworksPage = () => {
   const { username } = useSession();
   const { data: vms = [] } = useComputeInstances();
   const tenantLabel = username ?? 'your organization';
@@ -25,7 +22,7 @@ export const AdminNetworksPage = ({ onOpenVmDetail }: Props) => {
         description={`Network topology for ${tenantLabel}. Click a VM node to open its detail.`}
       />
       <PageDataSection>
-        <NetworkTopologyPage vms={vms} onOpenVirtualMachineDetail={onOpenVmDetail} />
+        <NetworkTopologyPage vms={vms} />
       </PageDataSection>
     </PageSection>
   );

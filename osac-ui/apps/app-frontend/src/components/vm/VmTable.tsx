@@ -4,15 +4,17 @@
  */
 import { Button } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
+import { useNavigate } from 'react-router-dom';
+
 import type { ComputeInstance, VmPowerState } from '@osac/api-contracts/types';
 import { VmStatusLabel } from '@osac/ui-components/VmStatusLabel';
-import './VmTable.css';
 import { VmActionsMenu } from './VmActionsMenu';
+
+import './VmTable.css';
 
 interface VmTableProps {
   vms: ComputeInstance[];
   getState: (vm: ComputeInstance) => VmPowerState;
-  onSelect: (vm: ComputeInstance) => void;
   onPower: (vm: ComputeInstance, action: 'start' | 'stop' | 'restart') => void;
   isRestarting?: (vm: ComputeInstance) => boolean;
   isPowerActionPending?: (vm: ComputeInstance) => boolean;
@@ -24,13 +26,13 @@ interface VmTableProps {
 export const VmTable = ({
   vms,
   getState,
-  onSelect,
   onPower,
   isRestarting,
   isPowerActionPending,
   isPendingCreation,
   onDelete,
 }: VmTableProps) => {
+  const navigate = useNavigate();
   return (
     <div className="osac-vm-table-shell">
       <Table aria-label="Virtual machines" variant="compact" borders className="osac-vm-table">
@@ -59,7 +61,7 @@ export const VmTable = ({
                       variant="link"
                       isInline
                       className="osac-vm-table__name-link"
-                      onClick={() => onSelect(vm)}
+                      onClick={() => navigate(`/vms/${vm.id}`)}
                     >
                       {vm.metadata.name}
                     </Button>

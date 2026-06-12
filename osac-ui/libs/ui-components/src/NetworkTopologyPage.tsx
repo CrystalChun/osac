@@ -11,6 +11,8 @@ import {
   StackItem,
   Title,
 } from '@patternfly/react-core';
+import { useNavigate } from 'react-router-dom';
+
 import './NetworkTopologyPage.css';
 
 interface NetworkTopologyProps {
@@ -78,7 +80,8 @@ const stateDotClass = (state: string): string => {
   return '';
 };
 
-export const NetworkTopologyPage = ({ vms, onOpenVirtualMachineDetail }: NetworkTopologyProps) => {
+export const NetworkTopologyPage = ({ vms }: NetworkTopologyProps) => {
+  const navigate = useNavigate();
   const groups = groupBySubnet(vms);
 
   return (
@@ -112,11 +115,10 @@ export const NetworkTopologyPage = ({ vms, onOpenVirtualMachineDetail }: Network
                 <StackItem>
                   <Flex flexWrap={{ default: 'wrap' }} spaceItems={{ default: 'spaceItemsSm' }}>
                     {group.vms.map((vm) => {
-                      const isClickable = !!onOpenVirtualMachineDetail;
                       const chipClass = [
                         'osac-network-topology__vm-chip',
                         vmChipStateClass(vm.status.state),
-                        isClickable ? 'osac-network-topology__vm-chip--clickable' : '',
+                        'osac-network-topology__vm-chip--clickable',
                       ]
                         .filter(Boolean)
                         .join(' ');
@@ -130,10 +132,9 @@ export const NetworkTopologyPage = ({ vms, onOpenVirtualMachineDetail }: Network
                         <FlexItem key={vm.id}>
                           <Button
                             variant="plain"
-                            onClick={() => onOpenVirtualMachineDetail?.(vm.id)}
-                            isDisabled={!isClickable}
+                            onClick={() => navigate(`/vms/${vm.id}`)}
                             className={chipClass}
-                            aria-label={`VM ${vm.metadata.name}, state ${vm.status.state}${isClickable ? ', click to view detail' : ''}`}
+                            aria-label={`VM ${vm.metadata.name}, state ${vm.status.state}, click to view detail`}
                           >
                             <Stack>
                               <StackItem>

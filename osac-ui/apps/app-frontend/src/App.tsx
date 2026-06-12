@@ -1,69 +1,61 @@
-import { useCallback, useRef } from 'react';
-import './App.css';
-import { BrowserRouter, Navigate, Route, Routes, useNavigate } from 'react-router-dom';
-import { Bullseye, Spinner } from '@patternfly/react-core';
-import type { DemoShellRole } from '@osac/api-contracts/types';
-import { SessionProvider, useSession } from './contexts/SessionContext';
-import { AuthCallback } from './pages/auth/AuthCallback';
-import { SignInPage } from './pages/auth/SignInPage';
+import { Navigate, Route, Routes } from 'react-router-dom';
+import {
+  Bullseye,
+  Button,
+  EmptyState,
+  EmptyStateActions,
+  EmptyStateBody,
+  EmptyStateFooter,
+  Spinner,
+} from '@patternfly/react-core';
+import { SessionProvider, useSession } from '@osac/ui-components/hooks/use-session';
+
 import { AppShell } from './pages/shell/AppShell';
 import { defaultRouteForRole } from './pages/shell/shellRoutes';
+import { useOIDCLogin } from './hooks/oidc-login';
 
-const InnerApp = () => {
-  const navigate = useNavigate();
-  const navigateRef = useRef(navigate);
-  navigateRef.current = navigate;
-
-  const onNavigateAfterLogin = useCallback((role: DemoShellRole) => {
-    navigateRef.current(defaultRouteForRole(role));
-  }, []);
-
-  const onNavigateToWelcome = useCallback(() => {
-    navigateRef.current('/');
-  }, []);
-
-  return (
-    <SessionProvider
-      onNavigateAfterLogin={onNavigateAfterLogin}
-      onNavigateToWelcome={onNavigateToWelcome}
-    >
-      <AppRoutes />
-    </SessionProvider>
-  );
-};
+import './App.css';
 
 const LoggedInHomeRedirect = () => {
   const { role } = useSession();
   return <Navigate to={defaultRouteForRole(role)} replace />;
 };
 
-const AppRoutes = () => {
-  const { isLoggedIn, isAuthLoading } = useSession();
+const App = () => {
+  const [username, role, isLoading, error, logout] = useOIDCLogin();
 
-  // Show a full-page spinner while we check for an existing session on mount.
-  if (isAuthLoading) {
+  if (isLoading) {
     return (
-      <Bullseye className="osac-app-loading">
-        <Spinner aria-label="Loading…" />
+      <Bullseye>
+        <Spinner size="xl" />
+      </Bullseye>
+    );
+  }
+
+  if (error) {
+    return (
+      <Bullseye>
+        <EmptyState titleText="Sign-in failed" headingLevel="h4">
+          <EmptyStateBody>{error}</EmptyStateBody>
+          <EmptyStateFooter>
+            <EmptyStateActions>
+              <Button variant="primary">Retry</Button>
+            </EmptyStateActions>
+          </EmptyStateFooter>
+        </EmptyState>
       </Bullseye>
     );
   }
 
   return (
-    <Routes>
-      {/* OIDC callback — must be accessible before auth is resolved. */}
-      <Route path="/callback" element={<AuthCallback />} />
-      <Route path="/" element={isLoggedIn ? <LoggedInHomeRedirect /> : <SignInPage />} />
+    <SessionProvider role={role} username={username}>
+      <Routes>
+        <Route path="/" element={<LoggedInHomeRedirect />} />
 
-      <Route path="/*" element={isLoggedIn ? <AppShell /> : <Navigate to="/" replace />} />
-    </Routes>
+        <Route path="/*" element={<AppShell logout={logout} />} />
+      </Routes>
+    </SessionProvider>
   );
 };
 
-export default function App() {
-  return (
-    <BrowserRouter>
-      <InnerApp />
-    </BrowserRouter>
-  );
-}
+export default App;

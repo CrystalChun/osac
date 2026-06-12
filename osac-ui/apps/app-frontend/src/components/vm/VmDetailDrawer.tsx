@@ -31,11 +31,11 @@ import {
 } from '@osac/api-contracts/computeInstanceNormalize';
 import { VmStatusLabel } from '@osac/ui-components/VmStatusLabel';
 import { VmActionsMenu } from './VmActionsMenu';
+import { useNavigate } from 'react-router-dom';
 
 interface Props {
   vm: ComputeInstance | null;
   effectiveState: VmPowerState;
-  onClose: () => void;
   onPower: (action: 'start' | 'stop' | 'restart') => void;
   onDelete?: () => void;
   /* RESTORE when fulfillment supports clone: onClone?: () => void */
@@ -58,12 +58,12 @@ const formatIsoDate = (iso?: string): string => {
 export const VmDetailDrawer = ({
   vm,
   effectiveState,
-  onClose,
   onPower,
   onDelete,
   isRestarting = false,
   isPowerActionPending = false,
 }: Props) => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(0);
 
   if (!vm) {
@@ -78,7 +78,7 @@ export const VmDetailDrawer = ({
       <StackItem>
         <Breadcrumb>
           <BreadcrumbItem>
-            <Button variant="link" isInline onClick={onClose}>
+            <Button variant="link" isInline onClick={() => navigate('/vms')}>
               Virtual machines
             </Button>
           </BreadcrumbItem>

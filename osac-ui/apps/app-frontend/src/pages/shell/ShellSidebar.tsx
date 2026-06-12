@@ -1,3 +1,4 @@
+import * as React from 'react';
 import {
   Nav,
   NavGroup,
@@ -7,78 +8,65 @@ import {
   Stack,
   StackItem,
 } from '@patternfly/react-core';
+import { useLocation, useNavigate } from 'react-router-dom';
+
+import { useSession } from '@osac/ui-components/hooks/use-session';
 import { LightDarkToggle } from '@osac/ui-components/LightDarkToggle';
-import type { NavLink } from './shellNav';
+import { type NavLink, navRowsForRole } from './shellNav';
 import { shellNavIcon } from './shellNavIcons';
+
 import './ShellSidebar.css';
 
-interface ShellSidebarProps {
-  navRows: { sectionId: string; label: string; children: NavLink[] }[];
-  pathname: string;
-  onNavigate: (path: string) => void;
-  isDarkTheme: boolean;
-  setIsDarkTheme: (dark: boolean) => void;
-}
+const ShellNavItem = ({ item }: { item: NavLink }) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  return (
+    <NavItem
+      itemId={item.id}
+      icon={shellNavIcon(item.id)}
+      isActive={location.pathname === item.path}
+      to={item.path}
+      onClick={(e) => {
+        e.preventDefault();
+        navigate(item.path);
+      }}
+    >
+      {item.label}
+    </NavItem>
+  );
+};
 
-const ShellNavItem = ({
-  item,
-  pathname,
-  onNavigate,
-}: {
-  item: NavLink;
-  pathname: string;
-  onNavigate: (path: string) => void;
-}) => (
-  <NavItem
-    itemId={item.id}
-    icon={shellNavIcon(item.id)}
-    isActive={pathname === item.path}
-    to={item.path}
-    onClick={(e) => {
-      e.preventDefault();
-      onNavigate(item.path);
-    }}
-  >
-    {item.label}
-  </NavItem>
-);
+export const ShellSidebar = () => {
+  const { role, isDarkTheme, setIsDarkTheme } = useSession();
 
-export const ShellSidebar = ({
-  navRows,
-  pathname,
-  onNavigate,
-  isDarkTheme,
-  setIsDarkTheme,
-}: ShellSidebarProps) => (
-  <PageSidebar>
-    <PageSidebarBody isFilled>
-      <Stack className="osac-shell-sidebar__stack">
-        <StackItem isFilled>
-          <Nav aria-label="Primary navigation">
-            {navRows.map((section) => (
-              <NavGroup key={section.sectionId} title={section.label}>
-                {section.children.map((item) => (
-                  <ShellNavItem
-                    key={item.id}
-                    item={item}
-                    pathname={pathname}
-                    onNavigate={onNavigate}
-                  />
-                ))}
-              </NavGroup>
-            ))}
-          </Nav>
-        </StackItem>
+  const navRows = React.useMemo(() => navRowsForRole(role), [role]);
 
-        <StackItem className="osac-shell-sidebar-footer">
-          <LightDarkToggle
-            variant="shell"
-            isDark={isDarkTheme}
-            onChange={setIsDarkTheme}
-            aria-label="Toggle theme"
-          />
-        </StackItem>
-      </Stack>
-    </PageSidebarBody>
-  </PageSidebar>
-);
+  return (
+    <PageSidebar>
+      <PageSidebarBody isFilled>
+        <Stack className="osac-shell-sidebar__stack">
+          <StackItem isFilled>
+            <Nav aria-label="Primary navigation">
+              {navRows.map((section) => (
+                <NavGroup key={section.sectionId} title={section.label}>
+                  {section.children.map((item) => (
+                    <ShellNavItem key={item.id} item={item} />
+                  ))}
+                </NavGroup>
+              ))}
+            </Nav>
+          </StackItem>
+
+          <StackItem className="osac-shell-sidebar-footer">
+            <LightDarkToggle
+              variant="shell"
+              isDark={isDarkTheme}
+              onChange={setIsDarkTheme}
+              aria-label="Toggle theme"
+            />
+          </StackItem>
+        </Stack>
+      </PageSidebarBody>
+    </PageSidebar>
+  );
+};

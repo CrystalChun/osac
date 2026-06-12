@@ -2,7 +2,7 @@
  * flow: manage-virtual-machines
  * steps: mvm_list_view, mvm_detail_drawer
  */
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   Bullseye,
@@ -18,11 +18,11 @@ import {
   ToggleGroupItem,
 } from '@patternfly/react-core';
 import type { ComputeInstance } from '@osac/api-contracts/types';
-import { useSession } from '../../contexts/SessionContext';
+import { useSession } from '@osac/ui-components/hooks/use-session';
+
 import {
   refetchComputeInstancesQueries,
   useComputeInstances,
-  useDeleteVm,
   usePatchVm,
   useProvisionVm,
 } from '../../api/hooks';
@@ -31,18 +31,17 @@ import { listPostCreateWatchIds } from '../../api/postCreateWatchStore';
 import { isPendingVmClientId } from '../../api/pendingVmCreation';
 import { pinProvisioningVmsToListEnd } from '../../api/vmListDisplayOrder';
 import { usePendingVmCreations } from '../../api/usePendingVmCreations';
-import { usePendingVmDeletes } from '../../api/usePendingVmDeletes';
 import { useVmPowerActionDisplay } from '../../api/useVmPowerActionDisplay';
 import { VmDeleteConfirmModal } from '../../components/vm/VmDeleteConfirmModal';
 import { PageHeader } from '../../components/layout/PageHeader';
-import { PageDataSection } from '../../components/layout/PageDataSection';
-import './VmListPage.css';
-import { VmDetailDrawer } from '../../components/vm/VmDetailDrawer';
 import {
   CatalogProvisionWizard,
   type CatalogProvisionWizardHandle,
 } from '../../components/catalogProvision/CatalogProvisionWizard';
 import { VmTable } from '../../components/vm/VmTable';
+import { PageDataSection } from '../../components/layout/PageDataSection';
+
+import './VmListPage.css';
 
 const POWER_FILTERS = [
   { value: 'all', label: 'All' },
@@ -60,7 +59,7 @@ const normalizePowerFilter = (value: string | null): VmPowerFilter => {
 };
 
 export const VmListPage = () => {
-  const { role, topologyDetailRequest, clearTopologyDetailRequest } = useSession();
+  const { role } = useSession();
   const [searchParams] = useSearchParams();
   const wizardRef = useRef<CatalogProvisionWizardHandle>(null);
 
@@ -68,14 +67,13 @@ export const VmListPage = () => {
   const [powerFilter, setPowerFilter] = useState<VmPowerFilter>(() =>
     normalizePowerFilter(searchParams.get('power')),
   );
-  const [selectedVm, setSelectedVm] = useState<ComputeInstance | null>(null);
-  const [vmToDelete, setVmToDelete] = useState<ComputeInstance | null>(null);
+
+  const [vmToDelete, setVmToDelete] = useState<string>();
 
   const queryClient = useQueryClient();
   const { data: vms = [], isLoading } = useComputeInstances();
   const provisionVm = useProvisionVm();
   const patchVm = usePatchVm();
-  const deleteVm = useDeleteVm();
   const refetchInstances = useCallback(
     () => refetchComputeInstancesQueries(queryClient),
     [queryClient],
@@ -90,7 +88,6 @@ export const VmListPage = () => {
     getCreationDisplayState,
     getPostCreateDisplayState,
   } = usePendingVmCreations(vms, { refetchInstances });
-  const { markPendingDelete, clearPendingDelete, isPendingDelete } = usePendingVmDeletes(vms);
 
   const handleWizardProvision = useCallback(
     async (vm: Partial<ComputeInstance>) => {
@@ -114,9 +111,6 @@ export const VmListPage = () => {
 
   const getVmDisplayState = useCallback(
     (vm: ComputeInstance) => {
-      if (isPendingDelete(vm.id)) {
-        return 'deleting';
-      }
       if (isPendingVmClientId(vm.id)) {
         return getCreationDisplayState(vm.id);
       }
@@ -126,28 +120,8 @@ export const VmListPage = () => {
       }
       return getDisplayState(vm);
     },
-    [getCreationDisplayState, getPostCreateDisplayState, getDisplayState, isPendingDelete],
+    [getCreationDisplayState, getPostCreateDisplayState, getDisplayState],
   );
-
-  useEffect(() => {
-    if (!topologyDetailRequest) {
-      return;
-    }
-    const vm = vms.find((v) => v.id === topologyDetailRequest.vmId);
-    if (vm) {
-      setSelectedVm(vm);
-    }
-    clearTopologyDetailRequest();
-  }, [topologyDetailRequest, vms, clearTopologyDetailRequest]);
-
-  useEffect(() => {
-    setSelectedVm((current) => {
-      if (!current) {
-        return current;
-      }
-      return vms.find((v) => v.id === current.id) ?? null;
-    });
-  }, [vms]);
 
   const filteredVms = useMemo(() => {
     const pending = powerFilter === 'all' ? pendingInstances() : [];
@@ -155,7 +129,7 @@ export const VmListPage = () => {
     const filtered = merged.filter((vm) => {
       const matchesSearch =
         !search || vm.metadata.name.toLowerCase().includes(search.toLowerCase());
-      if (isPendingVmClientId(vm.id) || isPendingDelete(vm.id)) {
+      if (isPendingVmClientId(vm.id)) {
         return matchesSearch;
       }
       const state = getVmDisplayState(vm);
@@ -163,183 +137,103 @@ export const VmListPage = () => {
       return matchesSearch && matchesPower;
     });
     return pinProvisioningVmsToListEnd(filtered, listPostCreateWatchIds());
-  }, [getVmDisplayState, isPendingDelete, pendingInstances, powerFilter, search, vms]);
+  }, [getVmDisplayState, pendingInstances, powerFilter, search, vms]);
 
   const handleOpenCreateVm = useCallback(() => {
     wizardRef.current?.open();
   }, []);
 
-  const handleRequestDelete = useCallback((vm: ComputeInstance) => {
-    setVmToDelete(vm);
-  }, []);
-
-  const handleConfirmDelete = useCallback(() => {
-    if (!vmToDelete) {
-      return;
-    }
-    const id = vmToDelete.id;
-    const live = vms.find((v) => v.id === id) ?? vmToDelete;
-    const state = live.status.state;
-
-    markPendingDelete(id);
-    setVmToDelete(null);
-    if (selectedVm?.id === id) {
-      setSelectedVm(null);
-    }
-
-    const finishDelete = () => {
-      deleteVm.mutate(id, {
-        onError: () => {
-          clearPendingDelete(id);
-        },
-      });
-    };
-
-    if (state === 'stopped') {
-      finishDelete();
-      return;
-    }
-
-    patchVm.mutate(
-      { id, powerAction: 'stop' },
-      {
-        onSuccess: () => finishDelete(),
-        onError: () => {
-          clearPendingDelete(id);
-        },
-      },
-    );
-  }, [clearPendingDelete, deleteVm, markPendingDelete, patchVm, selectedVm?.id, vmToDelete, vms]);
-
-  const vmToDeleteLive = vmToDelete
-    ? (vms.find((v) => v.id === vmToDelete.id) ?? vmToDelete)
-    : null;
-  const deleteWillStopFirst = vmToDeleteLive != null && vmToDeleteLive.status.state !== 'stopped';
-  const deleteBusy = deleteVm.isPending || patchVm.isPending;
-
-  const detailState = selectedVm ? getVmDisplayState(selectedVm) : 'stopped';
+  const deleteVm = vms.find((vm) => vm.id === vmToDelete);
 
   return (
     <PageSection isFilled className="osac-page">
-      <VmDeleteConfirmModal
-        vm={vmToDelete}
-        isOpen={vmToDelete != null}
-        isPending={deleteBusy}
-        willStopFirst={deleteWillStopFirst}
-        errorMessage={
-          patchVm.isError || deleteVm.isError
-            ? (patchVm.error ?? deleteVm.error) instanceof Error
-              ? ((patchVm.error ?? deleteVm.error) as Error).message
-              : 'Request failed'
-            : null
-        }
-        onClose={() => {
-          if (!deleteBusy) {
-            setVmToDelete(null);
-            deleteVm.reset();
-            patchVm.reset();
-          }
-        }}
-        onConfirm={handleConfirmDelete}
-      />
+      {deleteVm && (
+        <VmDeleteConfirmModal
+          vm={deleteVm}
+          onClose={() => setVmToDelete(undefined)}
+          onSuccess={() => {
+            setVmToDelete(undefined);
+            refetchInstances();
+          }}
+        />
+      )}
       <CatalogProvisionWizard
         ref={wizardRef}
         breadcrumbParentLabel="Virtual machines"
         onProvision={handleWizardProvision}
       />
+      <PageHeader
+        title="Virtual machines"
+        description="View and filter your virtual machines."
+        descriptionWidth="wide"
+        actions={
+          role === 'tenantUser' ? (
+            <Button variant="primary" onClick={handleOpenCreateVm}>
+              Create virtual machine
+            </Button>
+          ) : undefined
+        }
+      />
 
-      {selectedVm ? (
-        /* RESTORE clone when fulfillment supports it:
-           onClone={() => wizardRef.current?.openFromClone(selectedVm.id)}
-        */
-        <PageDataSection>
-          <VmDetailDrawer
-            vm={selectedVm}
-            effectiveState={detailState}
-            onClose={() => setSelectedVm(null)}
-            onPower={(action) => runPowerAction(selectedVm, action)}
-            onDelete={() => handleRequestDelete(selectedVm)}
-            isRestarting={isRestarting(selectedVm.id)}
-            isPowerActionPending={isPowerActionPending(selectedVm.id)}
-          />
-        </PageDataSection>
-      ) : (
-        <>
-          <PageHeader
-            title="Virtual machines"
-            description="View and filter your virtual machines."
-            descriptionWidth="wide"
-            actions={
-              role === 'tenantUser' ? (
-                <Button variant="primary" onClick={handleOpenCreateVm}>
-                  Create virtual machine
-                </Button>
-              ) : undefined
-            }
-          />
+      <Divider className="osac-vm-list__divider" />
 
-          <Divider className="osac-vm-list__divider" />
-
-          <PageDataSection scrollable>
-            <Flex
-              spaceItems={{ default: 'spaceItemsSm' }}
-              alignItems={{ default: 'alignItemsCenter' }}
-              flexWrap={{ default: 'wrap' }}
-              className="osac-vm-list__toolbar"
+      <PageDataSection scrollable>
+        <Flex
+          spaceItems={{ default: 'spaceItemsSm' }}
+          alignItems={{ default: 'alignItemsCenter' }}
+          flexWrap={{ default: 'wrap' }}
+          className="osac-vm-list__toolbar"
+        >
+          <FlexItem>
+            <SearchInput
+              placeholder="Search VMs by name…"
+              value={search}
+              onChange={(_e, v) => setSearch(v)}
+              onClear={() => setSearch('')}
+              className="osac-vm-list__search"
+            />
+          </FlexItem>
+          <FlexItem>
+            <ToggleGroup
+              aria-label="Filter virtual machines by status"
+              className="osac-vm-list__status-toggle"
             >
-              <FlexItem>
-                <SearchInput
-                  placeholder="Search VMs by name…"
-                  value={search}
-                  onChange={(_e, v) => setSearch(v)}
-                  onClear={() => setSearch('')}
-                  className="osac-vm-list__search"
+              {POWER_FILTERS.map((option) => (
+                <ToggleGroupItem
+                  key={option.value}
+                  text={option.label}
+                  buttonId={`vm-filter-status-${option.value}`}
+                  isSelected={powerFilter === option.value}
+                  onChange={() => setPowerFilter(option.value)}
                 />
-              </FlexItem>
-              <FlexItem>
-                <ToggleGroup
-                  aria-label="Filter virtual machines by status"
-                  className="osac-vm-list__status-toggle"
-                >
-                  {POWER_FILTERS.map((option) => (
-                    <ToggleGroupItem
-                      key={option.value}
-                      text={option.label}
-                      buttonId={`vm-filter-status-${option.value}`}
-                      isSelected={powerFilter === option.value}
-                      onChange={() => setPowerFilter(option.value)}
-                    />
-                  ))}
-                </ToggleGroup>
-              </FlexItem>
-            </Flex>
+              ))}
+            </ToggleGroup>
+          </FlexItem>
+        </Flex>
 
-            {isLoading ? (
-              <Bullseye className="osac-vm-list__loading">
-                <Spinner aria-label="Loading virtual machines" />
-              </Bullseye>
-            ) : filteredVms.length === 0 ? (
-              <Content component="p" className="osac-vm-list__empty">
-                {search || powerFilter !== 'all'
-                  ? 'No virtual machines match your filters.'
-                  : 'No virtual machines yet. Create one to get started.'}
-              </Content>
-            ) : (
-              /* RESTORE clone: onClone={(vm) => wizardRef.current?.openFromClone(vm.id)} */
-              <VmTable
-                vms={filteredVms}
-                getState={getVmDisplayState}
-                isPendingCreation={isPendingCreation}
-                isRestarting={(vm) => isRestarting(vm.id)}
-                isPowerActionPending={(vm) => isPowerActionPending(vm.id)}
-                onSelect={setSelectedVm}
-                onPower={runPowerAction}
-                onDelete={handleRequestDelete}
-              />
-            )}
-          </PageDataSection>
-        </>
-      )}
+        {isLoading ? (
+          <Bullseye className="osac-vm-list__loading">
+            <Spinner aria-label="Loading virtual machines" />
+          </Bullseye>
+        ) : filteredVms.length === 0 ? (
+          <Content component="p" className="osac-vm-list__empty">
+            {search || powerFilter !== 'all'
+              ? 'No virtual machines match your filters.'
+              : 'No virtual machines yet. Create one to get started.'}
+          </Content>
+        ) : (
+          /* RESTORE clone: onClone={(vm) => wizardRef.current?.openFromClone(vm.id)} */
+          <VmTable
+            vms={filteredVms}
+            getState={getVmDisplayState}
+            isPendingCreation={isPendingCreation}
+            isRestarting={(vm) => isRestarting(vm.id)}
+            isPowerActionPending={(vm) => isPowerActionPending(vm.id)}
+            onPower={runPowerAction}
+            onDelete={(vm) => setVmToDelete(vm.id)}
+          />
+        )}
+      </PageDataSection>
     </PageSection>
   );
 };

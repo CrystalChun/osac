@@ -1,6 +1,9 @@
+import * as React from 'react';
 import { BarsIcon } from '@patternfly/react-icons/dist/esm/icons/bars-icon';
 import { UserIcon } from '@patternfly/react-icons/dist/esm/icons/user-icon';
 import {
+  Alert,
+  Button,
   Dropdown,
   DropdownItem,
   DropdownList,
@@ -13,91 +16,117 @@ import {
   MastheadMain,
   MastheadToggle,
   MenuToggle,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
   PageToggleButton,
   Title,
 } from '@patternfly/react-core';
-import type { DemoShellRole, DemoTenantId } from '@osac/api-contracts/types';
 import { operatingModeLabel } from '@osac/api-contracts/shellLabels';
 import './ShellMasthead.css';
+import { getErrorMessage } from '@osac/ui-components/utils/error';
+import { useNavigate } from 'react-router-dom';
+import { useSession } from '@osac/ui-components/hooks/use-session';
 
 interface ShellMastheadProps {
-  selectedTenant: DemoTenantId | null;
-  role: DemoShellRole;
-  displayName: string;
-  isUserMenuOpen: boolean;
-  setIsUserMenuOpen: (open: boolean) => void;
-  onLogout: () => void;
+  onLogout: () => Promise<void>;
 }
 
-export const ShellMasthead = ({
-  selectedTenant: _selectedTenant,
-  role,
-  displayName,
-  isUserMenuOpen,
-  setIsUserMenuOpen,
-  onLogout,
-}: ShellMastheadProps) => {
-  return (
-    <Masthead display={{ default: 'inline' }}>
-      <MastheadMain>
-        <MastheadToggle>
-          <PageToggleButton variant="plain" aria-label="Global navigation">
-            <BarsIcon />
-          </PageToggleButton>
-        </MastheadToggle>
-        <MastheadLogo>
-          <MastheadBrand>
-            <Title headingLevel="h4" size="lg" className="osac-masthead__brand-title">
-              Red Hat OSAC
-            </Title>
-          </MastheadBrand>
-        </MastheadLogo>
-      </MastheadMain>
+export const ShellMasthead = ({ onLogout }: ShellMastheadProps) => {
+  const [isUserMenuOpen, setIsUserMenuOpen] = React.useState(false);
+  const [logoutError, setLogoutError] = React.useState<string>();
+  const navigate = useNavigate();
+  const { role, username } = useSession();
 
-      <MastheadContent className="osac-masthead-content">
-        <Flex
-          className="osac-masthead-content-rail"
-          direction={{ default: 'row' }}
-          flexWrap={{ default: 'wrap' }}
-          alignItems={{ default: 'alignItemsCenter' }}
-          justifyContent={{ default: 'justifyContentFlexEnd' }}
-          spaceItems={{ default: 'spaceItemsMd' }}
-        >
-          <Flex className="osac-masthead-user-cluster" spaceItems={{ default: 'spaceItemsSm' }}>
-            <Dropdown
-              isOpen={isUserMenuOpen}
-              onSelect={() => setIsUserMenuOpen(false)}
-              onOpenChange={setIsUserMenuOpen}
-              popperProps={{ position: 'right' }}
-              toggle={(ref) => (
-                <MenuToggle
-                  ref={ref}
-                  isExpanded={isUserMenuOpen}
-                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  icon={<UserIcon />}
-                  aria-label="Account menu"
-                >
-                  {displayName}
-                  <Label
-                    color="grey"
-                    variant="outline"
-                    isCompact
-                    className="osac-masthead-operating-mode"
+  const displayName = username || 'User';
+
+  return (
+    <>
+      {logoutError && (
+        <Modal variant="small" isOpen onClose={() => setLogoutError(undefined)}>
+          <ModalHeader title="Logout failed" titleIconVariant="danger" />
+          <ModalBody>
+            <Alert variant="danger" isInline title={logoutError ?? ''} />
+          </ModalBody>
+          <ModalFooter>
+            <Button variant="primary" onClick={() => setLogoutError(undefined)}>
+              Close
+            </Button>
+          </ModalFooter>
+        </Modal>
+      )}
+      <Masthead display={{ default: 'inline' }}>
+        <MastheadMain>
+          <MastheadToggle>
+            <PageToggleButton variant="plain" aria-label="Global navigation">
+              <BarsIcon />
+            </PageToggleButton>
+          </MastheadToggle>
+          <MastheadLogo>
+            <MastheadBrand>
+              <Title headingLevel="h4" size="lg" className="osac-masthead__brand-title">
+                Red Hat OSAC
+              </Title>
+            </MastheadBrand>
+          </MastheadLogo>
+        </MastheadMain>
+
+        <MastheadContent className="osac-masthead-content">
+          <Flex
+            className="osac-masthead-content-rail"
+            direction={{ default: 'row' }}
+            flexWrap={{ default: 'wrap' }}
+            alignItems={{ default: 'alignItemsCenter' }}
+            justifyContent={{ default: 'justifyContentFlexEnd' }}
+            spaceItems={{ default: 'spaceItemsMd' }}
+          >
+            <Flex className="osac-masthead-user-cluster" spaceItems={{ default: 'spaceItemsSm' }}>
+              <Dropdown
+                isOpen={isUserMenuOpen}
+                onSelect={() => setIsUserMenuOpen(false)}
+                onOpenChange={setIsUserMenuOpen}
+                popperProps={{ position: 'right' }}
+                toggle={(ref) => (
+                  <MenuToggle
+                    ref={ref}
+                    isExpanded={isUserMenuOpen}
+                    onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                    icon={<UserIcon />}
+                    aria-label="Account menu"
                   >
-                    {operatingModeLabel(role)}
-                  </Label>
-                </MenuToggle>
-              )}
-            >
-              <DropdownList>
-                <DropdownItem value="logout" onClick={onLogout}>
-                  Log out
-                </DropdownItem>
-              </DropdownList>
-            </Dropdown>
+                    {displayName}
+                    <Label
+                      color="grey"
+                      variant="outline"
+                      isCompact
+                      className="osac-masthead-operating-mode"
+                    >
+                      {operatingModeLabel(role)}
+                    </Label>
+                  </MenuToggle>
+                )}
+              >
+                <DropdownList>
+                  <DropdownItem
+                    value="logout"
+                    onClick={async () => {
+                      try {
+                        await onLogout();
+                        navigate('/');
+                      } catch (e) {
+                        setLogoutError(getErrorMessage(e));
+                      }
+                    }}
+                  >
+                    Log out
+                  </DropdownItem>
+                </DropdownList>
+              </Dropdown>
+            </Flex>
           </Flex>
-        </Flex>
-      </MastheadContent>
-    </Masthead>
+        </MastheadContent>
+      </Masthead>
+    </>
   );
 };
