@@ -41,6 +41,9 @@ importers:
       '@osac/api-contracts':
         specifier: workspace:*
         version: link:../../libs/api-contracts
+      '@osac/types':
+        specifier: workspace:*
+        version: link:../../libs/types
       '@osac/ui-components':
         specifier: workspace:*
         version: link:../../libs/ui-components
@@ -130,6 +133,9 @@ importers:
       '@osac/api-contracts':
         specifier: workspace:*
         version: link:../api-contracts
+      '@osac/types':
+        specifier: workspace:*
+        version: link:../types
       '@patternfly/patternfly':
         specifier: ^6.4.0
         version: 6.4.0
@@ -145,6 +151,9 @@ importers:
       '@patternfly/react-table':
         specifier: ^6.4.0
         version: 6.4.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tanstack/react-query':
+        specifier: ^5.0.0
+        version: 5.99.2(react@19.2.5)
       react:
         specifier: ^19.2.4
         version: 19.2.5

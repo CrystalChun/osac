@@ -98,12 +98,6 @@ export const listComputeInstances = async (
   return normalizeComputeInstancePage(await fulfillmentJson(path));
 };
 
-export const getComputeInstance = async (id: string): Promise<ComputeInstance> => {
-  return normalizeComputeInstance(
-    await fulfillmentJson(`/compute_instances/${encodeURIComponent(id)}`),
-  );
-};
-
 export const createComputeInstance = async (
   vm: Partial<ComputeInstance>,
   opts?: SerializeComputeInstanceForCreateOptions,

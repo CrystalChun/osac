@@ -1,14 +1,11 @@
 import * as React from 'react';
-import { VmDetailDrawer } from '../../components/vm/VmDetailDrawer';
 import { Bullseye, PageSection, Spinner } from '@patternfly/react-core';
 import { useNavigate, useParams } from 'react-router-dom';
-import {
-  ComputeInstance,
-  refetchComputeInstance,
-  useComputeInstance,
-  usePatchVm,
-} from '../../api/hooks';
-import { useQueryClient } from '@tanstack/react-query';
+import { useComputeInstance } from '@osac/ui-components/api/v1/compute-instance';
+import { ComputeInstance } from '@osac/types';
+
+import { VmDetailDrawer } from '../../components/vm/VmDetailDrawer';
+import { ComputeInstance as OldComputeInstance, usePatchVm } from '../../api/hooks';
 import { useVmPowerActionDisplay } from '../../api/useVmPowerActionDisplay';
 import { usePendingVmCreations } from '../../api/usePendingVmCreations';
 import { isPendingVmClientId } from '../../api/pendingVmCreation';
@@ -18,38 +15,32 @@ const VmDetailsPageInner = ({ vm }: { vm: ComputeInstance }) => {
   const navigate = useNavigate();
   const [deleteVm, setDeleteVm] = React.useState(false);
 
-  const queryClient = useQueryClient();
-  const refetchInstances = React.useCallback(
-    () => refetchComputeInstance(vm.id, queryClient),
-    [queryClient, vm.id],
-  );
-
   const patchVm = usePatchVm();
 
   const { getDisplayState, runPowerAction, isPowerActionPending, isRestarting } =
-    useVmPowerActionDisplay([vm], patchVm.mutate, { refetchInstances });
+    useVmPowerActionDisplay([vm as unknown as OldComputeInstance], patchVm.mutate);
 
-  const { getCreationDisplayState, getPostCreateDisplayState } = usePendingVmCreations([vm], {
-    refetchInstances,
-  });
+  const { getCreationDisplayState, getPostCreateDisplayState } = usePendingVmCreations([
+    vm as unknown as OldComputeInstance,
+  ]);
 
   const getVmDisplayState = React.useCallback(
     (vm: ComputeInstance) => {
       if (isPendingVmClientId(vm.id)) {
         return getCreationDisplayState(vm.id);
       }
-      const postCreate = getPostCreateDisplayState(vm);
+      const postCreate = getPostCreateDisplayState(vm as unknown as OldComputeInstance);
       if (postCreate) {
         return postCreate;
       }
-      return getDisplayState(vm);
+      return getDisplayState(vm as unknown as OldComputeInstance);
     },
     [getCreationDisplayState, getPostCreateDisplayState, getDisplayState],
   );
 
   const handlePowerAction = React.useCallback(
     (vm: ComputeInstance, action: 'start' | 'stop' | 'restart') => {
-      runPowerAction(vm, action);
+      runPowerAction(vm as unknown as OldComputeInstance, action);
     },
     [runPowerAction],
   );
@@ -59,13 +50,13 @@ const VmDetailsPageInner = ({ vm }: { vm: ComputeInstance }) => {
     <PageSection isFilled>
       {deleteVm && (
         <VmDeleteConfirmModal
-          vm={vm}
+          vm={vm as unknown as OldComputeInstance}
           onClose={() => setDeleteVm(false)}
           onSuccess={() => navigate('/vms')}
         />
       )}
       <VmDetailDrawer
-        vm={vm}
+        vm={vm as unknown as OldComputeInstance}
         effectiveState={detailState}
         onPower={(action) => handlePowerAction(vm, action)}
         onDelete={() => setDeleteVm(true)}

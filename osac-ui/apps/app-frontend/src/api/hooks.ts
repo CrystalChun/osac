@@ -5,7 +5,6 @@ import {
   createComputeInstance,
   createComputeInstanceCatalogItem,
   deleteComputeInstance,
-  getComputeInstance,
   listComputeInstanceCatalogItems,
   listComputeInstanceTemplates,
   listComputeInstances,
@@ -37,16 +36,11 @@ export const queryKeys = {
   computeInstanceCatalogItems: ['compute_instance_catalog_items'] as const,
   organizations: ['organizations'] as const,
   users: ['users'] as const,
-  computeInstance: (id: string) => ['compute_instance', id],
 };
 
 /** Refetch every active `compute_instances` query after mutations. */
 export const refetchComputeInstancesQueries = (qc: QueryClient) => {
   return qc.refetchQueries({ queryKey: ['compute_instances'] });
-};
-
-export const refetchComputeInstance = (id: string, qc: QueryClient) => {
-  return qc.refetchQueries({ queryKey: ['compute_instance', id] });
 };
 
 // ---------------------------------------------------------------------------
@@ -63,17 +57,6 @@ export const useComputeInstances = (params: ListComputeInstancesParams = {}) => 
     refetchInterval: COMPUTE_INSTANCES_REFETCH_MS,
     refetchIntervalInBackground: false,
     select: (data) => data.items,
-  });
-};
-
-export const useComputeInstance = (id: string) => {
-  return useQuery({
-    queryKey: queryKeys.computeInstance(id),
-    queryFn: () => getComputeInstance(id),
-    staleTime: 30_000,
-    refetchOnMount: 'always',
-    refetchInterval: COMPUTE_INSTANCES_REFETCH_MS,
-    refetchIntervalInBackground: false,
   });
 };
 
@@ -105,7 +88,7 @@ export type PatchVmInput =
   | { id: string; powerAction: ComputeInstancePowerAction };
 
 export const usePatchVm = () => {
-  const qc = useQueryClient();
+  const qc = useQueryClient(); // TODO: migrate to useApiQueryClient
   return useMutation({
     mutationFn: (input: PatchVmInput) =>
       'powerAction' in input
@@ -123,7 +106,7 @@ export const usePatchVm = () => {
 };
 
 export const useDeleteVm = () => {
-  const qc = useQueryClient();
+  const qc = useQueryClient(); // TODO: migrate to useApiQueryClient
   return useMutation({
     mutationFn: (id: string) => deleteComputeInstance(id),
     onSuccess: async () => {

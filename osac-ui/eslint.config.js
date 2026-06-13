@@ -81,6 +81,31 @@ export default defineConfig(
       ],
     },
   },
+  // ui-components must use useApiQuery / useApiQueryClient, never tanstack hooks directly
+  {
+    files: ['libs/ui-components/src/**/*.{ts,tsx}'],
+    ignores: ['libs/ui-components/src/api/use-api-query.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: '@tanstack/react-query',
+              importNames: ['useQuery'],
+              message: "Use useApiQuery from '../use-api-query' instead of useQuery directly. ui-components hooks must not supply a queryFn.",
+            },
+            {
+              name: '@tanstack/react-query',
+              importNames: ['useQueryClient'],
+              message: "Use useApiQueryClient from '@osac/ui-components/api/use-api-query-client' instead. It constrains all cache operations to known ApiRoute values.",
+            },
+          ],
+        },
+      ],
+    },
+  },
+
   {
     files: ['apps/app-frontend/src/**/*.test.{ts,tsx}'],
     rules: {
