@@ -13,13 +13,27 @@ describe('normalizeComputeInstanceCatalogItem', () => {
       template: 'tpl-general',
       published: true,
       metadata: { name: 'catalog-1', version: 1 },
-      field_definitions: [{ path: 'spec.cores', editable: true }],
+      field_definitions: [
+        {
+          path: 'cores',
+          display_name: 'vCPUs',
+          editable: true,
+          default: { number_value: 4 },
+        },
+      ],
     });
     expect(item.id).toBe('catalog-1');
     expect(item.title).toBe('General purpose VM');
     expect(item.template).toBe('tpl-general');
     expect(item.published).toBe(true);
-    expect(item.fieldDefinitions).toHaveLength(1);
+    expect(item.fieldDefinitions).toEqual([
+      {
+        path: 'cores',
+        displayName: 'vCPUs',
+        editable: true,
+        default: 4,
+      },
+    ]);
   });
 
   it('normalizes list page envelope', () => {

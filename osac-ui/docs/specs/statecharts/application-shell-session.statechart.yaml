@@ -7,7 +7,7 @@ design_system_ref: ../design-system.yaml
 context:
   role: null
   tenantId: null
-  activeNav: dashboard
+  activeNav: virtual_machines
   isUserMenuOpen: false
   theme: light
 

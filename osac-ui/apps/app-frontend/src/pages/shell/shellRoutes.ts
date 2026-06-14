@@ -7,5 +7,5 @@ export const defaultRouteForRole = (role: DemoShellRole): string => {
   if (role === 'tenantAdmin') {
     return '/admin/dashboard';
   }
-  return '/dashboard';
+  return '/vms';
 };

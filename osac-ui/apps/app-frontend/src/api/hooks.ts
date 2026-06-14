@@ -3,6 +3,7 @@ import type { ClusterTemplate, ComputeInstance } from '@osac/api-contracts/types
 import {
   type ListComputeInstancesParams,
   createComputeInstance,
+  createComputeInstanceCatalogItem,
   deleteComputeInstance,
   listComputeInstanceCatalogItems,
   listComputeInstanceTemplates,
@@ -15,7 +16,7 @@ import {
 import type { ComputeInstancePowerAction } from '@osac/api-contracts/computeInstanceNormalize';
 import { upsertComputeInstanceInCache } from './computeInstancesCache';
 
-/** Poll VM list so CLI / out-of-band server changes update dashboard + My VMs without a full reload. */
+/** Poll VM list so CLI / out-of-band changes update Virtual machines without a full reload. */
 const COMPUTE_INSTANCES_REFETCH_MS = 30_000;
 /** While create/power/delete pending UI is active, refresh list more often than the default interval. */
 export const PENDING_VM_LIST_POLL_MS = 10_000;
@@ -37,7 +38,7 @@ export const queryKeys = {
   users: ['users'] as const,
 };
 
-/** Refetch every active `compute_instances` query (list + dashboard KPIs) after mutations. */
+/** Refetch every active `compute_instances` query after mutations. */
 export const refetchComputeInstancesQueries = (qc: QueryClient) => {
   return qc.refetchQueries({ queryKey: ['compute_instances'] });
 };
@@ -51,7 +52,7 @@ export const useComputeInstances = (params: ListComputeInstancesParams = {}) => 
     queryKey: queryKeys.computeInstances(params),
     queryFn: () => listComputeInstances(params),
     staleTime: 30_000,
-    /** Refetch when My VMs remounts so navigation does not show a pre-action cached list. */
+    /** Refetch when Virtual machines remounts so navigation does not show a pre-action cached list. */
     refetchOnMount: 'always',
     refetchInterval: COMPUTE_INSTANCES_REFETCH_MS,
     refetchIntervalInBackground: false,
@@ -134,6 +135,16 @@ export const useComputeInstanceCatalogItems = () => {
     refetchInterval: COMPUTE_INSTANCE_CATALOG_ITEMS_REFETCH_MS,
     refetchIntervalInBackground: false,
     select: (data) => data.items.filter((item) => item.published),
+  });
+};
+
+export const useCreateComputeInstanceCatalogItem = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (wire: Record<string, unknown>) => createComputeInstanceCatalogItem(wire),
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: queryKeys.computeInstanceCatalogItems });
+    },
   });
 };
 

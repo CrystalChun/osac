@@ -1,0 +1,51 @@
+/* Filled page shell — PageSection (isFilled) + PageDataSection below the header. */
+.osac-page.pf-v6-c-page__main-section {
+  min-height: 0;
+}
+
+.osac-page > .pf-v6-c-page__main-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.osac-page-data-section {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
+}
+
+.osac-page-data-section--scrollable {
+  overflow: auto;
+}
+
+.osac-page-data-section .catalog-item-detail-drawer-host {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.osac-page-data-section .catalog-item-detail-drawer {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+}
+
+.osac-page-data-section .catalog-item-detail-drawer > .pf-v6-c-drawer__main {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+}
+
+.osac-page-data-section .osac-network-topology {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+}
+
+.osac-page-data-section .osac-data-table__loading {
+  flex: 1 1 auto;
+  min-height: 12rem;
+}

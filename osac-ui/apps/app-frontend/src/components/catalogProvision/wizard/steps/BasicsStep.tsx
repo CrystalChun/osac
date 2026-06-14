@@ -1,0 +1,86 @@
+import {
+  Content,
+  Form,
+  FormGroup,
+  Stack,
+  StackItem,
+  TextInput,
+  Title,
+} from '@patternfly/react-core';
+import type { CatalogItemBase } from '@osac/api-contracts/types';
+import { partitionFieldDefinitions } from '@osac/api-contracts/catalogFieldDefinition';
+import { CatalogFieldInput } from '../CatalogFieldInput';
+import { CatalogFieldHelper } from '../CatalogFieldHelper';
+import type { CatalogProvisionAdapter } from '../adapters/types';
+import { wizardCatalogFieldErrorKey } from '../wizardBuild';
+import type { CatalogProvisionWizardState, UpdateDraftFn, UpdateFieldValueFn } from '../types';
+
+interface Props<TItem extends CatalogItemBase> {
+  adapter: CatalogProvisionAdapter<TItem, unknown>;
+  catalogItem: TItem | null;
+  state: CatalogProvisionWizardState;
+  update: UpdateDraftFn;
+  updateFieldValue: UpdateFieldValueFn;
+  fieldErrors?: Record<string, string>;
+  onClearFieldError?: (key: string) => void;
+}
+
+export const BasicsStep = <TItem extends CatalogItemBase>({
+  adapter,
+  catalogItem,
+  state,
+  update,
+  updateFieldValue,
+  fieldErrors = {},
+  onClearFieldError,
+}: Props<TItem>) => {
+  const { basics } = partitionFieldDefinitions(catalogItem?.fieldDefinitions, adapter.kind);
+  const nameError = fieldErrors.resourceName;
+  const nameValidated = nameError ? 'error' : 'default';
+
+  return (
+    <Stack hasGutter>
+      <StackItem>
+        <Title id="basics-step-heading" headingLevel="h2" size="xl">
+          Basics
+        </Title>
+        <Content component="p" className="pf-v6-u-color-text-subtle osac-wizard-step__intro">
+          Name your resource and provide access credentials defined by this catalog item.
+        </Content>
+      </StackItem>
+      <StackItem>
+        <Form className="osac-wizard-customization__section-form">
+          <FormGroup label={adapter.resourceNameLabel} fieldId="resource-name" isRequired>
+            <TextInput
+              id="resource-name"
+              aria-label={adapter.resourceNameLabel}
+              aria-invalid={nameError ? true : undefined}
+              aria-describedby={nameError ? 'resource-name-helper-error' : undefined}
+              value={state.resourceName}
+              validated={nameValidated}
+              onChange={(_event, value) => {
+                update('resourceName', value);
+                onClearFieldError?.('resourceName');
+              }}
+            />
+            <CatalogFieldHelper error={nameError} fieldId="resource-name" />
+          </FormGroup>
+          {basics.map((def) => {
+            const fieldId = `catalog-field-${def.path.replace(/\./g, '-')}`;
+            return (
+              <CatalogFieldInput
+                key={def.path}
+                id={fieldId}
+                def={def}
+                value={state.fieldValues[def.path] ?? ''}
+                onChange={(value) => updateFieldValue(def.path, value)}
+                fieldError={fieldErrors[wizardCatalogFieldErrorKey(def.path)]}
+                onClearFieldError={() => onClearFieldError?.(wizardCatalogFieldErrorKey(def.path))}
+              />
+            );
+          })}
+        </Form>
+      </StackItem>
+    </Stack>
+  );
+};

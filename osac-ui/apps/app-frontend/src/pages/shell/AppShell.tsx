@@ -21,7 +21,6 @@ import { useSession } from '../../contexts/SessionContext';
 import { getErrorMessage } from '@osac/ui-components/utils/error';
 
 import { CatalogPage } from '../tenant/CatalogPage';
-import { DashboardPage } from '../tenant/DashboardPage';
 import { VmListPage } from '../tenant/VmListPage';
 import { AdminDashboardPage } from '../admin/AdminDashboardPage';
 import { AdminNetworksPage } from '../admin/AdminNetworksPage';
@@ -31,8 +30,10 @@ import { ProviderInfraTopologyPage } from '../provider/ProviderInfraTopologyPage
 import { ProviderTenantOrgsPage } from '../provider/ProviderTenantOrgsPage';
 import { ShellMasthead } from './ShellMasthead';
 import { ShellSidebar } from './ShellSidebar';
-import { DEFAULT_EXPANDED_GROUP_IDS, navRowsForRole } from './shellNav';
+import { navRowsForRole } from './shellNav';
 import { defaultRouteForRole } from './shellRoutes';
+import { PAGE_CONTENT_PORTAL_HOST_ID } from './pageContentPortalHost';
+import './AppShell.css';
 
 const RoleRoute = ({
   allow,
@@ -60,9 +61,6 @@ export const AppShell = () => {
   } = useSession();
 
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(
-    () => new Set(DEFAULT_EXPANDED_GROUP_IDS),
-  );
   const [logoutError, setLogoutError] = useState<string>();
 
   const handleLogout = useCallback(async () => {
@@ -87,18 +85,6 @@ export const AppShell = () => {
     },
     [location.pathname, navigate],
   );
-
-  const toggleGroup = useCallback((groupId: string, expanded: boolean) => {
-    setExpandedGroups((prev) => {
-      const next = new Set(prev);
-      if (expanded) {
-        next.add(groupId);
-      } else {
-        next.delete(groupId);
-      }
-      return next;
-    });
-  }, []);
 
   const displayName = useMemo(() => {
     if (username?.trim()) {
@@ -142,109 +128,117 @@ export const AppShell = () => {
           <ShellSidebar
             navRows={navRows}
             pathname={location.pathname}
-            expandedGroups={expandedGroups}
-            onToggleGroup={toggleGroup}
             onNavigate={handleSidebarNavigate}
             isDarkTheme={isDarkTheme}
             setIsDarkTheme={setIsDarkTheme}
           />
         }
         isManagedSidebar
+        isContentFilled
       >
-        <Routes>
-          <Route
-            path="/dashboard"
-            element={
-              <RoleRoute allow={['tenantUser', 'tenantAdmin']} role={role} fallback={defaultRoute}>
-                <DashboardPage />
-              </RoleRoute>
-            }
-          />
-          <Route
-            path="/vms/*"
-            element={
-              <RoleRoute allow={['tenantUser', 'tenantAdmin']} role={role} fallback={defaultRoute}>
-                <VmListPage />
-              </RoleRoute>
-            }
-          />
-          <Route
-            path="/templates"
-            element={
-              <RoleRoute allow={['tenantUser', 'tenantAdmin']} role={role} fallback={defaultRoute}>
-                <CatalogPage />
-              </RoleRoute>
-            }
-          />
+        <div id={PAGE_CONTENT_PORTAL_HOST_ID} className="osac-page-content-root">
+          <Routes>
+            <Route path="/dashboard" element={<Navigate to="/vms" replace />} />
+            <Route
+              path="/vms/*"
+              element={
+                <RoleRoute
+                  allow={['tenantUser', 'tenantAdmin']}
+                  role={role}
+                  fallback={defaultRoute}
+                >
+                  <VmListPage />
+                </RoleRoute>
+              }
+            />
+            <Route path="/templates" element={<Navigate to="/catalog" replace />} />
+            <Route
+              path="/catalog"
+              element={
+                <RoleRoute
+                  allow={['tenantUser', 'tenantAdmin']}
+                  role={role}
+                  fallback={defaultRoute}
+                >
+                  <CatalogPage />
+                </RoleRoute>
+              }
+            />
 
-          <Route
-            path="/admin/dashboard"
-            element={
-              <RoleRoute allow={['tenantAdmin']} role={role} fallback={defaultRoute}>
-                <AdminDashboardPage />
-              </RoleRoute>
-            }
-          />
-          <Route
-            path="/admin/users"
-            element={
-              <RoleRoute allow={['tenantAdmin']} role={role} fallback={defaultRoute}>
-                <AdminUsersPage />
-              </RoleRoute>
-            }
-          />
-          <Route
-            path="/admin/templates"
-            element={
-              <RoleRoute allow={['tenantAdmin']} role={role} fallback={defaultRoute}>
-                <CatalogPage />
-              </RoleRoute>
-            }
-          />
-          <Route
-            path="/admin/networks"
-            element={
-              <RoleRoute allow={['tenantAdmin']} role={role} fallback={defaultRoute}>
-                <AdminNetworksPage onOpenVmDetail={openTopologyDetailRequest} />
-              </RoleRoute>
-            }
-          />
+            <Route
+              path="/admin/dashboard"
+              element={
+                <RoleRoute allow={['tenantAdmin']} role={role} fallback={defaultRoute}>
+                  <AdminDashboardPage />
+                </RoleRoute>
+              }
+            />
+            <Route
+              path="/admin/users"
+              element={
+                <RoleRoute allow={['tenantAdmin']} role={role} fallback={defaultRoute}>
+                  <AdminUsersPage />
+                </RoleRoute>
+              }
+            />
+            <Route path="/admin/templates" element={<Navigate to="/admin/catalog" replace />} />
+            <Route
+              path="/admin/catalog"
+              element={
+                <RoleRoute allow={['tenantAdmin']} role={role} fallback={defaultRoute}>
+                  <CatalogPage />
+                </RoleRoute>
+              }
+            />
+            <Route
+              path="/admin/networks"
+              element={
+                <RoleRoute allow={['tenantAdmin']} role={role} fallback={defaultRoute}>
+                  <AdminNetworksPage onOpenVmDetail={openTopologyDetailRequest} />
+                </RoleRoute>
+              }
+            />
 
-          <Route
-            path="/provider/dashboard"
-            element={
-              <RoleRoute allow={['providerAdmin']} role={role} fallback={defaultRoute}>
-                <ProviderAdminDashboardPage />
-              </RoleRoute>
-            }
-          />
-          <Route
-            path="/provider/organizations"
-            element={
-              <RoleRoute allow={['providerAdmin']} role={role} fallback={defaultRoute}>
-                <ProviderTenantOrgsPage />
-              </RoleRoute>
-            }
-          />
-          <Route
-            path="/provider/templates"
-            element={
-              <RoleRoute allow={['providerAdmin']} role={role} fallback={defaultRoute}>
-                <CatalogPage isProviderGlobal />
-              </RoleRoute>
-            }
-          />
-          <Route
-            path="/provider/infrastructure"
-            element={
-              <RoleRoute allow={['providerAdmin']} role={role} fallback={defaultRoute}>
-                <ProviderInfraTopologyPage />
-              </RoleRoute>
-            }
-          />
+            <Route
+              path="/provider/dashboard"
+              element={
+                <RoleRoute allow={['providerAdmin']} role={role} fallback={defaultRoute}>
+                  <ProviderAdminDashboardPage />
+                </RoleRoute>
+              }
+            />
+            <Route
+              path="/provider/organizations"
+              element={
+                <RoleRoute allow={['providerAdmin']} role={role} fallback={defaultRoute}>
+                  <ProviderTenantOrgsPage />
+                </RoleRoute>
+              }
+            />
+            <Route
+              path="/provider/templates"
+              element={<Navigate to="/provider/catalog" replace />}
+            />
+            <Route
+              path="/provider/catalog"
+              element={
+                <RoleRoute allow={['providerAdmin']} role={role} fallback={defaultRoute}>
+                  <CatalogPage isProviderGlobal />
+                </RoleRoute>
+              }
+            />
+            <Route
+              path="/provider/infrastructure"
+              element={
+                <RoleRoute allow={['providerAdmin']} role={role} fallback={defaultRoute}>
+                  <ProviderInfraTopologyPage />
+                </RoleRoute>
+              }
+            />
 
-          <Route path="*" element={<Navigate to={defaultRoute} replace />} />
-        </Routes>
+            <Route path="*" element={<Navigate to={defaultRoute} replace />} />
+          </Routes>
+        </div>
       </Page>
     </>
   );

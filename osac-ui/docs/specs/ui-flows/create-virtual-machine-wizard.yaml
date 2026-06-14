@@ -14,12 +14,14 @@ applies_when: >-
   step index). Step order, validation, and in-progress draft are held **client-side** in React state
   (see backend-fulfillment.yaml create_virtual_machine_wizard_client_orchestration).
 
-current_product_note_wizard_template_only: >-
+current_product_note_wizard_catalog_item_only: >-
   Shipped wizard is **catalog-item-only**: ordered steps **catalog → customization → review** (no deployment
   picker). Multi-path worksheets below remain for RESTORE when new/clone return. Catalog customization
   maps draft fields to fulfillment **ComputeInstance.spec** top-level keys (e.g. cores, memory_gib, boot_disk,
-  additional_disks, run_strategy **Always** | **Halted**, subnet, security_groups, ssh_key, user_data, optional
-  image)—the wizard does **not** populate **template_parameters** or **field_definitions** yet. On finalize the SPA builds
+  additional_disks, run_strategy **Always** | **Halted**, **network_attachments** when subnet is set, ssh_key,
+  user_data, optional image)—the wizard does **not** populate **template_parameters** or **field_definitions** yet.
+  **Empty optional spec fields are omitted** from the POST body. **`status` is not sent on create** (server assigns
+  state during provisioning; use **`spec.run_strategy`** for start-after-create). On finalize the SPA builds
   **ComputeInstance** JSON with **`spec.catalog_item`** (not `spec.template`) via `buildComputeInstanceFromWizardDraft` and **POST**s to
   **POST /api/fulfillment/v1/compute_instances** (same handler from Dashboard, Catalog, and My VMs).
   **GET** list polling for compute instances does not replace or cancel that POST.
@@ -30,7 +32,7 @@ terminology:
     (one WizardNavItem per ordered step for the active path), step body in the main column,
     WizardFooter with Back / Next or Create virtual machine / Cancel grouped in a Flex row.
     Modal must not duplicate the WizardHeader close control when the wizard body is active.
-    **Shipped path:** only template, customization, and review steps appear in WizardNav.
+    **Shipped path:** only catalog (TemplateStep, nav label "Catalog"), customization, and review steps appear in WizardNav.
   client_step_orchestration: >-
     Opening the modal initializes client-side wizard state (WizardState in React). Advancing (Next),
     moving back (Back), and finalizing (Create virtual machine) run local step validation in
@@ -41,11 +43,11 @@ terminology:
     No SPA route or bookmark encodes wizard state; closing the modal abandons the draft.
     Re-open starts a fresh client-side draft.
   three_paths: >-
-    Prototype defined three deployment methods (new, template, clone). **Shipped:** template-only.
+    Prototype defined three deployment methods (new, template, clone). **Shipped:** catalog-item-only.
     Worksheets for new/clone paths below are retained for RESTORE.
   client_nav_draft_sync: >-
-    WizardNav order is derived from local draft.mode and entry presets (catalog template id).
-    For template-only product, nav is fixed [template, customization, review].
+    WizardNav order is derived from local draft.mode and entry presets (catalog item id).
+    For catalog-item product, nav is fixed [template, customization, review] (step id `template` = catalog picker).
 
 canonical_bff_step_ids:
   description: >-
@@ -191,19 +193,21 @@ step_worksheets:
     paths: [new, template]
     operate: >-
       New path: optional cloudInitUserDataNew only (cloud-init YAML or script); merged on advance.
-      Template path: required templateVmName; **vCPU** and **memory (GiB)** inputs map to spec.cores / spec.memory_gib
-      (seeded from selected compute_instance_template defaults); **run strategy** select uses wire values **Always**
-      or **Halted**; **boot disk GiB** and optional **comma-separated additional disk sizes** map to spec.boot_disk
-      and spec.additional_disks; optional subnet id, comma-separated security group ids, SSH public key, optional
-      image type + reference, and optional user data map to the matching spec fields. BFF finalize merges the same
-      draft fields into the persisted ComputeInstance for mock mode; non-empty cloudInitUserDataNew on new path maps
-      to spec.userData when that path is RESTOREd.
+      Catalog path: required templateVmName; **vCPU** and **memory (GiB)** inputs map to spec.cores / spec.memory_gib
+      (wizard inputs; underlying **compute_instance_template** defaults seed the form via the selected catalog item's
+      `template` ref); **run strategy** select uses wire values **Always** or **Halted**; **boot disk GiB** and optional
+      **comma-separated additional disk sizes** map to spec.boot_disk and spec.additional_disks; optional subnet id and
+      comma-separated security group ids map to **spec.network_attachments** `[{ subnet, security_groups? }]`; SSH public
+      key, optional image type + reference, and optional user data map to spec.ssh_key, spec.image, spec.user_data.
+      Fields left blank in the wizard are **omitted** from the create POST spec. BFF finalize merges the same draft fields
+      into the persisted ComputeInstance for mock mode; non-empty cloudInitUserDataNew on new path maps to spec.userData
+      when that path is RESTOREd.
     look: >-
       Title (h2) “Customization”. New path: intro Content “Optional cloud-init user data. Leave blank to
       use defaults on create.” then Form with “Cloud-init user data (optional)” TextArea only. Template
       path: intro Content describes adjusting compute, storage, networking, and access; Form with required
       “Virtual machine name”; Tabs — **Overview** (editable vCPU, memory GiB, run strategy), **Storage** (boot
-      disk GiB + optional additional disks), **Network** (subnet, security groups), **SSH** (public key),
+      disk GiB + optional additional disks), **Network** (subnet → network_attachments, security groups), **SSH** (public key),
       **Image & user data** (image source + user data). Nav label “Customization”.
     validate_client: >-
       Template path Next disabled until templateVmName trimmed non-empty, boot disk GiB is a valid integer within
@@ -479,11 +483,11 @@ steps:
       - success_template_selected
 
     interactions:
-      - Filter by OS and workload, optionally clear filters; search narrows list; select one template card.
+      - Search narrows catalog item list; select one catalog item card.
       - >-
-        Template cards populate from **GET /api/fulfillment/v1/compute_instance_templates** (same source as vm-template-catalog),
-        not from bundled VM_TEMPLATES alone.
-      - Click Next when selectedTemplateId set; BFF validates template id against fulfillment-backed inventory for session tenant context.
+        Catalog item cards populate from **GET /api/fulfillment/v1/compute_instance_catalog_items** (same source as vm-template-catalog),
+        not from bundled VM_TEMPLATES alone. Underlying template metadata joins via **compute_instance_templates**.
+      - Click Next when selectedCatalogItemId set; client validates catalog item id against fulfillment-backed inventory.
 
   - id: cvm_wizard_source_clone
     title: Source VM for clone
@@ -688,10 +692,11 @@ validation_rules:
     rules:
       - rule: non_empty_trimmed_strings_required
         note: Blank trimmed values disable Next.
-  - field: template_selection
+  - field: catalog_item_selection
     when: deployment equals template
     rules:
-      - rule: selected_template_id_required
+      - rule: selected_catalog_item_id_required
+    legacy_field_name: template_selection
   - field: template_boot_disk_size_gib
     when: deployment equals template on customization step
     rules:

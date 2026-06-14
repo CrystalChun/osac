@@ -7,9 +7,8 @@ context:
   role: null
   tenantId: null
   selectedVmId: null
-  listMode: cards
+  listMode: table
   powerFilter: all
-  osFilter: all
 
 initial: mvm_list_view
 
@@ -69,17 +68,8 @@ states:
 
 ai-hints:
   summary: >-
-    VM fleet list/detail machine with lifecycle actions (start/stop/restart/delete), create VM from list header,
-    topology handoff, and console launch. Clone and migrate menu actions are disabled until fulfillment supports them. List view header includes helper description, right-aligned
-    create button, separator, then filter row (name search + status dropdown all/running/stopped/paused
-    + OS dropdown on left, compact icon-only cards/table toggle on right). Card mode uses bordered cards
-    with larger OS icon top-left, Console outline label + VmStatusLabel + actions menu top-right,
-    VM name below header row, description, CPU/Memory/Storage key-above-value row, divider, then
-    IP address and Created inline rows. Selecting a row/card swaps list layout to full-detail page
-    layout with upper-left breadcrumb (My VMs -> VM name), large primary tabbed properties card,
-    smaller right-side console card (status, launch button, actions menu). Actions menus expose
-    start stop restart delete with state-aware disabled options (clone and migrate not shown). VmStatusLabel spinner on
-    transitional states. Pending badges (session stores) until list GET confirms transitions; power/create poll list
-    every 10s while pending; restart PATCH stop then start; create placeholder at list end then post-create Starting.
+    VM fleet table/detail machine: search + status ToggleGroup, name link opens detail drawer,
+    lifecycle actions (start/stop/restart/delete), create VM from header, topology handoff.
+    Pending create/power badges poll list every 10s. Clone/migrate/console deferred.
   impossibleStates:
     - mvm_detail_drawer with selectedVmId=null

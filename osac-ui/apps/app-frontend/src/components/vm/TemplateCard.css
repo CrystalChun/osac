@@ -1,25 +1,71 @@
-.tenant-vm-template-card__header {
-  align-items: flex-start;
+.tenant-vm-template-card {
+  overflow: hidden;
+}
+
+.tenant-vm-template-card__title-band {
+  background: var(--pf-t--global--background--color--secondary--default);
+  padding: var(--pf-t--global--spacer--sm) var(--pf-t--global--spacer--md);
 }
 
 .tenant-vm-template-card__title {
   margin: 0;
-  font-size: var(--pf-t--global--font--size--body--sm);
-  font-weight: var(--pf-t--global--font--weight--heading--regular);
+  font-size: var(--pf-t--global--font--size--body--default);
+  font-weight: var(--pf-t--global--font--weight--heading--heading);
 }
 
 .tenant-vm-template-card__subtitle {
   color: var(--pf-t--global--text--color--subtle);
   line-height: 1.35;
+  margin: 0;
+}
+
+.tenant-vm-template-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pf-t--global--spacer--md);
+}
+
+.tenant-vm-template-card__intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pf-t--global--spacer--xs);
+  padding-top: var(--pf-t--global--spacer--md);
+}
+
+.tenant-vm-template-card__section-divider {
+  margin: 0;
 }
 
 .tenant-vm-template-card__resource-row {
   font-size: var(--pf-t--global--font--size--body--sm);
-  color: var(--pf-t--global--text--color--subtle);
 }
 
-.tenant-vm-template-card__workload-line {
+.tenant-vm-template-card__metadata-labels {
   margin: 0;
-  color: var(--pf-t--global--text--color--subtle);
-  font-size: var(--pf-t--global--font--size--body--xs);
+}
+
+.tenant-vm-template-card__metadata-label-key {
+  font-weight: var(--pf-t--global--font--weight--body--bold);
+}
+
+.tenant-vm-template-card--selectable {
+  position: relative;
+  cursor: pointer;
+  border: 1px solid var(--pf-t--global--border--color--default);
+}
+
+.tenant-vm-template-card--selectable.pf-m-selected {
+  border-color: var(--pf-t--global--color--brand--default);
+}
+
+.tenant-vm-template-card--selectable .tenant-vm-template-card__title-band {
+  padding-right: calc(var(--pf-t--global--spacer--2xl) + 0.25rem);
+}
+
+.tenant-vm-template-card__select {
+  position: absolute;
+  top: var(--pf-t--global--spacer--md);
+  right: var(--pf-t--global--spacer--md);
+  z-index: 1;
+  line-height: 0;
 }

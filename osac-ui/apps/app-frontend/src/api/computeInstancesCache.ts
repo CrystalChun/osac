@@ -1,6 +1,6 @@
 /**
  * Keep React Query compute_instances cache aligned with mutation responses so navigation
- * back to My VMs does not show a pre-action list while data is still "fresh".
+ * back to Virtual machines does not show a pre-action list while data is still "fresh".
  */
 import type { QueryClient } from '@tanstack/react-query';
 import type { ComputeInstance, PageOfT } from '@osac/api-contracts/types';

@@ -35,6 +35,14 @@
     "./computeInstanceCatalogItemNormalize": {
       "types": "./dist/computeInstanceCatalogItemNormalize.d.ts",
       "import": "./dist/computeInstanceCatalogItemNormalize.js"
+    },
+    "./clusterCatalogItemNormalize": {
+      "types": "./dist/clusterCatalogItemNormalize.d.ts",
+      "import": "./dist/clusterCatalogItemNormalize.js"
+    },
+    "./catalogFieldDefinition": {
+      "types": "./dist/catalogFieldDefinition.d.ts",
+      "import": "./dist/catalogFieldDefinition.js"
     }
   },
   "devDependencies": {

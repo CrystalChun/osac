@@ -1,6 +1,7 @@
 /**
  * Fulfillment wire (PROTO_JSON / snake_case) → UI ComputeInstanceCatalogItem.
  */
+import { normalizeCatalogFieldDefinitions } from './catalogFieldDefinition.js';
 import type { ComputeInstanceCatalogItem, Metadata, PageOfT } from './types.js';
 
 const asRecord = (v: unknown): Record<string, unknown> => {
@@ -69,10 +70,9 @@ export const normalizeComputeInstanceCatalogItem = (raw: unknown): ComputeInstan
     throw new Error('compute_instance_catalog_item: missing template reference');
   }
 
-  const fieldDefsRaw = r.field_definitions ?? r.fieldDefinitions;
-  const fieldDefinitions = Array.isArray(fieldDefsRaw)
-    ? fieldDefsRaw.filter((x) => x && typeof x === 'object')
-    : undefined;
+  const fieldDefinitions = normalizeCatalogFieldDefinitions(
+    r.field_definitions ?? r.fieldDefinitions,
+  );
 
   return {
     id,
@@ -81,7 +81,7 @@ export const normalizeComputeInstanceCatalogItem = (raw: unknown): ComputeInstan
     description: readStr(r, 'description'),
     template,
     published: readBool(r, 'published') ?? false,
-    ...(fieldDefinitions?.length ? { fieldDefinitions } : {}),
+    ...(fieldDefinitions.length ? { fieldDefinitions } : {}),
   };
 };
 

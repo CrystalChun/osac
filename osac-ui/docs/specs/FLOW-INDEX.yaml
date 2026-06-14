@@ -85,7 +85,11 @@ implementation_specs:
   - id: template-catalog-wizard-api-alignment
     file: template-catalog-wizard-api-alignment.yaml
     summary: >-
-      Catalog + CreateVmWizard template step share GET compute_instance_templates; copy-paste **implementer_agent.prompt_implementation**.
+      Catalog + CatalogProvisionWizard catalog step share GET compute_instance_catalog_items; field_definitions drive all spec fields; copy-paste **implementer_agent.prompt_implementation**.
+  - id: catalog-provision-wizard
+    file: ui-flows/catalog-provision-wizard.yaml
+    summary: >-
+      Generic catalog-driven provision wizard (catalog → basics → configuration → review). VM adapter shipped; cluster adapter stub.
 
 backend_specs:
   - id: fulfillment-service-rest-grpc
@@ -99,30 +103,28 @@ implemented_flows:
   - id: application-shell-session
     file: ui-flows/application-shell-session.yaml
     summary: >-
-      Masthead identity, operating mode label, sidebar nav by role (see shellNav.ts), theme toggle,
-      account menu, logout to OIDC sign-in. No masthead bell, Help, or Settings.
-  - id: tenant-user-dashboard
-    file: ui-flows/tenant-user-dashboard.yaml
-    summary: >-
-      VMaaS home — four power-state KPI cards from normalized compute_instances; create VM modal;
-      stat-card deep links into My VMs with power filter. Utilization, quota, and recent-activities
-      rail are **deferred**.
+      Masthead identity, operating mode label, sectioned sidebar nav by role with icons (see shellNav.ts),
+      theme toggle, account menu, logout to OIDC sign-in. Tenant user default route /vms.
   - id: vm-template-catalog
     file: ui-flows/vm-template-catalog.yaml
     summary: >-
-      Template gallery (tenant/admin/provider); GET compute_instance_templates per
-      template-catalog-wizard-api-alignment.yaml; opens template-only create wizard.
+      Catalog item gallery (tenant/admin/provider); GET compute_instance_catalog_items (published) with
+      compute_instance_templates for card/join metadata per template-catalog-wizard-api-alignment.yaml;
+      opens catalog-item create wizard preset.
+  - id: catalog-provision-wizard
+    file: ui-flows/catalog-provision-wizard.yaml
+    summary: >-
+      Content-area catalog provision wizard (catalog item → basics → configuration → review). Driven by
+      field_definitions; cancel confirmation when draft has progress; no header close button.
   - id: create-virtual-machine-wizard
     file: ui-flows/create-virtual-machine-wizard.yaml
     summary: >-
-      Modal PatternFly Wizard — **shipped template-only** path (template → customization → review);
-      client-side draft in wizardBuild.ts; finalize POST compute_instances. Multi-path BFF worksheets
-      retained for RESTORE.
+      **Superseded for new work** by catalog-provision-wizard.yaml. Historical multi-path modal spec retained for RESTORE.
   - id: manage-virtual-machines
     file: ui-flows/manage-virtual-machines.yaml
     summary: >-
-      My VMs list/cards/table from fulfillment compute_instances; filters, detail drawer (Actions card,
-      no console launch), power lifecycle (start/stop/restart/delete). Clone/migrate/console deferred.
+      Virtual machines table from fulfillment compute_instances; search + status ToggleGroup (All/Running/Stopped),
+      name link opens detail drawer, power lifecycle (start/stop/restart/delete). Clone/migrate/console deferred.
   - id: tenant-administration
     file: ui-flows/tenant-administration.yaml
     summary: >-
@@ -138,6 +140,9 @@ deferred_flows:
   description: >-
     Spec files retained for prototype reference and future work. Not implemented in osac-ui as of 2026-06.
   flows:
+    - id: tenant-user-dashboard
+      file: ui-flows/tenant-user-dashboard.yaml
+      replaced_by: Virtual machines list (/vms) as tenant user default route
     - id: welcome-and-role-selection
       file: ui-flows/welcome-and-role-selection.yaml
       replaced_by: OIDC SignInPage (apps/app-frontend/src/pages/auth/SignInPage.tsx)
@@ -149,7 +154,7 @@ deferred_flows:
       reason: No events sidebar or full-page feed in current dashboard/shell
     - id: vm-console-standalone-demo
       file: ui-flows/vm-console-standalone-demo.yaml
-      reason: Console launch and GET console/access not wired in My VMs UI
+      reason: Console launch and GET console/access not wired in Virtual machines UI
 
 # Backward-compatible merged index (see implemented_flows / deferred_flows for scope)
 flows:
@@ -158,7 +163,7 @@ flows:
     status: implemented
   - id: tenant-user-dashboard
     file: ui-flows/tenant-user-dashboard.yaml
-    status: implemented
+    status: deferred
   - id: vm-template-catalog
     file: ui-flows/vm-template-catalog.yaml
     status: implemented
@@ -217,7 +222,7 @@ cross_flow_entry_points:
     browser_target: same_tab
     note: >-
       After OIDC callback, session holds role from fulfillment capabilities/userinfo; app routes to
-      role-specific dashboard.
+      role-specific default route (tenant user → /vms; tenant admin → /admin/dashboard; provider → /provider/dashboard).
 
 cross_flow_notes:
   - Transitions may reference step ids defined in other YAML files; see canonical_step_ids.

@@ -1,3 +1,40 @@
+.osac-vm-table-shell {
+  border: 1px solid var(--pf-t--global--border--color--default);
+  border-radius: var(--pf-t--global--border--radius--medium);
+  overflow: hidden;
+}
+
+.osac-vm-table {
+  --pf-v6-c-table--BorderColor: var(--pf-t--global--border--color--default);
+  width: 100%;
+  margin: 0;
+  border: 0;
+}
+
+.osac-vm-table thead {
+  background: var(--pf-t--global--background--color--secondary--default);
+}
+
+.osac-vm-table :where(.pf-v6-c-table__th, .pf-v6-c-table__td) {
+  border-block-end: 1px solid var(--pf-t--global--border--color--default);
+  border-inline: 0;
+}
+
+.osac-vm-table tbody tr:last-child :where(.pf-v6-c-table__td) {
+  border-block-end: 0;
+}
+
 .osac-vm-table__os-cell {
   text-transform: none;
+}
+
+.osac-vm-table__name-link {
+  color: var(--pf-t--global--text--Color--100);
+  font-weight: inherit;
+  text-decoration: none;
+}
+
+.osac-vm-table__name-link:hover {
+  color: var(--pf-t--global--link--Color--hover);
+  text-decoration: underline;
 }

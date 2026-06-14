@@ -14,7 +14,7 @@ agent:
     - file: FLOW-INDEX.yaml
       why: Canonical catalog of UI flows (flows[].id, flows[].file) and reusable UI components.
     - file: template-catalog-wizard-api-alignment.yaml
-      why: Catalog + CreateVmWizard share GET compute_instance_templates; implementation prompt included.
+      why: Catalog + CreateVmWizard share GET compute_instance_catalog_items; templates query for defaults only; implementation prompt included.
     - file: design-system.yaml
       why: PatternFly 6 packages, layout shell, tokens, theming, a11y, and logical-to-PF component mapping.
     - file: demo-application-build-spec.yaml
@@ -220,7 +220,7 @@ implementation_phases:
         **Dev/real mode** (mock unchanged): implement authentication_oidc and client_and_hooks_expansion
         in context.osac_real_api_integration — capabilities before login, Bearer on proxied calls,
         TanStack hooks for organizations, users, virtual_networks, subnets, security_groups, events
-        stream, compute_instance_templates as needed; replace VM_TEMPLATES / DEMO_* per
+        stream, compute_instance_catalog_items and compute_instance_templates as needed; replace VM_TEMPLATES / DEMO_* per
         replace_mock_data_sources when not in mock mode; honor utilization_metrics_charts policy.
       - >-
         In OSAC_API_MODE=dev, implement jwt_claims_and_authorino_alignment and role_model_alignment
@@ -231,8 +231,9 @@ implementation_phases:
         backend-fulfillment.yaml **compute_instances_wire_format_and_ui** before rendering dashboard KPIs,
         My VMs cards/table, and VM detail; align mocks/fixtures to the same normalized **ComputeInstance** shape.
       - >-
-        Implement **template-catalog-wizard-api-alignment.yaml**: Templates catalog + wizard template step both call
-        **compute_instance_templates** with shared TanStack Query; remove VM_TEMPLATES-only picker in wizard TemplateStep.
+        Implement **template-catalog-wizard-api-alignment.yaml**: Catalog + wizard catalog step both call
+        **compute_instance_catalog_items** with shared TanStack Query; **compute_instance_templates** only for
+        underlying-template defaults; remove VM_TEMPLATES-only picker in wizard TemplateStep.
       - Map routing and feature modules to FLOW-INDEX flows[].id (welcome, auth, shell, dashboards,
         catalog, wizard, VMs, activities, admin, console demo).
       - Respect cross_flow_entry_points and canonical_step_ids for navigation and deep links.

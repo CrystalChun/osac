@@ -7,6 +7,7 @@ import type {
   ComputeInstanceSpec,
   ComputeInstanceStatus,
   Metadata,
+  NetworkAttachment,
   OsType,
   PageOfT,
   VmPowerState,
@@ -230,6 +231,24 @@ const normalizeDisk = (raw: unknown): Record<string, unknown> | undefined => {
   return raw as Record<string, unknown>;
 };
 
+const normalizeNetworkAttachment = (raw: unknown): NetworkAttachment | undefined => {
+  const r = asRecord(raw);
+  const subnet = readStr(r, 'subnet');
+  if (!subnet) {
+    return undefined;
+  }
+  const securityGroups = readStrArr(r, 'security_groups', 'securityGroups');
+  return securityGroups?.length ? { subnet, securityGroups } : { subnet };
+};
+
+const normalizeNetworkAttachments = (raw: unknown): ComputeInstanceSpec['networkAttachments'] => {
+  if (!Array.isArray(raw)) {
+    return undefined;
+  }
+  const out = raw.map(normalizeNetworkAttachment).filter((x): x is NetworkAttachment => Boolean(x));
+  return out.length ? out : undefined;
+};
+
 const normalizeSpec = (raw: Record<string, unknown>): ComputeInstanceSpec => {
   const templateParameters =
     (raw.template_parameters as Record<string, unknown> | undefined) ??
@@ -247,6 +266,21 @@ const normalizeSpec = (raw: Record<string, unknown>): ComputeInstanceSpec => {
     ? addSrc.map(normalizeDisk).filter(Boolean)
     : undefined;
 
+  const networkAttachments: NetworkAttachment[] | undefined =
+    normalizeNetworkAttachments(raw.network_attachments ?? raw.networkAttachments) ??
+    (() => {
+      const legacySubnet = readStr(raw, 'subnet');
+      const legacySecurityGroups = readStrArr(raw, 'security_groups', 'securityGroups');
+      if (!legacySubnet) {
+        return undefined;
+      }
+      return legacySecurityGroups?.length
+        ? [{ subnet: legacySubnet, securityGroups: legacySecurityGroups }]
+        : [{ subnet: legacySubnet }];
+    })();
+
+  const firstNic = networkAttachments?.[0];
+
   return {
     template: readStr(raw, 'template'),
     catalogItem: readStr(raw, 'catalog_item', 'catalogItem'),
@@ -259,8 +293,10 @@ const normalizeSpec = (raw: Record<string, unknown>): ComputeInstanceSpec => {
     runStrategy: normalizeRunStrategyWire(readStr(raw, 'run_strategy', 'runStrategy')),
     sshKey: readStr(raw, 'ssh_key', 'sshKey'),
     userData: readStr(raw, 'user_data', 'userData'),
-    subnet: readStr(raw, 'subnet'),
-    securityGroups: readStrArr(raw, 'security_groups', 'securityGroups'),
+    subnet: firstNic?.subnet ?? readStr(raw, 'subnet'),
+    securityGroups:
+      firstNic?.securityGroups ?? readStrArr(raw, 'security_groups', 'securityGroups'),
+    networkAttachments,
     restartRequestedAt: readStr(raw, 'restart_requested_at', 'restartRequestedAt'),
   };
 };
@@ -546,6 +582,42 @@ export const serializeTemplateParametersWire = (
   return Object.keys(out).length ? out : undefined;
 };
 
+const serializeNetworkAttachmentsWire = (
+  spec: ComputeInstanceSpec,
+): Record<string, unknown>[] | undefined => {
+  const attachments: NetworkAttachment[] | undefined =
+    spec.networkAttachments ??
+    (() => {
+      const subnet = spec.subnet?.trim();
+      if (!subnet) {
+        return undefined;
+      }
+      const securityGroups = spec.securityGroups?.filter((g) => g.trim());
+      return securityGroups?.length ? [{ subnet, securityGroups }] : [{ subnet }];
+    })();
+
+  if (!attachments?.length) {
+    return undefined;
+  }
+
+  const out = attachments
+    .map((attachment) => {
+      const subnet = attachment.subnet?.trim();
+      if (!subnet) {
+        return undefined;
+      }
+      const wire: Record<string, unknown> = { subnet };
+      const securityGroups = attachment.securityGroups?.map((g) => g.trim()).filter(Boolean);
+      if (securityGroups?.length) {
+        wire.security_groups = securityGroups;
+      }
+      return wire;
+    })
+    .filter((x): x is Record<string, unknown> => Boolean(x));
+
+  return out.length ? out : undefined;
+};
+
 const appendComputeInstanceSpecOptionalWire = (
   spec: ComputeInstanceSpec,
   o: Record<string, unknown>,
@@ -575,17 +647,15 @@ const appendComputeInstanceSpecOptionalWire = (
   if (spec.runStrategy) {
     o.run_strategy = spec.runStrategy;
   }
-  if (spec.userData) {
-    o.user_data = spec.userData;
+  if (spec.userData?.trim()) {
+    o.user_data = spec.userData.trim();
   }
-  if (spec.sshKey) {
-    o.ssh_key = spec.sshKey;
+  if (spec.sshKey?.trim()) {
+    o.ssh_key = spec.sshKey.trim();
   }
-  if (spec.subnet) {
-    o.subnet = spec.subnet;
-  }
-  if (spec.securityGroups?.length) {
-    o.security_groups = [...spec.securityGroups];
+  const networkAttachments = serializeNetworkAttachmentsWire(spec);
+  if (networkAttachments) {
+    o.network_attachments = networkAttachments;
   }
   if (spec.restartRequestedAt) {
     o.restart_requested_at = spec.restartRequestedAt;
@@ -607,11 +677,11 @@ const serializeSpecForCreate = (
   }
 
   const o: Record<string, unknown> = {};
-  if (spec.template) {
-    o.template = spec.template;
+  if (spec.template?.trim()) {
+    o.template = spec.template.trim();
   }
-  if (spec.catalogItem) {
-    o.catalog_item = spec.catalogItem;
+  if (spec.catalogItem?.trim()) {
+    o.catalog_item = spec.catalogItem.trim();
   }
   const tpWire = serializeTemplateParametersWire(spec.templateParameters);
   if (tpWire) {

@@ -28,7 +28,11 @@ const wireVm = {
     memory_gib: 8,
     boot_disk: { size_gib: 64 },
     additional_disks: [{ size_gib: 100 }],
-    subnet: '550e8400-e29b-41d4-a716-446655440000',
+    network_attachments: [
+      {
+        subnet: '550e8400-e29b-41d4-a716-446655440000',
+      },
+    ],
     image: {
       source_type: 'SOURCE_TYPE_REGISTRY',
       source_ref: 'registry.redhat.io/rhel9:latest',
@@ -64,6 +68,9 @@ describe('normalizeComputeInstance', () => {
     expect(vm.spec.template).toBe('rhel-9-general');
     expect(vm.spec.runStrategy).toBe('Always');
     expect(vm.spec.subnet).toBe('550e8400-e29b-41d4-a716-446655440000');
+    expect(vm.spec.networkAttachments).toEqual([
+      { subnet: '550e8400-e29b-41d4-a716-446655440000' },
+    ]);
     expect(vm.status.state).toBe('running');
     expect(vm.status.ipAddress).toBe('10.0.1.5');
     expect(vm.os).toBe('rhel');
@@ -167,7 +174,7 @@ describe('serializeComputeInstanceForCreate', () => {
       memory_gib: 8,
       boot_disk: { size_gib: 64 },
       additional_disks: [{ size_gib: 100 }],
-      subnet: '550e8400-e29b-41d4-a716-446655440000',
+      network_attachments: [{ subnet: '550e8400-e29b-41d4-a716-446655440000' }],
       image: {
         source_type: 'SOURCE_TYPE_REGISTRY',
         source_ref: 'registry.redhat.io/rhel9:latest',
@@ -188,7 +195,7 @@ describe('serializeComputeInstanceForCreate', () => {
       memory_gib: 8,
       boot_disk: { size_gib: 64 },
       additional_disks: [{ size_gib: 100 }],
-      subnet: '550e8400-e29b-41d4-a716-446655440000',
+      network_attachments: [{ subnet: '550e8400-e29b-41d4-a716-446655440000' }],
       image: {
         source_type: 'SOURCE_TYPE_REGISTRY',
         source_ref: 'registry.redhat.io/rhel9:latest',
@@ -289,8 +296,38 @@ describe('serializeComputeInstanceForCreate', () => {
       cores: 4,
       memory_gib: 8,
       boot_disk: { size_gib: 64 },
+      network_attachments: [{ subnet: '550e8400-e29b-41d4-a716-446655440000' }],
     });
     expect(body.spec).not.toHaveProperty('template');
+    expect(body.spec).not.toHaveProperty('subnet');
+    expect(body.spec).not.toHaveProperty('security_groups');
+    expect(body.spec).not.toHaveProperty('template_parameters');
+  });
+
+  it('with specCatalogItemOnly omits empty optional spec fields from wizard payload', () => {
+    const body = serializeComputeInstanceForCreate(
+      {
+        metadata: { name: 'web-01' },
+        spec: {
+          catalogItem: 'catalog-rhel-9',
+          cores: 4,
+          memoryGib: 8,
+          bootDisk: { sizeGib: 64 },
+          runStrategy: 'Always',
+        },
+      },
+      { specCatalogItemOnly: true },
+    );
+    expect(body).toEqual({
+      metadata: { name: 'web-01' },
+      spec: {
+        catalog_item: 'catalog-rhel-9',
+        cores: 4,
+        memory_gib: 8,
+        boot_disk: { size_gib: 64 },
+        run_strategy: 'Always',
+      },
+    });
   });
 
   it('with specCatalogItemOnly omits spec when catalog_item is missing', () => {

@@ -1,0 +1,79 @@
+.catalog-item-detail-drawer-host {
+  position: relative;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  width: 100%;
+}
+
+.catalog-item-detail-drawer {
+  position: relative;
+  z-index: 160;
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.catalog-item-detail-drawer__main {
+  min-height: 0;
+}
+
+/* Overlay drawer: keep cards full width underneath; panel slides in from the right. */
+.catalog-item-detail-drawer:not(.pf-m-inline) > .pf-v6-c-drawer__main > .pf-v6-c-drawer__content {
+  flex-basis: 100%;
+  flex-shrink: 0;
+}
+
+.catalog-item-detail-drawer.pf-m-expanded > .pf-v6-c-drawer__main > .pf-v6-c-drawer__panel {
+  height: 100%;
+  max-height: 100%;
+}
+
+.catalog-item-detail-drawer__head {
+  align-items: flex-start;
+}
+
+.catalog-item-detail-drawer__subtitle {
+  margin: 0;
+  color: var(--pf-t--global--text--color--subtle);
+  line-height: 1.35;
+}
+
+.catalog-item-detail-drawer__body {
+  overflow: auto;
+}
+
+.catalog-item-detail-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pf-t--global--spacer--lg);
+}
+
+.catalog-item-detail-content__section-title {
+  margin-bottom: var(--pf-t--global--spacer--sm);
+}
+
+.catalog-item-detail-content__label-key {
+  font-weight: var(--pf-t--global--font--weight--body--bold);
+}
+
+.catalog-item-detail-content .pf-v6-c-description-list__group {
+  margin-bottom: var(--pf-t--global--spacer--sm);
+}
+
+.catalog-item-detail-content .pf-v6-c-description-list__group:last-child {
+  margin-bottom: 0;
+}
+
+.catalog-provision-wizard-fullpage .catalog-item-detail-drawer-host {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.catalog-provision-wizard-fullpage .catalog-item-detail-drawer {
+  flex: 1 1 auto;
+  min-height: 0;
+  z-index: 350;
+}

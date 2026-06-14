@@ -45,6 +45,11 @@ export type VmPowerState =
   /** Client-only: list still missing VM after long wait (My VMs placeholder). */
   | 'still_provisioning';
 
+export interface NetworkAttachment {
+  subnet: string;
+  securityGroups?: string[];
+}
+
 export interface ComputeInstanceSpec {
   template?: string;
   /** Reference to a published compute instance catalog item (mutually exclusive with template on create). */
@@ -60,8 +65,11 @@ export interface ComputeInstanceSpec {
   runStrategy?: string;
   sshKey?: string;
   userData?: string;
+  /** First NIC subnet — derived from `network_attachments[0]` on read; prefer `networkAttachments` on write. */
   subnet?: string;
+  /** First NIC security groups — derived from `network_attachments[0]` on read; prefer `networkAttachments` on write. */
   securityGroups?: string[];
+  networkAttachments?: NetworkAttachment[];
   restartRequestedAt?: string;
 }
 
@@ -131,17 +139,32 @@ export interface ClusterTemplate extends ClusterTemplateSummary {
 // Compute instance catalog items (curated VM offerings)
 // ---------------------------------------------------------------------------
 
-export interface ComputeInstanceCatalogItem {
+export interface CatalogFieldDefinition {
+  path: string;
+  displayName: string;
+  editable: boolean;
+  default?: unknown;
+  validationSchema?: Record<string, unknown>;
+}
+
+export type CatalogProvisionKind = 'compute_instance' | 'cluster';
+
+/** Shared shape for catalog items used by the catalog provision wizard. */
+export interface CatalogItemBase {
   id: string;
   metadata: Metadata;
   title: string;
   description?: string;
-  /** Underlying compute_instance_template id. */
+  /** Underlying template id (compute_instance_template or cluster_template). */
   template: string;
   published: boolean;
-  /** Deferred: dynamic customization from field_definitions. */
-  fieldDefinitions?: Record<string, unknown>[];
+  fieldDefinitions?: CatalogFieldDefinition[];
 }
+
+export type ComputeInstanceCatalogItem = CatalogItemBase;
+
+/** Future cluster catalog offerings — normalized when cluster catalog API ships. */
+export type ClusterCatalogItem = CatalogItemBase;
 
 // ---------------------------------------------------------------------------
 // Organizations

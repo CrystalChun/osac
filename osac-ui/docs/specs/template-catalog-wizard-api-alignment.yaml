@@ -3,11 +3,12 @@
 
 version: 1
 id: template-catalog-wizard-api-alignment
-title: Align CatalogPage and CreateVmWizard with compute_instance_catalog_items
+title: Align CatalogPage and CatalogProvisionWizard with compute_instance_catalog_items
 
 related_specs:
   - docs/specs/backend-fulfillment.yaml
   - docs/specs/ui-flows/vm-template-catalog.yaml
+  - docs/specs/ui-flows/catalog-provision-wizard.yaml
   - docs/specs/ui-flows/create-virtual-machine-wizard.yaml
   - docs/specs/FLOW-INDEX.yaml
   - docs/specs/demo-application-build-spec.yaml
@@ -40,7 +41,22 @@ architectural_rules:
   create_payload:
     rule: >-
       Wizard finalize serializes **`spec.catalog_item`** via `serializeComputeInstanceForCreate({ specCatalogItemOnly: true })`.
-      **`spec.template_parameters`** is omitted (empty) until field_definitions-driven customization ships.
+      **`spec.template`** and **`spec.template_parameters`** MUST NOT be set on catalog-item create.
+      Customization from the wizard maps to top-level **spec** keys (cores, memory_gib, boot_disk, additional_disks,
+      run_strategy, image, ssh_key, user_data). **Unset optional spec fields MUST be omitted** from the POST body (not sent as
+      empty strings or empty arrays). **`status` MUST NOT be sent on create** — desired run behavior is **`spec.run_strategy`**
+      only; the server assigns `status.state` during provisioning.
+  networking_wire:
+    rule: >-
+      Subnet and security groups serialize as **`spec.network_attachments`**: an array of
+      `{ subnet, security_groups? }` objects (snake_case on wire). Do **not** send legacy top-level **`spec.subnet`** /
+      **`spec.security_groups`** on create. On read, normalize may derive **`spec.subnet`** / **`spec.securityGroups`** from
+      `network_attachments[0]` for UI display.
+  catalog_item_field_definitions:
+    rule: >-
+      When authoring **compute_instance_catalog_items**, **`field_definitions[].path`** is relative to
+      **ComputeInstanceSpec** (e.g. `cores`, `memory_gib`, `boot_disk.size_gib`) — **not** prefixed with `spec.`.
+      The create wizard does not yet drive customization from field_definitions; it sends explicit spec fields instead.
 
 wizard_integration:
   catalog_step:
@@ -54,9 +70,10 @@ wizard_integration:
 verification:
   manual:
     - Catalog and wizard catalog step Network tab show **compute_instance_catalog_items** for picker inventory.
-    - Create VM POST body includes **`spec.catalog_item`** and does not set **`spec.template`**.
+    - Create VM POST body includes **`spec.catalog_item`**, does not set **`spec.template`**, omits empty optional spec keys, and uses **`network_attachments`** when subnet is set.
+    - Create VM POST body does not include **`status`**.
   automated:
-    - Frontend unit tests for catalog item normalize and wizardBuild catalog_item payload.
+    - Frontend unit tests for catalog item normalize, wizardBuild catalog_item payload, and serializeComputeInstanceForCreate omit-empty / network_attachments behavior.
 
 implementer_agent:
   prompt_implementation: |

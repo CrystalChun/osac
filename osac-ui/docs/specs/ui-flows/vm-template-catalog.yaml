@@ -9,13 +9,21 @@ applies_when: >-
 backend:
   normative_spec: ../template-catalog-wizard-api-alignment.yaml
   primary_api:
+    list: GET /api/fulfillment/v1/compute_instance_catalog_items
+    detail: GET /api/fulfillment/v1/compute_instance_catalog_items/{id}
+  secondary_api:
     list: GET /api/fulfillment/v1/compute_instance_templates
     detail: GET /api/fulfillment/v1/compute_instance_templates/{id}
+    use: >-
+      Resolve each catalog item's underlying **template** reference for card display (OS, workload, CPU/memory/storage
+      defaults) and wizard customization defaults — **not** for the catalog grid inventory.
   rules:
     - >-
-      Catalog grid, search, filters, and drawer detail MUST use the primary_api paths via BFF (not cluster_templates for VM rows).
+      Catalog grid, search, filters, and drawer detail MUST list **published** catalog items via primary_api (not
+      cluster_templates for VM rows; not compute_instance_templates as the sole picker source).
     - >-
-      Create VM wizard template step MUST reuse the **same** client/hook/query as this flow — single template inventory (see create-virtual-machine-wizard.yaml cross-reference).
+      Create VM wizard catalog step MUST reuse the **same** `useComputeInstanceCatalogItems` hook/query as this flow
+      (see create-virtual-machine-wizard.yaml cross-reference).
 
 rbac:
   required_permissions_by_step:
@@ -33,8 +41,9 @@ steps:
   - id: vmc_catalog_grid
     title: Template catalog with sidebar categories and detail drawer
     goal: >-
-      Browse VM templates, filter by operating system and workload categories, search by keyword,
-      open the template detail drawer, and launch create virtual machine from the selected template.
+      Browse published VM catalog items, filter by operating system and workload (via underlying template metadata),
+      search by keyword, open the catalog item detail drawer, and launch create virtual machine from the selected
+      catalog item.
 
     role_variants:
       tenant_user:
@@ -85,9 +94,9 @@ steps:
       - detail_tab_details
 
     interactions:
-      - Click any template card (or press Enter/Space on focused card wrapper) to open the detail drawer.
+      - Click any catalog item card (or press Enter/Space on focused card wrapper) to open the detail drawer.
       - Click Drawer close to return to catalog grid while preserving current filters and search.
-      - Click Create virtual machine in drawer header to open create VM wizard from selected template and close drawer.
+      - Click Create virtual machine in drawer header to open create VM wizard with the selected catalog item preset and close drawer.
       - Use sidebar Categories checkboxes (Operating system and Workload); each group uses OR semantics within the group.
       - Apply cross-group filtering with AND semantics (OS match and workload match, when groups are active).
       - Click All items to clear both checkbox groups (search text remains unchanged).
@@ -125,7 +134,7 @@ steps:
         - Keep noticeable vertical gap between Categories heading and All items button.
         - Main gallery content stacks SearchInput, count text, then Gallery with token-based gaps.
       drawer_behavior_and_geometry:
-        - Drawer opens from end side when selectedTemplateId is set.
+        - Drawer opens from end side when selectedCatalogItemId is set.
         - Drawer is rendered as an overlay in front of the catalog cards (above content layer), not as a side-by-side split that pushes cards.
         - Drawer panel widths are 100 percent on default and 50 percent from lg through 2xl.
         - Drawer panel max width is min(36rem, 100 percent).
@@ -228,10 +237,10 @@ transitions:
     action: provider admin selects global templates nav
     to: vmc_catalog_provider_global
   - from: vmc_catalog_grid
-    action: select template and click create virtual machine from drawer
+    action: select catalog item and click create virtual machine from drawer
     to: cvm_wizard_template
   - from: vmc_catalog_provider_global
-    action: select template and click create virtual machine from drawer
+    action: select catalog item and click create virtual machine from drawer
     to: cvm_wizard_template
   - from: vmc_catalog_grid
     action: re-select templates nav while already active
@@ -257,7 +266,8 @@ validation_rules:
           >-
             Search checks title, subtitle, workload labels (card and canonical), network/access display labels,
             CPU, memory, and boot disk GiB string derived from **defaults.boot_disk.size_gib**. No minimum length.
-  - field: create_from_template_entry
+  - field: create_from_catalog_item_entry
     rules:
-      - rule: selected_template_required
-      - rule: default_wizard_vm_name_is_template_id_suffix_vm
+      - rule: selected_catalog_item_required
+      - rule: default_wizard_vm_name_is_catalog_item_id_suffix_vm
+    legacy_field_name: create_from_template_entry

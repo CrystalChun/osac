@@ -205,6 +205,22 @@ export const getComputeInstanceCatalogItem = async (
   );
 };
 
+export const createComputeInstanceCatalogItem = async (
+  wire: Record<string, unknown>,
+): Promise<ComputeInstanceCatalogItem> => {
+  const raw = unwrapFulfillmentObject(
+    await fulfillmentJson('/compute_instance_catalog_items', {
+      method: 'POST',
+      /** Fulfillment HTTP unmarshals **ComputeInstanceCatalogItem** at root (not `{ "object": … }`). */
+      body: JSON.stringify(wire),
+    }),
+  );
+  if (raw == null || typeof raw !== 'object') {
+    throw new Error('API: missing object in create catalog item response');
+  }
+  return normalizeComputeInstanceCatalogItem(raw);
+};
+
 // ---------------------------------------------------------------------------
 // Organizations
 // ---------------------------------------------------------------------------

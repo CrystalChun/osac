@@ -7,6 +7,7 @@ import { SessionProvider, useSession } from './contexts/SessionContext';
 import { AuthCallback } from './pages/auth/AuthCallback';
 import { SignInPage } from './pages/auth/SignInPage';
 import { AppShell } from './pages/shell/AppShell';
+import { defaultRouteForRole } from './pages/shell/shellRoutes';
 
 const InnerApp = () => {
   const navigate = useNavigate();
@@ -14,13 +15,7 @@ const InnerApp = () => {
   navigateRef.current = navigate;
 
   const onNavigateAfterLogin = useCallback((role: DemoShellRole) => {
-    if (role === 'providerAdmin') {
-      navigateRef.current('/provider/dashboard');
-    } else if (role === 'tenantAdmin') {
-      navigateRef.current('/admin/dashboard');
-    } else {
-      navigateRef.current('/dashboard');
-    }
+    navigateRef.current(defaultRouteForRole(role));
   }, []);
 
   const onNavigateToWelcome = useCallback(() => {
@@ -35,6 +30,11 @@ const InnerApp = () => {
       <AppRoutes />
     </SessionProvider>
   );
+};
+
+const LoggedInHomeRedirect = () => {
+  const { role } = useSession();
+  return <Navigate to={defaultRouteForRole(role)} replace />;
 };
 
 const AppRoutes = () => {
@@ -53,10 +53,7 @@ const AppRoutes = () => {
     <Routes>
       {/* OIDC callback — must be accessible before auth is resolved. */}
       <Route path="/callback" element={<AuthCallback />} />
-      <Route
-        path="/"
-        element={isLoggedIn ? <Navigate to="/dashboard" replace /> : <SignInPage />}
-      />
+      <Route path="/" element={isLoggedIn ? <LoggedInHomeRedirect /> : <SignInPage />} />
 
       <Route path="/*" element={isLoggedIn ? <AppShell /> : <Navigate to="/" replace />} />
     </Routes>

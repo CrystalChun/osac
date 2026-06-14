@@ -1,6 +1,6 @@
 .osac-network-topology {
   padding: var(--pf-t--global--spacer--md);
-  min-height: 400px;
+  min-height: 0;
 }
 
 .osac-network-topology__subnet-title {

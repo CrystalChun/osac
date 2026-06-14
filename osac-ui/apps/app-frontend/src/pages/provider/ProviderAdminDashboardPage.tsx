@@ -17,6 +17,7 @@ import { useComputeInstances, useOrganizations } from '../../api/hooks';
 import { DashboardActionTile } from '../../components/dashboard/DashboardActionTile';
 import { DashboardMetricCard } from '../../components/dashboard/DashboardMetricCard';
 import { PageHeader } from '../../components/layout/PageHeader';
+import { PageDataSection } from '../../components/layout/PageDataSection';
 import '../../components/dashboard/AdminDashboardSection.css';
 
 const PROVIDER_TILES = [
@@ -28,11 +29,11 @@ const PROVIDER_TILES = [
     path: '/provider/organizations',
   },
   {
-    id: 'global-templates',
-    label: 'Global templates',
+    id: 'global-catalog',
+    label: 'Global catalog',
     icon: '📋',
-    desc: 'Provider-wide template library.',
-    path: '/provider/templates',
+    desc: 'Provider-wide VM catalog.',
+    path: '/provider/catalog',
   },
   {
     id: 'infrastructure',
@@ -55,59 +56,61 @@ export const ProviderAdminDashboardPage = () => {
   const activeTenants = organizations.filter((o) => o.status === 'active').length;
 
   return (
-    <PageSection>
+    <PageSection isFilled className="osac-page">
       <PageHeader title="Provider Dashboard" description="Cross-tenant platform overview." />
 
-      {orgsError ? (
-        <Alert
-          variant="warning"
-          isInline
-          title="Organization metrics unavailable"
-          className="osac-admin-dashboard__alert"
+      <PageDataSection scrollable>
+        {orgsError ? (
+          <Alert
+            variant="warning"
+            isInline
+            title="Organization metrics unavailable"
+            className="osac-admin-dashboard__alert"
+          >
+            Tenant organization counts could not be loaded from the API. VM totals below still
+            reflect compute instances visible to your account.
+          </Alert>
+        ) : null}
+
+        <Flex
+          className="osac-admin-dashboard__metrics"
+          spaceItems={{ default: 'spaceItemsMd' }}
+          flexWrap={{ default: 'wrap' }}
         >
-          Tenant organization counts could not be loaded from the API. VM totals below still reflect
-          compute instances visible to your account.
-        </Alert>
-      ) : null}
+          {orgsPending ? (
+            <Bullseye className="osac-admin-dashboard__loading">
+              <Spinner aria-label="Loading organization metrics" />
+            </Bullseye>
+          ) : (
+            <>
+              <DashboardMetricCard label="Total VMs" value={vms.length} />
+              {!orgsError ? (
+                <>
+                  <DashboardMetricCard label="Tenant orgs" value={organizations.length} />
+                  <DashboardMetricCard label="Active tenants" value={activeTenants} />
+                </>
+              ) : null}
+            </>
+          )}
+        </Flex>
 
-      <Flex
-        className="osac-admin-dashboard__metrics"
-        spaceItems={{ default: 'spaceItemsMd' }}
-        flexWrap={{ default: 'wrap' }}
-      >
-        {orgsPending ? (
-          <Bullseye className="osac-admin-dashboard__loading">
-            <Spinner aria-label="Loading organization metrics" />
-          </Bullseye>
-        ) : (
-          <>
-            <DashboardMetricCard label="Total VMs" value={vms.length} />
-            {!orgsError ? (
-              <>
-                <DashboardMetricCard label="Tenant orgs" value={organizations.length} />
-                <DashboardMetricCard label="Active tenants" value={activeTenants} />
-              </>
-            ) : null}
-          </>
-        )}
-      </Flex>
-
-      <Title headingLevel="h2" size="xl" className="osac-admin-dashboard__section-title">
-        Management areas
-      </Title>
-      <Gallery hasGutter minWidths={{ default: '220px' }}>
-        {PROVIDER_TILES.map((tile) => (
-          <GalleryItem key={tile.id}>
-            <DashboardActionTile
-              icon={tile.icon}
-              title={tile.label}
-              description={tile.desc}
-              actionLabel={`Go to ${tile.label.toLowerCase()} →`}
-              onAction={() => navigate(tile.path)}
-            />
-          </GalleryItem>
-        ))}
-      </Gallery>
+        <Title headingLevel="h2" size="xl" className="osac-admin-dashboard__section-title">
+          Management areas
+        </Title>
+        <Gallery hasGutter minWidths={{ default: '220px' }}>
+          {PROVIDER_TILES.map((tile) => (
+            <GalleryItem key={tile.id}>
+              <DashboardActionTile
+                icon={tile.icon}
+                title={tile.label}
+                description={tile.desc}
+                actionLabel={`Go to ${tile.label.toLowerCase()} →`}
+                onAction={() => navigate(tile.path)}
+              />
+            </GalleryItem>
+          ))}
+        </Gallery>
+      </PageDataSection>
     </PageSection>
   );
 };

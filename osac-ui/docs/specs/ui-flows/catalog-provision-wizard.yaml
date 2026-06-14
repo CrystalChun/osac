@@ -1,0 +1,77 @@
+flow: Catalog provision wizard
+statechart_ref: ../statecharts/create-virtual-machine-wizard.statechart.yaml
+
+supersedes_note: >-
+  Replaces the catalog-item path of create-virtual-machine-wizard.yaml for new work.
+  VM provisioning uses kind=compute_instance; cluster provisioning (future) uses kind=cluster.
+
+applies_when: >-
+  Authenticated tenant user or tenant admin workspace. Wizard is a content-area overlay (not URL-routed).
+  Masthead and sidebar remain visible. Step order, validation, and draft are held client-side in React state.
+
+terminology:
+  wizard_chrome: >-
+    PatternFly 6 Wizard in a content-area overlay (portal host: pageContentPortalHost in AppShell):
+    WizardHeader (no close button), left WizardNav, step body, footer Back / Next / Create / Cancel.
+    Cancel with draft progress (catalog item selected) shows discard confirmation modal.
+  field_definitions_driven: >-
+    All spec fields shown in the wizard MUST come from the selected catalog item's field_definitions.
+    Spec paths use the catalog wire convention (e.g. ssh_key, boot_disk.size_gib) — not metadata.name.
+  metadata_name: >-
+    metadata.name is always collected on the Basics step (resourceName) and is NOT listed in field_definitions.
+  network_attachments: >-
+    When field_definitions include subnet and security_groups, Configuration renders network attachment rows
+    and build writes spec.network_attachments[].
+
+ordered_steps:
+  default: [catalog, basics, configuration, review]
+  nav_labels:
+    catalog: Catalog item
+  omit_configuration_when: >-
+    No editable field_definitions remain after removing basics paths (ssh_key, pull_secret for compute_instance;
+    ssh_public_key, pull_secret for cluster) and no editable network attachment fields.
+
+step_worksheets:
+  catalog:
+    operate: Select a published catalog item from GET compute_instance_catalog_items (VM) or cluster_catalog_items (future).
+    validation: catalogItemId required (Next disabled until selected; no inline field errors on this step).
+    on_select: Seed fieldValues and networkAttachmentRows from field_definitions defaults.
+    ui: Search, catalog item card grid; no step body title or intro paragraph.
+
+  basics:
+    operate: >-
+      Enter resource name (always required). Render editable basics field_definitions only when present:
+      compute_instance basics paths [ssh_key, pull_secret]; cluster basics paths [ssh_public_key, pull_secret].
+    validation: resourceName required; live validation on change; Next disabled until step valid.
+
+  configuration:
+    operate: Render remaining editable field_definitions in catalog array order plus network attachment rows when defined.
+    validation: Per-field validation_schema; Next disabled until step valid.
+
+  review:
+    operate: >-
+      Show catalog item title, resource name, and every field_definition (editable + non-editable) with resolved
+      values (user input or default). No start-after-create toggle — run_strategy field_definition controls power-on.
+    finalize: >-
+      Build create payload via applyFieldDefinitionsToSpec + metadata.name; POST compute_instances (VM adapter).
+
+client_modules:
+  orchestrator: apps/app-frontend/src/components/catalogProvision/CatalogProvisionWizard.tsx
+  build: apps/app-frontend/src/components/catalogProvision/wizard/wizardBuild.ts
+  contracts: libs/api-contracts/src/catalogFieldDefinition.ts
+
+adapters:
+  compute_instance:
+    catalog_hook: useComputeInstanceCatalogItems
+    build: buildComputeInstanceFromWizardDraft
+    create_label: Create virtual machine
+  cluster:
+    status: stub — clusterAdapter until cluster catalog API ships
+
+risk_decisions:
+  path_convention: spec-relative wire paths from field_definitions
+  name: always required on Basics; uniqueness not validated in 0.1
+  run_strategy: rely on field_definition; no startAfterCreate checkbox
+  layout: content-area overlay (not full viewport)
+  pull_secret: shown only when present in field_definitions
+  spec_file: docs/specs/ui-flows/catalog-provision-wizard.yaml

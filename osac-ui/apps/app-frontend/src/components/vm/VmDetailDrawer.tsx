@@ -27,10 +27,8 @@ import './VmDetailDrawer.css';
 import type { ComputeInstance, VmPowerState } from '@osac/api-contracts/types';
 import {
   formatConditionStatusForDisplay,
-  resolveVmOsForUi,
   shortSubnetDisplay,
 } from '@osac/api-contracts/computeInstanceNormalize';
-import { GuestOsIcon } from '../shared/GuestOsIcon';
 import { VmStatusLabel } from '@osac/ui-components/VmStatusLabel';
 import { VmActionsMenu } from './VmActionsMenu';
 
@@ -72,9 +70,6 @@ export const VmDetailDrawer = ({
     return null;
   }
 
-  const uiOs = resolveVmOsForUi(vm);
-  const osLabel = uiOs === 'rhel' ? 'RHEL' : uiOs === 'windows' ? 'Windows' : 'Linux';
-
   const tenantsLine = vm.metadata.tenants?.length ? vm.metadata.tenants.join(', ') : '—';
   const creatorsLine = vm.metadata.creators?.length ? vm.metadata.creators.join(', ') : '—';
 
@@ -84,7 +79,7 @@ export const VmDetailDrawer = ({
         <Breadcrumb>
           <BreadcrumbItem>
             <Button variant="link" isInline onClick={onClose}>
-              My VMs
+              Virtual machines
             </Button>
           </BreadcrumbItem>
           <BreadcrumbItem isActive>{vm.metadata.name}</BreadcrumbItem>
@@ -127,18 +122,6 @@ export const VmDetailDrawer = ({
                       <DescriptionListGroup>
                         <DescriptionListTerm>Name</DescriptionListTerm>
                         <DescriptionListDescription>{vm.metadata.name}</DescriptionListDescription>
-                      </DescriptionListGroup>
-                      <DescriptionListGroup>
-                        <DescriptionListTerm>OS</DescriptionListTerm>
-                        <DescriptionListDescription>
-                          <Flex
-                            alignItems={{ default: 'alignItemsCenter' }}
-                            spaceItems={{ default: 'spaceItemsSm' }}
-                          >
-                            <GuestOsIcon os={uiOs} size="sm" />
-                            <span>{osLabel}</span>
-                          </Flex>
-                        </DescriptionListDescription>
                       </DescriptionListGroup>
                       <DescriptionListGroup>
                         <DescriptionListTerm>Template</DescriptionListTerm>

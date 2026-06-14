@@ -94,9 +94,10 @@ context:
         CreateVmWizard holds WizardState in React. Step validation runs in wizardBuild.ts;
         finalize builds Partial<ComputeInstance> and POSTs via useProvisionVm → createComputeInstance.
       steps:
-        - GET /api/fulfillment/v1/compute_instance_templates (TemplateStep, shared with catalog)
-        - Client validate template + customization steps
-        - POST /api/fulfillment/v1/compute_instances on finalize
+        - GET /api/fulfillment/v1/compute_instance_catalog_items (TemplateStep / CatalogPage, shared hook)
+        - GET /api/fulfillment/v1/compute_instance_templates (underlying-template defaults only)
+        - Client validate catalog + customization steps
+        - POST /api/fulfillment/v1/compute_instances on finalize (spec.catalog_item, network_attachments, omit empty spec keys)
 
   # Legacy name retained for cross-references. Sections below referencing apps/app-backend,
   # OSAC_API_MODE=mock, or BFF handlers are **historical** unless they appear under osac_proxy_integration.
@@ -181,14 +182,22 @@ context:
           - version (integer; optimistic concurrency when present)
           - labels (object, optional)
         spec:
-          - template (string; e.g. template ref id)
-          - template_parameters (object; may contain protobuf Struct / wrapper shapes with "@type" + fields)
+          - template (string; template ref id — **catalog-item create uses catalog_item instead**)
+          - catalog_item (string; published compute_instance_catalog_item id — **mutually exclusive with template on create**)
+          - template_parameters (object; ProtoJSON Any map — **omitted on catalog-item wizard create**)
           - image.source_type, image.source_ref (registry URI or similar)
           - cores (integer), memory_gib (integer)
           - boot_disk.size_gib (integer); additional_disks optional
           - run_strategy — REST create/list uses string values **Always** | **Halted**; legacy proto-style
             **RUN_STRATEGY_*** strings may still appear on older wire and SHOULD normalize to those labels on read
-          - subnet (string UUID); security_groups optional array
+          - network_attachments (array of { subnet (UUID), security_groups? (string[]) }) — **preferred on create**;
+            legacy top-level subnet / security_groups may still appear on older wire and SHOULD normalize to
+            network_attachments[0] on read for UI display
+          - ssh_key, user_data (optional strings)
+        create_post_notes:
+          - >-
+            SPA catalog-item wizard POST omits **status**; server assigns status during provisioning. Omit unset optional
+            spec keys (empty strings, empty arrays) per template-catalog-wizard-api-alignment.yaml create_payload.
         status:
           - state — ENUM string such as COMPUTE_INSTANCE_STATE_RUNNING
           - conditions — array of { type, status, last_transition_time?, reason?, message? } using CONDITION_* enums on the wire
@@ -249,7 +258,10 @@ context:
             Mirror list fields; include run_strategy, template id, and tenants/creators/version when useful for ops.
           networking:
             subnet: >-
-              Wire `spec.subnet` is UUID — display short id and/or resolve friendly name via cached GET virtual_networks/subnets when available.
+              Prefer `spec.network_attachments[0].subnet` on wire; normalize exposes **`spec.subnet`** on the UI model for
+              display. Show short id and/or resolve friendly name via cached GET virtual_networks/subnets when available.
+            security_groups: >-
+              From `spec.network_attachments[0].security_groups` when present; normalize exposes **`spec.securityGroups`** for display.
           conditions_tab:
             columns:
               - type (humanize enum suffix optional)
@@ -482,16 +494,17 @@ context:
       description: In dev/real mode, stop sourcing these screens from libs/api-contracts fixtures.
       mappings:
         - screen_or_component: CreateVmWizard / TemplateStep / ReviewStep
-          remove: VM_TEMPLATES from @osac/api-contracts as the **only** source for template-path picker lists in dev/real
+          remove: VM_TEMPLATES from @osac/api-contracts as the **only** source for catalog-path picker lists in dev/real
           use: >-
-            **Same** fulfillment API and client cache as vm-template-catalog — GET /api/fulfillment/v1/compute_instance_templates
-            (+ GET /api/fulfillment/v1/compute_instance_templates/{id} when detail needed). Normative detail:
-            docs/specs/template-catalog-wizard-api-alignment.yaml.
+            **Same** fulfillment API and client cache as vm-template-catalog — GET /api/fulfillment/v1/compute_instance_catalog_items
+            (+ GET …/{id} when detail needed). GET compute_instance_templates for underlying-template defaults only.
+            Normative detail: docs/specs/template-catalog-wizard-api-alignment.yaml.
         - screen_or_component: CatalogPage / provider global templates
-          remove: Primary reliance on GET /api/fulfillment/v1/cluster_templates for VM template catalog when compute_instance_templates is the VM catalog API upstream
+          remove: Primary reliance on GET /api/fulfillment/v1/cluster_templates or compute_instance_templates as the sole VM catalog picker source
           use: >-
-            GET /api/fulfillment/v1/compute_instance_templates (+ optional GET by id). Must match wizard template step source
-            (template-catalog-wizard-api-alignment.yaml). cluster_templates remains valid for non-VM cluster-template surfaces if product retains both APIs.
+            GET /api/fulfillment/v1/compute_instance_catalog_items (published) + compute_instance_templates for card/join
+            metadata. Must match wizard catalog step source (template-catalog-wizard-api-alignment.yaml). cluster_templates
+            remains valid for non-VM cluster-template surfaces if product retains both APIs.
         - screen_or_component: ProviderTenantOrgsPage / ProviderAdminDashboard org counts
           remove: DEMO_ORGANIZATIONS
           use: useOrganizations (GET /api/fulfillment/v1/organizations)
@@ -685,11 +698,14 @@ context:
         - Client obtains access token from chosen issuer (out of band for this spec)
         - Subsequent calls include Authorization Bearer
     - name: vm-template-catalog
-      description: Browse VM templates available to the tenant or provider (fulfillment compute_instance_templates).
+      description: Browse published VM catalog items (compute_instance_catalog_items) for the tenant or provider.
       steps:
         - >-
-          GET /api/fulfillment/v1/compute_instance_templates?filter=&offset=&limit= (primary; PROTO_JSON wire may differ from legacy ClusterTemplate — normalize in client per product decision)
-        - GET /api/fulfillment/v1/compute_instance_templates/{id} when drawer/detail needs full resource
+          GET /api/fulfillment/v1/compute_instance_catalog_items?filter=&offset=&limit= (primary picker inventory;
+          filter published items client-side for tenant-facing surfaces)
+        - GET /api/fulfillment/v1/compute_instance_catalog_items/{id} when drawer/detail needs full resource
+        - >-
+          GET /api/fulfillment/v1/compute_instance_templates for underlying-template join (card display, filters, wizard defaults)
         - >-
           cluster_templates list/get remains optional for non-VM cluster surfaces only — do not use as the duplicate source for the same VM catalog rows (template-catalog-wizard-api-alignment.yaml).
     - name: create-virtual-machine-wizard

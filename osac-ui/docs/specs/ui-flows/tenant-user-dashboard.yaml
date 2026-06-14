@@ -3,9 +3,9 @@ statechart_ref: ../statecharts/tenant-user-dashboard.statechart.yaml
 
 implementation_status:
   as_of: '2026-06'
-  shipped: >-
-    Four VM power-state KPI cards, welcome header, Create virtual machine button, stat-card navigation
-    to My VMs. Data from GET /api/fulfillment/v1/compute_instances via useComputeInstances.
+  removed: >-
+    Tenant user dashboard page removed. Default landing route is Virtual machines (/vms).
+    Create VM from Virtual machines header and Catalog. KPI stat cards not shipped.
   deferred:
     - Utilization line charts and period selector
     - Recent activities sidebar and full-page feed

@@ -2,9 +2,9 @@
  * flow: manage-virtual-machines
  * step: mvm_list_view
  */
+import { Button } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 import type { ComputeInstance, VmPowerState } from '@osac/api-contracts/types';
-import { resolveVmOsForUi } from '@osac/api-contracts/computeInstanceNormalize';
 import { VmStatusLabel } from '@osac/ui-components/VmStatusLabel';
 import './VmTable.css';
 import { VmActionsMenu } from './VmActionsMenu';
@@ -32,44 +32,49 @@ export const VmTable = ({
   onDelete,
 }: VmTableProps) => {
   return (
-    <Table aria-label="Virtual machines" variant="compact">
-      <Thead>
-        <Tr>
-          <Th>Name</Th>
-          <Th>Status</Th>
-          <Th>OS</Th>
-          <Th>vCPU</Th>
-          <Th>Memory</Th>
-          <Th>IP</Th>
-          <Th aria-label="Actions" />
-        </Tr>
-      </Thead>
-      <Tbody>
-        {vms.map((vm) => {
-          const state = getState(vm);
-          const pending = isPendingCreation?.(vm) ?? false;
-          const locked = pending || state === 'deleting';
-          return (
-            <Tr
-              key={vm.id}
-              isClickable={!locked}
-              onRowClick={locked ? undefined : () => onSelect(vm)}
-            >
-              <Td dataLabel="Name">{vm.metadata.name}</Td>
-              <Td dataLabel="Status">
-                <VmStatusLabel state={state} />
-              </Td>
-              <Td dataLabel="OS" className="osac-vm-table__os-cell">
-                {resolveVmOsForUi(vm)}
-              </Td>
-              <Td dataLabel="vCPU">{vm.spec.cores ?? '—'}</Td>
-              <Td dataLabel="Memory">
-                {vm.spec.memoryGib != null ? `${vm.spec.memoryGib} GiB` : '—'}
-              </Td>
-              <Td dataLabel="IP">{locked ? '—' : (vm.status.ipAddress ?? '—')}</Td>
-              <Td dataLabel="Actions" isActionCell>
-                {locked ? null : (
-                  <div onClick={(e) => e.stopPropagation()}>
+    <div className="osac-vm-table-shell">
+      <Table aria-label="Virtual machines" variant="compact" borders className="osac-vm-table">
+        <Thead>
+          <Tr>
+            <Th>Name</Th>
+            <Th>Status</Th>
+            <Th>vCPU</Th>
+            <Th>Memory</Th>
+            <Th>IP</Th>
+            <Th aria-label="Actions" />
+          </Tr>
+        </Thead>
+        <Tbody>
+          {vms.map((vm) => {
+            const state = getState(vm);
+            const pending = isPendingCreation?.(vm) ?? false;
+            const locked = pending || state === 'deleting';
+            return (
+              <Tr key={vm.id}>
+                <Td dataLabel="Name">
+                  {locked ? (
+                    vm.metadata.name
+                  ) : (
+                    <Button
+                      variant="link"
+                      isInline
+                      className="osac-vm-table__name-link"
+                      onClick={() => onSelect(vm)}
+                    >
+                      {vm.metadata.name}
+                    </Button>
+                  )}
+                </Td>
+                <Td dataLabel="Status">
+                  <VmStatusLabel state={state} />
+                </Td>
+                <Td dataLabel="vCPU">{vm.spec.cores ?? '—'}</Td>
+                <Td dataLabel="Memory">
+                  {vm.spec.memoryGib != null ? `${vm.spec.memoryGib} GiB` : '—'}
+                </Td>
+                <Td dataLabel="IP">{locked ? '—' : (vm.status.ipAddress ?? '—')}</Td>
+                <Td dataLabel="Actions" isActionCell>
+                  {locked ? null : (
                     <VmActionsMenu
                       vm={vm}
                       effectiveState={state}
@@ -78,13 +83,13 @@ export const VmTable = ({
                       onPower={(a) => onPower(vm, a)}
                       {...(onDelete ? { onDelete: () => onDelete(vm) } : {})}
                     />
-                  </div>
-                )}
-              </Td>
-            </Tr>
-          );
-        })}
-      </Tbody>
-    </Table>
+                  )}
+                </Td>
+              </Tr>
+            );
+          })}
+        </Tbody>
+      </Table>
+    </div>
   );
 };

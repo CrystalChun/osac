@@ -1,6 +1,6 @@
 /**
  * flow: manage-virtual-machines
- * Placeholder VMs on My VMs until compute_instances includes the VM; then post-create display until status stabilizes.
+ * Placeholder VMs on Virtual machines until compute_instances includes the VM; then post-create display until status stabilizes.
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ComputeInstance, VmPowerState } from '@osac/api-contracts/types';

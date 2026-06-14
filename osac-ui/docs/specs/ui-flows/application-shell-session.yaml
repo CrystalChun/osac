@@ -5,6 +5,7 @@ design_system_ref: ../design-system.yaml
 implementation_status:
   as_of: '2026-06'
   nav_source: apps/app-frontend/src/pages/shell/shellNav.ts
+  default_routes: apps/app-frontend/src/pages/shell/shellRoutes.ts
   deferred:
     - Masthead notifications bell (recent activities)
     - Help and Settings masthead actions
@@ -24,23 +25,29 @@ rbac:
 steps:
   - id: shell_primary_workspace
     title: Primary workspace shell
-    goal: Navigate primary areas via sidebar while viewing masthead identity and operating mode label.
+    goal: Navigate primary areas via sectioned sidebar while viewing masthead identity and operating mode label.
 
     role_variants:
       tenant_user:
-        sidebar_nav: Dashboard, My VMs, Templates (see TENANT_USER_NAV in shellNav.ts)
+        sidebar_nav: >-
+          Workloads section — Virtual machines, Catalog (see TENANT_USER_NAV in shellNav.ts).
+          Nav items show PatternFly icons.
+        default_route: /vms
         masthead: User display name; operating mode label for tenant user persona
         fleet_scope: Virtual machines for the signed-in tenant
       tenant_admin:
         sidebar_nav: >-
-          Dashboard; expandable Management (Users, Template catalog); Networks
-          (see TENANT_ADMIN_NAV in shellNav.ts)
+          Overview (Dashboard); Management (Users, Catalog); Infrastructure (Networks).
+          Sectioned NavGroup sidebar with icons (see TENANT_ADMIN_NAV in shellNav.ts).
+        default_route: /admin/dashboard
         masthead: Admin display name; operating mode label for tenant admin persona
         fleet_scope: Tenant-scoped administration content
       provider_admin:
         sidebar_nav: >-
-          Dashboard; expandable Management (Tenant organizations, Global templates); Infrastructure
-          (see PROVIDER_ADMIN_NAV in shellNav.ts)
+          Overview (Dashboard); Management (Tenant organizations, Global catalog);
+          Infrastructure (Infrastructure). Sectioned NavGroup sidebar with icons
+          (see PROVIDER_ADMIN_NAV in shellNav.ts).
+        default_route: /provider/dashboard
         masthead: Provider admin display name; operating mode label for provider persona
         fleet_scope: Provider-wide org and template views
 
@@ -55,7 +62,9 @@ steps:
         - MastheadLogo
         - Dropdown
         - Label
-        - SidebarNav
+        - Nav
+        - NavGroup
+        - NavItem
         - ThemeToggle
     ui_policy:
       prefer_patternfly_primitives: true
@@ -68,8 +77,6 @@ steps:
     states:
       - ready
       - nav_item_active
-      - expandable_nav_group_expanded
-      - expandable_nav_group_collapsed
       - user_menu_open
       - user_menu_closed
       - theme_light
@@ -77,9 +84,8 @@ steps:
 
     interactions:
       - Select sidebar nav item to change main content route.
-      - Re-select My VMs while already on My VMs to return from VM detail to list view.
-      - Re-select Templates while active to reset catalog drawer or grid.
-      - Expand or collapse sidebar groups for tenant admin or provider admin.
+      - Re-select Virtual machines while already on that route to return from VM detail to list view.
+      - Re-select Catalog while active to reset catalog drawer or grid.
       - Open account menu; click log out to clear OIDC session and return to SignInPage (/).
       - Toggle light or dark theme from sidebar footer control.
 
@@ -93,8 +99,8 @@ transitions:
   - from: auth_post_login_transition
     action: user authenticated and shell rendered
     to: shell_primary_workspace
-  - from: tud_dashboard_home
-    action: user authenticated and shell rendered
+  - from: mvm_list_view
+    action: user authenticated as tenant user and shell rendered
     to: shell_primary_workspace
   - from: tad_dashboard_home
     action: user authenticated and shell rendered
