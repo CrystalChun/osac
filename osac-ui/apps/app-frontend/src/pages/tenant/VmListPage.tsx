@@ -17,6 +17,8 @@ import {
   ToggleGroup,
   ToggleGroupItem,
 } from '@patternfly/react-core';
+import { useQueryClient } from '@tanstack/react-query';
+
 import type { ComputeInstance } from '@osac/api-contracts/types';
 import { useSession } from '@osac/ui-components/hooks/use-session';
 
@@ -26,20 +28,19 @@ import {
   usePatchVm,
   useProvisionVm,
 } from '../../api/hooks';
-import { useQueryClient } from '@tanstack/react-query';
-import { listPostCreateWatchIds } from '../../api/postCreateWatchStore';
 import { isPendingVmClientId } from '../../api/pendingVmCreation';
-import { pinProvisioningVmsToListEnd } from '../../api/vmListDisplayOrder';
+import { listPostCreateWatchIds } from '../../api/postCreateWatchStore';
 import { usePendingVmCreations } from '../../api/usePendingVmCreations';
 import { useVmPowerActionDisplay } from '../../api/useVmPowerActionDisplay';
-import { VmDeleteConfirmModal } from '../../components/vm/VmDeleteConfirmModal';
-import { PageHeader } from '../../components/layout/PageHeader';
+import { pinProvisioningVmsToListEnd } from '../../api/vmListDisplayOrder';
 import {
   CatalogProvisionWizard,
   type CatalogProvisionWizardHandle,
 } from '../../components/catalogProvision/CatalogProvisionWizard';
-import { VmTable } from '../../components/vm/VmTable';
 import { PageDataSection } from '../../components/layout/PageDataSection';
+import { PageHeader } from '../../components/layout/PageHeader';
+import { VmDeleteConfirmModal } from '../../components/vm/VmDeleteConfirmModal';
+import { VmTable } from '../../components/vm/VmTable';
 
 import './VmListPage.css';
 

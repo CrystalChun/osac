@@ -2,6 +2,7 @@
  * flow: provider-administration
  * step: pad_dashboard_home
  */
+import { useNavigate } from 'react-router-dom';
 import {
   Alert,
   Bullseye,
@@ -12,12 +13,13 @@ import {
   Spinner,
   Title,
 } from '@patternfly/react-core';
-import { useNavigate } from 'react-router-dom';
+
 import { useComputeInstances, useOrganizations } from '../../api/hooks';
 import { DashboardActionTile } from '../../components/dashboard/DashboardActionTile';
 import { DashboardMetricCard } from '../../components/dashboard/DashboardMetricCard';
-import { PageHeader } from '../../components/layout/PageHeader';
 import { PageDataSection } from '../../components/layout/PageDataSection';
+import { PageHeader } from '../../components/layout/PageHeader';
+
 import '../../components/dashboard/AdminDashboardSection.css';
 
 const PROVIDER_TILES = [

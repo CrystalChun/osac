@@ -1,5 +1,8 @@
 import { type QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+
+import type { ComputeInstancePowerAction } from '@osac/api-contracts/computeInstanceNormalize';
 import type { ClusterTemplate, ComputeInstance } from '@osac/api-contracts/types';
+
 import {
   type ListComputeInstancesParams,
   createComputeInstance,
@@ -13,7 +16,6 @@ import {
   patchComputeInstance,
   patchComputeInstancePower,
 } from './client';
-import type { ComputeInstancePowerAction } from '@osac/api-contracts/computeInstanceNormalize';
 import { upsertComputeInstanceInCache } from './computeInstancesCache';
 
 /** Poll VM list so CLI / out-of-band changes update Virtual machines without a full reload. */

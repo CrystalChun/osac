@@ -1,4 +1,5 @@
 import { Content, Stack, StackItem, Title } from '@patternfly/react-core';
+
 import './PlaceholderPage.css';
 
 interface PlaceholderPageProps {

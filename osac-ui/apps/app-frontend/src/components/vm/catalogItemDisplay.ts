@@ -1,10 +1,10 @@
-import type { CatalogFieldDefinition, CatalogItemBase } from '@osac/api-contracts/types';
 import {
   CATALOG_ITEM_RESOURCE_FIELD_PATHS,
   type CatalogItemResourceFieldPath,
   fieldDefinitionDefaultToInputString,
   isCatalogItemResourceFieldPath,
 } from '@osac/api-contracts/catalogFieldDefinition';
+import type { CatalogFieldDefinition, CatalogItemBase } from '@osac/api-contracts/types';
 
 export const catalogFieldDefault = (item: CatalogItemBase, path: string): unknown => {
   return item.fieldDefinitions?.find((def) => def.path === path)?.default;

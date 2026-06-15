@@ -1,4 +1,4 @@
-import type { ComputeInstance } from '@osac/api-contracts/types';
+import { useNavigate } from 'react-router-dom';
 import {
   Button,
   Card,
@@ -11,7 +11,8 @@ import {
   StackItem,
   Title,
 } from '@patternfly/react-core';
-import { useNavigate } from 'react-router-dom';
+
+import type { ComputeInstance } from '@osac/api-contracts/types';
 
 import './NetworkTopologyPage.css';
 

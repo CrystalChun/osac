@@ -1,5 +1,6 @@
-import './DashboardMetricCard.css';
 import { Card, CardBody, Content, Stack, StackItem, Title } from '@patternfly/react-core';
+
+import './DashboardMetricCard.css';
 
 interface DashboardMetricCardProps {
   label: string;

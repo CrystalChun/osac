@@ -63,9 +63,9 @@ export const normalizeClusterCatalogItem = (raw: unknown): ClusterCatalogItem =>
   if (!raw || typeof raw !== 'object') {
     throw new Error('Invalid cluster_catalog_item payload');
   }
-  const r = raw as Record<string, unknown>;
+  const r = raw as Record<string, string>;
   const mdIn = asRecord(r.metadata);
-  const id = String((r.id ?? mdIn.name ?? '') as string);
+  const id = String(r.id ?? mdIn.name ?? '');
   const template = readStr(r, 'template');
   if (!template) {
     throw new Error('cluster_catalog_item: missing template reference');
@@ -78,7 +78,7 @@ export const normalizeClusterCatalogItem = (raw: unknown): ClusterCatalogItem =>
   return {
     id,
     metadata: normalizeMetadata(mdIn, id),
-    title: String((r.title ?? mdIn.name ?? id) as string),
+    title: String(r.title ?? mdIn.name ?? id),
     description: readStr(r, 'description'),
     template,
     published: readBool(r, 'published') ?? false,

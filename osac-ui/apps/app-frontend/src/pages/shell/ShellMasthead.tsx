@@ -1,6 +1,5 @@
 import * as React from 'react';
-import { BarsIcon } from '@patternfly/react-icons/dist/esm/icons/bars-icon';
-import { UserIcon } from '@patternfly/react-icons/dist/esm/icons/user-icon';
+import { useNavigate } from 'react-router-dom';
 import {
   Alert,
   Button,
@@ -23,11 +22,14 @@ import {
   PageToggleButton,
   Title,
 } from '@patternfly/react-core';
+import { BarsIcon } from '@patternfly/react-icons/dist/esm/icons/bars-icon';
+import { UserIcon } from '@patternfly/react-icons/dist/esm/icons/user-icon';
+
 import { operatingModeLabel } from '@osac/api-contracts/shellLabels';
-import './ShellMasthead.css';
-import { getErrorMessage } from '@osac/ui-components/utils/error';
-import { useNavigate } from 'react-router-dom';
 import { useSession } from '@osac/ui-components/hooks/use-session';
+import { getErrorMessage } from '@osac/ui-components/utils/error';
+
+import './ShellMasthead.css';
 
 interface ShellMastheadProps {
   onLogout: () => Promise<void>;

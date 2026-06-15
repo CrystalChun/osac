@@ -1,6 +1,7 @@
+import { Button, Flex, FlexItem } from '@patternfly/react-core';
 import { MoonIcon } from '@patternfly/react-icons/dist/esm/icons/moon-icon';
 import { SunIcon } from '@patternfly/react-icons/dist/esm/icons/sun-icon';
-import { Button, Flex, FlexItem } from '@patternfly/react-core';
+
 import './LightDarkToggle.css';
 
 interface LightDarkToggleProps {

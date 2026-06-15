@@ -1,4 +1,5 @@
 import type { ComponentType } from 'react';
+import type { SVGIconProps } from '@patternfly/react-icons/dist/esm/createIcon';
 import BuildingIcon from '@patternfly/react-icons/dist/esm/icons/building-icon';
 import ClusterIcon from '@patternfly/react-icons/dist/esm/icons/cluster-icon';
 import CubeIcon from '@patternfly/react-icons/dist/esm/icons/cube-icon';
@@ -7,7 +8,6 @@ import NetworkIcon from '@patternfly/react-icons/dist/esm/icons/network-icon';
 import TachometerAltIcon from '@patternfly/react-icons/dist/esm/icons/tachometer-alt-icon';
 import UsersIcon from '@patternfly/react-icons/dist/esm/icons/users-icon';
 import VirtualMachineIcon from '@patternfly/react-icons/dist/esm/icons/virtual-machine-icon';
-import type { SVGIconProps } from '@patternfly/react-icons/dist/esm/createIcon';
 
 const SHELL_NAV_ICONS: Record<string, ComponentType<SVGIconProps>> = {
   'compute-vms': VirtualMachineIcon,

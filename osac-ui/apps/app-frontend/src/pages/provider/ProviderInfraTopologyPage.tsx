@@ -3,10 +3,12 @@
  * step: pad_infrastructure_topology
  */
 import { PageSection } from '@patternfly/react-core';
+
 import { NetworkTopologyPage } from '@osac/ui-components/NetworkTopologyPage';
+
 import { useComputeInstances } from '../../api/hooks';
-import { PageHeader } from '../../components/layout/PageHeader';
 import { PageDataSection } from '../../components/layout/PageDataSection';
+import { PageHeader } from '../../components/layout/PageHeader';
 
 export const ProviderInfraTopologyPage = () => {
   const { data: vms = [] } = useComputeInstances();

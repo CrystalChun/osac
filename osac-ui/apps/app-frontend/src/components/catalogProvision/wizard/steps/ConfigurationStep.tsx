@@ -1,16 +1,18 @@
 import { Content, Form, Stack, StackItem, Title } from '@patternfly/react-core';
-import type { CatalogItemBase } from '@osac/api-contracts/types';
+
 import {
   configurationFieldsExcludingNetwork,
   getNetworkAttachmentFieldBundle,
   hasEditableNetworkAttachmentFields,
   partitionFieldDefinitions,
 } from '@osac/api-contracts/catalogFieldDefinition';
+import type { CatalogItemBase } from '@osac/api-contracts/types';
+
+import type { CatalogProvisionAdapter } from '../adapters/types';
 import { CatalogFieldInput } from '../CatalogFieldInput';
 import { NetworkAttachmentFields } from '../NetworkAttachmentFields';
-import type { CatalogProvisionAdapter } from '../adapters/types';
-import { wizardCatalogFieldErrorKey } from '../wizardBuild';
 import type { CatalogProvisionWizardState, UpdateFieldValueFn } from '../types';
+import { wizardCatalogFieldErrorKey } from '../wizardBuild';
 
 interface Props<TItem extends CatalogItemBase> {
   adapter: CatalogProvisionAdapter<TItem, unknown>;

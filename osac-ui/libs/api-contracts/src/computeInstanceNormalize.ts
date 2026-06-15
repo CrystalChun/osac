@@ -287,7 +287,7 @@ const normalizeSpec = (raw: Record<string, unknown>): ComputeInstanceSpec => {
     templateParameters: templateParameters,
     cores: readNum(raw, 'cores'),
     memoryGib: readNum(raw, 'memory_gib', 'memoryGib'),
-    image: image as ComputeInstanceSpec['image'],
+    image: image,
     bootDisk: bootDisk,
     additionalDisks: additionalDisks as ComputeInstanceSpec['additionalDisks'],
     runStrategy: normalizeRunStrategyWire(readStr(raw, 'run_strategy', 'runStrategy')),

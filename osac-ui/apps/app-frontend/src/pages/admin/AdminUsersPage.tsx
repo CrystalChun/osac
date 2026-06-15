@@ -5,9 +5,11 @@
 import { useEffect } from 'react';
 import { Alert, Bullseye, Button, Label, PageSection, Spinner } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
+
 import { useUsers } from '../../api/hooks';
-import { PageHeader } from '../../components/layout/PageHeader';
 import { PageDataSection } from '../../components/layout/PageDataSection';
+import { PageHeader } from '../../components/layout/PageHeader';
+
 import '../../components/shared/DataTable.css';
 
 export const AdminUsersPage = () => {

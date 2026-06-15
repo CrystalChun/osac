@@ -8,12 +8,15 @@ import {
   Label,
   Radio,
 } from '@patternfly/react-core';
+
 import type { CatalogItemBase } from '@osac/api-contracts/types';
+
 import {
   catalogItemMetadataLabelEntries,
   catalogItemResourceParts,
   catalogItemSubtitle,
 } from './catalogItemDisplay';
+
 import './TemplateCard.css';
 
 export interface CatalogItemCardSelection {

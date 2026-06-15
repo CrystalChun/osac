@@ -6,6 +6,16 @@
  * Contract: docs/specs/ui-flows/catalog-provision-wizard.yaml
  */
 import {
+  type MouseEvent,
+  forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useState,
+} from 'react';
+import { createPortal } from 'react-dom';
+import {
   Alert,
   Breadcrumb,
   BreadcrumbItem,
@@ -20,32 +30,24 @@ import {
   WizardStep,
   useWizardContext,
 } from '@patternfly/react-core';
+
+import {
+  seedFieldValuesFromCatalogItem,
+  seedNetworkAttachmentRowsFromCatalogItem,
+} from '@osac/api-contracts/catalogFieldDefinition';
 import type {
   CatalogItemBase,
   CatalogProvisionKind,
   ComputeInstance,
 } from '@osac/api-contracts/types';
-import {
-  type MouseEvent,
-  forwardRef,
-  useCallback,
-  useEffect,
-  useImperativeHandle,
-  useMemo,
-  useState,
-} from 'react';
-import { createPortal } from 'react-dom';
-import { computeInstanceAdapter } from './wizard/adapters/computeInstanceAdapter';
+
 import { clusterAdapter } from './wizard/adapters/clusterAdapter';
+import { computeInstanceAdapter } from './wizard/adapters/computeInstanceAdapter';
 import type { CatalogProvisionAdapter } from './wizard/adapters/types';
 import { hasWizardUnsavedProgress, mergeWizardDraft } from './wizard/constants';
 import { STEP_LABELS, getWizardOrderedSteps } from './wizard/stepIds';
 import { BasicsStep, CatalogStep, ConfigurationStep, ReviewStep } from './wizard/steps/WizardSteps';
 import type { CatalogProvisionWizardHandle, CatalogProvisionWizardState } from './wizard/types';
-import {
-  seedFieldValuesFromCatalogItem,
-  seedNetworkAttachmentRowsFromCatalogItem,
-} from '@osac/api-contracts/catalogFieldDefinition';
 import {
   canProceedWizardStep,
   liveWizardStepFieldErrors,

@@ -1,6 +1,7 @@
 import js from '@eslint/js'
 import { defineConfig } from 'eslint/config'
 import globals from 'globals'
+import importPlugin from 'eslint-plugin-import'
 import reactPlugin from 'eslint-plugin-react'
 import reactHooks from 'eslint-plugin-react-hooks'
 import tseslint from 'typescript-eslint'
@@ -15,6 +16,9 @@ export default defineConfig(
   ...tseslint.configs.recommendedTypeChecked,
   {
     files: ['**/*.{ts,tsx}'],
+    plugins: {
+      import: importPlugin,
+    },
     languageOptions: {
       parserOptions: {
         project: true,
@@ -22,6 +26,46 @@ export default defineConfig(
     },
     rules: {
       'sort-imports': ['error', { ignoreDeclarationSort: true }],
+      'import/order': [
+        'error',
+        {
+          alphabetize: {
+            caseInsensitive: true,
+            order: 'asc',
+          },
+          groups: [
+            ['builtin', 'external'],
+            'internal',
+            ['parent', 'sibling', 'index'],
+            'object',
+          ],
+          'newlines-between': 'always',
+          pathGroups: [
+            {
+              pattern: 'react',
+              group: 'external',
+              position: 'before',
+            },
+            {
+              pattern: 'react-*',
+              group: 'external',
+              position: 'before',
+            },
+            {
+              pattern: '@osac/**',
+              group: 'internal',
+            },
+            {
+              pattern: '*.{css,scss,sass,less,svg,png,jpg,jpeg,gif,webp}',
+              group: 'object',
+              patternOptions: { matchBase: true },
+            },
+          ],
+          pathGroupsExcludedImportTypes: ['builtin'],
+          distinctGroup: false,
+          warnOnUnassignedImports: true,
+        },
+      ],
       'no-console': 'error',
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/no-misused-promises': 'off',

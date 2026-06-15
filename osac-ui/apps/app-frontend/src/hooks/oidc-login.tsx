@@ -1,6 +1,7 @@
+import * as React from 'react';
+
 import { DemoShellRole } from '@osac/api-contracts/types';
 import { getErrorMessage } from '@osac/ui-components/utils/error';
-import * as React from 'react';
 
 const ROLE_MAP: Record<string, DemoShellRole> = {
   'cloud-provider-admin': 'providerAdmin',

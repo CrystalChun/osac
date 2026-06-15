@@ -1,4 +1,5 @@
 import { UseQueryResult, useQuery, useQueryClient } from '@tanstack/react-query';
+
 import type { ApiQueryKey, UseApiQueryOptions } from './types';
 
 export const useApiQuery = <TQueryFnData = unknown, TData = TQueryFnData>(

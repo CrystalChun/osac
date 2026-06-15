@@ -1,3 +1,4 @@
+import { useMemo, useState } from 'react';
 import {
   Alert,
   Bullseye,
@@ -10,18 +11,19 @@ import {
   Stack,
   StackItem,
 } from '@patternfly/react-core';
-import { useMemo, useState } from 'react';
+
 import type { CatalogItemBase } from '@osac/api-contracts/types';
-import { CatalogItemCard } from '../../../vm/CatalogItemCard';
+
 import { PageDataSection } from '../../../layout/PageDataSection';
+import { CatalogItemCard } from '../../../vm/CatalogItemCard';
 import { searchableCatalogItemText } from '../../../vm/catalogItemDisplay';
+import type { CatalogProvisionAdapter } from '../adapters/types';
+import { STEP_LABELS } from '../stepIds';
+import type { CatalogProvisionWizardState, UpdateDraftFn } from '../types';
 import {
   seedFieldValuesFromCatalogItem,
   seedNetworkAttachmentRowsFromCatalogItem,
 } from '../wizardBuild';
-import type { CatalogProvisionAdapter } from '../adapters/types';
-import { STEP_LABELS } from '../stepIds';
-import type { CatalogProvisionWizardState, UpdateDraftFn } from '../types';
 
 const applySelectedCatalogItem = <TItem extends CatalogItemBase>(
   item: TItem,

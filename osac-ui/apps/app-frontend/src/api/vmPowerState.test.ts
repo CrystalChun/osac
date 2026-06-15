@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+
 import { isVmTransitionPowerState } from '@osac/api-contracts/vmPowerState';
 
 describe('isVmTransitionPowerState', () => {

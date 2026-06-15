@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import {
   Alert,
   Bullseye,
@@ -12,18 +13,20 @@ import {
   Stack,
   StackItem,
 } from '@patternfly/react-core';
+
 import type { ComputeInstance, ComputeInstanceCatalogItem } from '@osac/api-contracts/types';
-import { useLocation } from 'react-router-dom';
+
 import { useComputeInstanceCatalogItems, useProvisionVm } from '../../api/hooks';
-import { PageHeader } from '../../components/layout/PageHeader';
-import { PageDataSection } from '../../components/layout/PageDataSection';
-import { CatalogItemCard } from '../../components/vm/CatalogItemCard';
-import { CatalogItemDetailDrawer } from '../../components/vm/CatalogItemDetailDrawer';
-import { searchableCatalogItemText } from '../../components/vm/catalogItemDisplay';
 import {
   CatalogProvisionWizard,
   type CatalogProvisionWizardHandle,
 } from '../../components/catalogProvision/CatalogProvisionWizard';
+import { PageDataSection } from '../../components/layout/PageDataSection';
+import { PageHeader } from '../../components/layout/PageHeader';
+import { CatalogItemCard } from '../../components/vm/CatalogItemCard';
+import { CatalogItemDetailDrawer } from '../../components/vm/CatalogItemDetailDrawer';
+import { searchableCatalogItemText } from '../../components/vm/catalogItemDisplay';
+
 import './CatalogPage.css';
 
 interface Props {

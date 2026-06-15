@@ -1,22 +1,22 @@
 import { type ReactElement } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
-import type { DemoShellRole } from '@osac/api-contracts/types';
 import { Page } from '@patternfly/react-core';
 
+import type { DemoShellRole } from '@osac/api-contracts/types';
 import { useSession } from '@osac/ui-components/hooks/use-session';
 
-import { CatalogPage } from '../tenant/CatalogPage';
-import { VmListPage } from '../tenant/VmListPage';
+import { ShellMasthead } from './ShellMasthead';
+import { defaultRouteForRole } from './shellRoutes';
+import { ShellSidebar } from './ShellSidebar';
 import { AdminDashboardPage } from '../admin/AdminDashboardPage';
 import { AdminNetworksPage } from '../admin/AdminNetworksPage';
 import { AdminUsersPage } from '../admin/AdminUsersPage';
 import { ProviderAdminDashboardPage } from '../provider/ProviderAdminDashboardPage';
 import { ProviderInfraTopologyPage } from '../provider/ProviderInfraTopologyPage';
 import { ProviderTenantOrgsPage } from '../provider/ProviderTenantOrgsPage';
-import { ShellMasthead } from './ShellMasthead';
-import { ShellSidebar } from './ShellSidebar';
-import { defaultRouteForRole } from './shellRoutes';
+import { CatalogPage } from '../tenant/CatalogPage';
 import VmDetailsPage from '../tenant/VmDetailsPage';
+import { VmListPage } from '../tenant/VmListPage';
 
 import './AppShell.css';
 

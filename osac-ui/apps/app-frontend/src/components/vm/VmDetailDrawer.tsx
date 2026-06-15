@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -22,16 +24,17 @@ import {
   Title,
 } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
-import { useState } from 'react';
-import './VmDetailDrawer.css';
-import type { ComputeInstance, VmPowerState } from '@osac/api-contracts/types';
+
 import {
   formatConditionStatusForDisplay,
   shortSubnetDisplay,
 } from '@osac/api-contracts/computeInstanceNormalize';
+import type { ComputeInstance, VmPowerState } from '@osac/api-contracts/types';
 import { VmStatusLabel } from '@osac/ui-components/VmStatusLabel';
+
 import { VmActionsMenu } from './VmActionsMenu';
-import { useNavigate } from 'react-router-dom';
+
+import './VmDetailDrawer.css';
 
 interface Props {
   vm: ComputeInstance | null;

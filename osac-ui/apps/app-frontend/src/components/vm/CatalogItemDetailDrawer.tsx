@@ -1,3 +1,4 @@
+import { type ReactNode, useEffect, useId, useRef } from 'react';
 import {
   Content,
   Drawer,
@@ -12,10 +13,12 @@ import {
   StackItem,
   Title,
 } from '@patternfly/react-core';
+
 import type { ComputeInstanceCatalogItem } from '@osac/api-contracts/types';
-import { type ReactNode, useEffect, useId, useRef } from 'react';
-import { catalogItemSubtitle } from './catalogItemDisplay';
+
 import { CatalogItemDetailContent } from './CatalogItemDetailContent';
+import { catalogItemSubtitle } from './catalogItemDisplay';
+
 import './CatalogItemDetailDrawer.css';
 
 interface CatalogItemDetailDrawerProps {

@@ -1,4 +1,5 @@
 import { createContext, useContext, useLayoutEffect, useState } from 'react';
+
 import type { DemoShellRole } from '@osac/api-contracts/types';
 
 interface SessionContextValue {

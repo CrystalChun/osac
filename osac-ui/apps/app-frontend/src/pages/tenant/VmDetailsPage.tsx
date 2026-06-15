@@ -1,15 +1,16 @@
 import * as React from 'react';
-import { Bullseye, PageSection, Spinner } from '@patternfly/react-core';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useComputeInstance } from '@osac/ui-components/api/v1/compute-instance';
-import { ComputeInstance } from '@osac/types';
+import { Bullseye, PageSection, Spinner } from '@patternfly/react-core';
 
-import { VmDetailDrawer } from '../../components/vm/VmDetailDrawer';
+import { ComputeInstance } from '@osac/types';
+import { useComputeInstance } from '@osac/ui-components/api/v1/compute-instance';
+
 import { ComputeInstance as OldComputeInstance, usePatchVm } from '../../api/hooks';
-import { useVmPowerActionDisplay } from '../../api/useVmPowerActionDisplay';
-import { usePendingVmCreations } from '../../api/usePendingVmCreations';
 import { isPendingVmClientId } from '../../api/pendingVmCreation';
+import { usePendingVmCreations } from '../../api/usePendingVmCreations';
+import { useVmPowerActionDisplay } from '../../api/useVmPowerActionDisplay';
 import { VmDeleteConfirmModal } from '../../components/vm/VmDeleteConfirmModal';
+import { VmDetailDrawer } from '../../components/vm/VmDetailDrawer';
 
 const VmDetailsPageInner = ({ vm }: { vm: ComputeInstance }) => {
   const navigate = useNavigate();

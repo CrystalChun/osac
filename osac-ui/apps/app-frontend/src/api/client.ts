@@ -2,15 +2,10 @@
  * API client — routes through /api on the same origin (Go chi proxy).
  * Vite dev server proxies /api → proxy:8080.
  */
-import type {
-  ClusterTemplate,
-  ComputeInstance,
-  ComputeInstanceCatalogItem,
-  FulfillmentCapabilities,
-  Organization,
-  PageOfT,
-  User,
-} from '@osac/api-contracts/types';
+import {
+  normalizeComputeInstanceCatalogItem,
+  normalizeComputeInstanceCatalogItemPage,
+} from '@osac/api-contracts/computeInstanceCatalogItemNormalize';
 import type {
   ComputeInstancePowerAction,
   SerializeComputeInstanceForCreateOptions,
@@ -22,14 +17,19 @@ import {
   serializeComputeInstancePowerPatch,
 } from '@osac/api-contracts/computeInstanceNormalize';
 import {
-  normalizeComputeInstanceCatalogItem,
-  normalizeComputeInstanceCatalogItemPage,
-} from '@osac/api-contracts/computeInstanceCatalogItemNormalize';
-import {
   normalizeComputeInstanceTemplate,
   normalizeComputeInstanceTemplatePage,
 } from '@osac/api-contracts/computeInstanceTemplateNormalize';
 import { normalizeOrganizationPage } from '@osac/api-contracts/organizationNormalize';
+import type {
+  ClusterTemplate,
+  ComputeInstance,
+  ComputeInstanceCatalogItem,
+  FulfillmentCapabilities,
+  Organization,
+  PageOfT,
+  User,
+} from '@osac/api-contracts/types';
 import { normalizeUserPage } from '@osac/api-contracts/userNormalize';
 
 const BASE = '/api/fulfillment/v1';

@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+
 import './PageDataSection.css';
 
 interface PageDataSectionProps {

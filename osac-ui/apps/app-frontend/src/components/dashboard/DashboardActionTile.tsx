@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react';
-import './DashboardActionTile.css';
 import {
   Button,
   Card,
@@ -11,6 +10,8 @@ import {
   Flex,
   FlexItem,
 } from '@patternfly/react-core';
+
+import './DashboardActionTile.css';
 
 interface DashboardActionTileProps {
   icon: ReactNode;

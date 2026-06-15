@@ -2,12 +2,13 @@
  * flow: manage-virtual-machines
  * step: mvm_list_view
  */
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
-import { useNavigate } from 'react-router-dom';
 
 import type { ComputeInstance, VmPowerState } from '@osac/api-contracts/types';
 import { VmStatusLabel } from '@osac/ui-components/VmStatusLabel';
+
 import { VmActionsMenu } from './VmActionsMenu';
 
 import './VmTable.css';

@@ -4,12 +4,15 @@
  */
 import { useNavigate } from 'react-router-dom';
 import { Flex, Gallery, GalleryItem, PageSection, Title } from '@patternfly/react-core';
+
 import { useSession } from '@osac/ui-components/hooks/use-session';
+
 import { useComputeInstances, useUsers } from '../../api/hooks';
 import { DashboardActionTile } from '../../components/dashboard/DashboardActionTile';
 import { DashboardMetricCard } from '../../components/dashboard/DashboardMetricCard';
-import { PageHeader } from '../../components/layout/PageHeader';
 import { PageDataSection } from '../../components/layout/PageDataSection';
+import { PageHeader } from '../../components/layout/PageHeader';
+
 import '../../components/dashboard/AdminDashboardSection.css';
 
 const TILES = [

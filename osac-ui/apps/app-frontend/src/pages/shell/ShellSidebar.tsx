@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   Nav,
   NavGroup,
@@ -8,10 +9,10 @@ import {
   Stack,
   StackItem,
 } from '@patternfly/react-core';
-import { useLocation, useNavigate } from 'react-router-dom';
 
 import { useSession } from '@osac/ui-components/hooks/use-session';
 import { LightDarkToggle } from '@osac/ui-components/LightDarkToggle';
+
 import { type NavLink, navRowsForRole } from './shellNav';
 import { shellNavIcon } from './shellNavIcons';
 

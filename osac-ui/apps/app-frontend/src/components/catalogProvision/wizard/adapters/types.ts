@@ -1,4 +1,5 @@
 import type { CatalogItemBase, CatalogProvisionKind } from '@osac/api-contracts/types';
+
 import type { CatalogProvisionWizardState } from '../types';
 
 export interface CatalogItemsQueryResult<TItem extends CatalogItemBase> {

@@ -10,8 +10,11 @@ import {
   Stack,
   StackItem,
 } from '@patternfly/react-core';
+
 import type { ClusterTemplate, OsType } from '@osac/api-contracts/types';
+
 import { GuestOsIcon } from '../shared/GuestOsIcon';
+
 import './TemplateCard.css';
 
 interface TemplateCardProps {

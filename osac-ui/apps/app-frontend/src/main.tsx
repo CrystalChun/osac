@@ -1,15 +1,19 @@
 import React from 'react';
-import { createRoot } from 'react-dom/client';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { createRoot } from 'react-dom/client';
+
 import { ApiProvider } from '@osac/ui-components/api/api-context';
 import type { ApiFetch, ApiQueryKey } from '@osac/ui-components/api/types';
 
 import App from './App';
 
+// CSS load order is intentional: base → addons → local overrides
+/* eslint-disable import/order */
 import '@patternfly/patternfly/patternfly.css';
 import '@patternfly/patternfly/patternfly-addons.css';
 import './global.css';
+/* eslint-enable import/order */
 
 const API_BASE = '/api/fulfillment';
 

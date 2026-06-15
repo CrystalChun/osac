@@ -1,5 +1,5 @@
-import type { CatalogProvisionKind } from '@osac/api-contracts/types';
 import type { NetworkAttachmentRowInput } from '@osac/api-contracts/catalogFieldDefinition';
+import type { CatalogProvisionKind } from '@osac/api-contracts/types';
 
 export interface CatalogProvisionWizardState {
   catalogItemId: string | null;

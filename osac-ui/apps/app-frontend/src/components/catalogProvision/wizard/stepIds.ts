@@ -1,5 +1,5 @@
-import type { CatalogItemBase } from '@osac/api-contracts/types';
 import { shouldIncludeConfigurationStep } from '@osac/api-contracts/catalogFieldDefinition';
+import type { CatalogItemBase } from '@osac/api-contracts/types';
 import type { CatalogProvisionKind } from '@osac/api-contracts/types';
 
 export const WIZARD_STEP_IDS = ['catalog', 'basics', 'configuration', 'review'] as const;

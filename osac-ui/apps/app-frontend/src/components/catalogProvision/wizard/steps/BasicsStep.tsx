@@ -7,13 +7,15 @@ import {
   TextInput,
   Title,
 } from '@patternfly/react-core';
-import type { CatalogItemBase } from '@osac/api-contracts/types';
+
 import { partitionFieldDefinitions } from '@osac/api-contracts/catalogFieldDefinition';
-import { CatalogFieldInput } from '../CatalogFieldInput';
-import { CatalogFieldHelper } from '../CatalogFieldHelper';
+import type { CatalogItemBase } from '@osac/api-contracts/types';
+
 import type { CatalogProvisionAdapter } from '../adapters/types';
-import { wizardCatalogFieldErrorKey } from '../wizardBuild';
+import { CatalogFieldHelper } from '../CatalogFieldHelper';
+import { CatalogFieldInput } from '../CatalogFieldInput';
 import type { CatalogProvisionWizardState, UpdateDraftFn, UpdateFieldValueFn } from '../types';
+import { wizardCatalogFieldErrorKey } from '../wizardBuild';
 
 interface Props<TItem extends CatalogItemBase> {
   adapter: CatalogProvisionAdapter<TItem, unknown>;

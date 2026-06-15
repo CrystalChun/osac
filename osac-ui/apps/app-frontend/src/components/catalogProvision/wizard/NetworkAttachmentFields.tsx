@@ -1,8 +1,10 @@
 import { Button, Flex, FlexItem, FormGroup, Stack, StackItem, Title } from '@patternfly/react-core';
 import MinusCircleIcon from '@patternfly/react-icons/dist/esm/icons/minus-circle-icon';
 import PlusCircleIcon from '@patternfly/react-icons/dist/esm/icons/plus-circle-icon';
+
 import type { NetworkAttachmentFieldBundle } from '@osac/api-contracts/catalogFieldDefinition';
 import type { NetworkAttachmentRowInput } from '@osac/api-contracts/catalogFieldDefinition';
+
 import { CatalogFieldInput } from './CatalogFieldInput';
 import { wizardNetworkAttachmentErrorKey } from './wizardBuild';
 

@@ -1,10 +1,3 @@
-import type {
-  CatalogFieldDefinition,
-  CatalogItemBase,
-  CatalogProvisionKind,
-  ComputeInstance,
-  ComputeInstanceCatalogItem,
-} from '@osac/api-contracts/types';
 import {
   applyFieldDefinitionsToSpec,
   buildNetworkAttachmentsFromRows,
@@ -15,7 +8,15 @@ import {
   partitionFieldDefinitions,
   validateCatalogFieldInput,
 } from '@osac/api-contracts/catalogFieldDefinition';
+import type {
+  CatalogFieldDefinition,
+  CatalogItemBase,
+  CatalogProvisionKind,
+  ComputeInstance,
+  ComputeInstanceCatalogItem,
+} from '@osac/api-contracts/types';
 import type { ComputeInstanceSpec } from '@osac/api-contracts/types';
+
 import type { CatalogProvisionWizardState } from './types';
 
 export const wizardCatalogFieldErrorKey = (path: string): string => `catalogField:${path}`;

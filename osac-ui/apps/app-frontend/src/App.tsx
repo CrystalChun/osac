@@ -8,11 +8,12 @@ import {
   EmptyStateFooter,
   Spinner,
 } from '@patternfly/react-core';
+
 import { SessionProvider, useSession } from '@osac/ui-components/hooks/use-session';
 
+import { useOIDCLogin } from './hooks/oidc-login';
 import { AppShell } from './pages/shell/AppShell';
 import { defaultRouteForRole } from './pages/shell/shellRoutes';
-import { useOIDCLogin } from './hooks/oidc-login';
 
 import './App.css';
 

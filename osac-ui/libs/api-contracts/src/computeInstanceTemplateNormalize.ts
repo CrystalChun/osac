@@ -91,10 +91,10 @@ export const normalizeComputeInstanceTemplate = (raw: unknown): ClusterTemplate 
   if (!raw || typeof raw !== 'object') {
     throw new Error('Invalid compute_instance_template payload');
   }
-  const r = raw as Record<string, unknown>;
+  const r = raw as Record<string, string>;
   const mdIn = asRecord(r.metadata);
-  const id = String((r.id ?? mdIn.name ?? '') as string);
-  const title = String((r.title ?? readStr(r, 'display_name') ?? mdIn.name ?? id) as string);
+  const id = String(r.id ?? mdIn.name ?? '');
+  const title = String(r.title ?? readStr(r, 'display_name') ?? mdIn.name ?? id);
 
   const spec = r.spec;
   const status = r.status;
@@ -130,14 +130,8 @@ export const normalizeComputeInstanceTemplate = (raw: unknown): ClusterTemplate 
     title,
     description: readStr(r, 'description'),
     metadata: normalizeMetadata(mdIn, id),
-    spec:
-      spec && typeof spec === 'object' && !Array.isArray(spec)
-        ? (spec as Record<string, unknown>)
-        : undefined,
-    status:
-      status && typeof status === 'object' && !Array.isArray(status)
-        ? (status as Record<string, unknown>)
-        : undefined,
+    spec: spec && typeof spec === 'object' && !Array.isArray(spec) ? spec : undefined,
+    status: status && typeof status === 'object' && !Array.isArray(status) ? status : undefined,
     workload: readStr(r, 'workload'),
     workloadProfile,
     defaultCores,

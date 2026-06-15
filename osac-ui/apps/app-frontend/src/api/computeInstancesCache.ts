@@ -3,6 +3,7 @@
  * back to Virtual machines does not show a pre-action list while data is still "fresh".
  */
 import type { QueryClient } from '@tanstack/react-query';
+
 import type { ComputeInstance, PageOfT } from '@osac/api-contracts/types';
 
 const patchPage = (

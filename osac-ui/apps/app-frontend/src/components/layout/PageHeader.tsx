@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
-import './PageHeader.css';
 import { Content, Flex, FlexItem, Title } from '@patternfly/react-core';
+
+import './PageHeader.css';
 
 type PageHeaderDescriptionWidth = 'medium' | 'wide';
 

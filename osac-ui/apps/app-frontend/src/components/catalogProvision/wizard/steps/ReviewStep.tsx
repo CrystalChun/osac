@@ -8,7 +8,7 @@ import {
   StackItem,
   Title,
 } from '@patternfly/react-core';
-import type { CatalogItemBase } from '@osac/api-contracts/types';
+
 import {
   getNetworkAttachmentFieldBundle,
   hasEditableNetworkAttachmentFields,
@@ -16,6 +16,8 @@ import {
   parseSecurityGroupsRaw,
   resolvedFieldInputValue,
 } from '@osac/api-contracts/catalogFieldDefinition';
+import type { CatalogItemBase } from '@osac/api-contracts/types';
+
 import type { CatalogProvisionAdapter } from '../adapters/types';
 import type { CatalogProvisionWizardState } from '../types';
 

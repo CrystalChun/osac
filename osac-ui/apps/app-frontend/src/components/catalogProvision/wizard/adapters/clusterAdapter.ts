@@ -1,4 +1,5 @@
 import type { ClusterCatalogItem } from '@osac/api-contracts/types';
+
 import type { CatalogProvisionAdapter } from './types';
 
 /** Placeholder until cluster catalog items API and provisioning are wired. */

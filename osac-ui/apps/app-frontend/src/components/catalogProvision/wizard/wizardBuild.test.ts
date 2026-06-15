@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
+
 import type { ComputeInstanceCatalogItem } from '@osac/api-contracts/types';
+
 import { INITIAL_STATE } from './constants';
+import { getWizardOrderedSteps } from './stepIds';
 import {
   buildComputeInstanceFromWizardDraft,
   canProceedWizardStep,
@@ -9,7 +12,6 @@ import {
   validateWizardForFinalize,
   validateWizardStep,
 } from './wizardBuild';
-import { getWizardOrderedSteps } from './stepIds';
 
 const catalogWithFieldDefs: ComputeInstanceCatalogItem = {
   id: 'catalog-rhel-9',

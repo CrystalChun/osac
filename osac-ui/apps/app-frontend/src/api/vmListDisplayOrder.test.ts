@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
+
 import type { ComputeInstance } from '@osac/api-contracts/types';
+
 import { pinProvisioningVmsToListEnd } from './vmListDisplayOrder';
 
 const vm = (id: string): ComputeInstance => {

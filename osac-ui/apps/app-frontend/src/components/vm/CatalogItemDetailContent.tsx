@@ -11,7 +11,9 @@ import {
   StackItem,
   Title,
 } from '@patternfly/react-core';
+
 import type { ComputeInstanceCatalogItem } from '@osac/api-contracts/types';
+
 import {
   catalogItemMetadataLabelEntries,
   catalogItemResourceParts,
