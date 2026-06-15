@@ -25,11 +25,8 @@ import {
 } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
-import {
-  formatConditionStatusForDisplay,
-  shortSubnetDisplay,
-} from '@osac/api-contracts/computeInstanceNormalize';
-import type { ComputeInstance, VmPowerState } from '@osac/api-contracts/types';
+import type { ComputeInstance } from '@osac/types';
+import { type DisplayVmState } from '@osac/ui-components/vmDisplayState';
 import { VmStatusLabel } from '@osac/ui-components/VmStatusLabel';
 
 import { VmActionsMenu } from './VmActionsMenu';
@@ -38,7 +35,7 @@ import './VmDetailDrawer.css';
 
 interface Props {
   vm: ComputeInstance | null;
-  effectiveState: VmPowerState;
+  effectiveState: DisplayVmState;
   onPower: (action: 'start' | 'stop' | 'restart') => void;
   onDelete?: () => void;
   /* RESTORE when fulfillment supports clone: onClone?: () => void */
@@ -46,8 +43,80 @@ interface Props {
   isPowerActionPending?: boolean;
 }
 
-const humanizeConditionType = (type: string): string => {
-  return type.replace(/^CONDITION_TYPE_/i, '').replace(/_/g, ' ') || type;
+type JsonRecord = Record<string, unknown>;
+
+const jsonField = (obj: unknown, ...keys: string[]): unknown => {
+  if (!obj || typeof obj !== 'object') {
+    return undefined;
+  }
+  const rec = obj as JsonRecord;
+  for (const k of keys) {
+    if (k in rec && rec[k] != null) {
+      return rec[k];
+    }
+  }
+  return undefined;
+};
+
+const jsonStr = (obj: unknown, ...keys: string[]): string | undefined => {
+  const v = jsonField(obj, ...keys);
+  return typeof v === 'string' && v.trim() ? v.trim() : undefined;
+};
+
+const jsonNum = (obj: unknown, ...keys: string[]): number | undefined => {
+  const v = jsonField(obj, ...keys);
+  return typeof v === 'number' && !Number.isNaN(v) ? v : undefined;
+};
+
+const wireValueToDisplayString = (value: unknown): string => {
+  if (value == null) {
+    return '';
+  }
+  if (typeof value === 'string') {
+    return value;
+  }
+  if (typeof value === 'number' || typeof value === 'boolean') {
+    return String(value);
+  }
+  return '';
+};
+
+const humanizeConditionType = (type: unknown): string => {
+  const s = wireValueToDisplayString(type);
+  return (
+    s
+      .replace(/^COMPUTE_INSTANCE_CONDITION_TYPE_/i, '')
+      .replace(/^CONDITION_TYPE_/i, '')
+      .replace(/_/g, ' ') || s
+  );
+};
+
+const formatConditionStatusForDisplay = (wireStatus: unknown): string => {
+  const wireStatusStr = wireValueToDisplayString(wireStatus);
+  const u = wireStatusStr.toUpperCase();
+  if (u.includes('TRUE') && !u.includes('FALSE')) {
+    return 'True';
+  }
+  if (u.includes('FALSE')) {
+    return 'False';
+  }
+  if (u === '' || u === 'UNKNOWN') {
+    return 'Unknown';
+  }
+  const stripped = wireStatusStr.replace(/^CONDITION_STATUS_/i, '').replace(/_/g, ' ');
+  return stripped ? stripped.charAt(0).toUpperCase() + stripped.slice(1).toLowerCase() : 'Unknown';
+};
+
+const shortSubnetDisplay = (subnet: string | undefined): string => {
+  if (!subnet?.trim()) {
+    return '—';
+  }
+  const s = subnet.trim();
+  const uuidLike = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);
+  if (uuidLike) {
+    return `${s.slice(0, 8)}…`;
+  }
+  return s;
 };
 
 const formatIsoDate = (iso?: string): string => {
@@ -56,6 +125,39 @@ const formatIsoDate = (iso?: string): string => {
   }
   const t = Date.parse(iso.trim());
   return Number.isNaN(t) ? iso : new Date(t).toLocaleString();
+};
+
+const readSubnet = (vm: ComputeInstance): string | undefined => {
+  const attachments = jsonField(vm.spec, 'network_attachments', 'networkAttachments');
+  if (Array.isArray(attachments) && attachments[0] && typeof attachments[0] === 'object') {
+    const subnet = jsonStr(attachments[0], 'subnet');
+    if (subnet) {
+      return subnet;
+    }
+  }
+  return jsonStr(vm.spec, 'subnet');
+};
+
+const readSecurityGroups = (vm: ComputeInstance): string[] | undefined => {
+  const attachments = jsonField(vm.spec, 'network_attachments', 'networkAttachments');
+  if (Array.isArray(attachments) && attachments[0] && typeof attachments[0] === 'object') {
+    const sgs = jsonField(attachments[0], 'security_groups', 'securityGroups');
+    if (Array.isArray(sgs) && sgs.every((x) => typeof x === 'string')) {
+      return sgs;
+    }
+  }
+  const top = jsonField(vm.spec, 'security_groups', 'securityGroups');
+  if (Array.isArray(top) && top.every((x) => typeof x === 'string')) {
+    return top;
+  }
+  return undefined;
+};
+
+const readIpAddress = (vm: ComputeInstance): string | undefined => {
+  return (
+    jsonStr(vm.status, 'public_ip_address', 'publicIpAddress') ??
+    jsonStr(vm.status, 'internal_ip_address', 'internalIpAddress', 'ipAddress')
+  );
 };
 
 export const VmDetailDrawer = ({
@@ -73,8 +175,20 @@ export const VmDetailDrawer = ({
     return null;
   }
 
-  const tenantsLine = vm.metadata.tenants?.length ? vm.metadata.tenants.join(', ') : '—';
-  const creatorsLine = vm.metadata.creators?.length ? vm.metadata.creators.join(', ') : '—';
+  const description = jsonStr(vm, 'description');
+  const memoryGib = jsonNum(vm.spec, 'memory_gib', 'memoryGib');
+  const cores = jsonNum(vm.spec, 'cores');
+  const runStrategy = jsonStr(vm.spec, 'run_strategy', 'runStrategy');
+  const template = jsonStr(vm.spec, 'template');
+  const createdAt = jsonStr(vm.metadata, 'creation_timestamp', 'createdAt');
+  const tenant = jsonStr(vm.metadata, 'tenant');
+  const creator = jsonStr(vm.metadata, 'creator');
+  const tenantsLine = tenant ?? '—';
+  const creatorsLine = creator ?? '—';
+  const ipAddress = readIpAddress(vm);
+  const subnet = readSubnet(vm);
+  const securityGroups = readSecurityGroups(vm);
+  const conditions = vm.status?.conditions ?? [];
 
   return (
     <Stack hasGutter>
@@ -85,7 +199,7 @@ export const VmDetailDrawer = ({
               Virtual machines
             </Button>
           </BreadcrumbItem>
-          <BreadcrumbItem isActive>{vm.metadata.name}</BreadcrumbItem>
+          <BreadcrumbItem isActive>{vm.metadata?.name ?? vm.id}</BreadcrumbItem>
         </Breadcrumb>
       </StackItem>
 
@@ -93,13 +207,13 @@ export const VmDetailDrawer = ({
         <Stack hasGutter={false}>
           <StackItem>
             <Title headingLevel="h1" size="2xl">
-              {vm.metadata.name}
+              {vm.metadata?.name ?? vm.id}
             </Title>
           </StackItem>
-          {vm.description && (
+          {description && (
             <StackItem>
               <Content component="p" className="osac-vm-detail__description">
-                {vm.description}
+                {description}
               </Content>
             </StackItem>
           )}
@@ -124,42 +238,40 @@ export const VmDetailDrawer = ({
                     <DescriptionList isCompact>
                       <DescriptionListGroup>
                         <DescriptionListTerm>Name</DescriptionListTerm>
-                        <DescriptionListDescription>{vm.metadata.name}</DescriptionListDescription>
+                        <DescriptionListDescription>
+                          {vm.metadata?.name ?? '—'}
+                        </DescriptionListDescription>
                       </DescriptionListGroup>
                       <DescriptionListGroup>
                         <DescriptionListTerm>Template</DescriptionListTerm>
-                        <DescriptionListDescription>
-                          {vm.spec.template ?? '—'}
-                        </DescriptionListDescription>
+                        <DescriptionListDescription>{template ?? '—'}</DescriptionListDescription>
                       </DescriptionListGroup>
                       <DescriptionListGroup>
                         <DescriptionListTerm>Run strategy</DescriptionListTerm>
                         <DescriptionListDescription>
-                          {vm.spec.runStrategy ?? '—'}
+                          {runStrategy ?? '—'}
                         </DescriptionListDescription>
                       </DescriptionListGroup>
                       <DescriptionListGroup>
                         <DescriptionListTerm>vCPU</DescriptionListTerm>
-                        <DescriptionListDescription>
-                          {vm.spec.cores ?? '—'}
-                        </DescriptionListDescription>
+                        <DescriptionListDescription>{cores ?? '—'}</DescriptionListDescription>
                       </DescriptionListGroup>
                       <DescriptionListGroup>
                         <DescriptionListTerm>Memory</DescriptionListTerm>
                         <DescriptionListDescription>
-                          {vm.spec.memoryGib != null ? `${vm.spec.memoryGib} GiB` : '—'}
+                          {memoryGib != null ? `${memoryGib} GiB` : '—'}
                         </DescriptionListDescription>
                       </DescriptionListGroup>
-                      {vm.description && (
+                      {description && (
                         <DescriptionListGroup>
                           <DescriptionListTerm>Description</DescriptionListTerm>
-                          <DescriptionListDescription>{vm.description}</DescriptionListDescription>
+                          <DescriptionListDescription>{description}</DescriptionListDescription>
                         </DescriptionListGroup>
                       )}
                       <DescriptionListGroup>
                         <DescriptionListTerm>Created</DescriptionListTerm>
                         <DescriptionListDescription>
-                          {vm.metadata.createdAt ? formatIsoDate(vm.metadata.createdAt) : '—'}
+                          {createdAt ? formatIsoDate(createdAt) : '—'}
                         </DescriptionListDescription>
                       </DescriptionListGroup>
                       <DescriptionListGroup>
@@ -173,7 +285,7 @@ export const VmDetailDrawer = ({
                       <DescriptionListGroup>
                         <DescriptionListTerm>Version</DescriptionListTerm>
                         <DescriptionListDescription>
-                          {vm.metadata.version != null ? String(vm.metadata.version) : '—'}
+                          {vm.metadata?.version != null ? String(vm.metadata.version) : '—'}
                         </DescriptionListDescription>
                       </DescriptionListGroup>
                     </DescriptionList>
@@ -185,20 +297,18 @@ export const VmDetailDrawer = ({
                     <DescriptionList isCompact>
                       <DescriptionListGroup>
                         <DescriptionListTerm>IP address</DescriptionListTerm>
-                        <DescriptionListDescription>
-                          {vm.status.ipAddress ?? '—'}
-                        </DescriptionListDescription>
+                        <DescriptionListDescription>{ipAddress ?? '—'}</DescriptionListDescription>
                       </DescriptionListGroup>
                       <DescriptionListGroup>
                         <DescriptionListTerm>Subnet</DescriptionListTerm>
                         <DescriptionListDescription>
-                          {shortSubnetDisplay(vm.spec.subnet)}
+                          {shortSubnetDisplay(subnet)}
                         </DescriptionListDescription>
                       </DescriptionListGroup>
                       <DescriptionListGroup>
                         <DescriptionListTerm>Security groups</DescriptionListTerm>
                         <DescriptionListDescription>
-                          {vm.spec.securityGroups?.join(', ') ?? '—'}
+                          {securityGroups?.join(', ') ?? '—'}
                         </DescriptionListDescription>
                       </DescriptionListGroup>
                     </DescriptionList>
@@ -207,7 +317,7 @@ export const VmDetailDrawer = ({
 
                 <Tab eventKey={2} title={<TabTitleText>Conditions</TabTitleText>}>
                   <PageSection hasBodyWrapper={false} className="osac-vm-detail__tab-panel">
-                    {vm.status.conditions && vm.status.conditions.length > 0 ? (
+                    {conditions.length > 0 ? (
                       <Table aria-label="Virtual machine conditions" variant="compact">
                         <Thead>
                           <Tr>
@@ -219,16 +329,18 @@ export const VmDetailDrawer = ({
                           </Tr>
                         </Thead>
                         <Tbody>
-                          {vm.status.conditions.map((c, i) => (
-                            <Tr key={`${c.type}-${i}`}>
+                          {conditions.map((c, i) => (
+                            <Tr key={`${String(c.type)}-${i}`}>
                               <Td dataLabel="Type">{humanizeConditionType(c.type)}</Td>
                               <Td dataLabel="Status">
                                 {formatConditionStatusForDisplay(c.status)}
                               </Td>
-                              <Td dataLabel="Reason">{c.reason ?? '—'}</Td>
-                              <Td dataLabel="Message">{c.message ?? '—'}</Td>
+                              <Td dataLabel="Reason">{jsonStr(c, 'reason') ?? '—'}</Td>
+                              <Td dataLabel="Message">{jsonStr(c, 'message') ?? '—'}</Td>
                               <Td dataLabel="Last transition">
-                                {formatIsoDate(c.lastTransitionTime)}
+                                {formatIsoDate(
+                                  jsonStr(c, 'last_transition_time', 'lastTransitionTime'),
+                                )}
                               </Td>
                             </Tr>
                           ))}
@@ -270,7 +382,7 @@ export const VmDetailDrawer = ({
                 </StackItem>
                 <StackItem>
                   <Content component="p" className="osac-vm-detail-actions__ip-line">
-                    <strong>IP address:</strong> {vm.status.ipAddress ?? '—'}
+                    <strong>IP address:</strong> {ipAddress ?? '—'}
                   </Content>
                 </StackItem>
               </Stack>

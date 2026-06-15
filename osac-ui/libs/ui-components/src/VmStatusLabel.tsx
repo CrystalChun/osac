@@ -1,31 +1,38 @@
 import { Flex, FlexItem, Label, Spinner } from '@patternfly/react-core';
 
-import type { VmPowerState } from '@osac/api-contracts/types';
-import { isVmTransitionPowerState } from '@osac/api-contracts/vmPowerState';
+import { type DisplayVmState, isTransitionDisplayState } from './vmDisplayState';
 
 interface VmStatusLabelProps {
-  state: VmPowerState;
+  state: DisplayVmState;
 }
 
-const STATE_MAP: Record<
-  VmPowerState,
-  { color: 'green' | 'orange' | 'red' | 'blue' | 'grey'; text: string }
-> = {
-  running: { color: 'green', text: 'Running' },
-  paused: { color: 'orange', text: 'Paused' },
-  stopped: { color: 'red', text: 'Stopped' },
+type LabelColor = 'green' | 'orange' | 'red' | 'blue' | 'grey';
+
+type LabelStyle = {
+  color: LabelColor;
+  text: string;
+};
+
+const STATE_MAP: Record<string, LabelStyle> = {
+  COMPUTE_INSTANCE_STATE_RUNNING: { color: 'green', text: 'Running' },
+  COMPUTE_INSTANCE_STATE_STOPPED: { color: 'orange', text: 'Stopped' },
+  COMPUTE_INSTANCE_STATE_STARTING: { color: 'blue', text: 'Starting' },
+  COMPUTE_INSTANCE_STATE_STOPPING: { color: 'blue', text: 'Stopping' },
+  COMPUTE_INSTANCE_STATE_DELETING: { color: 'red', text: 'Deleting' },
+  COMPUTE_INSTANCE_STATE_FAILED: { color: 'red', text: 'Error' },
+  COMPUTE_INSTANCE_STATE_UNSPECIFIED: { color: 'grey', text: 'Unknown' },
+  restarting: { color: 'blue', text: 'Restarting' },
   starting: { color: 'blue', text: 'Starting' },
   stopping: { color: 'blue', text: 'Stopping' },
-  restarting: { color: 'blue', text: 'Restarting' },
-  deleting: { color: 'grey', text: 'Deleting' },
-  error: { color: 'red', text: 'Error' },
-  creating: { color: 'blue', text: 'Creating' },
-  still_provisioning: { color: 'blue', text: 'Still provisioning' },
+};
+
+const resolveLabelStyle = (state: DisplayVmState): LabelStyle => {
+  return STATE_MAP[state] ?? { color: 'grey', text: state };
 };
 
 export const VmStatusLabel = ({ state }: VmStatusLabelProps) => {
-  const { color, text } = STATE_MAP[state] ?? { color: 'grey', text: state };
-  const inTransition = isVmTransitionPowerState(state);
+  const { color, text } = resolveLabelStyle(state);
+  const inTransition = isTransitionDisplayState(state);
 
   return (
     <Flex alignItems={{ default: 'alignItemsCenter' }} spaceItems={{ default: 'spaceItemsSm' }}>

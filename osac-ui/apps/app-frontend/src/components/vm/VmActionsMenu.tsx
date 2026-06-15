@@ -2,11 +2,17 @@ import { useState } from 'react';
 import { Dropdown, DropdownItem, DropdownList, MenuToggle } from '@patternfly/react-core';
 import { EllipsisVIcon } from '@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon';
 
-import type { ComputeInstance, VmPowerState } from '@osac/api-contracts/types';
+import {
+  COMPUTE_INSTANCE_STATE,
+  type DisplayVmState,
+  readComputeInstanceState,
+} from '@osac/ui-components/vmDisplayState';
+
+import type { VmRow } from '../../api/vmRow';
 
 interface VmActionsMenuProps {
-  vm: ComputeInstance;
-  effectiveState?: VmPowerState;
+  vm: VmRow;
+  effectiveState?: DisplayVmState;
   /** True while stop→wait-for-stopped→start restart orchestration is in progress for this VM. */
   isRestarting?: boolean;
   /** True while a pending Starting/Stopping/Restarting badge is active for this VM. */
@@ -26,13 +32,23 @@ export const VmActionsMenu = ({
   onDelete,
 }: VmActionsMenuProps) => {
   const [open, setOpen] = useState(false);
-  const state = effectiveState ?? vm.status.state;
+  const state = effectiveState ?? readComputeInstanceState(vm);
 
   const pending = isPowerActionPending || isRestarting;
-  const canStart = state === 'stopped' && !pending;
-  const canStop = (state === 'running' || state === 'paused') && !pending;
-  const canRestart = (state === 'running' || state === 'paused') && !isRestarting && !pending;
-  const canDelete = typeof onDelete === 'function' && state !== 'deleting' && state !== 'starting';
+  const canStart = state === COMPUTE_INSTANCE_STATE.STOPPED && !pending;
+  const canStop =
+    (state === COMPUTE_INSTANCE_STATE.RUNNING || state === COMPUTE_INSTANCE_STATE.PAUSED) &&
+    !pending;
+  const canRestart =
+    (state === COMPUTE_INSTANCE_STATE.RUNNING || state === COMPUTE_INSTANCE_STATE.PAUSED) &&
+    !isRestarting &&
+    !pending;
+  const canDelete =
+    typeof onDelete === 'function' &&
+    !pending &&
+    state !== COMPUTE_INSTANCE_STATE.DELETING &&
+    state !== COMPUTE_INSTANCE_STATE.STARTING &&
+    state !== 'starting';
 
   return (
     <Dropdown
@@ -43,7 +59,7 @@ export const VmActionsMenu = ({
           ref={ref}
           variant="plain"
           onClick={() => setOpen((o) => !o)}
-          aria-label={`Actions for ${vm.metadata.name}`}
+          aria-label={`Actions for ${vm.metadata?.name ?? vm.id}`}
         >
           <EllipsisVIcon />
         </MenuToggle>

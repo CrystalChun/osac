@@ -14,7 +14,10 @@ import {
   Title,
 } from '@patternfly/react-core';
 
-import { useComputeInstances, useOrganizations } from '../../api/hooks';
+import { useComputeInstances } from '@osac/ui-components/api/v1/compute-instance';
+import { useOrganizations } from '@osac/ui-components/api/v1/organization';
+
+import { readOrganizationStatus } from '../../adminWireDisplay';
 import { DashboardActionTile } from '../../components/dashboard/DashboardActionTile';
 import { DashboardMetricCard } from '../../components/dashboard/DashboardMetricCard';
 import { PageDataSection } from '../../components/layout/PageDataSection';
@@ -55,7 +58,7 @@ export const ProviderAdminDashboardPage = () => {
     isError: orgsError,
   } = useOrganizations();
 
-  const activeTenants = organizations.filter((o) => o.status === 'active').length;
+  const activeTenants = organizations.filter((o) => readOrganizationStatus(o) === 'active').length;
 
   return (
     <PageSection isFilled className="osac-page">

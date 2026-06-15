@@ -12,22 +12,22 @@ import {
   Title,
 } from '@patternfly/react-core';
 
-import type { ComputeInstanceCatalogItem } from '@osac/api-contracts/types';
-
 import {
+  type CatalogItemForDisplay,
   catalogItemMetadataLabelEntries,
   catalogItemResourceParts,
   formatCatalogFieldDefault,
 } from './catalogItemDisplay';
+import { catalogItemFieldDefinitions } from '../catalogProvision/catalogFieldDefinition';
 
 interface CatalogItemDetailContentProps {
-  item: ComputeInstanceCatalogItem;
+  item: CatalogItemForDisplay;
 }
 
 export const CatalogItemDetailContent = ({ item }: CatalogItemDetailContentProps) => {
   const resources = catalogItemResourceParts(item);
   const metadataLabels = catalogItemMetadataLabelEntries(item);
-  const fieldDefinitions = item.fieldDefinitions ?? [];
+  const fieldDefinitions = catalogItemFieldDefinitions(item);
 
   return (
     <Stack className="catalog-item-detail-content">
@@ -35,7 +35,7 @@ export const CatalogItemDetailContent = ({ item }: CatalogItemDetailContentProps
         <DescriptionList isCompact>
           <DescriptionListGroup>
             <DescriptionListTerm>Catalog name</DescriptionListTerm>
-            <DescriptionListDescription>{item.metadata.name}</DescriptionListDescription>
+            <DescriptionListDescription>{item.metadata?.name ?? '—'}</DescriptionListDescription>
           </DescriptionListGroup>
           <DescriptionListGroup>
             <DescriptionListTerm>Status</DescriptionListTerm>

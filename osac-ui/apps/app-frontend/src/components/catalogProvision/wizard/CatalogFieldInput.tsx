@@ -7,8 +7,7 @@ import {
   TextInput,
 } from '@patternfly/react-core';
 
-import type { CatalogFieldDefinition } from '@osac/api-contracts/types';
-
+import type { CatalogFieldDefinition } from '../catalogFieldDefinition';
 import { CatalogFieldHelper } from './CatalogFieldHelper';
 
 interface Props {

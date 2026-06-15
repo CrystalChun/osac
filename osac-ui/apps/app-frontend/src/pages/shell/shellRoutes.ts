@@ -1,4 +1,4 @@
-import type { DemoShellRole } from '@osac/api-contracts/types';
+import type { DemoShellRole } from '@osac/ui-components/shellTypes';
 
 export const defaultRouteForRole = (role: DemoShellRole): string => {
   if (role === 'providerAdmin') {

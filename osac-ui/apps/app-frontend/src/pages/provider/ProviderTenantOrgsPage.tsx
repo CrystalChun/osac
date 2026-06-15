@@ -6,7 +6,14 @@ import { useEffect } from 'react';
 import { Alert, Bullseye, Button, Label, PageSection, Spinner } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
-import { useOrganizations } from '../../api/hooks';
+import { useOrganizations } from '@osac/ui-components/api/v1/organization';
+
+import {
+  readOrganizationDescription,
+  readOrganizationDisplayName,
+  readOrganizationStatus,
+  readOrganizationVmCount,
+} from '../../adminWireDisplay';
 import { PageDataSection } from '../../components/layout/PageDataSection';
 import { PageHeader } from '../../components/layout/PageHeader';
 
@@ -63,25 +70,28 @@ export const ProviderTenantOrgsPage = () => {
               </Tr>
             </Thead>
             <Tbody>
-              {organizations.map((org) => (
-                <Tr key={org.id}>
-                  <Td dataLabel="Organization" className="osac-data-table__primary-cell">
-                    {org.displayName}
-                  </Td>
-                  <Td dataLabel="ID" className="osac-data-table__muted-cell">
-                    {org.metadata.name}
-                  </Td>
-                  <Td dataLabel="Description" className="osac-data-table__description-cell">
-                    {org.description ?? '—'}
-                  </Td>
-                  <Td dataLabel="VMs">{org.vmCount ?? '—'}</Td>
-                  <Td dataLabel="Status">
-                    <Label color={org.status === 'active' ? 'green' : 'grey'} isCompact>
-                      {org.status ?? 'unknown'}
-                    </Label>
-                  </Td>
-                </Tr>
-              ))}
+              {organizations.map((org) => {
+                const status = readOrganizationStatus(org);
+                return (
+                  <Tr key={org.id}>
+                    <Td dataLabel="Organization" className="osac-data-table__primary-cell">
+                      {readOrganizationDisplayName(org)}
+                    </Td>
+                    <Td dataLabel="ID" className="osac-data-table__muted-cell">
+                      {org.metadata?.name ?? '—'}
+                    </Td>
+                    <Td dataLabel="Description" className="osac-data-table__description-cell">
+                      {readOrganizationDescription(org) ?? '—'}
+                    </Td>
+                    <Td dataLabel="VMs">{readOrganizationVmCount(org) ?? '—'}</Td>
+                    <Td dataLabel="Status">
+                      <Label color={status === 'active' ? 'green' : 'grey'} isCompact>
+                        {status ?? 'unknown'}
+                      </Label>
+                    </Td>
+                  </Tr>
+                );
+              })}
             </Tbody>
           </Table>
         )}

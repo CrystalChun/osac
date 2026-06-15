@@ -1,7 +1,16 @@
 /**
  * Catalog item field_definitions — parse defaults, validate against JSON Schema subset, apply to spec paths.
  */
-import type { CatalogProvisionKind, ComputeInstanceSpec } from './types.js';
+
+export type CatalogProvisionKind = 'compute_instance' | 'cluster';
+
+/** Wizard-built spec — camelCase nested fields (serialized to wire JSON at create time). */
+export type WizardComputeInstanceSpec = Record<string, unknown> & {
+  template?: string;
+  catalogItem?: string;
+  networkAttachments?: Array<{ subnet: string; securityGroups?: string[] }>;
+  additionalDisks?: Array<{ sizeGib: number }>;
+};
 
 export interface CatalogFieldDefinition {
   path: string;
@@ -125,6 +134,32 @@ export const normalizeCatalogFieldDefinitions = (raw: unknown): CatalogFieldDefi
     .filter((x): x is CatalogFieldDefinition => Boolean(x));
 };
 
+export const readCatalogItemFieldDefinitions = (item: unknown): readonly unknown[] | undefined => {
+  if (!item || typeof item !== 'object') {
+    return undefined;
+  }
+  const raw =
+    (item as Record<string, unknown>).field_definitions ??
+    (item as Record<string, unknown>).fieldDefinitions;
+  return Array.isArray(raw) ? raw : undefined;
+};
+
+export const coerceCatalogFieldDefinitions = (
+  definitions: readonly unknown[] | undefined,
+): CatalogFieldDefinition[] => {
+  if (!definitions?.length) {
+    return [];
+  }
+  return definitions
+    .map((raw) => normalizeCatalogFieldDefinition(raw))
+    .filter((x): x is CatalogFieldDefinition => Boolean(x));
+};
+
+/** Normalized field_definitions from wire or test catalog item JSON. */
+export const catalogItemFieldDefinitions = (item: unknown): CatalogFieldDefinition[] => {
+  return coerceCatalogFieldDefinitions(readCatalogItemFieldDefinitions(item));
+};
+
 /** Spec paths shown on catalog cards as compute resources (CPU, memory, boot disk). */
 export const CATALOG_ITEM_RESOURCE_FIELD_PATHS = [
   'cores',
@@ -185,7 +220,7 @@ const setNestedValue = (target: Record<string, unknown>, path: string, value: un
 
 /** Apply a wire-relative spec path value onto UI ComputeInstanceSpec (camelCase nested fields). */
 export const setSpecValueAtFieldPath = (
-  spec: ComputeInstanceSpec,
+  spec: WizardComputeInstanceSpec,
   wirePath: string,
   value: unknown,
 ): void => {
@@ -225,10 +260,7 @@ export const setSpecValueAtFieldPath = (
   }
 
   if (path === 'image.source_type' || path === 'image.source_ref') {
-    const image =
-      spec.image && typeof spec.image === 'object' && !Array.isArray(spec.image)
-        ? { ...spec.image }
-        : {};
+    const image: Record<string, unknown> = { ...(asRecord(spec.image) ?? {}) };
     const camelKey = path === 'image.source_type' ? 'source_type' : 'source_ref';
     image[camelKey] = value;
     spec.image = image;
@@ -377,8 +409,6 @@ export const parseFieldValueForSchema = (
 export const COMPUTE_INSTANCE_BASICS_FIELD_PATHS = ['ssh_key', 'pull_secret'] as const;
 export const CLUSTER_BASICS_FIELD_PATHS = ['ssh_public_key', 'pull_secret'] as const;
 
-export type { CatalogProvisionKind } from './types.js';
-
 export const catalogBasicsFieldPaths = (kind: CatalogProvisionKind): readonly string[] => {
   return kind === 'cluster' ? CLUSTER_BASICS_FIELD_PATHS : COMPUTE_INSTANCE_BASICS_FIELD_PATHS;
 };
@@ -417,9 +447,9 @@ export interface NetworkAttachmentFieldBundle {
 
 /** Editable subnet / security_groups field definitions for the coupled network UI. */
 export const getNetworkAttachmentFieldBundle = (
-  definitions: CatalogFieldDefinition[] | undefined,
+  definitions: readonly unknown[] | undefined,
 ): NetworkAttachmentFieldBundle => {
-  const defs = definitions ?? [];
+  const defs = coerceCatalogFieldDefinitions(definitions);
   const subnetDef =
     defs.find((d) => isNetworkAttachmentSubnetFieldPath(d.path) && d.editable) ?? null;
   const securityGroupsDef =
@@ -447,7 +477,7 @@ export const parseSecurityGroupsRaw = (raw: string): string[] => {
 
 export const buildNetworkAttachmentsFromRows = (
   rows: NetworkAttachmentRowInput[],
-): ComputeInstanceSpec['networkAttachments'] => {
+): WizardComputeInstanceSpec['networkAttachments'] => {
   const attachments = rows
     .map((row) => {
       const subnet = row.subnet.trim();
@@ -465,19 +495,19 @@ export const buildNetworkAttachmentsFromRows = (
 };
 
 export const seedNetworkAttachmentRowsFromCatalogItem = (
-  definitions: CatalogFieldDefinition[] | undefined,
+  definitions: readonly unknown[] | undefined,
 ): NetworkAttachmentRowInput[] => {
   const bundle = getNetworkAttachmentFieldBundle(definitions);
   if (!hasEditableNetworkAttachmentFields(bundle)) {
     return [];
   }
   const subnet =
-    bundle.subnetDef?.default !== undefined
-      ? fieldDefinitionDefaultToInputString(bundle.subnetDef.default)
+    bundle.subnetDef !== null && bundle.subnetDef.default !== undefined
+      ? fieldDefinitionDefaultToInputString(resolvedFieldDefault(bundle.subnetDef))
       : '';
   const securityGroupsRaw =
-    bundle.securityGroupsDef?.default !== undefined
-      ? fieldDefinitionDefaultToInputString(bundle.securityGroupsDef.default)
+    bundle.securityGroupsDef !== null && bundle.securityGroupsDef.default !== undefined
+      ? fieldDefinitionDefaultToInputString(resolvedFieldDefault(bundle.securityGroupsDef))
       : '';
   return [{ subnet, securityGroupsRaw }];
 };
@@ -489,7 +519,7 @@ export const configurationFieldsExcludingNetwork = (
 };
 
 export const hasConfigurationStepContent = (
-  definitions: CatalogFieldDefinition[] | undefined,
+  definitions: readonly unknown[] | undefined,
   kind: CatalogProvisionKind,
 ): boolean => {
   const { configuration } = partitionFieldDefinitions(definitions, kind);
@@ -499,13 +529,13 @@ export const hasConfigurationStepContent = (
 };
 
 export const shouldIncludeConfigurationStep = (
-  catalogItem: { fieldDefinitions?: CatalogFieldDefinition[] } | null | undefined,
+  catalogItem: unknown,
   kind: CatalogProvisionKind,
 ): boolean => {
   if (!catalogItem) {
     return true;
   }
-  return hasConfigurationStepContent(catalogItem.fieldDefinitions, kind);
+  return hasConfigurationStepContent(readCatalogItemFieldDefinitions(catalogItem), kind);
 };
 
 export interface PartitionedFieldDefinitions {
@@ -516,10 +546,10 @@ export interface PartitionedFieldDefinitions {
 
 /** Split field_definitions into wizard steps; preserves catalog array order. */
 export const partitionFieldDefinitions = (
-  definitions: CatalogFieldDefinition[] | undefined,
+  definitions: readonly unknown[] | undefined,
   kind: CatalogProvisionKind,
 ): PartitionedFieldDefinitions => {
-  const defs = definitions ?? [];
+  const defs = coerceCatalogFieldDefinitions(definitions);
   const basicsPaths = new Set(catalogBasicsFieldPaths(kind));
   const basics: CatalogFieldDefinition[] = [];
   const configuration: CatalogFieldDefinition[] = [];
@@ -552,6 +582,14 @@ export const parseAdditionalDisksRaw = (raw: string): Array<{ sizeGib: number }>
   return disks.length ? disks : undefined;
 };
 
+export const resolvedFieldDefault = (def: CatalogFieldDefinition): unknown => {
+  if (def.default === undefined) {
+    return undefined;
+  }
+  const parsed = parseFieldDefinitionDefault(def.default);
+  return parsed !== undefined ? parsed : def.default;
+};
+
 export const resolvedFieldInputValue = (
   def: CatalogFieldDefinition,
   fieldValues: Record<string, string>,
@@ -561,7 +599,7 @@ export const resolvedFieldInputValue = (
     return raw;
   }
   if (def.default !== undefined) {
-    return fieldDefinitionDefaultToInputString(def.default);
+    return fieldDefinitionDefaultToInputString(resolvedFieldDefault(def));
   }
   return '';
 };
@@ -579,17 +617,18 @@ export const resolvedFieldValueForCreate = (
       }
       return def.validationSchema ? parseFieldValueForSchema(raw, def.validationSchema) : trimmed;
     }
+    return resolvedFieldDefault(def);
   }
-  return def.default;
+  return resolvedFieldDefault(def);
 };
 
 export const applyFieldDefinitionsToSpec = (
-  spec: ComputeInstanceSpec,
-  definitions: CatalogFieldDefinition[],
+  spec: WizardComputeInstanceSpec,
+  definitions: readonly unknown[],
   fieldValues: Record<string, string>,
   options?: { skipNetworkAttachmentFields?: boolean },
 ): void => {
-  for (const def of definitions) {
+  for (const def of coerceCatalogFieldDefinitions(definitions)) {
     if (options?.skipNetworkAttachmentFields && isNetworkAttachmentFieldPath(def.path)) {
       continue;
     }
@@ -644,12 +683,13 @@ export const validateCatalogFieldInput = (
 };
 
 export const seedFieldValuesFromCatalogItem = (
-  definitions: CatalogFieldDefinition[] | undefined,
+  definitions: readonly unknown[] | undefined,
 ): Record<string, string> => {
   const values: Record<string, string> = {};
-  for (const def of definitions ?? []) {
-    if (def.default !== undefined) {
-      values[def.path] = fieldDefinitionDefaultToInputString(def.default);
+  for (const def of coerceCatalogFieldDefinitions(definitions)) {
+    const defaultValue = resolvedFieldDefault(def);
+    if (defaultValue !== undefined) {
+      values[def.path] = fieldDefinitionDefaultToInputString(defaultValue);
     }
   }
   return values;

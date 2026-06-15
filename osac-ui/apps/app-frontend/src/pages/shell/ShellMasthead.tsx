@@ -25,10 +25,11 @@ import {
 import { BarsIcon } from '@patternfly/react-icons/dist/esm/icons/bars-icon';
 import { UserIcon } from '@patternfly/react-icons/dist/esm/icons/user-icon';
 
-import { operatingModeLabel } from '@osac/api-contracts/shellLabels';
 import UserPreferencesModal from '@osac/ui-components/components/UserPreferences/UserPreferencesModal';
 import { useSession } from '@osac/ui-components/hooks/use-session';
 import { getErrorMessage } from '@osac/ui-components/utils/error';
+
+import { operatingModeLabel } from './shellLabels';
 
 import './ShellMasthead.css';
 

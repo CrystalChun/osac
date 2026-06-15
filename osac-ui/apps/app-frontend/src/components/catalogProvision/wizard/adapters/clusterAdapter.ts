@@ -1,9 +1,8 @@
-import type { ClusterCatalogItem } from '@osac/api-contracts/types';
-
 import type { CatalogProvisionAdapter } from './types';
+import type { CatalogProvisionCatalogItem } from '../../catalogProvisionItem';
 
 /** Placeholder until cluster catalog items API and provisioning are wired. */
-export const clusterAdapter: CatalogProvisionAdapter<ClusterCatalogItem, unknown> = {
+export const clusterAdapter: CatalogProvisionAdapter<CatalogProvisionCatalogItem, unknown> = {
   kind: 'cluster',
   useCatalogItems: () => ({
     data: [],

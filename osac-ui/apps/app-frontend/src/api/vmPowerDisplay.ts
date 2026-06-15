@@ -2,7 +2,11 @@
  * Pending power-action badges until GET compute_instances reports a terminal state.
  * See docs/specs/ui-flows/manage-virtual-machines.yaml (pending power display).
  */
-import type { VmPowerState } from '@osac/api-contracts/types';
+import {
+  COMPUTE_INSTANCE_STATE,
+  type DisplayVmState,
+  isKnownWireComputeInstanceState,
+} from '@osac/ui-components/vmDisplayState';
 
 export type VmPendingPowerAction = 'starting' | 'stopping' | 'restarting';
 
@@ -25,14 +29,14 @@ export const createPendingPowerWatch = (): PendingPowerWatch => {
 /** @deprecated Use advancePendingPowerWatch; kept for restart-only checks in tests. */
 export const shouldClearPendingPowerAction = (
   action: VmPendingPowerAction,
-  apiState: VmPowerState,
+  apiState: string,
 ): boolean => {
   return advancePendingPowerWatch(action, apiState, createPendingPowerWatch()).clear;
 };
 
 /** Restart phase 1 complete — server reports stopped; switch badge to Starting and PATCH start. */
-export const shouldAdvanceRestartToStarting = (apiState: VmPowerState): boolean => {
-  return apiState === 'stopped';
+export const shouldAdvanceRestartToStarting = (apiState: string): boolean => {
+  return apiState === COMPUTE_INSTANCE_STATE.STOPPED;
 };
 
 /**
@@ -41,25 +45,28 @@ export const shouldAdvanceRestartToStarting = (apiState: VmPowerState): boolean 
  */
 export const advancePendingPowerWatch = (
   action: VmPendingPowerAction,
-  apiState: VmPowerState,
+  apiState: string,
   watch: PendingPowerWatch,
 ): { watch: PendingPowerWatch; clear: boolean } => {
   if (action === 'restarting') {
-    return { watch, clear: apiState === 'error' };
+    return { watch, clear: apiState === COMPUTE_INSTANCE_STATE.FAILED };
   }
 
-  if (apiState === 'error') {
+  if (apiState === COMPUTE_INSTANCE_STATE.FAILED) {
     return { watch, clear: true };
   }
 
   if (action === 'starting') {
-    if (apiState === 'starting' || apiState === 'stopping') {
+    if (
+      apiState === COMPUTE_INSTANCE_STATE.STARTING ||
+      apiState === COMPUTE_INSTANCE_STATE.STOPPING
+    ) {
       return {
         watch: { ...watch, seenApiStarting: true, consecutiveRunning: 0 },
         clear: false,
       };
     }
-    if (apiState === 'running') {
+    if (apiState === COMPUTE_INSTANCE_STATE.RUNNING) {
       if (watch.seenApiStarting) {
         return { watch, clear: true };
       }
@@ -73,13 +80,13 @@ export const advancePendingPowerWatch = (
   }
 
   if (action === 'stopping') {
-    if (apiState === 'stopping') {
+    if (apiState === COMPUTE_INSTANCE_STATE.STOPPING) {
       return {
         watch: { ...watch, seenApiStopping: true, consecutiveStopped: 0 },
         clear: false,
       };
     }
-    if (apiState === 'stopped') {
+    if (apiState === COMPUTE_INSTANCE_STATE.STOPPED) {
       if (watch.seenApiStopping) {
         return { watch, clear: true };
       }
@@ -96,9 +103,9 @@ export const advancePendingPowerWatch = (
 };
 
 export const resolveVmDisplayPowerState = (
-  apiState: VmPowerState,
+  apiState: string,
   pending: VmPendingPowerAction | undefined,
-): VmPowerState => {
+): DisplayVmState => {
   if (pending === 'starting') {
     return 'starting';
   }
@@ -108,5 +115,5 @@ export const resolveVmDisplayPowerState = (
   if (pending === 'restarting') {
     return 'restarting';
   }
-  return apiState;
+  return isKnownWireComputeInstanceState(apiState) ? apiState : COMPUTE_INSTANCE_STATE.UNSPECIFIED;
 };

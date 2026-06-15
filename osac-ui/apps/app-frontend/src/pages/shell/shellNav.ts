@@ -1,5 +1,5 @@
 /** Role-based sidebar navigation (sectioned NavGroup layout). Icons: shellNavIcons.tsx */
-import type { DemoShellRole } from '@osac/api-contracts/types';
+import type { DemoShellRole } from '@osac/ui-components/shellTypes';
 
 export type NavLink = { id: string; label: string; path: string };
 

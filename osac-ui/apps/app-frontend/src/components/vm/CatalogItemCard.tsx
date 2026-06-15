@@ -9,8 +9,7 @@ import {
   Radio,
 } from '@patternfly/react-core';
 
-import type { CatalogItemBase } from '@osac/api-contracts/types';
-
+import type { CatalogItemForDisplay } from './catalogItemDisplay';
 import {
   catalogItemMetadataLabelEntries,
   catalogItemResourceParts,
@@ -26,7 +25,7 @@ export interface CatalogItemCardSelection {
 }
 
 interface CatalogItemCardProps {
-  item: CatalogItemBase;
+  item: CatalogItemForDisplay;
   id?: string;
   ouiaId?: string;
   selection?: CatalogItemCardSelection;

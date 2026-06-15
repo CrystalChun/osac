@@ -1,7 +1,7 @@
 import { RedhatIcon } from '@patternfly/react-icons/dist/esm/icons/redhat-icon';
 import { WindowsIcon } from '@patternfly/react-icons/dist/esm/icons/windows-icon';
 
-import type { OsType } from '@osac/api-contracts/types';
+export type OsType = 'rhel' | 'windows' | 'linux';
 
 import './GuestOsIcon.css';
 import linuxMascotUrl from '../../assets/guest-os-tux-linux.png';

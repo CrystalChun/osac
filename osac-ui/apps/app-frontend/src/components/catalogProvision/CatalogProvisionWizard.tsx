@@ -31,16 +31,15 @@ import {
   useWizardContext,
 } from '@patternfly/react-core';
 
+import type { BuildComputeInstanceCreateBodyInput } from '@osac/ui-components/api/v1/compute-instance-wire';
+
 import {
+  type CatalogProvisionKind,
+  readCatalogItemFieldDefinitions,
   seedFieldValuesFromCatalogItem,
   seedNetworkAttachmentRowsFromCatalogItem,
-} from '@osac/api-contracts/catalogFieldDefinition';
-import type {
-  CatalogItemBase,
-  CatalogProvisionKind,
-  ComputeInstance,
-} from '@osac/api-contracts/types';
-
+} from './catalogFieldDefinition';
+import type { CatalogProvisionCatalogItem } from './catalogProvisionItem';
 import { clusterAdapter } from './wizard/adapters/clusterAdapter';
 import { computeInstanceAdapter } from './wizard/adapters/computeInstanceAdapter';
 import type { CatalogProvisionAdapter } from './wizard/adapters/types';
@@ -59,8 +58,14 @@ import './CatalogProvisionWizard.css';
 
 export type { CatalogProvisionWizardHandle } from './wizard/types';
 
-const ADAPTERS: Record<CatalogProvisionKind, CatalogProvisionAdapter<CatalogItemBase, unknown>> = {
-  compute_instance: computeInstanceAdapter,
+const ADAPTERS: Record<
+  CatalogProvisionKind,
+  CatalogProvisionAdapter<CatalogProvisionCatalogItem, unknown>
+> = {
+  compute_instance: computeInstanceAdapter as unknown as CatalogProvisionAdapter<
+    CatalogProvisionCatalogItem,
+    unknown
+  >,
   cluster: clusterAdapter,
 };
 
@@ -99,13 +104,13 @@ interface Props {
   kind?: CatalogProvisionKind;
   /** Parent page label for breadcrumb navigation (e.g. Virtual machines, Catalog). */
   breadcrumbParentLabel: string;
-  onProvision: (payload: Partial<ComputeInstance>) => void | Promise<void>;
+  onProvision: (payload: BuildComputeInstanceCreateBodyInput) => void | Promise<void>;
 }
 
 interface WizardFooterProps {
-  adapter: CatalogProvisionAdapter<CatalogItemBase, unknown>;
+  adapter: CatalogProvisionAdapter<CatalogProvisionCatalogItem, unknown>;
   draft: CatalogProvisionWizardState;
-  catalogItem: CatalogItemBase | null;
+  catalogItem: CatalogProvisionCatalogItem | null;
   orderedSteps: readonly string[];
   activeStepId: string;
   canProceed: boolean;
@@ -173,7 +178,7 @@ const CatalogProvisionWizardFooter = ({
 
       const payload = catalogItem ? adapter.buildCreatePayload(draft, catalogItem) : {};
       try {
-        await Promise.resolve(onProvision(payload));
+        await Promise.resolve(onProvision(payload as BuildComputeInstanceCreateBodyInput));
         close();
       } catch {
         setProvisionError('Provisioning failed. Please try again.');
@@ -402,9 +407,11 @@ export const CatalogProvisionWizard = forwardRef<CatalogProvisionWizardHandle, P
       if (!isOpen || !selectedCatalogItem || draft.catalogItemId !== selectedCatalogItem.id) {
         return;
       }
-      const seeded = seedFieldValuesFromCatalogItem(selectedCatalogItem.fieldDefinitions);
+      const seeded = seedFieldValuesFromCatalogItem(
+        readCatalogItemFieldDefinitions(selectedCatalogItem),
+      );
       const seededNetworkRows = seedNetworkAttachmentRowsFromCatalogItem(
-        selectedCatalogItem.fieldDefinitions,
+        readCatalogItemFieldDefinitions(selectedCatalogItem),
       );
       setDraft((prev) => {
         let changed = false;

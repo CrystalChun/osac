@@ -1,7 +1,6 @@
 import { createContext, useContext } from 'react';
 
-import type { DemoShellRole } from '@osac/api-contracts/types';
-
+import type { DemoShellRole } from '../shellTypes';
 import { type ResolvedTheme, type Theme, useTheme } from './use-theme';
 
 interface SessionContextValue {

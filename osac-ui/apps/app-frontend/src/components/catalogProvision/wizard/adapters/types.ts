@@ -1,15 +1,15 @@
-import type { CatalogItemBase, CatalogProvisionKind } from '@osac/api-contracts/types';
-
+import type { CatalogProvisionKind } from '../../catalogFieldDefinition';
+import type { CatalogProvisionCatalogItem } from '../../catalogProvisionItem';
 import type { CatalogProvisionWizardState } from '../types';
 
-export interface CatalogItemsQueryResult<TItem extends CatalogItemBase> {
+export interface CatalogItemsQueryResult<TItem extends CatalogProvisionCatalogItem> {
   data: TItem[];
   isPending: boolean;
   isError: boolean;
   refetch: () => void;
 }
 
-export interface CatalogProvisionAdapter<TItem extends CatalogItemBase, TPayload> {
+export interface CatalogProvisionAdapter<TItem extends CatalogProvisionCatalogItem, TPayload> {
   kind: CatalogProvisionKind;
   useCatalogItems: () => CatalogItemsQueryResult<TItem>;
   buildCreatePayload: (draft: CatalogProvisionWizardState, item: TItem) => Partial<TPayload>;

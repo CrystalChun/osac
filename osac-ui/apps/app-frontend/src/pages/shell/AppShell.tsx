@@ -2,8 +2,8 @@ import { type ReactElement } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { Page } from '@patternfly/react-core';
 
-import type { DemoShellRole } from '@osac/api-contracts/types';
 import { useSession } from '@osac/ui-components/hooks/use-session';
+import type { DemoShellRole } from '@osac/ui-components/shellTypes';
 
 import { ShellMasthead } from './ShellMasthead';
 import { defaultRouteForRole } from './shellRoutes';

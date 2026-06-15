@@ -1,27 +1,53 @@
 import {
   CATALOG_ITEM_RESOURCE_FIELD_PATHS,
+  type CatalogFieldDefinition,
   type CatalogItemResourceFieldPath,
+  catalogItemFieldDefinitions,
   fieldDefinitionDefaultToInputString,
   isCatalogItemResourceFieldPath,
-} from '@osac/api-contracts/catalogFieldDefinition';
-import type { CatalogFieldDefinition, CatalogItemBase } from '@osac/api-contracts/types';
+  resolvedFieldDefault,
+} from '../catalogProvision/catalogFieldDefinition';
 
-export const catalogFieldDefault = (item: CatalogItemBase, path: string): unknown => {
-  return item.fieldDefinitions?.find((def) => def.path === path)?.default;
+/** Minimal catalog item shape for display helpers — wire JSON and wizard drafts. */
+export type CatalogItemForDisplay = {
+  id: string;
+  title: string;
+  description?: string;
+  template?: string;
+  published?: boolean;
+  metadata?: {
+    name?: string;
+    labels?: Record<string, string>;
+  };
+  fieldDefinitions?: ReadonlyArray<{
+    path: string;
+    displayName?: string;
+    display_name?: string;
+    editable?: boolean;
+    default?: unknown;
+    validationSchema?: unknown;
+    validation_schema?: unknown;
+  }>;
+  field_definitions?: CatalogItemForDisplay['fieldDefinitions'];
 };
 
-export const catalogItemSubtitle = (item: CatalogItemBase): string => {
+export const catalogFieldDefault = (item: CatalogItemForDisplay, path: string): unknown => {
+  const def = catalogItemFieldDefinitions(item).find((entry) => entry.path === path);
+  return def ? resolvedFieldDefault(def) : undefined;
+};
+
+export const catalogItemSubtitle = (item: CatalogItemForDisplay): string => {
   const description = item.description?.trim();
   if (description) {
     return description.length <= 120 ? description : `${description.slice(0, 119)}…`;
   }
-  return item.metadata.name;
+  return item.metadata?.name ?? item.id;
 };
 
 export const catalogItemMetadataLabelEntries = (
-  item: CatalogItemBase,
+  item: CatalogItemForDisplay,
 ): Array<{ key: string; value: string }> => {
-  const labels = item.metadata.labels;
+  const labels = item.metadata?.labels;
   if (!labels) {
     return [];
   }
@@ -32,10 +58,10 @@ export const catalogItemMetadataLabelEntries = (
 };
 
 export const catalogFieldDefinitionForPath = (
-  item: CatalogItemBase,
+  item: CatalogItemForDisplay,
   path: string,
 ): CatalogFieldDefinition | undefined => {
-  return item.fieldDefinitions?.find((def) => def.path === path);
+  return catalogItemFieldDefinitions(item).find((def) => def.path === path);
 };
 
 const FALLBACK_RESOURCE_LABELS: Record<CatalogItemResourceFieldPath, string> = {
@@ -46,9 +72,9 @@ const FALLBACK_RESOURCE_LABELS: Record<CatalogItemResourceFieldPath, string> = {
 
 /** Field definitions that represent compute resources for catalog card summaries. */
 export const catalogItemResourceFieldDefinitions = (
-  item: CatalogItemBase,
+  item: CatalogItemForDisplay,
 ): CatalogFieldDefinition[] => {
-  const byPath = new Map((item.fieldDefinitions ?? []).map((def) => [def.path, def]));
+  const byPath = new Map(catalogItemFieldDefinitions(item).map((def) => [def.path, def]));
   return CATALOG_ITEM_RESOURCE_FIELD_PATHS.flatMap((path) => {
     const def = byPath.get(path);
     return def ? [def] : [];
@@ -59,7 +85,7 @@ const formatCatalogResourcePart = (def: CatalogFieldDefinition): string | null =
   if (!isCatalogItemResourceFieldPath(def.path)) {
     return null;
   }
-  const defaultValue = def.default;
+  const defaultValue = resolvedFieldDefault(def);
   if (defaultValue === undefined || defaultValue === null) {
     return null;
   }
@@ -71,27 +97,30 @@ const formatCatalogResourcePart = (def: CatalogFieldDefinition): string | null =
   return `${value} ${label}`;
 };
 
-export const catalogItemResourceParts = (item: CatalogItemBase): string[] => {
+export const catalogItemResourceParts = (item: CatalogItemForDisplay): string[] => {
   return catalogItemResourceFieldDefinitions(item)
     .map((def) => formatCatalogResourcePart(def))
     .filter((part): part is string => part != null);
 };
 
-export const catalogItemResourceLine = (item: CatalogItemBase): string | undefined => {
+export const catalogItemResourceLine = (item: CatalogItemForDisplay): string | undefined => {
   const parts = catalogItemResourceParts(item);
   return parts.length ? parts.join(' · ') : undefined;
 };
 
-export const searchableCatalogItemText = (item: CatalogItemBase): string => {
-  const labels = item.metadata.labels ?? {};
-  const fieldText = (item.fieldDefinitions ?? [])
-    .map((def) => `${def.displayName} ${fieldDefinitionDefaultToInputString(def.default)}`)
+export const searchableCatalogItemText = (item: CatalogItemForDisplay): string => {
+  const labels = item.metadata?.labels ?? {};
+  const fieldText = catalogItemFieldDefinitions(item)
+    .map(
+      (def) =>
+        `${def.displayName} ${fieldDefinitionDefaultToInputString(resolvedFieldDefault(def))}`,
+    )
     .join(' ');
 
   return [
     item.title,
     item.description,
-    item.metadata.name,
+    item.metadata?.name,
     fieldText,
     ...Object.entries(labels).map(([key, value]) => `${key} ${value}`),
   ]
@@ -101,8 +130,9 @@ export const searchableCatalogItemText = (item: CatalogItemBase): string => {
 };
 
 export const formatCatalogFieldDefault = (def: CatalogFieldDefinition): string => {
-  if (def.default === undefined) {
+  const defaultValue = resolvedFieldDefault(def);
+  if (defaultValue === undefined) {
     return '—';
   }
-  return fieldDefinitionDefaultToInputString(def.default) || '—';
+  return fieldDefinitionDefaultToInputString(defaultValue) || '—';
 };

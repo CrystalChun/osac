@@ -11,7 +11,6 @@ WORKDIR /app
 RUN npm install -g pnpm@9
 
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml* tsconfig.base.json ./
-COPY libs/api-contracts/package.json ./libs/api-contracts/
 COPY libs/types/package.json ./libs/types/
 COPY libs/ui-components/package.json ./libs/ui-components/
 COPY apps/app-frontend/package.json ./apps/app-frontend/

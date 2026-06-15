@@ -1,99 +1,71 @@
 import { describe, expect, it } from 'vitest';
 
-import type { ComputeInstanceCatalogItem } from '@osac/api-contracts/types';
-
+import { catalogItemResourceLine, catalogItemResourceParts } from './catalogItemDisplay';
 import {
-  catalogItemMetadataLabelEntries,
-  catalogItemResourceLine,
-  catalogItemResourceParts,
-} from './catalogItemDisplay';
+  catalogItemFieldDefinitions,
+  readCatalogItemFieldDefinitions,
+} from '../catalogProvision/catalogFieldDefinition';
 
-const sampleItem: ComputeInstanceCatalogItem = {
-  id: 'catalog-1',
-  metadata: { name: 'catalog-1' },
-  title: 'Workload VM',
-  template: 'tpl-1',
-  published: true,
-  fieldDefinitions: [
-    {
-      path: 'cores',
-      displayName: 'vCPUs',
-      editable: true,
-      default: 4,
-    },
-    {
-      path: 'memory_gib',
-      displayName: 'RAM (GiB)',
-      editable: true,
-      default: 8,
-    },
-    {
-      path: 'boot_disk.size_gib',
-      displayName: 'Boot disk (GiB)',
-      editable: true,
-      default: 40,
-    },
-  ],
-};
+describe('readCatalogItemFieldDefinitions', () => {
+  it('reads snake_case field_definitions from wire JSON', () => {
+    const wireItem = {
+      id: 'catalog-1',
+      field_definitions: [
+        {
+          path: 'cores',
+          display_name: 'vCPUs',
+          editable: true,
+          default: { number_value: 4 },
+          validation_schema: '{"type":"integer","minimum":2}',
+        },
+      ],
+    };
 
-describe('catalogItemResourceParts', () => {
-  it('uses field definition display names on catalog cards', () => {
-    expect(catalogItemResourceParts(sampleItem)).toEqual([
+    expect(readCatalogItemFieldDefinitions(wireItem)).toHaveLength(1);
+    expect(catalogItemFieldDefinitions(wireItem)).toEqual([
+      {
+        path: 'cores',
+        displayName: 'vCPUs',
+        editable: true,
+        default: 4,
+        validationSchema: { type: 'integer', minimum: 2 },
+      },
+    ]);
+  });
+});
+
+describe('catalog display with wire field_definitions', () => {
+  it('renders resource summary from wire catalog item JSON', () => {
+    const wireItem = {
+      id: 'catalog-1',
+      title: 'Workload VM',
+      field_definitions: [
+        {
+          path: 'cores',
+          display_name: 'vCPUs',
+          editable: true,
+          default: { number_value: 4 },
+        },
+        {
+          path: 'memory_gib',
+          display_name: 'RAM (GiB)',
+          editable: true,
+          default: { number_value: 8 },
+        },
+        {
+          path: 'boot_disk.size_gib',
+          display_name: 'Boot disk (GiB)',
+          editable: true,
+          default: { number_value: 40 },
+        },
+      ],
+    };
+
+    expect(catalogItemResourceParts(wireItem)).toEqual([
       '4 vCPUs',
       '8 RAM (GiB)',
       '40 Boot disk (GiB)',
     ]);
-    expect(catalogItemResourceLine(sampleItem)).toBe('4 vCPUs · 8 RAM (GiB) · 40 Boot disk (GiB)');
-  });
-
-  it('excludes non-resource field definitions from catalog cards', () => {
-    expect(
-      catalogItemResourceParts({
-        ...sampleItem,
-        fieldDefinitions: [
-          ...(sampleItem.fieldDefinitions ?? []),
-          {
-            path: 'subnet',
-            displayName: 'Subnet',
-            editable: true,
-            default: 'workload-subnet-a',
-          },
-          {
-            path: 'ssh_key',
-            displayName: 'SSH public key',
-            editable: true,
-            default: 'ssh-rsa AAAA...',
-          },
-          {
-            path: 'run_strategy',
-            displayName: 'Run strategy',
-            editable: false,
-            default: 'Always',
-          },
-        ],
-      }),
-    ).toEqual(['4 vCPUs', '8 RAM (GiB)', '40 Boot disk (GiB)']);
-  });
-});
-
-describe('catalogItemMetadataLabelEntries', () => {
-  it('returns sorted metadata label key/value pairs', () => {
-    expect(
-      catalogItemMetadataLabelEntries({
-        ...sampleItem,
-        metadata: {
-          name: 'catalog-1',
-          labels: {
-            workload: 'general',
-            tier: 'standard',
-            environment: 'non-production',
-          },
-        },
-      }),
-    ).toEqual([
-      { key: 'environment', value: 'non-production' },
-      { key: 'tier', value: 'standard' },
-      { key: 'workload', value: 'general' },
-    ]);
+    expect(catalogItemResourceLine(wireItem)).toBe('4 vCPUs · 8 RAM (GiB) · 40 Boot disk (GiB)');
   });
 });

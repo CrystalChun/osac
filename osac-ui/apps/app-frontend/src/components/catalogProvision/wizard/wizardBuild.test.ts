@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import type { ComputeInstanceCatalogItem } from '@osac/api-contracts/types';
-
+import type { CatalogProvisionCatalogItem } from '../catalogProvisionItem';
 import { INITIAL_STATE } from './constants';
 import { getWizardOrderedSteps } from './stepIds';
 import {
@@ -13,7 +12,7 @@ import {
   validateWizardStep,
 } from './wizardBuild';
 
-const catalogWithFieldDefs: ComputeInstanceCatalogItem = {
+const catalogWithFieldDefs: CatalogProvisionCatalogItem = {
   id: 'catalog-rhel-9',
   metadata: { name: 'catalog-rhel-9' },
   title: 'RHEL 9 catalog',
@@ -90,7 +89,7 @@ describe('getWizardOrderedSteps', () => {
   });
 
   it('omits configuration when only basics fields are editable', () => {
-    const item: ComputeInstanceCatalogItem = {
+    const item: CatalogProvisionCatalogItem = {
       ...catalogWithFieldDefs,
       fieldDefinitions: [
         {
@@ -208,6 +207,17 @@ describe('validateWizardForFinalize', () => {
       ordered,
     );
     expect(errors.resourceName).toBe('Name is required');
+  });
+
+  it('requires a resolved catalog item object before create', () => {
+    const ordered = getWizardOrderedSteps(null, 'compute_instance');
+    const errors = validateWizardForFinalize(
+      { ...INITIAL_STATE, catalogItemId: 'stale-item-id' },
+      null,
+      'compute_instance',
+      ordered,
+    );
+    expect(errors).toEqual({ catalogItemId: 'Select a catalog item' });
   });
 });
 

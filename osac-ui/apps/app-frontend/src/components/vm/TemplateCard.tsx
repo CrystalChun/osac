@@ -11,24 +11,36 @@ import {
   StackItem,
 } from '@patternfly/react-core';
 
-import type { ClusterTemplate, OsType } from '@osac/api-contracts/types';
-
-import { GuestOsIcon } from '../shared/GuestOsIcon';
+import { GuestOsIcon, type OsType } from '../shared/GuestOsIcon';
 
 import './TemplateCard.css';
 
+/** Legacy template card display shape (demo extras until template list migrates to wire types). */
+export type TemplateCardDisplay = {
+  id: string;
+  title: string;
+  description?: string;
+  metadata: { name: string };
+  workload?: string;
+  workloadProfile?: 'high-performance' | 'analytics' | 'machine-learning' | 'data-processing';
+  defaultCores?: number;
+  defaultMemoryGib?: number;
+  defaultBootDiskSizeGib?: number;
+  icon?: string;
+};
+
 interface TemplateCardProps {
-  template: ClusterTemplate;
+  template: TemplateCardDisplay;
 }
 
-const subtitleForTemplate = (template: ClusterTemplate): string => {
+const subtitleForTemplate = (template: TemplateCardDisplay): string => {
   if (template.description && template.description.trim().length > 0) {
     return template.description;
   }
   return template.metadata.name;
 };
 
-const workloadLabel = (template: ClusterTemplate): string => {
+const workloadLabel = (template: TemplateCardDisplay): string => {
   if (!template.workloadProfile) {
     return template.workload ?? 'General';
   }

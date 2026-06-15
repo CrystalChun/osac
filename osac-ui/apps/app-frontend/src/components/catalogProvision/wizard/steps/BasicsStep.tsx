@@ -8,16 +8,18 @@ import {
   Title,
 } from '@patternfly/react-core';
 
-import { partitionFieldDefinitions } from '@osac/api-contracts/catalogFieldDefinition';
-import type { CatalogItemBase } from '@osac/api-contracts/types';
-
+import {
+  partitionFieldDefinitions,
+  readCatalogItemFieldDefinitions,
+} from '../../catalogFieldDefinition';
+import type { CatalogProvisionCatalogItem } from '../../catalogProvisionItem';
 import type { CatalogProvisionAdapter } from '../adapters/types';
 import { CatalogFieldHelper } from '../CatalogFieldHelper';
 import { CatalogFieldInput } from '../CatalogFieldInput';
 import type { CatalogProvisionWizardState, UpdateDraftFn, UpdateFieldValueFn } from '../types';
 import { wizardCatalogFieldErrorKey } from '../wizardBuild';
 
-interface Props<TItem extends CatalogItemBase> {
+interface Props<TItem extends CatalogProvisionCatalogItem> {
   adapter: CatalogProvisionAdapter<TItem, unknown>;
   catalogItem: TItem | null;
   state: CatalogProvisionWizardState;
@@ -27,7 +29,7 @@ interface Props<TItem extends CatalogItemBase> {
   onClearFieldError?: (key: string) => void;
 }
 
-export const BasicsStep = <TItem extends CatalogItemBase>({
+export const BasicsStep = <TItem extends CatalogProvisionCatalogItem>({
   adapter,
   catalogItem,
   state,
@@ -36,7 +38,10 @@ export const BasicsStep = <TItem extends CatalogItemBase>({
   fieldErrors = {},
   onClearFieldError,
 }: Props<TItem>) => {
-  const { basics } = partitionFieldDefinitions(catalogItem?.fieldDefinitions, adapter.kind);
+  const { basics } = partitionFieldDefinitions(
+    readCatalogItemFieldDefinitions(catalogItem),
+    adapter.kind,
+  );
   const nameError = fieldErrors.resourceName;
   const nameValidated = nameError ? 'error' : 'default';
 

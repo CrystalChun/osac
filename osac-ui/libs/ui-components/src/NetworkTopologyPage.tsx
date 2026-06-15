@@ -12,7 +12,9 @@ import {
   Title,
 } from '@patternfly/react-core';
 
-import type { ComputeInstance } from '@osac/api-contracts/types';
+import type { ComputeInstance } from '@osac/types';
+
+import { COMPUTE_INSTANCE_STATE, readComputeInstanceState } from './vmDisplayState';
 
 import './NetworkTopologyPage.css';
 
@@ -26,10 +28,52 @@ interface SubnetGroup {
   vms: ComputeInstance[];
 }
 
+const wireField = (obj: unknown, ...keys: string[]): unknown => {
+  if (!obj || typeof obj !== 'object') {
+    return undefined;
+  }
+  const rec = obj as Record<string, unknown>;
+  for (const key of keys) {
+    if (key in rec && rec[key] != null) {
+      return rec[key];
+    }
+  }
+  return undefined;
+};
+
+const wireStr = (obj: unknown, ...keys: string[]): string | undefined => {
+  const value = wireField(obj, ...keys);
+  return typeof value === 'string' && value.trim() ? value.trim() : undefined;
+};
+
+const readSubnet = (vm: ComputeInstance): string => {
+  const typedSubnet = vm.spec?.networkAttachments?.[0]?.subnet?.trim();
+  if (typedSubnet) {
+    return typedSubnet;
+  }
+  const attachments = wireField(vm.spec, 'network_attachments', 'networkAttachments');
+  if (Array.isArray(attachments) && attachments[0] && typeof attachments[0] === 'object') {
+    const subnet = wireStr(attachments[0], 'subnet');
+    if (subnet) {
+      return subnet;
+    }
+  }
+  return wireStr(vm.spec, 'subnet') ?? 'default';
+};
+
+const readIpAddress = (vm: ComputeInstance): string | undefined => {
+  return (
+    vm.status?.publicIpAddress?.trim() ||
+    vm.status?.internalIpAddress?.trim() ||
+    wireStr(vm.status, 'public_ip_address', 'publicIpAddress') ||
+    wireStr(vm.status, 'internal_ip_address', 'internalIpAddress', 'ipAddress')
+  );
+};
+
 const groupBySubnet = (vms: ComputeInstance[]): SubnetGroup[] => {
   const map = new Map<string, ComputeInstance[]>();
   for (const vm of vms) {
-    const key = vm.spec.subnet ?? 'default';
+    const key = readSubnet(vm);
     const list = map.get(key) ?? [];
     list.push(vm);
     map.set(key, list);
@@ -38,44 +82,44 @@ const groupBySubnet = (vms: ComputeInstance[]): SubnetGroup[] => {
 };
 
 const vmChipStateClass = (state: string): string => {
-  if (state === 'running') {
+  if (state === COMPUTE_INSTANCE_STATE.RUNNING) {
     return 'osac-network-topology__vm-chip--running';
   }
-  if (state === 'paused') {
+  if (state === COMPUTE_INSTANCE_STATE.PAUSED) {
     return 'osac-network-topology__vm-chip--paused';
   }
-  if (state === 'stopped') {
+  if (state === COMPUTE_INSTANCE_STATE.STOPPED) {
     return 'osac-network-topology__vm-chip--stopped';
   }
-  if (state === 'starting' || state === 'creating' || state === 'still_provisioning') {
+  if (state === COMPUTE_INSTANCE_STATE.STARTING) {
     return 'osac-network-topology__vm-chip--starting';
   }
-  if (state === 'stopping' || state === 'restarting' || state === 'deleting') {
+  if (state === COMPUTE_INSTANCE_STATE.STOPPING || state === COMPUTE_INSTANCE_STATE.DELETING) {
     return 'osac-network-topology__vm-chip--transitional';
   }
-  if (state === 'error') {
+  if (state === COMPUTE_INSTANCE_STATE.FAILED) {
     return 'osac-network-topology__vm-chip--error';
   }
   return '';
 };
 
 const stateDotClass = (state: string): string => {
-  if (state === 'running') {
+  if (state === COMPUTE_INSTANCE_STATE.RUNNING) {
     return 'osac-network-topology__state-dot--running';
   }
-  if (state === 'paused') {
+  if (state === COMPUTE_INSTANCE_STATE.PAUSED) {
     return 'osac-network-topology__state-dot--paused';
   }
-  if (state === 'stopped') {
+  if (state === COMPUTE_INSTANCE_STATE.STOPPED) {
     return 'osac-network-topology__state-dot--stopped';
   }
-  if (state === 'starting' || state === 'creating' || state === 'still_provisioning') {
+  if (state === COMPUTE_INSTANCE_STATE.STARTING) {
     return 'osac-network-topology__state-dot--starting';
   }
-  if (state === 'stopping' || state === 'restarting' || state === 'deleting') {
+  if (state === COMPUTE_INSTANCE_STATE.STOPPING || state === COMPUTE_INSTANCE_STATE.DELETING) {
     return 'osac-network-topology__state-dot--transitional';
   }
-  if (state === 'error') {
+  if (state === COMPUTE_INSTANCE_STATE.FAILED) {
     return 'osac-network-topology__state-dot--error';
   }
   return '';
@@ -116,16 +160,18 @@ export const NetworkTopologyPage = ({ vms }: NetworkTopologyProps) => {
                 <StackItem>
                   <Flex flexWrap={{ default: 'wrap' }} spaceItems={{ default: 'spaceItemsSm' }}>
                     {group.vms.map((vm) => {
+                      const displayState = readComputeInstanceState(vm);
+                      const ipAddress = readIpAddress(vm);
                       const chipClass = [
                         'osac-network-topology__vm-chip',
-                        vmChipStateClass(vm.status.state),
+                        vmChipStateClass(displayState),
                         'osac-network-topology__vm-chip--clickable',
                       ]
                         .filter(Boolean)
                         .join(' ');
                       const dotClass = [
                         'osac-network-topology__state-dot',
-                        stateDotClass(vm.status.state),
+                        stateDotClass(displayState),
                       ]
                         .filter(Boolean)
                         .join(' ');
@@ -135,12 +181,12 @@ export const NetworkTopologyPage = ({ vms }: NetworkTopologyProps) => {
                             variant="plain"
                             onClick={() => navigate(`/vms/${vm.id}`)}
                             className={chipClass}
-                            aria-label={`VM ${vm.metadata.name}, state ${vm.status.state}, click to view detail`}
+                            aria-label={`VM ${vm.metadata?.name ?? vm.id}, state ${displayState}, click to view detail`}
                           >
                             <Stack>
                               <StackItem>
                                 <Content component="p" className="osac-network-topology__vm-name">
-                                  {vm.metadata.name}
+                                  {vm.metadata?.name ?? vm.id}
                                 </Content>
                               </StackItem>
                               <StackItem>
@@ -154,8 +200,8 @@ export const NetworkTopologyPage = ({ vms }: NetworkTopologyProps) => {
                                       component="small"
                                       className="osac-network-topology__vm-meta"
                                     >
-                                      {vm.status.state}
-                                      {vm.status.ipAddress ? ` · ${vm.status.ipAddress}` : ''}
+                                      {displayState}
+                                      {ipAddress ? ` · ${ipAddress}` : ''}
                                     </Content>
                                   </FlexItem>
                                 </Flex>

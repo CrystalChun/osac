@@ -4,9 +4,12 @@
  */
 import { useCallback, useEffect, useSyncExternalStore } from 'react';
 
-import type { ComputeInstance } from '@osac/api-contracts/types';
+import type { PatchComputeInstanceInput } from '@osac/ui-components/api/v1/compute-instance';
+import {
+  COMPUTE_INSTANCE_STATE,
+  readComputeInstanceState,
+} from '@osac/ui-components/vmDisplayState';
 
-import { PENDING_VM_LIST_POLL_MS, type PatchVmInput } from './hooks';
 import {
   advancePendingPowerWatch,
   createPendingPowerWatch,
@@ -27,18 +30,22 @@ import {
   subscribePowerPending,
   updatePowerPendingAction,
 } from './vmPowerPendingStore';
+import type { VmRow } from './vmRow';
 
 type PatchMutate = (
-  input: PatchVmInput,
+  input: PatchComputeInstanceInput,
   options?: {
     onError?: (error: Error) => void;
   },
 ) => void;
 
 type UseVmPowerActionDisplayOptions = {
-  /** Poll list while a power action is pending (PATCH does not refetch immediately). */
-  refetchInstances?: () => Promise<unknown>;
+  /** Poll list while a power action is pending. */
+  invalidateInstances?: () => Promise<unknown>;
 };
+
+/** While a power action is pending, refresh list more often than the default interval. */
+const PENDING_VM_LIST_POLL_MS = 10_000;
 
 const powerPendingSnapshot = (): string => {
   return listPendingPowerVmIds()
@@ -50,19 +57,19 @@ const powerPendingSnapshot = (): string => {
 };
 
 export const useVmPowerActionDisplay = (
-  vms: ComputeInstance[],
+  vms: VmRow[],
   patchMutate: PatchMutate,
   options: UseVmPowerActionDisplayOptions = {},
 ) => {
-  const { refetchInstances } = options;
+  const { invalidateInstances } = options;
   const pendingSnapshot = useSyncExternalStore(
     subscribePowerPending,
     powerPendingSnapshot,
     powerPendingSnapshot,
   );
 
-  const getDisplayState = useCallback((vm: ComputeInstance) => {
-    return resolveVmDisplayPowerState(vm.status.state, getPendingPowerAction(vm.id));
+  const getDisplayState = useCallback((vm: VmRow) => {
+    return resolveVmDisplayPowerState(readComputeInstanceState(vm), getPendingPowerAction(vm.id));
   }, []);
 
   const isPowerActionPending = useCallback(
@@ -73,14 +80,14 @@ export const useVmPowerActionDisplay = (
   const isRestarting = useCallback((vmId: string) => isInRestartCycle(vmId), []);
 
   useEffect(() => {
-    if (!hasAnyPowerPending() || !refetchInstances) {
+    if (!hasAnyPowerPending() || !invalidateInstances) {
       return;
     }
     const id = window.setInterval(() => {
-      void refetchInstances();
+      void invalidateInstances();
     }, PENDING_VM_LIST_POLL_MS);
     return () => window.clearInterval(id);
-  }, [refetchInstances, pendingSnapshot]);
+  }, [invalidateInstances, pendingSnapshot]);
 
   useEffect(() => {
     if (!hasAnyPowerPending()) {
@@ -99,12 +106,14 @@ export const useVmPowerActionDisplay = (
         continue;
       }
 
+      const apiState = readComputeInstanceState(vm);
+
       if (action === 'restarting') {
-        if (vm.status.state === 'error') {
+        if (apiState === COMPUTE_INSTANCE_STATE.FAILED) {
           clearPowerPending(id);
           continue;
         }
-        if (shouldAdvanceRestartToStarting(vm.status.state)) {
+        if (shouldAdvanceRestartToStarting(apiState)) {
           if (!isRestartStartSent(id)) {
             markRestartStartSent(id);
             patchMutate(
@@ -124,7 +133,7 @@ export const useVmPowerActionDisplay = (
       }
 
       const watch = getPowerWatch(id) ?? createPendingPowerWatch();
-      const { watch: nextWatch, clear } = advancePendingPowerWatch(action, vm.status.state, watch);
+      const { watch: nextWatch, clear } = advancePendingPowerWatch(action, apiState, watch);
       setPowerWatch(id, nextWatch);
       if (clear) {
         clearPowerPending(id);
@@ -133,7 +142,7 @@ export const useVmPowerActionDisplay = (
   }, [vms, patchMutate]);
 
   const runPowerAction = useCallback(
-    (vm: ComputeInstance, action: 'start' | 'stop' | 'restart') => {
+    (vm: VmRow, action: 'start' | 'stop' | 'restart') => {
       const id = vm.id;
       if (action === 'restart') {
         setPowerPending(id, 'restarting', { restartCycle: true });

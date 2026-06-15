@@ -171,7 +171,8 @@ Key rules:
 
 | File | Exports |
 |---|---|
-| `v1/compute-instance.ts` | `useComputeInstances(params?)`, `useComputeInstance(id)` |
+| `v1/compute-instance.ts` | `useComputeInstances`, `useComputeInstance`, `useProvisionComputeInstance`, `usePatchComputeInstance`, `useDeleteComputeInstance`, `invalidateComputeInstancesQueries` |
+| `v1/compute-instance-wire.ts` | `buildComputeInstanceCreateBody`, `buildComputeInstancePowerPatchBody` (inline wire JSON builders) |
 
 ---
 

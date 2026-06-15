@@ -1,4 +1,10 @@
+import type { ComputeInstanceCatalogItem } from '@osac/types';
+import type { BuildComputeInstanceCreateBodyInput } from '@osac/ui-components/api/v1/compute-instance-wire';
+
 import {
+  type CatalogFieldDefinition,
+  type CatalogProvisionKind,
+  type WizardComputeInstanceSpec,
   applyFieldDefinitionsToSpec,
   buildNetworkAttachmentsFromRows,
   configurationFieldsExcludingNetwork,
@@ -6,17 +12,12 @@ import {
   hasEditableNetworkAttachmentFields,
   parseSecurityGroupsRaw,
   partitionFieldDefinitions,
+  readCatalogItemFieldDefinitions,
+  seedFieldValuesFromCatalogItem,
+  seedNetworkAttachmentRowsFromCatalogItem,
   validateCatalogFieldInput,
-} from '@osac/api-contracts/catalogFieldDefinition';
-import type {
-  CatalogFieldDefinition,
-  CatalogItemBase,
-  CatalogProvisionKind,
-  ComputeInstance,
-  ComputeInstanceCatalogItem,
-} from '@osac/api-contracts/types';
-import type { ComputeInstanceSpec } from '@osac/api-contracts/types';
-
+} from '../catalogFieldDefinition';
+import type { CatalogProvisionCatalogItem } from '../catalogProvisionItem';
 import type { CatalogProvisionWizardState } from './types';
 
 export const wizardCatalogFieldErrorKey = (path: string): string => `catalogField:${path}`;
@@ -42,9 +43,9 @@ const validateFieldDefinitions = (
 
 const validateNetworkAttachmentRows = (
   draft: CatalogProvisionWizardState,
-  catalogItem: CatalogItemBase | null | undefined,
+  catalogItem: CatalogProvisionCatalogItem | null | undefined,
 ): Record<string, string> => {
-  const bundle = getNetworkAttachmentFieldBundle(catalogItem?.fieldDefinitions);
+  const bundle = getNetworkAttachmentFieldBundle(readCatalogItemFieldDefinitions(catalogItem));
   if (!hasEditableNetworkAttachmentFields(bundle)) {
     return {};
   }
@@ -83,7 +84,7 @@ const validateNetworkAttachmentRows = (
 export const validateWizardStep = (
   stepId: string,
   draft: CatalogProvisionWizardState,
-  catalogItem: CatalogItemBase | null | undefined,
+  catalogItem: CatalogProvisionCatalogItem | null | undefined,
   kind: CatalogProvisionKind,
 ): Record<string, string> => {
   switch (stepId) {
@@ -97,7 +98,10 @@ export const validateWizardStep = (
       if (!draft.resourceName.trim()) {
         errors.resourceName = 'Name is required';
       }
-      const { basics } = partitionFieldDefinitions(catalogItem?.fieldDefinitions, kind);
+      const { basics } = partitionFieldDefinitions(
+        readCatalogItemFieldDefinitions(catalogItem),
+        kind,
+      );
       Object.assign(errors, validateFieldDefinitions(basics, draft.fieldValues));
       return errors;
     }
@@ -105,7 +109,10 @@ export const validateWizardStep = (
       if (!catalogItem) {
         return {};
       }
-      const { configuration } = partitionFieldDefinitions(catalogItem.fieldDefinitions, kind);
+      const { configuration } = partitionFieldDefinitions(
+        readCatalogItemFieldDefinitions(catalogItem),
+        kind,
+      );
       const otherConfiguration = configurationFieldsExcludingNetwork(configuration);
       const errors = validateFieldDefinitions(otherConfiguration, draft.fieldValues);
       Object.assign(errors, validateNetworkAttachmentRows(draft, catalogItem));
@@ -118,10 +125,14 @@ export const validateWizardStep = (
 
 export const validateWizardForFinalize = (
   draft: CatalogProvisionWizardState,
-  catalogItem: CatalogItemBase | null | undefined,
+  catalogItem: CatalogProvisionCatalogItem | null | undefined,
   kind: CatalogProvisionKind,
   orderedSteps: readonly string[],
 ): Record<string, string> => {
+  if (!draft.catalogItemId || !catalogItem) {
+    return { catalogItemId: 'Select a catalog item' };
+  }
+
   for (const stepId of orderedSteps) {
     if (stepId === 'review') {
       continue;
@@ -131,9 +142,6 @@ export const validateWizardForFinalize = (
       return errors;
     }
   }
-  if (!draft.catalogItemId) {
-    return { catalogItemId: 'Select a catalog item' };
-  }
   return {};
 };
 
@@ -141,7 +149,7 @@ export const validateWizardForFinalize = (
 export const canProceedWizardStep = (
   activeStepId: string,
   draft: CatalogProvisionWizardState,
-  catalogItem: CatalogItemBase | null | undefined,
+  catalogItem: CatalogProvisionCatalogItem | null | undefined,
   kind: CatalogProvisionKind,
   orderedSteps: readonly string[],
 ): boolean => {
@@ -159,7 +167,7 @@ export const canProceedWizardStep = (
 export const liveWizardStepFieldErrors = (
   activeStepId: string,
   draft: CatalogProvisionWizardState,
-  catalogItem: CatalogItemBase | null | undefined,
+  catalogItem: CatalogProvisionCatalogItem | null | undefined,
   kind: CatalogProvisionKind,
 ): Record<string, string> => {
   if (activeStepId === 'review' || activeStepId === 'catalog') {
@@ -170,15 +178,22 @@ export const liveWizardStepFieldErrors = (
 
 export const buildComputeInstanceFromWizardDraft = (
   draft: CatalogProvisionWizardState,
-  catalogItem: ComputeInstanceCatalogItem,
-): Partial<ComputeInstance> => {
-  const spec: ComputeInstanceSpec = { catalogItem: catalogItem.id };
-  const networkBundle = getNetworkAttachmentFieldBundle(catalogItem.fieldDefinitions);
+  catalogItem: ComputeInstanceCatalogItem | CatalogProvisionCatalogItem,
+): BuildComputeInstanceCreateBodyInput => {
+  const spec: WizardComputeInstanceSpec = { catalogItem: catalogItem.id };
+  const networkBundle = getNetworkAttachmentFieldBundle(
+    readCatalogItemFieldDefinitions(catalogItem),
+  );
   const useNetworkRows = hasEditableNetworkAttachmentFields(networkBundle);
 
-  applyFieldDefinitionsToSpec(spec, catalogItem.fieldDefinitions ?? [], draft.fieldValues, {
-    skipNetworkAttachmentFields: useNetworkRows,
-  });
+  applyFieldDefinitionsToSpec(
+    spec,
+    readCatalogItemFieldDefinitions(catalogItem) ?? [],
+    draft.fieldValues,
+    {
+      skipNetworkAttachmentFields: useNetworkRows,
+    },
+  );
 
   if (useNetworkRows) {
     const attachments = buildNetworkAttachmentsFromRows(draft.networkAttachmentRows);
@@ -189,11 +204,8 @@ export const buildComputeInstanceFromWizardDraft = (
 
   return {
     metadata: { name: draft.resourceName.trim() },
-    spec,
+    spec: spec as BuildComputeInstanceCreateBodyInput['spec'],
   };
 };
 
-export {
-  seedFieldValuesFromCatalogItem,
-  seedNetworkAttachmentRowsFromCatalogItem,
-} from '@osac/api-contracts/catalogFieldDefinition';
+export { seedFieldValuesFromCatalogItem, seedNetworkAttachmentRowsFromCatalogItem };

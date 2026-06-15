@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { DemoShellRole } from '@osac/api-contracts/types';
+import { DemoShellRole } from '@osac/ui-components/shellTypes';
 import { getErrorMessage } from '@osac/ui-components/utils/error';
 
 const ROLE_MAP: Record<string, DemoShellRole> = {

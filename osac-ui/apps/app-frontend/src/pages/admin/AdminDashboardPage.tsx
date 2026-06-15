@@ -5,9 +5,14 @@
 import { useNavigate } from 'react-router-dom';
 import { Flex, Gallery, GalleryItem, PageSection, Title } from '@patternfly/react-core';
 
+import { useComputeInstances } from '@osac/ui-components/api/v1/compute-instance';
+import { useUsers } from '@osac/ui-components/api/v1/user';
 import { useSession } from '@osac/ui-components/hooks/use-session';
+import {
+  COMPUTE_INSTANCE_STATE,
+  readComputeInstanceState,
+} from '@osac/ui-components/vmDisplayState';
 
-import { useComputeInstances, useUsers } from '../../api/hooks';
 import { DashboardActionTile } from '../../components/dashboard/DashboardActionTile';
 import { DashboardMetricCard } from '../../components/dashboard/DashboardMetricCard';
 import { PageDataSection } from '../../components/layout/PageDataSection';
@@ -59,7 +64,10 @@ export const AdminDashboardPage = () => {
           <DashboardMetricCard label="Total VMs" value={vms.length} />
           <DashboardMetricCard
             label="Running"
-            value={vms.filter((v) => v.status.state === 'running').length}
+            value={
+              vms.filter((v) => readComputeInstanceState(v) === COMPUTE_INSTANCE_STATE.RUNNING)
+                .length
+            }
           />
           <DashboardMetricCard label="Users" value={users.length} />
         </Flex>

@@ -1,17 +1,25 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { ComputeInstance } from '@osac/api-contracts/types';
+import type { ComputeInstance } from '@osac/types';
+import { COMPUTE_INSTANCE_STATE } from '@osac/ui-components/vmDisplayState';
 
 import { useVmPowerActionDisplay } from './useVmPowerActionDisplay';
 import { clearAllPowerPending } from './vmPowerPendingStore';
 
-const vm = (id: string, state: ComputeInstance['status']['state']): ComputeInstance => {
+type VmState = NonNullable<ComputeInstance['status']>['state'];
+
+const vm = (id: string, state: VmState): ComputeInstance => {
   return {
     id,
     metadata: { name: id },
-    spec: {},
-    status: { state },
+    spec: { template: '', catalogItem: '' },
+    status: {
+      state,
+      conditions: [],
+      internalIpAddress: '',
+      publicIpAddress: '',
+    },
   };
 };
 
@@ -24,23 +32,31 @@ describe('useVmPowerActionDisplay', () => {
     const patchMutate = vi.fn();
     const { result, rerender } = renderHook(
       ({ vms }: { vms: ComputeInstance[] }) => useVmPowerActionDisplay(vms, patchMutate),
-      { initialProps: { vms: [vm('a', 'running')] } },
+      { initialProps: { vms: [vm('a', COMPUTE_INSTANCE_STATE.RUNNING)] } },
     );
 
     act(() => {
-      result.current.runPowerAction(vm('a', 'running'), 'stop');
+      result.current.runPowerAction(vm('a', COMPUTE_INSTANCE_STATE.RUNNING), 'stop');
     });
-    expect(result.current.getDisplayState(vm('a', 'running'))).toBe('stopping');
+    expect(result.current.getDisplayState(vm('a', COMPUTE_INSTANCE_STATE.RUNNING))).toBe(
+      'stopping',
+    );
 
-    rerender({ vms: [vm('a', 'running')] });
-    expect(result.current.getDisplayState(vm('a', 'running'))).toBe('stopping');
+    rerender({ vms: [vm('a', COMPUTE_INSTANCE_STATE.RUNNING)] });
+    expect(result.current.getDisplayState(vm('a', COMPUTE_INSTANCE_STATE.RUNNING))).toBe(
+      'stopping',
+    );
 
-    rerender({ vms: [vm('a', 'stopping')] });
-    expect(result.current.getDisplayState(vm('a', 'stopping'))).toBe('stopping');
+    rerender({ vms: [vm('a', COMPUTE_INSTANCE_STATE.STOPPING)] });
+    expect(result.current.getDisplayState(vm('a', COMPUTE_INSTANCE_STATE.STOPPING))).toBe(
+      'stopping',
+    );
 
-    rerender({ vms: [vm('a', 'stopped')] });
+    rerender({ vms: [vm('a', COMPUTE_INSTANCE_STATE.STOPPED)] });
     await waitFor(() => {
-      expect(result.current.getDisplayState(vm('a', 'stopped'))).toBe('stopped');
+      expect(result.current.getDisplayState(vm('a', COMPUTE_INSTANCE_STATE.STOPPED))).toBe(
+        COMPUTE_INSTANCE_STATE.STOPPED,
+      );
     });
   });
 
@@ -48,37 +64,47 @@ describe('useVmPowerActionDisplay', () => {
     const patchMutate = vi.fn();
     const { result, rerender } = renderHook(
       ({ vms }: { vms: ComputeInstance[] }) => useVmPowerActionDisplay(vms, patchMutate),
-      { initialProps: { vms: [vm('a', 'running')] } },
+      { initialProps: { vms: [vm('a', COMPUTE_INSTANCE_STATE.RUNNING)] } },
     );
 
     act(() => {
-      result.current.runPowerAction(vm('a', 'running'), 'restart');
+      result.current.runPowerAction(vm('a', COMPUTE_INSTANCE_STATE.RUNNING), 'restart');
     });
     expect(patchMutate).toHaveBeenCalledWith(
       { id: 'a', powerAction: 'stop' },
       expect.objectContaining({ onError: expect.any(Function) }),
     );
-    expect(result.current.getDisplayState(vm('a', 'running'))).toBe('restarting');
+    expect(result.current.getDisplayState(vm('a', COMPUTE_INSTANCE_STATE.RUNNING))).toBe(
+      'restarting',
+    );
 
-    rerender({ vms: [vm('a', 'running')] });
-    expect(result.current.getDisplayState(vm('a', 'running'))).toBe('restarting');
+    rerender({ vms: [vm('a', COMPUTE_INSTANCE_STATE.RUNNING)] });
+    expect(result.current.getDisplayState(vm('a', COMPUTE_INSTANCE_STATE.RUNNING))).toBe(
+      'restarting',
+    );
 
-    rerender({ vms: [vm('a', 'stopped')] });
+    rerender({ vms: [vm('a', COMPUTE_INSTANCE_STATE.STOPPED)] });
     await waitFor(() => {
-      expect(result.current.getDisplayState(vm('a', 'stopped'))).toBe('starting');
+      expect(result.current.getDisplayState(vm('a', COMPUTE_INSTANCE_STATE.STOPPED))).toBe(
+        'starting',
+      );
     });
     expect(patchMutate).toHaveBeenCalledWith(
       { id: 'a', powerAction: 'start' },
       expect.objectContaining({ onError: expect.any(Function) }),
     );
 
-    rerender({ vms: [vm('a', 'running')] });
-    expect(result.current.getDisplayState(vm('a', 'running'))).toBe('starting');
+    rerender({ vms: [vm('a', COMPUTE_INSTANCE_STATE.RUNNING)] });
+    expect(result.current.getDisplayState(vm('a', COMPUTE_INSTANCE_STATE.RUNNING))).toBe(
+      'starting',
+    );
 
-    rerender({ vms: [vm('a', 'starting')] });
-    rerender({ vms: [vm('a', 'running')] });
+    rerender({ vms: [vm('a', COMPUTE_INSTANCE_STATE.STARTING)] });
+    rerender({ vms: [vm('a', COMPUTE_INSTANCE_STATE.RUNNING)] });
     await waitFor(() => {
-      expect(result.current.getDisplayState(vm('a', 'running'))).toBe('running');
+      expect(result.current.getDisplayState(vm('a', COMPUTE_INSTANCE_STATE.RUNNING))).toBe(
+        COMPUTE_INSTANCE_STATE.RUNNING,
+      );
     });
     expect(result.current.isRestarting('a')).toBe(false);
   });

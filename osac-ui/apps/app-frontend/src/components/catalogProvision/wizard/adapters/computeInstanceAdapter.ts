@@ -1,14 +1,11 @@
-import type { ComputeInstance, ComputeInstanceCatalogItem } from '@osac/api-contracts/types';
+import type { ComputeInstanceCatalogItem } from '@osac/types';
+import { useComputeInstanceCatalogItems } from '@osac/ui-components/api/v1/compute-instance-catalog-item';
 
-import { useComputeInstanceCatalogItems } from '../../../../api/hooks';
+import type { CatalogProvisionWizardState } from '../types';
 import { buildComputeInstanceFromWizardDraft } from '../wizardBuild';
-import type { CatalogProvisionAdapter } from './types';
 
-export const computeInstanceAdapter: CatalogProvisionAdapter<
-  ComputeInstanceCatalogItem,
-  ComputeInstance
-> = {
-  kind: 'compute_instance',
+export const computeInstanceAdapter = {
+  kind: 'compute_instance' as const,
   useCatalogItems: () => {
     const query = useComputeInstanceCatalogItems();
     return {
@@ -20,7 +17,8 @@ export const computeInstanceAdapter: CatalogProvisionAdapter<
       },
     };
   },
-  buildCreatePayload: buildComputeInstanceFromWizardDraft,
+  buildCreatePayload: (draft: CatalogProvisionWizardState, item: ComputeInstanceCatalogItem) =>
+    buildComputeInstanceFromWizardDraft(draft, item),
   createButtonLabel: 'Create virtual machine',
   wizardTitle: 'Create virtual machine',
   wizardDescription: 'Select a catalog item, configure, and provision.',

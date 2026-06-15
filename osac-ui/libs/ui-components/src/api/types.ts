@@ -5,7 +5,13 @@ import { UseQueryOptions } from '@tanstack/react-query';
  * route here first — unknown strings are rejected at compile time everywhere
  * a query key is constructed or used for cache operations.
  */
-export type ApiRoute = 'v1/compute_instances';
+export type ApiRoute =
+  | 'v1/compute_instances'
+  | 'v1/compute_instance_templates'
+  | 'v1/compute_instance_catalog_items'
+  | 'v1/organizations'
+  | 'v1/users'
+  | 'v1/capabilities';
 
 /**
  * Strict 3-part tuple that encodes an API address.

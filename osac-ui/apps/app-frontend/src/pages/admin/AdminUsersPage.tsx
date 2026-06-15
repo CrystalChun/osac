@@ -6,7 +6,15 @@ import { useEffect } from 'react';
 import { Alert, Bullseye, Button, Label, PageSection, Spinner } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
-import { useUsers } from '../../api/hooks';
+import { useUsers } from '@osac/ui-components/api/v1/user';
+
+import {
+  readUserDisplayName,
+  readUserEmail,
+  readUserLastLogin,
+  readUserRole,
+  readUserStatus,
+} from '../../adminWireDisplay';
 import { PageDataSection } from '../../components/layout/PageDataSection';
 import { PageHeader } from '../../components/layout/PageHeader';
 
@@ -60,35 +68,39 @@ export const AdminUsersPage = () => {
               </Tr>
             </Thead>
             <Tbody>
-              {users.map((user) => (
-                <Tr key={user.id}>
-                  <Td dataLabel="Name" className="osac-data-table__primary-cell">
-                    {user.displayName}
-                  </Td>
-                  <Td dataLabel="Email">{user.email ?? '—'}</Td>
-                  <Td dataLabel="Role">
-                    {user.role ? (
-                      <Label color="blue" isCompact variant="outline">
-                        {user.role}
-                      </Label>
-                    ) : (
-                      '—'
-                    )}
-                  </Td>
-                  <Td dataLabel="Status">
-                    {user.status ? (
-                      <Label color={user.status === 'active' ? 'green' : 'grey'} isCompact>
-                        {user.status}
-                      </Label>
-                    ) : (
-                      '—'
-                    )}
-                  </Td>
-                  <Td dataLabel="Last login" className="osac-data-table__muted-cell">
-                    {user.lastLogin ?? '—'}
-                  </Td>
-                </Tr>
-              ))}
+              {users.map((user) => {
+                const role = readUserRole(user);
+                const status = readUserStatus(user);
+                return (
+                  <Tr key={user.id}>
+                    <Td dataLabel="Name" className="osac-data-table__primary-cell">
+                      {readUserDisplayName(user)}
+                    </Td>
+                    <Td dataLabel="Email">{readUserEmail(user) ?? '—'}</Td>
+                    <Td dataLabel="Role">
+                      {role ? (
+                        <Label color="blue" isCompact variant="outline">
+                          {role}
+                        </Label>
+                      ) : (
+                        '—'
+                      )}
+                    </Td>
+                    <Td dataLabel="Status">
+                      {status ? (
+                        <Label color={status === 'active' ? 'green' : 'grey'} isCompact>
+                          {status}
+                        </Label>
+                      ) : (
+                        '—'
+                      )}
+                    </Td>
+                    <Td dataLabel="Last login" className="osac-data-table__muted-cell">
+                      {readUserLastLogin(user) ?? '—'}
+                    </Td>
+                  </Tr>
+                );
+              })}
             </Tbody>
           </Table>
         )}

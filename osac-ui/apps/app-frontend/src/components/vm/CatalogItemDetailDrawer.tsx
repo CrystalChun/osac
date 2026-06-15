@@ -14,15 +14,14 @@ import {
   Title,
 } from '@patternfly/react-core';
 
-import type { ComputeInstanceCatalogItem } from '@osac/api-contracts/types';
-
 import { CatalogItemDetailContent } from './CatalogItemDetailContent';
+import type { CatalogItemForDisplay } from './catalogItemDisplay';
 import { catalogItemSubtitle } from './catalogItemDisplay';
 
 import './CatalogItemDetailDrawer.css';
 
 interface CatalogItemDetailDrawerProps {
-  item: ComputeInstanceCatalogItem | null;
+  item: CatalogItemForDisplay | null;
   onClose: () => void;
   actions?: ReactNode;
   children: ReactNode;

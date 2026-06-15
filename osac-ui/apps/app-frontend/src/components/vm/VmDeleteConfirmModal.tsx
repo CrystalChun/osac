@@ -10,23 +10,30 @@ import {
   StackItem,
 } from '@patternfly/react-core';
 
-import type { ComputeInstance } from '@osac/api-contracts/types';
+import {
+  useDeleteComputeInstance,
+  usePatchComputeInstance,
+} from '@osac/ui-components/api/v1/compute-instance';
 import { getErrorMessage } from '@osac/ui-components/utils/error';
+import {
+  COMPUTE_INSTANCE_STATE,
+  readComputeInstanceState,
+} from '@osac/ui-components/vmDisplayState';
 
-import { useDeleteVm, usePatchVm } from '../../api/hooks';
+import type { VmRow } from '../../api/vmRow';
 
 interface VmDeleteConfirmModalProps {
-  vm: ComputeInstance;
+  vm: VmRow;
   onClose: () => void;
   onSuccess: () => void;
 }
 
 export const VmDeleteConfirmModal = ({ vm, onClose, onSuccess }: VmDeleteConfirmModalProps) => {
   const [isPending, setIsPending] = React.useState(false);
-  const deleteVm = useDeleteVm();
-  const patchVm = usePatchVm();
+  const deleteVm = useDeleteComputeInstance();
+  const patchVm = usePatchComputeInstance();
 
-  const isStopped = vm.status.state === 'stopped';
+  const isStopped = readComputeInstanceState(vm) === COMPUTE_INSTANCE_STATE.STOPPED;
 
   const onDelete = async () => {
     setIsPending(true);
@@ -51,7 +58,7 @@ export const VmDeleteConfirmModal = ({ vm, onClose, onSuccess }: VmDeleteConfirm
       aria-labelledby="vm-delete-confirm-title"
     >
       <ModalHeader
-        title={`Delete ${vm.metadata.name}?`}
+        title={`Delete ${vm.metadata?.name ?? vm.id}?`}
         titleIconVariant="warning"
         labelId="vm-delete-confirm-title"
       />

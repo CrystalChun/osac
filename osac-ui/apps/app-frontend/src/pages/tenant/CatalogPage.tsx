@@ -14,9 +14,10 @@ import {
   StackItem,
 } from '@patternfly/react-core';
 
-import type { ComputeInstance, ComputeInstanceCatalogItem } from '@osac/api-contracts/types';
+import { useProvisionComputeInstance } from '@osac/ui-components/api/v1/compute-instance';
+import { useComputeInstanceCatalogItems } from '@osac/ui-components/api/v1/compute-instance-catalog-item';
+import type { BuildComputeInstanceCreateBodyInput } from '@osac/ui-components/api/v1/compute-instance-wire';
 
-import { useComputeInstanceCatalogItems, useProvisionVm } from '../../api/hooks';
 import {
   CatalogProvisionWizard,
   type CatalogProvisionWizardHandle,
@@ -25,6 +26,7 @@ import { PageDataSection } from '../../components/layout/PageDataSection';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { CatalogItemCard } from '../../components/vm/CatalogItemCard';
 import { CatalogItemDetailDrawer } from '../../components/vm/CatalogItemDetailDrawer';
+import type { CatalogItemForDisplay } from '../../components/vm/catalogItemDisplay';
 import { searchableCatalogItemText } from '../../components/vm/catalogItemDisplay';
 
 import './CatalogPage.css';
@@ -36,7 +38,7 @@ interface Props {
 export const CatalogPage = ({ isProviderGlobal = false }: Props) => {
   const location = useLocation();
   const [search, setSearch] = useState('');
-  const [selectedCatalogItem, setSelectedCatalogItem] = useState<ComputeInstanceCatalogItem | null>(
+  const [selectedCatalogItem, setSelectedCatalogItem] = useState<CatalogItemForDisplay | null>(
     null,
   );
   const wizardRef = useRef<CatalogProvisionWizardHandle>(null);
@@ -47,10 +49,10 @@ export const CatalogPage = ({ isProviderGlobal = false }: Props) => {
     isError: catalogError,
     refetch: refetchCatalogItems,
   } = useComputeInstanceCatalogItems();
-  const provisionVm = useProvisionVm();
+  const provisionVm = useProvisionComputeInstance();
 
   const handleWizardProvision = useCallback(
-    async (vm: Partial<ComputeInstance>) => {
+    async (vm: BuildComputeInstanceCreateBodyInput) => {
       await provisionVm.mutateAsync({ vm, specCatalogItemOnly: true });
     },
     [provisionVm],
@@ -65,7 +67,7 @@ export const CatalogPage = ({ isProviderGlobal = false }: Props) => {
     return catalogItems.filter((item) => searchableCatalogItemText(item).includes(searchTerm));
   }, [catalogItems, searchTerm]);
 
-  const handleOpenFromCatalogItem = useCallback((item: ComputeInstanceCatalogItem) => {
+  const handleOpenFromCatalogItem = useCallback((item: CatalogItemForDisplay) => {
     wizardRef.current?.openFromCatalogItem(item.id);
     setSelectedCatalogItem(null);
   }, []);

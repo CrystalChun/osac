@@ -2,7 +2,7 @@
  * flow: manage-virtual-machines
  * steps: mvm_list_view, mvm_detail_drawer
  */
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   Bullseye,
@@ -17,22 +17,20 @@ import {
   ToggleGroup,
   ToggleGroupItem,
 } from '@patternfly/react-core';
-import { useQueryClient } from '@tanstack/react-query';
 
-import type { ComputeInstance } from '@osac/api-contracts/types';
-import { useSession } from '@osac/ui-components/hooks/use-session';
-
+import { useApiQueryClient } from '@osac/ui-components/api/use-api-query';
 import {
-  refetchComputeInstancesQueries,
+  invalidateComputeInstancesQueries,
+  pollComputeInstancesUntilListed,
   useComputeInstances,
-  usePatchVm,
-  useProvisionVm,
-} from '../../api/hooks';
-import { isPendingVmClientId } from '../../api/pendingVmCreation';
-import { listPostCreateWatchIds } from '../../api/postCreateWatchStore';
-import { usePendingVmCreations } from '../../api/usePendingVmCreations';
+  usePatchComputeInstance,
+  useProvisionComputeInstance,
+} from '@osac/ui-components/api/v1/compute-instance';
+import type { BuildComputeInstanceCreateBodyInput } from '@osac/ui-components/api/v1/compute-instance-wire';
+import { useSession } from '@osac/ui-components/hooks/use-session';
+import { COMPUTE_INSTANCE_STATE } from '@osac/ui-components/vmDisplayState';
+
 import { useVmPowerActionDisplay } from '../../api/useVmPowerActionDisplay';
-import { pinProvisioningVmsToListEnd } from '../../api/vmListDisplayOrder';
 import {
   CatalogProvisionWizard,
   type CatalogProvisionWizardHandle,
@@ -63,6 +61,16 @@ export const VmListPage = () => {
   const { role } = useSession();
   const [searchParams] = useSearchParams();
   const wizardRef = useRef<CatalogProvisionWizardHandle>(null);
+  const postCreatePollRef = useRef<{ cancelled: boolean } | undefined>(undefined);
+
+  useEffect(
+    () => () => {
+      if (postCreatePollRef.current) {
+        postCreatePollRef.current.cancelled = true;
+      }
+    },
+    [],
+  );
 
   const [search, setSearch] = useState('');
   const [powerFilter, setPowerFilter] = useState<VmPowerFilter>(() =>
@@ -71,74 +79,47 @@ export const VmListPage = () => {
 
   const [vmToDelete, setVmToDelete] = useState<string>();
 
-  const queryClient = useQueryClient();
+  const qc = useApiQueryClient();
   const { data: vms = [], isLoading } = useComputeInstances();
-  const provisionVm = useProvisionVm();
-  const patchVm = usePatchVm();
-  const refetchInstances = useCallback(
-    () => refetchComputeInstancesQueries(queryClient),
-    [queryClient],
-  );
+  const provisionVm = useProvisionComputeInstance();
+  const patchVm = usePatchComputeInstance();
+  const invalidateInstances = useCallback(() => invalidateComputeInstancesQueries(qc), [qc]);
   const { getDisplayState, runPowerAction, isPowerActionPending, isRestarting } =
-    useVmPowerActionDisplay(vms, patchVm.mutate, { refetchInstances });
-  const {
-    registerPending,
-    noteCreateSuccess,
-    dismissPending,
-    pendingInstances,
-    getCreationDisplayState,
-    getPostCreateDisplayState,
-  } = usePendingVmCreations(vms, { refetchInstances });
+    useVmPowerActionDisplay(vms, patchVm.mutate, { invalidateInstances });
 
   const handleWizardProvision = useCallback(
-    async (vm: Partial<ComputeInstance>) => {
-      const clientId = registerPending(vm);
-      try {
-        const created = await provisionVm.mutateAsync({
-          vm,
-          specCatalogItemOnly: true,
-        });
-        noteCreateSuccess(clientId, created.id);
-        void refetchInstances();
-      } catch {
-        dismissPending(clientId);
-        throw new Error('Provisioning failed');
+    async (vm: BuildComputeInstanceCreateBodyInput) => {
+      if (postCreatePollRef.current) {
+        postCreatePollRef.current.cancelled = true;
+      }
+      const pollSignal = { cancelled: false };
+      postCreatePollRef.current = pollSignal;
+
+      const created = await provisionVm.mutateAsync({
+        vm,
+        specCatalogItemOnly: true,
+      });
+      if (created.id) {
+        void pollComputeInstancesUntilListed(qc, created.id, pollSignal);
+      } else {
+        void invalidateInstances();
       }
     },
-    [dismissPending, noteCreateSuccess, provisionVm, refetchInstances, registerPending],
-  );
-
-  const isPendingCreation = useCallback((vm: ComputeInstance) => isPendingVmClientId(vm.id), []);
-
-  const getVmDisplayState = useCallback(
-    (vm: ComputeInstance) => {
-      if (isPendingVmClientId(vm.id)) {
-        return getCreationDisplayState(vm.id);
-      }
-      const postCreate = getPostCreateDisplayState(vm);
-      if (postCreate) {
-        return postCreate;
-      }
-      return getDisplayState(vm);
-    },
-    [getCreationDisplayState, getPostCreateDisplayState, getDisplayState],
+    [invalidateInstances, provisionVm, qc],
   );
 
   const filteredVms = useMemo(() => {
-    const pending = powerFilter === 'all' ? pendingInstances() : [];
-    const merged = [...vms, ...pending];
-    const filtered = merged.filter((vm) => {
-      const matchesSearch =
-        !search || vm.metadata.name.toLowerCase().includes(search.toLowerCase());
-      if (isPendingVmClientId(vm.id)) {
-        return matchesSearch;
-      }
-      const state = getVmDisplayState(vm);
-      const matchesPower = powerFilter === 'all' || state === powerFilter;
+    return vms.filter((vm) => {
+      const name = vm.metadata?.name ?? '';
+      const matchesSearch = !search || name.toLowerCase().includes(search.toLowerCase());
+      const state = getDisplayState(vm);
+      const matchesPower =
+        powerFilter === 'all' ||
+        (powerFilter === 'running' && state === COMPUTE_INSTANCE_STATE.RUNNING) ||
+        (powerFilter === 'stopped' && state === COMPUTE_INSTANCE_STATE.STOPPED);
       return matchesSearch && matchesPower;
     });
-    return pinProvisioningVmsToListEnd(filtered, listPostCreateWatchIds());
-  }, [getVmDisplayState, pendingInstances, powerFilter, search, vms]);
+  }, [getDisplayState, powerFilter, search, vms]);
 
   const handleOpenCreateVm = useCallback(() => {
     wizardRef.current?.open();
@@ -154,7 +135,7 @@ export const VmListPage = () => {
           onClose={() => setVmToDelete(undefined)}
           onSuccess={() => {
             setVmToDelete(undefined);
-            refetchInstances();
+            void invalidateInstances();
           }}
         />
       )}
@@ -226,8 +207,7 @@ export const VmListPage = () => {
           /* RESTORE clone: onClone={(vm) => wizardRef.current?.openFromClone(vm.id)} */
           <VmTable
             vms={filteredVms}
-            getState={getVmDisplayState}
-            isPendingCreation={isPendingCreation}
+            getState={getDisplayState}
             isRestarting={(vm) => isRestarting(vm.id)}
             isPowerActionPending={(vm) => isPowerActionPending(vm.id)}
             onPower={runPowerAction}

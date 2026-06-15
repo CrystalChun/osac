@@ -7,7 +7,6 @@
     "./*": "./src/*"
   },
   "dependencies": {
-    "@osac/api-contracts": "workspace:*",
     "@osac/types": "workspace:*",
     "@patternfly/patternfly": "^6.4.0",
     "@patternfly/react-core": "^6.4.1",

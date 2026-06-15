@@ -5,16 +5,16 @@ import {
   getNetworkAttachmentFieldBundle,
   hasEditableNetworkAttachmentFields,
   partitionFieldDefinitions,
-} from '@osac/api-contracts/catalogFieldDefinition';
-import type { CatalogItemBase } from '@osac/api-contracts/types';
-
+  readCatalogItemFieldDefinitions,
+} from '../../catalogFieldDefinition';
+import type { CatalogProvisionCatalogItem } from '../../catalogProvisionItem';
 import type { CatalogProvisionAdapter } from '../adapters/types';
 import { CatalogFieldInput } from '../CatalogFieldInput';
 import { NetworkAttachmentFields } from '../NetworkAttachmentFields';
 import type { CatalogProvisionWizardState, UpdateFieldValueFn } from '../types';
 import { wizardCatalogFieldErrorKey } from '../wizardBuild';
 
-interface Props<TItem extends CatalogItemBase> {
+interface Props<TItem extends CatalogProvisionCatalogItem> {
   adapter: CatalogProvisionAdapter<TItem, unknown>;
   catalogItem: TItem | null;
   state: CatalogProvisionWizardState;
@@ -26,7 +26,7 @@ interface Props<TItem extends CatalogItemBase> {
   onClearFieldError?: (key: string) => void;
 }
 
-export const ConfigurationStep = <TItem extends CatalogItemBase>({
+export const ConfigurationStep = <TItem extends CatalogProvisionCatalogItem>({
   adapter,
   catalogItem,
   state,
@@ -50,9 +50,14 @@ export const ConfigurationStep = <TItem extends CatalogItemBase>({
     );
   }
 
-  const { configuration } = partitionFieldDefinitions(catalogItem.fieldDefinitions, adapter.kind);
+  const { configuration } = partitionFieldDefinitions(
+    readCatalogItemFieldDefinitions(catalogItem),
+    adapter.kind,
+  );
   const otherConfiguration = configurationFieldsExcludingNetwork(configuration);
-  const networkBundle = getNetworkAttachmentFieldBundle(catalogItem.fieldDefinitions);
+  const networkBundle = getNetworkAttachmentFieldBundle(
+    readCatalogItemFieldDefinitions(catalogItem),
+  );
   const showNetworkAttachments = hasEditableNetworkAttachmentFields(networkBundle);
 
   return (

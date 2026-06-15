@@ -1,4 +1,4 @@
-import type { DemoShellRole } from './types.js';
+import type { DemoShellRole } from '@osac/ui-components/shellTypes';
 
 /** Masthead operating-mode label for the signed-in shell role. */
 export const operatingModeLabel = (role: DemoShellRole): string => {

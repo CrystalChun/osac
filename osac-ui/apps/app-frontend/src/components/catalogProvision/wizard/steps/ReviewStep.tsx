@@ -10,14 +10,15 @@ import {
 } from '@patternfly/react-core';
 
 import {
+  catalogItemFieldDefinitions,
   getNetworkAttachmentFieldBundle,
   hasEditableNetworkAttachmentFields,
   isNetworkAttachmentFieldPath,
   parseSecurityGroupsRaw,
+  readCatalogItemFieldDefinitions,
   resolvedFieldInputValue,
-} from '@osac/api-contracts/catalogFieldDefinition';
-import type { CatalogItemBase } from '@osac/api-contracts/types';
-
+} from '../../catalogFieldDefinition';
+import type { CatalogProvisionCatalogItem } from '../../catalogProvisionItem';
 import type { CatalogProvisionAdapter } from '../adapters/types';
 import type { CatalogProvisionWizardState } from '../types';
 
@@ -32,19 +33,21 @@ const formatReviewValue = (defPath: string, value: string): string => {
   return trimmed;
 };
 
-interface Props<TItem extends CatalogItemBase> {
+interface Props<TItem extends CatalogProvisionCatalogItem> {
   adapter: CatalogProvisionAdapter<TItem, unknown>;
   catalogItem: TItem | null;
   state: CatalogProvisionWizardState;
 }
 
-export const ReviewStep = <TItem extends CatalogItemBase>({
+export const ReviewStep = <TItem extends CatalogProvisionCatalogItem>({
   adapter,
   catalogItem,
   state,
 }: Props<TItem>) => {
-  const fieldDefinitions = catalogItem?.fieldDefinitions ?? [];
-  const networkBundle = getNetworkAttachmentFieldBundle(catalogItem?.fieldDefinitions);
+  const fieldDefinitions = catalogItemFieldDefinitions(catalogItem);
+  const networkBundle = getNetworkAttachmentFieldBundle(
+    readCatalogItemFieldDefinitions(catalogItem),
+  );
   const showNetworkAttachments = hasEditableNetworkAttachmentFields(networkBundle);
   const reviewRows =
     state.networkAttachmentRows.length > 0

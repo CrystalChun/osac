@@ -4,10 +4,10 @@
  */
 import { PageSection } from '@patternfly/react-core';
 
+import { useComputeInstances } from '@osac/ui-components/api/v1/compute-instance';
 import { useSession } from '@osac/ui-components/hooks/use-session';
 import { NetworkTopologyPage } from '@osac/ui-components/NetworkTopologyPage';
 
-import { useComputeInstances } from '../../api/hooks';
 import { PageDataSection } from '../../components/layout/PageDataSection';
 import { PageHeader } from '../../components/layout/PageHeader';
 

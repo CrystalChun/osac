@@ -6,22 +6,47 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
-import type { ComputeInstance, VmPowerState } from '@osac/api-contracts/types';
+import { COMPUTE_INSTANCE_STATE, type DisplayVmState } from '@osac/ui-components/vmDisplayState';
 import { VmStatusLabel } from '@osac/ui-components/VmStatusLabel';
 
 import { VmActionsMenu } from './VmActionsMenu';
+import type { VmRow } from '../../api/vmRow';
 
 import './VmTable.css';
 
+type JsonRecord = Record<string, unknown>;
+
+const jsonField = (obj: unknown, ...keys: string[]): unknown => {
+  if (!obj || typeof obj !== 'object') {
+    return undefined;
+  }
+  const rec = obj as JsonRecord;
+  for (const k of keys) {
+    if (k in rec && rec[k] != null) {
+      return rec[k];
+    }
+  }
+  return undefined;
+};
+
+const jsonNum = (obj: unknown, ...keys: string[]): number | undefined => {
+  const v = jsonField(obj, ...keys);
+  return typeof v === 'number' && !Number.isNaN(v) ? v : undefined;
+};
+
+const jsonStr = (obj: unknown, ...keys: string[]): string | undefined => {
+  const v = jsonField(obj, ...keys);
+  return typeof v === 'string' && v.trim() ? v.trim() : undefined;
+};
+
 interface VmTableProps {
-  vms: ComputeInstance[];
-  getState: (vm: ComputeInstance) => VmPowerState;
-  onPower: (vm: ComputeInstance, action: 'start' | 'stop' | 'restart') => void;
-  isRestarting?: (vm: ComputeInstance) => boolean;
-  isPowerActionPending?: (vm: ComputeInstance) => boolean;
-  isPendingCreation?: (vm: ComputeInstance) => boolean;
-  onDelete?: (vm: ComputeInstance) => void;
-  /* RESTORE when fulfillment supports clone: onClone?: (vm: ComputeInstance) => void */
+  vms: VmRow[];
+  getState: (vm: VmRow) => DisplayVmState;
+  onPower: (vm: VmRow, action: 'start' | 'stop' | 'restart') => void;
+  isRestarting?: (vm: VmRow) => boolean;
+  isPowerActionPending?: (vm: VmRow) => boolean;
+  onDelete?: (vm: VmRow) => void;
+  /* RESTORE when fulfillment supports clone: onClone?: (vm: VmRow) => void */
 }
 
 export const VmTable = ({
@@ -30,7 +55,6 @@ export const VmTable = ({
   onPower,
   isRestarting,
   isPowerActionPending,
-  isPendingCreation,
   onDelete,
 }: VmTableProps) => {
   const navigate = useNavigate();
@@ -50,13 +74,18 @@ export const VmTable = ({
         <Tbody>
           {vms.map((vm) => {
             const state = getState(vm);
-            const pending = isPendingCreation?.(vm) ?? false;
-            const locked = pending || state === 'deleting';
+            const locked = state === COMPUTE_INSTANCE_STATE.DELETING;
+            const name = vm.metadata?.name ?? vm.id;
+            const cores = jsonNum(vm.spec, 'cores');
+            const memoryGib = jsonNum(vm.spec, 'memory_gib', 'memoryGib');
+            const ip =
+              jsonStr(vm.status, 'public_ip_address', 'publicIpAddress', 'ipAddress') ??
+              jsonStr(vm.status, 'internal_ip_address', 'internalIpAddress');
             return (
               <Tr key={vm.id}>
                 <Td dataLabel="Name">
                   {locked ? (
-                    vm.metadata.name
+                    name
                   ) : (
                     <Button
                       variant="link"
@@ -64,18 +93,16 @@ export const VmTable = ({
                       className="osac-vm-table__name-link"
                       onClick={() => navigate(`/vms/${vm.id}`)}
                     >
-                      {vm.metadata.name}
+                      {name}
                     </Button>
                   )}
                 </Td>
                 <Td dataLabel="Status">
                   <VmStatusLabel state={state} />
                 </Td>
-                <Td dataLabel="vCPU">{vm.spec.cores ?? '—'}</Td>
-                <Td dataLabel="Memory">
-                  {vm.spec.memoryGib != null ? `${vm.spec.memoryGib} GiB` : '—'}
-                </Td>
-                <Td dataLabel="IP">{locked ? '—' : (vm.status.ipAddress ?? '—')}</Td>
+                <Td dataLabel="vCPU">{cores ?? '—'}</Td>
+                <Td dataLabel="Memory">{memoryGib != null ? `${memoryGib} GiB` : '—'}</Td>
+                <Td dataLabel="IP">{locked ? '—' : (ip ?? '—')}</Td>
                 <Td dataLabel="Actions" isActionCell>
                   {locked ? null : (
                     <VmActionsMenu

@@ -12,11 +12,11 @@ import {
   StackItem,
 } from '@patternfly/react-core';
 
-import type { CatalogItemBase } from '@osac/api-contracts/types';
-
 import { PageDataSection } from '../../../layout/PageDataSection';
 import { CatalogItemCard } from '../../../vm/CatalogItemCard';
 import { searchableCatalogItemText } from '../../../vm/catalogItemDisplay';
+import { readCatalogItemFieldDefinitions } from '../../catalogFieldDefinition';
+import type { CatalogProvisionCatalogItem } from '../../catalogProvisionItem';
 import type { CatalogProvisionAdapter } from '../adapters/types';
 import { STEP_LABELS } from '../stepIds';
 import type { CatalogProvisionWizardState, UpdateDraftFn } from '../types';
@@ -25,22 +25,25 @@ import {
   seedNetworkAttachmentRowsFromCatalogItem,
 } from '../wizardBuild';
 
-const applySelectedCatalogItem = <TItem extends CatalogItemBase>(
+const applySelectedCatalogItem = <TItem extends CatalogProvisionCatalogItem>(
   item: TItem,
   update: UpdateDraftFn,
 ) => {
   update('catalogItemId', item.id);
-  update('fieldValues', seedFieldValuesFromCatalogItem(item.fieldDefinitions));
-  update('networkAttachmentRows', seedNetworkAttachmentRowsFromCatalogItem(item.fieldDefinitions));
+  update('fieldValues', seedFieldValuesFromCatalogItem(readCatalogItemFieldDefinitions(item)));
+  update(
+    'networkAttachmentRows',
+    seedNetworkAttachmentRowsFromCatalogItem(readCatalogItemFieldDefinitions(item)),
+  );
 };
 
-interface Props<TItem extends CatalogItemBase> {
+interface Props<TItem extends CatalogProvisionCatalogItem> {
   adapter: CatalogProvisionAdapter<TItem, unknown>;
   state: CatalogProvisionWizardState;
   update: UpdateDraftFn;
 }
 
-export const CatalogStep = <TItem extends CatalogItemBase>({
+export const CatalogStep = <TItem extends CatalogProvisionCatalogItem>({
   adapter,
   state,
   update,
