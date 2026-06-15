@@ -26,6 +26,7 @@ import { BarsIcon } from '@patternfly/react-icons/dist/esm/icons/bars-icon';
 import { UserIcon } from '@patternfly/react-icons/dist/esm/icons/user-icon';
 
 import { operatingModeLabel } from '@osac/api-contracts/shellLabels';
+import UserPreferencesModal from '@osac/ui-components/components/UserPreferences/UserPreferencesModal';
 import { useSession } from '@osac/ui-components/hooks/use-session';
 import { getErrorMessage } from '@osac/ui-components/utils/error';
 
@@ -37,6 +38,7 @@ interface ShellMastheadProps {
 
 export const ShellMasthead = ({ onLogout }: ShellMastheadProps) => {
   const [isUserMenuOpen, setIsUserMenuOpen] = React.useState(false);
+  const [isPreferencesOpen, setPreferencesOpen] = React.useState(false);
   const [logoutError, setLogoutError] = React.useState<string>();
   const navigate = useNavigate();
   const { role, username } = useSession();
@@ -58,6 +60,7 @@ export const ShellMasthead = ({ onLogout }: ShellMastheadProps) => {
           </ModalFooter>
         </Modal>
       )}
+      {isPreferencesOpen && <UserPreferencesModal onClose={() => setPreferencesOpen(false)} />}
       <Masthead display={{ default: 'inline' }}>
         <MastheadMain>
           <MastheadToggle>
@@ -110,8 +113,8 @@ export const ShellMasthead = ({ onLogout }: ShellMastheadProps) => {
                 )}
               >
                 <DropdownList>
+                  <DropdownItem onClick={() => setPreferencesOpen(true)}>Preferences</DropdownItem>
                   <DropdownItem
-                    value="logout"
                     onClick={async () => {
                       try {
                         await onLogout();

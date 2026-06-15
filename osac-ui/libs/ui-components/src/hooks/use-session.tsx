@@ -1,12 +1,15 @@
-import { createContext, useContext, useLayoutEffect, useState } from 'react';
+import { createContext, useContext } from 'react';
 
 import type { DemoShellRole } from '@osac/api-contracts/types';
 
+import { type ResolvedTheme, type Theme, useTheme } from './use-theme';
+
 interface SessionContextValue {
   role: DemoShellRole;
-  isDarkTheme: boolean;
   username: string;
-  setIsDarkTheme: (dark: boolean) => void;
+  userTheme: Theme;
+  resolvedTheme: ResolvedTheme;
+  setUserTheme: (theme: Theme) => void;
 }
 
 const SessionContext = createContext<SessionContextValue | null>(null);
@@ -18,22 +21,14 @@ interface SessionProviderProps {
 }
 
 export const SessionProvider = ({ children, role, username }: SessionProviderProps) => {
-  const [isDarkTheme, setIsDarkTheme] = useState(false);
-
-  // Theme sync to DOM
-  useLayoutEffect(() => {
-    const root = document.documentElement;
-    root.classList.toggle('pf-v6-theme-dark', isDarkTheme);
-    root.dataset.osacTheme = isDarkTheme ? 'dark' : 'light';
-  }, [isDarkTheme]);
+  const themeProps = useTheme();
 
   return role ? (
     <SessionContext.Provider
       value={{
         role,
-        isDarkTheme,
         username,
-        setIsDarkTheme,
+        ...themeProps,
       }}
     >
       {children}
