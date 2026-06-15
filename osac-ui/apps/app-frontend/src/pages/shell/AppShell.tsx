@@ -19,8 +19,6 @@ import { CatalogPage } from '../tenant/CatalogPage';
 import VmDetailsPage from '../tenant/VmDetailsPage';
 import { VmListPage } from '../tenant/VmListPage';
 
-import './AppShell.css';
-
 const RoleRoute = ({
   allow,
   fallback,

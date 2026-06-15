@@ -6,7 +6,6 @@ import {
   Dropdown,
   DropdownItem,
   DropdownList,
-  Flex,
   Label,
   Masthead,
   MastheadBrand,
@@ -21,6 +20,10 @@ import {
   ModalHeader,
   PageToggleButton,
   Title,
+  Toolbar,
+  ToolbarContent,
+  ToolbarGroup,
+  ToolbarItem,
 } from '@patternfly/react-core';
 import { BarsIcon } from '@patternfly/react-icons/dist/esm/icons/bars-icon';
 import { UserIcon } from '@patternfly/react-icons/dist/esm/icons/user-icon';
@@ -30,8 +33,6 @@ import { useSession } from '@osac/ui-components/hooks/use-session';
 import { getErrorMessage } from '@osac/ui-components/utils/error';
 
 import { operatingModeLabel } from './shellLabels';
-
-import './ShellMasthead.css';
 
 interface ShellMastheadProps {
   onLogout: () => Promise<void>;
@@ -71,66 +72,64 @@ export const ShellMasthead = ({ onLogout }: ShellMastheadProps) => {
           </MastheadToggle>
           <MastheadLogo>
             <MastheadBrand>
-              <Title headingLevel="h4" size="lg" className="osac-masthead__brand-title">
+              <Title headingLevel="h4" size="lg">
                 Red Hat OSAC
               </Title>
             </MastheadBrand>
           </MastheadLogo>
         </MastheadMain>
 
-        <MastheadContent className="osac-masthead-content">
-          <Flex
-            className="osac-masthead-content-rail"
-            direction={{ default: 'row' }}
-            flexWrap={{ default: 'wrap' }}
-            alignItems={{ default: 'alignItemsCenter' }}
-            justifyContent={{ default: 'justifyContentFlexEnd' }}
-            spaceItems={{ default: 'spaceItemsMd' }}
-          >
-            <Flex className="osac-masthead-user-cluster" spaceItems={{ default: 'spaceItemsSm' }}>
-              <Dropdown
-                isOpen={isUserMenuOpen}
-                onSelect={() => setIsUserMenuOpen(false)}
-                onOpenChange={setIsUserMenuOpen}
-                popperProps={{ position: 'right' }}
-                toggle={(ref) => (
-                  <MenuToggle
-                    ref={ref}
-                    isExpanded={isUserMenuOpen}
-                    onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                    icon={<UserIcon />}
-                    aria-label="Account menu"
-                  >
-                    {displayName}
-                    <Label
-                      color="grey"
-                      variant="outline"
-                      isCompact
-                      className="osac-masthead-operating-mode"
-                    >
-                      {operatingModeLabel(role)}
-                    </Label>
-                  </MenuToggle>
-                )}
+        <MastheadContent>
+          <Toolbar id="toolbar" isStatic>
+            <ToolbarContent>
+              <ToolbarGroup
+                variant="action-group-plain"
+                align={{ default: 'alignEnd' }}
+                gap={{ default: 'gapNone', md: 'gapMd' }}
               >
-                <DropdownList>
-                  <DropdownItem onClick={() => setPreferencesOpen(true)}>Preferences</DropdownItem>
-                  <DropdownItem
-                    onClick={async () => {
-                      try {
-                        await onLogout();
-                        navigate('/');
-                      } catch (e) {
-                        setLogoutError(getErrorMessage(e));
-                      }
-                    }}
+                <ToolbarItem>
+                  <Dropdown
+                    isOpen={isUserMenuOpen}
+                    onSelect={() => setIsUserMenuOpen(false)}
+                    onOpenChange={setIsUserMenuOpen}
+                    popperProps={{ position: 'right' }}
+                    toggle={(ref) => (
+                      <MenuToggle
+                        ref={ref}
+                        isExpanded={isUserMenuOpen}
+                        onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                        icon={<UserIcon />}
+                        aria-label="Account menu"
+                      >
+                        {displayName}{' '}
+                        <Label color="grey" variant="outline" isCompact>
+                          {operatingModeLabel(role)}
+                        </Label>
+                      </MenuToggle>
+                    )}
                   >
-                    Log out
-                  </DropdownItem>
-                </DropdownList>
-              </Dropdown>
-            </Flex>
-          </Flex>
+                    <DropdownList>
+                      <DropdownItem onClick={() => setPreferencesOpen(true)}>
+                        Preferences
+                      </DropdownItem>
+                      <DropdownItem
+                        onClick={async () => {
+                          try {
+                            await onLogout();
+                            navigate('/');
+                          } catch (e) {
+                            setLogoutError(getErrorMessage(e));
+                          }
+                        }}
+                      >
+                        Log out
+                      </DropdownItem>
+                    </DropdownList>
+                  </Dropdown>
+                </ToolbarItem>
+              </ToolbarGroup>
+            </ToolbarContent>
+          </Toolbar>
         </MastheadContent>
       </Masthead>
     </>
