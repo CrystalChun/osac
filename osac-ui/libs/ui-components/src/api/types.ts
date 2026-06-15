@@ -5,7 +5,7 @@ import { UseQueryOptions } from '@tanstack/react-query';
  * route here first — unknown strings are rejected at compile time everywhere
  * a query key is constructed or used for cache operations.
  */
-export type ApiRoute = 'v1/compute_instances' | 'v1/compute_instance';
+export type ApiRoute = 'v1/compute_instances';
 
 /**
  * Strict 3-part tuple that encodes an API address.
@@ -31,7 +31,6 @@ export type UseApiQueryOptions<TQueryFnData, TError, TData> = Omit<
  *
  * @example
  * qc.invalidateQueries({ queryKey: apiQueryKey('v1/compute_instances') });
- * qc.invalidateQueries({ queryKey: apiQueryKey('v1/compute_instance', ['abc-123']) });
  */
 export const apiQueryKey = (
   baseUrl: ApiRoute,

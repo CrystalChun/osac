@@ -18,8 +18,7 @@ Every resource route is listed in the `ApiRoute` union in `types.ts`. Using an u
 ```ts
 export type ApiRoute =
   | 'v1/compute_instances'
-  | 'v1/compute_instance';
-  // add new routes here
+  | // add new routes here
 ```
 
 ---
@@ -51,7 +50,7 @@ Examples:
 | `queryKey` | Resulting URL |
 |---|---|
 | `['v1/compute_instances', null, { limit: 20 }]` | `/api/fulfillment/v1/compute_instances?limit=20` |
-| `['v1/compute_instance', ['abc-123']]` | `/api/fulfillment/v1/compute_instance/abc-123` |
+| `['v1/compute_instances', ['abc-123']]` | `/api/fulfillment/v1/compute_instances/abc-123` |
 
 ### Default `QueryClient` settings
 
@@ -113,7 +112,6 @@ Add the route to `ApiRoute` in `types.ts`:
 ```ts
 export type ApiRoute =
   | 'v1/compute_instances'
-  | 'v1/compute_instance'
   | 'v1/some_resources'; // new
 ```
 

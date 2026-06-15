@@ -17,6 +17,6 @@ export const useComputeInstances = (params: ListComputeInstancesParams = {}) => 
 
 export const useComputeInstance = (id: string) => {
   return useApiQuery<ComputeInstance>({
-    queryKey: ['v1/compute_instance', [id]],
+    queryKey: ['v1/compute_instances', [id]],
   });
 };
