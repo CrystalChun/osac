@@ -2,6 +2,7 @@ import { type ReactElement } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { Page } from '@patternfly/react-core';
 
+import ErrorBoundary from '@osac/ui-components/components/ErrorBoundary/ErrorBoundary';
 import { useSession } from '@osac/ui-components/hooks/use-session';
 import type { DemoShellRole } from '@osac/ui-components/shellTypes';
 
@@ -30,7 +31,11 @@ const RoleRoute = ({
   children: ReactElement;
 }) => {
   const { role } = useSession();
-  return allow.includes(role) ? children : <Navigate to={fallback} replace />;
+  return allow.includes(role) ? (
+    <ErrorBoundary>{children}</ErrorBoundary>
+  ) : (
+    <Navigate to={fallback} replace />
+  );
 };
 
 export const AppShell = ({ logout }: { logout: () => Promise<void> }) => {
