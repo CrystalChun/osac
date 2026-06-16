@@ -1,0 +1,14 @@
+.osac-vm-details-conditions-card__body {
+  max-height: 32rem;
+  overflow-y: auto;
+}
+
+.osac-vm-details-condition {
+  padding-bottom: var(--pf-t--global--spacer--md);
+  border-bottom: 1px solid var(--pf-t--global--border--color--default);
+}
+
+.osac-vm-details-conditions-list > .pf-v6-l-stack__item:last-child .osac-vm-details-condition {
+  padding-bottom: 0;
+  border-bottom: none;
+}

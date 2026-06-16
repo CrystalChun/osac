@@ -17,6 +17,7 @@ import { ProviderInfraTopologyPage } from '../provider/ProviderInfraTopologyPage
 import { ProviderTenantOrgsPage } from '../provider/ProviderTenantOrgsPage';
 import { CatalogPage } from '../tenant/CatalogPage';
 import { ClusterRoutes } from '../tenant/ClusterRoutes';
+import { VmCreatePage } from '../tenant/VmCreatePage';
 import VmDetailsPage from '../tenant/VmDetailsPage';
 import { VmListPage } from '../tenant/VmListPage';
 
@@ -54,6 +55,14 @@ export const AppShell = ({ logout }: { logout: () => Promise<void> }) => {
           element={
             <RoleRoute allow={['tenantUser', 'tenantAdmin']} fallback={defaultRoute}>
               <VmListPage />
+            </RoleRoute>
+          }
+        />
+        <Route
+          path="/vms/create"
+          element={
+            <RoleRoute allow={['tenantUser', 'tenantAdmin']} fallback={defaultRoute}>
+              <VmCreatePage />
             </RoleRoute>
           }
         />

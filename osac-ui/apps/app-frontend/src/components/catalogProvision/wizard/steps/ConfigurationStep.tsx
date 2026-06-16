@@ -1,4 +1,6 @@
-import { Content, Form, Stack, StackItem, Title } from '@patternfly/react-core';
+import { Form, Stack, StackItem, Title } from '@patternfly/react-core';
+
+import { SubtleContent } from '@osac/ui-components/components/SubtleContent/SubtleContent';
 
 import {
   configurationFieldsExcludingNetwork,
@@ -42,9 +44,9 @@ export const ConfigurationStep = <TItem extends CatalogProvisionCatalogItem>({
           <Title id="configuration-step-heading" headingLevel="h2" size="xl">
             Configuration
           </Title>
-          <Content component="p" className="pf-v6-u-color-text-subtle osac-wizard-step__intro">
+          <SubtleContent component="p" className="osac-wizard-step__intro">
             Select a catalog item to configure resource settings.
-          </Content>
+          </SubtleContent>
         </StackItem>
       </Stack>
     );
@@ -66,9 +68,9 @@ export const ConfigurationStep = <TItem extends CatalogProvisionCatalogItem>({
         <Title id="configuration-step-heading" headingLevel="h2" size="xl">
           Configuration
         </Title>
-        <Content component="p" className="pf-v6-u-color-text-subtle osac-wizard-step__intro">
+        <SubtleContent component="p" className="osac-wizard-step__intro">
           Adjust the editable settings for this catalog item.
-        </Content>
+        </SubtleContent>
       </StackItem>
       <StackItem>
         <Form className="osac-wizard-customization__section-form">

@@ -105,6 +105,8 @@ interface Props {
   /** Parent page label for breadcrumb navigation (e.g. Virtual machines, Catalog). */
   breadcrumbParentLabel: string;
   onProvision: (payload: BuildComputeInstanceCreateBodyInput) => void | Promise<void>;
+  /** Called when the wizard closes via cancel or breadcrumb — not after a successful provision. */
+  onClosed?: () => void;
 }
 
 interface WizardFooterProps {
@@ -179,7 +181,7 @@ const CatalogProvisionWizardFooter = ({
       const payload = catalogItem ? adapter.buildCreatePayload(draft, catalogItem) : {};
       try {
         await Promise.resolve(onProvision(payload as BuildComputeInstanceCreateBodyInput));
-        close();
+        close({ notifyClosed: false });
       } catch {
         setProvisionError('Provisioning failed. Please try again.');
       } finally {
@@ -239,7 +241,7 @@ const CatalogProvisionWizardFooter = ({
 };
 
 export const CatalogProvisionWizard = forwardRef<CatalogProvisionWizardHandle, Props>(
-  ({ kind = 'compute_instance', breadcrumbParentLabel, onProvision }, ref) => {
+  ({ kind = 'compute_instance', breadcrumbParentLabel, onProvision, onClosed }, ref) => {
     const adapter = ADAPTERS[kind];
     const [isOpen, setIsOpen] = useState(false);
     const [activeIndex, setActiveIndex] = useState(0);
@@ -300,10 +302,16 @@ export const CatalogProvisionWizard = forwardRef<CatalogProvisionWizardHandle, P
       [],
     );
 
-    const close = useCallback(() => {
-      setIsOpen(false);
-      resetLocal();
-    }, [resetLocal]);
+    const close = useCallback(
+      (options?: { notifyClosed?: boolean }) => {
+        setIsOpen(false);
+        resetLocal();
+        if (options?.notifyClosed !== false) {
+          onClosed?.();
+        }
+      },
+      [onClosed, resetLocal],
+    );
 
     const requestClose = useCallback(() => {
       if (pending) {

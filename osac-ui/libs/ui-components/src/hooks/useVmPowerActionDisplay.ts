@@ -4,18 +4,15 @@
  */
 import { useCallback, useEffect, useSyncExternalStore } from 'react';
 
-import type { PatchComputeInstanceInput } from '@osac/ui-components/api/v1/compute-instance';
-import {
-  COMPUTE_INSTANCE_STATE,
-  readComputeInstanceState,
-} from '@osac/ui-components/vmDisplayState';
+import type { ComputeInstance } from '@osac/types';
 
+import type { PatchComputeInstanceInput } from '../api/v1/compute-instance';
 import {
   advancePendingPowerWatch,
   createPendingPowerWatch,
   resolveVmDisplayPowerState,
   shouldAdvanceRestartToStarting,
-} from './vmPowerDisplay';
+} from '../vm/vmPowerDisplay';
 import {
   clearPowerPending,
   getPendingPowerAction,
@@ -29,8 +26,8 @@ import {
   setPowerWatch,
   subscribePowerPending,
   updatePowerPendingAction,
-} from './vmPowerPendingStore';
-import type { VmRow } from './vmRow';
+} from '../vm/vmPowerPendingStore';
+import { COMPUTE_INSTANCE_STATE, readComputeInstanceState } from '../vmDisplayState';
 
 type PatchMutate = (
   input: PatchComputeInstanceInput,
@@ -57,7 +54,7 @@ const powerPendingSnapshot = (): string => {
 };
 
 export const useVmPowerActionDisplay = (
-  vms: VmRow[],
+  vms: ComputeInstance[],
   patchMutate: PatchMutate,
   options: UseVmPowerActionDisplayOptions = {},
 ) => {
@@ -68,7 +65,7 @@ export const useVmPowerActionDisplay = (
     powerPendingSnapshot,
   );
 
-  const getDisplayState = useCallback((vm: VmRow) => {
+  const getDisplayState = useCallback((vm: ComputeInstance) => {
     return resolveVmDisplayPowerState(readComputeInstanceState(vm), getPendingPowerAction(vm.id));
   }, []);
 
@@ -142,7 +139,7 @@ export const useVmPowerActionDisplay = (
   }, [vms, patchMutate]);
 
   const runPowerAction = useCallback(
-    (vm: VmRow, action: 'start' | 'stop' | 'restart') => {
+    (vm: ComputeInstance, action: 'start' | 'stop' | 'restart') => {
       const id = vm.id;
       if (action === 'restart') {
         setPowerPending(id, 'restarting', { restartCycle: true });

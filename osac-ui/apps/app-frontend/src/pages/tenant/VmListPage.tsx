@@ -2,12 +2,11 @@
  * flow: manage-virtual-machines
  * steps: mvm_list_view, mvm_detail_drawer
  */
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useCallback, useMemo, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Bullseye,
   Button,
-  Content,
   Divider,
   Flex,
   FlexItem,
@@ -21,23 +20,16 @@ import {
 import { useApiQueryClient } from '@osac/ui-components/api/use-api-query';
 import {
   invalidateComputeInstancesQueries,
-  pollComputeInstancesUntilListed,
   useComputeInstances,
   usePatchComputeInstance,
-  useProvisionComputeInstance,
 } from '@osac/ui-components/api/v1/compute-instance';
-import type { BuildComputeInstanceCreateBodyInput } from '@osac/ui-components/api/v1/compute-instance-wire';
+import { SubtleContent } from '@osac/ui-components/components/SubtleContent/SubtleContent';
 import { useSession } from '@osac/ui-components/hooks/use-session';
+import { useVmPowerActionDisplay } from '@osac/ui-components/hooks/useVmPowerActionDisplay';
 import { COMPUTE_INSTANCE_STATE } from '@osac/ui-components/vmDisplayState';
 
-import { useVmPowerActionDisplay } from '../../api/useVmPowerActionDisplay';
-import {
-  CatalogProvisionWizard,
-  type CatalogProvisionWizardHandle,
-} from '../../components/catalogProvision/CatalogProvisionWizard';
 import { PageDataSection } from '../../components/layout/PageDataSection';
 import { PageHeader } from '../../components/layout/PageHeader';
-import { VmDeleteConfirmModal } from '../../components/vm/VmDeleteConfirmModal';
 import { VmTable } from '../../components/vm/VmTable';
 
 import './VmListPage.css';
@@ -58,55 +50,20 @@ const normalizePowerFilter = (value: string | null): VmPowerFilter => {
 };
 
 export const VmListPage = () => {
+  const navigate = useNavigate();
   const { role } = useSession();
   const [searchParams] = useSearchParams();
-  const wizardRef = useRef<CatalogProvisionWizardHandle>(null);
-  const postCreatePollRef = useRef<{ cancelled: boolean } | undefined>(undefined);
-
-  useEffect(
-    () => () => {
-      if (postCreatePollRef.current) {
-        postCreatePollRef.current.cancelled = true;
-      }
-    },
-    [],
-  );
 
   const [search, setSearch] = useState('');
   const [powerFilter, setPowerFilter] = useState<VmPowerFilter>(() =>
     normalizePowerFilter(searchParams.get('power')),
   );
 
-  const [vmToDelete, setVmToDelete] = useState<string>();
-
   const qc = useApiQueryClient();
   const { data: vms = [], isLoading } = useComputeInstances();
-  const provisionVm = useProvisionComputeInstance();
   const patchVm = usePatchComputeInstance();
   const invalidateInstances = useCallback(() => invalidateComputeInstancesQueries(qc), [qc]);
-  const { getDisplayState, runPowerAction, isPowerActionPending, isRestarting } =
-    useVmPowerActionDisplay(vms, patchVm.mutate, { invalidateInstances });
-
-  const handleWizardProvision = useCallback(
-    async (vm: BuildComputeInstanceCreateBodyInput) => {
-      if (postCreatePollRef.current) {
-        postCreatePollRef.current.cancelled = true;
-      }
-      const pollSignal = { cancelled: false };
-      postCreatePollRef.current = pollSignal;
-
-      const created = await provisionVm.mutateAsync({
-        vm,
-        specCatalogItemOnly: true,
-      });
-      if (created.id) {
-        void pollComputeInstancesUntilListed(qc, created.id, pollSignal);
-      } else {
-        void invalidateInstances();
-      }
-    },
-    [invalidateInstances, provisionVm, qc],
-  );
+  const { getDisplayState } = useVmPowerActionDisplay(vms, patchVm.mutate, { invalidateInstances });
 
   const filteredVms = useMemo(() => {
     return vms.filter((vm) => {
@@ -122,28 +79,11 @@ export const VmListPage = () => {
   }, [getDisplayState, powerFilter, search, vms]);
 
   const handleOpenCreateVm = useCallback(() => {
-    wizardRef.current?.open();
-  }, []);
-
-  const deleteVm = vms.find((vm) => vm.id === vmToDelete);
+    navigate('/vms/create');
+  }, [navigate]);
 
   return (
     <PageSection isFilled className="osac-page">
-      {deleteVm && (
-        <VmDeleteConfirmModal
-          vm={deleteVm}
-          onClose={() => setVmToDelete(undefined)}
-          onSuccess={() => {
-            setVmToDelete(undefined);
-            void invalidateInstances();
-          }}
-        />
-      )}
-      <CatalogProvisionWizard
-        ref={wizardRef}
-        breadcrumbParentLabel="Virtual machines"
-        onProvision={handleWizardProvision}
-      />
       <PageHeader
         title="Virtual machines"
         description="View and filter your virtual machines."
@@ -198,21 +138,14 @@ export const VmListPage = () => {
             <Spinner aria-label="Loading virtual machines" />
           </Bullseye>
         ) : filteredVms.length === 0 ? (
-          <Content component="p" className="osac-vm-list__empty">
+          <SubtleContent component="p" className="osac-vm-list__empty">
             {search || powerFilter !== 'all'
               ? 'No virtual machines match your filters.'
               : 'No virtual machines yet. Create one to get started.'}
-          </Content>
+          </SubtleContent>
         ) : (
-          /* RESTORE clone: onClone={(vm) => wizardRef.current?.openFromClone(vm.id)} */
-          <VmTable
-            vms={filteredVms}
-            getState={getDisplayState}
-            isRestarting={(vm) => isRestarting(vm.id)}
-            isPowerActionPending={(vm) => isPowerActionPending(vm.id)}
-            onPower={runPowerAction}
-            onDelete={(vm) => setVmToDelete(vm.id)}
-          />
+          /* RESTORE clone: onClone={(vm) => navigate('/vms/create', { state: { cloneFromId: vm.id } })} */
+          <VmTable vms={filteredVms} getState={getDisplayState} />
         )}
       </PageDataSection>
     </PageSection>

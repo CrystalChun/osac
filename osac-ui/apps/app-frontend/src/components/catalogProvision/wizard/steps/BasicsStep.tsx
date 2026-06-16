@@ -1,12 +1,6 @@
-import {
-  Content,
-  Form,
-  FormGroup,
-  Stack,
-  StackItem,
-  TextInput,
-  Title,
-} from '@patternfly/react-core';
+import { Form, FormGroup, Stack, StackItem, TextInput, Title } from '@patternfly/react-core';
+
+import { SubtleContent } from '@osac/ui-components/components/SubtleContent/SubtleContent';
 
 import {
   partitionFieldDefinitions,
@@ -51,9 +45,9 @@ export const BasicsStep = <TItem extends CatalogProvisionCatalogItem>({
         <Title id="basics-step-heading" headingLevel="h2" size="xl">
           Basics
         </Title>
-        <Content component="p" className="pf-v6-u-color-text-subtle osac-wizard-step__intro">
+        <SubtleContent component="p" className="osac-wizard-step__intro">
           Name your resource and provide access credentials defined by this catalog item.
-        </Content>
+        </SubtleContent>
       </StackItem>
       <StackItem>
         <Form className="osac-wizard-customization__section-form">

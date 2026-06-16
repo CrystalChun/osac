@@ -1,13 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
-import { COMPUTE_INSTANCE_STATE } from '@osac/ui-components/vmDisplayState';
-
 import {
   advancePendingPowerWatch,
   createPendingPowerWatch,
   resolveVmDisplayPowerState,
   shouldAdvanceRestartToStarting,
-} from './vmPowerDisplay';
+} from '@osac/ui-components/vm/vmPowerDisplay';
+import { COMPUTE_INSTANCE_STATE } from '@osac/ui-components/vmDisplayState';
 
 describe('vmPowerDisplay', () => {
   it('resolveVmDisplayPowerState overlays pending actions', () => {

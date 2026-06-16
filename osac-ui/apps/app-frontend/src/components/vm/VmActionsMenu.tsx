@@ -2,130 +2,109 @@ import { useState } from 'react';
 import { Dropdown, DropdownItem, DropdownList, MenuToggle } from '@patternfly/react-core';
 import { EllipsisVIcon } from '@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon';
 
-import {
-  COMPUTE_INSTANCE_STATE,
-  type DisplayVmState,
-  readComputeInstanceState,
-} from '@osac/ui-components/vmDisplayState';
-
-import type { VmRow } from '../../api/vmRow';
+import type { ComputeInstance } from '@osac/types';
+import { ComputeInstanceState } from '@osac/types';
+import { usePatchComputeInstance } from '@osac/ui-components/api/v1/compute-instance';
+import { VmDeleteConfirmModal } from '@osac/ui-components/components/vm/DetailsPage/VmDeleteConfirmModal';
+import { useVmPowerActionDisplay } from '@osac/ui-components/hooks/useVmPowerActionDisplay';
 
 interface VmActionsMenuProps {
-  vm: VmRow;
-  effectiveState?: DisplayVmState;
-  /** True while stop→wait-for-stopped→start restart orchestration is in progress for this VM. */
-  isRestarting?: boolean;
-  /** True while a pending Starting/Stopping/Restarting badge is active for this VM. */
-  isPowerActionPending?: boolean;
-  onPower: (action: 'start' | 'stop' | 'restart') => void;
-  onDelete?: () => void;
-  /* RESTORE when fulfillment supports clone — expose onClone?: () => void */
-  /* RESTORE when fulfillment supports migrate — expose onMigrate?: () => void */
+  vm: ComputeInstance;
 }
 
-export const VmActionsMenu = ({
-  vm,
-  effectiveState,
-  isRestarting = false,
-  isPowerActionPending = false,
-  onPower,
-  onDelete,
-}: VmActionsMenuProps) => {
+export const VmActionsMenu = ({ vm }: VmActionsMenuProps) => {
   const [open, setOpen] = useState(false);
-  const state = effectiveState ?? readComputeInstanceState(vm);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const patchVm = usePatchComputeInstance();
+  const { runPowerAction } = useVmPowerActionDisplay([vm], patchVm.mutate);
 
-  const pending = isPowerActionPending || isRestarting;
-  const canStart = state === COMPUTE_INSTANCE_STATE.STOPPED && !pending;
-  const canStop =
-    (state === COMPUTE_INSTANCE_STATE.RUNNING || state === COMPUTE_INSTANCE_STATE.PAUSED) &&
-    !pending;
+  const state = vm.status?.state;
+  const canStart = state === ComputeInstanceState.STOPPED;
+  const canStop = state === ComputeInstanceState.RUNNING || state === ComputeInstanceState.PAUSED;
   const canRestart =
-    (state === COMPUTE_INSTANCE_STATE.RUNNING || state === COMPUTE_INSTANCE_STATE.PAUSED) &&
-    !isRestarting &&
-    !pending;
+    state === ComputeInstanceState.RUNNING || state === ComputeInstanceState.PAUSED;
   const canDelete =
-    typeof onDelete === 'function' &&
-    !pending &&
-    state !== COMPUTE_INSTANCE_STATE.DELETING &&
-    state !== COMPUTE_INSTANCE_STATE.STARTING &&
-    state !== 'starting';
+    state !== ComputeInstanceState.DELETING && state !== ComputeInstanceState.STARTING;
 
   return (
-    <Dropdown
-      isOpen={open}
-      onOpenChange={setOpen}
-      toggle={(ref) => (
-        <MenuToggle
-          ref={ref}
-          variant="plain"
-          onClick={() => setOpen((o) => !o)}
-          aria-label={`Actions for ${vm.metadata?.name ?? vm.id}`}
-        >
-          <EllipsisVIcon />
-        </MenuToggle>
+    <>
+      {deleteOpen && (
+        <VmDeleteConfirmModal
+          vm={vm}
+          onClose={() => setDeleteOpen(false)}
+          onSuccess={() => setDeleteOpen(false)}
+        />
       )}
-      popperProps={{ position: 'right' }}
-    >
-      <DropdownList>
-        <DropdownItem
-          value="start"
-          isDisabled={!canStart}
-          onClick={() => {
-            if (!canStart) {
-              return;
-            }
-            onPower('start');
-            setOpen(false);
-          }}
-        >
-          Start
-        </DropdownItem>
-        <DropdownItem
-          value="stop"
-          isDisabled={!canStop}
-          onClick={() => {
-            if (!canStop) {
-              return;
-            }
-            onPower('stop');
-            setOpen(false);
-          }}
-        >
-          Stop
-        </DropdownItem>
-        <DropdownItem
-          value="restart"
-          isDisabled={!canRestart}
-          onClick={() => {
-            if (!canRestart) {
-              return;
-            }
-            onPower('restart');
-            setOpen(false);
-          }}
-        >
-          Restart
-        </DropdownItem>
-        {/* RESTORE Clone when fulfillment supports clone:
-        <DropdownItem value="clone" onClick={() => { onClone?.(); setOpen(false) }}>Clone</DropdownItem>
-        */}
-        {/* RESTORE Migrate when fulfillment supports migrate:
-        <DropdownItem value="migrate" onClick={() => { onMigrate?.(); setOpen(false) }}>Migrate</DropdownItem>
-        */}
-        <DropdownItem
-          value="delete"
-          isDisabled={!canDelete}
-          onClick={() => {
-            if (!canDelete) {
-              return;
-            }
-            onDelete?.();
-            setOpen(false);
-          }}
-        >
-          Delete
-        </DropdownItem>
-      </DropdownList>
-    </Dropdown>
+      <Dropdown
+        isOpen={open}
+        onOpenChange={setOpen}
+        toggle={(ref) => (
+          <MenuToggle
+            ref={ref}
+            variant="plain"
+            onClick={() => setOpen((o) => !o)}
+            aria-label={`Actions for ${vm.metadata?.name ?? vm.id}`}
+          >
+            <EllipsisVIcon />
+          </MenuToggle>
+        )}
+        popperProps={{ position: 'right' }}
+      >
+        <DropdownList>
+          <DropdownItem
+            value="start"
+            isDisabled={!canStart}
+            onClick={() => {
+              if (!canStart) {
+                return;
+              }
+              runPowerAction(vm, 'start');
+              setOpen(false);
+            }}
+          >
+            Start
+          </DropdownItem>
+          <DropdownItem
+            value="stop"
+            isDisabled={!canStop}
+            onClick={() => {
+              if (!canStop) {
+                return;
+              }
+              runPowerAction(vm, 'stop');
+              setOpen(false);
+            }}
+          >
+            Stop
+          </DropdownItem>
+          <DropdownItem
+            value="restart"
+            isDisabled={!canRestart}
+            onClick={() => {
+              if (!canRestart) {
+                return;
+              }
+              runPowerAction(vm, 'restart');
+              setOpen(false);
+            }}
+          >
+            Restart
+          </DropdownItem>
+          <DropdownItem
+            value="delete"
+            isDisabled={!canDelete}
+            onClick={() => {
+              if (!canDelete) {
+                return;
+              }
+              setDeleteOpen(true);
+              setOpen(false);
+            }}
+          >
+            Delete
+          </DropdownItem>
+        </DropdownList>
+      </Dropdown>
+    </>
   );
 };

@@ -1,5 +1,4 @@
 import {
-  Content,
   DescriptionList,
   DescriptionListDescription,
   DescriptionListGroup,
@@ -8,6 +7,8 @@ import {
   StackItem,
   Title,
 } from '@patternfly/react-core';
+
+import { SubtleContent } from '@osac/ui-components/components/SubtleContent/SubtleContent';
 
 import {
   catalogItemFieldDefinitions,
@@ -60,9 +61,9 @@ export const ReviewStep = <TItem extends CatalogProvisionCatalogItem>({
         <Title id="review-heading" headingLevel="h2" size="xl">
           Review and create
         </Title>
-        <Content component="p" className="pf-v6-u-color-text-subtle osac-wizard-step__intro">
+        <SubtleContent component="p" className="osac-wizard-step__intro">
           Confirm the choices below, then {adapter.createButtonLabel.toLowerCase()}.
-        </Content>
+        </SubtleContent>
       </StackItem>
       <StackItem>
         <DescriptionList isCompact aria-labelledby="review-heading">

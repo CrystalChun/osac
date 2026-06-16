@@ -105,10 +105,10 @@ export const usePatchComputeInstance = () => {
             : input.patch,
       }),
     onSuccess: async (_updated, input) => {
-      if ('powerAction' in input) {
-        return;
-      }
       await invalidateComputeInstancesQueries(qc);
+      await qc.invalidateQueries({
+        queryKey: apiQueryKey('v1/compute_instances', [input.id]),
+      });
     },
   });
 };
@@ -122,8 +122,9 @@ export const useDeleteComputeInstance = () => {
         pathParams: [id],
         method: 'DELETE',
       }),
-    onSuccess: async () => {
+    onSuccess: async (_void, id) => {
       await invalidateComputeInstancesQueries(qc);
+      await qc.invalidateQueries({ queryKey: apiQueryKey('v1/compute_instances', [id]) });
     },
   });
 };

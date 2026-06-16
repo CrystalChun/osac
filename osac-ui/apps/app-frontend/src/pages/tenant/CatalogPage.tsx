@@ -1,10 +1,9 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   Alert,
   Bullseye,
   Button,
-  Content,
   Gallery,
   GalleryItem,
   PageSection,
@@ -14,14 +13,9 @@ import {
   StackItem,
 } from '@patternfly/react-core';
 
-import { useProvisionComputeInstance } from '@osac/ui-components/api/v1/compute-instance';
 import { useComputeInstanceCatalogItems } from '@osac/ui-components/api/v1/compute-instance-catalog-item';
-import type { BuildComputeInstanceCreateBodyInput } from '@osac/ui-components/api/v1/compute-instance-wire';
+import { SubtleContent } from '@osac/ui-components/components/SubtleContent/SubtleContent';
 
-import {
-  CatalogProvisionWizard,
-  type CatalogProvisionWizardHandle,
-} from '../../components/catalogProvision/CatalogProvisionWizard';
 import { PageDataSection } from '../../components/layout/PageDataSection';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { CatalogItemCard } from '../../components/vm/CatalogItemCard';
@@ -37,11 +31,11 @@ interface Props {
 
 export const CatalogPage = ({ isProviderGlobal = false }: Props) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [selectedCatalogItem, setSelectedCatalogItem] = useState<CatalogItemForDisplay | null>(
     null,
   );
-  const wizardRef = useRef<CatalogProvisionWizardHandle>(null);
 
   const {
     data: catalogItems = [],
@@ -49,14 +43,6 @@ export const CatalogPage = ({ isProviderGlobal = false }: Props) => {
     isError: catalogError,
     refetch: refetchCatalogItems,
   } = useComputeInstanceCatalogItems();
-  const provisionVm = useProvisionComputeInstance();
-
-  const handleWizardProvision = useCallback(
-    async (vm: BuildComputeInstanceCreateBodyInput) => {
-      await provisionVm.mutateAsync({ vm, specCatalogItemOnly: true });
-    },
-    [provisionVm],
-  );
 
   const searchTerm = search.trim().toLowerCase();
 
@@ -67,10 +53,13 @@ export const CatalogPage = ({ isProviderGlobal = false }: Props) => {
     return catalogItems.filter((item) => searchableCatalogItemText(item).includes(searchTerm));
   }, [catalogItems, searchTerm]);
 
-  const handleOpenFromCatalogItem = useCallback((item: CatalogItemForDisplay) => {
-    wizardRef.current?.openFromCatalogItem(item.id);
-    setSelectedCatalogItem(null);
-  }, []);
+  const handleOpenFromCatalogItem = useCallback(
+    (item: CatalogItemForDisplay) => {
+      setSelectedCatalogItem(null);
+      navigate('/vms/create', { state: { catalogItemId: item.id } });
+    },
+    [navigate],
+  );
 
   const locationState =
     location.state && typeof location.state === 'object'
@@ -113,9 +102,9 @@ export const CatalogPage = ({ isProviderGlobal = false }: Props) => {
             />
           </StackItem>
           <StackItem>
-            <Content component="small" className="osac-template-catalog-count">
+            <SubtleContent component="small" className="osac-template-catalog-count">
               {catalogLoading ? '…' : filtered.length} catalog items
-            </Content>
+            </SubtleContent>
           </StackItem>
           <StackItem>
             {catalogLoading ? (
@@ -123,9 +112,9 @@ export const CatalogPage = ({ isProviderGlobal = false }: Props) => {
                 <Spinner aria-label="Loading catalog items" />
               </Bullseye>
             ) : filtered.length === 0 ? (
-              <Content component="p" className="osac-template-empty-state">
+              <SubtleContent component="p" className="osac-template-empty-state">
                 No catalog items match your search.
-              </Content>
+              </SubtleContent>
             ) : (
               <Gallery hasGutter className="osac-template-gallery">
                 {filtered.map((item) => (
@@ -157,12 +146,6 @@ export const CatalogPage = ({ isProviderGlobal = false }: Props) => {
 
   return (
     <PageSection isFilled className="osac-page tenant-vm-templates-catalog-root">
-      <CatalogProvisionWizard
-        ref={wizardRef}
-        breadcrumbParentLabel="Catalog"
-        onProvision={handleWizardProvision}
-      />
-
       <PageHeader
         title={isProviderGlobal ? 'Global catalog' : 'Catalog'}
         descriptionWidth="medium"

@@ -53,12 +53,11 @@
 }
 
 .osac-template-empty-state {
-  color: var(--pf-t--global--text--color--subtle);
   padding: var(--pf-t--global--spacer--xl) 0;
 }
 
 .osac-template-catalog-count {
-  color: var(--pf-t--global--text--color--subtle);
+  display: block;
 }
 
 .osac-catalog__loading {

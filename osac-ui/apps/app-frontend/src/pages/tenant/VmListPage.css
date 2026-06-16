@@ -19,5 +19,5 @@
 }
 
 .osac-vm-list__empty {
-  color: var(--pf-t--global--text--color--subtle);
+  margin: 0;
 }

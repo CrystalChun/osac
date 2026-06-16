@@ -2,10 +2,9 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { ComputeInstance } from '@osac/types';
+import { useVmPowerActionDisplay } from '@osac/ui-components/hooks/useVmPowerActionDisplay';
+import { clearAllPowerPending } from '@osac/ui-components/vm/vmPowerPendingStore';
 import { COMPUTE_INSTANCE_STATE } from '@osac/ui-components/vmDisplayState';
-
-import { useVmPowerActionDisplay } from './useVmPowerActionDisplay';
-import { clearAllPowerPending } from './vmPowerPendingStore';
 
 type VmState = NonNullable<ComputeInstance['status']>['state'];
 

@@ -6,7 +6,7 @@ import {
   COMPUTE_INSTANCE_STATE,
   type DisplayVmState,
   isKnownWireComputeInstanceState,
-} from '@osac/ui-components/vmDisplayState';
+} from '../vmDisplayState';
 
 export type VmPendingPowerAction = 'starting' | 'stopping' | 'restarting';
 

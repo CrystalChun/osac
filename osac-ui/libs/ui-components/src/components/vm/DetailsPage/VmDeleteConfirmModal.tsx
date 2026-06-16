@@ -10,20 +10,17 @@ import {
   StackItem,
 } from '@patternfly/react-core';
 
+import type { ComputeInstance } from '@osac/types';
+import { ComputeInstanceState } from '@osac/types';
+
 import {
   useDeleteComputeInstance,
   usePatchComputeInstance,
-} from '@osac/ui-components/api/v1/compute-instance';
-import { getErrorMessage } from '@osac/ui-components/utils/error';
-import {
-  COMPUTE_INSTANCE_STATE,
-  readComputeInstanceState,
-} from '@osac/ui-components/vmDisplayState';
-
-import type { VmRow } from '../../api/vmRow';
+} from '../../../api/v1/compute-instance';
+import { getErrorMessage } from '../../../utils/error';
 
 interface VmDeleteConfirmModalProps {
-  vm: VmRow;
+  vm: ComputeInstance;
   onClose: () => void;
   onSuccess: () => void;
 }
@@ -33,7 +30,7 @@ export const VmDeleteConfirmModal = ({ vm, onClose, onSuccess }: VmDeleteConfirm
   const deleteVm = useDeleteComputeInstance();
   const patchVm = usePatchComputeInstance();
 
-  const isStopped = readComputeInstanceState(vm) === COMPUTE_INSTANCE_STATE.STOPPED;
+  const isStopped = vm.status?.state === ComputeInstanceState.STOPPED;
 
   const onDelete = async () => {
     setIsPending(true);

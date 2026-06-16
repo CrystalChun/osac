@@ -1,4 +1,6 @@
-import { Content, Stack, StackItem, Title } from '@patternfly/react-core';
+import { Stack, StackItem, Title } from '@patternfly/react-core';
+
+import { SubtleContent } from '../components/SubtleContent/SubtleContent';
 
 import './PlaceholderPage.css';
 
@@ -16,14 +18,12 @@ export const PlaceholderPage = ({ title, lede }: PlaceholderPageProps) => {
         </Title>
       </StackItem>
       <StackItem>
-        <Content component="p" className="osac-placeholder-page__description">
-          {lede}
-        </Content>
+        <SubtleContent component="p">{lede}</SubtleContent>
       </StackItem>
       <StackItem>
-        <Content component="p" className="osac-placeholder-page__note">
+        <SubtleContent component="p" className="osac-placeholder-page__note">
           This feature is coming soon. Contact your platform administrator for more information.
-        </Content>
+        </SubtleContent>
       </StackItem>
     </Stack>
   );

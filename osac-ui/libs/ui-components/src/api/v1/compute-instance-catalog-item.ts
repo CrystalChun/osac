@@ -20,8 +20,9 @@ export const useComputeInstanceCatalogItems = (
   });
 };
 
-export const useComputeInstanceCatalogItem = (id: string) => {
+export const useComputeInstanceCatalogItem = (id: string | undefined) => {
   return useApiQuery<ComputeInstanceCatalogItem>({
-    queryKey: ['v1/compute_instance_catalog_items', [id]],
+    queryKey: ['v1/compute_instance_catalog_items', id ? [id] : null],
+    enabled: !!id,
   });
 };
