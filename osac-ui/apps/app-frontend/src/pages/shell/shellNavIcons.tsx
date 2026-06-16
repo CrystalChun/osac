@@ -1,6 +1,7 @@
 import type { ComponentType } from 'react';
 import type { SVGIconProps } from '@patternfly/react-icons/dist/esm/createIcon';
 import BuildingIcon from '@patternfly/react-icons/dist/esm/icons/building-icon';
+import CloudIcon from '@patternfly/react-icons/dist/esm/icons/cloud-icon';
 import ClusterIcon from '@patternfly/react-icons/dist/esm/icons/cluster-icon';
 import CubeIcon from '@patternfly/react-icons/dist/esm/icons/cube-icon';
 import GlobeIcon from '@patternfly/react-icons/dist/esm/icons/globe-icon';
@@ -12,6 +13,7 @@ import VirtualMachineIcon from '@patternfly/react-icons/dist/esm/icons/virtual-m
 const SHELL_NAV_ICONS: Record<string, ComponentType<SVGIconProps>> = {
   'compute-vms': VirtualMachineIcon,
   catalog: CubeIcon,
+  clusters: CloudIcon,
   'admin-dashboard': TachometerAltIcon,
   'admin-users': UsersIcon,
   'admin-catalog': CubeIcon,

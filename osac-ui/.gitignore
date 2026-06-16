@@ -49,3 +49,5 @@ coverage/
 
 # Go proxy build artifact
 proxy/osac-proxy
+
+.cursor/

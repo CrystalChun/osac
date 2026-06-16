@@ -1,7 +1,8 @@
 /**
- * App-level fulfillment HTTP adapter — URL construction, credentials, errors, and
- * `{ object }` unwrap only. Responses are returned as parsed JSON without normalization.
+ * App-level fulfillment HTTP adapter — URL construction, credentials, errors,
+ * `{ object }` unwrap, and protobuf JSON decode for cluster responses.
  */
+import { decodeFulfillmentResponse } from '@osac/ui-components/api/fulfillment-decode';
 import type { ApiFetch, ApiFetchOptions, ApiRoute } from '@osac/ui-components/api/types';
 
 export const FULFILLMENT_API_BASE = '/api/fulfillment';
@@ -21,7 +22,7 @@ export const fulfillmentFetch: ApiFetch = async <T = unknown>(
   route: ApiRoute,
   options: ApiFetchOptions = {},
 ): Promise<T> => {
-  const { pathParams, queryParams, method = 'GET', body } = options;
+  const { pathParams, queryParams, method = 'GET', body, decode } = options;
 
   let path: string = route;
 
@@ -53,12 +54,7 @@ export const fulfillmentFetch: ApiFetch = async <T = unknown>(
   });
 
   if (res.status === 401) {
-    // Session expired or never established — force a full-page reload so
-    // useOIDCLogin re-runs from scratch, detects the missing session, and
-    // redirects to the OIDC provider.
     window.location.href = '/';
-    // Return a promise that never resolves so callers don't act on stale data
-    // while the redirect is in-flight.
     return new Promise<never>(() => undefined);
   }
 
@@ -77,5 +73,6 @@ export const fulfillmentFetch: ApiFetch = async <T = unknown>(
   }
 
   const data: unknown = JSON.parse(text);
-  return unwrapFulfillmentObject(data) as T;
+  const unwrapped = unwrapFulfillmentObject(data);
+  return decodeFulfillmentResponse(decode, pathParams, unwrapped) as T;
 };

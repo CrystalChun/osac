@@ -1,0 +1,47 @@
+.osac-resource-detail__description {
+  color: var(--pf-t--global--text--color--subtle);
+  margin: 0;
+}
+
+.osac-resource-detail-tabs {
+  margin-top: var(--pf-t--global--spacer--md);
+}
+
+.osac-resource-detail__tab-panel {
+  padding: var(--pf-t--global--spacer--md) 0;
+}
+
+.osac-resource-detail__empty-state {
+  color: var(--pf-t--global--text--color--subtle);
+}
+
+.osac-resource-detail-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+  gap: var(--pf-t--global--spacer--md);
+  align-items: stretch;
+}
+
+.osac-resource-detail-main-card,
+.osac-resource-detail-side-card {
+  border: 1px solid var(--pf-t--global--border--color--default);
+  height: 100%;
+}
+
+.osac-resource-detail-side-card .pf-v6-c-card__body {
+  height: 100%;
+}
+
+.osac-resource-detail-side__header-row {
+  width: 100%;
+}
+
+.osac-resource-detail-side__summary-line {
+  margin: 0;
+}
+
+@media (max-width: 992px) {
+  .osac-resource-detail-layout {
+    grid-template-columns: 1fr;
+  }
+}

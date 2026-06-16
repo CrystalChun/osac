@@ -28,3 +28,9 @@ export * from './osac/public/v1/capabilities_service_pb.js'
 export * from './osac/public/v1/authn_capabilities_type_pb.js'
 
 export * from './osac/public/v1/console_service_pb.js'
+
+export * from './osac/public/v1/cluster_type_pb.js'
+export * from './osac/public/v1/clusters_service_pb.js'
+export * from './osac/public/v1/cluster_catalog_item_type_pb.js'
+export * from './osac/public/v1/cluster_catalog_items_service_pb.js'
+export * from './osac/public/v1/field_definition_type_pb.js'

@@ -9,6 +9,7 @@ export type ApiRoute =
   | 'v1/compute_instances'
   | 'v1/compute_instance_templates'
   | 'v1/compute_instance_catalog_items'
+  | 'v1/clusters'
   | 'v1/organizations'
   | 'v1/users'
   | 'v1/capabilities';
@@ -26,7 +27,7 @@ export type ApiQueryKey = [
 
 export type UseApiQueryOptions<TQueryFnData, TError, TData> = Omit<
   UseQueryOptions<TQueryFnData, TError, TData, ApiQueryKey>,
-  'queryKey' | 'queryFn'
+  'queryKey'
 > & {
   queryKey: ApiQueryKey;
 };
@@ -60,6 +61,11 @@ export type ApiFetchOptions = {
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   /** Request body — serialised to JSON by the provider. */
   body?: unknown;
+  /**
+   * TEMP: when true, parse the response with protobuf `fromJson` (clusters only today).
+   * Remove once all resources decode at the fetch boundary.
+   */
+  decode?: boolean;
 };
 
 /**

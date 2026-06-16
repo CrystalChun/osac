@@ -15,11 +15,12 @@ export type NavRow = NavSection;
 const TENANT_USER_NAV: NavRow[] = [
   {
     kind: 'section',
-    sectionId: 'nav-tenant-workloads',
-    label: 'Workloads',
+    sectionId: 'nav-tenant-services',
+    label: 'Services',
     children: [
-      { id: 'compute-vms', label: 'Virtual machines', path: '/vms' },
       { id: 'catalog', label: 'Catalog', path: '/catalog' },
+      { id: 'compute-vms', label: 'Virtual Machines', path: '/vms' },
+      { id: 'clusters', label: 'Clusters', path: '/clusters' },
     ],
   },
 ];
@@ -30,6 +31,12 @@ const TENANT_ADMIN_NAV: NavRow[] = [
     sectionId: 'nav-admin-overview',
     label: 'Overview',
     children: [{ id: 'admin-dashboard', label: 'Dashboard', path: '/admin/dashboard' }],
+  },
+  {
+    kind: 'section',
+    sectionId: 'nav-admin-services',
+    label: 'Services',
+    children: [{ id: 'clusters', label: 'Clusters', path: '/clusters' }],
   },
   {
     kind: 'section',

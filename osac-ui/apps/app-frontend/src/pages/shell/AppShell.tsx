@@ -16,6 +16,7 @@ import { ProviderAdminDashboardPage } from '../provider/ProviderAdminDashboardPa
 import { ProviderInfraTopologyPage } from '../provider/ProviderInfraTopologyPage';
 import { ProviderTenantOrgsPage } from '../provider/ProviderTenantOrgsPage';
 import { CatalogPage } from '../tenant/CatalogPage';
+import { ClusterRoutes } from '../tenant/ClusterRoutes';
 import VmDetailsPage from '../tenant/VmDetailsPage';
 import { VmListPage } from '../tenant/VmListPage';
 
@@ -69,6 +70,14 @@ export const AppShell = ({ logout }: { logout: () => Promise<void> }) => {
           element={
             <RoleRoute allow={['tenantUser', 'tenantAdmin']} fallback={defaultRoute}>
               <CatalogPage />
+            </RoleRoute>
+          }
+        />
+        <Route
+          path="/clusters/*"
+          element={
+            <RoleRoute allow={['tenantUser', 'tenantAdmin']} fallback={defaultRoute}>
+              <ClusterRoutes />
             </RoleRoute>
           }
         />
