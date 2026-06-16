@@ -17,7 +17,7 @@ export const unwrapFulfillmentObject = (data: unknown): unknown => {
   return data;
 };
 
-const fulfillmentFetchImpl = async <T = unknown>(
+export const fulfillmentFetch: ApiFetch = async <T = unknown>(
   route: ApiRoute,
   options: ApiFetchOptions = {},
 ): Promise<T> => {
@@ -52,6 +52,16 @@ const fulfillmentFetchImpl = async <T = unknown>(
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
 
+  if (res.status === 401) {
+    // Session expired or never established — force a full-page reload so
+    // useOIDCLogin re-runs from scratch, detects the missing session, and
+    // redirects to the OIDC provider.
+    window.location.href = '/';
+    // Return a promise that never resolves so callers don't act on stale data
+    // while the redirect is in-flight.
+    return new Promise<never>(() => undefined);
+  }
+
   if (!res.ok) {
     const text = await res.text().catch(() => '');
     throw new Error(`API ${res.status}: ${text || res.statusText}`);
@@ -69,5 +79,3 @@ const fulfillmentFetchImpl = async <T = unknown>(
   const data: unknown = JSON.parse(text);
   return unwrapFulfillmentObject(data) as T;
 };
-
-export const fulfillmentFetch: ApiFetch = fulfillmentFetchImpl;
