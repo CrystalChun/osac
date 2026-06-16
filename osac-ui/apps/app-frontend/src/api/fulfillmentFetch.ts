@@ -7,17 +7,6 @@ import type { ApiFetch, ApiFetchOptions, ApiRoute } from '@osac/ui-components/ap
 
 export const FULFILLMENT_API_BASE = '/api/fulfillment';
 
-/** POST/PATCH fulfillment returns `{ object }` for some resources; GET-by-id may too. */
-export const unwrapFulfillmentObject = (data: unknown): unknown => {
-  if (data && typeof data === 'object' && data !== null && 'object' in data) {
-    const o = (data as { object?: unknown }).object;
-    if (o !== undefined) {
-      return o;
-    }
-  }
-  return data;
-};
-
 export const fulfillmentFetch: ApiFetch = async <T = unknown>(
   route: ApiRoute,
   options: ApiFetchOptions = {},
@@ -54,7 +43,12 @@ export const fulfillmentFetch: ApiFetch = async <T = unknown>(
   });
 
   if (res.status === 401) {
+    // Session expired or never established — force a full-page reload so
+    // useOIDCLogin re-runs from scratch, detects the missing session, and
+    // redirects to the OIDC provider.
     window.location.href = '/';
+    // Return a promise that never resolves so callers don't act on stale data
+    // while the redirect is in-flight.
     return new Promise<never>(() => undefined);
   }
 
@@ -73,6 +67,5 @@ export const fulfillmentFetch: ApiFetch = async <T = unknown>(
   }
 
   const data: unknown = JSON.parse(text);
-  const unwrapped = unwrapFulfillmentObject(data);
-  return decodeFulfillmentResponse(decode, pathParams, unwrapped) as T;
+  return decodeFulfillmentResponse(decode, data) as T;
 };

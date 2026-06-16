@@ -1,14 +1,24 @@
-import { Flex, FlexItem, Label, Spinner } from '@patternfly/react-core';
+import { Label } from '@patternfly/react-core';
+import CheckCircleIcon from '@patternfly/react-icons/dist/esm/icons/check-circle-icon';
+import ExclamationCircleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
+import InProgressIcon from '@patternfly/react-icons/dist/esm/icons/in-progress-icon';
+import QuestionCircleIcon from '@patternfly/react-icons/dist/esm/icons/question-circle-icon';
 
 export type StatusKind = 'ready' | 'failed' | 'progressing' | 'unspecified';
 
 type LabelColor = 'green' | 'red' | 'blue' | 'grey';
 
-const STATUS_STYLE: Record<StatusKind, { color: LabelColor; spinning: boolean }> = {
-  ready: { color: 'green', spinning: false },
-  failed: { color: 'red', spinning: false },
-  progressing: { color: 'blue', spinning: true },
-  unspecified: { color: 'grey', spinning: false },
+type StatusStyle = {
+  color: LabelColor;
+  icon: typeof CheckCircleIcon;
+  iconStatus: 'success' | 'danger' | 'info' | 'custom';
+};
+
+const STATUS_STYLE: Record<StatusKind, StatusStyle> = {
+  ready: { color: 'green', icon: CheckCircleIcon, iconStatus: 'success' },
+  failed: { color: 'red', icon: ExclamationCircleIcon, iconStatus: 'danger' },
+  progressing: { color: 'blue', icon: InProgressIcon, iconStatus: 'info' },
+  unspecified: { color: 'grey', icon: QuestionCircleIcon, iconStatus: 'custom' },
 };
 
 export interface StatusLabelProps {
@@ -17,20 +27,10 @@ export interface StatusLabelProps {
 }
 
 export const StatusLabel = ({ status, text }: StatusLabelProps) => {
-  const { color, spinning } = STATUS_STYLE[status];
-
+  const { color, icon: StatusIcon } = STATUS_STYLE[status];
   return (
-    <Flex alignItems={{ default: 'alignItemsCenter' }} spaceItems={{ default: 'spaceItemsSm' }}>
-      {spinning ? (
-        <FlexItem>
-          <Spinner size="sm" aria-label={`${text} in progress`} />
-        </FlexItem>
-      ) : null}
-      <FlexItem>
-        <Label color={color} isCompact>
-          {text}
-        </Label>
-      </FlexItem>
-    </Flex>
+    <Label color={color} icon={<StatusIcon aria-hidden />}>
+      {text}
+    </Label>
   );
 };

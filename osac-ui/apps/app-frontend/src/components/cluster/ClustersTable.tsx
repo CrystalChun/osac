@@ -6,13 +6,10 @@ import { Link } from 'react-router-dom';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
 import type { Cluster } from '@osac/types';
-import { ExternalLink } from '@osac/ui-components/ExternalLink';
+import ExternalLink from '@osac/ui-components/components/ExternalLink';
 import { Timestamp } from '@osac/ui-components/Timestamp';
 
-import { ClusterStatusLabel } from './ClusterStatusLabel';
-
-import '../shared/DataTable.css';
-
+import { ClusterStatusLabel } from './details/ClusterStatusLabel';
 interface ClustersTableProps {
   clusters: Cluster[];
 }
@@ -33,7 +30,7 @@ export const ClustersTable = ({ clusters }: ClustersTableProps) => {
           const apiUrl = cluster.status?.apiUrl;
           return (
             <Tr key={cluster.id}>
-              <Td dataLabel="Name" className="osac-data-table__primary-cell">
+              <Td dataLabel="Name">
                 <Link to={`/clusters/${encodeURIComponent(cluster.id)}`}>
                   {cluster.metadata?.name || cluster.id}
                 </Link>

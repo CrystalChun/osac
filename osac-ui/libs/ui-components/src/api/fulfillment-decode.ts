@@ -1,22 +1,24 @@
 import { type JsonValue, fromJson } from '@bufbuild/protobuf';
 
-import { ClusterSchema, ClustersListResponseSchema } from '@osac/types';
+import { getErrorMessage } from '../utils/error';
 
-/** TEMP: decode cluster responses when `decode` is set on the fetch call. */
+/** Protobuf message schema passed by hooks to decode JSON API responses. */
+export type FulfillmentDecodeSchema = Parameters<typeof fromJson>[0];
+
 export const decodeFulfillmentResponse = (
-  decode: boolean | undefined,
-  pathParams: (string | number)[] | null | undefined,
+  schema: FulfillmentDecodeSchema | undefined,
   data: unknown,
 ): unknown => {
-  if (!decode || data == null) {
+  if (!schema || data == null) {
     return data;
   }
 
-  const hasId = Array.isArray(pathParams) && pathParams.length === 1;
-
-  if (hasId) {
-    return fromJson(ClusterSchema, data as JsonValue);
+  if (typeof data !== 'object' || Array.isArray(data)) {
+    throw new Error('Invalid response format for protobuf decode');
   }
-
-  return fromJson(ClustersListResponseSchema, data as JsonValue);
+  try {
+    return fromJson(schema, data as JsonValue);
+  } catch (error) {
+    throw new Error(`Protobuf decode failed: ${getErrorMessage(error)}`);
+  }
 };

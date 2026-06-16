@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
+import { Button } from '@patternfly/react-core';
 
-import { toSafeExternalUrl } from './safeExternalUrl';
+import { toSafeExternalUrl } from '../utils/safeExternalUrl';
 
 interface ExternalLinkProps {
   href?: string;
@@ -10,7 +11,7 @@ interface ExternalLinkProps {
   showUnsafeAsText?: boolean;
 }
 
-export const ExternalLink = ({
+const ExternalLink = ({
   href,
   children,
   fallback = '—',
@@ -21,9 +22,16 @@ export const ExternalLink = ({
 
   if (safeHref) {
     return (
-      <a href={safeHref} target="_blank" rel="noopener noreferrer">
+      <Button
+        variant="link"
+        isInline
+        component="a"
+        href={safeHref}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
         {label}
-      </a>
+      </Button>
     );
   }
 
@@ -33,3 +41,5 @@ export const ExternalLink = ({
 
   return <>{fallback}</>;
 };
+
+export default ExternalLink;

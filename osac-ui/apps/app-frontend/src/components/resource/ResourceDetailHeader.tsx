@@ -3,7 +3,6 @@ import {
   Breadcrumb,
   BreadcrumbItem,
   Content,
-  Divider,
   Stack,
   StackItem,
   Title,
@@ -23,7 +22,7 @@ export const ResourceDetailHeader = ({
   description,
 }: ResourceDetailHeaderProps) => {
   return (
-    <>
+    <Stack hasGutter>
       <StackItem>
         <Breadcrumb>
           <BreadcrumbItem
@@ -46,17 +45,11 @@ export const ResourceDetailHeader = ({
           </StackItem>
           {description && (
             <StackItem>
-              <Content component="p" className="osac-resource-detail__description">
-                {description}
-              </Content>
+              <Content component="p">{description}</Content>
             </StackItem>
           )}
         </Stack>
       </StackItem>
-
-      <StackItem>
-        <Divider />
-      </StackItem>
-    </>
+    </Stack>
   );
 };

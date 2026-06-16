@@ -48,7 +48,7 @@ const toDate = (value: ProtoTimestamp | string | Date): Date | undefined => {
 };
 
 export const Timestamp = ({ value, fallback = '—' }: TimestampProps) => {
-  if (value == null) {
+  if (!value) {
     return <>{fallback}</>;
   }
 

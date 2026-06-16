@@ -26,3 +26,5 @@ export const formatIsoDate = (iso?: string): string => {
   const t = Date.parse(iso.trim());
   return Number.isNaN(t) ? iso : new Date(t).toLocaleString();
 };
+
+export const displayValue = (value?: string): string => value?.trim() || '—';

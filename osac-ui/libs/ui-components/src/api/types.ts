@@ -1,5 +1,7 @@
 import { UseQueryOptions } from '@tanstack/react-query';
 
+import type { FulfillmentDecodeSchema } from './fulfillment-decode';
+
 /**
  * All known API base routes. Adding a new resource hook requires adding its
  * route here first — unknown strings are rejected at compile time everywhere
@@ -61,11 +63,8 @@ export type ApiFetchOptions = {
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   /** Request body — serialised to JSON by the provider. */
   body?: unknown;
-  /**
-   * TEMP: when true, parse the response with protobuf `fromJson` (clusters only today).
-   * Remove once all resources decode at the fetch boundary.
-   */
-  decode?: boolean;
+  /** Parse the response with protobuf `fromJson` using the given message schema. */
+  decode?: FulfillmentDecodeSchema;
 };
 
 /**
