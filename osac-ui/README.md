@@ -66,21 +66,11 @@ pnpm install
 
 ## Quick start (development)
 
-You need a running fulfillment API. Point `FULFILLMENT_API_URL` at it, then open **two terminals** from the repo root:
-
-**Terminal 1 — Go proxy:**
+You need a running fulfillment API. Point `FULFILLMENT_API_URL` at it
 
 ```bash
-FULFILLMENT_API_URL=https://fulfillment.your-env.example.com pnpm dev:proxy
-# Server starts on http://localhost:8080
-```
-
-**Terminal 2 — SPA:**
-
-```bash
-pnpm dev:frontend
-# Vite dev server starts on http://localhost:5173
-# All /api/* requests are proxied to :8080 automatically
+FULFILLMENT_API_URL=https://fulfillment.your-env.example.com pnpm dev
+# Server starts on http://localhost:5173
 ```
 
 Open [http://localhost:5173](http://localhost:5173). Unauthenticated visitors are redirected through OIDC sign-in via the Go proxy.

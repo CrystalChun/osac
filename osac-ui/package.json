@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "gen-types": "pnpm --filter @osac/types run gen-types",
+    "dev": "concurrently \"pnpm dev:proxy\" \"pnpm dev:frontend\"",
     "dev:proxy": "cd proxy && nodemon --watch 'proxy/**/*' --exec 'go run' main.go --signal SIGTERM",
     "dev:frontend": "pnpm --filter @osac/app-frontend run dev",
     "build": "pnpm --filter @osac/app-frontend run build && cd proxy && go build -o osac-proxy .",
@@ -17,6 +18,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
+    "concurrently": "^10.0.3",
     "eslint": "^9.39.4",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-react": "^7.37.5",
