@@ -11,9 +11,9 @@ import {
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
 import type { Cluster } from '@osac/types';
-import { Timestamp } from '@osac/ui-components/Timestamp';
 
-import { displayValue } from '../../resource/detailFormatters';
+import { displayValue } from '../../../utils/detailFormatters';
+import { Timestamp } from '../../Primitives/Timestamp';
 
 interface ClusterConfigurationCardProps {
   cluster: Cluster;

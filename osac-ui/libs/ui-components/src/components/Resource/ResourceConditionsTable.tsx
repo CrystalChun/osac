@@ -1,17 +1,17 @@
 import { Content } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
-import type { ClusterCondition } from '@osac/types';
-import { Timestamp } from '@osac/ui-components/Timestamp';
+import type { ClusterCondition, ComputeInstanceCondition } from '@osac/types';
 
 import {
   displayValue,
   formatConditionStatusForDisplay,
   humanizeConditionType,
-} from './detailFormatters';
+} from '../../utils/detailFormatters';
+import { Timestamp } from '../Primitives/Timestamp';
 
 interface ResourceConditionsTableProps {
-  conditions: ClusterCondition[];
+  conditions: (ClusterCondition | ComputeInstanceCondition)[];
   ariaLabel: string;
   emptyMessage?: string;
 }

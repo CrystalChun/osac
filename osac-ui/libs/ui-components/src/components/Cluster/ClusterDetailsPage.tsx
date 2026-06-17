@@ -4,11 +4,10 @@
  */
 import { useParams } from 'react-router-dom';
 
-import { useCluster } from '@osac/ui-components/api/v1/cluster';
-
-import ClusterDetailsPageContent from '../../components/cluster/details/ClusterDetailsPageContent';
-import { ResourceDetailsPageError } from '../../components/resource/ResourceDetailsPageError';
-import { ResourceDetailsPageLoading } from '../../components/resource/ResourceDetailsPageLoading';
+import { useCluster } from '../../api/v1/cluster';
+import { ResourceDetailsPageError } from '../Resource/ResourceDetailsPageError';
+import { ResourceDetailsPageLoading } from '../Resource/ResourceDetailsPageLoading';
+import ClusterDetailsPageContent from './Details/ClusterDetailsPageContent';
 
 export const ClusterDetailsPage = () => {
   const { clusterId } = useParams() as { clusterId: string };

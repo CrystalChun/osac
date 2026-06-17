@@ -5,7 +5,6 @@ import {
   ClustersListResponseSchema,
 } from '@osac/types';
 
-import { useApiFetch } from '../api-context';
 import { useApiQuery } from '../use-api-query';
 
 export type ListClustersParams = {
@@ -14,29 +13,18 @@ export type ListClustersParams = {
   offset?: number;
 };
 
-export const useClusters = (params: ListClustersParams = {}) => {
-  const apiFetch = useApiFetch();
-  return useApiQuery<ClustersListResponse, Cluster[]>({
+export const useClusters = (params: ListClustersParams = {}) =>
+  useApiQuery<ClustersListResponse, Cluster[]>({
     queryKey: ['v1/clusters', null, params],
-    queryFn: () =>
-      apiFetch<ClustersListResponse>('v1/clusters', {
-        queryParams: params,
-        decode: ClustersListResponseSchema,
-      }),
     select: (data: ClustersListResponse) => data.items,
+    meta: { decode: ClustersListResponseSchema },
   });
-};
 
 export const useCluster = (id: string) => {
-  const apiFetch = useApiFetch();
   const trimmedId = id?.trim() ?? '';
   return useApiQuery<Cluster>({
     queryKey: ['v1/clusters', [trimmedId]],
-    queryFn: () =>
-      apiFetch<Cluster>('v1/clusters', {
-        pathParams: [trimmedId],
-        decode: ClusterSchema,
-      }),
+    meta: { decode: ClusterSchema },
     enabled: Boolean(trimmedId),
   });
 };

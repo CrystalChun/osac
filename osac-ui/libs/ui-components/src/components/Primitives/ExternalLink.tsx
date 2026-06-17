@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { Button } from '@patternfly/react-core';
 
-import { toSafeExternalUrl } from '../utils/safeExternalUrl';
+import { toSafeExternalUrl } from '../../utils/safeExternalUrl';
 
 interface ExternalLinkProps {
   href?: string;

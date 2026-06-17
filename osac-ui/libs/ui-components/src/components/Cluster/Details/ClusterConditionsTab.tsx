@@ -2,7 +2,7 @@ import { Card, CardBody, CardTitle } from '@patternfly/react-core';
 
 import type { Cluster } from '@osac/types';
 
-import { ResourceConditionsTable } from '../../resource/ResourceConditionsTable';
+import { ResourceConditionsTable } from '../../Resource/ResourceConditionsTable';
 
 interface ClusterConditionsTabProps {
   cluster: Cluster;

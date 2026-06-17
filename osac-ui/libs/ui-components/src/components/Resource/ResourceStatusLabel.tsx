@@ -26,7 +26,7 @@ export interface StatusLabelProps {
   text: string;
 }
 
-export const StatusLabel = ({ status, text }: StatusLabelProps) => {
+export const ResourceStatusLabel = ({ status, text }: StatusLabelProps) => {
   const { color, icon: StatusIcon } = STATUS_STYLE[status];
   return (
     <Label color={color} icon={<StatusIcon aria-hidden />}>

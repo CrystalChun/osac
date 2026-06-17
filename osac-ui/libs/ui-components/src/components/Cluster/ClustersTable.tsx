@@ -6,10 +6,10 @@ import { Link } from 'react-router-dom';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
 import type { Cluster } from '@osac/types';
-import ExternalLink from '@osac/ui-components/components/ExternalLink';
-import { Timestamp } from '@osac/ui-components/Timestamp';
 
-import { ClusterStatusLabel } from './details/ClusterStatusLabel';
+import { ClusterStatusLabel } from './ClusterStatusLabel';
+import ExternalLink from '../Primitives/ExternalLink';
+import { Timestamp } from '../Primitives/Timestamp';
 interface ClustersTableProps {
   clusters: Cluster[];
 }

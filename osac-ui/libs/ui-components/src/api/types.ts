@@ -27,11 +27,16 @@ export type ApiQueryKey = [
   queryParams?: Record<string, string | number | boolean | null | undefined>,
 ];
 
+export type ApiQueryMeta = {
+  decode?: FulfillmentDecodeSchema;
+};
+
 export type UseApiQueryOptions<TQueryFnData, TError, TData> = Omit<
   UseQueryOptions<TQueryFnData, TError, TData, ApiQueryKey>,
-  'queryKey'
+  'queryKey' | 'meta' | 'queryFn'
 > & {
   queryKey: ApiQueryKey;
+  meta?: ApiQueryMeta;
 };
 
 /**

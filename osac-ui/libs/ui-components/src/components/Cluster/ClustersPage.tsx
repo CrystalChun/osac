@@ -2,22 +2,28 @@
  * flow: cluster-service-catalog
  * step: csc_clusters_list
  */
-import { Alert, Bullseye, Button, PageSection, Spinner } from '@patternfly/react-core';
+import {
+  Alert,
+  Bullseye,
+  Button,
+  Content,
+  PageSection,
+  Spinner,
+  Title,
+} from '@patternfly/react-core';
 
-import { useClusters } from '@osac/ui-components/api/v1/cluster';
-
-import { ClustersTable } from '../../components/cluster/ClustersTable';
-import { PageHeader } from '../../components/layout/PageHeader';
+import { ClustersTable } from './ClustersTable';
+import { useClusters } from '../../api/v1/cluster';
 
 export const ClustersPage = () => {
   const { data: clusters = [], isLoading, isError, refetch } = useClusters();
 
   return (
     <PageSection>
-      <PageHeader
-        title="Clusters"
-        description="OpenShift clusters provisioned for your organization."
-      />
+      <Title headingLevel="h1" size="2xl">
+        Clusters
+      </Title>
+      <Content component="p">OpenShift clusters provisioned for your organization.</Content>
 
       {isLoading ? (
         <Bullseye className="osac-data-table__loading">

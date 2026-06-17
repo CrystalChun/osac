@@ -11,9 +11,9 @@ import {
 } from '@patternfly/react-core';
 
 import type { Cluster } from '@osac/types';
-import ExternalLink from '@osac/ui-components/components/ExternalLink';
 
-import { ClusterStatusLabel } from './ClusterStatusLabel';
+import ExternalLink from '../../Primitives/ExternalLink';
+import { ClusterStatusLabel } from '../ClusterStatusLabel';
 
 interface ClusterStatusCardProps {
   cluster: Cluster;

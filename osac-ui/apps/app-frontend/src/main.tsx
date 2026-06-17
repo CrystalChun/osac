@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createRoot } from 'react-dom/client';
 
 import { ApiProvider } from '@osac/ui-components/api/api-context';
-import type { ApiQueryKey } from '@osac/ui-components/api/types';
+import type { ApiQueryKey, ApiQueryMeta } from '@osac/ui-components/api/types';
 
 import { fulfillmentFetch } from './api/fulfillmentFetch';
 import App from './App';
@@ -27,7 +27,8 @@ const queryClient = new QueryClient({
       refetchInterval: 30_000,
       queryFn: (ctx) => {
         const [route, pathParams, queryParams] = ctx.queryKey as ApiQueryKey;
-        return fulfillmentFetch(route, { pathParams, queryParams });
+        const { decode } = (ctx.meta ?? {}) as ApiQueryMeta;
+        return fulfillmentFetch(route, { pathParams, queryParams, decode });
       },
     },
   },

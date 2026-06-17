@@ -12,7 +12,6 @@ export const fulfillmentFetch: ApiFetch = async <T = unknown>(
   options: ApiFetchOptions = {},
 ): Promise<T> => {
   const { pathParams, queryParams, method = 'GET', body, decode } = options;
-
   let path: string = route;
 
   if (Array.isArray(pathParams)) {

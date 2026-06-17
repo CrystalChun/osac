@@ -1,6 +1,8 @@
-import { ClusterConditionType, ConditionStatus } from '@osac/types';
+import { ClusterConditionType, ComputeInstanceConditionType, ConditionStatus } from '@osac/types';
 
-export const humanizeConditionType = (type: ClusterConditionType): string => {
+export const humanizeConditionType = (
+  type: ClusterConditionType | ComputeInstanceConditionType,
+): string => {
   const name = ClusterConditionType[type];
   if (typeof name !== 'string') {
     return String(type);

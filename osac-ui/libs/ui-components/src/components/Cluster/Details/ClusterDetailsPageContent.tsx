@@ -18,7 +18,7 @@ import type { Cluster } from '@osac/types';
 
 import { ClusterConditionsTab } from './ClusterConditionsTab';
 import { ClusterOverviewTab } from './ClusterOverviewTab';
-import { ResourceDetailHeader } from '../../resource/ResourceDetailHeader';
+import { ResourceDetailHeader } from '../../Resource/ResourceDetailHeader';
 
 interface ClusterDetailViewProps {
   cluster: Cluster;
