@@ -44,7 +44,7 @@ export const ConfigurationStep = <TItem extends CatalogProvisionCatalogItem>({
           <Title id="configuration-step-heading" headingLevel="h2" size="xl">
             Configuration
           </Title>
-          <SubtleContent component="p" className="osac-wizard-step__intro">
+          <SubtleContent component="p">
             Select a catalog item to configure resource settings.
           </SubtleContent>
         </StackItem>
@@ -68,7 +68,7 @@ export const ConfigurationStep = <TItem extends CatalogProvisionCatalogItem>({
         <Title id="configuration-step-heading" headingLevel="h2" size="xl">
           Configuration
         </Title>
-        <SubtleContent component="p" className="osac-wizard-step__intro">
+        <SubtleContent component="p">
           Adjust the editable settings for this catalog item.
         </SubtleContent>
       </StackItem>

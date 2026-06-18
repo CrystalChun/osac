@@ -1,8 +1,11 @@
+import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Breadcrumb,
   BreadcrumbItem,
   Content,
+  Flex,
+  FlexItem,
   Stack,
   StackItem,
   Title,
@@ -13,6 +16,7 @@ interface ResourceDetailHeaderProps {
   parentLabel: string;
   resourceName: string;
   description?: string;
+  titleAddon?: ReactNode;
 }
 
 export const ResourceDetailHeader = ({
@@ -20,6 +24,7 @@ export const ResourceDetailHeader = ({
   parentLabel,
   resourceName,
   description,
+  titleAddon,
 }: ResourceDetailHeaderProps) => {
   return (
     <Stack hasGutter>
@@ -39,9 +44,18 @@ export const ResourceDetailHeader = ({
       <StackItem>
         <Stack hasGutter={false}>
           <StackItem>
-            <Title headingLevel="h1" size="2xl">
-              {resourceName}
-            </Title>
+            <Flex
+              alignItems={{ default: 'alignItemsCenter' }}
+              spaceItems={{ default: 'spaceItemsMd' }}
+              flexWrap={{ default: 'wrap' }}
+            >
+              <FlexItem>
+                <Title headingLevel="h1" size="2xl">
+                  {resourceName}
+                </Title>
+              </FlexItem>
+              {titleAddon ? <FlexItem>{titleAddon}</FlexItem> : null}
+            </Flex>
           </StackItem>
           {description && (
             <StackItem>

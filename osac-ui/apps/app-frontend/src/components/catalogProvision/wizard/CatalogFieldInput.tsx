@@ -51,7 +51,7 @@ export const CatalogFieldInput = ({
 
   if (enumValues?.length) {
     return (
-      <FormGroup label={def.displayName} fieldId={id} isRequired={def.editable}>
+      <FormGroup label={def.displayName} fieldId={id}>
         <FormSelect
           id={id}
           aria-label={def.displayName}

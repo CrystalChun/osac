@@ -5,16 +5,7 @@
  * Generic catalog-driven provisioning wizard for compute instances (and future clusters).
  * Contract: docs/specs/ui-flows/catalog-provision-wizard.yaml
  */
-import {
-  type MouseEvent,
-  forwardRef,
-  useCallback,
-  useEffect,
-  useImperativeHandle,
-  useMemo,
-  useState,
-} from 'react';
-import { createPortal } from 'react-dom';
+import { type MouseEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Alert,
   Breadcrumb,
@@ -46,17 +37,14 @@ import type { CatalogProvisionAdapter } from './wizard/adapters/types';
 import { hasWizardUnsavedProgress, mergeWizardDraft } from './wizard/constants';
 import { STEP_LABELS, getWizardOrderedSteps } from './wizard/stepIds';
 import { BasicsStep, CatalogStep, ConfigurationStep, ReviewStep } from './wizard/steps/WizardSteps';
-import type { CatalogProvisionWizardHandle, CatalogProvisionWizardState } from './wizard/types';
+import type { CatalogProvisionWizardState } from './wizard/types';
 import {
   canProceedWizardStep,
   liveWizardStepFieldErrors,
   validateWizardForFinalize,
 } from './wizard/wizardBuild';
-import { getPageContentPortalHost } from '../../pages/shell/pageContentPortalHost';
 
 import './CatalogProvisionWizard.css';
-
-export type { CatalogProvisionWizardHandle } from './wizard/types';
 
 const ADAPTERS: Record<
   CatalogProvisionKind,
@@ -104,6 +92,8 @@ interface Props {
   kind?: CatalogProvisionKind;
   /** Parent page label for breadcrumb navigation (e.g. Virtual machines, Catalog). */
   breadcrumbParentLabel: string;
+  /** Pre-select a catalog item when opening from catalog or a deep link. */
+  initialCatalogItemId?: string;
   onProvision: (payload: BuildComputeInstanceCreateBodyInput) => void | Promise<void>;
   /** Called when the wizard closes via cancel or breadcrumb — not after a successful provision. */
   onClosed?: () => void;
@@ -120,7 +110,7 @@ interface WizardFooterProps {
   pending: boolean;
   setPending: (pending: boolean) => void;
   onProvision: Props['onProvision'];
-  close: () => void;
+  close: (options?: { notifyClosed?: boolean }) => void;
   requestClose: () => void;
 }
 
@@ -240,324 +230,286 @@ const CatalogProvisionWizardFooter = ({
   );
 };
 
-export const CatalogProvisionWizard = forwardRef<CatalogProvisionWizardHandle, Props>(
-  ({ kind = 'compute_instance', breadcrumbParentLabel, onProvision, onClosed }, ref) => {
-    const adapter = ADAPTERS[kind];
-    const [isOpen, setIsOpen] = useState(false);
-    const [activeIndex, setActiveIndex] = useState(0);
-    const [draft, setDraft] = useState<CatalogProvisionWizardState>(() => mergeWizardDraft({}));
-    const [provisionError, setProvisionError] = useState<string | undefined>();
-    const [pending, setPending] = useState(false);
-    const [showCancelConfirm, setShowCancelConfirm] = useState(false);
-    const { data: catalogItems = [] } = adapter.useCatalogItems();
+export const CatalogProvisionWizard = ({
+  kind = 'compute_instance',
+  breadcrumbParentLabel,
+  initialCatalogItemId,
+  onProvision,
+  onClosed,
+}: Props) => {
+  const adapter = ADAPTERS[kind];
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [draft, setDraft] = useState<CatalogProvisionWizardState>(() =>
+    mergeWizardDraft({ catalogItemId: initialCatalogItemId ?? null }),
+  );
+  const [provisionError, setProvisionError] = useState<string | undefined>();
+  const [pending, setPending] = useState(false);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const { data: catalogItems = [] } = adapter.useCatalogItems();
 
-    const resetLocal = useCallback(() => {
-      setActiveIndex(0);
-      setDraft(mergeWizardDraft({}));
-      setProvisionError(undefined);
-      setShowCancelConfirm(false);
-    }, []);
+  const resetLocal = useCallback(() => {
+    setActiveIndex(0);
+    setDraft(mergeWizardDraft({}));
+    setProvisionError(undefined);
+    setShowCancelConfirm(false);
+  }, []);
 
-    const openWizard = useCallback(
-      (preset?: Partial<CatalogProvisionWizardState>) => {
-        resetLocal();
-        if (preset) {
-          setDraft(mergeWizardDraft(preset));
-        }
-        setIsOpen(true);
-      },
-      [resetLocal],
-    );
+  const update = useCallback(
+    <K extends keyof CatalogProvisionWizardState>(
+      key: K,
+      value: CatalogProvisionWizardState[K],
+    ) => {
+      setDraft((prev) => ({ ...prev, [key]: value }));
+    },
+    [],
+  );
 
-    useImperativeHandle(ref, () => ({
-      open() {
-        openWizard();
-      },
-      openFromCatalogItem(catalogItemId) {
-        openWizard({ catalogItemId });
-      },
+  const updateFieldValue = useCallback((path: string, value: string) => {
+    setDraft((prev) => ({
+      ...prev,
+      fieldValues: { ...prev.fieldValues, [path]: value },
     }));
+  }, []);
 
-    const update = useCallback(
-      <K extends keyof CatalogProvisionWizardState>(
-        key: K,
-        value: CatalogProvisionWizardState[K],
-      ) => {
-        setDraft((prev) => ({ ...prev, [key]: value }));
-      },
-      [],
-    );
+  const updateNetworkAttachmentRows = useCallback(
+    (networkAttachmentRows: CatalogProvisionWizardState['networkAttachmentRows']) => {
+      setDraft((prev) => ({ ...prev, networkAttachmentRows }));
+    },
+    [],
+  );
 
-    const updateFieldValue = useCallback((path: string, value: string) => {
-      setDraft((prev) => ({
-        ...prev,
-        fieldValues: { ...prev.fieldValues, [path]: value },
-      }));
-    }, []);
-
-    const updateNetworkAttachmentRows = useCallback(
-      (networkAttachmentRows: CatalogProvisionWizardState['networkAttachmentRows']) => {
-        setDraft((prev) => ({ ...prev, networkAttachmentRows }));
-      },
-      [],
-    );
-
-    const close = useCallback(
-      (options?: { notifyClosed?: boolean }) => {
-        setIsOpen(false);
-        resetLocal();
-        if (options?.notifyClosed !== false) {
-          onClosed?.();
-        }
-      },
-      [onClosed, resetLocal],
-    );
-
-    const requestClose = useCallback(() => {
-      if (pending) {
-        return;
+  const close = useCallback(
+    (options?: { notifyClosed?: boolean }) => {
+      resetLocal();
+      if (options?.notifyClosed !== false) {
+        onClosed?.();
       }
-      if (hasWizardUnsavedProgress(draft)) {
-        setShowCancelConfirm(true);
-        return;
+    },
+    [onClosed, resetLocal],
+  );
+
+  const requestClose = useCallback(() => {
+    if (pending) {
+      return;
+    }
+    if (hasWizardUnsavedProgress(draft)) {
+      setShowCancelConfirm(true);
+      return;
+    }
+    close();
+  }, [close, draft, pending]);
+
+  const selectedCatalogItem = useMemo(
+    () =>
+      draft.catalogItemId
+        ? (catalogItems.find((item) => item.id === draft.catalogItemId) ?? null)
+        : null,
+    [catalogItems, draft.catalogItemId],
+  );
+
+  const orderedSteps = useMemo(
+    () => getWizardOrderedSteps(selectedCatalogItem, adapter.kind),
+    [adapter.kind, selectedCatalogItem],
+  );
+  const activeStepId = orderedSteps[activeIndex] ?? 'catalog';
+
+  const stepFieldErrors = useMemo(
+    () => liveWizardStepFieldErrors(activeStepId, draft, selectedCatalogItem, adapter.kind),
+    [activeStepId, adapter.kind, draft, selectedCatalogItem],
+  );
+
+  const canProceed = useMemo(
+    () =>
+      canProceedWizardStep(activeStepId, draft, selectedCatalogItem, adapter.kind, orderedSteps),
+    [activeStepId, adapter.kind, draft, orderedSteps, selectedCatalogItem],
+  );
+
+  const fieldErrors = useMemo(() => {
+    if (provisionError) {
+      return { ...stepFieldErrors, _provision: provisionError };
+    }
+    return stepFieldErrors;
+  }, [provisionError, stepFieldErrors]);
+
+  const handleStepChange = useCallback(
+    (_event: MouseEvent<HTMLButtonElement>, currentStep: { index?: number }) => {
+      if (currentStep.index != null) {
+        setActiveIndex(currentStep.index - 1);
+        setProvisionError(undefined);
       }
-      close();
-    }, [close, draft, pending]);
+    },
+    [],
+  );
 
-    const selectedCatalogItem = useMemo(
-      () =>
-        draft.catalogItemId
-          ? (catalogItems.find((item) => item.id === draft.catalogItemId) ?? null)
-          : null,
-      [catalogItems, draft.catalogItemId],
+  const renderStepBody = (stepId: string) => {
+    switch (stepId) {
+      case 'catalog':
+        return <CatalogStep adapter={adapter} state={draft} update={update} />;
+      case 'basics':
+        return (
+          <BasicsStep
+            adapter={adapter}
+            catalogItem={selectedCatalogItem}
+            state={draft}
+            update={update}
+            updateFieldValue={updateFieldValue}
+            fieldErrors={fieldErrors}
+          />
+        );
+      case 'configuration':
+        return (
+          <ConfigurationStep
+            adapter={adapter}
+            catalogItem={selectedCatalogItem}
+            state={draft}
+            updateFieldValue={updateFieldValue}
+            onChangeNetworkAttachmentRows={updateNetworkAttachmentRows}
+            fieldErrors={fieldErrors}
+          />
+        );
+      case 'review':
+        return <ReviewStep adapter={adapter} catalogItem={selectedCatalogItem} state={draft} />;
+      default:
+        return null;
+    }
+  };
+
+  const renderValidationAlert = (stepId: string) =>
+    provisionError && activeStepId === stepId ? (
+      <Alert
+        variant="danger"
+        isInline
+        title={`Could not ${adapter.createButtonLabel.toLowerCase()}`}
+        className="osac-wizard__alert"
+      >
+        {provisionError}
+      </Alert>
+    ) : null;
+
+  useEffect(() => {
+    if (!selectedCatalogItem || draft.catalogItemId !== selectedCatalogItem.id) {
+      return;
+    }
+    const seeded = seedFieldValuesFromCatalogItem(
+      readCatalogItemFieldDefinitions(selectedCatalogItem),
     );
-
-    const orderedSteps = useMemo(
-      () => getWizardOrderedSteps(selectedCatalogItem, adapter.kind),
-      [adapter.kind, selectedCatalogItem],
+    const seededNetworkRows = seedNetworkAttachmentRowsFromCatalogItem(
+      readCatalogItemFieldDefinitions(selectedCatalogItem),
     );
-    const activeStepId = orderedSteps[activeIndex] ?? 'catalog';
-
-    const stepFieldErrors = useMemo(
-      () => liveWizardStepFieldErrors(activeStepId, draft, selectedCatalogItem, adapter.kind),
-      [activeStepId, adapter.kind, draft, selectedCatalogItem],
-    );
-
-    const canProceed = useMemo(
-      () =>
-        canProceedWizardStep(activeStepId, draft, selectedCatalogItem, adapter.kind, orderedSteps),
-      [activeStepId, adapter.kind, draft, orderedSteps, selectedCatalogItem],
-    );
-
-    const fieldErrors = useMemo(() => {
-      if (provisionError) {
-        return { ...stepFieldErrors, _provision: provisionError };
-      }
-      return stepFieldErrors;
-    }, [provisionError, stepFieldErrors]);
-
-    const handleStepChange = useCallback(
-      (_event: MouseEvent<HTMLButtonElement>, currentStep: { index?: number }) => {
-        if (currentStep.index != null) {
-          setActiveIndex(currentStep.index - 1);
-          setProvisionError(undefined);
-        }
-      },
-      [],
-    );
-
-    const renderStepBody = (stepId: string) => {
-      switch (stepId) {
-        case 'catalog':
-          return <CatalogStep adapter={adapter} state={draft} update={update} />;
-        case 'basics':
-          return (
-            <BasicsStep
-              adapter={adapter}
-              catalogItem={selectedCatalogItem}
-              state={draft}
-              update={update}
-              updateFieldValue={updateFieldValue}
-              fieldErrors={fieldErrors}
-            />
-          );
-        case 'configuration':
-          return (
-            <ConfigurationStep
-              adapter={adapter}
-              catalogItem={selectedCatalogItem}
-              state={draft}
-              updateFieldValue={updateFieldValue}
-              onChangeNetworkAttachmentRows={updateNetworkAttachmentRows}
-              fieldErrors={fieldErrors}
-            />
-          );
-        case 'review':
-          return <ReviewStep adapter={adapter} catalogItem={selectedCatalogItem} state={draft} />;
-        default:
-          return null;
-      }
-    };
-
-    const renderValidationAlert = (stepId: string) =>
-      provisionError && activeStepId === stepId ? (
-        <Alert
-          variant="danger"
-          isInline
-          title={`Could not ${adapter.createButtonLabel.toLowerCase()}`}
-          className="osac-wizard__alert"
-        >
-          {provisionError}
-        </Alert>
-      ) : null;
-
-    useEffect(() => {
-      if (!isOpen || !selectedCatalogItem || draft.catalogItemId !== selectedCatalogItem.id) {
-        return;
-      }
-      const seeded = seedFieldValuesFromCatalogItem(
-        readCatalogItemFieldDefinitions(selectedCatalogItem),
-      );
-      const seededNetworkRows = seedNetworkAttachmentRowsFromCatalogItem(
-        readCatalogItemFieldDefinitions(selectedCatalogItem),
-      );
-      setDraft((prev) => {
-        let changed = false;
-        const fieldValues = { ...prev.fieldValues };
-        for (const [path, value] of Object.entries(seeded)) {
-          if (!fieldValues[path]?.trim()) {
-            fieldValues[path] = value;
-            changed = true;
-          }
-        }
-        const networkAttachmentRows =
-          prev.networkAttachmentRows.length > 0
-            ? prev.networkAttachmentRows
-            : seededNetworkRows.length > 0
-              ? seededNetworkRows
-              : prev.networkAttachmentRows;
-        if (networkAttachmentRows !== prev.networkAttachmentRows) {
+    setDraft((prev) => {
+      let changed = false;
+      const fieldValues = { ...prev.fieldValues };
+      for (const [path, value] of Object.entries(seeded)) {
+        if (!fieldValues[path]?.trim()) {
+          fieldValues[path] = value;
           changed = true;
         }
-        return changed ? { ...prev, fieldValues, networkAttachmentRows } : prev;
-      });
-    }, [draft.catalogItemId, isOpen, selectedCatalogItem]);
-
-    useEffect(() => {
-      if (!isOpen) {
-        return;
       }
-      const portalHost = getPageContentPortalHost();
-      const scrollTarget = portalHost ?? document.body;
-      const previousOverflow = scrollTarget.style.overflow;
-      scrollTarget.style.overflow = 'hidden';
-      const onKeyDown = (event: KeyboardEvent) => {
-        if (event.key === 'Escape' && !pending && !showCancelConfirm) {
-          requestClose();
-        }
-      };
-      document.addEventListener('keydown', onKeyDown);
-      return () => {
-        scrollTarget.style.overflow = previousOverflow;
-        document.removeEventListener('keydown', onKeyDown);
-      };
-    }, [isOpen, pending, requestClose, showCancelConfirm]);
-
-    useEffect(() => {
-      if (activeIndex >= orderedSteps.length) {
-        setActiveIndex(Math.max(0, orderedSteps.length - 1));
+      const networkAttachmentRows =
+        prev.networkAttachmentRows.length > 0
+          ? prev.networkAttachmentRows
+          : seededNetworkRows.length > 0
+            ? seededNetworkRows
+            : prev.networkAttachmentRows;
+      if (networkAttachmentRows !== prev.networkAttachmentRows) {
+        changed = true;
       }
-    }, [activeIndex, orderedSteps.length]);
+      return changed ? { ...prev, fieldValues, networkAttachmentRows } : prev;
+    });
+  }, [draft.catalogItemId, selectedCatalogItem]);
 
-    if (!isOpen) {
-      return null;
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && !pending && !showCancelConfirm) {
+        requestClose();
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [pending, requestClose, showCancelConfirm]);
+
+  useEffect(() => {
+    if (activeIndex >= orderedSteps.length) {
+      setActiveIndex(Math.max(0, orderedSteps.length - 1));
     }
+  }, [activeIndex, orderedSteps.length]);
 
-    const portalHost = getPageContentPortalHost() ?? document.body;
-    const overlayClassName = portalHost.id
-      ? 'catalog-provision-wizard-overlay'
-      : 'catalog-provision-wizard-overlay catalog-provision-wizard-overlay--viewport';
-
-    return createPortal(
-      <>
-        {showCancelConfirm ? (
-          <Modal
-            variant="small"
-            isOpen
-            onClose={() => setShowCancelConfirm(false)}
-            aria-labelledby="catalog-provision-wizard-cancel-title"
-          >
-            <ModalHeader
-              title="Discard wizard progress?"
-              titleIconVariant="warning"
-              labelId="catalog-provision-wizard-cancel-title"
-            />
-            <ModalBody>
-              Are you sure you want to cancel? Your selections and entered data will be lost.
-            </ModalBody>
-            <ModalFooter>
-              <Button variant="link" onClick={() => setShowCancelConfirm(false)}>
-                Keep editing
-              </Button>
-              <Button variant="primary" onClick={close}>
-                Discard and close
-              </Button>
-            </ModalFooter>
-          </Modal>
-        ) : null}
-        <div
-          className={overlayClassName}
-          role="dialog"
-          aria-modal="true"
-          aria-label={adapter.ariaLabel}
-          data-ouia-component-id="catalog-provision-wizard-overlay"
+  return (
+    <>
+      {showCancelConfirm ? (
+        <Modal
+          variant="small"
+          isOpen
+          onClose={() => setShowCancelConfirm(false)}
+          aria-labelledby="catalog-provision-wizard-cancel-title"
         >
-          <Wizard
-            className="catalog-provision-wizard"
-            navAriaLabel={`${adapter.wizardTitle} steps`}
-            isVisitRequired
-            height="100%"
-            onStepChange={handleStepChange}
-            header={
-              <CatalogProvisionWizardHeader
-                breadcrumbParentLabel={breadcrumbParentLabel}
-                wizardTitle={adapter.wizardTitle}
-                wizardDescription={adapter.wizardDescription}
-                onRequestClose={requestClose}
+          <ModalHeader
+            title="Discard wizard progress?"
+            titleIconVariant="warning"
+            labelId="catalog-provision-wizard-cancel-title"
+          />
+          <ModalBody>
+            Are you sure you want to cancel? Your selections and entered data will be lost.
+          </ModalBody>
+          <ModalFooter>
+            <Button variant="link" onClick={() => setShowCancelConfirm(false)}>
+              Keep editing
+            </Button>
+            <Button variant="primary" onClick={() => close()}>
+              Discard and close
+            </Button>
+          </ModalFooter>
+        </Modal>
+      ) : null}
+      <div
+        className="catalog-provision-wizard"
+        role="region"
+        aria-label={adapter.ariaLabel}
+        data-ouia-component-id="catalog-provision-wizard"
+      >
+        <Wizard
+          navAriaLabel={`${adapter.wizardTitle} steps`}
+          isVisitRequired
+          height="100%"
+          onStepChange={handleStepChange}
+          header={
+            <CatalogProvisionWizardHeader
+              breadcrumbParentLabel={breadcrumbParentLabel}
+              wizardTitle={adapter.wizardTitle}
+              wizardDescription={adapter.wizardDescription}
+              onRequestClose={requestClose}
+              pending={pending}
+            />
+          }
+          footer={
+            <WizardFooterWrapper>
+              <CatalogProvisionWizardFooter
+                adapter={adapter}
+                draft={draft}
+                catalogItem={selectedCatalogItem}
+                orderedSteps={orderedSteps}
+                activeStepId={activeStepId}
+                canProceed={canProceed}
+                setProvisionError={setProvisionError}
                 pending={pending}
+                setPending={setPending}
+                onProvision={onProvision}
+                close={close}
+                requestClose={requestClose}
               />
-            }
-            footer={
-              <WizardFooterWrapper>
-                <CatalogProvisionWizardFooter
-                  adapter={adapter}
-                  draft={draft}
-                  catalogItem={selectedCatalogItem}
-                  orderedSteps={orderedSteps}
-                  activeStepId={activeStepId}
-                  canProceed={canProceed}
-                  setProvisionError={setProvisionError}
-                  pending={pending}
-                  setPending={setPending}
-                  onProvision={onProvision}
-                  close={close}
-                  requestClose={requestClose}
-                />
-              </WizardFooterWrapper>
-            }
-          >
-            {orderedSteps.map((stepId) => (
-              <WizardStep key={stepId} id={stepId} name={STEP_LABELS[stepId] ?? stepId}>
-                {renderValidationAlert(stepId)}
-                {renderStepBody(stepId)}
-              </WizardStep>
-            ))}
-          </Wizard>
-        </div>
-      </>,
-      portalHost,
-    );
-  },
-);
-
-CatalogProvisionWizard.displayName = 'CatalogProvisionWizard';
+            </WizardFooterWrapper>
+          }
+        >
+          {orderedSteps.map((stepId) => (
+            <WizardStep key={stepId} id={stepId} name={STEP_LABELS[stepId] ?? stepId}>
+              {renderValidationAlert(stepId)}
+              {renderStepBody(stepId)}
+            </WizardStep>
+          ))}
+        </Wizard>
+      </div>
+    </>
+  );
+};

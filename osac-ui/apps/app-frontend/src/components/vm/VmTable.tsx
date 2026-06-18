@@ -7,7 +7,7 @@ import { Button } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
 import type { ComputeInstance } from '@osac/types';
-import { COMPUTE_INSTANCE_STATE, type DisplayVmState } from '@osac/ui-components/vmDisplayState';
+import { ComputeInstanceState } from '@osac/types';
 import { VmStatusLabel } from '@osac/ui-components/VmStatusLabel';
 
 import { VmActionsMenu } from './VmActionsMenu';
@@ -16,11 +16,11 @@ import './VmTable.css';
 
 interface VmTableProps {
   vms: ComputeInstance[];
-  getState: (vm: ComputeInstance) => DisplayVmState;
 }
 
-export const VmTable = ({ vms, getState }: VmTableProps) => {
+export const VmTable = ({ vms }: VmTableProps) => {
   const navigate = useNavigate();
+
   return (
     <div className="osac-vm-table-shell">
       <Table aria-label="Virtual machines" variant="compact" borders className="osac-vm-table">
@@ -36,12 +36,13 @@ export const VmTable = ({ vms, getState }: VmTableProps) => {
         </Thead>
         <Tbody>
           {vms.map((vm) => {
-            const state = getState(vm);
-            const locked = state === COMPUTE_INSTANCE_STATE.DELETING;
+            const state = vm.status?.state;
+            const locked = state === ComputeInstanceState.DELETING;
             const name = vm.metadata?.name ?? vm.id;
             const cores = vm.spec?.cores;
             const memoryGib = vm.spec?.memoryGib;
             const ip = vm.status?.publicIpAddress || vm.status?.internalIpAddress;
+
             return (
               <Tr key={vm.id}>
                 <Td dataLabel="Name">

@@ -32,6 +32,32 @@ describe('readCatalogItemFieldDefinitions', () => {
       },
     ]);
   });
+
+  it('parses post-decode protobuf Value defaults without mutating the catalog item', () => {
+    const decodedItem = {
+      id: 'catalog-1',
+      fieldDefinitions: [
+        {
+          path: 'cores',
+          displayName: 'vCPUs',
+          editable: true,
+          default: { kind: { case: 'numberValue', value: 4 } },
+        },
+      ],
+    };
+
+    expect(catalogItemFieldDefinitions(decodedItem)).toEqual([
+      {
+        path: 'cores',
+        displayName: 'vCPUs',
+        editable: true,
+        default: 4,
+      },
+    ]);
+    expect(decodedItem.fieldDefinitions[0]?.default).toEqual({
+      kind: { case: 'numberValue', value: 4 },
+    });
+  });
 });
 
 describe('catalog display with wire field_definitions', () => {

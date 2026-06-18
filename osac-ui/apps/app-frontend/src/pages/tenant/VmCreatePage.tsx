@@ -1,50 +1,16 @@
-import { useCallback, useEffect, useRef } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useCallback } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { PageSection } from '@patternfly/react-core';
 
-import { useApiQueryClient } from '@osac/ui-components/api/use-api-query';
-import {
-  invalidateComputeInstancesQueries,
-  pollComputeInstancesUntilListed,
-  useProvisionComputeInstance,
-} from '@osac/ui-components/api/v1/compute-instance';
+import { useProvisionComputeInstance } from '@osac/ui-components/api/v1/compute-instance';
 import type { BuildComputeInstanceCreateBodyInput } from '@osac/ui-components/api/v1/compute-instance-wire';
 
-import {
-  CatalogProvisionWizard,
-  type CatalogProvisionWizardHandle,
-} from '../../components/catalogProvision/CatalogProvisionWizard';
-
-interface VmCreateLocationState {
-  catalogItemId?: string;
-}
+import { CatalogProvisionWizard } from '../../components/catalogProvision/CatalogProvisionWizard';
 
 export const VmCreatePage = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const wizardRef = useRef<CatalogProvisionWizardHandle>(null);
-  const postCreatePollRef = useRef<{ cancelled: boolean } | undefined>(undefined);
-  const qc = useApiQueryClient();
+  const { catalogItemId } = useParams<{ catalogItemId?: string }>();
   const provisionVm = useProvisionComputeInstance();
-
-  const catalogItemId = (location.state as VmCreateLocationState | null)?.catalogItemId;
-
-  useEffect(
-    () => () => {
-      if (postCreatePollRef.current) {
-        postCreatePollRef.current.cancelled = true;
-      }
-    },
-    [],
-  );
-
-  useEffect(() => {
-    if (catalogItemId) {
-      wizardRef.current?.openFromCatalogItem(catalogItemId);
-      return;
-    }
-    wizardRef.current?.open();
-  }, [catalogItemId]);
 
   const handleWizardClosed = useCallback(() => {
     navigate('/vms');
@@ -52,33 +18,19 @@ export const VmCreatePage = () => {
 
   const handleWizardProvision = useCallback(
     async (vm: BuildComputeInstanceCreateBodyInput) => {
-      if (postCreatePollRef.current) {
-        postCreatePollRef.current.cancelled = true;
-      }
-      const pollSignal = { cancelled: false };
-      postCreatePollRef.current = pollSignal;
-
       const created = await provisionVm.mutateAsync({
         vm,
         specCatalogItemOnly: true,
       });
-
-      if (created.id) {
-        void pollComputeInstancesUntilListed(qc, created.id, pollSignal);
-        navigate(`/vms/${created.id}`);
-        return;
-      }
-
-      void invalidateComputeInstancesQueries(qc);
-      navigate('/vms');
+      navigate(created.id ? `/vms/${created.id}` : '/vms');
     },
-    [navigate, provisionVm, qc],
+    [navigate, provisionVm],
   );
 
   return (
     <PageSection isFilled className="osac-page">
       <CatalogProvisionWizard
-        ref={wizardRef}
+        initialCatalogItemId={catalogItemId}
         breadcrumbParentLabel="Virtual machines"
         onProvision={handleWizardProvision}
         onClosed={handleWizardClosed}

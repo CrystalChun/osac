@@ -1,7 +1,4 @@
-/**
- * Wire compute-instance state strings (PROTO_JSON) and client-only display overlays.
- * Used inline by status badges and power-action UX — not a normalization layer.
- */
+/** Wire compute-instance state strings (PROTO_JSON). */
 export const COMPUTE_INSTANCE_STATE = {
   UNSPECIFIED: 'COMPUTE_INSTANCE_STATE_UNSPECIFIED',
   STARTING: 'COMPUTE_INSTANCE_STATE_STARTING',
@@ -15,11 +12,6 @@ export const COMPUTE_INSTANCE_STATE = {
 
 export type WireComputeInstanceState =
   (typeof COMPUTE_INSTANCE_STATE)[keyof typeof COMPUTE_INSTANCE_STATE];
-
-/** Client-only badges for pending power actions — not returned by the fulfillment API. */
-export type ClientOnlyVmState = 'restarting' | 'starting' | 'stopping';
-
-export type DisplayVmState = WireComputeInstanceState | ClientOnlyVmState;
 
 const wireStateValues = new Set<string>(Object.values(COMPUTE_INSTANCE_STATE));
 
@@ -85,15 +77,4 @@ export const readComputeInstanceState = (vm: {
     return byValue[state] ?? COMPUTE_INSTANCE_STATE.UNSPECIFIED;
   }
   return COMPUTE_INSTANCE_STATE.UNSPECIFIED;
-};
-
-export const isTransitionDisplayState = (state: DisplayVmState): boolean => {
-  return (
-    state === COMPUTE_INSTANCE_STATE.STARTING ||
-    state === COMPUTE_INSTANCE_STATE.STOPPING ||
-    state === COMPUTE_INSTANCE_STATE.DELETING ||
-    state === 'restarting' ||
-    state === 'starting' ||
-    state === 'stopping'
-  );
 };

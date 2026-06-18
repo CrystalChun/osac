@@ -1,13 +1,23 @@
 import { ClusterConditionType, ComputeInstanceConditionType, ConditionStatus } from '@osac/types';
 
+export type ConditionResourceKind = 'cluster' | 'compute_instance';
+
 export const humanizeConditionType = (
   type: ClusterConditionType | ComputeInstanceConditionType,
+  resourceKind: ConditionResourceKind,
 ): string => {
-  const name = ClusterConditionType[type];
-  if (typeof name !== 'string') {
-    return String(type);
+  if (resourceKind === 'cluster') {
+    const clusterName = ClusterConditionType[type as ClusterConditionType];
+    if (typeof clusterName === 'string') {
+      return clusterName.replace(/_/g, ' ');
+    }
+  } else {
+    const vmName = ComputeInstanceConditionType[type as ComputeInstanceConditionType];
+    if (typeof vmName === 'string') {
+      return vmName.replace(/^COMPUTE_INSTANCE_CONDITION_TYPE_/, '').replace(/_/g, ' ');
+    }
   }
-  return name.replace(/_/g, ' ');
+  return String(type);
 };
 
 export const formatConditionStatusForDisplay = (status: ConditionStatus): string => {

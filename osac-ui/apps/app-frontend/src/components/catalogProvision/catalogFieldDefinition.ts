@@ -2,6 +2,8 @@
  * Catalog item field_definitions — parse defaults, validate against JSON Schema subset, apply to spec paths.
  */
 
+import { protobufValueToPlain } from './protobuf-value';
+
 export type CatalogProvisionKind = 'compute_instance' | 'cluster';
 
 /** Wizard-built spec — camelCase nested fields (serialized to wire JSON at create time). */
@@ -39,7 +41,7 @@ const unknownToString = (value: unknown): string => {
   return '';
 };
 
-/** Parse google.protobuf.Value-style default from wire JSON. */
+/** Parse google.protobuf.Value default (wire JSON or post-decode protobuf message). */
 export const parseFieldDefinitionDefault = (raw: unknown): unknown => {
   if (raw == null) {
     return undefined;
@@ -47,41 +49,28 @@ export const parseFieldDefinitionDefault = (raw: unknown): unknown => {
   if (typeof raw === 'string' || typeof raw === 'number' || typeof raw === 'boolean') {
     return raw;
   }
+  if (Array.isArray(raw)) {
+    return raw;
+  }
   const r = asRecord(raw);
   if (!r) {
     return undefined;
   }
-  if ('number_value' in r && typeof r.number_value === 'number') {
-    return r.number_value;
+  const decodedKind = asRecord(r.kind);
+  const hasDecodedDiscriminator =
+    typeof decodedKind?.case === 'string' && decodedKind.case.length > 0;
+  const hasWireDiscriminator =
+    'null_value' in r ||
+    'number_value' in r ||
+    'string_value' in r ||
+    'bool_value' in r ||
+    'list_value' in r ||
+    'struct_value' in r;
+  if (!hasDecodedDiscriminator && !hasWireDiscriminator) {
+    return raw;
   }
-  if ('string_value' in r && typeof r.string_value === 'string') {
-    return r.string_value;
-  }
-  if ('bool_value' in r && typeof r.bool_value === 'boolean') {
-    return r.bool_value;
-  }
-  if ('list_value' in r) {
-    const list = asRecord(r.list_value);
-    const values = list?.values;
-    if (Array.isArray(values)) {
-      return values.map(parseFieldDefinitionDefault).filter((x) => x !== undefined);
-    }
-  }
-  if ('struct_value' in r) {
-    const struct = asRecord(r.struct_value);
-    const fields = struct?.fields;
-    if (fields && typeof fields === 'object') {
-      const out: Record<string, unknown> = {};
-      for (const [k, v] of Object.entries(fields as Record<string, unknown>)) {
-        const parsed = parseFieldDefinitionDefault(v);
-        if (parsed !== undefined) {
-          out[k] = parsed;
-        }
-      }
-      return Object.keys(out).length ? out : undefined;
-    }
-  }
-  return undefined;
+  const plain = protobufValueToPlain(raw);
+  return plain === undefined ? undefined : plain;
 };
 
 const parseValidationSchema = (raw: unknown): Record<string, unknown> | undefined => {
@@ -648,35 +637,23 @@ export const validateCatalogFieldInput = (
   }
 
   const trimmed = raw.trim();
+  if (trimmed === '') {
+    return null;
+  }
+
+  if (def.path === 'additional_disks') {
+    const disks = parseAdditionalDisksRaw(raw);
+    if (!disks?.length) {
+      return `${def.displayName} must be comma-separated disk sizes in GiB.`;
+    }
+    return null;
+  }
+
   if (def.validationSchema) {
-    if (trimmed === '' && def.default !== undefined) {
-      return null;
-    }
-    if (trimmed === '') {
-      const minLen = def.validationSchema.minLength;
-      if (typeof minLen === 'number' && minLen > 0) {
-        return `${def.displayName} is required.`;
-      }
-      if (Array.isArray(def.validationSchema.enum) && def.validationSchema.enum.length > 0) {
-        return `${def.displayName} is required.`;
-      }
-      return null;
-    }
-    if (def.path === 'additional_disks') {
-      const disks = parseAdditionalDisksRaw(raw);
-      if (!disks?.length) {
-        return `${def.displayName} must be comma-separated disk sizes in GiB.`;
-      }
-      return null;
-    }
     const parsed = parseFieldValueForSchema(raw, def.validationSchema);
     return validateValueAgainstJsonSchema(parsed, def.validationSchema, {
       displayName: def.displayName,
     });
-  }
-
-  if (trimmed === '' && def.default === undefined) {
-    return null;
   }
 
   return null;

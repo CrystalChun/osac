@@ -4,6 +4,7 @@ import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 import type { ClusterCondition, ComputeInstanceCondition } from '@osac/types';
 
 import {
+  type ConditionResourceKind,
   displayValue,
   formatConditionStatusForDisplay,
   humanizeConditionType,
@@ -13,12 +14,14 @@ import { Timestamp } from '../Primitives/Timestamp';
 interface ResourceConditionsTableProps {
   conditions: (ClusterCondition | ComputeInstanceCondition)[];
   ariaLabel: string;
+  conditionResourceKind: ConditionResourceKind;
   emptyMessage?: string;
 }
 
 export const ResourceConditionsTable = ({
   conditions,
   ariaLabel,
+  conditionResourceKind,
   emptyMessage = 'No conditions reported.',
 }: ResourceConditionsTableProps) => {
   if (conditions.length === 0) {
@@ -39,7 +42,7 @@ export const ResourceConditionsTable = ({
       <Tbody>
         {conditions.map((c) => (
           <Tr key={c.type}>
-            <Td dataLabel="Type">{humanizeConditionType(c.type)}</Td>
+            <Td dataLabel="Type">{humanizeConditionType(c.type, conditionResourceKind)}</Td>
             <Td dataLabel="Status">{formatConditionStatusForDisplay(c.status)}</Td>
             <Td dataLabel="Reason">{displayValue(c.reason)}</Td>
             <Td dataLabel="Message">{displayValue(c.message)}</Td>

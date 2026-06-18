@@ -45,7 +45,7 @@ export const BasicsStep = <TItem extends CatalogProvisionCatalogItem>({
         <Title id="basics-step-heading" headingLevel="h2" size="xl">
           Basics
         </Title>
-        <SubtleContent component="p" className="osac-wizard-step__intro">
+        <SubtleContent component="p">
           Name your resource and provide access credentials defined by this catalog item.
         </SubtleContent>
       </StackItem>

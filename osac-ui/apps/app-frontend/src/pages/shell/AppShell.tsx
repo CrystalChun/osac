@@ -3,6 +3,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { Page } from '@patternfly/react-core';
 
 import ErrorBoundary from '@osac/ui-components/components/ErrorBoundary/ErrorBoundary';
+import { VmDetailsPage } from '@osac/ui-components/components/vm/VmDetailsPage';
 import { useSession } from '@osac/ui-components/hooks/use-session';
 import type { DemoShellRole } from '@osac/ui-components/shellTypes';
 
@@ -18,7 +19,6 @@ import { ProviderTenantOrgsPage } from '../provider/ProviderTenantOrgsPage';
 import { CatalogPage } from '../tenant/CatalogPage';
 import { ClusterRoutes } from '../tenant/ClusterRoutes';
 import { VmCreatePage } from '../tenant/VmCreatePage';
-import VmDetailsPage from '../tenant/VmDetailsPage';
 import { VmListPage } from '../tenant/VmListPage';
 
 const RoleRoute = ({
@@ -59,7 +59,7 @@ export const AppShell = ({ logout }: { logout: () => Promise<void> }) => {
           }
         />
         <Route
-          path="/vms/create"
+          path="/vms/create/:catalogItemId?"
           element={
             <RoleRoute allow={['tenantUser', 'tenantAdmin']} fallback={defaultRoute}>
               <VmCreatePage />

@@ -1,6 +1,11 @@
 import { useMutation } from '@tanstack/react-query';
 
-import type { ComputeInstance, ComputeInstancesListResponse } from '@osac/types';
+import {
+  type ComputeInstance,
+  ComputeInstanceSchema,
+  type ComputeInstancesListResponse,
+  ComputeInstancesListResponseSchema,
+} from '@osac/types';
 
 import { useApiFetch } from '../api-context';
 import { apiQueryKey } from '../types';
@@ -18,16 +23,19 @@ export type ListComputeInstancesParams = {
   offset?: number;
 };
 
-export const useComputeInstances = (params: ListComputeInstancesParams = {}) => {
-  return useApiQuery<ComputeInstancesListResponse, ComputeInstance[]>({
+export const useComputeInstances = (params: ListComputeInstancesParams = {}) =>
+  useApiQuery<ComputeInstancesListResponse, ComputeInstance[]>({
     queryKey: ['v1/compute_instances', null, params],
     select: (data: ComputeInstancesListResponse) => data.items,
+    meta: { decode: ComputeInstancesListResponseSchema },
   });
-};
 
 export const useComputeInstance = (id: string) => {
+  const trimmedId = id?.trim() ?? '';
   return useApiQuery<ComputeInstance>({
-    queryKey: ['v1/compute_instances', [id]],
+    queryKey: ['v1/compute_instances', [trimmedId]],
+    meta: { decode: ComputeInstanceSchema },
+    enabled: Boolean(trimmedId),
   });
 };
 
@@ -80,6 +88,7 @@ export const useProvisionComputeInstance = () => {
           specCatalogItemOnly,
           specTemplateOnly,
         }),
+        decode: ComputeInstanceSchema,
       }),
     onSuccess: async () => {
       await invalidateComputeInstancesQueries(qc);
@@ -103,13 +112,9 @@ export const usePatchComputeInstance = () => {
           'powerAction' in input
             ? buildComputeInstancePowerPatchBody(input.powerAction)
             : input.patch,
+        decode: ComputeInstanceSchema,
       }),
-    onSuccess: async (_updated, input) => {
-      await invalidateComputeInstancesQueries(qc);
-      await qc.invalidateQueries({
-        queryKey: apiQueryKey('v1/compute_instances', [input.id]),
-      });
-    },
+    onSuccess: () => invalidateComputeInstancesQueries(qc),
   });
 };
 
@@ -122,10 +127,7 @@ export const useDeleteComputeInstance = () => {
         pathParams: [id],
         method: 'DELETE',
       }),
-    onSuccess: async (_void, id) => {
-      await invalidateComputeInstancesQueries(qc);
-      await qc.invalidateQueries({ queryKey: apiQueryKey('v1/compute_instances', [id]) });
-    },
+    onSuccess: () => invalidateComputeInstancesQueries(qc),
   });
 };
 

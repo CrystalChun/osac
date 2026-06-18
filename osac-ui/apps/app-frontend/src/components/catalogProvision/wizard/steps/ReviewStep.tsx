@@ -61,7 +61,7 @@ export const ReviewStep = <TItem extends CatalogProvisionCatalogItem>({
         <Title id="review-heading" headingLevel="h2" size="xl">
           Review and create
         </Title>
-        <SubtleContent component="p" className="osac-wizard-step__intro">
+        <SubtleContent component="p">
           Confirm the choices below, then {adapter.createButtonLabel.toLowerCase()}.
         </SubtleContent>
       </StackItem>

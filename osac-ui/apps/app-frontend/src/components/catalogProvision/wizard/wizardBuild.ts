@@ -10,7 +10,6 @@ import {
   configurationFieldsExcludingNetwork,
   getNetworkAttachmentFieldBundle,
   hasEditableNetworkAttachmentFields,
-  parseSecurityGroupsRaw,
   partitionFieldDefinitions,
   readCatalogItemFieldDefinitions,
   seedFieldValuesFromCatalogItem,
@@ -61,13 +60,6 @@ const validateNetworkAttachmentRows = (
       const err = validateCatalogFieldInput(bundle.subnetDef, row.subnet);
       if (err) {
         errors[wizardNetworkAttachmentErrorKey(index, 'subnet')] = err;
-      } else if (
-        bundle.securityGroupsDef &&
-        parseSecurityGroupsRaw(row.securityGroupsRaw).length > 0 &&
-        !row.subnet.trim()
-      ) {
-        errors[wizardNetworkAttachmentErrorKey(index, 'subnet')] =
-          `${bundle.subnetDef.displayName} is required when security groups are set.`;
       }
     }
     if (bundle.securityGroupsDef) {

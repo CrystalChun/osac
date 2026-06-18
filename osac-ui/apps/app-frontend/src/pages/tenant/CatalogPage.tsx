@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Alert,
-  Bullseye,
   Button,
+  EmptyState,
+  EmptyStateBody,
   Gallery,
   GalleryItem,
   PageSection,
@@ -14,7 +15,6 @@ import {
 } from '@patternfly/react-core';
 
 import { useComputeInstanceCatalogItems } from '@osac/ui-components/api/v1/compute-instance-catalog-item';
-import { SubtleContent } from '@osac/ui-components/components/SubtleContent/SubtleContent';
 
 import { PageDataSection } from '../../components/layout/PageDataSection';
 import { PageHeader } from '../../components/layout/PageHeader';
@@ -30,7 +30,6 @@ interface Props {
 }
 
 export const CatalogPage = ({ isProviderGlobal = false }: Props) => {
-  const location = useLocation();
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [selectedCatalogItem, setSelectedCatalogItem] = useState<CatalogItemForDisplay | null>(
@@ -53,25 +52,6 @@ export const CatalogPage = ({ isProviderGlobal = false }: Props) => {
     return catalogItems.filter((item) => searchableCatalogItemText(item).includes(searchTerm));
   }, [catalogItems, searchTerm]);
 
-  const handleOpenFromCatalogItem = useCallback(
-    (item: CatalogItemForDisplay) => {
-      setSelectedCatalogItem(null);
-      navigate('/vms/create', { state: { catalogItemId: item.id } });
-    },
-    [navigate],
-  );
-
-  const locationState =
-    location.state && typeof location.state === 'object'
-      ? (location.state as { navReselect?: boolean; navSelectSeq?: number })
-      : null;
-
-  useEffect(() => {
-    if (locationState?.navReselect) {
-      setSelectedCatalogItem(null);
-    }
-  }, [locationState?.navReselect, locationState?.navSelectSeq]);
-
   const catalogContent = (
     <Stack hasGutter>
       {catalogError ? (
@@ -91,31 +71,38 @@ export const CatalogPage = ({ isProviderGlobal = false }: Props) => {
         </StackItem>
       ) : (
         <>
-          <StackItem>
-            <SearchInput
-              className="osac-template-catalog-search"
-              placeholder="Search catalog items"
-              value={search}
-              onChange={(_e, value) => setSearch(value)}
-              onClear={() => setSearch('')}
-              aria-label="Filter catalog by keyword"
-            />
-          </StackItem>
-          <StackItem>
-            <SubtleContent component="small" className="osac-template-catalog-count">
-              {catalogLoading ? '…' : filtered.length} catalog items
-            </SubtleContent>
-          </StackItem>
-          <StackItem>
-            {catalogLoading ? (
-              <Bullseye className="osac-catalog__loading">
-                <Spinner aria-label="Loading catalog items" />
-              </Bullseye>
-            ) : filtered.length === 0 ? (
-              <SubtleContent component="p" className="osac-template-empty-state">
-                No catalog items match your search.
-              </SubtleContent>
-            ) : (
+          {!catalogLoading ? (
+            <StackItem>
+              <SearchInput
+                className="osac-template-catalog-search"
+                placeholder="Search catalog items"
+                value={search}
+                onChange={(_e, value) => setSearch(value)}
+                onClear={() => setSearch('')}
+                aria-label="Filter catalog by keyword"
+              />
+            </StackItem>
+          ) : null}
+          {catalogLoading ? (
+            <StackItem>
+              <EmptyState titleText="Loading catalog items" headingLevel="h2">
+                <EmptyStateBody>
+                  <Spinner aria-label="Loading catalog items" />
+                </EmptyStateBody>
+              </EmptyState>
+            </StackItem>
+          ) : filtered.length === 0 ? (
+            <StackItem>
+              <EmptyState titleText="No catalog items found" headingLevel="h2">
+                <EmptyStateBody>
+                  {searchTerm
+                    ? 'No catalog items match your search.'
+                    : 'No published catalog items are available yet.'}
+                </EmptyStateBody>
+              </EmptyState>
+            </StackItem>
+          ) : (
+            <StackItem>
               <Gallery hasGutter className="osac-template-gallery">
                 {filtered.map((item) => (
                   <GalleryItem key={item.id}>
@@ -137,8 +124,8 @@ export const CatalogPage = ({ isProviderGlobal = false }: Props) => {
                   </GalleryItem>
                 ))}
               </Gallery>
-            )}
-          </StackItem>
+            </StackItem>
+          )}
         </>
       )}
     </Stack>
@@ -168,7 +155,7 @@ export const CatalogPage = ({ isProviderGlobal = false }: Props) => {
               <Button
                 className="catalog-item-detail-drawer__primary-action"
                 variant="primary"
-                onClick={() => handleOpenFromCatalogItem(selectedCatalogItem)}
+                onClick={() => navigate(`/vms/create/${selectedCatalogItem.id}`)}
               >
                 Create virtual machine
               </Button>

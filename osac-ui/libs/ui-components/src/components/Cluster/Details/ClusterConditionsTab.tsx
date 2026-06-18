@@ -15,7 +15,11 @@ export const ClusterConditionsTab = ({ cluster }: ClusterConditionsTabProps) => 
     <Card>
       <CardTitle>Conditions</CardTitle>
       <CardBody>
-        <ResourceConditionsTable ariaLabel="Cluster conditions" conditions={conditions} />
+        <ResourceConditionsTable
+          ariaLabel="Cluster conditions"
+          conditions={conditions}
+          conditionResourceKind="cluster"
+        />
       </CardBody>
     </Card>
   );

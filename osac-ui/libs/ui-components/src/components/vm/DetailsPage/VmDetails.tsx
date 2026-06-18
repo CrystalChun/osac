@@ -1,11 +1,8 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
-  Breadcrumb,
-  BreadcrumbItem,
-  Button,
   Card,
   CardBody,
+  CardTitle,
   DescriptionList,
   DescriptionListDescription,
   DescriptionListGroup,
@@ -15,12 +12,14 @@ import {
   FlexItem,
   Grid,
   GridItem,
+  PageSection,
   Stack,
   StackItem,
   Tab,
+  TabContent,
+  TabContentBody,
   TabTitleText,
   Tabs,
-  Title,
 } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
@@ -28,34 +27,17 @@ import type { ComputeInstance } from '@osac/types';
 
 import { VmDetailsActionButtons } from './VmDetailsActionButtons';
 import { VmDetailsCatalogValue } from './VmDetailsCatalogValue';
-import { VmDetailsConditions } from './VmDetailsConditions';
 import { VmDetailsSummary } from './VmDetailsSummary';
+import { displayValue } from '../../../utils/detailFormatters';
+import { VmStatusLabel } from '../../../VmStatusLabel';
+import { Timestamp } from '../../Primitives/Timestamp';
+import { ResourceConditionsTable } from '../../Resource/ResourceConditionsTable';
+import { ResourceDetailHeader } from '../../Resource/ResourceDetailHeader';
 import { SubtleContent } from '../../SubtleContent/SubtleContent';
 
 interface Props {
   vm: ComputeInstance;
 }
-
-type ProtobufTimestamp = NonNullable<NonNullable<ComputeInstance['metadata']>['creationTimestamp']>;
-
-const formatTimestamp = (timestamp?: ProtobufTimestamp): string => {
-  if (!timestamp?.seconds) {
-    return '—';
-  }
-  const ms = Number(timestamp.seconds) * 1000 + Math.floor((timestamp.nanos ?? 0) / 1_000_000);
-  return new Date(ms).toLocaleString();
-};
-
-const shortSubnetDisplay = (subnet?: string): string => {
-  if (!subnet) {
-    return '—';
-  }
-  const uuidLike = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(subnet);
-  if (uuidLike) {
-    return `${subnet.slice(0, 8)}…`;
-  }
-  return subnet;
-};
 
 const virtualNetworkLabel = (index: number, total: number): string => {
   if (total === 1) {
@@ -64,70 +46,88 @@ const virtualNetworkLabel = (index: number, total: number): string => {
   return `Virtual network ${index + 1}`;
 };
 
+const VM_DETAIL_OVERVIEW_TAB_ID = 'vm-detail-overview';
+const VM_DETAIL_NETWORKING_TAB_ID = 'vm-detail-networking';
+
 export const VmDetails = ({ vm }: Props) => {
-  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(0);
 
   const runStrategy = vm.spec?.runStrategy;
   const catalogItem = vm.spec?.catalogItem;
-  const createdAt = formatTimestamp(vm.metadata?.creationTimestamp);
   const tenant = vm.metadata?.tenant;
   const creator = vm.metadata?.creator;
-  const tenantsLine = tenant || '—';
-  const creatorsLine = creator || '—';
   const networkAttachments = vm.spec?.networkAttachments ?? [];
+  const conditions = vm.status?.conditions ?? [];
 
   return (
-    <Stack hasGutter>
-      <StackItem>
-        <Breadcrumb>
-          <BreadcrumbItem>
-            <Button variant="link" isInline onClick={() => navigate('/vms')}>
-              Virtual machines
-            </Button>
-          </BreadcrumbItem>
-          <BreadcrumbItem isActive>{vm.metadata?.name ?? vm.id}</BreadcrumbItem>
-        </Breadcrumb>
-      </StackItem>
+    <>
+      <PageSection hasBodyWrapper={false}>
+        <Stack hasGutter>
+          <StackItem>
+            <Flex
+              justifyContent={{ default: 'justifyContentSpaceBetween' }}
+              alignItems={{ default: 'alignItemsFlexStart' }}
+              flexWrap={{ default: 'wrap' }}
+              spaceItems={{ default: 'spaceItemsMd' }}
+            >
+              <FlexItem>
+                <ResourceDetailHeader
+                  parentTo="/vms"
+                  parentLabel="Virtual machines"
+                  resourceName={vm.metadata?.name ?? vm.id}
+                  titleAddon={<VmStatusLabel state={vm.status?.state} />}
+                />
+              </FlexItem>
+              <FlexItem>
+                <VmDetailsActionButtons vm={vm} />
+              </FlexItem>
+            </Flex>
+          </StackItem>
+          <StackItem>
+            <VmDetailsSummary vm={vm} />
+          </StackItem>
+          <StackItem>
+            <Divider />
+          </StackItem>
+          <StackItem>
+            <Tabs
+              id="vm-detail-tabs"
+              activeKey={activeTab}
+              onSelect={(_e, key) => setActiveTab(Number(key))}
+            >
+              <Tab
+                eventKey={0}
+                title={<TabTitleText>Overview</TabTitleText>}
+                tabContentId={VM_DETAIL_OVERVIEW_TAB_ID}
+              />
+              <Tab
+                eventKey={1}
+                title={<TabTitleText>Networking</TabTitleText>}
+                tabContentId={VM_DETAIL_NETWORKING_TAB_ID}
+              />
+            </Tabs>
+          </StackItem>
+        </Stack>
+      </PageSection>
 
-      <StackItem>
-        <Flex
-          justifyContent={{ default: 'justifyContentSpaceBetween' }}
-          alignItems={{ default: 'alignItemsFlexStart' }}
-          flexWrap={{ default: 'wrap' }}
-          spaceItems={{ default: 'spaceItemsMd' }}
-        >
-          <FlexItem>
-            <Title headingLevel="h1" size="2xl">
-              {vm.metadata?.name ?? vm.id}
-            </Title>
-          </FlexItem>
-          <FlexItem>
-            <VmDetailsActionButtons vm={vm} />
-          </FlexItem>
-        </Flex>
-      </StackItem>
-
-      <StackItem>
-        <VmDetailsSummary vm={vm} />
-      </StackItem>
-
-      <StackItem>
-        <Divider />
-      </StackItem>
-
-      <StackItem>
+      <PageSection hasBodyWrapper={false}>
         <Grid hasGutter>
           <GridItem md={8}>
-            <Tabs activeKey={activeTab} onSelect={(_e, key) => setActiveTab(Number(key))}>
-              <Tab eventKey={0} title={<TabTitleText>Overview</TabTitleText>}>
+            <TabContent
+              eventKey={0}
+              id={VM_DETAIL_OVERVIEW_TAB_ID}
+              activeKey={activeTab}
+              hidden={activeTab !== 0}
+            >
+              <TabContentBody>
                 <Card isFullHeight>
+                  <CardTitle>Overview</CardTitle>
                   <CardBody>
                     <DescriptionList isHorizontal isCompact>
                       <DescriptionListGroup>
                         <DescriptionListTerm>Name</DescriptionListTerm>
                         <DescriptionListDescription>
-                          {vm.metadata?.name ?? '—'}
+                          {displayValue(vm.metadata?.name)}
                         </DescriptionListDescription>
                       </DescriptionListGroup>
                       <DescriptionListGroup>
@@ -139,20 +139,26 @@ export const VmDetails = ({ vm }: Props) => {
                       <DescriptionListGroup>
                         <DescriptionListTerm>Run strategy</DescriptionListTerm>
                         <DescriptionListDescription>
-                          {runStrategy ?? '—'}
+                          {displayValue(runStrategy)}
                         </DescriptionListDescription>
                       </DescriptionListGroup>
                       <DescriptionListGroup>
                         <DescriptionListTerm>Created</DescriptionListTerm>
-                        <DescriptionListDescription>{createdAt}</DescriptionListDescription>
+                        <DescriptionListDescription>
+                          <Timestamp value={vm.metadata?.creationTimestamp} />
+                        </DescriptionListDescription>
                       </DescriptionListGroup>
                       <DescriptionListGroup>
                         <DescriptionListTerm>Tenants</DescriptionListTerm>
-                        <DescriptionListDescription>{tenantsLine}</DescriptionListDescription>
+                        <DescriptionListDescription>
+                          {displayValue(tenant)}
+                        </DescriptionListDescription>
                       </DescriptionListGroup>
                       <DescriptionListGroup>
                         <DescriptionListTerm>Creators</DescriptionListTerm>
-                        <DescriptionListDescription>{creatorsLine}</DescriptionListDescription>
+                        <DescriptionListDescription>
+                          {displayValue(creator)}
+                        </DescriptionListDescription>
                       </DescriptionListGroup>
                       <DescriptionListGroup>
                         <DescriptionListTerm>Version</DescriptionListTerm>
@@ -163,10 +169,17 @@ export const VmDetails = ({ vm }: Props) => {
                     </DescriptionList>
                   </CardBody>
                 </Card>
-              </Tab>
-
-              <Tab eventKey={1} title={<TabTitleText>Networking</TabTitleText>}>
+              </TabContentBody>
+            </TabContent>
+            <TabContent
+              eventKey={1}
+              id={VM_DETAIL_NETWORKING_TAB_ID}
+              activeKey={activeTab}
+              hidden={activeTab !== 1}
+            >
+              <TabContentBody>
                 <Card isFullHeight>
+                  <CardTitle>Networking</CardTitle>
                   <CardBody>
                     {networkAttachments.length > 0 ? (
                       <Table
@@ -187,7 +200,7 @@ export const VmDetails = ({ vm }: Props) => {
                               <Td dataLabel="Virtual network">
                                 {virtualNetworkLabel(index, networkAttachments.length)}
                               </Td>
-                              <Td dataLabel="Subnet">{shortSubnetDisplay(attachment.subnet)}</Td>
+                              <Td dataLabel="Subnet">{displayValue(attachment.subnet)}</Td>
                               <Td dataLabel="Security groups">
                                 {attachment.securityGroups.length > 0
                                   ? attachment.securityGroups.join(', ')
@@ -202,15 +215,24 @@ export const VmDetails = ({ vm }: Props) => {
                     )}
                   </CardBody>
                 </Card>
-              </Tab>
-            </Tabs>
+              </TabContentBody>
+            </TabContent>
           </GridItem>
 
           <GridItem md={4}>
-            <VmDetailsConditions vm={vm} />
+            <Card isFullHeight>
+              <CardTitle>Conditions</CardTitle>
+              <CardBody>
+                <ResourceConditionsTable
+                  ariaLabel="Virtual machine conditions"
+                  conditions={conditions}
+                  conditionResourceKind="compute_instance"
+                />
+              </CardBody>
+            </Card>
           </GridItem>
         </Grid>
-      </StackItem>
-    </Stack>
+      </PageSection>
+    </>
   );
 };

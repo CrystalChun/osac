@@ -176,7 +176,7 @@ describe('validateWizardStep', () => {
     expect(errors['catalogField:cores']).toMatch(/vCPUs must be between 2 and 32/);
   });
 
-  it('validates network attachment rows on configuration', () => {
+  it('does not require empty network attachment rows on configuration', () => {
     const errors = validateWizardStep(
       'configuration',
       {
@@ -193,7 +193,7 @@ describe('validateWizardStep', () => {
       catalogWithFieldDefs,
       'compute_instance',
     );
-    expect(errors['networkAttachment:0:subnet']).toMatch(/Subnet is required/);
+    expect(errors).toEqual({});
   });
 });
 

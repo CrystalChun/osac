@@ -17,6 +17,6 @@ export const VmDetailsCatalogValue = ({ catalogItemId }: VmDetailsCatalogValuePr
     return <Spinner size="sm" aria-label="Loading catalog item" />;
   }
 
-  const displayName = data ? data.title || data.metadata?.name : undefined;
+  const displayName = data?.title || data?.metadata?.name;
   return displayName ?? catalogItemId;
 };

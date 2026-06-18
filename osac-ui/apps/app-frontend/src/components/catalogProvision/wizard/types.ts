@@ -8,11 +8,6 @@ export interface CatalogProvisionWizardState {
   networkAttachmentRows: NetworkAttachmentRowInput[];
 }
 
-export interface CatalogProvisionWizardHandle {
-  open: () => void;
-  openFromCatalogItem: (catalogItemId: string) => void;
-}
-
 export type UpdateFieldValueFn = (path: string, value: string) => void;
 
 export type UpdateDraftFn = <K extends keyof CatalogProvisionWizardState>(

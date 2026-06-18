@@ -52,18 +52,6 @@
   min-width: 16rem;
 }
 
-.osac-template-empty-state {
-  padding: var(--pf-t--global--spacer--xl) 0;
-}
-
-.osac-template-catalog-count {
-  display: block;
-}
-
-.osac-catalog__loading {
-  padding: var(--pf-t--global--spacer--2xl);
-}
-
 .tenant-vm-catalog-template-card-wrap {
   width: 100%;
   height: 100%;
