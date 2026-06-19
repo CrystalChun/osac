@@ -1,27 +1,19 @@
-/**
- * flow: provider-administration
- * step: pad_infrastructure_topology
- */
-import { PageSection } from '@patternfly/react-core';
-
 import { useComputeInstances } from '@osac/ui-components/api/v1/compute-instance';
-import { PageDataSection } from '@osac/ui-components/components/layout/PageDataSection';
-import { PageHeader } from '@osac/ui-components/components/layout/PageHeader';
+import ListPage from '@osac/ui-components/components/Page/ListPage';
+import ListPageBody from '@osac/ui-components/components/Page/ListPageBody';
 import { NetworkTopologyPage } from '@osac/ui-components/NetworkTopologyPage';
 
 export const ProviderInfraTopologyPage = () => {
-  const { data: vms = [] } = useComputeInstances();
+  const { data = [], isLoading, error } = useComputeInstances();
 
   return (
-    <PageSection isFilled className="osac-page">
-      <PageHeader
-        title="Infrastructure"
-        description="Platform-wide network topology across all tenant organizations."
-      />
-      <PageDataSection>
-        {/* Provider topology — VM node click is no-op per spec */}
-        <NetworkTopologyPage vms={vms} />
-      </PageDataSection>
-    </PageSection>
+    <ListPage
+      title="Infrastructure"
+      description="Platform-wide network topology across all tenant organizations."
+    >
+      <ListPageBody isLoading={isLoading} error={error}>
+        <NetworkTopologyPage vms={data} />
+      </ListPageBody>
+    </ListPage>
   );
 };

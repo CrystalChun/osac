@@ -2,14 +2,12 @@
  * flow: tenant-administration
  * step: tad_users
  */
-import { useEffect } from 'react';
-import { Alert, Bullseye, Button, Label, PageSection, Spinner } from '@patternfly/react-core';
+import { Alert, Label } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
 import { useUsers } from '@osac/ui-components/api/v1/user';
-import { PageDataSection } from '@osac/ui-components/components/layout/PageDataSection';
-import { PageHeader } from '@osac/ui-components/components/layout/PageHeader';
-import '@osac/ui-components/components/shared/DataTable.css';
+import ListPage from '@osac/ui-components/components/Page/ListPage';
+import ListPageBody from '@osac/ui-components/components/Page/ListPageBody';
 
 import {
   readUserDisplayName,
@@ -19,39 +17,15 @@ import {
   readUserStatus,
 } from '../../utils/adminWireDisplay';
 
-export const AdminUsersPage = () => {
-  const { data: users = [], isPending, isError, error, refetch } = useUsers();
+import '../../components/shared/DataTable.css';
 
-  useEffect(() => {
-    if (isError && error) {
-      // eslint-disable-next-line no-console -- diagnostics only; user sees generic Alert copy
-      console.error('Failed to load users', error);
-    }
-  }, [isError, error]);
+export const AdminUsersPage = () => {
+  const { data: users = [], isLoading, error } = useUsers();
 
   return (
-    <PageSection isFilled className="osac-page">
-      <PageHeader title="Users" description="Manage users and access for your organization." />
-
-      <PageDataSection scrollable>
-        {isPending ? (
-          <Bullseye className="osac-data-table__loading">
-            <Spinner aria-label="Loading users" />
-          </Bullseye>
-        ) : isError ? (
-          <Alert
-            variant="danger"
-            isInline
-            title="Could not load users"
-            actionLinks={
-              <Button variant="link" isInline onClick={() => void refetch()}>
-                Retry
-              </Button>
-            }
-          >
-            Unable to load users right now. Please try again.
-          </Alert>
-        ) : users.length === 0 ? (
+    <ListPage title="Users" description="Manage users and access for your organization.">
+      <ListPageBody isLoading={isLoading} error={error}>
+        {users.length === 0 ? (
           <Alert variant="info" isInline title="No users found">
             No users are registered for this organization yet.
           </Alert>
@@ -103,7 +77,7 @@ export const AdminUsersPage = () => {
             </Tbody>
           </Table>
         )}
-      </PageDataSection>
-    </PageSection>
+      </ListPageBody>
+    </ListPage>
   );
 };

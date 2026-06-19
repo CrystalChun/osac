@@ -1,26 +1,18 @@
-/**
- * flow: manage-virtual-machines
- * steps: mvm_list_view, mvm_detail_drawer
- */
 import { useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
-  Bullseye,
   Button,
-  Divider,
   Flex,
   FlexItem,
-  PageSection,
   SearchInput,
-  Spinner,
   ToggleGroup,
   ToggleGroupItem,
 } from '@patternfly/react-core';
 
 import { ComputeInstanceState } from '@osac/types';
 import { useComputeInstances } from '@osac/ui-components/api/v1/compute-instance';
-import { PageDataSection } from '@osac/ui-components/components/layout/PageDataSection';
-import { PageHeader } from '@osac/ui-components/components/layout/PageHeader';
+import ListPage from '@osac/ui-components/components/Page/ListPage';
+import ListPageBody from '@osac/ui-components/components/Page/ListPageBody';
 import { SubtleContent } from '@osac/ui-components/components/SubtleContent/SubtleContent';
 import { VmTable } from '@osac/ui-components/components/vm/VmTable';
 import { useSession } from '@osac/ui-components/hooks/use-session';
@@ -52,7 +44,7 @@ export const VmListPage = () => {
     normalizePowerFilter(searchParams.get('power')),
   );
 
-  const { data: vms = [], isLoading } = useComputeInstances();
+  const { data: vms = [], isLoading, error } = useComputeInstances();
 
   const filteredVms = useMemo(() => {
     return vms.filter((vm) => {
@@ -68,23 +60,18 @@ export const VmListPage = () => {
   }, [powerFilter, search, vms]);
 
   return (
-    <PageSection isFilled className="osac-page">
-      <PageHeader
-        title="Virtual machines"
-        description="View and filter your virtual machines."
-        descriptionWidth="wide"
-        actions={
-          role === 'tenantUser' ? (
-            <Button variant="primary" onClick={() => navigate('/vms/create')}>
-              Create virtual machine
-            </Button>
-          ) : undefined
-        }
-      />
-
-      <Divider className="osac-vm-list__divider" />
-
-      <PageDataSection scrollable>
+    <ListPage
+      title="Virtual machines"
+      description="View and filter your virtual machines."
+      actions={
+        role === 'tenantUser' ? (
+          <Button variant="primary" onClick={() => navigate('/vms/create')}>
+            Create virtual machine
+          </Button>
+        ) : undefined
+      }
+    >
+      <ListPageBody isLoading={isLoading} error={error}>
         <Flex
           spaceItems={{ default: 'spaceItemsSm' }}
           alignItems={{ default: 'alignItemsCenter' }}
@@ -117,12 +104,7 @@ export const VmListPage = () => {
             </ToggleGroup>
           </FlexItem>
         </Flex>
-
-        {isLoading ? (
-          <Bullseye className="osac-vm-list__loading">
-            <Spinner aria-label="Loading virtual machines" />
-          </Bullseye>
-        ) : filteredVms.length === 0 ? (
+        {filteredVms.length === 0 ? (
           <SubtleContent component="p" className="osac-vm-list__empty">
             {search || powerFilter !== 'all'
               ? 'No virtual machines match your filters.'
@@ -131,7 +113,7 @@ export const VmListPage = () => {
         ) : (
           <VmTable vms={filteredVms} />
         )}
-      </PageDataSection>
-    </PageSection>
+      </ListPageBody>
+    </ListPage>
   );
 };

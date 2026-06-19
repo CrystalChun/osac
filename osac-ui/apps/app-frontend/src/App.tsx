@@ -15,8 +15,6 @@ import { useOIDCLogin } from './hooks/oidc-login';
 import { AppShell } from './shell/AppShell';
 import { defaultRouteForRole } from './shell/shellRoutes';
 
-import './App.css';
-
 const LoggedInHomeRedirect = () => {
   const { role } = useSession();
   return <Navigate to={defaultRouteForRole(role)} replace />;

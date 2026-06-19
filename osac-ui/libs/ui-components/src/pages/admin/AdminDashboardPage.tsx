@@ -3,15 +3,14 @@
  * step: tad_dashboard_home
  */
 import { useNavigate } from 'react-router-dom';
-import { Flex, Gallery, GalleryItem, PageSection, Title } from '@patternfly/react-core';
+import { Flex, Gallery, GalleryItem, Title } from '@patternfly/react-core';
 
 import { useComputeInstances } from '@osac/ui-components/api/v1/compute-instance';
 import { useUsers } from '@osac/ui-components/api/v1/user';
-import '@osac/ui-components/components/dashboard/AdminDashboardSection.css';
 import { DashboardActionTile } from '@osac/ui-components/components/dashboard/DashboardActionTile';
 import { DashboardMetricCard } from '@osac/ui-components/components/dashboard/DashboardMetricCard';
-import { PageDataSection } from '@osac/ui-components/components/layout/PageDataSection';
-import { PageHeader } from '@osac/ui-components/components/layout/PageHeader';
+import ListPage from '@osac/ui-components/components/Page/ListPage';
+import ListPageBody from '@osac/ui-components/components/Page/ListPageBody';
 import { useSession } from '@osac/ui-components/hooks/use-session';
 import {
   COMPUTE_INSTANCE_STATE,
@@ -45,20 +44,14 @@ const TILES = [
 export const AdminDashboardPage = () => {
   const navigate = useNavigate();
   const { username } = useSession();
-  const { data: vms = [] } = useComputeInstances();
-  const { data: users = [] } = useUsers();
+  const { data: vms = [], isLoading: vmsLoading, error: vmsError } = useComputeInstances();
+  const { data: users = [], isLoading: usersLoading, error: usersError } = useUsers();
   const tenantLabel = username ?? 'your organization';
 
   return (
-    <PageSection isFilled className="osac-page">
-      <PageHeader title="Dashboard" description={`Tenant administration for ${tenantLabel}`} />
-
-      <PageDataSection scrollable>
-        <Flex
-          className="osac-admin-dashboard__metrics"
-          spaceItems={{ default: 'spaceItemsMd' }}
-          flexWrap={{ default: 'wrap' }}
-        >
+    <ListPage title="Dashboard" description={`Tenant administration for ${tenantLabel}`}>
+      <ListPageBody isLoading={vmsLoading || usersLoading} error={vmsError || usersError}>
+        <Flex spaceItems={{ default: 'spaceItemsMd' }} flexWrap={{ default: 'wrap' }}>
           <DashboardMetricCard label="Total VMs" value={vms.length} />
           <DashboardMetricCard
             label="Running"
@@ -69,8 +62,7 @@ export const AdminDashboardPage = () => {
           />
           <DashboardMetricCard label="Users" value={users.length} />
         </Flex>
-
-        <Title headingLevel="h2" size="xl" className="osac-admin-dashboard__section-title">
+        <Title headingLevel="h2" size="xl">
           Administration areas
         </Title>
         <Gallery hasGutter minWidths={{ default: '220px' }}>
@@ -86,7 +78,7 @@ export const AdminDashboardPage = () => {
             </GalleryItem>
           ))}
         </Gallery>
-      </PageDataSection>
-    </PageSection>
+      </ListPageBody>
+    </ListPage>
   );
 };
