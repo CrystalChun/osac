@@ -107,6 +107,11 @@ export default defineConfig(
         {
           paths: [
             {
+              name: '@patternfly/react-core',
+              importNames: ['Form'],
+              message: 'Use OsacForm wrapper',
+            },
+            {
               name: '@patternfly/react-icons',
               message:
                 'Use a deep ESM import: @patternfly/react-icons/dist/esm/icons/<icon-name>',
@@ -134,6 +139,25 @@ export default defineConfig(
         'error',
         {
           paths: [
+            {
+              name: '@patternfly/react-core',
+              importNames: ['Form'],
+              message: 'Use OsacForm wrapper',
+            },
+            {
+              name: '@patternfly/react-icons',
+              message:
+                'Use a deep ESM import: @patternfly/react-icons/dist/esm/icons/<icon-name>',
+            },
+            {
+              name: '@patternfly/react-tokens',
+              message:
+                'Use a deep ESM import: @patternfly/react-tokens/dist/esm/<token-name>',
+            },
+            {
+              name: 'lodash-es',
+              message: 'Import using full path `lodash-es/<function>` instead',
+            },
             {
               name: '@tanstack/react-query',
               importNames: ['useQuery'],

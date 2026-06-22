@@ -47,11 +47,6 @@
   margin-bottom: var(--pf-t--global--spacer--sm);
 }
 
-.osac-wizard-customization__section-form {
-  margin-bottom: var(--pf-t--global--spacer--lg);
-  max-width: 720px;
-}
-
 .osac-deploy-options {
   display: flex;
   flex-direction: column;

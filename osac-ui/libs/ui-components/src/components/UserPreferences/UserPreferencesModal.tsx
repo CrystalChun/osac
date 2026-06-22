@@ -1,7 +1,6 @@
 import * as React from 'react';
 import {
   Button,
-  Form,
   FormGroup,
   MenuToggle,
   MenuToggleElement,
@@ -15,6 +14,7 @@ import {
 
 import { useSession } from '../../hooks/use-session';
 import { Theme } from '../../hooks/use-theme';
+import OsacForm from '../Form/OsacForm';
 
 const themeLabels: { [key in Theme]: string } = {
   system: 'System default',
@@ -34,7 +34,7 @@ const UserPreferencesModal: React.FC<UserPreferencesModalProps> = ({ onClose }) 
     <Modal isOpen variant="small" onClose={onClose}>
       <ModalHeader title="User preferences" />
       <ModalBody>
-        <Form>
+        <OsacForm>
           <FormGroup label="Theme">
             <Select
               toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
@@ -63,7 +63,7 @@ const UserPreferencesModal: React.FC<UserPreferencesModalProps> = ({ onClose }) 
               ))}
             </Select>
           </FormGroup>
-        </Form>
+        </OsacForm>
       </ModalBody>
       <ModalFooter>
         <Button variant="secondary" onClick={onClose}>

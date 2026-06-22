@@ -1,5 +1,6 @@
-import { Form, Stack, StackItem, Title } from '@patternfly/react-core';
+import { Stack, StackItem, Title } from '@patternfly/react-core';
 
+import OsacForm from '@osac/ui-components/components/Form/OsacForm';
 import { SubtleContent } from '@osac/ui-components/components/SubtleContent/SubtleContent';
 
 import {
@@ -73,7 +74,7 @@ export const ConfigurationStep = <TItem extends CatalogProvisionCatalogItem>({
         </SubtleContent>
       </StackItem>
       <StackItem>
-        <Form className="osac-wizard-customization__section-form">
+        <OsacForm>
           {otherConfiguration.map((def) => {
             const fieldId = `catalog-field-${def.path.replace(/\./g, '-')}`;
             return (
@@ -97,7 +98,7 @@ export const ConfigurationStep = <TItem extends CatalogProvisionCatalogItem>({
               onClearFieldError={onClearFieldError}
             />
           ) : null}
-        </Form>
+        </OsacForm>
       </StackItem>
     </Stack>
   );

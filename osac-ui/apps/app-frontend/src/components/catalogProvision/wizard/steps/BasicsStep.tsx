@@ -1,5 +1,6 @@
-import { Form, FormGroup, Stack, StackItem, TextInput, Title } from '@patternfly/react-core';
+import { FormGroup, Stack, StackItem, TextInput, Title } from '@patternfly/react-core';
 
+import OsacForm from '@osac/ui-components/components/Form/OsacForm';
 import { SubtleContent } from '@osac/ui-components/components/SubtleContent/SubtleContent';
 
 import {
@@ -50,7 +51,7 @@ export const BasicsStep = <TItem extends CatalogProvisionCatalogItem>({
         </SubtleContent>
       </StackItem>
       <StackItem>
-        <Form className="osac-wizard-customization__section-form">
+        <OsacForm>
           <FormGroup label={adapter.resourceNameLabel} fieldId="resource-name" isRequired>
             <TextInput
               id="resource-name"
@@ -80,7 +81,7 @@ export const BasicsStep = <TItem extends CatalogProvisionCatalogItem>({
               />
             );
           })}
-        </Form>
+        </OsacForm>
       </StackItem>
     </Stack>
   );
