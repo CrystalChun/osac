@@ -22,9 +22,6 @@ func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	r.URL.Scheme = h.target.Scheme
 	r.Header.Set("X-Forwarded-Host", r.Header.Get("Host"))
 	r.Host = h.target.Host
-	// OSAC_WORKAROUND_REMOVE(static-bearer): dev fallback; middleware.Auth already injects Bearer
-	// from the OIDC session cookie. This only fires when OIDC is not yet wired.
-	applyStaticBearer(r)
 	h.proxy.ServeHTTP(w, r)
 }
 
@@ -56,14 +53,4 @@ func NewFulfillmentHandler(tlsConfig *tls.Config) handler {
 		TLSClientConfig: tlsConfig,
 	}
 	return handler{target: target, proxy: proxy}
-}
-
-// applyStaticBearer injects or replaces the Authorization header when a static bearer is configured.
-// OSAC_WORKAROUND_REMOVE(static-bearer): inject TEMP_FULFILLMENT_STATIC_BEARER for dev until
-// server-side / OIDC supplies tokens on every call.
-func applyStaticBearer(r *http.Request) {
-	token := config.TempStaticBearer
-	if token != "" {
-		r.Header.Set("Authorization", "Bearer "+token)
-	}
 }

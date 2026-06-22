@@ -1,6 +1,6 @@
 # osac-ui
 
-OSAC web console — VM-as-a-Service frontend for OpenShift. pnpm monorepo with React 19 + PatternFly 6 (frontend) and a Go chi reverse proxy (BFF with OIDC authentication).
+Web console for the [Open Sovereign AI Cloud (OSAC)](https://github.com/osac-project/) project — a self-service platform for deploying OpenShift clusters, virtual machines, and bare metal hosts. pnpm monorepo with React 19 + PatternFly 6 (frontend) and a Go chi reverse proxy (BFF with OIDC authentication).
 
 ## Critical Rules
 
@@ -8,7 +8,7 @@ OSAC web console — VM-as-a-Service frontend for OpenShift. pnpm monorepo with 
 - **TypeScript strict mode** — no enums, use string unions or const maps; prefer interfaces over type aliases for public props
 - **One component per file** — keep page files focused on composition and data wiring; extract subcomponents
 - **No inline styles** except for dynamic values that cannot be expressed in CSS
-- **Named exports** for components and shared utilities
+- **Default exports** for React components; **named exports** for everything else (utilities, hooks, types, constants)
 - **No `console.log`** — ESLint enforces this
 - **Arrow function style** — `func-style: expression` is enforced
 
@@ -20,8 +20,7 @@ Prerequisites: Node.js 20+, pnpm 9+, Go 1.23+
 pnpm install                   # Install dependencies
 
 # Start development servers
-FULFILLMENT_API_URL=https://... pnpm dev:proxy    # Go proxy on :8080
-pnpm dev:frontend                                  # Vite on :5173
+FULFILLMENT_API_URL=https://... pnpm dev    # Go proxy and Vite on :5173
 
 # Build
 pnpm build                     # TypeScript check + Vite build + Go binary
@@ -87,7 +86,7 @@ osac-ui/
 
 - Use **TypeScript** with strict project settings; prefer **interfaces** over type aliases for public props; **avoid enums** — use string unions or const maps
 - Prefer **functional components** and declarative patterns; use the `function` keyword for named pure helpers when it improves hoisting and stack traces
-- Prefer **named exports** for components and shared utilities
+- **Default exports** for React components; **named exports** for everything else (utilities, hooks, types, constants)
 - **One component per file**: split each meaningful component into its own file in the same feature area (e.g., `feature-name/SubView.tsx`); keep page files focused on composition, data wiring, and layout. Exception: a tiny non-exported helper may stay if the file remains short
 - Do not add dependencies without aligning with existing stack and license policy; prefer patterns already present in the target package
 
@@ -95,8 +94,7 @@ osac-ui/
 
 1. Prefer PatternFly CSS classes and utility classes
 2. Avoid custom CSS files for routine UI — stay within PatternFly's supported customization paths
-3. Use [Emotion `css`](https://emotion.sh/docs/css) only when PatternFly cannot express a layout — minimal, scoped
-4. Never replace PatternFly tokens with arbitrary colors, spacing, or typography
+3. Never replace PatternFly tokens with arbitrary colors, spacing, or typography
 5. Avoid inline styles (`style={{ ... }}`) except for dynamic values that cannot be expressed in CSS
 
 ### UI and Accessibility
@@ -148,11 +146,14 @@ The Go reverse proxy handles OIDC authentication and forwards API requests to th
 | Env Var | Required | Description |
 |---------|----------|-------------|
 | `FULFILLMENT_API_URL` | Yes | Upstream API base URL |
-| `PORT` | No | Listen port (default: 8080) |
+| `PORT` | No | Listen port (default: `8080`) |
+| `HOST` | No | Listen host (default: `0.0.0.0`) |
+| `BASE_UI_URL` | No | Public base URL of the UI — used to compute the `/callback` redirect URI; derived from the SPA's `redirect_base` query parameter if unset |
 | `OIDC_CLIENT_ID` | No | OIDC client ID (default: `osac-ui`) |
-| `FULFILLMENT_TLS_CA_FILE` | No | Custom CA bundle path |
-| `FULFILLMENT_TLS_INSECURE` | No | Skip TLS verification (dev only) |
-| `TEMP_FULFILLMENT_STATIC_BEARER` | No | Inject Bearer token (dev only) |
+| `OIDC_TLS_CA_FILE` | No | Custom CA bundle for the OIDC IdP |
+| `OIDC_TLS_INSECURE` | No | Skip TLS verification for the OIDC IdP (dev only) |
+| `FULFILLMENT_TLS_CA_FILE` | No | Custom CA bundle for the fulfillment service |
+| `FULFILLMENT_TLS_INSECURE` | No | Skip TLS verification for the fulfillment service (dev only) |
 
 Proxied paths: `/api/fulfillment/v1/*`, `/api/events/v1/*`, `/api/osac/public/v1/*`
 

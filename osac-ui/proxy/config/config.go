@@ -24,8 +24,6 @@ var (
 	// BaseUIURL is the public base URL of the UI used to compute the /callback redirect URI.
 	// If empty, the proxy derives it from the SPA's redirect_base query parameter.
 	BaseUIURL = getEnvUrlVar("BASE_UI_URL", "")
-	// TempStaticBearer dev-only; remove when OIDC always supplies tokens.
-	TempStaticBearer = getEnvVar("TEMP_FULFILLMENT_STATIC_BEARER", "")
 )
 
 func getEnvUrlVar(key, defaultValue string) string {
