@@ -22,8 +22,6 @@ import {
   useWizardContext,
 } from '@patternfly/react-core';
 
-import type { BuildComputeInstanceCreateBodyInput } from '@osac/ui-components/api/v1/compute-instance-wire';
-
 import {
   type CatalogProvisionKind,
   readCatalogItemFieldDefinitions,
@@ -43,6 +41,7 @@ import {
   liveWizardStepFieldErrors,
   validateWizardForFinalize,
 } from './wizard/wizardBuild';
+import type { BuildComputeInstanceCreateBodyInput } from '../../api/v1/compute-instance-wire';
 
 import './CatalogProvisionWizard.css';
 

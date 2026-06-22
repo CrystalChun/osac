@@ -12,8 +12,8 @@ import {
 import { SessionProvider, useSession } from '@osac/ui-components/hooks/use-session';
 
 import { useOIDCLogin } from './hooks/oidc-login';
-import { AppShell } from './pages/shell/AppShell';
-import { defaultRouteForRole } from './pages/shell/shellRoutes';
+import { AppShell } from './shell/AppShell';
+import { defaultRouteForRole } from './shell/shellRoutes';
 
 import './App.css';
 

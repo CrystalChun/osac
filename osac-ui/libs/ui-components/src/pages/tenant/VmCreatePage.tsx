@@ -4,8 +4,7 @@ import { PageSection } from '@patternfly/react-core';
 
 import { useProvisionComputeInstance } from '@osac/ui-components/api/v1/compute-instance';
 import type { BuildComputeInstanceCreateBodyInput } from '@osac/ui-components/api/v1/compute-instance-wire';
-
-import { CatalogProvisionWizard } from '../../components/catalogProvision/CatalogProvisionWizard';
+import { CatalogProvisionWizard } from '@osac/ui-components/components/catalogProvision/CatalogProvisionWizard';
 
 export const VmCreatePage = () => {
   const navigate = useNavigate();

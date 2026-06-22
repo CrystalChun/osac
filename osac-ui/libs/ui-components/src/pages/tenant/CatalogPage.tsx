@@ -15,13 +15,12 @@ import {
 } from '@patternfly/react-core';
 
 import { useComputeInstanceCatalogItems } from '@osac/ui-components/api/v1/compute-instance-catalog-item';
-
-import { PageDataSection } from '../../components/layout/PageDataSection';
-import { PageHeader } from '../../components/layout/PageHeader';
-import { CatalogItemCard } from '../../components/vm/CatalogItemCard';
-import { CatalogItemDetailDrawer } from '../../components/vm/CatalogItemDetailDrawer';
-import type { CatalogItemForDisplay } from '../../components/vm/catalogItemDisplay';
-import { searchableCatalogItemText } from '../../components/vm/catalogItemDisplay';
+import { PageDataSection } from '@osac/ui-components/components/layout/PageDataSection';
+import { PageHeader } from '@osac/ui-components/components/layout/PageHeader';
+import { CatalogItemCard } from '@osac/ui-components/components/vm/CatalogItemCard';
+import { CatalogItemDetailDrawer } from '@osac/ui-components/components/vm/CatalogItemDetailDrawer';
+import type { CatalogItemForDisplay } from '@osac/ui-components/components/vm/catalogItemDisplay';
+import { searchableCatalogItemText } from '@osac/ui-components/components/vm/catalogItemDisplay';
 
 import './CatalogPage.css';
 

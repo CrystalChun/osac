@@ -7,6 +7,9 @@ import { Alert, Bullseye, Button, Label, PageSection, Spinner } from '@patternfl
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
 import { useUsers } from '@osac/ui-components/api/v1/user';
+import { PageDataSection } from '@osac/ui-components/components/layout/PageDataSection';
+import { PageHeader } from '@osac/ui-components/components/layout/PageHeader';
+import '@osac/ui-components/components/shared/DataTable.css';
 
 import {
   readUserDisplayName,
@@ -14,11 +17,7 @@ import {
   readUserLastLogin,
   readUserRole,
   readUserStatus,
-} from '../../adminWireDisplay';
-import { PageDataSection } from '../../components/layout/PageDataSection';
-import { PageHeader } from '../../components/layout/PageHeader';
-
-import '../../components/shared/DataTable.css';
+} from '../../utils/adminWireDisplay';
 
 export const AdminUsersPage = () => {
   const { data: users = [], isPending, isError, error, refetch } = useUsers();

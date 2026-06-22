@@ -1,6 +1,6 @@
 import type { ComputeInstanceCatalogItem } from '@osac/types';
-import type { BuildComputeInstanceCreateBodyInput } from '@osac/ui-components/api/v1/compute-instance-wire';
 
+import type { BuildComputeInstanceCreateBodyInput } from '../../../api/v1/compute-instance-wire';
 import {
   type CatalogFieldDefinition,
   type CatalogProvisionKind,

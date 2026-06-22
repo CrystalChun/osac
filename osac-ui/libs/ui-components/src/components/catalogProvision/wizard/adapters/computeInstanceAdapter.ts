@@ -1,6 +1,6 @@
 import type { ComputeInstanceCatalogItem } from '@osac/types';
-import { useComputeInstanceCatalogItems } from '@osac/ui-components/api/v1/compute-instance-catalog-item';
 
+import { useComputeInstanceCatalogItems } from '../../../../api/v1/compute-instance-catalog-item';
 import type { CatalogProvisionWizardState } from '../types';
 import { buildComputeInstanceFromWizardDraft } from '../wizardBuild';
 

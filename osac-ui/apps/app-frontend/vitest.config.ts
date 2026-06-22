@@ -15,5 +15,6 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     passWithNoTests: true,
+    include: ['src/**/*.test.ts', '../../libs/ui-components/src/**/*.test.ts'],
   },
 })

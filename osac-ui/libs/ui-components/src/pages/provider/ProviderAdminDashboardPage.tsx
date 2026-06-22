@@ -16,14 +16,13 @@ import {
 
 import { useComputeInstances } from '@osac/ui-components/api/v1/compute-instance';
 import { useOrganizations } from '@osac/ui-components/api/v1/organization';
+import '@osac/ui-components/components/dashboard/AdminDashboardSection.css';
+import { DashboardActionTile } from '@osac/ui-components/components/dashboard/DashboardActionTile';
+import { DashboardMetricCard } from '@osac/ui-components/components/dashboard/DashboardMetricCard';
+import { PageDataSection } from '@osac/ui-components/components/layout/PageDataSection';
+import { PageHeader } from '@osac/ui-components/components/layout/PageHeader';
 
-import { readOrganizationStatus } from '../../adminWireDisplay';
-import { DashboardActionTile } from '../../components/dashboard/DashboardActionTile';
-import { DashboardMetricCard } from '../../components/dashboard/DashboardMetricCard';
-import { PageDataSection } from '../../components/layout/PageDataSection';
-import { PageHeader } from '../../components/layout/PageHeader';
-
-import '../../components/dashboard/AdminDashboardSection.css';
+import { readOrganizationStatus } from '../../utils/adminWireDisplay';
 
 const PROVIDER_TILES = [
   {

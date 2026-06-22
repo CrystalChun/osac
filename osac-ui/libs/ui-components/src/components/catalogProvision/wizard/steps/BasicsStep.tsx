@@ -1,8 +1,7 @@
 import { FormGroup, Stack, StackItem, TextInput, Title } from '@patternfly/react-core';
 
-import OsacForm from '@osac/ui-components/components/Form/OsacForm';
-import { SubtleContent } from '@osac/ui-components/components/SubtleContent/SubtleContent';
-
+import OsacForm from '../../../Form/OsacForm';
+import { SubtleContent } from '../../../SubtleContent/SubtleContent';
 import {
   partitionFieldDefinitions,
   readCatalogItemFieldDefinitions,

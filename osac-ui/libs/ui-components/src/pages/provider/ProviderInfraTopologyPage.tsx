@@ -5,10 +5,9 @@
 import { PageSection } from '@patternfly/react-core';
 
 import { useComputeInstances } from '@osac/ui-components/api/v1/compute-instance';
+import { PageDataSection } from '@osac/ui-components/components/layout/PageDataSection';
+import { PageHeader } from '@osac/ui-components/components/layout/PageHeader';
 import { NetworkTopologyPage } from '@osac/ui-components/NetworkTopologyPage';
-
-import { PageDataSection } from '../../components/layout/PageDataSection';
-import { PageHeader } from '../../components/layout/PageHeader';
 
 export const ProviderInfraTopologyPage = () => {
   const { data: vms = [] } = useComputeInstances();

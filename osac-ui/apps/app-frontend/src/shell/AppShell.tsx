@@ -5,21 +5,21 @@ import { Page } from '@patternfly/react-core';
 import ErrorBoundary from '@osac/ui-components/components/ErrorBoundary/ErrorBoundary';
 import { VmDetailsPage } from '@osac/ui-components/components/vm/VmDetailsPage';
 import { useSession } from '@osac/ui-components/hooks/use-session';
+import { AdminDashboardPage } from '@osac/ui-components/pages/admin/AdminDashboardPage';
+import { AdminNetworksPage } from '@osac/ui-components/pages/admin/AdminNetworksPage';
+import { AdminUsersPage } from '@osac/ui-components/pages/admin/AdminUsersPage';
+import { ProviderAdminDashboardPage } from '@osac/ui-components/pages/provider/ProviderAdminDashboardPage';
+import { ProviderInfraTopologyPage } from '@osac/ui-components/pages/provider/ProviderInfraTopologyPage';
+import { ProviderTenantOrgsPage } from '@osac/ui-components/pages/provider/ProviderTenantOrgsPage';
+import { CatalogPage } from '@osac/ui-components/pages/tenant/CatalogPage';
+import { ClusterRoutes } from '@osac/ui-components/pages/tenant/ClusterRoutes';
+import { VmCreatePage } from '@osac/ui-components/pages/tenant/VmCreatePage';
+import { VmListPage } from '@osac/ui-components/pages/tenant/VmListPage';
 import type { DemoShellRole } from '@osac/ui-components/shellTypes';
 
 import { ShellMasthead } from './ShellMasthead';
 import { defaultRouteForRole } from './shellRoutes';
 import { ShellSidebar } from './ShellSidebar';
-import { AdminDashboardPage } from '../admin/AdminDashboardPage';
-import { AdminNetworksPage } from '../admin/AdminNetworksPage';
-import { AdminUsersPage } from '../admin/AdminUsersPage';
-import { ProviderAdminDashboardPage } from '../provider/ProviderAdminDashboardPage';
-import { ProviderInfraTopologyPage } from '../provider/ProviderInfraTopologyPage';
-import { ProviderTenantOrgsPage } from '../provider/ProviderTenantOrgsPage';
-import { CatalogPage } from '../tenant/CatalogPage';
-import { ClusterRoutes } from '../tenant/ClusterRoutes';
-import { VmCreatePage } from '../tenant/VmCreatePage';
-import { VmListPage } from '../tenant/VmListPage';
 
 const RoleRoute = ({
   allow,

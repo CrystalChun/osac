@@ -2,9 +2,11 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "jsx": "react-jsx",
+    "baseUrl": ".",
     "paths": {
       "@osac/types": ["../../libs/types/src/index.ts"],
-      "@osac/types/*": ["../../libs/types/src/*"]
+      "@osac/types/*": ["../../libs/types/src/*"],
+      "@osac/ui-components/*": ["./src/*"]
     }
   },
   "include": ["src"]

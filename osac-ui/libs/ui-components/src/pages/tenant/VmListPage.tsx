@@ -19,12 +19,11 @@ import {
 
 import { ComputeInstanceState } from '@osac/types';
 import { useComputeInstances } from '@osac/ui-components/api/v1/compute-instance';
+import { PageDataSection } from '@osac/ui-components/components/layout/PageDataSection';
+import { PageHeader } from '@osac/ui-components/components/layout/PageHeader';
 import { SubtleContent } from '@osac/ui-components/components/SubtleContent/SubtleContent';
+import { VmTable } from '@osac/ui-components/components/vm/VmTable';
 import { useSession } from '@osac/ui-components/hooks/use-session';
-
-import { PageDataSection } from '../../components/layout/PageDataSection';
-import { PageHeader } from '../../components/layout/PageHeader';
-import { VmTable } from '../../components/vm/VmTable';
 
 import './VmListPage.css';
 

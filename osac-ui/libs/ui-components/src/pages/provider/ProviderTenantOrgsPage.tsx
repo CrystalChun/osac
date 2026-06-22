@@ -7,17 +7,16 @@ import { Alert, Bullseye, Button, Label, PageSection, Spinner } from '@patternfl
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
 import { useOrganizations } from '@osac/ui-components/api/v1/organization';
+import { PageDataSection } from '@osac/ui-components/components/layout/PageDataSection';
+import { PageHeader } from '@osac/ui-components/components/layout/PageHeader';
+import '@osac/ui-components/components/shared/DataTable.css';
 
 import {
   readOrganizationDescription,
   readOrganizationDisplayName,
   readOrganizationStatus,
   readOrganizationVmCount,
-} from '../../adminWireDisplay';
-import { PageDataSection } from '../../components/layout/PageDataSection';
-import { PageHeader } from '../../components/layout/PageHeader';
-
-import '../../components/shared/DataTable.css';
+} from '../../utils/adminWireDisplay';
 
 export const ProviderTenantOrgsPage = () => {
   const { data: organizations = [], isPending, isError, error, refetch } = useOrganizations();

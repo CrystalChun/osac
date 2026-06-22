@@ -8,8 +8,7 @@ import {
   Title,
 } from '@patternfly/react-core';
 
-import { SubtleContent } from '@osac/ui-components/components/SubtleContent/SubtleContent';
-
+import { SubtleContent } from '../../../SubtleContent/SubtleContent';
 import {
   catalogItemFieldDefinitions,
   getNetworkAttachmentFieldBundle,

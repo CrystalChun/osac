@@ -8,9 +8,9 @@ import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
 import type { ComputeInstance } from '@osac/types';
 import { ComputeInstanceState } from '@osac/types';
-import { VmStatusLabel } from '@osac/ui-components/VmStatusLabel';
 
 import { VmActionsMenu } from './VmActionsMenu';
+import { VmStatusLabel } from '../../VmStatusLabel';
 
 import './VmTable.css';
 
