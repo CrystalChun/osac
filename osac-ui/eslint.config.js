@@ -125,6 +125,12 @@ export default defineConfig(
               name: 'lodash-es',
               message: 'Import using full path `lodash-es/<function>` instead',
             },
+            {
+              name: 'react-i18next',
+              importNames: ['useTranslation'],
+              message:
+                "Import useTranslation from '@osac/ui-components/hooks/useTranslation' instead",
+            },
           ],
         },
       ],
@@ -133,7 +139,7 @@ export default defineConfig(
   // ui-components must use useApiQuery / useApiQueryClient, never tanstack hooks directly
   {
     files: ['libs/ui-components/src/**/*.{ts,tsx}'],
-    ignores: ['libs/ui-components/src/api/use-api-query.ts'],
+    ignores: ['libs/ui-components/src/api/use-api-query.ts', 'libs/ui-components/src/hooks/useTranslation.ts'],
     rules: {
       'no-restricted-imports': [
         'error',
@@ -167,6 +173,12 @@ export default defineConfig(
               name: '@tanstack/react-query',
               importNames: ['useQueryClient'],
               message: "Use useApiQueryClient from '@osac/ui-components/api/use-api-query-client' instead. It constrains all cache operations to known ApiRoute values.",
+            },
+            {
+              name: 'react-i18next',
+              importNames: ['useTranslation'],
+              message:
+                "Import useTranslation from '@osac/ui-components/hooks/useTranslation' instead",
             },
           ],
         },

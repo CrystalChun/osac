@@ -1,4 +1,6 @@
 /** Role-based sidebar navigation (sectioned NavGroup layout). Icons: shellNavIcons.tsx */
+import type { TFunction } from 'i18next';
+
 import type { DemoShellRole } from '@osac/ui-components/shellTypes';
 
 export type NavLink = { id: string; label: string; path: string };
@@ -12,79 +14,81 @@ export type NavSection = {
 
 export type NavRow = NavSection;
 
-const TENANT_USER_NAV: NavRow[] = [
+const getTenantUserNav = (t: TFunction): NavRow[] => [
   {
     kind: 'section',
     sectionId: 'nav-tenant-services',
-    label: 'Services',
+    label: t('Services'),
     children: [
-      { id: 'catalog', label: 'Catalog', path: '/catalog' },
-      { id: 'compute-vms', label: 'Virtual Machines', path: '/vms' },
-      { id: 'clusters', label: 'Clusters', path: '/clusters' },
+      { id: 'catalog', label: t('Catalog'), path: '/catalog' },
+      { id: 'compute-vms', label: t('Virtual Machines'), path: '/vms' },
+      { id: 'clusters', label: t('Clusters'), path: '/clusters' },
     ],
   },
 ];
 
-const TENANT_ADMIN_NAV: NavRow[] = [
+const getTenantAdminNav = (t: TFunction): NavRow[] => [
   {
     kind: 'section',
     sectionId: 'nav-admin-overview',
-    label: 'Overview',
-    children: [{ id: 'admin-dashboard', label: 'Dashboard', path: '/admin/dashboard' }],
+    label: t('Overview'),
+    children: [{ id: 'admin-dashboard', label: t('Dashboard'), path: '/admin/dashboard' }],
   },
   {
     kind: 'section',
     sectionId: 'nav-admin-services',
-    label: 'Services',
-    children: [{ id: 'clusters', label: 'Clusters', path: '/clusters' }],
+    label: t('Services'),
+    children: [{ id: 'clusters', label: t('Clusters'), path: '/clusters' }],
   },
   {
     kind: 'section',
     sectionId: 'nav-admin-mgmt',
-    label: 'Management',
+    label: t('Management'),
     children: [
-      { id: 'admin-users', label: 'Users', path: '/admin/users' },
-      { id: 'admin-catalog', label: 'Catalog', path: '/admin/catalog' },
+      { id: 'admin-users', label: t('Users'), path: '/admin/users' },
+      { id: 'admin-catalog', label: t('Catalog'), path: '/admin/catalog' },
     ],
   },
   {
     kind: 'section',
     sectionId: 'nav-admin-infra',
-    label: 'Infrastructure',
-    children: [{ id: 'admin-networks', label: 'Networks', path: '/admin/networks' }],
+    label: t('Infrastructure'),
+    children: [{ id: 'admin-networks', label: t('Networks'), path: '/admin/networks' }],
   },
 ];
 
-const PROVIDER_ADMIN_NAV: NavRow[] = [
+const getProviderAdminNav = (t: TFunction): NavRow[] => [
   {
     kind: 'section',
     sectionId: 'nav-provider-overview',
-    label: 'Overview',
-    children: [{ id: 'provider-dashboard', label: 'Dashboard', path: '/provider/dashboard' }],
+    label: t('Overview'),
+    children: [{ id: 'provider-dashboard', label: t('Dashboard'), path: '/provider/dashboard' }],
   },
   {
     kind: 'section',
     sectionId: 'nav-provider-mgmt',
-    label: 'Management',
+    label: t('Management'),
     children: [
-      { id: 'provider-orgs', label: 'Tenant organizations', path: '/provider/organizations' },
-      { id: 'provider-catalog', label: 'Global catalog', path: '/provider/catalog' },
+      { id: 'provider-orgs', label: t('Tenant organizations'), path: '/provider/organizations' },
+      { id: 'provider-catalog', label: t('Global catalog'), path: '/provider/catalog' },
     ],
   },
   {
     kind: 'section',
     sectionId: 'nav-provider-infra',
-    label: 'Infrastructure',
-    children: [{ id: 'provider-infra', label: 'Infrastructure', path: '/provider/infrastructure' }],
+    label: t('Infrastructure'),
+    children: [
+      { id: 'provider-infra', label: t('Infrastructure'), path: '/provider/infrastructure' },
+    ],
   },
 ];
 
-export const navRowsForRole = (role: DemoShellRole): NavRow[] => {
+export const navRowsForRole = (role: DemoShellRole, t: TFunction): NavRow[] => {
   if (role === 'providerAdmin') {
-    return PROVIDER_ADMIN_NAV;
+    return getProviderAdminNav(t);
   }
   if (role === 'tenantAdmin') {
-    return TENANT_ADMIN_NAV;
+    return getTenantAdminNav(t);
   }
-  return TENANT_USER_NAV;
+  return getTenantUserNav(t);
 };

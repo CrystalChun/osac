@@ -1,11 +1,22 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { resolve } from 'path'
+import { viteStaticCopy } from 'vite-plugin-static-copy'
 
 const uiComponentsSrc = resolve(__dirname, '../../libs/ui-components/src')
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    viteStaticCopy({
+      targets: [
+        {
+          src: resolve(__dirname, '../../libs/i18n/locales'),
+          dest: '.',
+        },
+      ],
+    }),
+  ],
   resolve: {
     alias: [
       {

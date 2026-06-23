@@ -8,6 +8,7 @@ import type { ApiQueryKey, ApiQueryMeta } from '@osac/ui-components/api/types';
 
 import { fulfillmentFetch } from './api/fulfillmentFetch';
 import App from './App';
+import './i18n';
 
 // CSS load order is intentional: base → addons → local overrides
 /* eslint-disable import/order */

@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Nav, NavGroup, NavItem, PageSidebar, PageSidebarBody } from '@patternfly/react-core';
 
 import { useSession } from '@osac/ui-components/hooks/use-session';
+import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
 
 import { type NavLink, navRowsForRole } from './shellNav';
 import { shellNavIcon } from './shellNavIcons';
@@ -28,8 +29,9 @@ const ShellNavItem = ({ item }: { item: NavLink }) => {
 
 export const ShellSidebar = () => {
   const { role } = useSession();
+  const { t } = useTranslation();
 
-  const navRows = React.useMemo(() => navRowsForRole(role), [role]);
+  const navRows = React.useMemo(() => navRowsForRole(role, t), [role, t]);
 
   return (
     <PageSidebar>

@@ -5,11 +5,12 @@
   "type": "module",
   "scripts": {
     "gen-types": "pnpm --filter @osac/types run gen-types",
+    "i18n": "pnpm --filter @osac/i18n run i18n",
     "dev": "concurrently \"pnpm dev:proxy\" \"pnpm dev:frontend\"",
     "dev:proxy": "cd proxy && nodemon --watch 'proxy/**/*' --exec 'go run' main.go --signal SIGTERM",
     "dev:frontend": "pnpm --filter @osac/app-frontend run dev",
     "build": "pnpm --filter @osac/app-frontend run build && cd proxy && go build -o osac-proxy .",
-    "lint": "eslint \"{apps,libs}/*/src/**\" && prettier --check \"{apps,libs}/*/src/**/*.{js,jsx,ts,tsx}\"",
+    "lint": "eslint \"{apps,libs}/*/src/**\" && prettier --check \"{apps,libs}/*/src/**/*.{js,jsx,ts,tsx}\" && pnpm run i18n",
     "format": "eslint --fix \"{apps,libs}/*/src/**/*.{ts,tsx}\" && prettier --write \"{apps,libs}/*/src/**/*.{js,jsx,ts,tsx}\"",
     "check:pf-primitives": "node scripts/check-pf-primitives.mjs",
     "test": "pnpm -r run test",
