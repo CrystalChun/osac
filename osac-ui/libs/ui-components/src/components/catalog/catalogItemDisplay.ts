@@ -4,12 +4,14 @@ import {
   type CatalogItemResourceFieldPath,
   catalogItemFieldDefinitions,
   fieldDefinitionDefaultToInputString,
+  isCatalogCardResourceFieldPath,
   isCatalogItemResourceFieldPath,
+  isClusterCatalogItemResourceFieldPath,
   resolvedFieldDefault,
 } from '../catalogProvision/catalogFieldDefinition';
 
 /** Minimal catalog item shape for display helpers — wire JSON and wizard drafts. */
-export type CatalogItemForDisplay = {
+export interface CatalogItemForDisplay {
   id: string;
   title: string;
   description?: string;
@@ -29,6 +31,17 @@ export type CatalogItemForDisplay = {
     validation_schema?: unknown;
   }>;
   field_definitions?: CatalogItemForDisplay['fieldDefinitions'];
+}
+
+export type CatalogItemKind = 'vm' | 'cluster';
+
+export const inferCatalogItemKind = (item: CatalogItemForDisplay): CatalogItemKind => {
+  if (
+    catalogItemFieldDefinitions(item).some((def) => isClusterCatalogItemResourceFieldPath(def.path))
+  ) {
+    return 'cluster';
+  }
+  return 'vm';
 };
 
 export const catalogFieldDefault = (item: CatalogItemForDisplay, path: string): unknown => {
@@ -70,19 +83,26 @@ const FALLBACK_RESOURCE_LABELS: Record<CatalogItemResourceFieldPath, string> = {
   'boot_disk.size_gib': 'Boot disk',
 };
 
-/** Field definitions that represent compute resources for catalog card summaries. */
+/** Field definitions shown as resource labels on catalog cards (VM or cluster). */
 export const catalogItemResourceFieldDefinitions = (
   item: CatalogItemForDisplay,
 ): CatalogFieldDefinition[] => {
-  const byPath = new Map(catalogItemFieldDefinitions(item).map((def) => [def.path, def]));
-  return CATALOG_ITEM_RESOURCE_FIELD_PATHS.flatMap((path) => {
+  const defs = catalogItemFieldDefinitions(item);
+  const byPath = new Map(defs.map((def) => [def.path, def]));
+
+  const vmResourceDefs = CATALOG_ITEM_RESOURCE_FIELD_PATHS.flatMap((path) => {
     const def = byPath.get(path);
     return def ? [def] : [];
   });
+  if (vmResourceDefs.length > 0) {
+    return vmResourceDefs;
+  }
+
+  return defs.filter((def) => isClusterCatalogItemResourceFieldPath(def.path));
 };
 
 const formatCatalogResourcePart = (def: CatalogFieldDefinition): string | null => {
-  if (!isCatalogItemResourceFieldPath(def.path)) {
+  if (!isCatalogCardResourceFieldPath(def.path)) {
     return null;
   }
   const defaultValue = resolvedFieldDefault(def);
@@ -93,7 +113,12 @@ const formatCatalogResourcePart = (def: CatalogFieldDefinition): string | null =
   if (!value) {
     return null;
   }
-  const label = def.displayName || FALLBACK_RESOURCE_LABELS[def.path];
+  const label = isCatalogItemResourceFieldPath(def.path)
+    ? def.displayName || FALLBACK_RESOURCE_LABELS[def.path]
+    : def.displayName;
+  if (!label) {
+    return null;
+  }
   return `${value} ${label}`;
 };
 
@@ -127,6 +152,17 @@ export const searchableCatalogItemText = (item: CatalogItemForDisplay): string =
     .filter(Boolean)
     .join(' ')
     .toLowerCase();
+};
+
+export const filterCatalogItemsBySearch = <T extends CatalogItemForDisplay>(
+  items: T[],
+  search: string,
+): T[] => {
+  const searchTerm = search.trim().toLowerCase();
+  if (!searchTerm) {
+    return items;
+  }
+  return items.filter((item) => searchableCatalogItemText(item).includes(searchTerm));
 };
 
 export const formatCatalogFieldDefault = (def: CatalogFieldDefinition): string => {

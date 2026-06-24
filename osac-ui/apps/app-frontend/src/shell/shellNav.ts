@@ -1,4 +1,4 @@
-/** Role-based sidebar navigation (sectioned NavGroup layout). Icons: shellNavIcons.tsx */
+/** Role-based sidebar navigation (sectioned NavGroup layout). Nav icons: shellNavIcon in @osac/ui-components/icons */
 import type { TFunction } from 'i18next';
 
 import type { DemoShellRole } from '@osac/ui-components/shellTypes';

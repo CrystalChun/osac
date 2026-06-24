@@ -12,8 +12,11 @@ import {
   StackItem,
 } from '@patternfly/react-core';
 
-import { CatalogItemCard } from '../../../vm/CatalogItemCard';
-import { searchableCatalogItemText } from '../../../vm/catalogItemDisplay';
+import CatalogItemCard from '../../../catalog/CatalogItemCard';
+import {
+  type CatalogItemKind,
+  filterCatalogItemsBySearch,
+} from '../../../catalog/catalogItemDisplay';
 import { readCatalogItemFieldDefinitions } from '../../catalogFieldDefinition';
 import type { CatalogProvisionCatalogItem } from '../../catalogProvisionItem';
 import type { CatalogProvisionAdapter } from '../adapters/types';
@@ -56,13 +59,12 @@ export const CatalogStep = <TItem extends CatalogProvisionCatalogItem>({
     refetch: refetchCatalogItems,
   } = adapter.useCatalogItems();
 
-  const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) {
-      return catalogItems;
-    }
-    return catalogItems.filter((item) => searchableCatalogItemText(item).includes(q));
-  }, [catalogItems, search]);
+  const catalogItemKind: CatalogItemKind = adapter.kind === 'cluster' ? 'cluster' : 'vm';
+
+  const filtered = useMemo(
+    () => filterCatalogItemsBySearch(catalogItems, search),
+    [catalogItems, search],
+  );
 
   const count = filtered.length;
   const countPhrase = `${count} ${count === 1 ? 'catalog item' : 'catalog items'} available`;
@@ -140,6 +142,7 @@ export const CatalogStep = <TItem extends CatalogProvisionCatalogItem>({
                 <div key={item.id} className="osac-wizard-catalog-card-wrap">
                   <CatalogItemCard
                     item={item}
+                    kind={catalogItemKind}
                     id={`catalog-item-card-${item.id}`}
                     ouiaId={`catalog-item-option-${item.id}`}
                     selection={{

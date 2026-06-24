@@ -12,19 +12,23 @@ import {
   Title,
 } from '@patternfly/react-core';
 
+import { CatalogFieldEditabilityLabel } from './CatalogFieldEditabilityLabel';
 import {
   type CatalogItemForDisplay,
   catalogItemMetadataLabelEntries,
   catalogItemResourceParts,
   formatCatalogFieldDefault,
 } from './catalogItemDisplay';
+import { useTranslation } from '../../hooks/useTranslation';
 import { catalogItemFieldDefinitions } from '../catalogProvision/catalogFieldDefinition';
+import { SubtleContent } from '../SubtleContent/SubtleContent';
 
 interface CatalogItemDetailContentProps {
   item: CatalogItemForDisplay;
 }
 
 export const CatalogItemDetailContent = ({ item }: CatalogItemDetailContentProps) => {
+  const { t } = useTranslation();
   const resources = catalogItemResourceParts(item);
   const metadataLabels = catalogItemMetadataLabelEntries(item);
   const fieldDefinitions = catalogItemFieldDefinitions(item);
@@ -93,16 +97,41 @@ export const CatalogItemDetailContent = ({ item }: CatalogItemDetailContentProps
 
       {fieldDefinitions.length > 0 ? (
         <StackItem>
-          <Title headingLevel="h3" size="md" className="catalog-item-detail-content__section-title">
-            Configuration defaults
-          </Title>
-          <DescriptionList isCompact>
+          <Stack hasGutter={false}>
+            <StackItem>
+              <Title
+                headingLevel="h3"
+                size="md"
+                className="catalog-item-detail-content__section-title"
+              >
+                {t('Configuration defaults')}
+              </Title>
+            </StackItem>
+            <StackItem>
+              <SubtleContent component="p">
+                {t(
+                  'Editable fields can be changed when creating from this catalog item. Fixed fields use the default value shown.',
+                )}
+              </SubtleContent>
+            </StackItem>
+          </Stack>
+          <DescriptionList isCompact className="pf-v6-u-mt-sm">
             {fieldDefinitions.map((def) => (
               <DescriptionListGroup key={def.path}>
-                <DescriptionListTerm>{def.displayName}</DescriptionListTerm>
+                <DescriptionListTerm>
+                  <Flex
+                    alignItems={{ default: 'alignItemsCenter' }}
+                    gap={{ default: 'gapSm' }}
+                    flexWrap={{ default: 'wrap' }}
+                  >
+                    <FlexItem>{def.displayName}</FlexItem>
+                    <FlexItem>
+                      <CatalogFieldEditabilityLabel editable={def.editable} />
+                    </FlexItem>
+                  </Flex>
+                </DescriptionListTerm>
                 <DescriptionListDescription>
                   {formatCatalogFieldDefault(def)}
-                  {!def.editable ? ' (not editable)' : null}
                 </DescriptionListDescription>
               </DescriptionListGroup>
             ))}

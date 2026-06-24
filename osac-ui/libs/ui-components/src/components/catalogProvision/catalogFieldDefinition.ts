@@ -166,6 +166,18 @@ export const isCatalogItemResourceFieldPath = (
   return catalogItemResourceFieldPathSet.has(path);
 };
 
+/** Node-set host type and worker count paths on cluster catalog cards (node set id varies). */
+export const CLUSTER_CATALOG_ITEM_RESOURCE_FIELD_PATH_PATTERN =
+  /^node_sets\.[^.]+\.(host_type|size)$/;
+
+export const isClusterCatalogItemResourceFieldPath = (path: string): boolean => {
+  return CLUSTER_CATALOG_ITEM_RESOURCE_FIELD_PATH_PATTERN.test(path);
+};
+
+export const isCatalogCardResourceFieldPath = (path: string): boolean => {
+  return isCatalogItemResourceFieldPath(path) || isClusterCatalogItemResourceFieldPath(path);
+};
+
 export const fieldDefinitionDefaultToInputString = (value: unknown): string => {
   if (value == null) {
     return '';

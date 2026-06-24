@@ -47,25 +47,3 @@
 .tenant-vm-template-card__metadata-label-key {
   font-weight: var(--pf-t--global--font--weight--body--bold);
 }
-
-.tenant-vm-template-card--selectable {
-  position: relative;
-  cursor: pointer;
-  border: 1px solid var(--pf-t--global--border--color--default);
-}
-
-.tenant-vm-template-card--selectable.pf-m-selected {
-  border-color: var(--pf-t--global--color--brand--default);
-}
-
-.tenant-vm-template-card--selectable .tenant-vm-template-card__title-band {
-  padding-right: calc(var(--pf-t--global--spacer--2xl) + 0.25rem);
-}
-
-.tenant-vm-template-card__select {
-  position: absolute;
-  top: var(--pf-t--global--spacer--md);
-  right: var(--pf-t--global--spacer--md);
-  z-index: 1;
-  line-height: 0;
-}

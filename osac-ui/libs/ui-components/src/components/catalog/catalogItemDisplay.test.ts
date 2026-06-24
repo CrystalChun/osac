@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
-import { catalogItemResourceLine, catalogItemResourceParts } from './catalogItemDisplay';
+import {
+  type CatalogItemForDisplay,
+  catalogItemResourceLine,
+  catalogItemResourceParts,
+  filterCatalogItemsBySearch,
+  inferCatalogItemKind,
+} from './catalogItemDisplay';
 import {
   catalogItemFieldDefinitions,
   readCatalogItemFieldDefinitions,
@@ -93,5 +99,74 @@ describe('catalog display with wire field_definitions', () => {
       '40 Boot disk (GiB)',
     ]);
     expect(catalogItemResourceLine(wireItem)).toBe('4 vCPUs · 8 RAM (GiB) · 40 Boot disk (GiB)');
+  });
+
+  it('renders node set resource summary from cluster catalog item JSON', () => {
+    const wireItem = {
+      id: '019ecb6a-6cad-7905-b086-a043c388fa60',
+      title: 'Development Cluster',
+      field_definitions: [
+        {
+          path: 'node_sets.fc430.host_type',
+          display_name: 'Host Type',
+          default: 'fc430',
+        },
+        {
+          path: 'node_sets.fc430.size',
+          display_name: 'Worker Count',
+          default: 2,
+        },
+        {
+          path: 'release_image',
+          display_name: 'Release Image',
+          default: 'quay.io/openshift-release-dev/ocp-release:4.17.0-multi',
+        },
+      ],
+    };
+
+    expect(catalogItemResourceParts(wireItem)).toEqual(['fc430 Host Type', '2 Worker Count']);
+    expect(catalogItemResourceLine(wireItem)).toBe('fc430 Host Type · 2 Worker Count');
+  });
+});
+
+describe('inferCatalogItemKind', () => {
+  it('infers vm from compute resource fields', () => {
+    const item: CatalogItemForDisplay = {
+      id: 'vm-1',
+      title: 'VM',
+      field_definitions: [{ path: 'cores', default: 4 }],
+    };
+    expect(inferCatalogItemKind(item)).toBe('vm');
+  });
+
+  it('infers cluster from node set fields', () => {
+    const item: CatalogItemForDisplay = {
+      id: 'cluster-1',
+      title: 'Cluster',
+      field_definitions: [{ path: 'node_sets.fc430.size', default: 2 }],
+    };
+    expect(inferCatalogItemKind(item)).toBe('cluster');
+  });
+
+  it('defaults to vm when no cluster resource fields exist', () => {
+    const item: CatalogItemForDisplay = { id: 'empty-1', title: 'Untyped' };
+    expect(inferCatalogItemKind(item)).toBe('vm');
+  });
+});
+
+describe('filterCatalogItemsBySearch', () => {
+  const items: CatalogItemForDisplay[] = [
+    { id: '1', title: 'Alpha VM', description: 'For testing' },
+    { id: '2', title: 'Beta Cluster', description: 'Production workload' },
+  ];
+
+  it('returns all items when search is empty or whitespace', () => {
+    expect(filterCatalogItemsBySearch(items, '')).toEqual(items);
+    expect(filterCatalogItemsBySearch(items, '   ')).toEqual(items);
+  });
+
+  it('filters case-insensitively across title and description', () => {
+    expect(filterCatalogItemsBySearch(items, 'alpha')).toEqual([items[0]]);
+    expect(filterCatalogItemsBySearch(items, 'PRODUCTION')).toEqual([items[1]]);
   });
 });

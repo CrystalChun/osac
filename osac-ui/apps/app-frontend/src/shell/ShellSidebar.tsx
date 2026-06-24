@@ -4,9 +4,9 @@ import { Nav, NavGroup, NavItem, PageSidebar, PageSidebarBody } from '@patternfl
 
 import { useSession } from '@osac/ui-components/hooks/use-session';
 import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
+import { shellNavIcon } from '@osac/ui-components/icons';
 
 import { type NavLink, navRowsForRole } from './shellNav';
-import { shellNavIcon } from './shellNavIcons';
 
 const ShellNavItem = ({ item }: { item: NavLink }) => {
   const location = useLocation();

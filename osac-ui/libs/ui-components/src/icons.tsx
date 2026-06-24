@@ -10,6 +10,8 @@ import TachometerAltIcon from '@patternfly/react-icons/dist/esm/icons/tachometer
 import UsersIcon from '@patternfly/react-icons/dist/esm/icons/users-icon';
 import VirtualMachineIcon from '@patternfly/react-icons/dist/esm/icons/virtual-machine-icon';
 
+import type { CatalogItemKind } from './components/catalog/catalogItemDisplay';
+
 const SHELL_NAV_ICONS: Record<string, ComponentType<SVGIconProps>> = {
   'compute-vms': VirtualMachineIcon,
   catalog: CubeIcon,
@@ -27,4 +29,13 @@ const SHELL_NAV_ICONS: Record<string, ComponentType<SVGIconProps>> = {
 export const shellNavIcon = (itemId: string) => {
   const Icon = SHELL_NAV_ICONS[itemId];
   return Icon ? <Icon aria-hidden /> : undefined;
+};
+
+interface CatalogItemIconProps {
+  kind: CatalogItemKind;
+}
+
+export const CatalogItemIcon = ({ kind }: CatalogItemIconProps) => {
+  const Icon = kind === 'cluster' ? CloudIcon : VirtualMachineIcon;
+  return <Icon aria-hidden className="pf-v6-u-font-size-lg" />;
 };
