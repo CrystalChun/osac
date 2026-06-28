@@ -15,7 +15,10 @@ import { applyVmCatalogConfigurationDefaults } from './computeInstance/applyCata
 import { applyVmCatalogGeneralDefaults } from './computeInstance/applyCatalogGeneralDefaults';
 import type { ComputeInstanceWizardValues } from './computeInstance/fields';
 import { buildVmGeneralFields } from './computeInstance/generalFields';
-import { buildComputeInstanceCreatePayload, createEmptyComputeInstanceValues } from './computeInstance/payload';
+import {
+  buildComputeInstanceCreatePayload,
+  createEmptyComputeInstanceValues,
+} from './computeInstance/payload';
 import { buildComputeInstanceStepSchema } from './computeInstance/schemas';
 import { VmConfigurationStep } from './computeInstance/VmConfigurationStep';
 import { VmNetworkingStep } from './computeInstance/VmNetworkingStep';
@@ -23,10 +26,16 @@ import type { CatalogProvisionAdapter, ReviewContext } from './types';
 import { useComputeInstanceCatalogItems } from '../../../../api/v1/compute-instance-catalog-item';
 import type { BuildComputeInstanceCreateBodyInput } from '../../../../api/v1/compute-instance-wire';
 import { formatInstanceTypeReviewLabel } from '../../../../api/v1/instance-types';
-import { formatResourceIdForReview, formatResourceIdsForReview } from '../../../../api/v1/networking';
+import {
+  formatResourceIdForReview,
+  formatResourceIdsForReview,
+} from '../../../../api/v1/networking';
 import { useTranslation } from '../../../../hooks/useTranslation';
 
-export { buildComputeInstanceCreatePayload, createEmptyComputeInstanceValues } from './computeInstance/payload';
+export {
+  buildComputeInstanceCreatePayload,
+  createEmptyComputeInstanceValues,
+} from './computeInstance/payload';
 
 const buildReviewSections = (
   values: ComputeInstanceWizardValues,
@@ -61,10 +70,7 @@ const buildReviewSections = (
       title: t('catalogProvision.steps.general.title'),
       rows: [
         reviewRow(t('catalogProvision.vm.fields.name'), formatReviewScalar(values.metadata.name)),
-        reviewRow(
-          sshKeyOverlay.label,
-          formatReviewScalar(values.spec.sshKey, true),
-        ),
+        reviewRow(sshKeyOverlay.label, formatReviewScalar(values.spec.sshKey, true)),
       ],
     },
     {

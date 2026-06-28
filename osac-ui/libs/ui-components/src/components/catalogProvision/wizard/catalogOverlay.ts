@@ -77,7 +77,8 @@ export const getCatalogFieldOverlay = (
   if (!def) {
     return { path: wirePath, label: defaultLabel, editable: true };
   }
-  const defaultRaw = def.default !== undefined ? parseFieldDefinitionDefault(def.default) : undefined;
+  const defaultRaw =
+    def.default !== undefined ? parseFieldDefinitionDefault(def.default) : undefined;
   return {
     path: wirePath,
     label: def.displayName || defaultLabel,
@@ -142,14 +143,10 @@ export const mergeCatalogValidation = (
   required: boolean,
   requiredMessage: string,
 ): AnySchema => {
-  const catalogRule = yupFromJsonSchema(
-    overlay?.validationSchema,
-    requiredMessage,
-    overlay?.label,
-  );
-  let rule = catalogRule ?? base;
+  const catalogRule = yupFromJsonSchema(overlay?.validationSchema, requiredMessage, overlay?.label);
+  const rule = catalogRule ?? base;
   if (required) {
-    rule = rule.required(requiredMessage);
+    return rule.required(requiredMessage) as AnySchema;
   }
   return rule;
 };
@@ -195,13 +192,16 @@ export const formatReviewScalar = (value: unknown, sensitive = false): string =>
   if (value === undefined || value === null || value === '') {
     return '—';
   }
-  if (sensitive && String(value).trim()) {
+  if (sensitive && typeof value === 'string' && value.trim()) {
     return 'Provided';
   }
   if (typeof value === 'boolean') {
     return value ? 'true' : 'false';
   }
-  return String(value);
+  if (typeof value === 'string' || typeof value === 'number' || typeof value === 'bigint') {
+    return String(value);
+  }
+  return '—';
 };
 
 export const formatBootDiskSizeForReview = (value: unknown): string => {

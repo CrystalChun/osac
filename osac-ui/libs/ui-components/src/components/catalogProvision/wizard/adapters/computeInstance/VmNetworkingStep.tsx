@@ -43,7 +43,9 @@ export const VmNetworkingStep = ({ catalogItem }: Props) => {
     isPending: subnetsLoading,
     isError: subnetsError,
     refetch: refetchSubnets,
-  } = useSubnets(subnetFilter ? { filter: subnetFilter } : {}, { enabled: Boolean(virtualNetworkId) });
+  } = useSubnets(subnetFilter ? { filter: subnetFilter } : {}, {
+    enabled: Boolean(virtualNetworkId),
+  });
 
   const {
     data: securityGroups = [],
@@ -135,11 +137,15 @@ export const VmNetworkingStep = ({ catalogItem }: Props) => {
       {listError ? (
         <StackItem>
           <Alert variant="danger" isInline title={t('catalogProvision.networking.loadError')}>
-            <Button variant="link" isInline onClick={() => {
-              void refetchVirtualNetworks();
-              void refetchSubnets();
-              void refetchSecurityGroups();
-            }}>
+            <Button
+              variant="link"
+              isInline
+              onClick={() => {
+                void refetchVirtualNetworks();
+                void refetchSubnets();
+                void refetchSecurityGroups();
+              }}
+            >
               {t('catalogProvision.actions.retry')}
             </Button>
           </Alert>

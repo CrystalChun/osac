@@ -1,9 +1,9 @@
 import { FormGroup, FormSelect, FormSelectOption } from '@patternfly/react-core';
 import { useField } from 'formik';
 
+import { getVisibleFieldError } from './fieldError';
 import { useShowFieldValidationErrors } from './FieldValidationContext';
 import { FormFieldHelper } from './FormFieldHelper';
-import { getVisibleFieldError } from './fieldError';
 
 export interface SelectFieldOption {
   value: string;
@@ -58,12 +58,7 @@ export const SelectField = ({
         aria-busy={isLoading || undefined}
       >
         {effectivePlaceholder ? (
-          <FormSelectOption
-            value=""
-            label={effectivePlaceholder}
-            isPlaceholder
-            isDisabled
-          />
+          <FormSelectOption value="" label={effectivePlaceholder} isPlaceholder isDisabled />
         ) : null}
         {options.map((option) => (
           <FormSelectOption

@@ -1,8 +1,8 @@
 import {
   type InstanceType,
   InstanceTypeState,
-  InstanceTypesListResponseSchema,
   type InstanceTypesListResponse,
+  InstanceTypesListResponseSchema,
 } from '@osac/types';
 
 import { useApiQuery } from '../use-api-query';
@@ -31,10 +31,10 @@ export const useInstanceTypes = (
   });
 
 export const isObsoleteInstanceType = (instanceType: InstanceType): boolean =>
-  instanceType.spec?.state === InstanceTypeState.INSTANCE_TYPE_STATE_OBSOLETE;
+  instanceType.spec?.state === InstanceTypeState.OBSOLETE;
 
 export const isDeprecatedInstanceType = (instanceType: InstanceType): boolean =>
-  instanceType.spec?.state === InstanceTypeState.INSTANCE_TYPE_STATE_DEPRECATED;
+  instanceType.spec?.state === InstanceTypeState.DEPRECATED;
 
 export const instanceTypeName = (instanceType: InstanceType): string =>
   resourceDisplayName(instanceType.metadata, instanceType.id);

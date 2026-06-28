@@ -1,4 +1,10 @@
-export const WIZARD_STEP_IDS = ['catalog', 'general', 'configuration', 'networking', 'review'] as const;
+export const WIZARD_STEP_IDS = [
+  'catalog',
+  'general',
+  'configuration',
+  'networking',
+  'review',
+] as const;
 
 export type WizardStepId = (typeof WIZARD_STEP_IDS)[number];
 

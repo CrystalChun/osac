@@ -91,7 +91,9 @@ export const CatalogStep = ({ adapter }: Props) => {
         </Flex>
       </StackItem>
       <StackItem>
-        <Content component="p">{catalogLoading ? t('catalogProvision.catalog.loading') : countPhrase}</Content>
+        <Content component="p">
+          {catalogLoading ? t('catalogProvision.catalog.loading') : countPhrase}
+        </Content>
       </StackItem>
       {catalogItemError ? (
         <StackItem>

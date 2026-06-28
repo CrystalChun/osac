@@ -29,11 +29,7 @@ interface Props {
   values: ComputeInstanceWizardValues;
 }
 
-export const ReviewStep = ({
-  adapter,
-  catalogItem,
-  values,
-}: Props) => {
+export const ReviewStep = ({ adapter, catalogItem, values }: Props) => {
   const { t } = useTranslation();
   const virtualNetworkId = values.spec.networking.virtualNetworkId;
   const subnetFilter = virtualNetworkId
@@ -71,6 +67,6 @@ export const ReviewStep = ({
           <DescriptionListDescription>{row.value}</DescriptionListDescription>
         </DescriptionListGroup>
       ))}
-  </DescriptionList>
+    </DescriptionList>
   );
 };

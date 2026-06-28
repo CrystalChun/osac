@@ -12,7 +12,7 @@ import {
 
 const setDefault = (
   helpers: FormikHelpers<ComputeInstanceWizardValues>,
-  path: keyof ComputeInstanceWizardValues['spec'] | string,
+  path: string,
   value: unknown,
 ): void => {
   if (value !== undefined) {

@@ -10,9 +10,9 @@ import {
   Title,
 } from '@patternfly/react-core';
 
-import { useProvisionComputeInstance } from '@osac/ui-components/api/v1/compute-instance';
 import { apiQueryKey } from '@osac/ui-components/api/types';
 import { useApiQueryClient } from '@osac/ui-components/api/use-api-query';
+import { useProvisionComputeInstance } from '@osac/ui-components/api/v1/compute-instance';
 import type { BuildComputeInstanceCreateBodyInput } from '@osac/ui-components/api/v1/compute-instance-wire';
 import {
   CatalogProvisionWizard,
@@ -26,9 +26,7 @@ export const VmCreatePage = () => {
   const { catalogItemId } = useParams<{ catalogItemId?: string }>();
   const provisionVm = useProvisionComputeInstance();
   const qc = useApiQueryClient();
-  const [closeHandler, setCloseHandler] = useState<CatalogProvisionWizardCloseHandler | null>(
-    null,
-  );
+  const [closeHandler, setCloseHandler] = useState<CatalogProvisionWizardCloseHandler | null>(null);
 
   const handleCloseHandlerChange = useCallback((handler: CatalogProvisionWizardCloseHandler) => {
     setCloseHandler(handler);

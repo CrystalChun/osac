@@ -138,7 +138,9 @@ export const selectNetworkingPickers = async (user: UserEvent) => {
   }
 
   await waitFor(() => {
-    expect(screen.getByLabelText(/^Security groups/)).not.toHaveTextContent('Select security groups');
+    expect(screen.getByLabelText(/^Security groups/)).not.toHaveTextContent(
+      'Select security groups',
+    );
   });
 };
 
@@ -153,9 +155,7 @@ export const advanceToReviewStep = async (user: UserEvent) => {
 
 export const expectValidationAlert = async () => {
   await waitFor(() => {
-    expect(
-      screen.getByText('Fix the highlighted errors before continuing.'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('Fix the highlighted errors before continuing.')).toBeInTheDocument();
   });
 };
 

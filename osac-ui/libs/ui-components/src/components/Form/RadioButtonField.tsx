@@ -1,9 +1,9 @@
 import { FormGroup, Radio } from '@patternfly/react-core';
 import { useField } from 'formik';
 
+import { getVisibleFieldError } from './fieldError';
 import { useShowFieldValidationErrors } from './FieldValidationContext';
 import { FormFieldHelper } from './FormFieldHelper';
-import { getVisibleFieldError } from './fieldError';
 
 export interface RadioButtonFieldOption {
   value: string;

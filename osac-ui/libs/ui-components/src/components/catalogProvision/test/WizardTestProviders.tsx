@@ -3,7 +3,6 @@ import { I18nextProvider } from 'react-i18next';
 import { QueryClientProvider } from '@tanstack/react-query';
 import type { i18n as I18nInstance } from 'i18next';
 
-
 import { type WizardApiFixtures, createMockApiFetch } from './createMockApiFetch';
 import { createTestQueryClient } from './createTestQueryClient';
 import { ApiProvider } from '../../../api/api-context';

@@ -17,13 +17,12 @@ import {
 import { decodeFulfillmentResponse } from '../../../api/fulfillment-decode';
 import type { ApiFetch, ApiRoute } from '../../../api/types';
 
-
 export type WizardApiFixtures = {
   catalogItems?: ComputeInstanceCatalogItem[];
-  virtualNetworks?: typeof mockVirtualNetwork[];
-  subnets?: typeof mockSubnet[];
-  securityGroups?: typeof mockSecurityGroup[];
-  instanceTypes?: typeof mockInstanceType[];
+  virtualNetworks?: (typeof mockVirtualNetwork)[];
+  subnets?: (typeof mockSubnet)[];
+  securityGroups?: (typeof mockSecurityGroup)[];
+  instanceTypes?: (typeof mockInstanceType)[];
 };
 
 const decodeRoute = (route: ApiRoute, raw: unknown, decode?: Parameters<ApiFetch>[1]['decode']) => {

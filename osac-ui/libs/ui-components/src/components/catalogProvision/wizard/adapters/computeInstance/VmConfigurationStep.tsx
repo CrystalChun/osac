@@ -54,10 +54,7 @@ export const VmConfigurationStep = ({ catalogItem }: Props) => {
     }
   }, [instanceTypeId, instanceTypeOptions, setFieldValue]);
 
-  const definitions = useMemo(
-    () => readCatalogFieldDefinitions(catalogItem),
-    [catalogItem],
-  );
+  const definitions = useMemo(() => readCatalogFieldDefinitions(catalogItem), [catalogItem]);
 
   const overlays = useMemo(
     () => ({

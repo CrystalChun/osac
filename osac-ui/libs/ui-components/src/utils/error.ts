@@ -21,11 +21,8 @@ export const parseHttpErrorBody = (body: string): string | undefined => {
   }
 };
 
-export const formatHttpApiErrorMessage = (
-  status: number,
-  body: string,
-  statusText = '',
-): string => parseHttpErrorBody(body) ?? `API ${status}: ${body || statusText}`;
+export const formatHttpApiErrorMessage = (status: number, body: string, statusText = ''): string =>
+  parseHttpErrorBody(body) ?? `API ${status}: ${body || statusText}`;
 
 export const getErrorMessage = (error: unknown): string => {
   if (error instanceof Error) {

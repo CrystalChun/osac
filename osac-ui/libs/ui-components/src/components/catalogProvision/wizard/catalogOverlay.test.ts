@@ -54,11 +54,7 @@ describe('hasCatalogFieldDefinition', () => {
 
 describe('getCatalogFieldOverlay', () => {
   it('returns catalog defaults for spec-prefixed wizard paths', () => {
-    const overlay = getCatalogFieldOverlay(
-      'spec.boot_disk.size_gib',
-      definitions,
-      'Boot disk',
-    );
+    const overlay = getCatalogFieldOverlay('spec.boot_disk.size_gib', definitions, 'Boot disk');
 
     expect(overlay.defaultValue).toBe(40);
     expect(overlay.label).toBe('Boot disk');

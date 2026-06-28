@@ -116,7 +116,9 @@ describe('CatalogProvisionWizard', () => {
   it('applies wire-format catalog field_definitions defaults through configuration and create', async () => {
     const onProvision = vi.fn().mockResolvedValue(undefined);
     const { user } = await renderWizard({
-      apiFixtures: { catalogItems: [wireFormatCatalogItem as unknown as ComputeInstanceCatalogItem] },
+      apiFixtures: {
+        catalogItems: [wireFormatCatalogItem as unknown as ComputeInstanceCatalogItem],
+      },
       onProvision,
     });
 
@@ -328,7 +330,9 @@ describe('CatalogProvisionWizard', () => {
     expect(payload.spec?.instanceType).toBe('standard-4-8');
     expect(payload.spec?.cores).toBeUndefined();
     expect(payload.spec?.memoryGib).toBeUndefined();
-    expect(payload.spec?.networkAttachments).toEqual([{ subnet: 'subnet-1', securityGroups: ['sg-1'] }]);
+    expect(payload.spec?.networkAttachments).toEqual([
+      { subnet: 'subnet-1', securityGroups: ['sg-1'] },
+    ]);
   });
 
   it('surfaces provision errors on review without clearing form values', async () => {

@@ -1,9 +1,9 @@
 import { FormGroup, TextArea, TextInput } from '@patternfly/react-core';
 import { useField } from 'formik';
 
+import { getVisibleFieldError } from './fieldError';
 import { useShowFieldValidationErrors } from './FieldValidationContext';
 import { FormFieldHelper, getFormFieldHelperDescribedBy } from './FormFieldHelper';
-import { getVisibleFieldError } from './fieldError';
 
 interface InputFieldProps {
   name: string;

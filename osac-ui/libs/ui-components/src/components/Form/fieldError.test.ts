@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest';
 import type { FieldMetaProps } from 'formik';
+import { describe, expect, it } from 'vitest';
 
 import { getVisibleFieldError } from './fieldError';
 

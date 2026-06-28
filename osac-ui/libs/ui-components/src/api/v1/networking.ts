@@ -1,13 +1,13 @@
 import {
   type SecurityGroup,
-  SecurityGroupsListResponseSchema,
   type SecurityGroupsListResponse,
+  SecurityGroupsListResponseSchema,
   type Subnet,
-  SubnetsListResponseSchema,
   type SubnetsListResponse,
+  SubnetsListResponseSchema,
   type VirtualNetwork,
-  VirtualNetworksListResponseSchema,
   type VirtualNetworksListResponse,
+  VirtualNetworksListResponseSchema,
 } from '@osac/types';
 
 import { useApiQuery } from '../use-api-query';

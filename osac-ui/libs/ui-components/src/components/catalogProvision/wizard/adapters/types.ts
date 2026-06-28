@@ -50,11 +50,12 @@ export interface CatalogProvisionAdapter<
     catalogItem: TItem | null,
     stepId: WizardStepId,
   ) => AnyObjectSchema | undefined;
-  getReviewSections: (values: TValues, catalogItem: TItem, context?: ReviewContext) => ReviewSection[];
-  onCatalogItemSelected?: (
-    item: TItem,
-    helpers: FormikHelpers<TValues>,
-  ) => void | Promise<void>;
+  getReviewSections: (
+    values: TValues,
+    catalogItem: TItem,
+    context?: ReviewContext,
+  ) => ReviewSection[];
+  onCatalogItemSelected?: (item: TItem, helpers: FormikHelpers<TValues>) => void | Promise<void>;
   wizardTitleKey: string;
   wizardDescriptionKey: string;
   breadcrumbCreateLabelKey: string;

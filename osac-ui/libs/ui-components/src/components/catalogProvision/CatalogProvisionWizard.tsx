@@ -137,7 +137,9 @@ const CatalogProvisionWizardFooter = ({
           close({ notifyClosed: false });
         })
         .catch((error) => {
-          setProvisionError(error instanceof Error ? error.message : t('catalogProvision.errors.provisionFailed'));
+          setProvisionError(
+            error instanceof Error ? error.message : t('catalogProvision.errors.provisionFailed'),
+          );
         })
         .finally(() => {
           setPending(false);
@@ -227,31 +229,27 @@ const WizardStepBody = ({
   return (
     <FieldValidationProvider value={validationAlert}>
       <Stack hasGutter>
-      {validationAlert ? (
-        <StackItem>
-          <Alert
-            variant="danger"
-            isInline
-            title={t('catalogProvision.validation.stepInvalid')}
-          />
-        </StackItem>
-      ) : null}
-      {provisionError ? (
-        <StackItem>
-          <Alert variant="danger" isInline title={t('catalogProvision.errors.provisionTitle')}>
-            {provisionError}
-          </Alert>
-        </StackItem>
-      ) : null}
-      {stepId === 'catalog' ? <CatalogStep adapter={adapter} /> : null}
-      {stepId === 'general' ? (
-        <GeneralStep fields={adapter.resolveGeneralFields(catalogItem)} />
-      ) : null}
-      {stepId === 'configuration' ? <ConfigurationStep catalogItem={catalogItem} /> : null}
-      {stepId === 'networking' ? <NetworkingStep catalogItem={catalogItem} /> : null}
-      {stepId === 'review' ? (
-        <ReviewStep adapter={adapter} catalogItem={catalogItem} values={values} />
-      ) : null}
+        {validationAlert ? (
+          <StackItem>
+            <Alert variant="danger" isInline title={t('catalogProvision.validation.stepInvalid')} />
+          </StackItem>
+        ) : null}
+        {provisionError ? (
+          <StackItem>
+            <Alert variant="danger" isInline title={t('catalogProvision.errors.provisionTitle')}>
+              {provisionError}
+            </Alert>
+          </StackItem>
+        ) : null}
+        {stepId === 'catalog' ? <CatalogStep adapter={adapter} /> : null}
+        {stepId === 'general' ? (
+          <GeneralStep fields={adapter.resolveGeneralFields(catalogItem)} />
+        ) : null}
+        {stepId === 'configuration' ? <ConfigurationStep catalogItem={catalogItem} /> : null}
+        {stepId === 'networking' ? <NetworkingStep catalogItem={catalogItem} /> : null}
+        {stepId === 'review' ? (
+          <ReviewStep adapter={adapter} catalogItem={catalogItem} values={values} />
+        ) : null}
       </Stack>
     </FieldValidationProvider>
   );
@@ -490,35 +488,35 @@ const CatalogProvisionWizardForm = ({
           isVisitRequired
           onStepChange={handleStepChange}
           footer={
-          <WizardFooterWrapper>
-            <CatalogProvisionWizardFooter
-              formik={formik}
-              catalogItem={selectedCatalogItem}
-              setActiveStepId={setActiveStepId}
-              setProvisionError={setProvisionError}
-              setValidationAlert={setValidationAlert}
-              pending={pending}
-              setPending={setPending}
-              onProvision={onProvision}
-              buildCreatePayload={adapter.buildCreatePayload}
-              close={close}
-              requestClose={requestClose}
-            />
-          </WizardFooterWrapper>
-        }
-      >
-        {orderedSteps.map((stepId) => (
-          <WizardStep key={stepId} id={stepId} name={t(STEP_LABEL_KEYS[stepId])}>
-            <WizardStepBody
-              adapter={adapter}
-              stepId={stepId}
-              catalogItem={selectedCatalogItem}
-              values={formik.values}
-              provisionError={provisionError}
-              validationAlert={validationAlert}
-            />
-          </WizardStep>
-        ))}
+            <WizardFooterWrapper>
+              <CatalogProvisionWizardFooter
+                formik={formik}
+                catalogItem={selectedCatalogItem}
+                setActiveStepId={setActiveStepId}
+                setProvisionError={setProvisionError}
+                setValidationAlert={setValidationAlert}
+                pending={pending}
+                setPending={setPending}
+                onProvision={onProvision}
+                buildCreatePayload={adapter.buildCreatePayload}
+                close={close}
+                requestClose={requestClose}
+              />
+            </WizardFooterWrapper>
+          }
+        >
+          {orderedSteps.map((stepId) => (
+            <WizardStep key={stepId} id={stepId} name={t(STEP_LABEL_KEYS[stepId])}>
+              <WizardStepBody
+                adapter={adapter}
+                stepId={stepId}
+                catalogItem={selectedCatalogItem}
+                values={formik.values}
+                provisionError={provisionError}
+                validationAlert={validationAlert}
+              />
+            </WizardStep>
+          ))}
         </Wizard>
       </PageSection>
     </>

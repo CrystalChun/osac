@@ -2,7 +2,11 @@ import type { TFunction } from 'i18next';
 
 import type { ComputeInstanceCatalogItem } from '@osac/types';
 
-import { getCatalogFieldOverlay, hasCatalogFieldDefinition, readCatalogFieldDefinitions } from '../../catalogOverlay';
+import {
+  getCatalogFieldOverlay,
+  hasCatalogFieldDefinition,
+  readCatalogFieldDefinitions,
+} from '../../catalogOverlay';
 import type { GeneralFieldDescriptor } from '../types';
 
 const VM_SSH_KEY_WIRE_PATH = 'ssh_key';

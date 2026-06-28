@@ -31,4 +31,3 @@ export const CONFIGURATION_CATALOG_PATHS = [
   'spec.user_data',
   'spec.boot_disk.size_gib',
 ] as const;
-
