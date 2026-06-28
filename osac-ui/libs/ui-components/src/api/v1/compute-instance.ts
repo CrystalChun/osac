@@ -69,6 +69,11 @@ export const pollComputeInstancesUntilListed = async (
   }
 };
 
+export type ProvisionComputeInstanceResult = {
+  instance: ComputeInstance;
+  warnings: string[];
+};
+
 export type ProvisionComputeInstanceInput = {
   vm: BuildComputeInstanceCreateBodyInput;
   /** When true, POST body must include `spec.catalog_item`. */
@@ -81,15 +86,29 @@ export const useProvisionComputeInstance = () => {
   const apiFetch = useApiFetch();
   const qc = useApiQueryClient();
   return useMutation({
-    mutationFn: ({ vm, specCatalogItemOnly, specTemplateOnly }: ProvisionComputeInstanceInput) =>
-      apiFetch<ComputeInstance>('v1/compute_instances', {
+    mutationFn: async ({
+      vm,
+      specCatalogItemOnly,
+      specTemplateOnly,
+    }: ProvisionComputeInstanceInput): Promise<ProvisionComputeInstanceResult> => {
+      // REST Create uses response_body: "object", so the HTTP body is the ComputeInstance
+      // itself — not ComputeInstancesCreateResponse { object, warnings }.
+      const instance = await apiFetch<ComputeInstance>('v1/compute_instances', {
         method: 'POST',
         body: buildComputeInstanceCreateBody(vm, {
           specCatalogItemOnly,
           specTemplateOnly,
         }),
         decode: ComputeInstanceSchema,
-      }),
+      });
+      if (!instance.id) {
+        throw new Error('Create response missing id');
+      }
+      return {
+        instance,
+        warnings: [],
+      };
+    },
     onSuccess: async () => {
       await invalidateComputeInstancesQueries(qc);
     },

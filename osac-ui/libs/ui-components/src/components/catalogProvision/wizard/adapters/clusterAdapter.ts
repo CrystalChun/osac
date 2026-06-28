@@ -4,9 +4,15 @@ import {
   type CatalogProvisionCatalogItem,
   clusterCatalogItemToProvisionItem,
 } from '../../catalogProvisionItem';
-import type { CatalogProvisionWizardState } from '../types';
+import type { ComputeInstanceWizardValues } from './computeInstance/fields';
+import { createEmptyComputeInstanceValues } from './computeInstance/payload';
 
-export const clusterAdapter: CatalogProvisionAdapter<CatalogProvisionCatalogItem, unknown> = {
+/** Placeholder until cluster catalog provisioning is implemented. */
+export const clusterAdapter: CatalogProvisionAdapter<
+  CatalogProvisionCatalogItem,
+  ComputeInstanceWizardValues,
+  Record<string, never>
+> = {
   kind: 'cluster',
   useCatalogItems: () => {
     const query = useClusterCatalogItems();
@@ -19,13 +25,16 @@ export const clusterAdapter: CatalogProvisionAdapter<CatalogProvisionCatalogItem
       },
     };
   },
-  buildCreatePayload: (
-    _draft: CatalogProvisionWizardState,
-    _item: CatalogProvisionCatalogItem,
-  ): Partial<unknown> => ({}),
-  createButtonLabel: 'Create cluster',
-  wizardTitle: 'Create cluster',
-  wizardDescription: 'Select a catalog item, configure, and provision.',
-  resourceNameLabel: 'Cluster name',
-  ariaLabel: 'Create cluster wizard',
+  getInitialValues: () => createEmptyComputeInstanceValues(),
+  buildCreatePayload: () => ({}),
+  ConfigurationStep: () => null,
+  NetworkingStep: () => null,
+  resolveGeneralFields: () => [],
+  getWizardSchema: () => undefined,
+  getStepFieldPaths: () => [],
+  getReviewSections: () => [],
+  wizardTitleKey: 'catalogProvision.cluster.wizardTitle',
+  wizardDescriptionKey: 'catalogProvision.cluster.wizardDescription',
+  breadcrumbCreateLabelKey: 'catalogProvision.cluster.breadcrumbCreate',
+  ariaLabelKey: 'catalogProvision.cluster.ariaLabel',
 };

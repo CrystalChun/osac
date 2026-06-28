@@ -2,6 +2,18 @@
   overflow: hidden;
 }
 
+/* PF v6 removes the default card ::before border for clickable/selectable cards.
+   Apply an explicit border on catalog cards (wizard + catalog page). */
+.tenant-vm-template-card.pf-v6-c-card {
+  border: 1px solid var(--pf-t--global--border--color--default);
+  border-radius: var(--pf-t--global--border--radius--medium);
+}
+
+.tenant-vm-template-card.pf-v6-c-card.pf-m-selected,
+.tenant-vm-template-card.pf-v6-c-card.pf-m-current {
+  border-color: var(--pf-t--global--color--brand--default);
+}
+
 .tenant-vm-template-card__title-band {
   background: var(--pf-t--global--background--color--secondary--default);
   padding: var(--pf-t--global--spacer--sm) var(--pf-t--global--spacer--md);

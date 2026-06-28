@@ -4,6 +4,7 @@
  */
 import { decodeFulfillmentResponse } from '@osac/ui-components/api/fulfillment-decode';
 import type { ApiFetch, ApiFetchOptions, ApiRoute } from '@osac/ui-components/api/types';
+import { formatHttpApiErrorMessage } from '@osac/ui-components/utils/error';
 
 export const FULFILLMENT_API_BASE = '/api/fulfillment';
 
@@ -53,7 +54,7 @@ export const fulfillmentFetch: ApiFetch = async <T = unknown>(
 
   if (!res.ok) {
     const text = await res.text().catch(() => '');
-    throw new Error(`API ${res.status}: ${text || res.statusText}`);
+    throw new Error(formatHttpApiErrorMessage(res.status, text, res.statusText));
   }
 
   if (res.status === 204) {

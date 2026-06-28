@@ -1,22 +1,13 @@
-import type { CatalogProvisionKind } from '../catalogFieldDefinition';
-import { shouldIncludeConfigurationStep } from '../catalogFieldDefinition';
-import type { CatalogProvisionCatalogItem } from '../catalogProvisionItem';
+export const WIZARD_STEP_IDS = ['catalog', 'general', 'configuration', 'networking', 'review'] as const;
 
-export const STEP_LABELS: Record<string, string> = {
-  catalog: 'Catalog',
-  basics: 'Basics',
-  configuration: 'Configuration',
-  review: 'Review',
+export type WizardStepId = (typeof WIZARD_STEP_IDS)[number];
+
+export const STEP_LABEL_KEYS: Record<WizardStepId, string> = {
+  catalog: 'catalogProvision.steps.catalog.title',
+  general: 'catalogProvision.steps.general.title',
+  configuration: 'catalogProvision.steps.configuration.title',
+  networking: 'catalogProvision.steps.networking.title',
+  review: 'catalogProvision.steps.review.title',
 };
 
-export const getWizardOrderedSteps = (
-  catalogItem: CatalogProvisionCatalogItem | null | undefined,
-  kind: CatalogProvisionKind,
-): readonly string[] => {
-  const steps = ['catalog', 'basics'] as string[];
-  if (shouldIncludeConfigurationStep(catalogItem, kind)) {
-    steps.push('configuration');
-  }
-  steps.push('review');
-  return steps;
-};
+export const getWizardOrderedSteps = (): readonly WizardStepId[] => WIZARD_STEP_IDS;

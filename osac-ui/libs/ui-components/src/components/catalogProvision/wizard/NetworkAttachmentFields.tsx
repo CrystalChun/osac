@@ -43,9 +43,9 @@ export const NetworkAttachmentFields = ({
   };
 
   return (
-    <Stack hasGutter className="osac-wizard-network-attachments">
+    <Stack hasGutter>
       <StackItem>
-        <Title headingLevel="h3" size="md" className="osac-wizard-customization__section-title">
+        <Title headingLevel="h3" size="md">
           Network attachments
         </Title>
       </StackItem>
@@ -55,13 +55,9 @@ export const NetworkAttachmentFields = ({
             alignItems={{ default: 'alignItemsFlexEnd' }}
             flexWrap={{ default: 'wrap' }}
             gap={{ default: 'gapMd' }}
-            className="osac-wizard-network-attachments__row"
           >
             {bundle.subnetDef ? (
-              <FlexItem
-                flex={{ default: 'flex_1' }}
-                className="osac-wizard-network-attachments__subnet"
-              >
+              <FlexItem flex={{ default: 'flex_1' }}>
                 <CatalogFieldInput
                   id={`network-attachment-${index}-subnet`}
                   def={bundle.subnetDef}
@@ -75,10 +71,7 @@ export const NetworkAttachmentFields = ({
               </FlexItem>
             ) : null}
             {bundle.securityGroupsDef ? (
-              <FlexItem
-                flex={{ default: 'flex_1' }}
-                className="osac-wizard-network-attachments__security-groups"
-              >
+              <FlexItem flex={{ default: 'flex_1' }}>
                 <CatalogFieldInput
                   id={`network-attachment-${index}-security-groups`}
                   def={{

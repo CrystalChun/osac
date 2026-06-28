@@ -6,51 +6,41 @@ import {
   Content,
   Flex,
   FlexItem,
+  Gallery,
+  GalleryItem,
   SearchInput,
   Spinner,
   Stack,
   StackItem,
 } from '@patternfly/react-core';
+import { useFormikContext } from 'formik';
 
+import type { ComputeInstanceCatalogItem } from '@osac/types';
+
+import type { BuildComputeInstanceCreateBodyInput } from '../../../../api/v1/compute-instance-wire';
+import { useTranslation } from '../../../../hooks/useTranslation';
 import CatalogItemCard from '../../../catalog/CatalogItemCard';
 import {
   type CatalogItemKind,
   filterCatalogItemsBySearch,
 } from '../../../catalog/catalogItemDisplay';
-import { readCatalogItemFieldDefinitions } from '../../catalogFieldDefinition';
-import type { CatalogProvisionCatalogItem } from '../../catalogProvisionItem';
+import type { ComputeInstanceWizardValues } from '../adapters/computeInstance/fields';
 import type { CatalogProvisionAdapter } from '../adapters/types';
-import { STEP_LABELS } from '../stepIds';
-import type { CatalogProvisionWizardState, UpdateDraftFn } from '../types';
-import {
-  seedFieldValuesFromCatalogItem,
-  seedNetworkAttachmentRowsFromCatalogItem,
-} from '../wizardBuild';
+import { CatalogFieldHelper } from '../CatalogFieldHelper';
 
-const applySelectedCatalogItem = <TItem extends CatalogProvisionCatalogItem>(
-  item: TItem,
-  update: UpdateDraftFn,
-) => {
-  update('catalogItemId', item.id);
-  update('fieldValues', seedFieldValuesFromCatalogItem(readCatalogItemFieldDefinitions(item)));
-  update(
-    'networkAttachmentRows',
-    seedNetworkAttachmentRowsFromCatalogItem(readCatalogItemFieldDefinitions(item)),
-  );
-};
-
-interface Props<TItem extends CatalogProvisionCatalogItem> {
-  adapter: CatalogProvisionAdapter<TItem, unknown>;
-  state: CatalogProvisionWizardState;
-  update: UpdateDraftFn;
+interface Props {
+  adapter: CatalogProvisionAdapter<
+    ComputeInstanceCatalogItem,
+    ComputeInstanceWizardValues,
+    BuildComputeInstanceCreateBodyInput
+  >;
 }
 
-export const CatalogStep = <TItem extends CatalogProvisionCatalogItem>({
-  adapter,
-  state,
-  update,
-}: Props<TItem>) => {
+export const CatalogStep = ({ adapter }: Props) => {
+  const { t } = useTranslation();
   const [search, setSearch] = useState('');
+  const formik = useFormikContext<ComputeInstanceWizardValues>();
+  const { values, errors, touched } = formik;
 
   const {
     data: catalogItems = [],
@@ -67,7 +57,13 @@ export const CatalogStep = <TItem extends CatalogProvisionCatalogItem>({
   );
 
   const count = filtered.length;
-  const countPhrase = `${count} ${count === 1 ? 'catalog item' : 'catalog items'} available`;
+  const countPhrase = t('catalogProvision.catalog.count', { count });
+  const catalogItemError =
+    touched.catalogItemId && errors.catalogItemId ? String(errors.catalogItemId) : undefined;
+
+  const handleSelect = async (item: ComputeInstanceCatalogItem) => {
+    await adapter.onCatalogItemSelected?.(item, formik);
+  };
 
   return (
     <Stack hasGutter>
@@ -78,68 +74,66 @@ export const CatalogStep = <TItem extends CatalogProvisionCatalogItem>({
           alignItems={{ default: 'alignItemsFlexEnd' }}
           gap={{ default: 'gapMd' }}
         >
-          <FlexItem flex={{ default: 'flex_1' }} className="osac-wizard-template__search-item">
+          <FlexItem flex={{ default: 'flex_1' }}>
             <SearchInput
-              placeholder="Search catalog items…"
+              placeholder={t('catalogProvision.catalog.searchPlaceholder')}
               value={search}
-              onChange={(_e, v) => setSearch(v)}
+              onChange={(_event, value) => setSearch(value)}
               onClear={() => setSearch('')}
-              aria-label="Search catalog items"
+              aria-label={t('catalogProvision.catalog.searchAria')}
             />
           </FlexItem>
         </Flex>
       </StackItem>
       <StackItem>
-        <Flex
-          gap={{ default: 'gapSm' }}
-          flexWrap={{ default: 'wrap' }}
-          alignItems={{ default: 'alignItemsBaseline' }}
-        >
-          <Content component="p" className="osac-wizard-template__count">
-            {catalogLoading ? 'Loading catalog items…' : countPhrase}
-          </Content>
-          <Content
-            component="p"
-            className="pf-v6-u-color-text-subtle osac-wizard-template__count-hint"
-          >
-            Select one to continue.
-          </Content>
-        </Flex>
+        <Content component="p">{catalogLoading ? t('catalogProvision.catalog.loading') : countPhrase}</Content>
       </StackItem>
+      {catalogItemError ? (
+        <StackItem>
+          <CatalogFieldHelper error={catalogItemError} fieldId="catalog-item-selection" />
+        </StackItem>
+      ) : null}
       {catalogError ? (
         <StackItem>
           <Stack hasGutter>
             <StackItem>
-              <Alert variant="danger" title="Could not load catalog items">
-                Unable to load catalog items right now. Please try again.
+              <Alert variant="danger" title={t('catalogProvision.catalog.loadError')}>
+                {t('catalogProvision.catalog.loadErrorDetail')}
               </Alert>
             </StackItem>
             <StackItem>
               <Button variant="primary" onClick={() => void refetchCatalogItems()}>
-                Retry
+                {t('catalogProvision.actions.retry')}
               </Button>
             </StackItem>
           </Stack>
         </StackItem>
       ) : null}
       <StackItem>
-        <div className="osac-template-cards" role="radiogroup" aria-label={STEP_LABELS.catalog}>
+        <Gallery
+          hasGutter
+          minWidths={{ default: '200px' }}
+          role="radiogroup"
+          aria-label={t('catalogProvision.steps.catalog.title')}
+        >
           {catalogLoading ? (
-            <Bullseye className="osac-template-cards__loading">
-              <Spinner aria-label="Loading catalog items" />
-            </Bullseye>
+            <GalleryItem>
+              <Bullseye>
+                <Spinner aria-label={t('catalogProvision.catalog.loading')} />
+              </Bullseye>
+            </GalleryItem>
           ) : null}
           {!catalogLoading && !catalogError && count === 0 ? (
-            <Content component="p" className="pf-v6-u-color-text-subtle osac-template-cards__empty">
-              No catalog items match your search. Try changing keywords.
-            </Content>
+            <GalleryItem>
+              <Content component="p">{t('catalogProvision.catalog.empty')}</Content>
+            </GalleryItem>
           ) : null}
           {!catalogLoading &&
             !catalogError &&
             filtered.map((item) => {
-              const selected = state.catalogItemId === item.id;
+              const selected = values.catalogItemId === item.id;
               return (
-                <div key={item.id} className="osac-wizard-catalog-card-wrap">
+                <GalleryItem key={item.id}>
                   <CatalogItemCard
                     item={item}
                     kind={catalogItemKind}
@@ -148,13 +142,15 @@ export const CatalogStep = <TItem extends CatalogProvisionCatalogItem>({
                     selection={{
                       selected,
                       radioName: 'selectedCatalogItem',
-                      onSelect: () => applySelectedCatalogItem(item, update),
+                      onSelect: () => {
+                        void handleSelect(item);
+                      },
                     }}
                   />
-                </div>
+                </GalleryItem>
               );
             })}
-        </div>
+        </Gallery>
       </StackItem>
     </Stack>
   );

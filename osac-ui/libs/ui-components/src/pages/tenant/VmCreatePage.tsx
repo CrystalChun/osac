@@ -1,15 +1,38 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { PageSection } from '@patternfly/react-core';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  Button,
+  Content,
+  PageSection,
+  Stack,
+  Title,
+} from '@patternfly/react-core';
 
 import { useProvisionComputeInstance } from '@osac/ui-components/api/v1/compute-instance';
+import { apiQueryKey } from '@osac/ui-components/api/types';
+import { useApiQueryClient } from '@osac/ui-components/api/use-api-query';
 import type { BuildComputeInstanceCreateBodyInput } from '@osac/ui-components/api/v1/compute-instance-wire';
-import { CatalogProvisionWizard } from '@osac/ui-components/components/catalogProvision/CatalogProvisionWizard';
+import {
+  CatalogProvisionWizard,
+  type CatalogProvisionWizardCloseHandler,
+} from '@osac/ui-components/components/catalogProvision/CatalogProvisionWizard';
+import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
 
 export const VmCreatePage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { catalogItemId } = useParams<{ catalogItemId?: string }>();
   const provisionVm = useProvisionComputeInstance();
+  const qc = useApiQueryClient();
+  const [closeHandler, setCloseHandler] = useState<CatalogProvisionWizardCloseHandler | null>(
+    null,
+  );
+
+  const handleCloseHandlerChange = useCallback((handler: CatalogProvisionWizardCloseHandler) => {
+    setCloseHandler(handler);
+  }, []);
 
   const handleWizardClosed = useCallback(() => {
     navigate('/vms');
@@ -17,23 +40,53 @@ export const VmCreatePage = () => {
 
   const handleWizardProvision = useCallback(
     async (vm: BuildComputeInstanceCreateBodyInput) => {
-      const created = await provisionVm.mutateAsync({
+      const { instance, warnings } = await provisionVm.mutateAsync({
         vm,
         specCatalogItemOnly: true,
       });
-      navigate(created.id ? `/vms/${created.id}` : '/vms');
+      if (!instance.id) {
+        throw new Error('Create response missing id');
+      }
+      qc.setQueryData(apiQueryKey('v1/compute_instances', [instance.id]), instance);
+      navigate(
+        `/vms/${instance.id}`,
+        warnings.length
+          ? { replace: true, state: { provisionWarnings: warnings } }
+          : { replace: true },
+      );
     },
-    [navigate, provisionVm],
+    [navigate, provisionVm, qc],
   );
 
   return (
-    <PageSection isFilled className="osac-page">
+    <>
+      <PageSection hasBodyWrapper={false}>
+        <Stack hasGutter>
+          <Breadcrumb>
+            <BreadcrumbItem>
+              <Button
+                variant="link"
+                isInline
+                onClick={() => closeHandler?.requestClose()}
+                isDisabled={closeHandler?.pending}
+              >
+                {t('Virtual Machines')}
+              </Button>
+            </BreadcrumbItem>
+            <BreadcrumbItem isActive>{t('catalogProvision.vm.breadcrumbCreate')}</BreadcrumbItem>
+          </Breadcrumb>
+          <Title headingLevel="h1" size="3xl">
+            {t('catalogProvision.vm.wizardTitle')}
+          </Title>
+          <Content component="p">{t('catalogProvision.vm.wizardDescription')}</Content>
+        </Stack>
+      </PageSection>
       <CatalogProvisionWizard
         initialCatalogItemId={catalogItemId}
-        breadcrumbParentLabel="Virtual machines"
         onProvision={handleWizardProvision}
         onClosed={handleWizardClosed}
+        onCloseHandlerChange={handleCloseHandlerChange}
       />
-    </PageSection>
+    </>
   );
 };
