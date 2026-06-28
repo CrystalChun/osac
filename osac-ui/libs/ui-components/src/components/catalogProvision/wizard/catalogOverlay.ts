@@ -5,7 +5,9 @@ import * as yup from 'yup';
 import {
   type CatalogFieldDefinition,
   catalogItemFieldDefinitions,
+  compileJsonSchemaPattern,
   fieldDefinitionDefaultToInputString,
+  jsonSchemaPatternErrorMessage,
   parseFieldDefinitionDefault,
 } from '../catalogFieldDefinition';
 
@@ -91,6 +93,7 @@ export const readCatalogFieldDefinitions = (catalogItem: unknown): CatalogFieldD
 const yupFromJsonSchema = (
   schema: Record<string, unknown> | undefined,
   requiredMessage: string,
+  fieldLabel?: string,
 ): AnySchema | undefined => {
   if (!schema) {
     return undefined;
@@ -117,6 +120,14 @@ const yupFromJsonSchema = (
     if (typeof schema.maxLength === 'number') {
       rule = rule.max(schema.maxLength);
     }
+    const patternRegex = compileJsonSchemaPattern(schema.pattern);
+    if (patternRegex) {
+      const pattern = typeof schema.pattern === 'string' ? schema.pattern : '';
+      rule = rule.matches(patternRegex, {
+        excludeEmptyString: true,
+        message: jsonSchemaPatternErrorMessage(fieldLabel?.trim() || 'This field', pattern),
+      });
+    }
     return rule;
   }
   if (type === 'boolean') {
@@ -131,7 +142,11 @@ export const mergeCatalogValidation = (
   required: boolean,
   requiredMessage: string,
 ): AnySchema => {
-  const catalogRule = yupFromJsonSchema(overlay?.validationSchema, requiredMessage);
+  const catalogRule = yupFromJsonSchema(
+    overlay?.validationSchema,
+    requiredMessage,
+    overlay?.label,
+  );
   let rule = catalogRule ?? base;
   if (required) {
     rule = rule.required(requiredMessage);

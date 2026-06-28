@@ -96,6 +96,12 @@ export const waitForConfigurationReady = async (user?: UserEvent) => {
   await waitFor(() => {
     expect((screen.getByLabelText(/^Instance type/) as HTMLSelectElement).value).not.toBe('');
   });
+
+  const bootDisk = screen.queryByLabelText(/Boot disk/) as HTMLInputElement | null;
+  if (bootDisk && !bootDisk.value && user) {
+    await user.clear(bootDisk);
+    await user.type(bootDisk, '40');
+  }
 };
 
 export const advanceToNetworkingStep = async (user: UserEvent) => {

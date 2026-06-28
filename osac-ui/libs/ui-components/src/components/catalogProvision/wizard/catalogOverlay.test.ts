@@ -1,8 +1,20 @@
 import { describe, expect, it } from 'vitest';
 
 import type { CatalogFieldDefinition } from '../catalogFieldDefinition';
+import {
+  compileJsonSchemaPattern,
+  matchesJsonSchemaPattern,
+  validateValueAgainstJsonSchema,
+} from '../catalogFieldDefinition';
 
-import { findCatalogFieldDefinition, formatBootDiskSizeForReview, getCatalogFieldOverlay, hasCatalogFieldDefinition } from './catalogOverlay';
+import {
+  findCatalogFieldDefinition,
+  formatBootDiskSizeForReview,
+  getCatalogFieldOverlay,
+  hasCatalogFieldDefinition,
+  mergeCatalogValidation,
+} from './catalogOverlay';
+import * as yup from 'yup';
 
 const definitions: CatalogFieldDefinition[] = [
   {
@@ -63,5 +75,46 @@ describe('formatBootDiskSizeForReview', () => {
   it('returns em dash for empty values', () => {
     expect(formatBootDiskSizeForReview(undefined)).toBe('—');
     expect(formatBootDiskSizeForReview('')).toBe('—');
+  });
+});
+
+describe('json schema pattern validation', () => {
+  const cidrSchema = { type: 'string', pattern: '^[0-9./]+$' };
+
+  it('compiles and matches JSON Schema pattern strings', () => {
+    expect(compileJsonSchemaPattern('[')).toBeUndefined();
+    expect(matchesJsonSchemaPattern('10.0.0.0/8', cidrSchema)).toBe(true);
+    expect(matchesJsonSchemaPattern('bad cidr', cidrSchema)).toBe(false);
+  });
+
+  it('validates user-provided values against pattern in validateValueAgainstJsonSchema', () => {
+    expect(
+      validateValueAgainstJsonSchema('10.128.0.0/14', cidrSchema, { displayName: 'Pod CIDR' }),
+    ).toBeNull();
+    expect(
+      validateValueAgainstJsonSchema('not-a-cidr', cidrSchema, { displayName: 'Pod CIDR' }),
+    ).toBe('Pod CIDR must match pattern: ^[0-9./]+$');
+  });
+
+  it('merges validation_schema pattern into Yup via mergeCatalogValidation', async () => {
+    const overlay = getCatalogFieldOverlay(
+      'network.pod_cidr',
+      [
+        {
+          path: 'network.pod_cidr',
+          displayName: 'Pod CIDR',
+          editable: true,
+          validationSchema: cidrSchema,
+        },
+      ],
+      'Pod CIDR',
+    );
+    const rule = mergeCatalogValidation(yup.string(), overlay, false, 'required');
+
+    await expect(rule.validate('10.0.0.0/8')).resolves.toBe('10.0.0.0/8');
+    await expect(rule.validate('')).resolves.toBe('');
+    await expect(rule.validate('invalid!')).rejects.toThrow(
+      'Pod CIDR must match pattern: ^[0-9./]+$',
+    );
   });
 });

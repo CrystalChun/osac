@@ -196,6 +196,41 @@ describe('buildComputeInstanceWizardSchema', () => {
     });
   });
 
+  it('merges ssh_key validation_schema pattern from catalog field_definitions', () => {
+    const catalogItem = {
+      ...vmCatalogItem,
+      fieldDefinitions: [
+        ...(vmCatalogItem.fieldDefinitions ?? []),
+        {
+          path: 'ssh_key',
+          displayName: 'SSH key',
+          editable: true,
+          validationSchema: { type: 'string', pattern: '^ssh-' },
+        },
+      ],
+    };
+    const schema = buildComputeInstanceWizardSchema(catalogItem, t);
+    const errors = validateWizardStepFields(
+      schema,
+      {
+        catalogItemId: vmCatalogItem.id,
+        metadata: { name: 'web-01' },
+        spec: {
+          sshKey: 'not-an-ssh-key',
+          image: { sourceRef: '' },
+          instanceType: '',
+          userData: '',
+          bootDisk: { sizeGib: '' },
+          networking: { virtualNetworkId: '', subnetId: '', securityGroupIds: [] },
+        },
+      },
+      WIZARD_STEP_FIELD_PATHS.general,
+    );
+    expect(errors).toEqual({
+      spec: { sshKey: 'SSH key must match pattern: ^ssh-' },
+    });
+  });
+
   it('merges ssh_key validation_schema from catalog field_definitions', () => {
     const catalogItem = {
       ...vmCatalogItem,

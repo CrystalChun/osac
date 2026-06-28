@@ -302,6 +302,32 @@ const fieldLabel = (context?: FieldValidationContext): string => {
   return label || 'This field';
 };
 
+/** Compile JSON Schema `pattern` (ECMAScript regex) for client-side validation. */
+export const compileJsonSchemaPattern = (pattern: unknown): RegExp | undefined => {
+  if (typeof pattern !== 'string' || !pattern.trim()) {
+    return undefined;
+  }
+  try {
+    return new RegExp(pattern);
+  } catch {
+    return undefined;
+  }
+};
+
+export const jsonSchemaPatternErrorMessage = (label: string, pattern: string): string =>
+  `${label} must match pattern: ${pattern}`;
+
+export const matchesJsonSchemaPattern = (
+  value: string,
+  schema: Record<string, unknown>,
+): boolean => {
+  const regex = compileJsonSchemaPattern(schema.pattern);
+  if (!regex) {
+    return true;
+  }
+  return regex.test(value);
+};
+
 export const validateValueAgainstJsonSchema = (
   value: unknown,
   schema: Record<string, unknown> | undefined,
@@ -365,6 +391,10 @@ export const validateValueAgainstJsonSchema = (
     }
     if (hasMax && s.length > maxLen) {
       return `${label} must be no more than ${maxLen} characters long.`;
+    }
+    if (!matchesJsonSchemaPattern(s, schema)) {
+      const pattern = typeof schema.pattern === 'string' ? schema.pattern : '';
+      return jsonSchemaPatternErrorMessage(label, pattern);
     }
     return null;
   }
