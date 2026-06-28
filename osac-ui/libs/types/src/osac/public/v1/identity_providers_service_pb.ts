@@ -18,6 +18,8 @@
 import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_google_api_annotations } from "../../../google/api/annotations_pb";
+import type { FieldMask } from "../../../google/protobuf/field_mask_pb";
+import { file_google_protobuf_field_mask } from "../../../google/protobuf/field_mask_pb";
 import type { IdentityProvider } from "./identity_provider_type_pb";
 import { file_osac_public_v1_identity_provider_type } from "./identity_provider_type_pb";
 import type { Message } from "@bufbuild/protobuf";
@@ -26,7 +28,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/public/v1/identity_providers_service.proto.
  */
 export const file_osac_public_v1_identity_providers_service: GenFile = /*@__PURE__*/
-  fileDesc("Ci9vc2FjL3B1YmxpYy92MS9pZGVudGl0eV9wcm92aWRlcnNfc2VydmljZS5wcm90bxIOb3NhYy5wdWJsaWMudjEiUgoeSWRlbnRpdHlQcm92aWRlcnNDcmVhdGVSZXF1ZXN0EjAKBm9iamVjdBgBIAEoCzIgLm9zYWMucHVibGljLnYxLklkZW50aXR5UHJvdmlkZXIiUwofSWRlbnRpdHlQcm92aWRlcnNDcmVhdGVSZXNwb25zZRIwCgZvYmplY3QYASABKAsyIC5vc2FjLnB1YmxpYy52MS5JZGVudGl0eVByb3ZpZGVyInwKHElkZW50aXR5UHJvdmlkZXJzTGlzdFJlcXVlc3QSEwoGb2Zmc2V0GAEgASgFSACIAQESEgoFbGltaXQYAiABKAVIAYgBARITCgZmaWx0ZXIYAyABKAlIAogBAUIJCgdfb2Zmc2V0QggKBl9saW1pdEIJCgdfZmlsdGVyIm0KHUlkZW50aXR5UHJvdmlkZXJzTGlzdFJlc3BvbnNlEgwKBHNpemUYASABKAUSDQoFdG90YWwYAiABKAUSLwoFaXRlbXMYAyADKAsyIC5vc2FjLnB1YmxpYy52MS5JZGVudGl0eVByb3ZpZGVyIoUBCiVJZGVudGl0eVByb3ZpZGVyc0xpc3RBdmFpbGFibGVSZXF1ZXN0EhMKBm9mZnNldBgBIAEoBUgAiAEBEhIKBWxpbWl0GAIgASgFSAGIAQESEwoGZmlsdGVyGAMgASgJSAKIAQFCCQoHX29mZnNldEIICgZfbGltaXRCCQoHX2ZpbHRlciJ2CiZJZGVudGl0eVByb3ZpZGVyc0xpc3RBdmFpbGFibGVSZXNwb25zZRIMCgRzaXplGAEgASgFEg0KBXRvdGFsGAIgASgFEi8KBWl0ZW1zGAMgAygLMiAub3NhYy5wdWJsaWMudjEuSWRlbnRpdHlQcm92aWRlciIrChtJZGVudGl0eVByb3ZpZGVyc0dldFJlcXVlc3QSDAoEbmFtZRgBIAEoCSJQChxJZGVudGl0eVByb3ZpZGVyc0dldFJlc3BvbnNlEjAKBm9iamVjdBgBIAEoCzIgLm9zYWMucHVibGljLnYxLklkZW50aXR5UHJvdmlkZXIiYAoeSWRlbnRpdHlQcm92aWRlcnNVcGRhdGVSZXF1ZXN0EgwKBG5hbWUYASABKAkSMAoGb2JqZWN0GAIgASgLMiAub3NhYy5wdWJsaWMudjEuSWRlbnRpdHlQcm92aWRlciJTCh9JZGVudGl0eVByb3ZpZGVyc1VwZGF0ZVJlc3BvbnNlEjAKBm9iamVjdBgBIAEoCzIgLm9zYWMucHVibGljLnYxLklkZW50aXR5UHJvdmlkZXIiLgoeSWRlbnRpdHlQcm92aWRlcnNEZWxldGVSZXF1ZXN0EgwKBG5hbWUYASABKAkiIQofSWRlbnRpdHlQcm92aWRlcnNEZWxldGVSZXNwb25zZSIuCh5JZGVudGl0eVByb3ZpZGVyc0Fzc2lnblJlcXVlc3QSDAoEbmFtZRgBIAEoCSIhCh9JZGVudGl0eVByb3ZpZGVyc0Fzc2lnblJlc3BvbnNlIjAKIElkZW50aXR5UHJvdmlkZXJzVW5hc3NpZ25SZXF1ZXN0EgwKBG5hbWUYASABKAkiIwohSWRlbnRpdHlQcm92aWRlcnNVbmFzc2lnblJlc3BvbnNlMt8KChFJZGVudGl0eVByb3ZpZGVycxKhAQoGQ3JlYXRlEi4ub3NhYy5wdWJsaWMudjEuSWRlbnRpdHlQcm92aWRlcnNDcmVhdGVSZXF1ZXN0Gi8ub3NhYy5wdWJsaWMudjEuSWRlbnRpdHlQcm92aWRlcnNDcmVhdGVSZXNwb25zZSI2gtPkkwIwOgZvYmplY3QiJi9hcGkvZnVsZmlsbG1lbnQvdjEvaWRlbnRpdHlfcHJvdmlkZXJzEpMBCgRMaXN0Eiwub3NhYy5wdWJsaWMudjEuSWRlbnRpdHlQcm92aWRlcnNMaXN0UmVxdWVzdBotLm9zYWMucHVibGljLnYxLklkZW50aXR5UHJvdmlkZXJzTGlzdFJlc3BvbnNlIi6C0+STAigSJi9hcGkvZnVsZmlsbG1lbnQvdjEvaWRlbnRpdHlfcHJvdmlkZXJzEr0BCg1MaXN0QXZhaWxhYmxlEjUub3NhYy5wdWJsaWMudjEuSWRlbnRpdHlQcm92aWRlcnNMaXN0QXZhaWxhYmxlUmVxdWVzdBo2Lm9zYWMucHVibGljLnYxLklkZW50aXR5UHJvdmlkZXJzTGlzdEF2YWlsYWJsZVJlc3BvbnNlIj2C0+STAjcSNS9hcGkvZnVsZmlsbG1lbnQvdjEvaWRlbnRpdHlfcHJvdmlkZXJzOmxpc3QtYXZhaWxhYmxlEp8BCgNHZXQSKy5vc2FjLnB1YmxpYy52MS5JZGVudGl0eVByb3ZpZGVyc0dldFJlcXVlc3QaLC5vc2FjLnB1YmxpYy52MS5JZGVudGl0eVByb3ZpZGVyc0dldFJlc3BvbnNlIj2C0+STAjdiBm9iamVjdBItL2FwaS9mdWxmaWxsbWVudC92MS9pZGVudGl0eV9wcm92aWRlcnMve25hbWV9EqgBCgZVcGRhdGUSLi5vc2FjLnB1YmxpYy52MS5JZGVudGl0eVByb3ZpZGVyc1VwZGF0ZVJlcXVlc3QaLy5vc2FjLnB1YmxpYy52MS5JZGVudGl0eVByb3ZpZGVyc1VwZGF0ZVJlc3BvbnNlIj2C0+STAjc6Bm9iamVjdBotL2FwaS9mdWxmaWxsbWVudC92MS9pZGVudGl0eV9wcm92aWRlcnMve25hbWV9EqABCgZEZWxldGUSLi5vc2FjLnB1YmxpYy52MS5JZGVudGl0eVByb3ZpZGVyc0RlbGV0ZVJlcXVlc3QaLy5vc2FjLnB1YmxpYy52MS5JZGVudGl0eVByb3ZpZGVyc0RlbGV0ZVJlc3BvbnNlIjWC0+STAi8qLS9hcGkvZnVsZmlsbG1lbnQvdjEvaWRlbnRpdHlfcHJvdmlkZXJzL3tuYW1lfRKqAQoGQXNzaWduEi4ub3NhYy5wdWJsaWMudjEuSWRlbnRpdHlQcm92aWRlcnNBc3NpZ25SZXF1ZXN0Gi8ub3NhYy5wdWJsaWMudjEuSWRlbnRpdHlQcm92aWRlcnNBc3NpZ25SZXNwb25zZSI/gtPkkwI5OgEqIjQvYXBpL2Z1bGZpbGxtZW50L3YxL2lkZW50aXR5X3Byb3ZpZGVycy97bmFtZX06YXNzaWduErIBCghVbmFzc2lnbhIwLm9zYWMucHVibGljLnYxLklkZW50aXR5UHJvdmlkZXJzVW5hc3NpZ25SZXF1ZXN0GjEub3NhYy5wdWJsaWMudjEuSWRlbnRpdHlQcm92aWRlcnNVbmFzc2lnblJlc3BvbnNlIkGC0+STAjs6ASoiNi9hcGkvZnVsZmlsbG1lbnQvdjEvaWRlbnRpdHlfcHJvdmlkZXJzL3tuYW1lfTp1bmFzc2lnbmIGcHJvdG8z", [file_google_api_annotations, file_osac_public_v1_identity_provider_type]);
+  fileDesc("Ci9vc2FjL3B1YmxpYy92MS9pZGVudGl0eV9wcm92aWRlcnNfc2VydmljZS5wcm90bxIOb3NhYy5wdWJsaWMudjEiUgoeSWRlbnRpdHlQcm92aWRlcnNDcmVhdGVSZXF1ZXN0EjAKBm9iamVjdBgBIAEoCzIgLm9zYWMucHVibGljLnYxLklkZW50aXR5UHJvdmlkZXIiUwofSWRlbnRpdHlQcm92aWRlcnNDcmVhdGVSZXNwb25zZRIwCgZvYmplY3QYASABKAsyIC5vc2FjLnB1YmxpYy52MS5JZGVudGl0eVByb3ZpZGVyInwKHElkZW50aXR5UHJvdmlkZXJzTGlzdFJlcXVlc3QSEwoGb2Zmc2V0GAEgASgFSACIAQESEgoFbGltaXQYAiABKAVIAYgBARITCgZmaWx0ZXIYAyABKAlIAogBAUIJCgdfb2Zmc2V0QggKBl9saW1pdEIJCgdfZmlsdGVyIm0KHUlkZW50aXR5UHJvdmlkZXJzTGlzdFJlc3BvbnNlEgwKBHNpemUYASABKAUSDQoFdG90YWwYAiABKAUSLwoFaXRlbXMYAyADKAsyIC5vc2FjLnB1YmxpYy52MS5JZGVudGl0eVByb3ZpZGVyIoUBCiVJZGVudGl0eVByb3ZpZGVyc0xpc3RBdmFpbGFibGVSZXF1ZXN0EhMKBm9mZnNldBgBIAEoBUgAiAEBEhIKBWxpbWl0GAIgASgFSAGIAQESEwoGZmlsdGVyGAMgASgJSAKIAQFCCQoHX29mZnNldEIICgZfbGltaXRCCQoHX2ZpbHRlciJ2CiZJZGVudGl0eVByb3ZpZGVyc0xpc3RBdmFpbGFibGVSZXNwb25zZRIMCgRzaXplGAEgASgFEg0KBXRvdGFsGAIgASgFEi8KBWl0ZW1zGAMgAygLMiAub3NhYy5wdWJsaWMudjEuSWRlbnRpdHlQcm92aWRlciIpChtJZGVudGl0eVByb3ZpZGVyc0dldFJlcXVlc3QSCgoCaWQYASABKAkiUAocSWRlbnRpdHlQcm92aWRlcnNHZXRSZXNwb25zZRIwCgZvYmplY3QYASABKAsyIC5vc2FjLnB1YmxpYy52MS5JZGVudGl0eVByb3ZpZGVyIpEBCh5JZGVudGl0eVByb3ZpZGVyc1VwZGF0ZVJlcXVlc3QSMAoGb2JqZWN0GAEgASgLMiAub3NhYy5wdWJsaWMudjEuSWRlbnRpdHlQcm92aWRlchIvCgt1cGRhdGVfbWFzaxgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5GaWVsZE1hc2sSDAoEbG9jaxgDIAEoCCJTCh9JZGVudGl0eVByb3ZpZGVyc1VwZGF0ZVJlc3BvbnNlEjAKBm9iamVjdBgBIAEoCzIgLm9zYWMucHVibGljLnYxLklkZW50aXR5UHJvdmlkZXIiLAoeSWRlbnRpdHlQcm92aWRlcnNEZWxldGVSZXF1ZXN0EgoKAmlkGAEgASgJIiEKH0lkZW50aXR5UHJvdmlkZXJzRGVsZXRlUmVzcG9uc2UiLAoeSWRlbnRpdHlQcm92aWRlcnNBc3NpZ25SZXF1ZXN0EgoKAmlkGAEgASgJIiEKH0lkZW50aXR5UHJvdmlkZXJzQXNzaWduUmVzcG9uc2UiLgogSWRlbnRpdHlQcm92aWRlcnNVbmFzc2lnblJlcXVlc3QSCgoCaWQYASABKAkiIwohSWRlbnRpdHlQcm92aWRlcnNVbmFzc2lnblJlc3BvbnNlMtwKChFJZGVudGl0eVByb3ZpZGVycxKhAQoGQ3JlYXRlEi4ub3NhYy5wdWJsaWMudjEuSWRlbnRpdHlQcm92aWRlcnNDcmVhdGVSZXF1ZXN0Gi8ub3NhYy5wdWJsaWMudjEuSWRlbnRpdHlQcm92aWRlcnNDcmVhdGVSZXNwb25zZSI2gtPkkwIwOgZvYmplY3QiJi9hcGkvZnVsZmlsbG1lbnQvdjEvaWRlbnRpdHlfcHJvdmlkZXJzEpMBCgRMaXN0Eiwub3NhYy5wdWJsaWMudjEuSWRlbnRpdHlQcm92aWRlcnNMaXN0UmVxdWVzdBotLm9zYWMucHVibGljLnYxLklkZW50aXR5UHJvdmlkZXJzTGlzdFJlc3BvbnNlIi6C0+STAigSJi9hcGkvZnVsZmlsbG1lbnQvdjEvaWRlbnRpdHlfcHJvdmlkZXJzEr0BCg1MaXN0QXZhaWxhYmxlEjUub3NhYy5wdWJsaWMudjEuSWRlbnRpdHlQcm92aWRlcnNMaXN0QXZhaWxhYmxlUmVxdWVzdBo2Lm9zYWMucHVibGljLnYxLklkZW50aXR5UHJvdmlkZXJzTGlzdEF2YWlsYWJsZVJlc3BvbnNlIj2C0+STAjcSNS9hcGkvZnVsZmlsbG1lbnQvdjEvaWRlbnRpdHlfcHJvdmlkZXJzOmxpc3QtYXZhaWxhYmxlEp0BCgNHZXQSKy5vc2FjLnB1YmxpYy52MS5JZGVudGl0eVByb3ZpZGVyc0dldFJlcXVlc3QaLC5vc2FjLnB1YmxpYy52MS5JZGVudGl0eVByb3ZpZGVyc0dldFJlc3BvbnNlIjuC0+STAjViBm9iamVjdBIrL2FwaS9mdWxmaWxsbWVudC92MS9pZGVudGl0eV9wcm92aWRlcnMve2lkfRKtAQoGVXBkYXRlEi4ub3NhYy5wdWJsaWMudjEuSWRlbnRpdHlQcm92aWRlcnNVcGRhdGVSZXF1ZXN0Gi8ub3NhYy5wdWJsaWMudjEuSWRlbnRpdHlQcm92aWRlcnNVcGRhdGVSZXNwb25zZSJCgtPkkwI8OgZvYmplY3QyMi9hcGkvZnVsZmlsbG1lbnQvdjEvaWRlbnRpdHlfcHJvdmlkZXJzL3tvYmplY3QuaWR9Ep4BCgZEZWxldGUSLi5vc2FjLnB1YmxpYy52MS5JZGVudGl0eVByb3ZpZGVyc0RlbGV0ZVJlcXVlc3QaLy5vc2FjLnB1YmxpYy52MS5JZGVudGl0eVByb3ZpZGVyc0RlbGV0ZVJlc3BvbnNlIjOC0+STAi0qKy9hcGkvZnVsZmlsbG1lbnQvdjEvaWRlbnRpdHlfcHJvdmlkZXJzL3tpZH0SqAEKBkFzc2lnbhIuLm9zYWMucHVibGljLnYxLklkZW50aXR5UHJvdmlkZXJzQXNzaWduUmVxdWVzdBovLm9zYWMucHVibGljLnYxLklkZW50aXR5UHJvdmlkZXJzQXNzaWduUmVzcG9uc2UiPYLT5JMCNzoBKiIyL2FwaS9mdWxmaWxsbWVudC92MS9pZGVudGl0eV9wcm92aWRlcnMve2lkfTphc3NpZ24SsAEKCFVuYXNzaWduEjAub3NhYy5wdWJsaWMudjEuSWRlbnRpdHlQcm92aWRlcnNVbmFzc2lnblJlcXVlc3QaMS5vc2FjLnB1YmxpYy52MS5JZGVudGl0eVByb3ZpZGVyc1VuYXNzaWduUmVzcG9uc2UiP4LT5JMCOToBKiI0L2FwaS9mdWxmaWxsbWVudC92MS9pZGVudGl0eV9wcm92aWRlcnMve2lkfTp1bmFzc2lnbmIGcHJvdG8z", [file_google_api_annotations, file_google_protobuf_field_mask, file_osac_public_v1_identity_provider_type]);
 
 /**
  * Request to create an identity provider.
@@ -212,17 +214,17 @@ export const IdentityProvidersListAvailableResponseSchema: GenMessage<IdentityPr
   messageDesc(file_osac_public_v1_identity_providers_service, 5);
 
 /**
- * Request to get a tenant's identity provider by name.
+ * Request to get a tenant's identity provider by ID.
  *
  * @generated from message osac.public.v1.IdentityProvidersGetRequest
  */
 export type IdentityProvidersGetRequest = Message<"osac.public.v1.IdentityProvidersGetRequest"> & {
   /**
-   * Name of the identity provider.
+   * ID of the identity provider.
    *
-   * @generated from field: string name = 1;
+   * @generated from field: string id = 1;
    */
-  name: string;
+  id: string;
 };
 
 /**
@@ -260,18 +262,27 @@ export const IdentityProvidersGetResponseSchema: GenMessage<IdentityProvidersGet
  */
 export type IdentityProvidersUpdateRequest = Message<"osac.public.v1.IdentityProvidersUpdateRequest"> & {
   /**
-   * Name of the identity provider to update.
-   *
-   * @generated from field: string name = 1;
-   */
-  name: string;
-
-  /**
    * The updated identity provider object.
    *
-   * @generated from field: osac.public.v1.IdentityProvider object = 2;
+   * @generated from field: osac.public.v1.IdentityProvider object = 1;
    */
   object?: IdentityProvider | undefined;
+
+  /**
+   * Update mask indicating which fields to update.
+   *
+   * @generated from field: google.protobuf.FieldMask update_mask = 2;
+   */
+  updateMask?: FieldMask | undefined;
+
+  /**
+   * Lock enables optimistic locking. When set to true, the server verifies that the current version of the object
+   * matches the value of the metadata.version field of the submitted object. If they differ the update will be
+   * rejected with a conflict error.
+   *
+   * @generated from field: bool lock = 3;
+   */
+  lock: boolean;
 };
 
 /**
@@ -309,11 +320,11 @@ export const IdentityProvidersUpdateResponseSchema: GenMessage<IdentityProviders
  */
 export type IdentityProvidersDeleteRequest = Message<"osac.public.v1.IdentityProvidersDeleteRequest"> & {
   /**
-   * Name of the identity provider to delete.
+   * ID of the identity provider to delete.
    *
-   * @generated from field: string name = 1;
+   * @generated from field: string id = 1;
    */
-  name: string;
+  id: string;
 };
 
 /**
@@ -346,11 +357,11 @@ export const IdentityProvidersDeleteResponseSchema: GenMessage<IdentityProviders
  */
 export type IdentityProvidersAssignRequest = Message<"osac.public.v1.IdentityProvidersAssignRequest"> & {
   /**
-   * Name of the identity provider to assign.
+   * ID of the identity provider to assign.
    *
-   * @generated from field: string name = 1;
+   * @generated from field: string id = 1;
    */
-  name: string;
+  id: string;
 };
 
 /**
@@ -383,11 +394,11 @@ export const IdentityProvidersAssignResponseSchema: GenMessage<IdentityProviders
  */
 export type IdentityProvidersUnassignRequest = Message<"osac.public.v1.IdentityProvidersUnassignRequest"> & {
   /**
-   * Name of the identity provider to unassign.
+   * ID of the identity provider to unassign.
    *
-   * @generated from field: string name = 1;
+   * @generated from field: string id = 1;
    */
-  name: string;
+  id: string;
 };
 
 /**
@@ -453,7 +464,7 @@ export const IdentityProviders: GenService<{
     output: typeof IdentityProvidersListAvailableResponseSchema;
   },
   /**
-   * Retrieves an identity provider by name.
+   * Retrieves an identity provider by ID.
    *
    * @generated from rpc osac.public.v1.IdentityProviders.Get
    */

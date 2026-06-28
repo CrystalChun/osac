@@ -26,7 +26,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/public/v1/public_ip_attachment_type.proto.
  */
 export const file_osac_public_v1_public_ip_attachment_type: GenFile = /*@__PURE__*/
-  fileDesc("Ci5vc2FjL3B1YmxpYy92MS9wdWJsaWNfaXBfYXR0YWNobWVudF90eXBlLnByb3RvEg5vc2FjLnB1YmxpYy52MSK8AQoSUHVibGljSVBBdHRhY2htZW50EgoKAmlkGAEgASgJEioKCG1ldGFkYXRhGAIgASgLMhgub3NhYy5wdWJsaWMudjEuTWV0YWRhdGESNAoEc3BlYxgDIAEoCzImLm9zYWMucHVibGljLnYxLlB1YmxpY0lQQXR0YWNobWVudFNwZWMSOAoGc3RhdHVzGAQgASgLMigub3NhYy5wdWJsaWMudjEuUHVibGljSVBBdHRhY2htZW50U3RhdHVzIlkKFlB1YmxpY0lQQXR0YWNobWVudFNwZWMSGQoJcHVibGljX2lwGAEgASgJQgbgQQLgQQUSGgoQY29tcHV0ZV9pbnN0YW5jZRgCIAEoCUgAQggKBnRhcmdldCKeAQoYUHVibGljSVBBdHRhY2htZW50U3RhdHVzEjsKBXN0YXRlGAEgASgOMicub3NhYy5wdWJsaWMudjEuUHVibGljSVBBdHRhY2htZW50U3RhdGVCA+BBAxIeChFwdWJsaWNfaXBfYWRkcmVzcxgCIAEoCUID4EEDEhkKB21lc3NhZ2UYAyABKAlCA+BBA0gAiAEBQgoKCF9tZXNzYWdlKroBChdQdWJsaWNJUEF0dGFjaG1lbnRTdGF0ZRIqCiZQVUJMSUNfSVBfQVRUQUNITUVOVF9TVEFURV9VTlNQRUNJRklFRBAAEiYKIlBVQkxJQ19JUF9BVFRBQ0hNRU5UX1NUQVRFX1BFTkRJTkcQARIkCiBQVUJMSUNfSVBfQVRUQUNITUVOVF9TVEFURV9SRUFEWRACEiUKIVBVQkxJQ19JUF9BVFRBQ0hNRU5UX1NUQVRFX0ZBSUxFRBADYgZwcm90bzM", [file_google_api_field_behavior, file_osac_public_v1_metadata_type]);
+  fileDesc("Ci5vc2FjL3B1YmxpYy92MS9wdWJsaWNfaXBfYXR0YWNobWVudF90eXBlLnByb3RvEg5vc2FjLnB1YmxpYy52MSK8AQoSUHVibGljSVBBdHRhY2htZW50EgoKAmlkGAEgASgJEioKCG1ldGFkYXRhGAIgASgLMhgub3NhYy5wdWJsaWMudjEuTWV0YWRhdGESNAoEc3BlYxgDIAEoCzImLm9zYWMucHVibGljLnYxLlB1YmxpY0lQQXR0YWNobWVudFNwZWMSOAoGc3RhdHVzGAQgASgLMigub3NhYy5wdWJsaWMudjEuUHVibGljSVBBdHRhY2htZW50U3RhdHVzIlkKFlB1YmxpY0lQQXR0YWNobWVudFNwZWMSGQoJcHVibGljX2lwGAEgASgJQgbgQQLgQQUSGgoQY29tcHV0ZV9pbnN0YW5jZRgCIAEoCUgAQggKBnRhcmdldCKeAQoYUHVibGljSVBBdHRhY2htZW50U3RhdHVzEjsKBXN0YXRlGAEgASgOMicub3NhYy5wdWJsaWMudjEuUHVibGljSVBBdHRhY2htZW50U3RhdGVCA+BBAxIeChFwdWJsaWNfaXBfYWRkcmVzcxgCIAEoCUID4EEDEhkKB21lc3NhZ2UYAyABKAlCA+BBA0gAiAEBQgoKCF9tZXNzYWdlKuMBChdQdWJsaWNJUEF0dGFjaG1lbnRTdGF0ZRIqCiZQVUJMSUNfSVBfQVRUQUNITUVOVF9TVEFURV9VTlNQRUNJRklFRBAAEiYKIlBVQkxJQ19JUF9BVFRBQ0hNRU5UX1NUQVRFX1BFTkRJTkcQARIkCiBQVUJMSUNfSVBfQVRUQUNITUVOVF9TVEFURV9SRUFEWRACEiUKIVBVQkxJQ19JUF9BVFRBQ0hNRU5UX1NUQVRFX0ZBSUxFRBADEicKI1BVQkxJQ19JUF9BVFRBQ0hNRU5UX1NUQVRFX0RFTEVUSU5HEARiBnByb3RvMw", [file_google_api_field_behavior, file_osac_public_v1_metadata_type]);
 
 /**
  * Represents a binding between a PublicIP and a target resource (e.g., a ComputeInstance).
@@ -181,7 +181,7 @@ export const PublicIPAttachmentStatusSchema: GenMessage<PublicIPAttachmentStatus
 /**
  * Lifecycle states for PublicIPAttachment resources.
  *
- * State transitions: UNSPECIFIED -> PENDING -> READY.
+ * State transitions: UNSPECIFIED -> PENDING -> READY. On deletion: any state -> DELETING.
  * FAILED can occur from PENDING and retries automatically via the provisioning lifecycle.
  *
  * @generated from enum osac.public.v1.PublicIPAttachmentState
@@ -221,6 +221,17 @@ export enum PublicIPAttachmentState {
    * @generated from enum value: PUBLIC_IP_ATTACHMENT_STATE_FAILED = 3;
    */
   PUBLIC_IP_ATTACHMENT_STATE_FAILED = 3,
+
+  /**
+   * The attachment is being deprovisioned (detach workflow in progress).
+   *
+   * Triggered by deletion of the PublicIPAttachment resource. The system unbinds the
+   * address from the target and moves the MetalLB Service back to the parking namespace.
+   * On completion, the parent PublicIP's status.attached is set to false.
+   *
+   * @generated from enum value: PUBLIC_IP_ATTACHMENT_STATE_DELETING = 4;
+   */
+  PUBLIC_IP_ATTACHMENT_STATE_DELETING = 4,
 }
 
 /**

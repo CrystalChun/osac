@@ -263,6 +263,8 @@ export const OrganizationsDeleteResponseSchema: GenMessage<OrganizationsDeleteRe
   messageDesc(file_osac_public_v1_organizations_service, 9);
 
 /**
+ * Organizations service is superseded by Tenants.
+ *
  * @generated from service osac.public.v1.Organizations
  */
 export const Organizations: GenService<{

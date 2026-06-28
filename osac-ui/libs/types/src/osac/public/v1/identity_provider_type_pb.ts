@@ -17,8 +17,8 @@
 
 import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import type { Timestamp } from "../../../google/protobuf/timestamp_pb";
 import { file_google_protobuf_timestamp } from "../../../google/protobuf/timestamp_pb";
-import { file_osac_public_v1_condition_status_type } from "./condition_status_type_pb";
 import type { Metadata } from "./metadata_type_pb";
 import { file_osac_public_v1_metadata_type } from "./metadata_type_pb";
 import type { Message } from "@bufbuild/protobuf";
@@ -27,7 +27,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/public/v1/identity_provider_type.proto.
  */
 export const file_osac_public_v1_identity_provider_type: GenFile = /*@__PURE__*/
-  fileDesc("Citvc2FjL3B1YmxpYy92MS9pZGVudGl0eV9wcm92aWRlcl90eXBlLnByb3RvEg5vc2FjLnB1YmxpYy52MSK4AQoQSWRlbnRpdHlQcm92aWRlchIMCgRuYW1lGAEgASgJEioKCG1ldGFkYXRhGAIgASgLMhgub3NhYy5wdWJsaWMudjEuTWV0YWRhdGESMgoEc3BlYxgDIAEoCzIkLm9zYWMucHVibGljLnYxLklkZW50aXR5UHJvdmlkZXJTcGVjEjYKBnN0YXR1cxgEIAEoCzImLm9zYWMucHVibGljLnYxLklkZW50aXR5UHJvdmlkZXJTdGF0dXMiwgEKFElkZW50aXR5UHJvdmlkZXJTcGVjEg0KBXRpdGxlGAEgASgJEhgKC2Rlc2NyaXB0aW9uGAIgASgJSAGIAQESDwoHZW5hYmxlZBgDIAEoCBIqCgRvaWRjGAQgASgLMhoub3NhYy5wdWJsaWMudjEuT2lkY0NvbmZpZ0gAEioKBGxkYXAYBSABKAsyGi5vc2FjLnB1YmxpYy52MS5MZGFwQ29uZmlnSABCCAoGY29uZmlnQg4KDF9kZXNjcmlwdGlvbiLWAgoKT2lkY0NvbmZpZxIZChFhdXRob3JpemF0aW9uX3VybBgBIAEoCRIRCgl0b2tlbl91cmwYAiABKAkSEQoJY2xpZW50X2lkGAMgASgJEhUKDWNsaWVudF9zZWNyZXQYBCABKAkSDgoGaXNzdWVyGAUgASgJEhsKDmRlZmF1bHRfc2NvcGVzGAYgASgJSACIAQESGgoNdXNlcl9pbmZvX3VybBgHIAEoCUgBiAEBEhUKCGp3a3NfdXJsGAggASgJSAKIAQESHwoSdmFsaWRhdGVfc2lnbmF0dXJlGAkgASgISAOIAQESFwoKbG9nb3V0X3VybBgKIAEoCUgEiAEBQhEKD19kZWZhdWx0X3Njb3Blc0IQCg5fdXNlcl9pbmZvX3VybEILCglfandrc191cmxCFQoTX3ZhbGlkYXRlX3NpZ25hdHVyZUINCgtfbG9nb3V0X3VybCL0AwoKTGRhcENvbmZpZxIWCg5jb25uZWN0aW9uX3VybBgBIAEoCRIPCgdiaW5kX2RuGAIgASgJEhcKD2JpbmRfY3JlZGVudGlhbBgDIAEoCRIQCgh1c2Vyc19kbhgEIAEoCRIkChd1c2VybmFtZV9sZGFwX2F0dHJpYnV0ZRgFIAEoCUgAiAEBEh8KEnJkbl9sZGFwX2F0dHJpYnV0ZRgGIAEoCUgBiAEBEiAKE3V1aWRfbGRhcF9hdHRyaWJ1dGUYByABKAlIAogBARIgChN1c2VyX29iamVjdF9jbGFzc2VzGAggASgJSAOIAQESFgoJYXV0aF90eXBlGAkgASgJSASIAQESEwoGdmVuZG9yGAogASgJSAWIAQESHwoSdXNlX3RydXN0c3RvcmVfc3BpGAsgASgISAaIAQESFwoKcGFnaW5hdGlvbhgMIAEoCEgHiAEBQhoKGF91c2VybmFtZV9sZGFwX2F0dHJpYnV0ZUIVChNfcmRuX2xkYXBfYXR0cmlidXRlQhYKFF91dWlkX2xkYXBfYXR0cmlidXRlQhYKFF91c2VyX29iamVjdF9jbGFzc2VzQgwKCl9hdXRoX3R5cGVCCQoHX3ZlbmRvckIVChNfdXNlX3RydXN0c3RvcmVfc3BpQg0KC19wYWdpbmF0aW9uIl8KFklkZW50aXR5UHJvdmlkZXJTdGF0dXMSNAoFcGhhc2UYASABKA4yJS5vc2FjLnB1YmxpYy52MS5JZGVudGl0eVByb3ZpZGVyUGhhc2USDwoHbWVzc2FnZRgCIAEoCSqrAQoVSWRlbnRpdHlQcm92aWRlclBoYXNlEicKI0lERU5USVRZX1BST1ZJREVSX1BIQVNFX1VOU1BFQ0lGSUVEEAASIQodSURFTlRJVFlfUFJPVklERVJfUEhBU0VfUkVBRFkQARIhCh1JREVOVElUWV9QUk9WSURFUl9QSEFTRV9FUlJPUhACEiMKH0lERU5USVRZX1BST1ZJREVSX1BIQVNFX1VOS05PV04QA2IGcHJvdG8z", [file_google_protobuf_timestamp, file_osac_public_v1_condition_status_type, file_osac_public_v1_metadata_type]);
+  fileDesc("Citvc2FjL3B1YmxpYy92MS9pZGVudGl0eV9wcm92aWRlcl90eXBlLnByb3RvEg5vc2FjLnB1YmxpYy52MSK2AQoQSWRlbnRpdHlQcm92aWRlchIKCgJpZBgBIAEoCRIqCghtZXRhZGF0YRgCIAEoCzIYLm9zYWMucHVibGljLnYxLk1ldGFkYXRhEjIKBHNwZWMYAyABKAsyJC5vc2FjLnB1YmxpYy52MS5JZGVudGl0eVByb3ZpZGVyU3BlYxI2CgZzdGF0dXMYBCABKAsyJi5vc2FjLnB1YmxpYy52MS5JZGVudGl0eVByb3ZpZGVyU3RhdHVzIv4BChRJZGVudGl0eVByb3ZpZGVyU3BlYxINCgV0aXRsZRgBIAEoCRIYCgtkZXNjcmlwdGlvbhgCIAEoCUgBiAEBEg8KB2VuYWJsZWQYAyABKAgSKgoEb2lkYxgEIAEoCzIaLm9zYWMucHVibGljLnYxLk9pZGNDb25maWdIABIqCgRsZGFwGAUgASgLMhoub3NhYy5wdWJsaWMudjEuTGRhcENvbmZpZ0gAEiEKFGhlYWx0aF9jaGVja190cmlnZ2VyGAYgASgJSAKIAQFCCAoGY29uZmlnQg4KDF9kZXNjcmlwdGlvbkIXChVfaGVhbHRoX2NoZWNrX3RyaWdnZXIi1gIKCk9pZGNDb25maWcSGQoRYXV0aG9yaXphdGlvbl91cmwYASABKAkSEQoJdG9rZW5fdXJsGAIgASgJEhEKCWNsaWVudF9pZBgDIAEoCRIVCg1jbGllbnRfc2VjcmV0GAQgASgJEg4KBmlzc3VlchgFIAEoCRIbCg5kZWZhdWx0X3Njb3BlcxgGIAEoCUgAiAEBEhoKDXVzZXJfaW5mb191cmwYByABKAlIAYgBARIVCghqd2tzX3VybBgIIAEoCUgCiAEBEh8KEnZhbGlkYXRlX3NpZ25hdHVyZRgJIAEoCEgDiAEBEhcKCmxvZ291dF91cmwYCiABKAlIBIgBAUIRCg9fZGVmYXVsdF9zY29wZXNCEAoOX3VzZXJfaW5mb191cmxCCwoJX2p3a3NfdXJsQhUKE192YWxpZGF0ZV9zaWduYXR1cmVCDQoLX2xvZ291dF91cmwi9AMKCkxkYXBDb25maWcSFgoOY29ubmVjdGlvbl91cmwYASABKAkSDwoHYmluZF9kbhgCIAEoCRIXCg9iaW5kX2NyZWRlbnRpYWwYAyABKAkSEAoIdXNlcnNfZG4YBCABKAkSJAoXdXNlcm5hbWVfbGRhcF9hdHRyaWJ1dGUYBSABKAlIAIgBARIfChJyZG5fbGRhcF9hdHRyaWJ1dGUYBiABKAlIAYgBARIgChN1dWlkX2xkYXBfYXR0cmlidXRlGAcgASgJSAKIAQESIAoTdXNlcl9vYmplY3RfY2xhc3NlcxgIIAEoCUgDiAEBEhYKCWF1dGhfdHlwZRgJIAEoCUgEiAEBEhMKBnZlbmRvchgKIAEoCUgFiAEBEh8KEnVzZV90cnVzdHN0b3JlX3NwaRgLIAEoCEgGiAEBEhcKCnBhZ2luYXRpb24YDCABKAhIB4gBAUIaChhfdXNlcm5hbWVfbGRhcF9hdHRyaWJ1dGVCFQoTX3Jkbl9sZGFwX2F0dHJpYnV0ZUIWChRfdXVpZF9sZGFwX2F0dHJpYnV0ZUIWChRfdXNlcl9vYmplY3RfY2xhc3Nlc0IMCgpfYXV0aF90eXBlQgkKB192ZW5kb3JCFQoTX3VzZV90cnVzdHN0b3JlX3NwaUINCgtfcGFnaW5hdGlvbiLjAQoWSWRlbnRpdHlQcm92aWRlclN0YXR1cxI0CgVwaGFzZRgBIAEoDjIlLm9zYWMucHVibGljLnYxLklkZW50aXR5UHJvdmlkZXJQaGFzZRIPCgdtZXNzYWdlGAIgASgJEiEKFGhlYWx0aF9jaGVja190cmlnZ2VyGAMgASgJSACIAQESOwoGaGVhbHRoGAQgASgLMiYub3NhYy5wdWJsaWMudjEuSWRlbnRpdHlQcm92aWRlckhlYWx0aEgBiAEBQhcKFV9oZWFsdGhfY2hlY2tfdHJpZ2dlckIJCgdfaGVhbHRoIqoBChZJZGVudGl0eVByb3ZpZGVySGVhbHRoEjwKBnN0YXR1cxgBIAEoDjIsLm9zYWMucHVibGljLnYxLklkZW50aXR5UHJvdmlkZXJIZWFsdGhTdGF0dXMSFAoHbWVzc2FnZRgCIAEoCUgAiAEBEjAKDGxhc3RfY2hlY2tlZBgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCCgoIX21lc3NhZ2UqqwEKFUlkZW50aXR5UHJvdmlkZXJQaGFzZRInCiNJREVOVElUWV9QUk9WSURFUl9QSEFTRV9VTlNQRUNJRklFRBAAEiEKHUlERU5USVRZX1BST1ZJREVSX1BIQVNFX1JFQURZEAESIQodSURFTlRJVFlfUFJPVklERVJfUEhBU0VfRVJST1IQAhIjCh9JREVOVElUWV9QUk9WSURFUl9QSEFTRV9VTktOT1dOEAMq2AEKHElkZW50aXR5UHJvdmlkZXJIZWFsdGhTdGF0dXMSLworSURFTlRJVFlfUFJPVklERVJfSEVBTFRIX1NUQVRVU19VTlNQRUNJRklFRBAAEisKJ0lERU5USVRZX1BST1ZJREVSX0hFQUxUSF9TVEFUVVNfSEVBTFRIWRABEi0KKUlERU5USVRZX1BST1ZJREVSX0hFQUxUSF9TVEFUVVNfVU5IRUFMVEhZEAISKwonSURFTlRJVFlfUFJPVklERVJfSEVBTFRIX1NUQVRVU19VTktOT1dOEANiBnByb3RvMw", [file_google_protobuf_timestamp, file_osac_public_v1_metadata_type]);
 
 /**
  * IdentityProvider represents an external identity provider configuration.
@@ -38,12 +38,11 @@ export const file_osac_public_v1_identity_provider_type: GenFile = /*@__PURE__*/
  */
 export type IdentityProvider = Message<"osac.public.v1.IdentityProvider"> & {
   /**
-   * Unique name identifier for this IdP. Immutable after creation.
-   * Must be URL-safe and unique within the organization.
+   * Unique identifier for this IdP. Immutable after creation.
    *
-   * @generated from field: string name = 1;
+   * @generated from field: string id = 1;
    */
-  name: string;
+  id: string;
 
   /**
    * Metadata contains common object metadata.
@@ -126,6 +125,18 @@ export type IdentityProviderSpec = Message<"osac.public.v1.IdentityProviderSpec"
     value: LdapConfig;
     case: "ldap";
   } | { case: undefined; value?: undefined };
+
+  /**
+   * This field is used to trigger a health check of the identity provider.
+   * The user can write any value here; the actual value doesn't matter.
+   * The only important thing is that when it changes, the system will eventually
+   * initiate a health check and report the result in the status.
+   * The user can set this to any string (e.g., a timestamp or random value) to request a new check.
+   * Common pattern: use a timestamp or increment a counter when requesting a check.
+   *
+   * @generated from field: optional string health_check_trigger = 6;
+   */
+  healthCheckTrigger?: string | undefined;
 };
 
 /**
@@ -376,6 +387,24 @@ export type IdentityProviderStatus = Message<"osac.public.v1.IdentityProviderSta
    * @generated from field: string message = 2;
    */
   message: string;
+
+  /**
+   * This is used by the system to track when the spec.health_check_trigger has changed
+   * and to acknowledge that the health check process has started.
+   * The system will update it to match spec.health_check_trigger when the check begins.
+   * Users can compare this to spec.health_check_trigger to see if their check request has been acknowledged.
+   *
+   * @generated from field: optional string health_check_trigger = 3;
+   */
+  healthCheckTrigger?: string | undefined;
+
+  /**
+   * Health check results from the last health check that completed.
+   * This is populated after a health check triggered by spec.health_check_trigger completes.
+   *
+   * @generated from field: optional osac.public.v1.IdentityProviderHealth health = 4;
+   */
+  health?: IdentityProviderHealth | undefined;
 };
 
 /**
@@ -384,6 +413,41 @@ export type IdentityProviderStatus = Message<"osac.public.v1.IdentityProviderSta
  */
 export const IdentityProviderStatusSchema: GenMessage<IdentityProviderStatus> = /*@__PURE__*/
   messageDesc(file_osac_public_v1_identity_provider_type, 4);
+
+/**
+ * IdentityProviderHealth represents the health status of an identity provider.
+ *
+ * @generated from message osac.public.v1.IdentityProviderHealth
+ */
+export type IdentityProviderHealth = Message<"osac.public.v1.IdentityProviderHealth"> & {
+  /**
+   * Status indicates the overall health status.
+   *
+   * @generated from field: osac.public.v1.IdentityProviderHealthStatus status = 1;
+   */
+  status: IdentityProviderHealthStatus;
+
+  /**
+   * Message provides details about the health status.
+   *
+   * @generated from field: optional string message = 2;
+   */
+  message?: string | undefined;
+
+  /**
+   * LastChecked is when the health was last checked.
+   *
+   * @generated from field: google.protobuf.Timestamp last_checked = 3;
+   */
+  lastChecked?: Timestamp | undefined;
+};
+
+/**
+ * Describes the message osac.public.v1.IdentityProviderHealth.
+ * Use `create(IdentityProviderHealthSchema)` to create a new message.
+ */
+export const IdentityProviderHealthSchema: GenMessage<IdentityProviderHealth> = /*@__PURE__*/
+  messageDesc(file_osac_public_v1_identity_provider_type, 5);
 
 /**
  * IdentityProviderPhase represents the current phase of an identity provider.
@@ -425,4 +489,45 @@ export enum IdentityProviderPhase {
  */
 export const IdentityProviderPhaseSchema: GenEnum<IdentityProviderPhase> = /*@__PURE__*/
   enumDesc(file_osac_public_v1_identity_provider_type, 0);
+
+/**
+ * IdentityProviderHealthStatus represents the health status of an identity provider.
+ *
+ * @generated from enum osac.public.v1.IdentityProviderHealthStatus
+ */
+export enum IdentityProviderHealthStatus {
+  /**
+   * IDENTITY_PROVIDER_HEALTH_STATUS_UNSPECIFIED is the default value.
+   *
+   * @generated from enum value: IDENTITY_PROVIDER_HEALTH_STATUS_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * IDENTITY_PROVIDER_HEALTH_STATUS_HEALTHY indicates the IdP is healthy.
+   *
+   * @generated from enum value: IDENTITY_PROVIDER_HEALTH_STATUS_HEALTHY = 1;
+   */
+  HEALTHY = 1,
+
+  /**
+   * IDENTITY_PROVIDER_HEALTH_STATUS_UNHEALTHY indicates the IdP is unhealthy.
+   *
+   * @generated from enum value: IDENTITY_PROVIDER_HEALTH_STATUS_UNHEALTHY = 2;
+   */
+  UNHEALTHY = 2,
+
+  /**
+   * IDENTITY_PROVIDER_HEALTH_STATUS_UNKNOWN indicates the health status is unknown.
+   *
+   * @generated from enum value: IDENTITY_PROVIDER_HEALTH_STATUS_UNKNOWN = 3;
+   */
+  UNKNOWN = 3,
+}
+
+/**
+ * Describes the enum osac.public.v1.IdentityProviderHealthStatus.
+ */
+export const IdentityProviderHealthStatusSchema: GenEnum<IdentityProviderHealthStatus> = /*@__PURE__*/
+  enumDesc(file_osac_public_v1_identity_provider_type, 1);
 
