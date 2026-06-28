@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import * as yup from 'yup';
 
 import type { CatalogFieldDefinition } from '../catalogFieldDefinition';
 import {
@@ -6,7 +7,6 @@ import {
   matchesJsonSchemaPattern,
   validateValueAgainstJsonSchema,
 } from '../catalogFieldDefinition';
-
 import {
   findCatalogFieldDefinition,
   formatBootDiskSizeForReview,
@@ -14,7 +14,6 @@ import {
   hasCatalogFieldDefinition,
   mergeCatalogValidation,
 } from './catalogOverlay';
-import * as yup from 'yup';
 
 const definitions: CatalogFieldDefinition[] = [
   {

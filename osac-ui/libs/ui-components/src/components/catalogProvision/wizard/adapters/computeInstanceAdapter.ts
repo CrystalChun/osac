@@ -3,6 +3,14 @@ import type { TFunction } from 'i18next';
 
 import type { ComputeInstanceCatalogItem } from '@osac/types';
 
+import {
+  type ReviewSection,
+  formatBootDiskSizeForReview,
+  formatReviewScalar,
+  getCatalogFieldOverlay,
+  readCatalogFieldDefinitions,
+  reviewRow,
+} from '../catalogOverlay';
 import { applyVmCatalogConfigurationDefaults } from './computeInstance/applyCatalogDefaults';
 import { applyVmCatalogGeneralDefaults } from './computeInstance/applyCatalogGeneralDefaults';
 import type { ComputeInstanceWizardValues } from './computeInstance/fields';
@@ -11,20 +19,12 @@ import { buildComputeInstanceCreatePayload, createEmptyComputeInstanceValues } f
 import { buildComputeInstanceStepSchema } from './computeInstance/schemas';
 import { VmConfigurationStep } from './computeInstance/VmConfigurationStep';
 import { VmNetworkingStep } from './computeInstance/VmNetworkingStep';
+import type { CatalogProvisionAdapter, ReviewContext } from './types';
 import { useComputeInstanceCatalogItems } from '../../../../api/v1/compute-instance-catalog-item';
 import type { BuildComputeInstanceCreateBodyInput } from '../../../../api/v1/compute-instance-wire';
-import { formatResourceIdForReview, formatResourceIdsForReview } from '../../../../api/v1/networking';
 import { formatInstanceTypeReviewLabel } from '../../../../api/v1/instance-types';
+import { formatResourceIdForReview, formatResourceIdsForReview } from '../../../../api/v1/networking';
 import { useTranslation } from '../../../../hooks/useTranslation';
-import {
-  type ReviewSection,
-  formatReviewScalar,
-  formatBootDiskSizeForReview,
-  getCatalogFieldOverlay,
-  readCatalogFieldDefinitions,
-  reviewRow,
-} from '../catalogOverlay';
-import type { CatalogProvisionAdapter, ReviewContext } from './types';
 
 export { buildComputeInstanceCreatePayload, createEmptyComputeInstanceValues } from './computeInstance/payload';
 

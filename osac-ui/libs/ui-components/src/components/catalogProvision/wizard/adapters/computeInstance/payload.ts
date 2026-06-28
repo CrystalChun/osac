@@ -1,8 +1,8 @@
 import type { ComputeInstanceCatalogItem } from '@osac/types';
 
-import type { BuildComputeInstanceCreateBodyInput } from '../../../../../api/v1/compute-instance-wire';
 import type { ComputeInstanceWizardValues } from './fields';
 import { VM_CREATE_RUN_STRATEGY } from './fields';
+import type { BuildComputeInstanceCreateBodyInput } from '../../../../../api/v1/compute-instance-wire';
 
 export const createEmptyComputeInstanceValues = (): ComputeInstanceWizardValues => ({
   catalogItemId: '',

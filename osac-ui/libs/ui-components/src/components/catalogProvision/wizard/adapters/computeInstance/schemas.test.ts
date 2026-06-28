@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { ValidationError } from 'yup';
 
-import { vmCatalogItem } from '../../../test/fixtures';
-import { buildComputeInstanceStepSchema } from './schemas';
 import type { ComputeInstanceWizardValues } from './fields';
+import { buildComputeInstanceStepSchema } from './schemas';
+import { vmCatalogItem } from '../../../test/fixtures';
 
 const t = (key: string) => key;
 

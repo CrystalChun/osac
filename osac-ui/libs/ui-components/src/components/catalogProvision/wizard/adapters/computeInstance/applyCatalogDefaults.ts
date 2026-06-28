@@ -1,13 +1,14 @@
-import type { TFunction } from 'i18next';
-import type { ComputeInstanceCatalogItem } from '@osac/types';
 import type { FormikHelpers } from 'formik';
+import type { TFunction } from 'i18next';
 
+import type { ComputeInstanceCatalogItem } from '@osac/types';
+
+import type { ComputeInstanceWizardValues } from './fields';
 import {
   getCatalogFieldOverlay,
   overlayDefaultToFormValue,
   readCatalogFieldDefinitions,
 } from '../../catalogOverlay';
-import type { ComputeInstanceWizardValues } from './fields';
 
 const setDefault = (
   helpers: FormikHelpers<ComputeInstanceWizardValues>,

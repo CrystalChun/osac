@@ -1,11 +1,10 @@
-import { render, type RenderOptions } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import type { ReactElement } from 'react';
+import { type RenderOptions, render } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
 
 import type { BuildComputeInstanceCreateBodyInput } from '../../../api/v1/compute-instance-wire';
 import { CatalogProvisionWizard } from '../CatalogProvisionWizard';
-
 import { type WizardApiFixtures, createMockApiFetch } from './createMockApiFetch';
 import { initTestI18n } from './i18n';
 import { WizardTestProvidersWithI18n } from './WizardTestProviders';

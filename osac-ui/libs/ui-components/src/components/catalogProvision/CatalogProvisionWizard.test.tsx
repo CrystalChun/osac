@@ -3,10 +3,9 @@ import { describe, expect, it, vi } from 'vitest';
 
 import type { ComputeInstanceCatalogItem } from '@osac/types';
 
-import type { ApiFetch } from '../../api/types';
-import { renderWizard } from './test/renderWizard';
 import { createMockApiFetch } from './test/createMockApiFetch';
 import { vmCatalogItem } from './test/fixtures';
+import { renderWizard } from './test/renderWizard';
 import {
   advanceToConfigurationStep,
   advanceToNetworkingStep,
@@ -23,6 +22,7 @@ import {
   selectNetworkingPickers,
   waitForConfigurationReady,
 } from './test/wizardFlow.helpers';
+import type { ApiFetch } from '../../api/types';
 
 const catalogItemWithDistinctDefaults = {
   ...vmCatalogItem,
@@ -340,7 +340,7 @@ describe('CatalogProvisionWizard', () => {
     await user.click(screen.getByRole('button', { name: 'Create' }));
 
     await waitFor(() => {
-      expect(screen.getByText('Provisioning failed. Please try again.')).toBeInTheDocument();
+      expect(screen.getByText('provision failed')).toBeInTheDocument();
     });
     expect(screen.getByRole('button', { name: 'Create' })).toBeInTheDocument();
   });

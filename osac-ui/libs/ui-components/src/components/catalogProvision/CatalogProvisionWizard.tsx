@@ -20,13 +20,13 @@ import {
   WizardStep,
   useWizardContext,
 } from '@patternfly/react-core';
-import { FormikProvider, useFormik, type FormikProps } from 'formik';
+import { type FormikProps, FormikProvider, useFormik } from 'formik';
 
 import type { ComputeInstanceCatalogItem } from '@osac/types';
 
 import type { CatalogProvisionKind } from './catalogFieldDefinition';
-import { FieldValidationProvider } from '../Form/FieldValidationContext';
 import { useTranslation } from '../../hooks/useTranslation';
+import { FieldValidationProvider } from '../Form/FieldValidationContext';
 import type { ComputeInstanceWizardValues } from './wizard/adapters/computeInstance/fields';
 import { useComputeInstanceAdapter } from './wizard/adapters/computeInstanceAdapter';
 import type { CatalogProvisionAdapter } from './wizard/adapters/types';

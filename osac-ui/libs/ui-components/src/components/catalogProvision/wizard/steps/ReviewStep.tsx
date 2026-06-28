@@ -8,13 +8,13 @@ import {
 import type { ComputeInstanceCatalogItem } from '@osac/types';
 
 import type { BuildComputeInstanceCreateBodyInput } from '../../../../api/v1/compute-instance-wire';
+import { useInstanceTypes } from '../../../../api/v1/instance-types';
 import {
   useSecurityGroups,
   useSubnets,
   useVirtualNetworks,
   virtualNetworkFilterForSubnetList,
 } from '../../../../api/v1/networking';
-import { useInstanceTypes } from '../../../../api/v1/instance-types';
 import { useTranslation } from '../../../../hooks/useTranslation';
 import type { ComputeInstanceWizardValues } from '../adapters/computeInstance/fields';
 import type { CatalogProvisionAdapter } from '../adapters/types';

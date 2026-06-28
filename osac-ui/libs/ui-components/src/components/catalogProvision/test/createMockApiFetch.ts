@@ -7,9 +7,6 @@ import {
   VirtualNetworksListResponseSchema,
 } from '@osac/types';
 
-import { decodeFulfillmentResponse } from '../../../api/fulfillment-decode';
-import type { ApiFetch, ApiRoute } from '../../../api/types';
-
 import {
   mockInstanceType,
   mockSecurityGroup,
@@ -17,6 +14,9 @@ import {
   mockVirtualNetwork,
   vmCatalogItem,
 } from './fixtures';
+import { decodeFulfillmentResponse } from '../../../api/fulfillment-decode';
+import type { ApiFetch, ApiRoute } from '../../../api/types';
+
 
 export type WizardApiFixtures = {
   catalogItems?: ComputeInstanceCatalogItem[];

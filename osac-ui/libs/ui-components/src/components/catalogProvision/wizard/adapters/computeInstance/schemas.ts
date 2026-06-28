@@ -1,13 +1,13 @@
 import type { TFunction } from 'i18next';
 import * as yup from 'yup';
 
-import type { WizardStepId } from '../../stepIds';
 import {
   getCatalogFieldOverlay,
   hasCatalogFieldDefinition,
   mergeCatalogValidation,
   readCatalogFieldDefinitions,
 } from '../../catalogOverlay';
+import type { WizardStepId } from '../../stepIds';
 
 const buildComputeInstanceFieldDefinitions = (catalogItem: unknown, t: TFunction) => {
   const definitions = readCatalogFieldDefinitions(catalogItem);
