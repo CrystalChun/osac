@@ -25,19 +25,14 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/public/v1/role_binding_type.proto.
  */
 export const file_osac_public_v1_role_binding_type: GenFile = /*@__PURE__*/
-  fileDesc("CiZvc2FjL3B1YmxpYy92MS9yb2xlX2JpbmRpbmdfdHlwZS5wcm90bxIOb3NhYy5wdWJsaWMudjEipwEKC1JvbGVCaW5kaW5nEgoKAmlkGAEgASgJEioKCG1ldGFkYXRhGAIgASgLMhgub3NhYy5wdWJsaWMudjEuTWV0YWRhdGESLQoEc3BlYxgDIAEoCzIfLm9zYWMucHVibGljLnYxLlJvbGVCaW5kaW5nU3BlYxIxCgZzdGF0dXMYBCABKAsyIS5vc2FjLnB1YmxpYy52MS5Sb2xlQmluZGluZ1N0YXR1cyIvCg9Sb2xlQmluZGluZ1NwZWMSDAoEcm9sZRgBIAEoCRIOCgZncm91cHMYAiADKAkiZgoRUm9sZUJpbmRpbmdTdGF0dXMSLwoFc3RhdGUYASABKA4yIC5vc2FjLnB1YmxpYy52MS5Sb2xlQmluZGluZ1N0YXRlEhQKB21lc3NhZ2UYAiABKAlIAIgBAUIKCghfbWVzc2FnZSqTAQoQUm9sZUJpbmRpbmdTdGF0ZRIiCh5ST0xFX0JJTkRJTkdfU1RBVEVfVU5TUEVDSUZJRUQQABIeChpST0xFX0JJTkRJTkdfU1RBVEVfUEVORElORxABEhwKGFJPTEVfQklORElOR19TVEFURV9SRUFEWRACEh0KGVJPTEVfQklORElOR19TVEFURV9GQUlMRUQQA2IGcHJvdG8z", [file_osac_public_v1_metadata_type]);
+  fileDesc("CiZvc2FjL3B1YmxpYy92MS9yb2xlX2JpbmRpbmdfdHlwZS5wcm90bxIOb3NhYy5wdWJsaWMudjEipwEKC1JvbGVCaW5kaW5nEgoKAmlkGAEgASgJEioKCG1ldGFkYXRhGAIgASgLMhgub3NhYy5wdWJsaWMudjEuTWV0YWRhdGESLQoEc3BlYxgDIAEoCzIfLm9zYWMucHVibGljLnYxLlJvbGVCaW5kaW5nU3BlYxIxCgZzdGF0dXMYBCABKAsyIS5vc2FjLnB1YmxpYy52MS5Sb2xlQmluZGluZ1N0YXR1cyIuCg9Sb2xlQmluZGluZ1NwZWMSDAoEcm9sZRgBIAEoCRINCgV1c2VycxgCIAMoCSJmChFSb2xlQmluZGluZ1N0YXR1cxIvCgVzdGF0ZRgBIAEoDjIgLm9zYWMucHVibGljLnYxLlJvbGVCaW5kaW5nU3RhdGUSFAoHbWVzc2FnZRgCIAEoCUgAiAEBQgoKCF9tZXNzYWdlKpMBChBSb2xlQmluZGluZ1N0YXRlEiIKHlJPTEVfQklORElOR19TVEFURV9VTlNQRUNJRklFRBAAEh4KGlJPTEVfQklORElOR19TVEFURV9QRU5ESU5HEAESHAoYUk9MRV9CSU5ESU5HX1NUQVRFX1JFQURZEAISHQoZUk9MRV9CSU5ESU5HX1NUQVRFX0ZBSUxFRBADYgZwcm90bzM", [file_osac_public_v1_metadata_type]);
 
 /**
- * Represents a binding between a role and a set of subjects (groups).
+ * Represents a binding between a role and a set of users.
  *
- * A RoleBinding grants the permissions defined by its referenced role to the subjects listed in its spec. This is
- * the mechanism by which roles are assigned to groups, enabling the members of those groups to perform the actions
- * permitted by the role.
- *
- * The subjects of a RoleBinding are groups as defined by the identity provider (IDP) of the tenant. This service
- * does not manage groups directly; it references them by their IDP-assigned identifiers. For example, if a tenant
- * uses Keycloak as its identity provider, the values in the `groups` field correspond to the names of Keycloak
- * groups within the tenant's realm.
+ * A RoleBinding grants the permissions defined by its referenced role to the users listed in its spec. This is
+ * the mechanism by which roles are assigned to users, enabling those users to perform the actions permitted by
+ * the role.
  *
  * @generated from message osac.public.v1.RoleBinding
  */
@@ -86,20 +81,23 @@ export const RoleBindingSchema: GenMessage<RoleBinding> = /*@__PURE__*/
 export type RoleBindingSpec = Message<"osac.public.v1.RoleBindingSpec"> & {
   /**
    * Identifier of the role that this binding refers to. This determines which permissions are granted to the
-   * subjects listed below.
+   * users listed below.
    *
    * @generated from field: string role = 1;
    */
   role: string;
 
   /**
-   * Identifiers of the groups that are granted the permissions defined by the role. These are group identifiers
-   * as defined by the identity provider (IDP) of the tenant, not internal system identifiers. For example, in a
-   * Keycloak-based deployment these would be the Keycloak group names within the tenant's realm.
+   * Identifiers of the users that are granted the permissions defined by the role. These are user identifiers
+   * (the `id` field of User objects), not usernames or email addresses.
    *
-   * @generated from field: repeated string groups = 2;
+   * To grant a role to a user, create a RoleBinding with the desired role and include the user's ID in this list.
+   * To revoke a role from a user, either delete the entire RoleBinding (if the user is the only subject), or
+   * update the RoleBinding to remove the user's ID from this list.
+   *
+   * @generated from field: repeated string users = 2;
    */
-  groups: string[];
+  users: string[];
 };
 
 /**

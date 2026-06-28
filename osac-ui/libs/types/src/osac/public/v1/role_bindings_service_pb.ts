@@ -312,10 +312,8 @@ export const RoleBindingsDeleteResponseSchema: GenMessage<RoleBindingsDeleteResp
 /**
  * Service for managing role bindings.
  *
- * Role bindings grant the permissions defined by a role to a set of subjects (groups). The groups referenced in a
- * role binding are identified by their identity provider (IDP) identifiers, as this service does not manage groups
- * directly. Only administrators can create, update, or delete role bindings. Regular users can only get and list
- * them.
+ * Role bindings grant the permissions defined by a role to a set of users. Only administrators can create, update,
+ * or delete role bindings. Regular users can only get and list them.
  *
  * @generated from service osac.public.v1.RoleBindings
  */

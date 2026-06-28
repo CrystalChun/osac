@@ -18,88 +18,16 @@
 import type { GenEnum, GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import { enumDesc, fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_google_api_annotations } from "../../../google/api/annotations_pb";
+import { file_google_api_field_behavior } from "../../../google/api/field_behavior_pb";
+import type { Timestamp } from "../../../google/protobuf/timestamp_pb";
+import { file_google_protobuf_timestamp } from "../../../google/protobuf/timestamp_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file osac/public/v1/console_service.proto.
  */
 export const file_osac_public_v1_console_service: GenFile = /*@__PURE__*/
-  fileDesc("CiRvc2FjL3B1YmxpYy92MS9jb25zb2xlX3NlcnZpY2UucHJvdG8SDm9zYWMucHVibGljLnYxIrYBChVDb25zb2xlQ29ubmVjdFJlcXVlc3QSMgoEaW5pdBgBIAEoCzIiLm9zYWMucHVibGljLnYxLkNvbnNvbGVDb25uZWN0SW5pdEgAEi0KBWlucHV0GAIgASgLMhwub3NhYy5wdWJsaWMudjEuQ29uc29sZUlucHV0SAASLwoGcmVzaXplGAMgASgLMh0ub3NhYy5wdWJsaWMudjEuQ29uc29sZVJlc2l6ZUgAQgkKB3BheWxvYWQiowEKEkNvbnNvbGVDb25uZWN0SW5pdBI6Cg1yZXNvdXJjZV90eXBlGAEgASgOMiMub3NhYy5wdWJsaWMudjEuQ29uc29sZVJlc291cmNlVHlwZRITCgtyZXNvdXJjZV9pZBgCIAEoCRIpCgR0eXBlGAMgASgOMhsub3NhYy5wdWJsaWMudjEuQ29uc29sZVR5cGUSEQoJY2xpZW50X2lkGAQgASgJIhwKDENvbnNvbGVJbnB1dBIMCgRkYXRhGAEgASgMIi4KDUNvbnNvbGVSZXNpemUSDQoFd2lkdGgYASABKA0SDgoGaGVpZ2h0GAIgASgNIoUBChZDb25zb2xlQ29ubmVjdFJlc3BvbnNlEi8KBm91dHB1dBgBIAEoCzIdLm9zYWMucHVibGljLnYxLkNvbnNvbGVPdXRwdXRIABIvCgZzdGF0dXMYAiABKAsyHS5vc2FjLnB1YmxpYy52MS5Db25zb2xlU3RhdHVzSABCCQoHcGF5bG9hZCIdCg1Db25zb2xlT3V0cHV0EgwKBGRhdGEYASABKAwiVwoNQ29uc29sZVN0YXR1cxI1CgVzdGF0ZRgBIAEoDjImLm9zYWMucHVibGljLnYxLkNvbnNvbGVDb25uZWN0aW9uU3RhdGUSDwoHbWVzc2FnZRgCIAEoCSJqChdDb25zb2xlR2V0QWNjZXNzUmVxdWVzdBI6Cg1yZXNvdXJjZV90eXBlGAEgASgOMiMub3NhYy5wdWJsaWMudjEuQ29uc29sZVJlc291cmNlVHlwZRITCgtyZXNvdXJjZV9pZBgCIAEoCSJzChhDb25zb2xlR2V0QWNjZXNzUmVzcG9uc2USEQoJYXZhaWxhYmxlGAEgASgIEg4KBnJlYXNvbhgCIAEoCRI0Cg9zdXBwb3J0ZWRfdHlwZXMYAyADKA4yGy5vc2FjLnB1YmxpYy52MS5Db25zb2xlVHlwZSqIAQoTQ29uc29sZVJlc291cmNlVHlwZRIlCiFDT05TT0xFX1JFU09VUkNFX1RZUEVfVU5TUEVDSUZJRUQQABIqCiZDT05TT0xFX1JFU09VUkNFX1RZUEVfQ09NUFVURV9JTlNUQU5DRRABEh4KGkNPTlNPTEVfUkVTT1VSQ0VfVFlQRV9IT1NUEAIqWgoLQ29uc29sZVR5cGUSHAoYQ09OU09MRV9UWVBFX1VOU1BFQ0lGSUVEEAASFwoTQ09OU09MRV9UWVBFX1NFUklBTBABEhQKEENPTlNPTEVfVFlQRV9WTkMQAiriAQoWQ29uc29sZUNvbm5lY3Rpb25TdGF0ZRIoCiRDT05TT0xFX0NPTk5FQ1RJT05fU1RBVEVfVU5TUEVDSUZJRUQQABInCiNDT05TT0xFX0NPTk5FQ1RJT05fU1RBVEVfQ09OTkVDVElORxABEiYKIkNPTlNPTEVfQ09OTkVDVElPTl9TVEFURV9DT05ORUNURUQQAhIpCiVDT05TT0xFX0NPTk5FQ1RJT05fU1RBVEVfRElTQ09OTkVDVEVEEAMSIgoeQ09OU09MRV9DT05ORUNUSU9OX1NUQVRFX0VSUk9SEAQykgIKB0NvbnNvbGUSXAoHQ29ubmVjdBIlLm9zYWMucHVibGljLnYxLkNvbnNvbGVDb25uZWN0UmVxdWVzdBomLm9zYWMucHVibGljLnYxLkNvbnNvbGVDb25uZWN0UmVzcG9uc2UoATABEqgBCglHZXRBY2Nlc3MSJy5vc2FjLnB1YmxpYy52MS5Db25zb2xlR2V0QWNjZXNzUmVxdWVzdBooLm9zYWMucHVibGljLnYxLkNvbnNvbGVHZXRBY2Nlc3NSZXNwb25zZSJIgtPkkwJCEkAvYXBpL29zYWMvcHVibGljL3YxL2NvbnNvbGUve3Jlc291cmNlX3R5cGV9L3tyZXNvdXJjZV9pZH0vYWNjZXNzYgZwcm90bzM", [file_google_api_annotations]);
-
-/**
- * Client-to-server message for the bidirectional console stream.
- *
- * @generated from message osac.public.v1.ConsoleConnectRequest
- */
-export type ConsoleConnectRequest = Message<"osac.public.v1.ConsoleConnectRequest"> & {
-  /**
-   * @generated from oneof osac.public.v1.ConsoleConnectRequest.payload
-   */
-  payload: {
-    /**
-     * @generated from field: osac.public.v1.ConsoleConnectInit init = 1;
-     */
-    value: ConsoleConnectInit;
-    case: "init";
-  } | {
-    /**
-     * @generated from field: osac.public.v1.ConsoleInput input = 2;
-     */
-    value: ConsoleInput;
-    case: "input";
-  } | {
-    /**
-     * @generated from field: osac.public.v1.ConsoleResize resize = 3;
-     */
-    value: ConsoleResize;
-    case: "resize";
-  } | { case: undefined; value?: undefined };
-};
-
-/**
- * Describes the message osac.public.v1.ConsoleConnectRequest.
- * Use `create(ConsoleConnectRequestSchema)` to create a new message.
- */
-export const ConsoleConnectRequestSchema: GenMessage<ConsoleConnectRequest> = /*@__PURE__*/
-  messageDesc(file_osac_public_v1_console_service, 0);
-
-/**
- * Initialization message. Must be the first message sent by the client.
- *
- * @generated from message osac.public.v1.ConsoleConnectInit
- */
-export type ConsoleConnectInit = Message<"osac.public.v1.ConsoleConnectInit"> & {
-  /**
-   * @generated from field: osac.public.v1.ConsoleResourceType resource_type = 1;
-   */
-  resourceType: ConsoleResourceType;
-
-  /**
-   * @generated from field: string resource_id = 2;
-   */
-  resourceId: string;
-
-  /**
-   * @generated from field: osac.public.v1.ConsoleType type = 3;
-   */
-  type: ConsoleType;
-
-  /**
-   * Stable identifier for the CLI process. When a new connection arrives with
-   * a client_id matching an existing session from the same user, the server
-   * evicts the stale session and admits the new one. Empty means no eviction.
-   *
-   * @generated from field: string client_id = 4;
-   */
-  clientId: string;
-};
-
-/**
- * Describes the message osac.public.v1.ConsoleConnectInit.
- * Use `create(ConsoleConnectInitSchema)` to create a new message.
- */
-export const ConsoleConnectInitSchema: GenMessage<ConsoleConnectInit> = /*@__PURE__*/
-  messageDesc(file_osac_public_v1_console_service, 1);
+  fileDesc("CiRvc2FjL3B1YmxpYy92MS9jb25zb2xlX3NlcnZpY2UucHJvdG8SDm9zYWMucHVibGljLnYxIhwKDENvbnNvbGVJbnB1dBIMCgRkYXRhGAEgASgMIh0KDUNvbnNvbGVPdXRwdXQSDAoEZGF0YRgBIAEoDCJXCg1Db25zb2xlU3RhdHVzEjUKBXN0YXRlGAEgASgOMiYub3NhYy5wdWJsaWMudjEuQ29uc29sZUNvbm5lY3Rpb25TdGF0ZRIPCgdtZXNzYWdlGAIgASgJIukBCg5Db25zb2xlU2Vzc2lvbhI6Cg1yZXNvdXJjZV90eXBlGAEgASgOMiMub3NhYy5wdWJsaWMudjEuQ29uc29sZVJlc291cmNlVHlwZRITCgtyZXNvdXJjZV9pZBgCIAEoCRIpCgR0eXBlGAMgASgOMhsub3NhYy5wdWJsaWMudjEuQ29uc29sZVR5cGUSEQoJY2xpZW50X2lkGAQgASgJEhMKBnRpY2tldBgFIAEoCUID4EEDEjMKCmV4cGlyZXNfYXQYBiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgPgQQMiTgocQ29uc29sZVNlc3Npb25zQ3JlYXRlUmVxdWVzdBIuCgZvYmplY3QYASABKAsyHi5vc2FjLnB1YmxpYy52MS5Db25zb2xlU2Vzc2lvbiJPCh1Db25zb2xlU2Vzc2lvbnNDcmVhdGVSZXNwb25zZRIuCgZvYmplY3QYASABKAsyHi5vc2FjLnB1YmxpYy52MS5Db25zb2xlU2Vzc2lvbiqIAQoTQ29uc29sZVJlc291cmNlVHlwZRIlCiFDT05TT0xFX1JFU09VUkNFX1RZUEVfVU5TUEVDSUZJRUQQABIqCiZDT05TT0xFX1JFU09VUkNFX1RZUEVfQ09NUFVURV9JTlNUQU5DRRABEh4KGkNPTlNPTEVfUkVTT1VSQ0VfVFlQRV9IT1NUEAIqWgoLQ29uc29sZVR5cGUSHAoYQ09OU09MRV9UWVBFX1VOU1BFQ0lGSUVEEAASFwoTQ09OU09MRV9UWVBFX1NFUklBTBABEhQKEENPTlNPTEVfVFlQRV9WTkMQAiriAQoWQ29uc29sZUNvbm5lY3Rpb25TdGF0ZRIoCiRDT05TT0xFX0NPTk5FQ1RJT05fU1RBVEVfVU5TUEVDSUZJRUQQABInCiNDT05TT0xFX0NPTk5FQ1RJT05fU1RBVEVfQ09OTkVDVElORxABEiYKIkNPTlNPTEVfQ09OTkVDVElPTl9TVEFURV9DT05ORUNURUQQAhIpCiVDT05TT0xFX0NPTk5FQ1RJT05fU1RBVEVfRElTQ09OTkVDVEVEEAMSIgoeQ09OU09MRV9DT05ORUNUSU9OX1NUQVRFX0VSUk9SEAQytwEKD0NvbnNvbGVTZXNzaW9ucxKjAQoGQ3JlYXRlEiwub3NhYy5wdWJsaWMudjEuQ29uc29sZVNlc3Npb25zQ3JlYXRlUmVxdWVzdBotLm9zYWMucHVibGljLnYxLkNvbnNvbGVTZXNzaW9uc0NyZWF0ZVJlc3BvbnNlIjyC0+STAjY6Bm9iamVjdGIGb2JqZWN0IiQvYXBpL2Z1bGZpbGxtZW50L3YxL2NvbnNvbGVfc2Vzc2lvbnNiBnByb3RvMw", [file_google_api_annotations, file_google_api_field_behavior, file_google_protobuf_timestamp]);
 
 /**
  * Terminal input data from the client.
@@ -118,62 +46,7 @@ export type ConsoleInput = Message<"osac.public.v1.ConsoleInput"> & {
  * Use `create(ConsoleInputSchema)` to create a new message.
  */
 export const ConsoleInputSchema: GenMessage<ConsoleInput> = /*@__PURE__*/
-  messageDesc(file_osac_public_v1_console_service, 2);
-
-/**
- * Terminal resize event. No-op for serial consoles; forward-compatible for VNC.
- *
- * @generated from message osac.public.v1.ConsoleResize
- */
-export type ConsoleResize = Message<"osac.public.v1.ConsoleResize"> & {
-  /**
-   * @generated from field: uint32 width = 1;
-   */
-  width: number;
-
-  /**
-   * @generated from field: uint32 height = 2;
-   */
-  height: number;
-};
-
-/**
- * Describes the message osac.public.v1.ConsoleResize.
- * Use `create(ConsoleResizeSchema)` to create a new message.
- */
-export const ConsoleResizeSchema: GenMessage<ConsoleResize> = /*@__PURE__*/
-  messageDesc(file_osac_public_v1_console_service, 3);
-
-/**
- * Server-to-client message for the bidirectional console stream.
- *
- * @generated from message osac.public.v1.ConsoleConnectResponse
- */
-export type ConsoleConnectResponse = Message<"osac.public.v1.ConsoleConnectResponse"> & {
-  /**
-   * @generated from oneof osac.public.v1.ConsoleConnectResponse.payload
-   */
-  payload: {
-    /**
-     * @generated from field: osac.public.v1.ConsoleOutput output = 1;
-     */
-    value: ConsoleOutput;
-    case: "output";
-  } | {
-    /**
-     * @generated from field: osac.public.v1.ConsoleStatus status = 2;
-     */
-    value: ConsoleStatus;
-    case: "status";
-  } | { case: undefined; value?: undefined };
-};
-
-/**
- * Describes the message osac.public.v1.ConsoleConnectResponse.
- * Use `create(ConsoleConnectResponseSchema)` to create a new message.
- */
-export const ConsoleConnectResponseSchema: GenMessage<ConsoleConnectResponse> = /*@__PURE__*/
-  messageDesc(file_osac_public_v1_console_service, 4);
+  messageDesc(file_osac_public_v1_console_service, 0);
 
 /**
  * Terminal output data from the compute instance.
@@ -192,7 +65,7 @@ export type ConsoleOutput = Message<"osac.public.v1.ConsoleOutput"> & {
  * Use `create(ConsoleOutputSchema)` to create a new message.
  */
 export const ConsoleOutputSchema: GenMessage<ConsoleOutput> = /*@__PURE__*/
-  messageDesc(file_osac_public_v1_console_service, 5);
+  messageDesc(file_osac_public_v1_console_service, 1);
 
 /**
  * Status update from the server about the console connection.
@@ -216,14 +89,15 @@ export type ConsoleStatus = Message<"osac.public.v1.ConsoleStatus"> & {
  * Use `create(ConsoleStatusSchema)` to create a new message.
  */
 export const ConsoleStatusSchema: GenMessage<ConsoleStatus> = /*@__PURE__*/
-  messageDesc(file_osac_public_v1_console_service, 6);
+  messageDesc(file_osac_public_v1_console_service, 2);
 
 /**
- * Request to check console availability without connecting.
+ * ConsoleSession represents a single-use console access ticket. The ticket
+ * authorizes one connection to a resource's console via the console-proxy.
  *
- * @generated from message osac.public.v1.ConsoleGetAccessRequest
+ * @generated from message osac.public.v1.ConsoleSession
  */
-export type ConsoleGetAccessRequest = Message<"osac.public.v1.ConsoleGetAccessRequest"> & {
+export type ConsoleSession = Message<"osac.public.v1.ConsoleSession"> & {
   /**
    * @generated from field: osac.public.v1.ConsoleResourceType resource_type = 1;
    */
@@ -233,43 +107,77 @@ export type ConsoleGetAccessRequest = Message<"osac.public.v1.ConsoleGetAccessRe
    * @generated from field: string resource_id = 2;
    */
   resourceId: string;
+
+  /**
+   * @generated from field: osac.public.v1.ConsoleType type = 3;
+   */
+  type: ConsoleType;
+
+  /**
+   * Stable identifier for the CLI process. When a new connection arrives with
+   * a client_id matching an existing session from the same user, the server
+   * evicts the stale session and admits the new one. Empty means no eviction.
+   *
+   * @generated from field: string client_id = 4;
+   */
+  clientId: string;
+
+  /**
+   * Opaque encrypted ticket (nested JWE+JWS). Do not parse or log --
+   * it grants console access without further authentication.
+   *
+   * @generated from field: string ticket = 5;
+   */
+  ticket: string;
+
+  /**
+   * Authoritative expiry time for the ticket.
+   *
+   * @generated from field: google.protobuf.Timestamp expires_at = 6;
+   */
+  expiresAt?: Timestamp | undefined;
 };
 
 /**
- * Describes the message osac.public.v1.ConsoleGetAccessRequest.
- * Use `create(ConsoleGetAccessRequestSchema)` to create a new message.
+ * Describes the message osac.public.v1.ConsoleSession.
+ * Use `create(ConsoleSessionSchema)` to create a new message.
  */
-export const ConsoleGetAccessRequestSchema: GenMessage<ConsoleGetAccessRequest> = /*@__PURE__*/
-  messageDesc(file_osac_public_v1_console_service, 7);
+export const ConsoleSessionSchema: GenMessage<ConsoleSession> = /*@__PURE__*/
+  messageDesc(file_osac_public_v1_console_service, 3);
 
 /**
- * Response with console availability information.
- *
- * @generated from message osac.public.v1.ConsoleGetAccessResponse
+ * @generated from message osac.public.v1.ConsoleSessionsCreateRequest
  */
-export type ConsoleGetAccessResponse = Message<"osac.public.v1.ConsoleGetAccessResponse"> & {
+export type ConsoleSessionsCreateRequest = Message<"osac.public.v1.ConsoleSessionsCreateRequest"> & {
   /**
-   * @generated from field: bool available = 1;
+   * @generated from field: osac.public.v1.ConsoleSession object = 1;
    */
-  available: boolean;
-
-  /**
-   * @generated from field: string reason = 2;
-   */
-  reason: string;
-
-  /**
-   * @generated from field: repeated osac.public.v1.ConsoleType supported_types = 3;
-   */
-  supportedTypes: ConsoleType[];
+  object?: ConsoleSession | undefined;
 };
 
 /**
- * Describes the message osac.public.v1.ConsoleGetAccessResponse.
- * Use `create(ConsoleGetAccessResponseSchema)` to create a new message.
+ * Describes the message osac.public.v1.ConsoleSessionsCreateRequest.
+ * Use `create(ConsoleSessionsCreateRequestSchema)` to create a new message.
  */
-export const ConsoleGetAccessResponseSchema: GenMessage<ConsoleGetAccessResponse> = /*@__PURE__*/
-  messageDesc(file_osac_public_v1_console_service, 8);
+export const ConsoleSessionsCreateRequestSchema: GenMessage<ConsoleSessionsCreateRequest> = /*@__PURE__*/
+  messageDesc(file_osac_public_v1_console_service, 4);
+
+/**
+ * @generated from message osac.public.v1.ConsoleSessionsCreateResponse
+ */
+export type ConsoleSessionsCreateResponse = Message<"osac.public.v1.ConsoleSessionsCreateResponse"> & {
+  /**
+   * @generated from field: osac.public.v1.ConsoleSession object = 1;
+   */
+  object?: ConsoleSession | undefined;
+};
+
+/**
+ * Describes the message osac.public.v1.ConsoleSessionsCreateResponse.
+ * Use `create(ConsoleSessionsCreateResponseSchema)` to create a new message.
+ */
+export const ConsoleSessionsCreateResponseSchema: GenMessage<ConsoleSessionsCreateResponse> = /*@__PURE__*/
+  messageDesc(file_osac_public_v1_console_service, 5);
 
 /**
  * Type of resource to connect a console to.
@@ -366,34 +274,21 @@ export const ConsoleConnectionStateSchema: GenEnum<ConsoleConnectionState> = /*@
   enumDesc(file_osac_public_v1_console_service, 2);
 
 /**
- * Service for interactive console access to resources.
+ * Service for console session ticket management.
  *
- * @generated from service osac.public.v1.Console
+ * @generated from service osac.public.v1.ConsoleSessions
  */
-export const Console: GenService<{
+export const ConsoleSessions: GenService<{
   /**
-   * Bidirectional stream for console access. The first message sent by the
-   * client must be a ConsoleConnectInit. Subsequent messages carry terminal
-   * input (ConsoleInput) or resize events (ConsoleResize).
+   * Create a console session ticket. The ticket is an opaque encrypted token
+   * that authorizes a single console connection via the console-proxy service.
    *
-   * No google.api.http annotation: gRPC-Gateway does not support bidi streaming.
-   *
-   * @generated from rpc osac.public.v1.Console.Connect
+   * @generated from rpc osac.public.v1.ConsoleSessions.Create
    */
-  connect: {
-    methodKind: "bidi_streaming";
-    input: typeof ConsoleConnectRequestSchema;
-    output: typeof ConsoleConnectResponseSchema;
-  },
-  /**
-   * Check console availability for a resource without establishing a connection.
-   *
-   * @generated from rpc osac.public.v1.Console.GetAccess
-   */
-  getAccess: {
+  create: {
     methodKind: "unary";
-    input: typeof ConsoleGetAccessRequestSchema;
-    output: typeof ConsoleGetAccessResponseSchema;
+    input: typeof ConsoleSessionsCreateRequestSchema;
+    output: typeof ConsoleSessionsCreateResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_osac_public_v1_console_service, 0);

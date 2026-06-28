@@ -15,9 +15,11 @@
 // @generated from file osac/public/v1/public_ip_pool_type.proto (package osac.public.v1, syntax proto3)
 /* eslint-disable */
 
-import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
-import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
+import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_google_api_field_behavior } from "../../../google/api/field_behavior_pb";
+import type { IPFamily } from "./ip_family_type_pb";
+import { file_osac_public_v1_ip_family_type } from "./ip_family_type_pb";
 import type { Metadata } from "./metadata_type_pb";
 import { file_osac_public_v1_metadata_type } from "./metadata_type_pb";
 import type { Message } from "@bufbuild/protobuf";
@@ -26,7 +28,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/public/v1/public_ip_pool_type.proto.
  */
 export const file_osac_public_v1_public_ip_pool_type: GenFile = /*@__PURE__*/
-  fileDesc("Cihvc2FjL3B1YmxpYy92MS9wdWJsaWNfaXBfcG9vbF90eXBlLnByb3RvEg5vc2FjLnB1YmxpYy52MSKqAQoMUHVibGljSVBQb29sEgoKAmlkGAEgASgJEioKCG1ldGFkYXRhGAIgASgLMhgub3NhYy5wdWJsaWMudjEuTWV0YWRhdGESLgoEc3BlYxgDIAEoCzIgLm9zYWMucHVibGljLnYxLlB1YmxpY0lQUG9vbFNwZWMSMgoGc3RhdHVzGAQgASgLMiIub3NhYy5wdWJsaWMudjEuUHVibGljSVBQb29sU3RhdHVzIlgKEFB1YmxpY0lQUG9vbFNwZWMSEgoFY2lkcnMYAiADKAlCA+BBBRIwCglpcF9mYW1pbHkYAyABKA4yGC5vc2FjLnB1YmxpYy52MS5JUEZhbWlseUID4EEFIiwKElB1YmxpY0lQUG9vbFN0YXR1cxIWCglhdmFpbGFibGUYBiABKANCA+BBAypNCghJUEZhbWlseRIZChVJUF9GQU1JTFlfVU5TUEVDSUZJRUQQABISCg5JUF9GQU1JTFlfSVBWNBABEhIKDklQX0ZBTUlMWV9JUFY2EAJiBnByb3RvMw", [file_google_api_field_behavior, file_osac_public_v1_metadata_type]);
+  fileDesc("Cihvc2FjL3B1YmxpYy92MS9wdWJsaWNfaXBfcG9vbF90eXBlLnByb3RvEg5vc2FjLnB1YmxpYy52MSKqAQoMUHVibGljSVBQb29sEgoKAmlkGAEgASgJEioKCG1ldGFkYXRhGAIgASgLMhgub3NhYy5wdWJsaWMudjEuTWV0YWRhdGESLgoEc3BlYxgDIAEoCzIgLm9zYWMucHVibGljLnYxLlB1YmxpY0lQUG9vbFNwZWMSMgoGc3RhdHVzGAQgASgLMiIub3NhYy5wdWJsaWMudjEuUHVibGljSVBQb29sU3RhdHVzIkoKEFB1YmxpY0lQUG9vbFNwZWMSMAoJaXBfZmFtaWx5GAMgASgOMhgub3NhYy5wdWJsaWMudjEuSVBGYW1pbHlCA+BBBUoECAIQAyIsChJQdWJsaWNJUFBvb2xTdGF0dXMSFgoJYXZhaWxhYmxlGAYgASgDQgPgQQNiBnByb3RvMw", [file_google_api_field_behavior, file_osac_public_v1_ip_family_type, file_osac_public_v1_metadata_type]);
 
 /**
  * Represents a pool of public IP addresses available for allocation.
@@ -77,18 +79,9 @@ export const PublicIPPoolSchema: GenMessage<PublicIPPool> = /*@__PURE__*/
 /**
  * Defines the configuration of a PublicIPPool.
  *
- * Field 1 is reserved for future use.
- *
  * @generated from message osac.public.v1.PublicIPPoolSpec
  */
 export type PublicIPPoolSpec = Message<"osac.public.v1.PublicIPPoolSpec"> & {
-  /**
-   * CIDR ranges for this pool. Immutable after creation.
-   *
-   * @generated from field: repeated string cidrs = 2;
-   */
-  cidrs: string[];
-
   /**
    * IP address family for this pool. Immutable after creation.
    *
@@ -124,38 +117,4 @@ export type PublicIPPoolStatus = Message<"osac.public.v1.PublicIPPoolStatus"> & 
  */
 export const PublicIPPoolStatusSchema: GenMessage<PublicIPPoolStatus> = /*@__PURE__*/
   messageDesc(file_osac_public_v1_public_ip_pool_type, 2);
-
-/**
- * IP address family for a PublicIPPool.
- *
- * @generated from enum osac.public.v1.IPFamily
- */
-export enum IPFamily {
-  /**
-   * IP family is unknown or has not been specified.
-   *
-   * @generated from enum value: IP_FAMILY_UNSPECIFIED = 0;
-   */
-  IP_FAMILY_UNSPECIFIED = 0,
-
-  /**
-   * IPv4 address family.
-   *
-   * @generated from enum value: IP_FAMILY_IPV4 = 1;
-   */
-  IP_FAMILY_IPV4 = 1,
-
-  /**
-   * IPv6 address family.
-   *
-   * @generated from enum value: IP_FAMILY_IPV6 = 2;
-   */
-  IP_FAMILY_IPV6 = 2,
-}
-
-/**
- * Describes the enum osac.public.v1.IPFamily.
- */
-export const IPFamilySchema: GenEnum<IPFamily> = /*@__PURE__*/
-  enumDesc(file_osac_public_v1_public_ip_pool_type, 0);
 

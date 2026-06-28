@@ -28,6 +28,8 @@ export const file_osac_public_v1_organization_type: GenFile = /*@__PURE__*/
   fileDesc("CiZvc2FjL3B1YmxpYy92MS9vcmdhbml6YXRpb25fdHlwZS5wcm90bxIOb3NhYy5wdWJsaWMudjEidgoMT3JnYW5pemF0aW9uEgoKAmlkGAEgASgJEioKCG1ldGFkYXRhGAIgASgLMhgub3NhYy5wdWJsaWMudjEuTWV0YWRhdGESLgoEc3BlYxgDIAEoCzIgLm9zYWMucHVibGljLnYxLk9yZ2FuaXphdGlvblNwZWMiEgoQT3JnYW5pemF0aW9uU3BlY2IGcHJvdG8z", [file_osac_public_v1_metadata_type]);
 
 /**
+ * Organization is superseded by Tenant.
+ *
  * An organization groups tenants and resources for a customer or business unit.
  *
  * @generated from message osac.public.v1.Organization
@@ -59,7 +61,7 @@ export const OrganizationSchema: GenMessage<Organization> = /*@__PURE__*/
   messageDesc(file_osac_public_v1_organization_type, 0);
 
 /**
- * Reserved for future organization configuration fields.
+ * OrganizationSpec is superseded by TenantSpec.
  *
  * @generated from message osac.public.v1.OrganizationSpec
  */
