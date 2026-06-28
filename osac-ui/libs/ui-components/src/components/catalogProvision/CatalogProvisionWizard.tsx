@@ -2,7 +2,7 @@
  * flow: catalog-provision-wizard
  * steps: catalog → general → configuration → networking → review
  */
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
   Alert,
   Button,
@@ -20,7 +20,7 @@ import {
   WizardStep,
   useWizardContext,
 } from '@patternfly/react-core';
-import { FormikProvider, useFormik, type FormikErrors, type FormikProps } from 'formik';
+import { FormikProvider, useFormik, type FormikProps } from 'formik';
 
 import type { ComputeInstanceCatalogItem } from '@osac/types';
 
@@ -32,7 +32,6 @@ import { useComputeInstanceAdapter } from './wizard/adapters/computeInstanceAdap
 import type { CatalogProvisionAdapter } from './wizard/adapters/types';
 import { STEP_LABEL_KEYS, type WizardStepId, getWizardOrderedSteps } from './wizard/stepIds';
 import { CatalogStep, GeneralStep, ReviewStep } from './wizard/steps/WizardSteps';
-import { validateWizardStepFields, applyStepValidationState } from './wizard/validateStep';
 import type { BuildComputeInstanceCreateBodyInput } from '../../api/v1/compute-instance-wire';
 
 const hasWizardUnsavedProgress = (values: { catalogItemId?: string }): boolean =>
@@ -52,19 +51,19 @@ interface Props {
 }
 
 interface WizardFooterProps {
-  adapter: CatalogProvisionAdapter<
-    ComputeInstanceCatalogItem,
-    ComputeInstanceWizardValues,
-    BuildComputeInstanceCreateBodyInput
-  >;
   formik: FormikProps<ComputeInstanceWizardValues>;
   catalogItem: ComputeInstanceCatalogItem | null;
-  orderedSteps: readonly WizardStepId[];
+  setActiveStepId: (stepId: WizardStepId) => void;
   setProvisionError: (message: string | undefined) => void;
   setValidationAlert: (visible: boolean) => void;
   pending: boolean;
   setPending: (pending: boolean) => void;
   onProvision: Props['onProvision'];
+  buildCreatePayload: CatalogProvisionAdapter<
+    ComputeInstanceCatalogItem,
+    ComputeInstanceWizardValues,
+    BuildComputeInstanceCreateBodyInput
+  >['buildCreatePayload'];
   close: (options?: { notifyClosed?: boolean }) => void;
   requestClose: () => void;
 }
@@ -73,21 +72,26 @@ const isWizardStepId = (stepId: string | number | undefined): stepId is WizardSt
   typeof stepId === 'string' && Object.hasOwn(STEP_LABEL_KEYS, stepId);
 
 const CatalogProvisionWizardFooter = ({
-  adapter,
   formik,
   catalogItem,
-  orderedSteps,
+  setActiveStepId,
   setProvisionError,
   setValidationAlert,
   pending,
   setPending,
   onProvision,
+  buildCreatePayload,
   close,
   requestClose,
 }: WizardFooterProps) => {
   const { t } = useTranslation();
   const { activeStep, goToStepByIndex } = useWizardContext();
   const activeStepId = isWizardStepId(activeStep?.id) ? activeStep.id : 'catalog';
+
+  // Keep Formik's validationSchema in sync with the visible step before blur/Next run.
+  useLayoutEffect(() => {
+    setActiveStepId(activeStepId);
+  }, [activeStepId, setActiveStepId]);
   const stepIndex = activeStep?.index ?? 1;
   const isFirst = stepIndex <= 1;
   const isReview = activeStepId === 'review';
@@ -103,28 +107,16 @@ const CatalogProvisionWizardFooter = ({
 
   const { values } = formik;
 
-  const validateCurrentStep = useCallback(() => {
-    const schema = adapter.getWizardSchema(catalogItem);
-    const fieldPaths = adapter.getStepFieldPaths(activeStepId);
-    const errors = validateWizardStepFields(
-      schema,
-      values as unknown as Record<string, unknown>,
-      fieldPaths,
-    );
-    if (!applyStepValidationState(formik, fieldPaths, errors as FormikErrors<ComputeInstanceWizardValues>)) {
+  // validateForm() uses the step-scoped validationSchema wired in CatalogProvisionWizardInner.
+  const validateCurrentStep = useCallback(async () => {
+    const errors = await formik.validateForm();
+    if (Object.keys(errors).length > 0) {
       setValidationAlert(true);
       return false;
     }
     setValidationAlert(false);
     return true;
-  }, [
-    activeStepId,
-    adapter,
-    catalogItem,
-    formik,
-    setValidationAlert,
-    values,
-  ]);
+  }, [formik, setValidationAlert]);
 
   const handleNextOrCreate = useCallback(() => {
     if (pending) {
@@ -132,25 +124,6 @@ const CatalogProvisionWizardFooter = ({
     }
 
     if (isReview) {
-      const wizardSchema = adapter.getWizardSchema(catalogItem);
-      for (const stepId of orderedSteps) {
-        if (stepId === 'review') {
-          continue;
-        }
-        const fieldPaths = adapter.getStepFieldPaths(stepId);
-        const errors = validateWizardStepFields(
-          wizardSchema,
-          values as unknown as Record<string, unknown>,
-          fieldPaths,
-        );
-        if (!applyStepValidationState(formik, fieldPaths, errors as FormikErrors<ComputeInstanceWizardValues>)) {
-          const targetIndex = orderedSteps.indexOf(stepId) + 1;
-          goToStepByIndex(targetIndex);
-          setValidationAlert(true);
-          return;
-        }
-      }
-
       if (!catalogItem) {
         setProvisionError(t('catalogProvision.validation.catalogItemRequired'));
         return;
@@ -158,7 +131,7 @@ const CatalogProvisionWizardFooter = ({
 
       setPending(true);
       setProvisionError(undefined);
-      const payload = adapter.buildCreatePayload(values, catalogItem);
+      const payload = buildCreatePayload(values, catalogItem);
       void Promise.resolve(onProvision(payload))
         .then(() => {
           close({ notifyClosed: false });
@@ -172,29 +145,27 @@ const CatalogProvisionWizardFooter = ({
       return;
     }
 
-    if (!validateCurrentStep()) {
-      return;
-    }
-
-    setProvisionError(undefined);
-    goToStepByIndex(stepIndex + 1);
+    void validateCurrentStep().then((isValid) => {
+      if (!isValid) {
+        return;
+      }
+      setProvisionError(undefined);
+      goToStepByIndex(stepIndex + 1);
+    });
   }, [
-    adapter,
+    buildCreatePayload,
     catalogItem,
     close,
     goToStepByIndex,
     isReview,
     onProvision,
-    orderedSteps,
     pending,
     setPending,
     setProvisionError,
-    setValidationAlert,
     stepIndex,
     t,
     validateCurrentStep,
     values,
-    formik,
   ]);
 
   return (
@@ -306,10 +277,40 @@ const CatalogProvisionWizardInner = ({
   const { t } = useTranslation();
   const orderedSteps = useMemo(() => getWizardOrderedSteps(), []);
   const [wizardResetKey, setWizardResetKey] = useState(0);
+  const [activeStepId, setActiveStepId] = useState<WizardStepId>('catalog');
+  const [schemaCatalogItemId, setSchemaCatalogItemId] = useState(initialValues.catalogItemId);
   const [provisionError, setProvisionError] = useState<string | undefined>();
   const [validationAlert, setValidationAlert] = useState(false);
   const [pending, setPending] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const { data: catalogItems = [] } = adapter.useCatalogItems();
+
+  useEffect(() => {
+    setActiveStepId('catalog');
+  }, [wizardResetKey]);
+
+  const selectedCatalogItem = schemaCatalogItemId
+    ? (catalogItems.find((item) => item.id === schemaCatalogItemId) ?? null)
+    : null;
+
+  // Swapped when the wizard step changes (see footer useLayoutEffect). Step-scoped
+  // so validateOnBlur and Next's validateForm() never validate fields from other steps.
+  const validationSchema = useMemo(
+    () => adapter.getStepValidationSchema(selectedCatalogItem, activeStepId),
+    [adapter, activeStepId, selectedCatalogItem],
+  );
+
+  const formik = useFormik<ComputeInstanceWizardValues>({
+    initialValues,
+    validationSchema,
+    validateOnBlur: true,
+    validateOnChange: false,
+    onSubmit: () => undefined,
+  });
+
+  useEffect(() => {
+    setSchemaCatalogItemId(formik.values.catalogItemId);
+  }, [formik.values.catalogItemId]);
 
   const resetLocal = useCallback(() => {
     setProvisionError(undefined);
@@ -328,11 +329,6 @@ const CatalogProvisionWizardInner = ({
     [onClosed, resetLocal],
   );
 
-  const formik = useFormik<ComputeInstanceWizardValues>({
-    initialValues,
-    onSubmit: () => undefined,
-  });
-
   return (
     <FormikProvider value={formik}>
       <CatalogProvisionWizardForm
@@ -341,6 +337,7 @@ const CatalogProvisionWizardInner = ({
         initialCatalogItemId={initialCatalogItemId}
         orderedSteps={orderedSteps}
         wizardResetKey={wizardResetKey}
+        setActiveStepId={setActiveStepId}
         provisionError={provisionError}
         setProvisionError={setProvisionError}
         validationAlert={validationAlert}
@@ -368,6 +365,7 @@ interface FormProps {
   initialCatalogItemId?: string;
   orderedSteps: readonly WizardStepId[];
   wizardResetKey: number;
+  setActiveStepId: (stepId: WizardStepId) => void;
   provisionError?: string;
   setProvisionError: (message: string | undefined) => void;
   validationAlert: boolean;
@@ -388,6 +386,7 @@ const CatalogProvisionWizardForm = ({
   initialCatalogItemId,
   orderedSteps,
   wizardResetKey,
+  setActiveStepId,
   provisionError,
   setProvisionError,
   validationAlert,
@@ -493,15 +492,15 @@ const CatalogProvisionWizardForm = ({
           footer={
           <WizardFooterWrapper>
             <CatalogProvisionWizardFooter
-              adapter={adapter}
               formik={formik}
               catalogItem={selectedCatalogItem}
-              orderedSteps={orderedSteps}
+              setActiveStepId={setActiveStepId}
               setProvisionError={setProvisionError}
               setValidationAlert={setValidationAlert}
               pending={pending}
               setPending={setPending}
               onProvision={onProvision}
+              buildCreatePayload={adapter.buildCreatePayload}
               close={close}
               requestClose={requestClose}
             />

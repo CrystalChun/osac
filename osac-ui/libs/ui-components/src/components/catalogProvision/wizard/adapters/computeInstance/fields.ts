@@ -32,21 +32,3 @@ export const CONFIGURATION_CATALOG_PATHS = [
   'spec.boot_disk.size_gib',
 ] as const;
 
-import type { WizardStepId } from '../../stepIds';
-
-export const WIZARD_STEP_FIELD_PATHS: Record<WizardStepId, string[]> = {
-  catalog: ['catalogItemId'],
-  general: ['metadata.name', 'spec.sshKey'],
-  configuration: [
-    'spec.image.sourceRef',
-    'spec.instanceType',
-    'spec.userData',
-    'spec.bootDisk.sizeGib',
-  ],
-  networking: [
-    'spec.networking.virtualNetworkId',
-    'spec.networking.subnetId',
-    'spec.networking.securityGroupIds',
-  ],
-  review: [],
-};

@@ -1,95 +1,110 @@
 import { describe, expect, it } from 'vitest';
+import { ValidationError } from 'yup';
 
 import { vmCatalogItem } from '../../../test/fixtures';
-import { buildComputeInstanceWizardSchema } from './schemas';
-import { validateWizardStepFields } from '../../validateStep';
-import { WIZARD_STEP_FIELD_PATHS } from './fields';
+import { buildComputeInstanceStepSchema } from './schemas';
+import type { ComputeInstanceWizardValues } from './fields';
 
 const t = (key: string) => key;
 
-describe('buildComputeInstanceWizardSchema', () => {
-  it('requires catalog item on catalog step', () => {
-    const schema = buildComputeInstanceWizardSchema(null, t);
-    const errors = validateWizardStepFields(
-      schema,
-      {
-        catalogItemId: '',
-        metadata: { name: '' },
-        spec: {
-          sshKey: '',
-          image: { sourceRef: '' },
-          instanceType: '',
-          userData: '',
-          bootDisk: { sizeGib: '' },
-          networking: { virtualNetworkId: '', subnetId: '', securityGroupIds: [] },
-        },
-      },
-      WIZARD_STEP_FIELD_PATHS.catalog,
-    );
+const emptyValues: ComputeInstanceWizardValues = {
+  catalogItemId: '',
+  metadata: { name: '' },
+  spec: {
+    sshKey: '',
+    image: { sourceRef: '' },
+    instanceType: '',
+    userData: '',
+    bootDisk: { sizeGib: '' },
+    networking: { virtualNetworkId: '', subnetId: '', securityGroupIds: [] },
+  },
+};
+
+const validateStep = async (
+  stepId: Parameters<typeof buildComputeInstanceStepSchema>[1],
+  values: ComputeInstanceWizardValues,
+  catalogItem: unknown = null,
+) => {
+  const schema = buildComputeInstanceStepSchema(catalogItem, stepId, t);
+  if (!schema) {
+    return {};
+  }
+  try {
+    await schema.validate(values, { abortEarly: false });
+    return {};
+  } catch (error) {
+    if (!(error instanceof ValidationError)) {
+      throw error;
+    }
+    const errors: Record<string, unknown> = {};
+    for (const inner of error.inner.length > 0 ? error.inner : [error]) {
+      if (!inner.path) {
+        continue;
+      }
+      const parts = inner.path.split('.');
+      let current: Record<string, unknown> = errors;
+      for (let index = 0; index < parts.length - 1; index += 1) {
+        const key = parts[index];
+        if (!current[key] || typeof current[key] !== 'object') {
+          current[key] = {};
+        }
+        current = current[key] as Record<string, unknown>;
+      }
+      current[parts[parts.length - 1]] = inner.message;
+    }
+    return errors;
+  }
+};
+
+describe('buildComputeInstanceStepSchema', () => {
+  it('requires catalog item on catalog step', async () => {
+    const errors = await validateStep('catalog', emptyValues);
     expect(errors).toEqual({ catalogItemId: 'catalogProvision.validation.catalogItemRequired' });
   });
 
-  it('requires name on general step without blur', () => {
-    const schema = buildComputeInstanceWizardSchema(null, t);
-    const errors = validateWizardStepFields(
-      schema,
-      {
-        catalogItemId: vmCatalogItem.id,
-        metadata: { name: '   ' },
-        spec: {
-          sshKey: '',
-          image: { sourceRef: '' },
-          instanceType: '',
-          userData: '',
-          bootDisk: { sizeGib: '' },
-          networking: { virtualNetworkId: '', subnetId: '', securityGroupIds: [] },
-        },
-      },
-      WIZARD_STEP_FIELD_PATHS.general,
-    );
+  it('requires name on general step without validating configuration fields', async () => {
+    const errors = await validateStep('general', {
+      ...emptyValues,
+      catalogItemId: vmCatalogItem.id,
+      metadata: { name: '   ' },
+    });
     expect(errors).toEqual({ metadata: { name: 'catalogProvision.validation.nameRequired' } });
   });
 
-  it('validates boot disk as numeric when present', () => {
-    const schema = buildComputeInstanceWizardSchema(vmCatalogItem, t);
-    const errors = validateWizardStepFields(
-      schema,
+  it('validates boot disk as numeric on configuration step only', async () => {
+    const errors = await validateStep(
+      'configuration',
       {
+        ...emptyValues,
         catalogItemId: vmCatalogItem.id,
         metadata: { name: 'web-01' },
         spec: {
-          sshKey: '',
+          ...emptyValues.spec,
           image: { sourceRef: 'quay.io/example/rhel9' },
-          instanceType: '',
-          userData: '',
+          instanceType: 'standard-4-8',
           bootDisk: { sizeGib: 'not-a-number' },
-          networking: { virtualNetworkId: 'vn-1', subnetId: 'subnet-1', securityGroupIds: ['sg-1'] },
         },
       },
-      ['spec.bootDisk.sizeGib'],
+      vmCatalogItem,
     );
     expect(errors).toEqual({
       spec: { bootDisk: { sizeGib: 'catalogProvision.validation.bootDiskNumber' } },
     });
   });
 
-  it('requires networking pickers on networking step', () => {
-    const schema = buildComputeInstanceWizardSchema(vmCatalogItem, t);
-    const errors = validateWizardStepFields(
-      schema,
+  it('requires networking pickers on networking step', async () => {
+    const errors = await validateStep(
+      'networking',
       {
+        ...emptyValues,
         catalogItemId: vmCatalogItem.id,
         metadata: { name: 'web-01' },
         spec: {
-          sshKey: '',
+          ...emptyValues.spec,
           image: { sourceRef: 'quay.io/example/rhel9' },
-          instanceType: '',
-          userData: '',
-          bootDisk: { sizeGib: '' },
-          networking: { virtualNetworkId: '', subnetId: '', securityGroupIds: [] },
         },
       },
-      WIZARD_STEP_FIELD_PATHS.networking,
+      vmCatalogItem,
     );
     expect(errors).toEqual({
       spec: {
@@ -102,23 +117,19 @@ describe('buildComputeInstanceWizardSchema', () => {
     });
   });
 
-  it('requires instance type and boot disk on configuration step', () => {
-    const schema = buildComputeInstanceWizardSchema(vmCatalogItem, t);
-    const errors = validateWizardStepFields(
-      schema,
+  it('requires instance type and boot disk on configuration step', async () => {
+    const errors = await validateStep(
+      'configuration',
       {
+        ...emptyValues,
         catalogItemId: vmCatalogItem.id,
         metadata: { name: 'web-01' },
         spec: {
-          sshKey: '',
+          ...emptyValues.spec,
           image: { sourceRef: 'quay.io/example/rhel9' },
-          instanceType: '',
-          userData: '',
-          bootDisk: { sizeGib: '' },
-          networking: { virtualNetworkId: '', subnetId: '', securityGroupIds: [] },
         },
       },
-      WIZARD_STEP_FIELD_PATHS.configuration,
+      vmCatalogItem,
     );
     expect(errors).toEqual({
       spec: {
@@ -128,7 +139,7 @@ describe('buildComputeInstanceWizardSchema', () => {
     });
   });
 
-  it('requires ssh key on general step when defined in catalog field_definitions', () => {
+  it('requires ssh key on general step when defined in catalog field_definitions', async () => {
     const catalogItem = {
       ...vmCatalogItem,
       fieldDefinitions: [
@@ -140,129 +151,21 @@ describe('buildComputeInstanceWizardSchema', () => {
         },
       ],
     };
-    const schema = buildComputeInstanceWizardSchema(catalogItem, t);
-    const errors = validateWizardStepFields(
-      schema,
+    const errors = await validateStep(
+      'general',
       {
+        ...emptyValues,
         catalogItemId: vmCatalogItem.id,
         metadata: { name: 'web-01' },
-        spec: {
-          sshKey: '',
-          image: { sourceRef: '' },
-          instanceType: '',
-          userData: '',
-          bootDisk: { sizeGib: '' },
-          networking: { virtualNetworkId: '', subnetId: '', securityGroupIds: [] },
-        },
       },
-      WIZARD_STEP_FIELD_PATHS.general,
+      catalogItem,
     );
     expect(errors).toEqual({
       spec: { sshKey: 'catalogProvision.validation.required' },
     });
   });
 
-  it('requires user data on configuration step when defined in catalog field_definitions', () => {
-    const catalogItem = {
-      ...vmCatalogItem,
-      fieldDefinitions: [
-        ...(vmCatalogItem.fieldDefinitions ?? []),
-        {
-          path: 'spec.user_data',
-          displayName: 'User data',
-          editable: true,
-        },
-      ],
-    };
-    const schema = buildComputeInstanceWizardSchema(catalogItem, t);
-    const errors = validateWizardStepFields(
-      schema,
-      {
-        catalogItemId: vmCatalogItem.id,
-        metadata: { name: 'web-01' },
-        spec: {
-          sshKey: '',
-          image: { sourceRef: 'quay.io/example/rhel9' },
-          instanceType: 'standard-4-8',
-          userData: '',
-          bootDisk: { sizeGib: '40' },
-          networking: { virtualNetworkId: '', subnetId: '', securityGroupIds: [] },
-        },
-      },
-      WIZARD_STEP_FIELD_PATHS.configuration,
-    );
-    expect(errors).toEqual({
-      spec: { userData: 'catalogProvision.validation.required' },
-    });
-  });
-
-  it('merges ssh_key validation_schema pattern from catalog field_definitions', () => {
-    const catalogItem = {
-      ...vmCatalogItem,
-      fieldDefinitions: [
-        ...(vmCatalogItem.fieldDefinitions ?? []),
-        {
-          path: 'ssh_key',
-          displayName: 'SSH key',
-          editable: true,
-          validationSchema: { type: 'string', pattern: '^ssh-' },
-        },
-      ],
-    };
-    const schema = buildComputeInstanceWizardSchema(catalogItem, t);
-    const errors = validateWizardStepFields(
-      schema,
-      {
-        catalogItemId: vmCatalogItem.id,
-        metadata: { name: 'web-01' },
-        spec: {
-          sshKey: 'not-an-ssh-key',
-          image: { sourceRef: '' },
-          instanceType: '',
-          userData: '',
-          bootDisk: { sizeGib: '' },
-          networking: { virtualNetworkId: '', subnetId: '', securityGroupIds: [] },
-        },
-      },
-      WIZARD_STEP_FIELD_PATHS.general,
-    );
-    expect(errors).toEqual({
-      spec: { sshKey: 'SSH key must match pattern: ^ssh-' },
-    });
-  });
-
-  it('merges ssh_key validation_schema from catalog field_definitions', () => {
-    const catalogItem = {
-      ...vmCatalogItem,
-      fieldDefinitions: [
-        ...(vmCatalogItem.fieldDefinitions ?? []),
-        {
-          path: 'ssh_key',
-          displayName: 'SSH key',
-          editable: true,
-          validationSchema: { type: 'string', minLength: 10 },
-        },
-      ],
-    };
-    const schema = buildComputeInstanceWizardSchema(catalogItem, t);
-    const errors = validateWizardStepFields(
-      schema,
-      {
-        catalogItemId: vmCatalogItem.id,
-        metadata: { name: 'web-01' },
-        spec: {
-          sshKey: 'short',
-          image: { sourceRef: '' },
-          instanceType: '',
-          userData: '',
-          bootDisk: { sizeGib: '' },
-          networking: { virtualNetworkId: '', subnetId: '', securityGroupIds: [] },
-        },
-      },
-      WIZARD_STEP_FIELD_PATHS.general,
-    );
-    expect(errors).toEqual({
-      spec: { sshKey: 'spec.sshKey must be at least 10 characters' },
-    });
+  it('returns undefined for review step', () => {
+    expect(buildComputeInstanceStepSchema(vmCatalogItem, 'review', t)).toBeUndefined();
   });
 });

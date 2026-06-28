@@ -6,10 +6,9 @@ import type { ComputeInstanceCatalogItem } from '@osac/types';
 import { applyVmCatalogConfigurationDefaults } from './computeInstance/applyCatalogDefaults';
 import { applyVmCatalogGeneralDefaults } from './computeInstance/applyCatalogGeneralDefaults';
 import type { ComputeInstanceWizardValues } from './computeInstance/fields';
-import { WIZARD_STEP_FIELD_PATHS } from './computeInstance/fields';
 import { buildVmGeneralFields } from './computeInstance/generalFields';
 import { buildComputeInstanceCreatePayload, createEmptyComputeInstanceValues } from './computeInstance/payload';
-import { buildComputeInstanceWizardSchema } from './computeInstance/schemas';
+import { buildComputeInstanceStepSchema } from './computeInstance/schemas';
 import { VmConfigurationStep } from './computeInstance/VmConfigurationStep';
 import { VmNetworkingStep } from './computeInstance/VmNetworkingStep';
 import { useComputeInstanceCatalogItems } from '../../../../api/v1/compute-instance-catalog-item';
@@ -136,8 +135,8 @@ export const useComputeInstanceAdapter = (): CatalogProvisionAdapter<
       ConfigurationStep: VmConfigurationStep,
       NetworkingStep: VmNetworkingStep,
       resolveGeneralFields: (catalogItem) => buildVmGeneralFields(catalogItem, t),
-      getWizardSchema: (catalogItem) => buildComputeInstanceWizardSchema(catalogItem, t),
-      getStepFieldPaths: (stepId) => WIZARD_STEP_FIELD_PATHS[stepId] ?? [],
+      getStepValidationSchema: (catalogItem, stepId) =>
+        buildComputeInstanceStepSchema(catalogItem, stepId, t),
       getReviewSections: (values, catalogItem, context) =>
         buildReviewSections(values, catalogItem, t, context),
       onCatalogItemSelected: (item, helpers) => {

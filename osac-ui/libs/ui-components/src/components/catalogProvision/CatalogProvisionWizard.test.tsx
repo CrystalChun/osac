@@ -198,7 +198,7 @@ describe('CatalogProvisionWizard', () => {
     expect(nameError).toHaveTextContent('Name is required');
     expect(nameInput).toHaveAttribute('aria-describedby', 'metadata-name-helper-error');
 
-    expect(screen.getByRole('heading', { name: 'General' })).toBeInTheDocument();
+    expect(screen.getByLabelText(/^Name/)).toBeInTheDocument();
     expect(screen.queryByLabelText(/VM image/)).not.toBeInTheDocument();
   });
 

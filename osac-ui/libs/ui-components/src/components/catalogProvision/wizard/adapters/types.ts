@@ -46,8 +46,10 @@ export interface CatalogProvisionAdapter<
   ConfigurationStep: ComponentType<{ catalogItem: TItem | null }>;
   NetworkingStep: ComponentType<{ catalogItem: TItem | null }>;
   resolveGeneralFields: (catalogItem: TItem | null) => GeneralFieldDescriptor[];
-  getWizardSchema: (catalogItem: TItem | null) => AnyObjectSchema | undefined;
-  getStepFieldPaths: (stepId: WizardStepId) => string[];
+  getStepValidationSchema: (
+    catalogItem: TItem | null,
+    stepId: WizardStepId,
+  ) => AnyObjectSchema | undefined;
   getReviewSections: (values: TValues, catalogItem: TItem, context?: ReviewContext) => ReviewSection[];
   onCatalogItemSelected?: (
     item: TItem,

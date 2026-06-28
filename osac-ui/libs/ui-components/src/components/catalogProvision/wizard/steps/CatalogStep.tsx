@@ -26,7 +26,9 @@ import {
 } from '../../../catalog/catalogItemDisplay';
 import type { ComputeInstanceWizardValues } from '../adapters/computeInstance/fields';
 import type { CatalogProvisionAdapter } from '../adapters/types';
-import { CatalogFieldHelper } from '../CatalogFieldHelper';
+import { useShowFieldValidationErrors } from '../../../Form/FieldValidationContext';
+import { getVisibleFieldError } from '../../../Form/fieldError';
+import { FormFieldHelper } from '../../../Form/FormFieldHelper';
 
 interface Props {
   adapter: CatalogProvisionAdapter<
@@ -40,7 +42,7 @@ export const CatalogStep = ({ adapter }: Props) => {
   const { t } = useTranslation();
   const [search, setSearch] = useState('');
   const formik = useFormikContext<ComputeInstanceWizardValues>();
-  const { values, errors, touched } = formik;
+  const { values } = formik;
 
   const {
     data: catalogItems = [],
@@ -58,8 +60,11 @@ export const CatalogStep = ({ adapter }: Props) => {
 
   const count = filtered.length;
   const countPhrase = t('catalogProvision.catalog.count', { count });
-  const catalogItemError =
-    touched.catalogItemId && errors.catalogItemId ? String(errors.catalogItemId) : undefined;
+  const showValidationErrors = useShowFieldValidationErrors();
+  const catalogItemError = getVisibleFieldError(
+    formik.getFieldMeta('catalogItemId'),
+    showValidationErrors,
+  );
 
   const handleSelect = async (item: ComputeInstanceCatalogItem) => {
     await adapter.onCatalogItemSelected?.(item, formik);
@@ -90,7 +95,7 @@ export const CatalogStep = ({ adapter }: Props) => {
       </StackItem>
       {catalogItemError ? (
         <StackItem>
-          <CatalogFieldHelper error={catalogItemError} fieldId="catalog-item-selection" />
+          <FormFieldHelper error={catalogItemError} fieldId="catalog-item-selection" />
         </StackItem>
       ) : null}
       {catalogError ? (
