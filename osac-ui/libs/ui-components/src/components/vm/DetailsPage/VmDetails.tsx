@@ -112,7 +112,7 @@ export const VmDetails = ({ vm }: Props) => {
 
       <PageSection hasBodyWrapper={false}>
         <Grid hasGutter>
-          <GridItem md={8}>
+          <GridItem md={6}>
             <TabContent
               eventKey={0}
               id={VM_DETAIL_OVERVIEW_TAB_ID}
@@ -219,7 +219,7 @@ export const VmDetails = ({ vm }: Props) => {
             </TabContent>
           </GridItem>
 
-          <GridItem md={4}>
+          <GridItem md={6}>
             <Card isFullHeight>
               <CardTitle>Conditions</CardTitle>
               <CardBody>
