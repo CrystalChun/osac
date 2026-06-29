@@ -18,6 +18,7 @@ import ServerIcon from '@patternfly/react-icons/dist/esm/icons/server-icon';
 import type { Cluster } from '@osac/types';
 
 import { useTranslation } from '../../../hooks/useTranslation';
+import { displayValue } from '../../../utils/detailFormatters';
 
 type SummaryIcon = ComponentType<SVGProps<SVGSVGElement>>;
 
@@ -47,7 +48,7 @@ interface ClusterDetailsSummaryProps {
   cluster: Cluster;
 }
 
-export const ClusterDetailsSummary = ({ cluster }: ClusterDetailsSummaryProps) => {
+const ClusterDetailsSummary = ({ cluster }: ClusterDetailsSummaryProps) => {
   const { t } = useTranslation();
 
   // Calculate total worker nodes across all node sets
@@ -62,10 +63,10 @@ export const ClusterDetailsSummary = ({ cluster }: ClusterDetailsSummaryProps) =
     0,
   );
 
-  const podCidr = cluster.spec?.network?.podCidr ?? '—';
-  const serviceCidr = cluster.spec?.network?.serviceCidr ?? '—';
-  const apiUrl = cluster.status?.apiUrl ?? '—';
-  const consoleUrl = cluster.status?.consoleUrl ?? '—';
+  const podCidr = displayValue(cluster.spec?.network?.podCidr);
+  const serviceCidr = displayValue(cluster.spec?.network?.serviceCidr);
+  const apiUrl = displayValue(cluster.status?.apiUrl);
+  const consoleUrl = displayValue(cluster.status?.consoleUrl);
 
   return (
     <Grid hasGutter role="group" aria-label={t('Cluster summary')}>
@@ -109,3 +110,5 @@ export const ClusterDetailsSummary = ({ cluster }: ClusterDetailsSummaryProps) =
     </Grid>
   );
 };
+
+export default ClusterDetailsSummary;

@@ -25,9 +25,10 @@ import {
 import type { Cluster } from '@osac/types';
 
 import ClusterDetailsActionButtons from './ClusterDetailsActionButtons';
-import { ClusterDetailsSummary } from './ClusterDetailsSummary';
-import { ClusterNodeSetsTab } from './ClusterNetworkingTab';
+import ClusterDetailsSummary from './ClusterDetailsSummary';
+import ClusterNodeSetsTab from './ClusterNetworkingTab';
 import { ClusterOverviewTab } from './ClusterOverviewTab';
+import { useTranslation } from '../../../hooks/useTranslation';
 import { ResourceConditionsTable } from '../../Resource/ResourceConditionsTable';
 import { ResourceDetailHeader } from '../../Resource/ResourceDetailHeader';
 import { ClusterStatusLabel } from '../ClusterStatusLabel';
@@ -40,6 +41,7 @@ const CLUSTER_DETAIL_OVERVIEW_TAB_ID = 'cluster-detail-overview';
 const CLUSTER_DETAIL_NODE_SETS_TAB_ID = 'cluster-detail-node-sets';
 
 const ClusterDetailsPageContent = ({ cluster }: ClusterDetailViewProps) => {
+  const { t } = useTranslation();
   const [activeTabKey, setActiveTabKey] = useState(0);
 
   return (
@@ -56,7 +58,7 @@ const ClusterDetailsPageContent = ({ cluster }: ClusterDetailViewProps) => {
               <FlexItem>
                 <ResourceDetailHeader
                   parentTo="/clusters"
-                  parentLabel="Clusters"
+                  parentLabel={t('Clusters')}
                   resourceName={cluster.metadata?.name ?? cluster.id}
                   titleAddon={<ClusterStatusLabel state={cluster.status?.state} />}
                 />
@@ -80,12 +82,12 @@ const ClusterDetailsPageContent = ({ cluster }: ClusterDetailViewProps) => {
             >
               <Tab
                 eventKey={0}
-                title={<TabTitleText>Overview</TabTitleText>}
+                title={<TabTitleText>{t('Overview')}</TabTitleText>}
                 tabContentId={CLUSTER_DETAIL_OVERVIEW_TAB_ID}
               />
               <Tab
                 eventKey={1}
-                title={<TabTitleText>Node sets</TabTitleText>}
+                title={<TabTitleText>{t('Node sets')}</TabTitleText>}
                 tabContentId={CLUSTER_DETAIL_NODE_SETS_TAB_ID}
               />
             </Tabs>
@@ -120,10 +122,10 @@ const ClusterDetailsPageContent = ({ cluster }: ClusterDetailViewProps) => {
 
           <GridItem md={6}>
             <Card isFullHeight>
-              <CardTitle>Conditions</CardTitle>
+              <CardTitle>{t('Conditions')}</CardTitle>
               <CardBody>
                 <ResourceConditionsTable
-                  ariaLabel="Cluster conditions"
+                  ariaLabel={t('Cluster conditions')}
                   conditions={cluster.status?.conditions ?? []}
                   conditionResourceKind="cluster"
                 />

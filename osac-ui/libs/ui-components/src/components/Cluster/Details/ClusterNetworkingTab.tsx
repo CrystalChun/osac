@@ -10,7 +10,7 @@ interface ClusterNodeSetsTabProps {
   cluster: Cluster;
 }
 
-export const ClusterNodeSetsTab = ({ cluster }: ClusterNodeSetsTabProps) => {
+const ClusterNodeSetsTab = ({ cluster }: ClusterNodeSetsTabProps) => {
   const { t } = useTranslation();
 
   const nodeSetEntries = Object.entries(cluster.spec?.nodeSets ?? {});
@@ -45,3 +45,5 @@ export const ClusterNodeSetsTab = ({ cluster }: ClusterNodeSetsTabProps) => {
     </Card>
   );
 };
+
+export default ClusterNodeSetsTab;
