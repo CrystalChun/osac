@@ -1,8 +1,47 @@
-import { Card, CardBody, CardTitle, Grid, GridItem } from '@patternfly/react-core';
+import type { ComponentType, ReactNode, SVGProps } from 'react';
+import {
+  Card,
+  CardBody,
+  CardTitle,
+  Flex,
+  FlexItem,
+  Grid,
+  GridItem,
+  Icon,
+  Stack,
+  StackItem,
+} from '@patternfly/react-core';
+import CubeIcon from '@patternfly/react-icons/dist/esm/icons/cube-icon';
+import NetworkWiredIcon from '@patternfly/react-icons/dist/esm/icons/network-wired-icon';
+import ServerIcon from '@patternfly/react-icons/dist/esm/icons/server-icon';
 
 import type { Cluster } from '@osac/types';
 
 import { useTranslation } from '../../../hooks/useTranslation';
+
+type SummaryIcon = ComponentType<SVGProps<SVGSVGElement>>;
+
+interface SummaryCardProps {
+  icon: SummaryIcon;
+  title: string;
+  children: ReactNode;
+}
+
+const SummaryCard = ({ icon: SummaryIconComponent, title, children }: SummaryCardProps) => (
+  <Card isFullHeight>
+    <CardTitle>
+      <Flex alignItems={{ default: 'alignItemsCenter' }} spaceItems={{ default: 'spaceItemsSm' }}>
+        <FlexItem>
+          <Icon size="md">
+            <SummaryIconComponent aria-hidden />
+          </Icon>
+        </FlexItem>
+        <FlexItem>{title}</FlexItem>
+      </Flex>
+    </CardTitle>
+    <CardBody>{children}</CardBody>
+  </Card>
+);
 
 interface ClusterDetailsSummaryProps {
   cluster: Cluster;
@@ -29,38 +68,43 @@ export const ClusterDetailsSummary = ({ cluster }: ClusterDetailsSummaryProps) =
   const consoleUrl = cluster.status?.consoleUrl ?? '—';
 
   return (
-    <Grid hasGutter span={3}>
-      <GridItem>
-        <Card isCompact>
-          <CardTitle>{t('Worker nodes')}</CardTitle>
-          <CardBody>
-            {totalWorkers === desiredWorkers ? totalWorkers : `${totalWorkers}/${desiredWorkers}`}
-          </CardBody>
-        </Card>
+    <Grid hasGutter role="group" aria-label={t('Cluster summary')}>
+      <GridItem sm={6} md={3}>
+        <SummaryCard icon={ServerIcon} title={t('Worker nodes')}>
+          {totalWorkers === desiredWorkers ? totalWorkers : `${totalWorkers}/${desiredWorkers}`}
+        </SummaryCard>
       </GridItem>
-      <GridItem>
-        <Card isCompact>
-          <CardTitle>{t('Pod CIDR')}</CardTitle>
-          <CardBody>{podCidr}</CardBody>
-        </Card>
+      <GridItem sm={6} md={3}>
+        <SummaryCard icon={NetworkWiredIcon} title={t('Networking')}>
+          <Stack hasGutter>
+            <StackItem>
+              <div>
+                {t('Pod CIDR')}: {podCidr}
+              </div>
+            </StackItem>
+            <StackItem>
+              <div>
+                {t('Service CIDR')}: {serviceCidr}
+              </div>
+            </StackItem>
+          </Stack>
+        </SummaryCard>
       </GridItem>
-      <GridItem>
-        <Card isCompact>
-          <CardTitle>{t('Service CIDR')}</CardTitle>
-          <CardBody>{serviceCidr}</CardBody>
-        </Card>
-      </GridItem>
-      <GridItem>
-        <Card isCompact>
-          <CardTitle>{t('API URL')}</CardTitle>
-          <CardBody>{apiUrl}</CardBody>
-        </Card>
-      </GridItem>
-      <GridItem>
-        <Card isCompact>
-          <CardTitle>{t('Console URL')}</CardTitle>
-          <CardBody>{consoleUrl}</CardBody>
-        </Card>
+      <GridItem sm={6} md={3}>
+        <SummaryCard icon={CubeIcon} title={t('Access')}>
+          <Stack hasGutter>
+            <StackItem>
+              <div>
+                {t('API URL')}: {apiUrl}
+              </div>
+            </StackItem>
+            <StackItem>
+              <div>
+                {t('Console URL')}: {consoleUrl}
+              </div>
+            </StackItem>
+          </Stack>
+        </SummaryCard>
       </GridItem>
     </Grid>
   );
