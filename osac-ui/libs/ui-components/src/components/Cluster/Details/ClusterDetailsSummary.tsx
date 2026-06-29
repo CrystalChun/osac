@@ -25,8 +25,8 @@ export const ClusterDetailsSummary = ({ cluster }: ClusterDetailsSummaryProps) =
 
   const podCidr = cluster.spec?.network?.podCidr ?? '—';
   const serviceCidr = cluster.spec?.network?.serviceCidr ?? '—';
-  const apiUrl = cluster.status?.apiUrl;
-  const apiStatus = apiUrl ? t('Available') : t('Pending');
+  const apiUrl = cluster.status?.apiUrl ?? '—';
+  const consoleUrl = cluster.status?.consoleUrl ?? '—';
 
   return (
     <Grid hasGutter span={3}>
@@ -52,8 +52,14 @@ export const ClusterDetailsSummary = ({ cluster }: ClusterDetailsSummaryProps) =
       </GridItem>
       <GridItem>
         <Card isCompact>
-          <CardTitle>{t('API')}</CardTitle>
-          <CardBody>{apiStatus}</CardBody>
+          <CardTitle>{t('API URL')}</CardTitle>
+          <CardBody>{apiUrl}</CardBody>
+        </Card>
+      </GridItem>
+      <GridItem>
+        <Card isCompact>
+          <CardTitle>{t('Console URL')}</CardTitle>
+          <CardBody>{consoleUrl}</CardBody>
         </Card>
       </GridItem>
     </Grid>
