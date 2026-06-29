@@ -4,6 +4,9 @@
  */
 import { useState } from 'react';
 import {
+  Divider,
+  Flex,
+  FlexItem,
   PageSection,
   Stack,
   StackItem,
@@ -16,16 +19,19 @@ import {
 
 import type { Cluster } from '@osac/types';
 
-import { ClusterConditionsTab } from './ClusterConditionsTab';
 import ClusterDetailsActionButtons from './ClusterDetailsActionButtons';
+import { ClusterDetailsSummary } from './ClusterDetailsSummary';
+import { ClusterNetworkingTab } from './ClusterNetworkingTab';
 import { ClusterOverviewTab } from './ClusterOverviewTab';
 import { ResourceDetailHeader } from '../../Resource/ResourceDetailHeader';
+import { ClusterStatusLabel } from '../ClusterStatusLabel';
 
 interface ClusterDetailViewProps {
   cluster: Cluster;
 }
 
-const tabContentId = (key: number): string => `cluster-tab-content-${key}`;
+const CLUSTER_DETAIL_OVERVIEW_TAB_ID = 'cluster-detail-overview';
+const CLUSTER_DETAIL_NETWORKING_TAB_ID = 'cluster-detail-networking';
 
 const ClusterDetailsPageContent = ({ cluster }: ClusterDetailViewProps) => {
   const [activeTabKey, setActiveTabKey] = useState(0);
@@ -35,14 +41,30 @@ const ClusterDetailsPageContent = ({ cluster }: ClusterDetailViewProps) => {
       <PageSection hasBodyWrapper={false}>
         <Stack hasGutter>
           <StackItem>
-            <ResourceDetailHeader
-              parentTo="/clusters"
-              parentLabel="Clusters"
-              resourceName={cluster.metadata?.name ?? cluster.id}
-            />
+            <Flex
+              justifyContent={{ default: 'justifyContentSpaceBetween' }}
+              alignItems={{ default: 'alignItemsFlexStart' }}
+              flexWrap={{ default: 'wrap' }}
+              spaceItems={{ default: 'spaceItemsMd' }}
+            >
+              <FlexItem>
+                <ResourceDetailHeader
+                  parentTo="/clusters"
+                  parentLabel="Clusters"
+                  resourceName={cluster.metadata?.name ?? cluster.id}
+                  titleAddon={<ClusterStatusLabel state={cluster.status?.state} />}
+                />
+              </FlexItem>
+              <FlexItem>
+                <ClusterDetailsActionButtons cluster={cluster} />
+              </FlexItem>
+            </Flex>
           </StackItem>
           <StackItem>
-            <ClusterDetailsActionButtons cluster={cluster} />
+            <ClusterDetailsSummary cluster={cluster} />
+          </StackItem>
+          <StackItem>
+            <Divider />
           </StackItem>
           <StackItem>
             <Tabs
@@ -53,12 +75,12 @@ const ClusterDetailsPageContent = ({ cluster }: ClusterDetailViewProps) => {
               <Tab
                 eventKey={0}
                 title={<TabTitleText>Overview</TabTitleText>}
-                tabContentId={tabContentId(0)}
+                tabContentId={CLUSTER_DETAIL_OVERVIEW_TAB_ID}
               />
               <Tab
                 eventKey={1}
-                title={<TabTitleText>Conditions</TabTitleText>}
-                tabContentId={tabContentId(1)}
+                title={<TabTitleText>Networking</TabTitleText>}
+                tabContentId={CLUSTER_DETAIL_NETWORKING_TAB_ID}
               />
             </Tabs>
           </StackItem>
@@ -68,7 +90,7 @@ const ClusterDetailsPageContent = ({ cluster }: ClusterDetailViewProps) => {
       <PageSection hasBodyWrapper={false}>
         <TabContent
           eventKey={0}
-          id={tabContentId(0)}
+          id={CLUSTER_DETAIL_OVERVIEW_TAB_ID}
           activeKey={activeTabKey}
           hidden={0 !== activeTabKey}
         >
@@ -78,12 +100,12 @@ const ClusterDetailsPageContent = ({ cluster }: ClusterDetailViewProps) => {
         </TabContent>
         <TabContent
           eventKey={1}
-          id={tabContentId(1)}
+          id={CLUSTER_DETAIL_NETWORKING_TAB_ID}
           activeKey={activeTabKey}
           hidden={1 !== activeTabKey}
         >
           <TabContentBody>
-            <ClusterConditionsTab cluster={cluster} />
+            <ClusterNetworkingTab cluster={cluster} />
           </TabContentBody>
         </TabContent>
       </PageSection>
