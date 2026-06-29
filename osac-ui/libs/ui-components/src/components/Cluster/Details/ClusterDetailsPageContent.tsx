@@ -21,7 +21,7 @@ import type { Cluster } from '@osac/types';
 
 import ClusterDetailsActionButtons from './ClusterDetailsActionButtons';
 import { ClusterDetailsSummary } from './ClusterDetailsSummary';
-import { ClusterNetworkingTab } from './ClusterNetworkingTab';
+import { ClusterNodeSetsTab } from './ClusterNetworkingTab';
 import { ClusterOverviewTab } from './ClusterOverviewTab';
 import { ResourceDetailHeader } from '../../Resource/ResourceDetailHeader';
 import { ClusterStatusLabel } from '../ClusterStatusLabel';
@@ -31,7 +31,7 @@ interface ClusterDetailViewProps {
 }
 
 const CLUSTER_DETAIL_OVERVIEW_TAB_ID = 'cluster-detail-overview';
-const CLUSTER_DETAIL_NETWORKING_TAB_ID = 'cluster-detail-networking';
+const CLUSTER_DETAIL_NODE_SETS_TAB_ID = 'cluster-detail-node-sets';
 
 const ClusterDetailsPageContent = ({ cluster }: ClusterDetailViewProps) => {
   const [activeTabKey, setActiveTabKey] = useState(0);
@@ -79,8 +79,8 @@ const ClusterDetailsPageContent = ({ cluster }: ClusterDetailViewProps) => {
               />
               <Tab
                 eventKey={1}
-                title={<TabTitleText>Networking</TabTitleText>}
-                tabContentId={CLUSTER_DETAIL_NETWORKING_TAB_ID}
+                title={<TabTitleText>Node sets</TabTitleText>}
+                tabContentId={CLUSTER_DETAIL_NODE_SETS_TAB_ID}
               />
             </Tabs>
           </StackItem>
@@ -100,12 +100,12 @@ const ClusterDetailsPageContent = ({ cluster }: ClusterDetailViewProps) => {
         </TabContent>
         <TabContent
           eventKey={1}
-          id={CLUSTER_DETAIL_NETWORKING_TAB_ID}
+          id={CLUSTER_DETAIL_NODE_SETS_TAB_ID}
           activeKey={activeTabKey}
           hidden={1 !== activeTabKey}
         >
           <TabContentBody>
-            <ClusterNetworkingTab cluster={cluster} />
+            <ClusterNodeSetsTab cluster={cluster} />
           </TabContentBody>
         </TabContent>
       </PageSection>

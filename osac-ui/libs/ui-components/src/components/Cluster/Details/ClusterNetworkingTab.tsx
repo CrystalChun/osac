@@ -1,42 +1,46 @@
-import {
-  Card,
-  CardBody,
-  CardTitle,
-  DescriptionList,
-  DescriptionListDescription,
-  DescriptionListGroup,
-  DescriptionListTerm,
-} from '@patternfly/react-core';
+import { Card, CardBody, CardTitle, Content } from '@patternfly/react-core';
+import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
 import type { Cluster } from '@osac/types';
 
 import { useTranslation } from '../../../hooks/useTranslation';
 import { displayValue } from '../../../utils/detailFormatters';
 
-interface ClusterNetworkingTabProps {
+interface ClusterNodeSetsTabProps {
   cluster: Cluster;
 }
 
-export const ClusterNetworkingTab = ({ cluster }: ClusterNetworkingTabProps) => {
+export const ClusterNodeSetsTab = ({ cluster }: ClusterNodeSetsTabProps) => {
   const { t } = useTranslation();
 
-  const podCidr = cluster.spec?.network?.podCidr;
-  const serviceCidr = cluster.spec?.network?.serviceCidr;
+  const nodeSetEntries = Object.entries(cluster.spec?.nodeSets ?? {});
 
   return (
     <Card isFullHeight>
-      <CardTitle>{t('Networking')}</CardTitle>
+      <CardTitle>{t('Node sets')}</CardTitle>
       <CardBody>
-        <DescriptionList isHorizontal isCompact>
-          <DescriptionListGroup>
-            <DescriptionListTerm>{t('Pod CIDR')}</DescriptionListTerm>
-            <DescriptionListDescription>{displayValue(podCidr)}</DescriptionListDescription>
-          </DescriptionListGroup>
-          <DescriptionListGroup>
-            <DescriptionListTerm>{t('Service CIDR')}</DescriptionListTerm>
-            <DescriptionListDescription>{displayValue(serviceCidr)}</DescriptionListDescription>
-          </DescriptionListGroup>
-        </DescriptionList>
+        {nodeSetEntries.length > 0 ? (
+          <Table aria-label={t('Cluster node sets')} variant="compact">
+            <Thead>
+              <Tr>
+                <Th>{t('Name')}</Th>
+                <Th>{t('Host type')}</Th>
+                <Th>{t('Size')}</Th>
+              </Tr>
+            </Thead>
+            <Tbody>
+              {nodeSetEntries.map(([key, nodeSet]) => (
+                <Tr key={key}>
+                  <Td dataLabel={t('Name')}>{key}</Td>
+                  <Td dataLabel={t('Host type')}>{displayValue(nodeSet.hostType)}</Td>
+                  <Td dataLabel={t('Size')}>{nodeSet.size}</Td>
+                </Tr>
+              ))}
+            </Tbody>
+          </Table>
+        ) : (
+          <Content component="p">{t('No node sets configured.')}</Content>
+        )}
       </CardBody>
     </Card>
   );
