@@ -28,6 +28,7 @@
     "victory": "^37.3.6"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.6.0",
     "@testing-library/react": "^16.0.0",
     "@testing-library/user-event": "^14.0.0",
     "@types/react": "^19.2.14",
@@ -37,6 +38,6 @@
     "typescript": "~5.9.3",
     "vite": "^8.0.1",
     "vite-plugin-static-copy": "^3.0.0",
-    "vitest": "^3.0.0"
+    "vitest": "^4.1.9"
   }
 }

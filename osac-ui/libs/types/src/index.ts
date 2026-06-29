@@ -8,6 +8,9 @@ export * from './osac/public/v1/compute_instance_templates_service_pb.js'
 export * from './osac/public/v1/compute_instance_catalog_item_type_pb.js'
 export * from './osac/public/v1/compute_instance_catalog_items_service_pb.js'
 
+export * from './osac/public/v1/instance_type_type_pb.js'
+export * from './osac/public/v1/instance_types_service_pb.js'
+
 export * from './osac/public/v1/organization_type_pb.js'
 export * from './osac/public/v1/organizations_service_pb.js'
 

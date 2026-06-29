@@ -1,4 +1,3 @@
 export { CatalogStep } from './CatalogStep';
-export { BasicsStep } from './BasicsStep';
-export { ConfigurationStep } from './ConfigurationStep';
+export { GeneralStep } from './GeneralStep';
 export { ReviewStep } from './ReviewStep';
