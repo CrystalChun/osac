@@ -4,6 +4,14 @@
  */
 import { useState } from 'react';
 import {
+  Card,
+  CardBody,
+  CardTitle,
+  Divider,
+  Flex,
+  FlexItem,
+  Grid,
+  GridItem,
   PageSection,
   Stack,
   StackItem,
@@ -16,18 +24,24 @@ import {
 
 import type { Cluster } from '@osac/types';
 
-import { ClusterConditionsTab } from './ClusterConditionsTab';
 import ClusterDetailsActionButtons from './ClusterDetailsActionButtons';
+import ClusterDetailsSummary from './ClusterDetailsSummary';
+import ClusterNodeSetsTab from './ClusterNetworkingTab';
 import { ClusterOverviewTab } from './ClusterOverviewTab';
+import { useTranslation } from '../../../hooks/useTranslation';
+import { ResourceConditionsTable } from '../../Resource/ResourceConditionsTable';
 import { ResourceDetailHeader } from '../../Resource/ResourceDetailHeader';
+import { ClusterStatusLabel } from '../ClusterStatusLabel';
 
 interface ClusterDetailViewProps {
   cluster: Cluster;
 }
 
-const tabContentId = (key: number): string => `cluster-tab-content-${key}`;
+const CLUSTER_DETAIL_OVERVIEW_TAB_ID = 'cluster-detail-overview';
+const CLUSTER_DETAIL_NODE_SETS_TAB_ID = 'cluster-detail-node-sets';
 
 const ClusterDetailsPageContent = ({ cluster }: ClusterDetailViewProps) => {
+  const { t } = useTranslation();
   const [activeTabKey, setActiveTabKey] = useState(0);
 
   return (
@@ -35,14 +49,30 @@ const ClusterDetailsPageContent = ({ cluster }: ClusterDetailViewProps) => {
       <PageSection hasBodyWrapper={false}>
         <Stack hasGutter>
           <StackItem>
-            <ResourceDetailHeader
-              parentTo="/clusters"
-              parentLabel="Clusters"
-              resourceName={cluster.metadata?.name ?? cluster.id}
-            />
+            <Flex
+              justifyContent={{ default: 'justifyContentSpaceBetween' }}
+              alignItems={{ default: 'alignItemsFlexStart' }}
+              flexWrap={{ default: 'wrap' }}
+              spaceItems={{ default: 'spaceItemsMd' }}
+            >
+              <FlexItem>
+                <ResourceDetailHeader
+                  parentTo="/clusters"
+                  parentLabel={t('Clusters')}
+                  resourceName={cluster.metadata?.name ?? cluster.id}
+                  titleAddon={<ClusterStatusLabel state={cluster.status?.state} />}
+                />
+              </FlexItem>
+              <FlexItem>
+                <ClusterDetailsActionButtons cluster={cluster} />
+              </FlexItem>
+            </Flex>
           </StackItem>
           <StackItem>
-            <ClusterDetailsActionButtons cluster={cluster} />
+            <ClusterDetailsSummary cluster={cluster} />
+          </StackItem>
+          <StackItem>
+            <Divider />
           </StackItem>
           <StackItem>
             <Tabs
@@ -52,13 +82,13 @@ const ClusterDetailsPageContent = ({ cluster }: ClusterDetailViewProps) => {
             >
               <Tab
                 eventKey={0}
-                title={<TabTitleText>Overview</TabTitleText>}
-                tabContentId={tabContentId(0)}
+                title={<TabTitleText>{t('Overview')}</TabTitleText>}
+                tabContentId={CLUSTER_DETAIL_OVERVIEW_TAB_ID}
               />
               <Tab
                 eventKey={1}
-                title={<TabTitleText>Conditions</TabTitleText>}
-                tabContentId={tabContentId(1)}
+                title={<TabTitleText>{t('Node sets')}</TabTitleText>}
+                tabContentId={CLUSTER_DETAIL_NODE_SETS_TAB_ID}
               />
             </Tabs>
           </StackItem>
@@ -66,26 +96,43 @@ const ClusterDetailsPageContent = ({ cluster }: ClusterDetailViewProps) => {
       </PageSection>
 
       <PageSection hasBodyWrapper={false}>
-        <TabContent
-          eventKey={0}
-          id={tabContentId(0)}
-          activeKey={activeTabKey}
-          hidden={0 !== activeTabKey}
-        >
-          <TabContentBody>
-            <ClusterOverviewTab cluster={cluster} />
-          </TabContentBody>
-        </TabContent>
-        <TabContent
-          eventKey={1}
-          id={tabContentId(1)}
-          activeKey={activeTabKey}
-          hidden={1 !== activeTabKey}
-        >
-          <TabContentBody>
-            <ClusterConditionsTab cluster={cluster} />
-          </TabContentBody>
-        </TabContent>
+        <Grid hasGutter>
+          <GridItem md={6}>
+            <TabContent
+              eventKey={0}
+              id={CLUSTER_DETAIL_OVERVIEW_TAB_ID}
+              activeKey={activeTabKey}
+              hidden={0 !== activeTabKey}
+            >
+              <TabContentBody>
+                <ClusterOverviewTab cluster={cluster} />
+              </TabContentBody>
+            </TabContent>
+            <TabContent
+              eventKey={1}
+              id={CLUSTER_DETAIL_NODE_SETS_TAB_ID}
+              activeKey={activeTabKey}
+              hidden={1 !== activeTabKey}
+            >
+              <TabContentBody>
+                <ClusterNodeSetsTab cluster={cluster} />
+              </TabContentBody>
+            </TabContent>
+          </GridItem>
+
+          <GridItem md={6}>
+            <Card isFullHeight>
+              <CardTitle>{t('Conditions')}</CardTitle>
+              <CardBody>
+                <ResourceConditionsTable
+                  ariaLabel={t('Cluster conditions')}
+                  conditions={cluster.status?.conditions ?? []}
+                  conditionResourceKind="cluster"
+                />
+              </CardBody>
+            </Card>
+          </GridItem>
+        </Grid>
       </PageSection>
     </>
   );
