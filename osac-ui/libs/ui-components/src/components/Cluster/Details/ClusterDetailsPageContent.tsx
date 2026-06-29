@@ -17,6 +17,7 @@ import {
 import type { Cluster } from '@osac/types';
 
 import { ClusterConditionsTab } from './ClusterConditionsTab';
+import { ClusterDetailsActionButtons } from './ClusterDetailsActionButtons';
 import { ClusterOverviewTab } from './ClusterOverviewTab';
 import { ResourceDetailHeader } from '../../Resource/ResourceDetailHeader';
 
@@ -39,6 +40,9 @@ const ClusterDetailsPageContent = ({ cluster }: ClusterDetailViewProps) => {
               parentLabel="Clusters"
               resourceName={cluster.metadata?.name ?? cluster.id}
             />
+          </StackItem>
+          <StackItem>
+            <ClusterDetailsActionButtons cluster={cluster} />
           </StackItem>
           <StackItem>
             <Tabs
