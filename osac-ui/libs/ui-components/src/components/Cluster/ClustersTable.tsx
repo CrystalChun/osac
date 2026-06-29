@@ -7,7 +7,7 @@ import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
 import type { Cluster } from '@osac/types';
 
-import { ClusterActionsMenu } from './ClusterActionsMenu';
+import ClusterActionsMenu from './ClusterActionsMenu';
 import { ClusterStatusLabel } from './ClusterStatusLabel';
 import { useTranslation } from '../../hooks/useTranslation';
 import ExternalLink from '../Primitives/ExternalLink';

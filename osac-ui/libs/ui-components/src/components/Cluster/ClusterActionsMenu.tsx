@@ -11,7 +11,7 @@ interface ClusterActionsMenuProps {
   cluster: Cluster;
 }
 
-export const ClusterActionsMenu = ({ cluster }: ClusterActionsMenuProps) => {
+const ClusterActionsMenu = ({ cluster }: ClusterActionsMenuProps) => {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -33,7 +33,7 @@ export const ClusterActionsMenu = ({ cluster }: ClusterActionsMenuProps) => {
             ref={ref}
             variant="plain"
             onClick={() => setOpen((o) => !o)}
-            aria-label={`Actions for ${cluster.metadata?.name ?? cluster.id}`}
+            aria-label={t('Actions for {{name}}', { name: cluster.metadata?.name ?? cluster.id })}
           >
             <EllipsisVIcon />
           </MenuToggle>
@@ -55,3 +55,5 @@ export const ClusterActionsMenu = ({ cluster }: ClusterActionsMenuProps) => {
     </>
   );
 };
+
+export default ClusterActionsMenu;
