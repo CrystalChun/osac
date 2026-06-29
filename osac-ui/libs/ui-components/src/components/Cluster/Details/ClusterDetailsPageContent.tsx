@@ -4,9 +4,14 @@
  */
 import { useState } from 'react';
 import {
+  Card,
+  CardBody,
+  CardTitle,
   Divider,
   Flex,
   FlexItem,
+  Grid,
+  GridItem,
   PageSection,
   Stack,
   StackItem,
@@ -23,6 +28,7 @@ import ClusterDetailsActionButtons from './ClusterDetailsActionButtons';
 import { ClusterDetailsSummary } from './ClusterDetailsSummary';
 import { ClusterNodeSetsTab } from './ClusterNetworkingTab';
 import { ClusterOverviewTab } from './ClusterOverviewTab';
+import { ResourceConditionsTable } from '../../Resource/ResourceConditionsTable';
 import { ResourceDetailHeader } from '../../Resource/ResourceDetailHeader';
 import { ClusterStatusLabel } from '../ClusterStatusLabel';
 
@@ -88,26 +94,43 @@ const ClusterDetailsPageContent = ({ cluster }: ClusterDetailViewProps) => {
       </PageSection>
 
       <PageSection hasBodyWrapper={false}>
-        <TabContent
-          eventKey={0}
-          id={CLUSTER_DETAIL_OVERVIEW_TAB_ID}
-          activeKey={activeTabKey}
-          hidden={0 !== activeTabKey}
-        >
-          <TabContentBody>
-            <ClusterOverviewTab cluster={cluster} />
-          </TabContentBody>
-        </TabContent>
-        <TabContent
-          eventKey={1}
-          id={CLUSTER_DETAIL_NODE_SETS_TAB_ID}
-          activeKey={activeTabKey}
-          hidden={1 !== activeTabKey}
-        >
-          <TabContentBody>
-            <ClusterNodeSetsTab cluster={cluster} />
-          </TabContentBody>
-        </TabContent>
+        <Grid hasGutter>
+          <GridItem md={8}>
+            <TabContent
+              eventKey={0}
+              id={CLUSTER_DETAIL_OVERVIEW_TAB_ID}
+              activeKey={activeTabKey}
+              hidden={0 !== activeTabKey}
+            >
+              <TabContentBody>
+                <ClusterOverviewTab cluster={cluster} />
+              </TabContentBody>
+            </TabContent>
+            <TabContent
+              eventKey={1}
+              id={CLUSTER_DETAIL_NODE_SETS_TAB_ID}
+              activeKey={activeTabKey}
+              hidden={1 !== activeTabKey}
+            >
+              <TabContentBody>
+                <ClusterNodeSetsTab cluster={cluster} />
+              </TabContentBody>
+            </TabContent>
+          </GridItem>
+
+          <GridItem md={4}>
+            <Card isFullHeight>
+              <CardTitle>Conditions</CardTitle>
+              <CardBody>
+                <ResourceConditionsTable
+                  ariaLabel="Cluster conditions"
+                  conditions={cluster.status?.conditions ?? []}
+                  conditionResourceKind="cluster"
+                />
+              </CardBody>
+            </Card>
+          </GridItem>
+        </Grid>
       </PageSection>
     </>
   );
