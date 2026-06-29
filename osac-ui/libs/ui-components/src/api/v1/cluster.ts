@@ -47,5 +47,6 @@ export const useDeleteCluster = () => {
         method: 'DELETE',
       }),
     onSuccess: () => invalidateClustersQueries(qc),
+    retry: false,
   });
 };

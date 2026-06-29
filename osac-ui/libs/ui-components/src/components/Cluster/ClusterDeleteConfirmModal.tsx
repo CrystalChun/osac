@@ -22,7 +22,7 @@ interface ClusterDeleteConfirmModalProps {
   onSuccess: () => void;
 }
 
-export const ClusterDeleteConfirmModal = ({
+const ClusterDeleteConfirmModal = ({
   cluster,
   onClose,
   onSuccess,
@@ -39,6 +39,8 @@ export const ClusterDeleteConfirmModal = ({
     try {
       await deleteCluster.mutateAsync(cluster.id);
       onSuccess();
+    } catch {
+      // error is handled via deleteCluster.error state
     } finally {
       setIsPending(false);
     }
@@ -73,19 +75,15 @@ export const ClusterDeleteConfirmModal = ({
         </Stack>
       </ModalBody>
       <ModalFooter>
-        <Button key="cancel" variant="link" onClick={onClose} isDisabled={isPending}>
+        <Button variant="link" onClick={onClose} isDisabled={isPending}>
           {t('Cancel')}
         </Button>
-        <Button
-          key="delete"
-          variant="danger"
-          onClick={onDelete}
-          isDisabled={isPending}
-          isLoading={isPending}
-        >
+        <Button variant="danger" onClick={onDelete} isDisabled={isPending} isLoading={isPending}>
           {t('Delete')}
         </Button>
       </ModalFooter>
     </Modal>
   );
 };
+
+export default ClusterDeleteConfirmModal;

@@ -17,7 +17,7 @@ import {
 import type { Cluster } from '@osac/types';
 
 import { ClusterConditionsTab } from './ClusterConditionsTab';
-import { ClusterDetailsActionButtons } from './ClusterDetailsActionButtons';
+import ClusterDetailsActionButtons from './ClusterDetailsActionButtons';
 import { ClusterOverviewTab } from './ClusterOverviewTab';
 import { ResourceDetailHeader } from '../../Resource/ResourceDetailHeader';
 

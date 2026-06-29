@@ -6,13 +6,13 @@ import DumpsterIcon from '@patternfly/react-icons/dist/esm/icons/dumpster-icon';
 import type { Cluster } from '@osac/types';
 
 import { useTranslation } from '../../../hooks/useTranslation';
-import { ClusterDeleteConfirmModal } from '../ClusterDeleteConfirmModal';
+import ClusterDeleteConfirmModal from '../ClusterDeleteConfirmModal';
 
 interface ClusterDetailsActionButtonsProps {
   cluster: Cluster;
 }
 
-export const ClusterDetailsActionButtons = ({ cluster }: ClusterDetailsActionButtonsProps) => {
+const ClusterDetailsActionButtons = ({ cluster }: ClusterDetailsActionButtonsProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -23,7 +23,7 @@ export const ClusterDetailsActionButtons = ({ cluster }: ClusterDetailsActionBut
         <ClusterDeleteConfirmModal
           cluster={cluster}
           onClose={() => setDeleteOpen(false)}
-          onSuccess={() => navigate('/clusters')}
+          onSuccess={() => navigate('/clusters', { replace: true })}
         />
       )}
       <Flex
@@ -38,3 +38,5 @@ export const ClusterDetailsActionButtons = ({ cluster }: ClusterDetailsActionBut
     </>
   );
 };
+
+export default ClusterDetailsActionButtons;
