@@ -25,7 +25,7 @@ interface VmDeleteConfirmModalProps {
   onSuccess: () => void;
 }
 
-export const VmDeleteConfirmModal = ({ vm, onClose, onSuccess }: VmDeleteConfirmModalProps) => {
+const VmDeleteConfirmModal = ({ vm, onClose, onSuccess }: VmDeleteConfirmModalProps) => {
   const [isPending, setIsPending] = React.useState(false);
   const deleteVm = useDeleteComputeInstance();
   const patchVm = usePatchComputeInstance();
@@ -104,3 +104,5 @@ export const VmDeleteConfirmModal = ({ vm, onClose, onSuccess }: VmDeleteConfirm
     </Modal>
   );
 };
+
+export default VmDeleteConfirmModal;

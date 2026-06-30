@@ -11,7 +11,7 @@ interface VmNetworkingTabProps {
   vm: ComputeInstance;
 }
 
-export const VmNetworkingTab = ({ vm }: VmNetworkingTabProps) => {
+const VmNetworkingTab = ({ vm }: VmNetworkingTabProps) => {
   const { t } = useTranslation();
   const { networkingRows } = useVmDetailsDisplay(vm);
   const networkAttachments = vm.spec?.networkAttachments ?? [];
@@ -50,3 +50,5 @@ export const VmNetworkingTab = ({ vm }: VmNetworkingTabProps) => {
     </Card>
   );
 };
+
+export default VmNetworkingTab;

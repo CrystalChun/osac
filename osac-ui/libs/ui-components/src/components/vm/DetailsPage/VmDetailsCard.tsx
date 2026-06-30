@@ -12,8 +12,7 @@ import {
 import type { ComputeInstance } from '@osac/types';
 
 import { useVmDetailsDisplay } from './useVmDetailsDisplay';
-import { VmDetailsCatalogValue } from './VmDetailsCatalogValue';
-import { VmUserDataField } from './VmUserDataField';
+import VmDetailsCatalogValue from './VmDetailsCatalogValue';
 import { formatInstanceTypeReviewLabelFromType } from '../../../api/v1/instance-types';
 import { useTranslation } from '../../../hooks/useTranslation';
 import { displayValue } from '../../../utils/detailFormatters';
@@ -21,11 +20,11 @@ import { formatBootDiskSizeForReview } from '../../catalogProvision/wizard/catal
 import { Timestamp } from '../../Primitives/Timestamp';
 import { SubtleContent } from '../../SubtleContent/SubtleContent';
 
-interface VmConfigurationCardProps {
+interface Props {
   vm: ComputeInstance;
 }
 
-export const VmConfigurationCard = ({ vm }: VmConfigurationCardProps) => {
+const VmDetailsCard = ({ vm }: Props) => {
   const { t } = useTranslation();
   const {
     catalogItemId,
@@ -39,7 +38,7 @@ export const VmConfigurationCard = ({ vm }: VmConfigurationCardProps) => {
 
   return (
     <Card isFullHeight>
-      <CardTitle>{t('vm.details.configuration.title')}</CardTitle>
+      <CardTitle>{t('vm.details.card.details')}</CardTitle>
       <CardBody>
         {!hasCatalogItem ? (
           <SubtleContent component="p">
@@ -115,14 +114,10 @@ export const VmConfigurationCard = ({ vm }: VmConfigurationCardProps) => {
               {displayValue(vm.metadata?.creator)}
             </DescriptionListDescription>
           </DescriptionListGroup>
-          {hasCatalogItem ? (
-            <DescriptionListGroup>
-              <DescriptionListTerm>{fieldLabels.userData}</DescriptionListTerm>
-              <VmUserDataField value={vm.spec?.userData} />
-            </DescriptionListGroup>
-          ) : null}
         </DescriptionList>
       </CardBody>
     </Card>
   );
 };
+
+export default VmDetailsCard;

@@ -47,7 +47,7 @@ interface VmDetailsSummaryProps {
   vm: ComputeInstance;
 }
 
-export const VmDetailsSummary = ({ vm }: VmDetailsSummaryProps) => {
+const VmDetailsSummary = ({ vm }: VmDetailsSummaryProps) => {
   const { t } = useTranslation();
   const instanceTypeId = vm.spec?.instanceType;
   const { data: instanceType, isLoading: isInstanceTypeLoading } = useInstanceType(instanceTypeId);
@@ -84,3 +84,5 @@ export const VmDetailsSummary = ({ vm }: VmDetailsSummaryProps) => {
     </Grid>
   );
 };
+
+export default VmDetailsSummary;

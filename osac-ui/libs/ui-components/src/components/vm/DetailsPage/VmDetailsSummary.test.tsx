@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 import type { ComputeInstance } from '@osac/types';
 
-import { VmDetailsSummary } from './VmDetailsSummary';
+import VmDetailsSummary from './VmDetailsSummary';
 import { initTestI18n } from '../../catalogProvision/test/i18n';
 
 vi.mock('../../../api/v1/instance-types', () => ({

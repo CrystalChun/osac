@@ -8,7 +8,7 @@ import { useComputeInstance } from '../../api/v1/compute-instance';
 import { useTranslation } from '../../hooks/useTranslation';
 import { ResourceDetailsPageError } from '../Resource/ResourceDetailsPageError';
 import { ResourceDetailsPageLoading } from '../Resource/ResourceDetailsPageLoading';
-import { VmDetails } from './DetailsPage/VmDetails';
+import VmDetails from './DetailsPage/VmDetails';
 
 export const VmDetailsPage = () => {
   const { t } = useTranslation();

@@ -6,7 +6,7 @@ interface VmDetailsCatalogValueProps {
   catalogItemId?: string;
 }
 
-export const VmDetailsCatalogValue = ({ catalogItemId }: VmDetailsCatalogValueProps) => {
+const VmDetailsCatalogValue = ({ catalogItemId }: VmDetailsCatalogValueProps) => {
   const { data, isLoading } = useComputeInstanceCatalogItem(catalogItemId);
 
   if (!catalogItemId) {
@@ -20,3 +20,5 @@ export const VmDetailsCatalogValue = ({ catalogItemId }: VmDetailsCatalogValuePr
   const displayName = data?.title || data?.metadata?.name;
   return displayName ?? catalogItemId;
 };
+
+export default VmDetailsCatalogValue;

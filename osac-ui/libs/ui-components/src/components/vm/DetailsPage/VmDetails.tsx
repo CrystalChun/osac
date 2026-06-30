@@ -1,13 +1,8 @@
 import { useState } from 'react';
 import {
-  Card,
-  CardBody,
-  CardTitle,
   Divider,
   Flex,
   FlexItem,
-  Grid,
-  GridItem,
   PageSection,
   Stack,
   StackItem,
@@ -20,13 +15,12 @@ import {
 
 import type { ComputeInstance } from '@osac/types';
 
-import { VmConfigurationCard } from './VmConfigurationCard';
-import { VmDetailsActionButtons } from './VmDetailsActionButtons';
-import { VmDetailsSummary } from './VmDetailsSummary';
-import { VmNetworkingTab } from './VmNetworkingTab';
+import VmDetailsActionButtons from './VmDetailsActionButtons';
+import VmDetailsOverviewTab from './VmDetailsOverviewTab';
+import VmDetailsSummary from './VmDetailsSummary';
+import VmNetworkingTab from './VmNetworkingTab';
 import { useTranslation } from '../../../hooks/useTranslation';
 import { VmStatusLabel } from '../../../VmStatusLabel';
-import { ResourceConditionsTable } from '../../Resource/ResourceConditionsTable';
 import { ResourceDetailHeader } from '../../Resource/ResourceDetailHeader';
 
 interface Props {
@@ -36,10 +30,9 @@ interface Props {
 const VM_DETAIL_OVERVIEW_TAB_ID = 'vm-detail-overview';
 const VM_DETAIL_NETWORKING_TAB_ID = 'vm-detail-networking';
 
-export const VmDetails = ({ vm }: Props) => {
+const VmDetails = ({ vm }: Props) => {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState(0);
-  const conditions = vm.status?.conditions ?? [];
 
   return (
     <>
@@ -93,44 +86,29 @@ export const VmDetails = ({ vm }: Props) => {
       </PageSection>
 
       <PageSection hasBodyWrapper={false}>
-        <Grid hasGutter>
-          <GridItem md={6}>
-            <TabContent
-              eventKey={0}
-              id={VM_DETAIL_OVERVIEW_TAB_ID}
-              activeKey={activeTab}
-              hidden={activeTab !== 0}
-            >
-              <TabContentBody>
-                <VmConfigurationCard vm={vm} />
-              </TabContentBody>
-            </TabContent>
-            <TabContent
-              eventKey={1}
-              id={VM_DETAIL_NETWORKING_TAB_ID}
-              activeKey={activeTab}
-              hidden={activeTab !== 1}
-            >
-              <TabContentBody>
-                <VmNetworkingTab vm={vm} />
-              </TabContentBody>
-            </TabContent>
-          </GridItem>
-
-          <GridItem md={6}>
-            <Card isFullHeight>
-              <CardTitle>{t('Conditions')}</CardTitle>
-              <CardBody>
-                <ResourceConditionsTable
-                  ariaLabel={t('vm.details.conditions.ariaLabel')}
-                  conditions={conditions}
-                  conditionResourceKind="compute_instance"
-                />
-              </CardBody>
-            </Card>
-          </GridItem>
-        </Grid>
+        <TabContent
+          eventKey={0}
+          id={VM_DETAIL_OVERVIEW_TAB_ID}
+          activeKey={activeTab}
+          hidden={activeTab !== 0}
+        >
+          <TabContentBody>
+            <VmDetailsOverviewTab vm={vm} />
+          </TabContentBody>
+        </TabContent>
+        <TabContent
+          eventKey={1}
+          id={VM_DETAIL_NETWORKING_TAB_ID}
+          activeKey={activeTab}
+          hidden={activeTab !== 1}
+        >
+          <TabContentBody>
+            <VmNetworkingTab vm={vm} />
+          </TabContentBody>
+        </TabContent>
       </PageSection>
     </>
   );
 };
+
+export default VmDetails;

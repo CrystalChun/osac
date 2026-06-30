@@ -110,9 +110,9 @@
   "Virtual machines": "Virtual machines",
   "Virtual Machines": "Virtual Machines",
   "vm.details.breadcrumb": "Virtual machines",
+  "vm.details.card.details": "Details",
   "vm.details.conditions.ariaLabel": "Virtual machine conditions",
   "vm.details.configuration.catalogUnavailable": "Catalog configuration is unavailable for this virtual machine.",
-  "vm.details.configuration.title": "Virtual machine configuration",
   "vm.details.fields.catalogItem": "Catalog item",
   "vm.details.fields.creator": "Creator",
   "vm.details.networking.empty": "No virtual networks configured.",
@@ -132,7 +132,8 @@
   "vm.details.summary.internalIp": "Internal IP",
   "vm.details.summary.loadingInstanceType": "Loading instance type",
   "vm.details.summary.publicIp": "Public IP",
-  "vm.details.userData.hide": "Hide user data",
-  "vm.details.userData.show": "Show user data",
+  "vm.details.userData.collapse": "Collapse user data",
+  "vm.details.userData.expand": "Expand user data",
+  "vm.details.userData.title": "Cloud Init User Data",
   "Worker nodes": "Worker nodes"
 }

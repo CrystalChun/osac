@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 import type { ComputeInstance } from '@osac/types';
 
-import { VmNetworkingTab } from './VmNetworkingTab';
+import VmNetworkingTab from './VmNetworkingTab';
 import { initTestI18n } from '../../catalogProvision/test/i18n';
 
 vi.mock('./useVmDetailsDisplay', () => ({

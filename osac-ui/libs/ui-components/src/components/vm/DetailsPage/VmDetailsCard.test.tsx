@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 import type { ComputeInstance } from '@osac/types';
 
-import { VmConfigurationCard } from './VmConfigurationCard';
+import VmDetailsCard from './VmDetailsCard';
 import { initTestI18n } from '../../catalogProvision/test/i18n';
 
 vi.mock('./useVmDetailsDisplay', () => ({
@@ -12,9 +12,7 @@ vi.mock('./useVmDetailsDisplay', () => ({
 }));
 
 vi.mock('./VmDetailsCatalogValue', () => ({
-  VmDetailsCatalogValue: ({ catalogItemId }: { catalogItemId?: string }) => (
-    <span>{catalogItemId}</span>
-  ),
+  default: ({ catalogItemId }: { catalogItemId?: string }) => <span>{catalogItemId}</span>,
 }));
 
 const { useVmDetailsDisplay } = await import('./useVmDetailsDisplay');
@@ -36,13 +34,13 @@ const renderCard = async (vm: ComputeInstance = catalogVm) => {
   const i18n = await initTestI18n();
   return render(
     <I18nextProvider i18n={i18n}>
-      <VmConfigurationCard vm={vm} />
+      <VmDetailsCard vm={vm} />
     </I18nextProvider>,
   );
 };
 
-describe('VmConfigurationCard', () => {
-  it('shows catalog fields with full SSH key and user data last', async () => {
+describe('VmDetailsCard', () => {
+  it('shows catalog fields with full SSH key', async () => {
     vi.mocked(useVmDetailsDisplay).mockReturnValue({
       catalogItemId: 'catalog-rhel-9',
       hasCatalogItem: true,
@@ -66,11 +64,12 @@ describe('VmConfigurationCard', () => {
 
     await renderCard();
 
+    expect(screen.getByText('Details')).toBeInTheDocument();
     expect(screen.getByText('web-01')).toBeInTheDocument();
     expect(screen.getByText('ssh-rsa AAAA...')).toBeInTheDocument();
     expect(screen.getByText('40 GB')).toBeInTheDocument();
     expect(screen.getByText('alice')).toBeInTheDocument();
-    expect(screen.getByText('Provided')).toBeInTheDocument();
+    expect(screen.queryByText('User Data')).not.toBeInTheDocument();
     expect(screen.queryByText('Run strategy')).not.toBeInTheDocument();
     expect(screen.queryByText('Tenants')).not.toBeInTheDocument();
     expect(screen.queryByText('Version')).not.toBeInTheDocument();
