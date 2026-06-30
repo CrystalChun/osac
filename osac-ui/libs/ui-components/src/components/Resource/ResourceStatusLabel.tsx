@@ -1,3 +1,4 @@
+import type { ComponentType, SVGProps } from 'react';
 import { Label } from '@patternfly/react-core';
 import CheckCircleIcon from '@patternfly/react-icons/dist/esm/icons/check-circle-icon';
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
@@ -6,11 +7,11 @@ import QuestionCircleIcon from '@patternfly/react-icons/dist/esm/icons/question-
 
 export type StatusKind = 'ready' | 'failed' | 'progressing' | 'unspecified';
 
-type LabelColor = 'green' | 'red' | 'blue' | 'grey';
+export type LabelColor = 'green' | 'red' | 'blue' | 'grey';
 
 type StatusStyle = {
   color: LabelColor;
-  icon: typeof CheckCircleIcon;
+  icon: ComponentType<SVGProps<SVGSVGElement>>;
   iconStatus: 'success' | 'danger' | 'info' | 'custom';
 };
 
@@ -24,12 +25,16 @@ const STATUS_STYLE: Record<StatusKind, StatusStyle> = {
 export interface StatusLabelProps {
   status: StatusKind;
   text: string;
+  color?: LabelColor;
+  icon?: ComponentType<SVGProps<SVGSVGElement>>;
 }
 
-export const ResourceStatusLabel = ({ status, text }: StatusLabelProps) => {
-  const { color, icon: StatusIcon } = STATUS_STYLE[status];
+export const ResourceStatusLabel = ({ status, text, color, icon }: StatusLabelProps) => {
+  const style = STATUS_STYLE[status];
+  const labelColor = color ?? style.color;
+  const StatusIcon = icon ?? style.icon;
   return (
-    <Label color={color} icon={<StatusIcon aria-hidden />}>
+    <Label color={labelColor} icon={<StatusIcon aria-hidden />}>
       {text}
     </Label>
   );
