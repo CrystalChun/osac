@@ -8,13 +8,16 @@ import {
   Grid,
   GridItem,
   Icon,
+  Spinner,
 } from '@patternfly/react-core';
 import GlobeIcon from '@patternfly/react-icons/dist/esm/icons/globe-icon';
-import MemoryIcon from '@patternfly/react-icons/dist/esm/icons/memory-icon';
-import MicrochipIcon from '@patternfly/react-icons/dist/esm/icons/microchip-icon';
 import NetworkWiredIcon from '@patternfly/react-icons/dist/esm/icons/network-wired-icon';
+import ServerIcon from '@patternfly/react-icons/dist/esm/icons/server-icon';
 
 import type { ComputeInstance } from '@osac/types';
+
+import { formatInstanceTypeDisplayName, useInstanceType } from '../../../api/v1/instance-types';
+import { useTranslation } from '../../../hooks/useTranslation';
 
 type SummaryIcon = ComponentType<SVGProps<SVGSVGElement>>;
 
@@ -45,30 +48,36 @@ interface VmDetailsSummaryProps {
 }
 
 export const VmDetailsSummary = ({ vm }: VmDetailsSummaryProps) => {
-  const cores = vm.spec?.cores;
-  const memoryGib = vm.spec?.memoryGib;
+  const { t } = useTranslation();
+  const instanceTypeId = vm.spec?.instanceType;
+  const { data: instanceType, isLoading: isInstanceTypeLoading } = useInstanceType(instanceTypeId);
   const publicIp = vm.status?.publicIpAddress;
   const internalIp = vm.status?.internalIpAddress;
 
+  const instanceTypeLabel = formatInstanceTypeDisplayName(
+    instanceType,
+    t('catalogProvision.instanceTypes.deprecatedSuffix'),
+    instanceTypeId,
+  );
+
   return (
-    <Grid hasGutter role="group" aria-label="Virtual machine summary">
-      <GridItem sm={6} md={3}>
-        <SummaryCard icon={MicrochipIcon} title="vCPU">
-          {cores ?? '—'}
+    <Grid hasGutter role="group" aria-label={t('vm.details.summary.ariaLabel')}>
+      <GridItem sm={6} md={4}>
+        <SummaryCard icon={ServerIcon} title={t('catalogProvision.vm.fields.instanceType')}>
+          {isInstanceTypeLoading && instanceTypeId?.trim() ? (
+            <Spinner size="sm" aria-label={t('vm.details.summary.loadingInstanceType')} />
+          ) : (
+            instanceTypeLabel
+          )}
         </SummaryCard>
       </GridItem>
-      <GridItem sm={6} md={3}>
-        <SummaryCard icon={MemoryIcon} title="Memory">
-          {memoryGib != null ? `${memoryGib} GiB` : '—'}
-        </SummaryCard>
-      </GridItem>
-      <GridItem sm={6} md={3}>
-        <SummaryCard icon={GlobeIcon} title="Public IP">
+      <GridItem sm={6} md={4}>
+        <SummaryCard icon={GlobeIcon} title={t('vm.details.summary.publicIp')}>
           {publicIp || '—'}
         </SummaryCard>
       </GridItem>
-      <GridItem sm={6} md={3}>
-        <SummaryCard icon={NetworkWiredIcon} title="Internal IP">
+      <GridItem sm={6} md={4}>
+        <SummaryCard icon={NetworkWiredIcon} title={t('vm.details.summary.internalIp')}>
           {internalIp || '—'}
         </SummaryCard>
       </GridItem>
