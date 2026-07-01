@@ -18,6 +18,10 @@ import type { Subnet, VirtualNetwork } from '@osac/types';
 
 import { cidrSchema, hasSubnetOverlap, isSubnetWithinVN } from './cidr-validation';
 import type { SubnetInput } from '../../api/v1/networking';
+import {
+  FormFieldHelper,
+  getFormFieldHelperDescribedBy,
+} from '../../components/Form/FormFieldHelper';
 import OsacForm from '../../components/Form/OsacForm';
 import { useTranslation } from '../../hooks/useTranslation';
 import { getErrorMessage } from '../../utils/error';
@@ -72,7 +76,7 @@ export const SubnetCreateModal = ({
           const input: SubnetInput = {
             name: values.name,
             virtual_network: parentVN.id,
-            ipv4Cidr: values.ipv4Cidr,
+            ipv4_cidr: values.ipv4Cidr,
           };
           await onCreate(input);
           onClose();
@@ -92,7 +96,7 @@ export const SubnetCreateModal = ({
         >
           <ModalHeader title={t('Create subnet')} labelId="subnet-create-modal-title" />
           <ModalBody>
-            <OsacForm id="subnet-create-form" onSubmit={handleSubmit}>
+            <OsacForm>
               <Stack hasGutter>
                 <StackItem>
                   <p>
@@ -113,13 +117,7 @@ export const SubnetCreateModal = ({
                   </StackItem>
                 )}
                 <StackItem>
-                  <FormGroup
-                    label={t('Name')}
-                    isRequired
-                    fieldId="subnet-name"
-                    helperTextInvalid={errors.name}
-                    validated={touched.name && errors.name ? 'error' : 'default'}
-                  >
+                  <FormGroup label={t('Name')} isRequired fieldId="subnet-name">
                     <TextInput
                       id="subnet-name"
                       name="name"
@@ -128,18 +126,19 @@ export const SubnetCreateModal = ({
                       onBlur={handleBlur}
                       validated={touched.name && errors.name ? 'error' : 'default'}
                       aria-label="Name"
+                      aria-describedby={getFormFieldHelperDescribedBy(
+                        'subnet-name',
+                        touched.name ? errors.name : undefined,
+                      )}
+                    />
+                    <FormFieldHelper
+                      fieldId="subnet-name"
+                      error={touched.name ? errors.name : undefined}
                     />
                   </FormGroup>
                 </StackItem>
                 <StackItem>
-                  <FormGroup
-                    label={t('CIDR')}
-                    isRequired
-                    fieldId="subnet-cidr"
-                    helperText={t('Example: 10.0.1.0/24')}
-                    helperTextInvalid={errors.ipv4Cidr}
-                    validated={touched.ipv4Cidr && errors.ipv4Cidr ? 'error' : 'default'}
-                  >
+                  <FormGroup label={t('CIDR')} isRequired fieldId="subnet-cidr">
                     <TextInput
                       id="subnet-cidr"
                       name="ipv4Cidr"
@@ -148,6 +147,16 @@ export const SubnetCreateModal = ({
                       onBlur={handleBlur}
                       validated={touched.ipv4Cidr && errors.ipv4Cidr ? 'error' : 'default'}
                       aria-label="CIDR"
+                      aria-describedby={getFormFieldHelperDescribedBy(
+                        'subnet-cidr',
+                        touched.ipv4Cidr ? errors.ipv4Cidr : undefined,
+                        t('Example: 10.0.1.0/24'),
+                      )}
+                    />
+                    <FormFieldHelper
+                      fieldId="subnet-cidr"
+                      error={touched.ipv4Cidr ? errors.ipv4Cidr : undefined}
+                      description={t('Example: 10.0.1.0/24')}
                     />
                   </FormGroup>
                 </StackItem>
@@ -167,8 +176,7 @@ export const SubnetCreateModal = ({
             </Button>
             <Button
               variant="primary"
-              type="submit"
-              form="subnet-create-form"
+              onClick={() => handleSubmit()}
               isDisabled={isSubmitting}
               isLoading={isSubmitting}
             >
