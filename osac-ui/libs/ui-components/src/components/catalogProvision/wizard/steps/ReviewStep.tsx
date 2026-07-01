@@ -56,7 +56,7 @@ export const ReviewStep = ({ adapter, catalogItem, values }: Props) => {
   const rows = sections.flatMap((section) => section.rows);
 
   return (
-    <DescriptionList isHorizontal isCompact>
+    <DescriptionList isHorizontal isCompact aria-label={t('catalogProvision.steps.review.title')}>
       <DescriptionListGroup>
         <DescriptionListTerm>{t('catalogProvision.review.catalogItem')}</DescriptionListTerm>
         <DescriptionListDescription>{catalogItem?.title ?? '—'}</DescriptionListDescription>

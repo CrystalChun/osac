@@ -4,6 +4,7 @@ import {
   InstanceTypesListResponseSchema,
   SecurityGroupsListResponseSchema,
   SubnetsListResponseSchema,
+  VirtualNetworkState,
   VirtualNetworksListResponseSchema,
 } from '@osac/types';
 
@@ -32,6 +33,54 @@ const decodeRoute = (route: ApiRoute, raw: unknown, decode?: Parameters<ApiFetch
   return decodeFulfillmentResponse(decode, raw);
 };
 
+const matchesReadyStateFilter = (
+  filter: string | undefined,
+  state: number | undefined,
+): boolean => {
+  if (!filter?.includes('this.status.state ==')) {
+    return true;
+  }
+  return state === VirtualNetworkState.READY;
+};
+
+const matchesVirtualNetworkScopeFilter = (
+  filter: string | undefined,
+  virtualNetwork: string | undefined,
+): boolean => {
+  if (!filter || !virtualNetwork) {
+    return true;
+  }
+  const match = filter.match(/this\.spec\.virtual_network == "([^"]+)"/);
+  if (!match) {
+    return true;
+  }
+  return virtualNetwork === match[1];
+};
+
+const filterVirtualNetworks = (
+  items: (typeof mockVirtualNetwork)[],
+  filter: string | undefined,
+) =>
+  items.filter(
+    (item) =>
+      matchesReadyStateFilter(filter, item.status?.state) &&
+      matchesVirtualNetworkScopeFilter(filter, undefined),
+  );
+
+const filterSubnets = (items: (typeof mockSubnet)[], filter: string | undefined) =>
+  items.filter(
+    (item) =>
+      matchesReadyStateFilter(filter, item.status?.state) &&
+      matchesVirtualNetworkScopeFilter(filter, item.spec?.virtualNetwork),
+  );
+
+const filterSecurityGroups = (items: (typeof mockSecurityGroup)[], filter: string | undefined) =>
+  items.filter(
+    (item) =>
+      matchesReadyStateFilter(filter, item.status?.state) &&
+      matchesVirtualNetworkScopeFilter(filter, item.spec?.virtualNetwork),
+  );
+
 export const createMockApiFetch = (fixtures: WizardApiFixtures = {}): ApiFetch => {
   const catalogItems = fixtures.catalogItems ?? [vmCatalogItem];
   const virtualNetworks = fixtures.virtualNetworks ?? [mockVirtualNetwork];
@@ -40,7 +89,9 @@ export const createMockApiFetch = (fixtures: WizardApiFixtures = {}): ApiFetch =
   const instanceTypes = fixtures.instanceTypes ?? [mockInstanceType];
 
   return async (route, options = {}) => {
-    const { decode } = options;
+    const { decode, queryParams } = options;
+    const filter =
+      typeof queryParams?.filter === 'string' ? queryParams.filter : undefined;
 
     switch (route) {
       case 'v1/compute_instance_catalog_items':
@@ -52,15 +103,19 @@ export const createMockApiFetch = (fixtures: WizardApiFixtures = {}): ApiFetch =
       case 'v1/virtual_networks':
         return decodeRoute(
           route,
-          { items: virtualNetworks },
+          { items: filterVirtualNetworks(virtualNetworks, filter) },
           decode ?? VirtualNetworksListResponseSchema,
         );
       case 'v1/subnets':
-        return decodeRoute(route, { items: subnets }, decode ?? SubnetsListResponseSchema);
+        return decodeRoute(
+          route,
+          { items: filterSubnets(subnets, filter) },
+          decode ?? SubnetsListResponseSchema,
+        );
       case 'v1/security_groups':
         return decodeRoute(
           route,
-          { items: securityGroups },
+          { items: filterSecurityGroups(securityGroups, filter) },
           decode ?? SecurityGroupsListResponseSchema,
         );
       case 'v1/instance_types':

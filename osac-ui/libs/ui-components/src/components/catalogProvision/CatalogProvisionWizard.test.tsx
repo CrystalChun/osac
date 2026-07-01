@@ -2,6 +2,7 @@ import { screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 import type { ComputeInstanceCatalogItem } from '@osac/types';
+import { SecurityGroupState, SubnetState, VirtualNetworkState } from '@osac/types';
 
 import { createMockApiFetch } from './test/createMockApiFetch';
 import { vmCatalogItem } from './test/fixtures';
@@ -278,6 +279,50 @@ describe('CatalogProvisionWizard', () => {
 
     await waitFor(() => {
       expect(screen.getByLabelText(/VM image/)).toHaveValue('quay.io/example/rhel9');
+    });
+  });
+
+  it('shows only ready virtual networks when pending and ready share a name', async () => {
+    const { user } = await renderWizard({
+      apiFixtures: {
+        virtualNetworks: [
+          {
+            id: 'vn-pending',
+            metadata: { name: 'tenant-vn' },
+            status: { state: VirtualNetworkState.PENDING },
+          },
+          {
+            id: 'vn-ready',
+            metadata: { name: 'tenant-vn' },
+            status: { state: VirtualNetworkState.READY },
+          },
+        ],
+        subnets: [
+          {
+            id: 'subnet-1',
+            metadata: { name: 'tenant-subnet' },
+            spec: { virtualNetwork: 'vn-ready' },
+            status: { state: SubnetState.READY },
+          },
+        ],
+        securityGroups: [
+          {
+            id: 'sg-1',
+            metadata: { name: 'default-sg' },
+            spec: { virtualNetwork: 'vn-ready' },
+            status: { state: SecurityGroupState.READY },
+          },
+        ],
+      },
+    });
+    await advanceToNetworkingStep(user);
+
+    await waitFor(() => {
+      const select = document.getElementById('vm-virtual-network') as HTMLSelectElement;
+      const networkOptions = Array.from(select.options).filter((option) => option.value !== '');
+      expect(networkOptions).toHaveLength(1);
+      expect(networkOptions[0].value).toBe('vn-ready');
+      expect(select.value).toBe('vn-ready');
     });
   });
 

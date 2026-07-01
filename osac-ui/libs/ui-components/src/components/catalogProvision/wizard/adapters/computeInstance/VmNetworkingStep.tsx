@@ -7,9 +7,11 @@ import type { ComputeInstanceCatalogItem } from '@osac/types';
 import type { ComputeInstanceWizardValues } from './fields';
 import {
   resourceDisplayName,
+  securityGroupFilterForVirtualNetworkList,
   useSecurityGroups,
   useSubnets,
   useVirtualNetworks,
+  VIRTUAL_NETWORK_READY_LIST_FILTER,
   virtualNetworkFilterForSubnetList,
 } from '../../../../../api/v1/networking';
 import { useTranslation } from '../../../../../hooks/useTranslation';
@@ -31,12 +33,14 @@ export const VmNetworkingStep = ({ catalogItem }: Props) => {
     isPending: virtualNetworksLoading,
     isError: virtualNetworksError,
     refetch: refetchVirtualNetworks,
-  } = useVirtualNetworks();
+  } = useVirtualNetworks({ filter: VIRTUAL_NETWORK_READY_LIST_FILTER });
 
   const subnetFilter = virtualNetworkId
     ? virtualNetworkFilterForSubnetList(virtualNetworkId)
     : undefined;
-  const securityGroupFilter = subnetFilter;
+  const securityGroupFilter = virtualNetworkId
+    ? securityGroupFilterForVirtualNetworkList(virtualNetworkId)
+    : undefined;
 
   const {
     data: subnets = [],
