@@ -5,7 +5,7 @@ import { EllipsisVIcon } from '@patternfly/react-icons/dist/esm/icons/ellipsis-v
 import type { ComputeInstance } from '@osac/types';
 import { ComputeInstanceState } from '@osac/types';
 
-import { VmDeleteConfirmModal } from './DetailsPage/VmDeleteConfirmModal';
+import VmDeleteConfirmModal from './DetailsPage/VmDeleteConfirmModal';
 import { usePatchComputeInstance } from '../../api/v1/compute-instance';
 
 interface VmActionsMenuProps {

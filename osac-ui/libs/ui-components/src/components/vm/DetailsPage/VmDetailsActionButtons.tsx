@@ -9,14 +9,14 @@ import SyncAltIcon from '@patternfly/react-icons/dist/esm/icons/sync-alt-icon';
 import type { ComputeInstance } from '@osac/types';
 import { ComputeInstanceState } from '@osac/types';
 
-import { VmDeleteConfirmModal } from './VmDeleteConfirmModal';
+import VmDeleteConfirmModal from './VmDeleteConfirmModal';
 import { usePatchComputeInstance } from '../../../api/v1/compute-instance';
 
 interface VmDetailsActionButtonsProps {
   vm: ComputeInstance;
 }
 
-export const VmDetailsActionButtons = ({ vm }: VmDetailsActionButtonsProps) => {
+const VmDetailsActionButtons = ({ vm }: VmDetailsActionButtonsProps) => {
   const navigate = useNavigate();
   const [deleteOpen, setDeleteOpen] = useState(false);
   const patchVm = usePatchComputeInstance();
@@ -95,3 +95,5 @@ export const VmDetailsActionButtons = ({ vm }: VmDetailsActionButtonsProps) => {
     </>
   );
 };
+
+export default VmDetailsActionButtons;

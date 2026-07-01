@@ -5,11 +5,13 @@
 import { useParams } from 'react-router-dom';
 
 import { useComputeInstance } from '../../api/v1/compute-instance';
+import { useTranslation } from '../../hooks/useTranslation';
 import { ResourceDetailsPageError } from '../Resource/ResourceDetailsPageError';
 import { ResourceDetailsPageLoading } from '../Resource/ResourceDetailsPageLoading';
-import { VmDetails } from './DetailsPage/VmDetails';
+import VmDetails from './DetailsPage/VmDetails';
 
 export const VmDetailsPage = () => {
+  const { t } = useTranslation();
   const { id } = useParams() as { id: string };
   const { data: vm, isLoading, isError, refetch } = useComputeInstance(id);
 
@@ -17,8 +19,8 @@ export const VmDetailsPage = () => {
     return (
       <ResourceDetailsPageLoading
         parentTo="/vms"
-        parentLabel="Virtual machines"
-        tabLabels={['Overview', 'Networking']}
+        parentLabel={t('vm.details.breadcrumb')}
+        tabLabels={[t('Overview'), t('Networking')]}
         tabsId="vm-detail-tabs"
         cardCount={2}
       />
@@ -29,7 +31,7 @@ export const VmDetailsPage = () => {
     return (
       <ResourceDetailsPageError
         parentTo="/vms"
-        parentLabel="Virtual machines"
+        parentLabel={t('vm.details.breadcrumb')}
         resourceLabel="virtual machine"
         variant="load-error"
         onRetry={() => void refetch()}
@@ -41,7 +43,7 @@ export const VmDetailsPage = () => {
     return (
       <ResourceDetailsPageError
         parentTo="/vms"
-        parentLabel="Virtual machines"
+        parentLabel={t('vm.details.breadcrumb')}
         resourceLabel="virtual machine"
         variant="not-found"
       />
