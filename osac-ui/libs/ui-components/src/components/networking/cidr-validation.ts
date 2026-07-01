@@ -7,10 +7,14 @@ import * as Yup from 'yup';
 export const cidrSchema = Yup.string()
   .required('CIDR is required')
   .test('valid-cidr', 'Invalid CIDR notation', (value) => {
-    if (!value) return false;
+    if (!value) {
+      return false;
+    }
 
     // CIDR must have a slash and prefix length
-    if (!value.includes('/')) return false;
+    if (!value.includes('/')) {
+      return false;
+    }
 
     try {
       // Try parsing as IPv4 first

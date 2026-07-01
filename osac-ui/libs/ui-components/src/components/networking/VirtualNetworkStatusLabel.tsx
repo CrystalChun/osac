@@ -17,7 +17,7 @@ const VIRTUAL_NETWORK_STATUS_MAP: Record<
 };
 
 const resolveVirtualNetworkStatus = (
-  state?: VirtualNetworkState
+  state?: VirtualNetworkState,
 ): { status: StatusKind; text: string } => {
   switch (state) {
     case VirtualNetworkState.PENDING:

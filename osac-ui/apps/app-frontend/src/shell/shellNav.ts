@@ -30,7 +30,11 @@ const getTenantUserNav = (t: TFunction): NavRow[] => [
     sectionId: 'nav-tenant-networking',
     label: t('Networking'),
     children: [
-      { id: 'virtual-networks', label: t('Virtual Networks'), path: '/networking/virtual-networks' },
+      {
+        id: 'virtual-networks',
+        label: t('Virtual Networks'),
+        path: '/networking/virtual-networks',
+      },
     ],
   },
 ];

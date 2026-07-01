@@ -29,7 +29,7 @@ describe('SubnetCreateModal', () => {
         onCreate={mockOnCreate}
         parentVN={mockParentVN}
         existingSubnets={mockExistingSubnets}
-      />
+      />,
     );
 
     expect(screen.getByLabelText(/Name/i)).toBeInTheDocument();
@@ -46,7 +46,7 @@ describe('SubnetCreateModal', () => {
         onCreate={mockOnCreate}
         parentVN={mockParentVN}
         existingSubnets={mockExistingSubnets}
-      />
+      />,
     );
 
     expect(screen.getByText(/10\.0\.0\.0\/16/)).toBeInTheDocument();
@@ -60,7 +60,7 @@ describe('SubnetCreateModal', () => {
         onCreate={mockOnCreate}
         parentVN={mockParentVN}
         existingSubnets={mockExistingSubnets}
-      />
+      />,
     );
 
     expect(screen.getByText(/10\.0\.1\.0\/24/)).toBeInTheDocument();
@@ -74,7 +74,7 @@ describe('SubnetCreateModal', () => {
         onCreate={mockOnCreate}
         parentVN={mockParentVN}
         existingSubnets={mockExistingSubnets}
-      />
+      />,
     );
 
     const createButton = screen.getByRole('button', { name: /Create/i });
