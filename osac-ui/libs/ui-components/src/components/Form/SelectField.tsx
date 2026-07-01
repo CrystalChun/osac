@@ -56,10 +56,8 @@ export const SelectField = ({
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? `${fieldId}-helper-error` : undefined}
         aria-busy={isLoading || undefined}
+        placeholder={effectivePlaceholder}
       >
-        {effectivePlaceholder ? (
-          <FormSelectOption value="" label={effectivePlaceholder} isPlaceholder isDisabled />
-        ) : null}
         {options.map((option) => (
           <FormSelectOption
             key={option.value}
