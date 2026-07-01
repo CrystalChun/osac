@@ -63,7 +63,7 @@ describe('SubnetCreateModal', () => {
       />,
     );
 
-    expect(screen.getByText(/10\.0\.1\.0\/24/)).toBeInTheDocument();
+    expect(screen.getByText(/subnet-web: 10\.0\.1\.0\/24/)).toBeInTheDocument();
   });
 
   it('Create button stays enabled', () => {
