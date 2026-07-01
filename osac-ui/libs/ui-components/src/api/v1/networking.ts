@@ -1,19 +1,26 @@
+import { useMutation } from '@tanstack/react-query';
+
 import {
   type SecurityGroup,
+  SecurityGroupSchema,
   SecurityGroupState,
   type SecurityGroupsListResponse,
   SecurityGroupsListResponseSchema,
   type Subnet,
+  SubnetSchema,
   SubnetState,
   type SubnetsListResponse,
   SubnetsListResponseSchema,
   type VirtualNetwork,
+  VirtualNetworkSchema,
   VirtualNetworkState,
   type VirtualNetworksListResponse,
   VirtualNetworksListResponseSchema,
 } from '@osac/types';
 
-import { useApiQuery } from '../use-api-query';
+import { useApiFetch } from '../api-context';
+import { apiQueryKey } from '../types';
+import { useApiQuery, useApiQueryClient } from '../use-api-query';
 
 export type ListNetworkingParams = {
   filter?: string;
@@ -111,3 +118,146 @@ export const formatResourceIdForReview = (
   id: string,
   resources: Array<{ id: string; metadata?: { name?: string } }>,
 ): string => formatResourceIdsForReview(id.trim() ? [id] : [], resources);
+
+export const useVirtualNetwork = (id: string) => {
+  const trimmedId = id?.trim() ?? '';
+  return useApiQuery<VirtualNetwork>({
+    queryKey: ['v1/virtual_networks', [trimmedId]],
+    meta: { decode: VirtualNetworkSchema },
+    enabled: Boolean(trimmedId),
+  });
+};
+
+export const useSubnet = (id: string) => {
+  const trimmedId = id?.trim() ?? '';
+  return useApiQuery<Subnet>({
+    queryKey: ['v1/subnets', [trimmedId]],
+    meta: { decode: SubnetSchema },
+    enabled: Boolean(trimmedId),
+  });
+};
+
+export const useSecurityGroup = (id: string) => {
+  const trimmedId = id?.trim() ?? '';
+  return useApiQuery<SecurityGroup>({
+    queryKey: ['v1/security_groups', [trimmedId]],
+    meta: { decode: SecurityGroupSchema },
+    enabled: Boolean(trimmedId),
+  });
+};
+
+export const invalidateVirtualNetworksQueries = async (
+  qc: ReturnType<typeof useApiQueryClient>,
+) => {
+  await qc.invalidateQueries({ queryKey: apiQueryKey('v1/virtual_networks', null) });
+};
+
+export const invalidateSubnetsQueries = async (qc: ReturnType<typeof useApiQueryClient>) => {
+  await qc.invalidateQueries({ queryKey: apiQueryKey('v1/subnets', null) });
+};
+
+export const invalidateSecurityGroupsQueries = async (
+  qc: ReturnType<typeof useApiQueryClient>,
+) => {
+  await qc.invalidateQueries({ queryKey: apiQueryKey('v1/security_groups', null) });
+};
+
+export interface VirtualNetworkInput {
+  name: string;
+  ipv4_cidr: string;
+  ipv6_cidr?: string;
+}
+
+export interface SubnetInput {
+  name: string;
+  virtual_network: string;
+  ipv4_cidr: string;
+}
+
+export const useCreateVirtualNetwork = () => {
+  const apiFetch = useApiFetch();
+  const qc = useApiQueryClient();
+  return useMutation({
+    mutationFn: async (input: VirtualNetworkInput): Promise<VirtualNetwork> => {
+      const vn = await apiFetch<VirtualNetwork>('v1/virtual_networks', {
+        method: 'POST',
+        body: {
+          object: {
+            metadata: { name: input.name },
+            spec: {
+              ipv4_cidr: input.ipv4_cidr,
+              ...(input.ipv6_cidr && { ipv6_cidr: input.ipv6_cidr }),
+            },
+          },
+        },
+        decode: VirtualNetworkSchema,
+      });
+      if (!vn.id) {
+        throw new Error('Create response missing id');
+      }
+      return vn;
+    },
+    onSuccess: async () => {
+      await invalidateVirtualNetworksQueries(qc);
+    },
+  });
+};
+
+export const useDeleteVirtualNetwork = () => {
+  const apiFetch = useApiFetch();
+  const qc = useApiQueryClient();
+  return useMutation({
+    mutationFn: (id: string) =>
+      apiFetch<void>('v1/virtual_networks', {
+        pathParams: [id],
+        method: 'DELETE',
+      }),
+    onSuccess: async () => {
+      await invalidateVirtualNetworksQueries(qc);
+    },
+  });
+};
+
+export const useCreateSubnet = () => {
+  const apiFetch = useApiFetch();
+  const qc = useApiQueryClient();
+  return useMutation({
+    mutationFn: async (input: SubnetInput): Promise<Subnet> => {
+      const subnet = await apiFetch<Subnet>('v1/subnets', {
+        method: 'POST',
+        body: {
+          object: {
+            metadata: { name: input.name },
+            spec: {
+              virtual_network: input.virtual_network,
+              ipv4_cidr: input.ipv4_cidr,
+            },
+          },
+        },
+        decode: SubnetSchema,
+      });
+      if (!subnet.id) {
+        throw new Error('Create response missing id');
+      }
+      return subnet;
+    },
+    onSuccess: async () => {
+      await invalidateSubnetsQueries(qc);
+    },
+  });
+};
+
+export const useDeleteSubnet = () => {
+  const apiFetch = useApiFetch();
+  const qc = useApiQueryClient();
+  return useMutation({
+    mutationFn: (id: string) =>
+      apiFetch<void>('v1/subnets', {
+        pathParams: [id],
+        method: 'DELETE',
+      }),
+    onSuccess: async () => {
+      await invalidateSubnetsQueries(qc);
+    },
+  });
+};
