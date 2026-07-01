@@ -2,7 +2,6 @@ import React from 'react';
 import {
   Alert,
   Button,
-  Form,
   FormGroup,
   Modal,
   ModalBody,
@@ -18,6 +17,7 @@ import * as Yup from 'yup';
 import type { Subnet, VirtualNetwork } from '@osac/types';
 
 import type { SubnetInput } from '../../api/v1/networking';
+import OsacForm from '../../components/Form/OsacForm';
 import { useTranslation } from '../../hooks/useTranslation';
 import { getErrorMessage } from '../../utils/error';
 import { cidrSchema, hasSubnetOverlap, isSubnetWithinVN } from './cidr-validation';
@@ -47,11 +47,15 @@ export const SubnetCreateModal = ({
     name: Yup.string().required('Name is required'),
     ipv4_cidr: cidrSchema
       .test('within-vn', 'CIDR must be within parent virtual network range', (value) => {
-        if (!value || !parentCIDR) return true;
+        if (!value || !parentCIDR) {
+          return true;
+        }
         return isSubnetWithinVN(value, parentCIDR);
       })
       .test('no-overlap', 'CIDR overlaps with existing subnet', (value) => {
-        if (!value) return true;
+        if (!value) {
+          return true;
+        }
         return !hasSubnetOverlap(value, existingCIDRs);
       }),
   });
@@ -70,8 +74,8 @@ export const SubnetCreateModal = ({
           };
           await onCreate(input);
           onClose();
-        } catch (err) {
-          setError(err as Error);
+        } catch (err: unknown) {
+          setError(err instanceof Error ? err : new Error(String(err)));
         } finally {
           setSubmitting(false);
         }
@@ -86,7 +90,7 @@ export const SubnetCreateModal = ({
         >
           <ModalHeader title={t('Create subnet')} labelId="subnet-create-modal-title" />
           <ModalBody>
-            <Form id="subnet-create-form" onSubmit={handleSubmit}>
+            <OsacForm id="subnet-create-form" onSubmit={handleSubmit}>
               <Stack hasGutter>
                 <StackItem>
                   <p>
@@ -155,7 +159,7 @@ export const SubnetCreateModal = ({
                   </StackItem>
                 )}
               </Stack>
-            </Form>
+            </OsacForm>
           </ModalBody>
           <ModalFooter>
             <Button variant="link" onClick={onClose} isDisabled={isSubmitting}>

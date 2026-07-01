@@ -3,21 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { Button, SearchInput } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
-import type { VirtualNetwork } from '@osac/types';
-import { VirtualNetworkState } from '@osac/types';
-
-import { useVirtualNetworks } from '../../api/v1/networking';
+import { useCreateVirtualNetwork, useVirtualNetworks } from '../../api/v1/networking';
+import { VirtualNetworkCreateModal } from '../../components/networking/VirtualNetworkCreateModal';
+import { VirtualNetworkStatusLabel } from '../../components/networking/VirtualNetworkStatusLabel';
 import ListPage from '../../components/Page/ListPage';
 import ListPageBody from '../../components/Page/ListPageBody';
 import { SubtleContent } from '../../components/SubtleContent/SubtleContent';
 import { useTranslation } from '../../hooks/useTranslation';
-import { VirtualNetworkStatusLabel } from '../../components/networking/VirtualNetworkStatusLabel';
-import { VirtualNetworkCreateModal } from '../../components/networking/VirtualNetworkCreateModal';
-import { useCreateVirtualNetwork } from '../../api/v1/networking';
-
-const isNonTerminalState = (state?: VirtualNetworkState): boolean => {
-  return state === VirtualNetworkState.PENDING;
-};
 
 export const VirtualNetworksListPage = () => {
   const { t } = useTranslation();

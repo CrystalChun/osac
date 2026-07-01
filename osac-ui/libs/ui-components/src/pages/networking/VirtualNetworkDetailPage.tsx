@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Alert, Button, Tab, Tabs, TabTitleText } from '@patternfly/react-core';
+import { Alert, Button, Tab, TabTitleText, Tabs } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
 import { VirtualNetworkState } from '@osac/types';
@@ -11,13 +11,13 @@ import {
   useVirtualNetwork,
   virtualNetworkFilterForSubnetList,
 } from '../../api/v1/networking';
+import { SubnetCreateModal } from '../../components/networking/SubnetCreateModal';
+import { SubnetStatusLabel } from '../../components/networking/SubnetStatusLabel';
+import { VirtualNetworkStatusLabel } from '../../components/networking/VirtualNetworkStatusLabel';
 import ListPage from '../../components/Page/ListPage';
 import ListPageBody from '../../components/Page/ListPageBody';
 import { SubtleContent } from '../../components/SubtleContent/SubtleContent';
 import { useTranslation } from '../../hooks/useTranslation';
-import { SubnetCreateModal } from '../../components/networking/SubnetCreateModal';
-import { SubnetStatusLabel } from '../../components/networking/SubnetStatusLabel';
-import { VirtualNetworkStatusLabel } from '../../components/networking/VirtualNetworkStatusLabel';
 
 export const VirtualNetworkDetailPage = () => {
   const { t } = useTranslation();
