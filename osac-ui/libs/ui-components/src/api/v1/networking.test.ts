@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest';
+
 import { SecurityGroupState, SubnetState, VirtualNetworkState } from '@osac/types';
 
 import {
+  VIRTUAL_NETWORK_READY_LIST_FILTER,
   securityGroupFilterForVirtualNetworkList,
   virtualNetworkFilterForSubnetList,
-  VIRTUAL_NETWORK_READY_LIST_FILTER,
 } from './networking';
 
 describe('networking list filters', () => {

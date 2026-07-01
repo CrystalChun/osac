@@ -60,10 +60,7 @@ export const useSecurityGroups = (
   });
 
 export const virtualNetworkFilterForSubnetList = (virtualNetworkId: string): string =>
-  combineListFilters(
-    virtualNetworkScopeFilter(virtualNetworkId),
-    SUBNET_READY_LIST_FILTER,
-  )!;
+  combineListFilters(virtualNetworkScopeFilter(virtualNetworkId), SUBNET_READY_LIST_FILTER)!;
 
 export const securityGroupFilterForVirtualNetworkList = (virtualNetworkId: string): string =>
   combineListFilters(

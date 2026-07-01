@@ -57,10 +57,7 @@ const matchesVirtualNetworkScopeFilter = (
   return virtualNetwork === match[1];
 };
 
-const filterVirtualNetworks = (
-  items: (typeof mockVirtualNetwork)[],
-  filter: string | undefined,
-) =>
+const filterVirtualNetworks = (items: (typeof mockVirtualNetwork)[], filter: string | undefined) =>
   items.filter(
     (item) =>
       matchesReadyStateFilter(filter, item.status?.state) &&
@@ -90,8 +87,7 @@ export const createMockApiFetch = (fixtures: WizardApiFixtures = {}): ApiFetch =
 
   return async (route, options = {}) => {
     const { decode, queryParams } = options;
-    const filter =
-      typeof queryParams?.filter === 'string' ? queryParams.filter : undefined;
+    const filter = typeof queryParams?.filter === 'string' ? queryParams.filter : undefined;
 
     switch (route) {
       case 'v1/compute_instance_catalog_items':

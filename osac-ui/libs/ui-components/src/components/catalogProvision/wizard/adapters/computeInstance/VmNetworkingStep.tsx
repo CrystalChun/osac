@@ -6,12 +6,12 @@ import type { ComputeInstanceCatalogItem } from '@osac/types';
 
 import type { ComputeInstanceWizardValues } from './fields';
 import {
+  VIRTUAL_NETWORK_READY_LIST_FILTER,
   resourceDisplayName,
   securityGroupFilterForVirtualNetworkList,
   useSecurityGroups,
   useSubnets,
   useVirtualNetworks,
-  VIRTUAL_NETWORK_READY_LIST_FILTER,
   virtualNetworkFilterForSubnetList,
 } from '../../../../../api/v1/networking';
 import { useTranslation } from '../../../../../hooks/useTranslation';
