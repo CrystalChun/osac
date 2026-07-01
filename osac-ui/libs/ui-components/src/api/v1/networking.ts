@@ -88,8 +88,12 @@ const combineListFilters = (...filters: (string | undefined)[]): string | undefi
   return active.map((filter) => `(${filter})`).join(' && ');
 };
 
+/** Escape a value for interpolation inside a CEL double-quoted string literal. */
+export const escapeCelStringLiteral = (value: string): string =>
+  value.replaceAll('\\', '\\\\').replaceAll('"', '\\"');
+
 const virtualNetworkScopeFilter = (virtualNetworkId: string): string =>
-  `this.spec.virtual_network == "${virtualNetworkId}"`;
+  `this.spec.virtual_network == "${escapeCelStringLiteral(virtualNetworkId)}"`;
 
 export const resourceDisplayName = (metadata?: { name?: string }, id?: string): string =>
   metadata?.name?.trim() || id?.trim() || '—';
