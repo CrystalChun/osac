@@ -9,14 +9,14 @@ describe('SubnetCreateModal', () => {
   const mockParentVN = {
     id: 'vn-123',
     metadata: { name: 'prod-vn' },
-    spec: { ipv4_cidr: '10.0.0.0/16' },
+    spec: { ipv4Cidr: '10.0.0.0/16' },
     status: { state: 'VIRTUAL_NETWORK_STATE_READY' as const },
   };
   const mockExistingSubnets = [
     {
       id: 'subnet-1',
       metadata: { name: 'subnet-web' },
-      spec: { virtual_network: 'vn-123', ipv4_cidr: '10.0.1.0/24' },
+      spec: { virtualNetwork: 'vn-123', ipv4Cidr: '10.0.1.0/24' },
       status: { state: 'SUBNET_STATE_READY' as const },
     },
   ];

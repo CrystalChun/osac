@@ -43,10 +43,7 @@ export const VirtualNetworkDetailPage = () => {
 
   return (
     <>
-      <ListPage
-        title={vnName}
-        description={<VirtualNetworkStatusLabel state={vn?.status?.state} />}
-      >
+      <ListPage title={vnName}>
         <ListPageBody isLoading={isLoading} error={error}>
           {isFailed && vn?.status?.message && (
             <Alert

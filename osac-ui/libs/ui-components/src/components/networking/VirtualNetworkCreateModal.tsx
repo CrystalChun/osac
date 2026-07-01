@@ -16,6 +16,10 @@ import * as Yup from 'yup';
 
 import { cidrSchema } from './cidr-validation';
 import type { VirtualNetworkInput } from '../../api/v1/networking';
+import {
+  FormFieldHelper,
+  getFormFieldHelperDescribedBy,
+} from '../../components/Form/FormFieldHelper';
 import OsacForm from '../../components/Form/OsacForm';
 import { useTranslation } from '../../hooks/useTranslation';
 import { getErrorMessage } from '../../utils/error';
@@ -51,10 +55,10 @@ export const VirtualNetworkCreateModal = ({
         try {
           const input: VirtualNetworkInput = {
             name: values.name,
-            ipv4Cidr: values.ipv4Cidr,
+            ipv4_cidr: values.ipv4Cidr,
           };
           if (values.ipv6Cidr) {
-            input.ipv6Cidr = values.ipv6Cidr;
+            input.ipv6_cidr = values.ipv6Cidr;
           }
           const result = await onCreate(input);
           onNavigate(result.id);
@@ -74,16 +78,10 @@ export const VirtualNetworkCreateModal = ({
         >
           <ModalHeader title={t('Create virtual network')} labelId="vn-create-modal-title" />
           <ModalBody>
-            <OsacForm id="vn-create-form" onSubmit={handleSubmit}>
+            <OsacForm>
               <Stack hasGutter>
                 <StackItem>
-                  <FormGroup
-                    label={t('Name')}
-                    isRequired
-                    fieldId="vn-name"
-                    helperTextInvalid={errors.name}
-                    validated={touched.name && errors.name ? 'error' : 'default'}
-                  >
+                  <FormGroup label={t('Name')} isRequired fieldId="vn-name">
                     <TextInput
                       id="vn-name"
                       name="name"
@@ -92,18 +90,19 @@ export const VirtualNetworkCreateModal = ({
                       onBlur={handleBlur}
                       validated={touched.name && errors.name ? 'error' : 'default'}
                       aria-label="Name"
+                      aria-describedby={getFormFieldHelperDescribedBy(
+                        'vn-name',
+                        touched.name ? errors.name : undefined,
+                      )}
+                    />
+                    <FormFieldHelper
+                      fieldId="vn-name"
+                      error={touched.name ? errors.name : undefined}
                     />
                   </FormGroup>
                 </StackItem>
                 <StackItem>
-                  <FormGroup
-                    label={t('IPv4 CIDR')}
-                    isRequired
-                    fieldId="vn-ipv4-cidr"
-                    helperText={t('Example: 10.0.0.0/16')}
-                    helperTextInvalid={errors.ipv4Cidr}
-                    validated={touched.ipv4Cidr && errors.ipv4Cidr ? 'error' : 'default'}
-                  >
+                  <FormGroup label={t('IPv4 CIDR')} isRequired fieldId="vn-ipv4-cidr">
                     <TextInput
                       id="vn-ipv4-cidr"
                       name="ipv4Cidr"
@@ -112,17 +111,21 @@ export const VirtualNetworkCreateModal = ({
                       onBlur={handleBlur}
                       validated={touched.ipv4Cidr && errors.ipv4Cidr ? 'error' : 'default'}
                       aria-label="IPv4 CIDR"
+                      aria-describedby={getFormFieldHelperDescribedBy(
+                        'vn-ipv4-cidr',
+                        touched.ipv4Cidr ? errors.ipv4Cidr : undefined,
+                        t('Example: 10.0.0.0/16'),
+                      )}
+                    />
+                    <FormFieldHelper
+                      fieldId="vn-ipv4-cidr"
+                      error={touched.ipv4Cidr ? errors.ipv4Cidr : undefined}
+                      description={t('Example: 10.0.0.0/16')}
                     />
                   </FormGroup>
                 </StackItem>
                 <StackItem>
-                  <FormGroup
-                    label={t('IPv6 CIDR (Optional)')}
-                    fieldId="vn-ipv6-cidr"
-                    helperText={t('Example: 2001:db8::/32')}
-                    helperTextInvalid={errors.ipv6Cidr}
-                    validated={touched.ipv6Cidr && errors.ipv6Cidr ? 'error' : 'default'}
-                  >
+                  <FormGroup label={t('IPv6 CIDR (Optional)')} fieldId="vn-ipv6-cidr">
                     <TextInput
                       id="vn-ipv6-cidr"
                       name="ipv6Cidr"
@@ -131,6 +134,16 @@ export const VirtualNetworkCreateModal = ({
                       onBlur={handleBlur}
                       validated={touched.ipv6Cidr && errors.ipv6Cidr ? 'error' : 'default'}
                       aria-label="IPv6 CIDR (Optional)"
+                      aria-describedby={getFormFieldHelperDescribedBy(
+                        'vn-ipv6-cidr',
+                        touched.ipv6Cidr ? errors.ipv6Cidr : undefined,
+                        t('Example: 2001:db8::/32'),
+                      )}
+                    />
+                    <FormFieldHelper
+                      fieldId="vn-ipv6-cidr"
+                      error={touched.ipv6Cidr ? errors.ipv6Cidr : undefined}
+                      description={t('Example: 2001:db8::/32')}
                     />
                   </FormGroup>
                 </StackItem>
@@ -150,8 +163,7 @@ export const VirtualNetworkCreateModal = ({
             </Button>
             <Button
               variant="primary"
-              type="submit"
-              form="vn-create-form"
+              onClick={() => handleSubmit()}
               isDisabled={isSubmitting}
               isLoading={isSubmitting}
             >
