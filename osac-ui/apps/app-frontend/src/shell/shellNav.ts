@@ -25,6 +25,14 @@ const getTenantUserNav = (t: TFunction): NavRow[] => [
       { id: 'clusters', label: t('Clusters'), path: '/clusters' },
     ],
   },
+  {
+    kind: 'section',
+    sectionId: 'nav-tenant-networking',
+    label: t('Networking'),
+    children: [
+      { id: 'virtual-networks', label: t('Virtual Networks'), path: '/networking/virtual-networks' },
+    ],
+  },
 ];
 
 const getTenantAdminNav = (t: TFunction): NavRow[] => [
