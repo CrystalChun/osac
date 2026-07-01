@@ -13,7 +13,11 @@ export const ClustersPage = () => {
   const { data: clusters = [], isLoading, error } = useClusters();
 
   return (
-    <ListPage title="Clusters" description="OpenShift clusters provisioned for your organization.">
+    <ListPage
+      title="Clusters"
+      description="OpenShift clusters provisioned for your organization."
+      error={error}
+    >
       <ListPageBody isLoading={isLoading} error={error}>
         {clusters.length === 0 ? (
           <Alert variant="info" isInline title="No clusters found">

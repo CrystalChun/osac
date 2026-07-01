@@ -10,20 +10,25 @@ import {
 import ExclamationTriangleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-triangle-icon';
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 
-type ResourceDetailsPageErrorVariant = 'load-error' | 'not-found';
+import { UnauthorizedErrorState } from './UnauthorizedErrorState';
+import { isUnauthorizedError } from '../../utils/unauthorizedError';
 
-interface ResourceDetailsPageErrorProps {
+type ResourceDetailsPageErrorVariant = 'load-error' | 'not-found' | 'unauthorized';
+
+type ResourceDetailsPageErrorProps = {
   parentTo: string;
   parentLabel: string;
   resourceLabel: string;
-  variant: ResourceDetailsPageErrorVariant;
   onRetry?: () => void;
-}
+} & ({ error: unknown; variant?: never } | { variant: 'not-found'; error?: never });
+
+const resolveVariant = (error: unknown): Exclude<ResourceDetailsPageErrorVariant, 'not-found'> =>
+  isUnauthorizedError(error) ? 'unauthorized' : 'load-error';
 
 const variantConfig = (
   resourceLabel: string,
 ): Record<
-  ResourceDetailsPageErrorVariant,
+  Exclude<ResourceDetailsPageErrorVariant, 'unauthorized'>,
   {
     icon: typeof ExclamationTriangleIcon;
     status: 'danger' | 'warning';
@@ -49,10 +54,20 @@ export const ResourceDetailsPageError = ({
   parentTo,
   parentLabel,
   resourceLabel,
-  variant,
   onRetry,
+  ...props
 }: ResourceDetailsPageErrorProps) => {
   const navigate = useNavigate();
+  const variant = props.variant ?? resolveVariant(props.error);
+
+  if (variant === 'unauthorized') {
+    return (
+      <PageSection hasBodyWrapper={false} isFilled>
+        <UnauthorizedErrorState />
+      </PageSection>
+    );
+  }
+
   const { icon: Icon, status, title, body } = variantConfig(resourceLabel)[variant];
 
   return (
