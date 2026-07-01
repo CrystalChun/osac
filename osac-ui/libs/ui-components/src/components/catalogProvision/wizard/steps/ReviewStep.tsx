@@ -10,6 +10,8 @@ import type { ComputeInstanceCatalogItem } from '@osac/types';
 import type { BuildComputeInstanceCreateBodyInput } from '../../../../api/v1/compute-instance-wire';
 import { useInstanceTypes } from '../../../../api/v1/instance-types';
 import {
+  VIRTUAL_NETWORK_READY_LIST_FILTER,
+  securityGroupFilterForVirtualNetworkList,
   useSecurityGroups,
   useSubnets,
   useVirtualNetworks,
@@ -35,8 +37,12 @@ export const ReviewStep = ({ adapter, catalogItem, values }: Props) => {
   const subnetFilter = virtualNetworkId
     ? virtualNetworkFilterForSubnetList(virtualNetworkId)
     : undefined;
-  const securityGroupFilter = subnetFilter;
-  const { data: virtualNetworks = [] } = useVirtualNetworks();
+  const securityGroupFilter = virtualNetworkId
+    ? securityGroupFilterForVirtualNetworkList(virtualNetworkId)
+    : undefined;
+  const { data: virtualNetworks = [] } = useVirtualNetworks({
+    filter: VIRTUAL_NETWORK_READY_LIST_FILTER,
+  });
   const { data: subnets = [] } = useSubnets(subnetFilter ? { filter: subnetFilter } : {}, {
     enabled: Boolean(virtualNetworkId),
   });
