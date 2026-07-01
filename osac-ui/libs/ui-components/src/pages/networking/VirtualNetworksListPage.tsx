@@ -74,7 +74,7 @@ export const VirtualNetworksListPage = () => {
               <Tbody>
                 {filteredVNs.map((vn) => {
                   const name = vn.metadata?.name ?? vn.id;
-                  const ipv4Cidr = vn.spec?.ipv4_cidr ?? '—';
+                  const ipv4Cidr = vn.spec?.ipv4Cidr ?? '—';
 
                   return (
                     <Tr key={vn.id}>

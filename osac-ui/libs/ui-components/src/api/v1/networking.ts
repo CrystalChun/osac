@@ -156,9 +156,7 @@ export const invalidateSubnetsQueries = async (qc: ReturnType<typeof useApiQuery
   await qc.invalidateQueries({ queryKey: apiQueryKey('v1/subnets', null) });
 };
 
-export const invalidateSecurityGroupsQueries = async (
-  qc: ReturnType<typeof useApiQueryClient>,
-) => {
+export const invalidateSecurityGroupsQueries = async (qc: ReturnType<typeof useApiQueryClient>) => {
   await qc.invalidateQueries({ queryKey: apiQueryKey('v1/security_groups', null) });
 };
 
@@ -185,8 +183,8 @@ export const useCreateVirtualNetwork = () => {
           object: {
             metadata: { name: input.name },
             spec: {
-              ipv4_cidr: input.ipv4_cidr,
-              ...(input.ipv6_cidr && { ipv6_cidr: input.ipv6_cidr }),
+              ipv4Cidr: input.ipv4_cidr,
+              ...(input.ipv6_cidr && { ipv6Cidr: input.ipv6_cidr }),
             },
           },
         },
@@ -229,8 +227,8 @@ export const useCreateSubnet = () => {
           object: {
             metadata: { name: input.name },
             spec: {
-              virtual_network: input.virtual_network,
-              ipv4_cidr: input.ipv4_cidr,
+              virtualNetwork: input.virtual_network,
+              ipv4Cidr: input.ipv4_cidr,
             },
           },
         },

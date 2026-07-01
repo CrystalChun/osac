@@ -14,11 +14,11 @@ import {
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 
+import { cidrSchema } from './cidr-validation';
 import type { VirtualNetworkInput } from '../../api/v1/networking';
 import OsacForm from '../../components/Form/OsacForm';
 import { useTranslation } from '../../hooks/useTranslation';
 import { getErrorMessage } from '../../utils/error';
-import { cidrSchema } from './cidr-validation';
 
 interface VirtualNetworkCreateModalProps {
   isOpen: boolean;
@@ -29,8 +29,8 @@ interface VirtualNetworkCreateModalProps {
 
 const validationSchema = Yup.object({
   name: Yup.string().required('Name is required'),
-  ipv4_cidr: cidrSchema,
-  ipv6_cidr: cidrSchema.notRequired(),
+  ipv4Cidr: cidrSchema,
+  ipv6Cidr: cidrSchema.notRequired(),
 });
 
 export const VirtualNetworkCreateModal = ({
@@ -44,17 +44,17 @@ export const VirtualNetworkCreateModal = ({
 
   return (
     <Formik
-      initialValues={{ name: '', ipv4_cidr: '', ipv6_cidr: '' }}
+      initialValues={{ name: '', ipv4Cidr: '', ipv6Cidr: '' }}
       validationSchema={validationSchema}
       onSubmit={async (values, { setSubmitting }) => {
         setError(null);
         try {
           const input: VirtualNetworkInput = {
             name: values.name,
-            ipv4_cidr: values.ipv4_cidr,
+            ipv4Cidr: values.ipv4Cidr,
           };
-          if (values.ipv6_cidr) {
-            input.ipv6_cidr = values.ipv6_cidr;
+          if (values.ipv6Cidr) {
+            input.ipv6Cidr = values.ipv6Cidr;
           }
           const result = await onCreate(input);
           onNavigate(result.id);
@@ -72,10 +72,7 @@ export const VirtualNetworkCreateModal = ({
           onClose={isSubmitting ? undefined : onClose}
           aria-labelledby="vn-create-modal-title"
         >
-          <ModalHeader
-            title={t('Create virtual network')}
-            labelId="vn-create-modal-title"
-          />
+          <ModalHeader title={t('Create virtual network')} labelId="vn-create-modal-title" />
           <ModalBody>
             <OsacForm id="vn-create-form" onSubmit={handleSubmit}>
               <Stack hasGutter>
@@ -104,18 +101,16 @@ export const VirtualNetworkCreateModal = ({
                     isRequired
                     fieldId="vn-ipv4-cidr"
                     helperText={t('Example: 10.0.0.0/16')}
-                    helperTextInvalid={errors.ipv4_cidr}
-                    validated={touched.ipv4_cidr && errors.ipv4_cidr ? 'error' : 'default'}
+                    helperTextInvalid={errors.ipv4Cidr}
+                    validated={touched.ipv4Cidr && errors.ipv4Cidr ? 'error' : 'default'}
                   >
                     <TextInput
                       id="vn-ipv4-cidr"
-                      name="ipv4_cidr"
-                      value={values.ipv4_cidr}
-                      onChange={(_, value) =>
-                        handleChange({ target: { name: 'ipv4_cidr', value } })
-                      }
+                      name="ipv4Cidr"
+                      value={values.ipv4Cidr}
+                      onChange={(_, value) => handleChange({ target: { name: 'ipv4Cidr', value } })}
                       onBlur={handleBlur}
-                      validated={touched.ipv4_cidr && errors.ipv4_cidr ? 'error' : 'default'}
+                      validated={touched.ipv4Cidr && errors.ipv4Cidr ? 'error' : 'default'}
                       aria-label="IPv4 CIDR"
                     />
                   </FormGroup>
@@ -125,18 +120,16 @@ export const VirtualNetworkCreateModal = ({
                     label={t('IPv6 CIDR (Optional)')}
                     fieldId="vn-ipv6-cidr"
                     helperText={t('Example: 2001:db8::/32')}
-                    helperTextInvalid={errors.ipv6_cidr}
-                    validated={touched.ipv6_cidr && errors.ipv6_cidr ? 'error' : 'default'}
+                    helperTextInvalid={errors.ipv6Cidr}
+                    validated={touched.ipv6Cidr && errors.ipv6Cidr ? 'error' : 'default'}
                   >
                     <TextInput
                       id="vn-ipv6-cidr"
-                      name="ipv6_cidr"
-                      value={values.ipv6_cidr}
-                      onChange={(_, value) =>
-                        handleChange({ target: { name: 'ipv6_cidr', value } })
-                      }
+                      name="ipv6Cidr"
+                      value={values.ipv6Cidr}
+                      onChange={(_, value) => handleChange({ target: { name: 'ipv6Cidr', value } })}
                       onBlur={handleBlur}
-                      validated={touched.ipv6_cidr && errors.ipv6_cidr ? 'error' : 'default'}
+                      validated={touched.ipv6Cidr && errors.ipv6Cidr ? 'error' : 'default'}
                       aria-label="IPv6 CIDR (Optional)"
                     />
                   </FormGroup>

@@ -15,7 +15,7 @@ describe('VirtualNetworkCreateModal', () => {
         onClose={mockOnClose}
         onCreate={mockOnCreate}
         onNavigate={mockOnNavigate}
-      />
+      />,
     );
 
     expect(screen.getByLabelText(/Name/i)).toBeInTheDocument();
@@ -31,7 +31,7 @@ describe('VirtualNetworkCreateModal', () => {
         onClose={mockOnClose}
         onCreate={mockOnCreate}
         onNavigate={mockOnNavigate}
-      />
+      />,
     );
 
     const createButton = screen.getByRole('button', { name: /Create/i });
@@ -45,7 +45,7 @@ describe('VirtualNetworkCreateModal', () => {
         onClose={mockOnClose}
         onCreate={mockOnCreate}
         onNavigate={mockOnNavigate}
-      />
+      />,
     );
 
     expect(screen.getByLabelText(/IPv6 CIDR \(Optional\)/i)).toBeInTheDocument();

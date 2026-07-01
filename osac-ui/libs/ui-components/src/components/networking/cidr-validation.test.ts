@@ -88,14 +88,10 @@ describe('hasSubnetOverlap', () => {
   });
 
   it('returns false when none of multiple subnets overlap', () => {
-    expect(
-      hasSubnetOverlap('192.168.1.128/26', ['192.168.1.0/26', '192.168.1.64/26'])
-    ).toBe(false);
+    expect(hasSubnetOverlap('192.168.1.128/26', ['192.168.1.0/26', '192.168.1.64/26'])).toBe(false);
   });
 
   it('returns true when at least one of multiple subnets overlaps', () => {
-    expect(hasSubnetOverlap('192.168.1.64/26', ['192.168.1.0/26', '192.168.1.64/26'])).toBe(
-      true
-    );
+    expect(hasSubnetOverlap('192.168.1.64/26', ['192.168.1.0/26', '192.168.1.64/26'])).toBe(true);
   });
 });

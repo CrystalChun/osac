@@ -16,11 +16,11 @@ import * as Yup from 'yup';
 
 import type { Subnet, VirtualNetwork } from '@osac/types';
 
+import { cidrSchema, hasSubnetOverlap, isSubnetWithinVN } from './cidr-validation';
 import type { SubnetInput } from '../../api/v1/networking';
 import OsacForm from '../../components/Form/OsacForm';
 import { useTranslation } from '../../hooks/useTranslation';
 import { getErrorMessage } from '../../utils/error';
-import { cidrSchema, hasSubnetOverlap, isSubnetWithinVN } from './cidr-validation';
 
 interface SubnetCreateModalProps {
   isOpen: boolean;
@@ -40,12 +40,14 @@ export const SubnetCreateModal = ({
   const { t } = useTranslation();
   const [error, setError] = React.useState<Error | null>(null);
 
-  const parentCIDR = parentVN.spec?.ipv4_cidr ?? '';
-  const existingCIDRs = existingSubnets.map((s) => s.spec?.ipv4_cidr ?? '').filter(Boolean);
+  const parentCIDR = parentVN.spec?.ipv4Cidr ?? '';
+  const existingCIDRs = existingSubnets
+    .map((s) => s.spec?.ipv4Cidr)
+    .filter((cidr): cidr is string => Boolean(cidr));
 
   const validationSchema = Yup.object({
     name: Yup.string().required('Name is required'),
-    ipv4_cidr: cidrSchema
+    ipv4Cidr: cidrSchema
       .test('within-vn', 'CIDR must be within parent virtual network range', (value) => {
         if (!value || !parentCIDR) {
           return true;
@@ -62,7 +64,7 @@ export const SubnetCreateModal = ({
 
   return (
     <Formik
-      initialValues={{ name: '', ipv4_cidr: '' }}
+      initialValues={{ name: '', ipv4Cidr: '' }}
       validationSchema={validationSchema}
       onSubmit={async (values, { setSubmitting }) => {
         setError(null);
@@ -70,7 +72,7 @@ export const SubnetCreateModal = ({
           const input: SubnetInput = {
             name: values.name,
             virtual_network: parentVN.id,
-            ipv4_cidr: values.ipv4_cidr,
+            ipv4Cidr: values.ipv4Cidr,
           };
           await onCreate(input);
           onClose();
@@ -104,7 +106,7 @@ export const SubnetCreateModal = ({
                     <ul style={{ marginTop: '0.5rem', paddingLeft: '1.5rem' }}>
                       {existingSubnets.map((subnet) => (
                         <li key={subnet.id}>
-                          {subnet.metadata?.name ?? subnet.id}: {subnet.spec?.ipv4_cidr}
+                          {subnet.metadata?.name ?? subnet.id}: {subnet.spec?.ipv4Cidr}
                         </li>
                       ))}
                     </ul>
@@ -135,18 +137,16 @@ export const SubnetCreateModal = ({
                     isRequired
                     fieldId="subnet-cidr"
                     helperText={t('Example: 10.0.1.0/24')}
-                    helperTextInvalid={errors.ipv4_cidr}
-                    validated={touched.ipv4_cidr && errors.ipv4_cidr ? 'error' : 'default'}
+                    helperTextInvalid={errors.ipv4Cidr}
+                    validated={touched.ipv4Cidr && errors.ipv4Cidr ? 'error' : 'default'}
                   >
                     <TextInput
                       id="subnet-cidr"
-                      name="ipv4_cidr"
-                      value={values.ipv4_cidr}
-                      onChange={(_, value) =>
-                        handleChange({ target: { name: 'ipv4_cidr', value } })
-                      }
+                      name="ipv4Cidr"
+                      value={values.ipv4Cidr}
+                      onChange={(_, value) => handleChange({ target: { name: 'ipv4Cidr', value } })}
                       onBlur={handleBlur}
-                      validated={touched.ipv4_cidr && errors.ipv4_cidr ? 'error' : 'default'}
+                      validated={touched.ipv4Cidr && errors.ipv4Cidr ? 'error' : 'default'}
                       aria-label="CIDR"
                     />
                   </FormGroup>

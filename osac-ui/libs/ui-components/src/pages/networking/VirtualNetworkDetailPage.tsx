@@ -45,9 +45,7 @@ export const VirtualNetworkDetailPage = () => {
     <>
       <ListPage
         title={vnName}
-        description={
-          <VirtualNetworkStatusLabel state={vn?.status?.state} />
-        }
+        description={<VirtualNetworkStatusLabel state={vn?.status?.state} />}
       >
         <ListPageBody isLoading={isLoading} error={error}>
           {isFailed && vn?.status?.message && (
@@ -89,7 +87,7 @@ export const VirtualNetworkDetailPage = () => {
                       {subnets.map((subnet) => (
                         <Tr key={subnet.id}>
                           <Td dataLabel="Name">{subnet.metadata?.name ?? subnet.id}</Td>
-                          <Td dataLabel="CIDR">{subnet.spec?.ipv4_cidr ?? '—'}</Td>
+                          <Td dataLabel="CIDR">{subnet.spec?.ipv4Cidr ?? '—'}</Td>
                           <Td dataLabel="Status">
                             <SubnetStatusLabel state={subnet.status?.state} />
                           </Td>
@@ -105,12 +103,12 @@ export const VirtualNetworkDetailPage = () => {
               <div style={{ padding: '1rem 0' }}>
                 <dl>
                   <dt style={{ fontWeight: 'bold' }}>{t('IPv4 CIDR')}</dt>
-                  <dd style={{ marginBottom: '1rem' }}>{vn?.spec?.ipv4_cidr ?? '—'}</dd>
+                  <dd style={{ marginBottom: '1rem' }}>{vn?.spec?.ipv4Cidr ?? '—'}</dd>
 
-                  {vn?.spec?.ipv6_cidr && (
+                  {vn?.spec?.ipv6Cidr && (
                     <>
                       <dt style={{ fontWeight: 'bold' }}>{t('IPv6 CIDR')}</dt>
-                      <dd style={{ marginBottom: '1rem' }}>{vn.spec.ipv6_cidr}</dd>
+                      <dd style={{ marginBottom: '1rem' }}>{vn.spec.ipv6Cidr}</dd>
                     </>
                   )}
 
