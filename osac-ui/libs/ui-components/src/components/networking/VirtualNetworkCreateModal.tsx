@@ -2,7 +2,6 @@ import React from 'react';
 import {
   Alert,
   Button,
-  Form,
   FormGroup,
   Modal,
   ModalBody,
@@ -16,6 +15,7 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 
 import type { VirtualNetworkInput } from '../../api/v1/networking';
+import OsacForm from '../../components/Form/OsacForm';
 import { useTranslation } from '../../hooks/useTranslation';
 import { getErrorMessage } from '../../utils/error';
 import { cidrSchema } from './cidr-validation';
@@ -52,12 +52,14 @@ export const VirtualNetworkCreateModal = ({
           const input: VirtualNetworkInput = {
             name: values.name,
             ipv4_cidr: values.ipv4_cidr,
-            ...(values.ipv6_cidr && { ipv6_cidr: values.ipv6_cidr }),
           };
+          if (values.ipv6_cidr) {
+            input.ipv6_cidr = values.ipv6_cidr;
+          }
           const result = await onCreate(input);
           onNavigate(result.id);
-        } catch (err) {
-          setError(err as Error);
+        } catch (err: unknown) {
+          setError(err instanceof Error ? err : new Error(String(err)));
         } finally {
           setSubmitting(false);
         }
@@ -75,7 +77,7 @@ export const VirtualNetworkCreateModal = ({
             labelId="vn-create-modal-title"
           />
           <ModalBody>
-            <Form id="vn-create-form" onSubmit={handleSubmit}>
+            <OsacForm id="vn-create-form" onSubmit={handleSubmit}>
               <Stack hasGutter>
                 <StackItem>
                   <FormGroup
@@ -147,7 +149,7 @@ export const VirtualNetworkCreateModal = ({
                   </StackItem>
                 )}
               </Stack>
-            </Form>
+            </OsacForm>
           </ModalBody>
           <ModalFooter>
             <Button variant="link" onClick={onClose} isDisabled={isSubmitting}>
