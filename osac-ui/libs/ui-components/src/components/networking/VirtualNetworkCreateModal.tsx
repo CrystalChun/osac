@@ -33,8 +33,8 @@ interface VirtualNetworkCreateModalProps {
 
 const validationSchema = Yup.object({
   name: Yup.string().required('Name is required'),
-  ipv4Cidr: cidrSchema,
-  ipv6Cidr: cidrSchema.notRequired(),
+  ipv4Cidr: cidrSchema.required('IPv4 CIDR is required'),
+  ipv6Cidr: cidrSchema,
 });
 
 export const VirtualNetworkCreateModal = ({

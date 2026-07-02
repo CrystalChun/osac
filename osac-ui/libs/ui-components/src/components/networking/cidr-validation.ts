@@ -3,33 +3,32 @@ import * as Yup from 'yup';
 
 /**
  * Yup schema for validating IPv4 or IPv6 CIDR notation.
+ * Use .required() when the field is mandatory.
  */
-export const cidrSchema = Yup.string()
-  .required('CIDR is required')
-  .test('valid-cidr', 'Invalid CIDR notation', (value) => {
-    if (!value) {
-      return false;
-    }
+export const cidrSchema = Yup.string().test('valid-cidr', 'Invalid CIDR notation', (value) => {
+  if (!value) {
+    return true; // Allow empty for optional fields
+  }
 
-    // CIDR must have a slash and prefix length
-    if (!value.includes('/')) {
-      return false;
-    }
+  // CIDR must have a slash and prefix length
+  if (!value.includes('/')) {
+    return false;
+  }
 
+  try {
+    // Try parsing as IPv4 first
+    const addr4 = new Address4(value);
+    return addr4.isCorrect();
+  } catch {
     try {
-      // Try parsing as IPv4 first
-      const addr4 = new Address4(value);
-      return addr4.isCorrect();
+      // Try parsing as IPv6
+      const addr6 = new Address6(value);
+      return addr6.isCorrect();
     } catch {
-      try {
-        // Try parsing as IPv6
-        const addr6 = new Address6(value);
-        return addr6.isCorrect();
-      } catch {
-        return false;
-      }
+      return false;
     }
-  });
+  }
+});
 
 /**
  * Check if a subnet CIDR is within a parent VirtualNetwork CIDR.

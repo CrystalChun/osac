@@ -31,8 +31,12 @@ describe('cidrSchema', () => {
     await expect(cidrSchema.validate('not-a-cidr')).rejects.toThrow();
   });
 
-  it('rejects empty string', async () => {
-    await expect(cidrSchema.validate('')).rejects.toThrow();
+  it('allows empty string for optional fields', async () => {
+    await expect(cidrSchema.validate('')).resolves.toBe('');
+  });
+
+  it('rejects empty string when required', async () => {
+    await expect(cidrSchema.required('CIDR is required').validate('')).rejects.toThrow();
   });
 });
 
