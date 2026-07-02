@@ -52,4 +52,5 @@ proxy/osac-proxy
 
 .cursor/
 
+# AI workflow artifacts
 .artifacts/

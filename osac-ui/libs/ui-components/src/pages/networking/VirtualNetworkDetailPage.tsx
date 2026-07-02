@@ -1,6 +1,16 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Alert, Button, Tab, TabTitleText, Tabs } from '@patternfly/react-core';
+import {
+  Alert,
+  Button,
+  Card,
+  CardBody,
+  CardTitle,
+  DescriptionList,
+  DescriptionListDescription,
+  DescriptionListGroup,
+  DescriptionListTerm,
+} from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
 import { VirtualNetworkState } from '@osac/types';
@@ -22,7 +32,6 @@ import { useTranslation } from '../../hooks/useTranslation';
 export const VirtualNetworkDetailPage = () => {
   const { t } = useTranslation();
   const { id = '' } = useParams<{ id: string }>();
-  const [activeTab, setActiveTab] = useState<string | number>(0);
   const [isSubnetModalOpen, setIsSubnetModalOpen] = useState(false);
 
   const { data: vn, isLoading, error } = useVirtualNetwork(id);
@@ -43,7 +52,14 @@ export const VirtualNetworkDetailPage = () => {
 
   return (
     <>
-      <ListPage title={vnName}>
+      <ListPage
+        title={vnName}
+        actions={
+          <Button variant="primary" onClick={() => setIsSubnetModalOpen(true)}>
+            {t('Create subnet')}
+          </Button>
+        }
+      >
         <ListPageBody isLoading={isLoading} error={error}>
           {isFailed && vn?.status?.message && (
             <Alert
@@ -56,74 +72,72 @@ export const VirtualNetworkDetailPage = () => {
             </Alert>
           )}
 
-          <Tabs activeKey={activeTab} onSelect={(_e, key) => setActiveTab(key)}>
-            <Tab eventKey={0} title={<TabTitleText>{t('Subnets')}</TabTitleText>}>
-              <div style={{ padding: '1rem 0' }}>
-                <Button
-                  variant="secondary"
-                  onClick={() => setIsSubnetModalOpen(true)}
-                  style={{ marginBottom: '1rem' }}
-                >
-                  {t('Create subnet')}
-                </Button>
+          <Card style={{ marginBottom: '1rem' }}>
+            <CardTitle>{t('Details')}</CardTitle>
+            <CardBody>
+              <DescriptionList isHorizontal>
+                <DescriptionListGroup>
+                  <DescriptionListTerm>{t('IPv4 CIDR')}</DescriptionListTerm>
+                  <DescriptionListDescription>
+                    {vn?.spec?.ipv4Cidr ?? '—'}
+                  </DescriptionListDescription>
+                </DescriptionListGroup>
 
-                {subnets.length === 0 ? (
-                  <SubtleContent component="p">
-                    {t('No subnets yet. Create one to get started.')}
-                  </SubtleContent>
-                ) : (
-                  <Table aria-label="Subnets" variant="compact" borders>
-                    <Thead>
-                      <Tr>
-                        <Th>{t('Name')}</Th>
-                        <Th>{t('CIDR')}</Th>
-                        <Th>{t('Status')}</Th>
-                      </Tr>
-                    </Thead>
-                    <Tbody>
-                      {subnets.map((subnet) => (
-                        <Tr key={subnet.id}>
-                          <Td dataLabel="Name">{subnet.metadata?.name ?? subnet.id}</Td>
-                          <Td dataLabel="CIDR">{subnet.spec?.ipv4Cidr ?? '—'}</Td>
-                          <Td dataLabel="Status">
-                            <SubnetStatusLabel state={subnet.status?.state} />
-                          </Td>
-                        </Tr>
-                      ))}
-                    </Tbody>
-                  </Table>
+                {vn?.spec?.ipv6Cidr && (
+                  <DescriptionListGroup>
+                    <DescriptionListTerm>{t('IPv6 CIDR')}</DescriptionListTerm>
+                    <DescriptionListDescription>{vn.spec.ipv6Cidr}</DescriptionListDescription>
+                  </DescriptionListGroup>
                 )}
-              </div>
-            </Tab>
 
-            <Tab eventKey={1} title={<TabTitleText>{t('Details')}</TabTitleText>}>
-              <div style={{ padding: '1rem 0' }}>
-                <dl>
-                  <dt style={{ fontWeight: 'bold' }}>{t('IPv4 CIDR')}</dt>
-                  <dd style={{ marginBottom: '1rem' }}>{vn?.spec?.ipv4Cidr ?? '—'}</dd>
-
-                  {vn?.spec?.ipv6Cidr && (
-                    <>
-                      <dt style={{ fontWeight: 'bold' }}>{t('IPv6 CIDR')}</dt>
-                      <dd style={{ marginBottom: '1rem' }}>{vn.spec.ipv6Cidr}</dd>
-                    </>
-                  )}
-
-                  <dt style={{ fontWeight: 'bold' }}>{t('Status')}</dt>
-                  <dd style={{ marginBottom: '1rem' }}>
+                <DescriptionListGroup>
+                  <DescriptionListTerm>{t('Status')}</DescriptionListTerm>
+                  <DescriptionListDescription>
                     <VirtualNetworkStatusLabel state={vn?.status?.state} />
-                  </dd>
+                  </DescriptionListDescription>
+                </DescriptionListGroup>
 
-                  {vn?.status?.message && (
-                    <>
-                      <dt style={{ fontWeight: 'bold' }}>{t('Message')}</dt>
-                      <dd>{vn.status.message}</dd>
-                    </>
-                  )}
-                </dl>
-              </div>
-            </Tab>
-          </Tabs>
+                {vn?.status?.message && (
+                  <DescriptionListGroup>
+                    <DescriptionListTerm>{t('Message')}</DescriptionListTerm>
+                    <DescriptionListDescription>{vn.status.message}</DescriptionListDescription>
+                  </DescriptionListGroup>
+                )}
+              </DescriptionList>
+            </CardBody>
+          </Card>
+
+          <Card>
+            <CardTitle>{t('Subnets')}</CardTitle>
+            <CardBody>
+              {subnets.length === 0 ? (
+                <SubtleContent component="p">
+                  {t('No subnets yet. Create one to get started.')}
+                </SubtleContent>
+              ) : (
+                <Table aria-label="Subnets" variant="compact" borders>
+                  <Thead>
+                    <Tr>
+                      <Th>{t('Name')}</Th>
+                      <Th>{t('CIDR')}</Th>
+                      <Th>{t('Status')}</Th>
+                    </Tr>
+                  </Thead>
+                  <Tbody>
+                    {subnets.map((subnet) => (
+                      <Tr key={subnet.id}>
+                        <Td dataLabel="Name">{subnet.metadata?.name ?? subnet.id}</Td>
+                        <Td dataLabel="CIDR">{subnet.spec?.ipv4Cidr ?? '—'}</Td>
+                        <Td dataLabel="Status">
+                          <SubnetStatusLabel state={subnet.status?.state} />
+                        </Td>
+                      </Tr>
+                    ))}
+                  </Tbody>
+                </Table>
+              )}
+            </CardBody>
+          </Card>
         </ListPageBody>
       </ListPage>
 
