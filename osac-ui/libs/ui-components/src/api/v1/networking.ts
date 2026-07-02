@@ -180,12 +180,10 @@ export const useCreateVirtualNetwork = () => {
       const vn = await apiFetch<VirtualNetwork>('v1/virtual_networks', {
         method: 'POST',
         body: {
-          object: {
-            metadata: { name: input.name },
-            spec: {
-              ipv4Cidr: input.ipv4_cidr,
-              ...(input.ipv6_cidr && { ipv6Cidr: input.ipv6_cidr }),
-            },
+          metadata: { name: input.name },
+          spec: {
+            ipv4Cidr: input.ipv4_cidr,
+            ...(input.ipv6_cidr && { ipv6Cidr: input.ipv6_cidr }),
           },
         },
         decode: VirtualNetworkSchema,
@@ -224,12 +222,10 @@ export const useCreateSubnet = () => {
       const subnet = await apiFetch<Subnet>('v1/subnets', {
         method: 'POST',
         body: {
-          object: {
-            metadata: { name: input.name },
-            spec: {
-              virtualNetwork: input.virtual_network,
-              ipv4Cidr: input.ipv4_cidr,
-            },
+          metadata: { name: input.name },
+          spec: {
+            virtualNetwork: input.virtual_network,
+            ipv4Cidr: input.ipv4_cidr,
           },
         },
         decode: SubnetSchema,
