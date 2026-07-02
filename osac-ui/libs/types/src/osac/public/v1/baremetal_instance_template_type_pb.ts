@@ -19,8 +19,6 @@ import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import type { Any } from "../../../google/protobuf/any_pb";
 import { file_google_protobuf_any } from "../../../google/protobuf/any_pb";
-import type { BareMetalInstanceImage } from "./baremetal_instance_type_pb";
-import { file_osac_public_v1_baremetal_instance_type } from "./baremetal_instance_type_pb";
 import type { Metadata } from "./metadata_type_pb";
 import { file_osac_public_v1_metadata_type } from "./metadata_type_pb";
 import type { Message } from "@bufbuild/protobuf";
@@ -29,7 +27,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/public/v1/baremetal_instance_template_type.proto.
  */
 export const file_osac_public_v1_baremetal_instance_template_type: GenFile = /*@__PURE__*/
-  fileDesc("CjVvc2FjL3B1YmxpYy92MS9iYXJlbWV0YWxfaW5zdGFuY2VfdGVtcGxhdGVfdHlwZS5wcm90bxIOb3NhYy5wdWJsaWMudjEilwIKGUJhcmVNZXRhbEluc3RhbmNlVGVtcGxhdGUSCgoCaWQYASABKAkSKgoIbWV0YWRhdGEYAiABKAsyGC5vc2FjLnB1YmxpYy52MS5NZXRhZGF0YRINCgV0aXRsZRgDIAEoCRITCgtkZXNjcmlwdGlvbhgEIAEoCRJMCg1zcGVjX2RlZmF1bHRzGAUgASgLMjUub3NhYy5wdWJsaWMudjEuQmFyZU1ldGFsSW5zdGFuY2VUZW1wbGF0ZVNwZWNEZWZhdWx0cxJQCgpwYXJhbWV0ZXJzGAYgAygLMjwub3NhYy5wdWJsaWMudjEuQmFyZU1ldGFsSW5zdGFuY2VUZW1wbGF0ZVBhcmFtZXRlckRlZmluaXRpb24ipwEKLEJhcmVNZXRhbEluc3RhbmNlVGVtcGxhdGVQYXJhbWV0ZXJEZWZpbml0aW9uEgwKBG5hbWUYASABKAkSDQoFdGl0bGUYAiABKAkSEwoLZGVzY3JpcHRpb24YAyABKAkSEAoIcmVxdWlyZWQYBCABKAgSDAoEdHlwZRgFIAEoCRIlCgdkZWZhdWx0GAYgASgLMhQuZ29vZ2xlLnByb3RvYnVmLkFueSJtCiVCYXJlTWV0YWxJbnN0YW5jZVRlbXBsYXRlU3BlY0RlZmF1bHRzEjoKBWltYWdlGAEgASgLMiYub3NhYy5wdWJsaWMudjEuQmFyZU1ldGFsSW5zdGFuY2VJbWFnZUgAiAEBQggKBl9pbWFnZWIGcHJvdG8z", [file_google_protobuf_any, file_osac_public_v1_baremetal_instance_type, file_osac_public_v1_metadata_type]);
+  fileDesc("CjVvc2FjL3B1YmxpYy92MS9iYXJlbWV0YWxfaW5zdGFuY2VfdGVtcGxhdGVfdHlwZS5wcm90bxIOb3NhYy5wdWJsaWMudjEilwIKGUJhcmVNZXRhbEluc3RhbmNlVGVtcGxhdGUSCgoCaWQYASABKAkSKgoIbWV0YWRhdGEYAiABKAsyGC5vc2FjLnB1YmxpYy52MS5NZXRhZGF0YRINCgV0aXRsZRgDIAEoCRITCgtkZXNjcmlwdGlvbhgEIAEoCRJMCg1zcGVjX2RlZmF1bHRzGAUgASgLMjUub3NhYy5wdWJsaWMudjEuQmFyZU1ldGFsSW5zdGFuY2VUZW1wbGF0ZVNwZWNEZWZhdWx0cxJQCgpwYXJhbWV0ZXJzGAYgAygLMjwub3NhYy5wdWJsaWMudjEuQmFyZU1ldGFsSW5zdGFuY2VUZW1wbGF0ZVBhcmFtZXRlckRlZmluaXRpb24ipwEKLEJhcmVNZXRhbEluc3RhbmNlVGVtcGxhdGVQYXJhbWV0ZXJEZWZpbml0aW9uEgwKBG5hbWUYASABKAkSDQoFdGl0bGUYAiABKAkSEwoLZGVzY3JpcHRpb24YAyABKAkSEAoIcmVxdWlyZWQYBCABKAgSDAoEdHlwZRgFIAEoCRIlCgdkZWZhdWx0GAYgASgLMhQuZ29vZ2xlLnByb3RvYnVmLkFueSInCiVCYXJlTWV0YWxJbnN0YW5jZVRlbXBsYXRlU3BlY0RlZmF1bHRzYgZwcm90bzM", [file_google_protobuf_any, file_osac_public_v1_metadata_type]);
 
 /**
  * A bare metal instance template defines a hardware profile (host type, OS image, network configuration)
@@ -177,16 +175,12 @@ export const BareMetalInstanceTemplateParameterDefinitionSchema: GenMessage<Bare
 
 /**
  * Default values for bare metal instance spec fields.
+ * No overridable spec fields are defined in this initial version; fields will be added in future
+ * enhancements as tenant-configurable options are introduced (e.g. networking integration).
  *
  * @generated from message osac.public.v1.BareMetalInstanceTemplateSpecDefaults
  */
 export type BareMetalInstanceTemplateSpecDefaults = Message<"osac.public.v1.BareMetalInstanceTemplateSpecDefaults"> & {
-  /**
-   * Default OS base image used when the tenant does not specify one.
-   *
-   * @generated from field: optional osac.public.v1.BareMetalInstanceImage image = 1;
-   */
-  image?: BareMetalInstanceImage | undefined;
 };
 
 /**

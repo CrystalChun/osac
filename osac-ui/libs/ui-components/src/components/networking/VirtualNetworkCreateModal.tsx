@@ -16,6 +16,7 @@ import * as Yup from 'yup';
 
 import { cidrSchema } from './cidr-validation';
 import type { VirtualNetworkInput } from '../../api/v1/networking';
+import { useNetworkClasses } from '../../api/v1/networking';
 import {
   FormFieldHelper,
   getFormFieldHelperDescribedBy,
@@ -33,8 +34,10 @@ interface VirtualNetworkCreateModalProps {
 
 const validationSchema = Yup.object({
   name: Yup.string().required('Name is required'),
-  ipv4Cidr: cidrSchema.required('IPv4 CIDR is required'),
+  ipv4Cidr: cidrSchema,
   ipv6Cidr: cidrSchema,
+}).test('at-least-one-cidr', 'At least one CIDR (IPv4 or IPv6) is required', (values) => {
+  return Boolean(values.ipv4Cidr || values.ipv6Cidr);
 });
 
 export const VirtualNetworkCreateModal = ({
@@ -45,6 +48,10 @@ export const VirtualNetworkCreateModal = ({
 }: VirtualNetworkCreateModalProps) => {
   const { t } = useTranslation();
   const [error, setError] = React.useState<Error | null>(null);
+  const { data: networkClasses = [], isLoading: isLoadingNetworkClasses } = useNetworkClasses();
+
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+  const defaultNetworkClass: string = networkClasses[0]?.id ?? '';
 
   return (
     <Formik
@@ -53,10 +60,16 @@ export const VirtualNetworkCreateModal = ({
       onSubmit={async (values, { setSubmitting }) => {
         setError(null);
         try {
+          if (!defaultNetworkClass) {
+            throw new Error('No network classes available');
+          }
           const input: VirtualNetworkInput = {
             name: values.name,
-            ipv4_cidr: values.ipv4Cidr,
+            network_class: defaultNetworkClass,
           };
+          if (values.ipv4Cidr) {
+            input.ipv4_cidr = values.ipv4Cidr;
+          }
           if (values.ipv6Cidr) {
             input.ipv6_cidr = values.ipv6Cidr;
           }
@@ -102,7 +115,7 @@ export const VirtualNetworkCreateModal = ({
                   </FormGroup>
                 </StackItem>
                 <StackItem>
-                  <FormGroup label={t('IPv4 CIDR')} isRequired fieldId="vn-ipv4-cidr">
+                  <FormGroup label={t('IPv4 CIDR')} fieldId="vn-ipv4-cidr">
                     <TextInput
                       id="vn-ipv4-cidr"
                       name="ipv4Cidr"
@@ -164,7 +177,7 @@ export const VirtualNetworkCreateModal = ({
             <Button
               variant="primary"
               onClick={() => handleSubmit()}
-              isDisabled={isSubmitting}
+              isDisabled={isSubmitting || isLoadingNetworkClasses || !defaultNetworkClass}
               isLoading={isSubmitting}
             >
               {t('Create')}

@@ -1,12 +1,27 @@
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { VirtualNetworkCreateModal } from './VirtualNetworkCreateModal';
+
+vi.mock('../../api/v1/networking', async () => {
+  const actual = await vi.importActual('../../api/v1/networking');
+  return {
+    ...actual,
+    useNetworkClasses: () => ({
+      data: [{ id: 'test-network-class', metadata: { name: 'Test Network Class' } }],
+      isLoading: false,
+    }),
+  };
+});
 
 describe('VirtualNetworkCreateModal', () => {
   const mockOnClose = vi.fn();
   const mockOnCreate = vi.fn();
   const mockOnNavigate = vi.fn();
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('renders with Name and IPv4 CIDR fields', () => {
     render(

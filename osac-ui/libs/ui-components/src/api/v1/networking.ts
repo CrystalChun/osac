@@ -1,6 +1,9 @@
 import { useMutation } from '@tanstack/react-query';
 
 import {
+  type NetworkClass,
+  type NetworkClassesListResponse,
+  NetworkClassesListResponseSchema,
   type SecurityGroup,
   SecurityGroupSchema,
   SecurityGroupState,
@@ -32,6 +35,19 @@ export type ListNetworkingParams = {
 type NetworkingQueryOptions = {
   enabled?: boolean;
 };
+
+export const useNetworkClasses = (
+  params: ListNetworkingParams = {},
+  options: NetworkingQueryOptions = {},
+) =>
+  useApiQuery<NetworkClassesListResponse, NetworkClass[]>({
+    queryKey: ['v1/network_classes', null, params],
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access
+    select: (data) => data.items,
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    meta: { decode: NetworkClassesListResponseSchema },
+    enabled: options.enabled ?? true,
+  });
 
 export const useVirtualNetworks = (
   params: ListNetworkingParams = {},
@@ -162,7 +178,8 @@ export const invalidateSecurityGroupsQueries = async (qc: ReturnType<typeof useA
 
 export interface VirtualNetworkInput {
   name: string;
-  ipv4_cidr: string;
+  network_class: string;
+  ipv4_cidr?: string;
   ipv6_cidr?: string;
 }
 
@@ -182,8 +199,14 @@ export const useCreateVirtualNetwork = () => {
         body: {
           metadata: { name: input.name },
           spec: {
-            ipv4Cidr: input.ipv4_cidr,
+            networkClass: input.network_class,
+            ...(input.ipv4_cidr && { ipv4Cidr: input.ipv4_cidr }),
             ...(input.ipv6_cidr && { ipv6Cidr: input.ipv6_cidr }),
+            capabilities: {
+              enableIpv4: Boolean(input.ipv4_cidr),
+              enableIpv6: Boolean(input.ipv6_cidr),
+              enableDualStack: Boolean(input.ipv4_cidr && input.ipv6_cidr),
+            },
           },
         },
         decode: VirtualNetworkSchema,
