@@ -50,7 +50,6 @@ export const VirtualNetworkCreateModal = ({
   const [error, setError] = React.useState<Error | null>(null);
   const { data: networkClasses = [], isLoading: isLoadingNetworkClasses } = useNetworkClasses();
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
   const defaultNetworkClass: string = networkClasses[0]?.id ?? '';
 
   return (

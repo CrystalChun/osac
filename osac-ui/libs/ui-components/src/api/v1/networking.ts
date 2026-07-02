@@ -42,9 +42,7 @@ export const useNetworkClasses = (
 ) =>
   useApiQuery<NetworkClassesListResponse, NetworkClass[]>({
     queryKey: ['v1/network_classes', null, params],
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access
     select: (data) => data.items,
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     meta: { decode: NetworkClassesListResponseSchema },
     enabled: options.enabled ?? true,
   });
