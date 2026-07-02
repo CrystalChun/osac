@@ -10,6 +10,8 @@ import {
 
 import CatalogItemCard from './CatalogItemCard';
 import type { CatalogItemForDisplay, CatalogItemKind } from './catalogItemDisplay';
+import { getErrorMessage } from '../../utils/error';
+import QueryErrorState from '../Resource/QueryErrorState';
 
 interface CatalogItemListSectionProps {
   title: string;
@@ -18,6 +20,7 @@ interface CatalogItemListSectionProps {
   selectedItemId?: string | null;
   onSelectItem: (item: CatalogItemForDisplay) => void;
   isLoading?: boolean;
+  error?: unknown;
 }
 
 export const CatalogItemListSection = ({
@@ -27,8 +30,9 @@ export const CatalogItemListSection = ({
   selectedItemId = null,
   onSelectItem,
   isLoading = false,
+  error = null,
 }: CatalogItemListSectionProps) => {
-  if (!isLoading && items.length === 0) {
+  if (!isLoading && !error && items.length === 0) {
     return null;
   }
 
@@ -45,6 +49,11 @@ export const CatalogItemListSection = ({
             <Bullseye>
               <Spinner aria-label={`Loading ${title}`} />
             </Bullseye>
+          </StackItem>
+        ) : null}
+        {error ? (
+          <StackItem>
+            <QueryErrorState error={error} title={title} body={getErrorMessage(error)} />
           </StackItem>
         ) : null}
         {items.length > 0 ? (

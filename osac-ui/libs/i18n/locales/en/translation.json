@@ -102,10 +102,12 @@
   "Search catalog items": "Search catalog items",
   "Service CIDR": "Service CIDR",
   "Services": "Services",
+  "Sign in again": "Sign in again",
   "Size": "Size",
   "Status": "Status",
   "Tenant organizations": "Tenant organizations",
   "This permanently deletes the cluster and all its resources. This action cannot be undone.": "This permanently deletes the cluster and all its resources. This action cannot be undone.",
+  "Unauthorized": "Unauthorized",
   "Users": "Users",
   "Virtual machines": "Virtual machines",
   "Virtual Machines": "Virtual Machines",
@@ -135,5 +137,6 @@
   "vm.details.userData.collapse": "Collapse user data",
   "vm.details.userData.expand": "Expand user data",
   "vm.details.userData.title": "Cloud Init User Data",
-  "Worker nodes": "Worker nodes"
+  "Worker nodes": "Worker nodes",
+  "You are not authorized to access this resource.": "You are not authorized to access this resource."
 }

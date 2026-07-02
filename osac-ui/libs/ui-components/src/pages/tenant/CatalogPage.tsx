@@ -82,15 +82,15 @@ export const CatalogPage = ({ isProviderGlobal = false }: Props) => {
     usePageLevelQueryState &&
     ((showVmCatalog && vmLoading) || (showClusterCatalog && clusterLoading));
   const error =
-    (showVmCatalog && vmError) || (showClusterCatalog && clusterError)
+    usePageLevelQueryState && ((showVmCatalog && vmError) || (showClusterCatalog && clusterError))
       ? (vmError ?? clusterError)
       : null;
 
   const hasCatalogItems = filteredVmItems.length > 0 || filteredClusterItems.length > 0;
   const searchTerm = search.trim();
   const hasVisibleSections =
-    (showVmCatalog && (vmLoading || filteredVmItems.length > 0)) ||
-    (showClusterCatalog && (clusterLoading || filteredClusterItems.length > 0));
+    (showVmCatalog && (vmLoading || vmError || filteredVmItems.length > 0)) ||
+    (showClusterCatalog && (clusterLoading || clusterError || filteredClusterItems.length > 0));
   const showEmptyState = usePageLevelQueryState
     ? !hasCatalogItems
     : !hasVisibleSections && !vmLoading && !clusterLoading;
@@ -168,6 +168,7 @@ export const CatalogPage = ({ isProviderGlobal = false }: Props) => {
                   kind="vm"
                   items={filteredVmItems}
                   isLoading={showVmCatalog && vmLoading}
+                  error={showVmCatalog ? vmError : null}
                   selectedItemId={
                     selectedCatalogItem?.kind === 'vm' ? selectedCatalogItem.item.id : null
                   }
@@ -178,6 +179,7 @@ export const CatalogPage = ({ isProviderGlobal = false }: Props) => {
                   kind="cluster"
                   items={filteredClusterItems}
                   isLoading={showClusterCatalog && clusterLoading}
+                  error={showClusterCatalog ? clusterError : null}
                   selectedItemId={
                     selectedCatalogItem?.kind === 'cluster' ? selectedCatalogItem.item.id : null
                   }
