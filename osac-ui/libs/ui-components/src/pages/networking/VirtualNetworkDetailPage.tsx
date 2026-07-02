@@ -1,7 +1,9 @@
 import { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
   Alert,
+  Breadcrumb,
+  BreadcrumbItem,
   Button,
   Card,
   CardBody,
@@ -32,6 +34,7 @@ import { useTranslation } from '../../hooks/useTranslation';
 
 export const VirtualNetworkDetailPage = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { id = '' } = useParams<{ id: string }>();
   const [isSubnetModalOpen, setIsSubnetModalOpen] = useState(false);
 
@@ -53,7 +56,23 @@ export const VirtualNetworkDetailPage = () => {
 
   return (
     <>
-      <ListPage title={vnName}>
+      <ListPage
+        title={vnName}
+        breadcrumb={
+          <Breadcrumb>
+            <BreadcrumbItem>
+              <Button
+                variant="link"
+                isInline
+                onClick={() => navigate('/networking/virtual-networks')}
+              >
+                {t('Virtual networks')}
+              </Button>
+            </BreadcrumbItem>
+            <BreadcrumbItem isActive>{vnName}</BreadcrumbItem>
+          </Breadcrumb>
+        }
+      >
         <ListPageBody isLoading={isLoading} error={error}>
           {isFailed && vn?.status?.message && (
             <Alert
