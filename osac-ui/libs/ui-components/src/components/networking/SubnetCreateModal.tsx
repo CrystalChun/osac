@@ -52,6 +52,7 @@ export const SubnetCreateModal = ({
   const validationSchema = Yup.object({
     name: Yup.string().required('Name is required'),
     ipv4Cidr: cidrSchema
+      .required('IPv4 CIDR is required')
       .test('within-vn', 'CIDR must be within parent virtual network range', (value) => {
         if (!value || !parentCIDR) {
           return true;
