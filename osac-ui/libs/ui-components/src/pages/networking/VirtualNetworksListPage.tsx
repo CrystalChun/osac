@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button, SearchInput } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
-import { useCreateVirtualNetwork, useVirtualNetworks } from '../../api/v1/networking';
+import { useCreateVirtualNetwork, useSubnets, useVirtualNetworks } from '../../api/v1/networking';
 import { VirtualNetworkCreateModal } from '../../components/networking/VirtualNetworkCreateModal';
 import { VirtualNetworkStatusLabel } from '../../components/networking/VirtualNetworkStatusLabel';
 import ListPage from '../../components/Page/ListPage';
@@ -18,8 +18,21 @@ export const VirtualNetworksListPage = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const { data: virtualNetworks = [], isLoading, error } = useVirtualNetworks();
+  const { data: allSubnets = [] } = useSubnets();
 
   const createVirtualNetwork = useCreateVirtualNetwork();
+
+  // Count subnets per VN
+  const subnetCountByVN = allSubnets.reduce(
+    (acc, subnet) => {
+      const vnId = subnet.spec?.virtualNetwork;
+      if (vnId) {
+        acc[vnId] = (acc[vnId] || 0) + 1;
+      }
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
 
   const filteredVNs = virtualNetworks.filter((vn) => {
     const name = vn.metadata?.name ?? '';
@@ -75,6 +88,7 @@ export const VirtualNetworksListPage = () => {
                 {filteredVNs.map((vn) => {
                   const name = vn.metadata?.name ?? vn.id;
                   const ipv4Cidr = vn.spec?.ipv4Cidr ?? '—';
+                  const subnetCount = subnetCountByVN[vn.id] || 0;
 
                   return (
                     <Tr key={vn.id}>
@@ -88,7 +102,7 @@ export const VirtualNetworksListPage = () => {
                         </Button>
                       </Td>
                       <Td dataLabel="IPv4 CIDR">{ipv4Cidr}</Td>
-                      <Td dataLabel="Subnets">—</Td>
+                      <Td dataLabel="Subnets">{subnetCount}</Td>
                       <Td dataLabel="Status">
                         <VirtualNetworkStatusLabel state={vn.status?.state} />
                       </Td>
