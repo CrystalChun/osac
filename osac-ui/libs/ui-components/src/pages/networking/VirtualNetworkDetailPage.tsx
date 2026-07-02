@@ -5,6 +5,7 @@ import {
   Button,
   Card,
   CardBody,
+  CardHeader,
   CardTitle,
   DescriptionList,
   DescriptionListDescription,
@@ -52,14 +53,7 @@ export const VirtualNetworkDetailPage = () => {
 
   return (
     <>
-      <ListPage
-        title={vnName}
-        actions={
-          <Button variant="primary" onClick={() => setIsSubnetModalOpen(true)}>
-            {t('Create subnet')}
-          </Button>
-        }
-      >
+      <ListPage title={vnName}>
         <ListPageBody isLoading={isLoading} error={error}>
           {isFailed && vn?.status?.message && (
             <Alert
@@ -108,7 +102,17 @@ export const VirtualNetworkDetailPage = () => {
           </Card>
 
           <Card>
-            <CardTitle>{t('Subnets')}</CardTitle>
+            <CardHeader
+              actions={{
+                actions: (
+                  <Button variant="primary" onClick={() => setIsSubnetModalOpen(true)}>
+                    {t('Create subnet')}
+                  </Button>
+                ),
+              }}
+            >
+              <CardTitle>{t('Subnets')}</CardTitle>
+            </CardHeader>
             <CardBody>
               {subnets.length === 0 ? (
                 <SubtleContent component="p">
