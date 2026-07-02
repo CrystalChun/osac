@@ -11,7 +11,7 @@ jobs:
     name: Publish UI chart
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       packages: write
     steps:
     - uses: actions/checkout@v4
@@ -40,3 +40,15 @@ jobs:
         export chart_name="$(yq -r '.name' charts/ui/Chart.yaml)"
         export chart_file="${chart_name}-${chart_version}.tgz"
         helm push "${chart_file}" "oci://${registry}/${{ github.repository_owner }}/charts"
+
+    - name: Create GitHub Release
+      run: |
+        gh release create "${GITHUB_REF_NAME}" \
+          --repo "${{ github.repository }}" \
+          --title "osac-ui ${GITHUB_REF_NAME}" \
+          --generate-notes \
+        || gh release edit "${GITHUB_REF_NAME}" \
+          --repo "${{ github.repository }}" \
+          --title "osac-ui ${GITHUB_REF_NAME}"
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
