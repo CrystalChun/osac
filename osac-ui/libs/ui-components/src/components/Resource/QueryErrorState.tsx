@@ -19,7 +19,7 @@ export interface QueryErrorAction {
 }
 
 export interface QueryErrorStateProps {
-  error?: unknown;
+  error: unknown;
   mode?: 'inline' | 'page';
   headingLevel?: EmptyStateProps['headingLevel'];
   title?: string;

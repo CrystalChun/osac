@@ -6,7 +6,7 @@ import QueryErrorState from '../Resource/QueryErrorState';
 
 type ListPageBodyProps = {
   isLoading: boolean;
-  error: unknown;
+  error?: unknown;
 };
 
 const ListPageBody = ({

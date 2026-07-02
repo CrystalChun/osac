@@ -14,7 +14,12 @@ interface UnauthorizedErrorStateProps {
   headingLevel?: EmptyStateProps['headingLevel'];
 }
 
-const signInAgain = () => {
+const signInAgain = async () => {
+  try {
+    await fetch('/api/logout', { method: 'POST', credentials: 'include' });
+  } catch {
+    // Best effort before restarting login.
+  }
   window.location.href = '/';
 };
 
@@ -28,12 +33,10 @@ const UnauthorizedErrorState = ({ headingLevel = 'h2' }: UnauthorizedErrorStateP
       headingLevel={headingLevel}
       status="warning"
     >
-      <EmptyStateBody>
-        {t('Your session is missing or no longer valid. Sign in again to continue.')}
-      </EmptyStateBody>
+      <EmptyStateBody>{t('You are not authorized to access this resource.')}</EmptyStateBody>
       <EmptyStateFooter>
         <EmptyStateActions>
-          <Button variant="primary" onClick={signInAgain}>
+          <Button variant="primary" onClick={() => void signInAgain()}>
             {t('Sign in again')}
           </Button>
         </EmptyStateActions>
