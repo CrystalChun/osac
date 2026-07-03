@@ -693,6 +693,8 @@ func setupBareMetalInstanceControllers(
 	return nil
 }
 
+// +kubebuilder:rbac:groups="",resources=configmaps,verbs=get;list;watch
+
 func main() {
 	var err error
 
