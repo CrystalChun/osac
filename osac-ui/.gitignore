@@ -51,3 +51,5 @@ coverage/
 proxy/osac-proxy
 
 .cursor/
+
+.artifacts/

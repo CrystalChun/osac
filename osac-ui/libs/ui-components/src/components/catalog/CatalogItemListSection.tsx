@@ -1,5 +1,4 @@
 import {
-  Alert,
   Bullseye,
   Gallery,
   GalleryItem,
@@ -12,6 +11,7 @@ import {
 import CatalogItemCard from './CatalogItemCard';
 import type { CatalogItemForDisplay, CatalogItemKind } from './catalogItemDisplay';
 import { getErrorMessage } from '../../utils/error';
+import QueryErrorState from '../Resource/QueryErrorState';
 
 interface CatalogItemListSectionProps {
   title: string;
@@ -53,9 +53,7 @@ export const CatalogItemListSection = ({
         ) : null}
         {error ? (
           <StackItem>
-            <Alert variant="danger" title={title} isInline>
-              {getErrorMessage(error)}
-            </Alert>
+            <QueryErrorState error={error} title={title} body={getErrorMessage(error)} />
           </StackItem>
         ) : null}
         {items.length > 0 ? (

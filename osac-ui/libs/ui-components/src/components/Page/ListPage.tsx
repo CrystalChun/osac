@@ -5,10 +5,11 @@ type ListPageProps = {
   title: string;
   description?: string;
   actions?: React.ReactNode;
+  error?: unknown;
   children: React.ReactNode;
 };
 
-const ListPage: React.FC<ListPageProps> = ({ title, description, actions, children }) => (
+const ListPage: React.FC<ListPageProps> = ({ title, description, actions, error, children }) => (
   <PageSection hasBodyWrapper={false}>
     <Flex
       gap={{ default: 'gapMd' }}
@@ -21,7 +22,7 @@ const ListPage: React.FC<ListPageProps> = ({ title, description, actions, childr
         </Title>
         {description && <Content component="p">{description}</Content>}
       </FlexItem>
-      {actions && <FlexItem>{actions}</FlexItem>}
+      {actions && !error ? <FlexItem>{actions}</FlexItem> : null}
     </Flex>
     {children}
   </PageSection>

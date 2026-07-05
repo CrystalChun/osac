@@ -13,7 +13,7 @@ import VmDetails from './DetailsPage/VmDetails';
 export const VmDetailsPage = () => {
   const { t } = useTranslation();
   const { id } = useParams() as { id: string };
-  const { data: vm, isLoading, isError, refetch } = useComputeInstance(id);
+  const { data: vm, isLoading, isError, error, refetch } = useComputeInstance(id);
 
   if (isLoading) {
     return (
@@ -33,7 +33,7 @@ export const VmDetailsPage = () => {
         parentTo="/vms"
         parentLabel={t('vm.details.breadcrumb')}
         resourceLabel="virtual machine"
-        variant="load-error"
+        error={error}
         onRetry={() => void refetch()}
       />
     );

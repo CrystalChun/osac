@@ -5,6 +5,7 @@
 import { decodeFulfillmentResponse } from '@osac/ui-components/api/fulfillment-decode';
 import type { ApiFetch, ApiFetchOptions, ApiRoute } from '@osac/ui-components/api/types';
 import { formatHttpApiErrorMessage } from '@osac/ui-components/utils/error';
+import { UnauthorizedError } from '@osac/ui-components/utils/unauthorizedError';
 
 export const FULFILLMENT_API_BASE = '/api/fulfillment';
 
@@ -43,13 +44,7 @@ export const fulfillmentFetch: ApiFetch = async <T = unknown>(
   });
 
   if (res.status === 401) {
-    // Session expired or never established — force a full-page reload so
-    // useOIDCLogin re-runs from scratch, detects the missing session, and
-    // redirects to the OIDC provider.
-    window.location.href = '/';
-    // Return a promise that never resolves so callers don't act on stale data
-    // while the redirect is in-flight.
-    return new Promise<never>(() => undefined);
+    throw new UnauthorizedError();
   }
 
   if (!res.ok) {

@@ -63,6 +63,7 @@ export const VmListPage = () => {
     <ListPage
       title="Virtual machines"
       description="View and filter your virtual machines."
+      error={error}
       actions={
         role === 'tenantUser' ? (
           <Button variant="primary" onClick={() => navigate('/vms/create')}>

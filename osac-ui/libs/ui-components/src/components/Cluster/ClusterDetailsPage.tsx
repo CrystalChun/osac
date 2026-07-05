@@ -11,7 +11,7 @@ import ClusterDetailsPageContent from './Details/ClusterDetailsPageContent';
 
 export const ClusterDetailsPage = () => {
   const { clusterId } = useParams() as { clusterId: string };
-  const { data: cluster, isLoading, isError, refetch } = useCluster(clusterId);
+  const { data: cluster, isLoading, isError, error, refetch } = useCluster(clusterId);
 
   if (isLoading) {
     return (
@@ -30,7 +30,7 @@ export const ClusterDetailsPage = () => {
         parentTo="/clusters"
         parentLabel="Clusters"
         resourceLabel="cluster"
-        variant="load-error"
+        error={error}
         onRetry={() => void refetch()}
       />
     );
