@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { FormGroup } from '@patternfly/react-core';
 import { MultiTypeaheadSelect, type MultiTypeaheadSelectOption } from '@patternfly/react-templates';
 import { useField } from 'formik';
@@ -19,6 +19,8 @@ interface MultiSelectFieldProps {
   placeholder?: string;
   loadingPlaceholder?: string;
   noOptionsFoundMessage?: string | ((filter: string) => string);
+  /** When true, commits the sole option to Formik once loading finishes and exactly one option exists. */
+  autoSelectSingleOption?: boolean;
 }
 
 export const MultiSelectField = ({
@@ -32,6 +34,7 @@ export const MultiSelectField = ({
   placeholder = 'Select options',
   loadingPlaceholder = 'Loading...',
   noOptionsFoundMessage = (filter) => `No options found for "${filter}"`,
+  autoSelectSingleOption = false,
 }: MultiSelectFieldProps) => {
   const [field, meta, helpers] = useField<string[]>(name);
   const showValidationErrors = useShowFieldValidationErrors();
@@ -40,19 +43,35 @@ export const MultiSelectField = ({
   const effectivePlaceholder = isLoading ? loadingPlaceholder : placeholder;
   const controlDisabled = isDisabled || isLoading;
 
+  const selectedValues = Array.isArray(field.value) ? field.value : [];
+  const optionsKey = `${options.map((option) => option.value).join('\0')}\0${selectedValues.join('\0')}`;
+
+  useEffect(() => {
+    if (
+      !autoSelectSingleOption ||
+      isLoading ||
+      isDisabled ||
+      options.length !== 1 ||
+      selectedValues.length > 0
+    ) {
+      return;
+    }
+    void helpers.setValue([options[0].value], false);
+  }, [autoSelectSingleOption, helpers, isDisabled, isLoading, options, selectedValues.length]);
+
   const initialOptions = useMemo<MultiTypeaheadSelectOption[]>(() => {
-    const selected = Array.isArray(field.value) ? field.value : [];
     return options.map((option) => ({
       content: option.label,
       value: option.value,
-      selected: selected.includes(option.value),
+      selected: selectedValues.includes(option.value),
       isDisabled: option.isDisabled,
     }));
-  }, [field.value, options]);
+  }, [options, selectedValues]);
 
   return (
     <FormGroup label={label} fieldId={fieldId} isRequired={isRequired}>
       <MultiTypeaheadSelect
+        key={optionsKey}
         id={fieldId}
         initialOptions={initialOptions}
         placeholder={effectivePlaceholder}
@@ -62,8 +81,8 @@ export const MultiSelectField = ({
           void helpers.setValue(selections.map(String));
           void helpers.setTouched(true);
         }}
-        onToggle={(isOpen) => {
-          if (!isOpen) {
+        onToggle={(open) => {
+          if (!open) {
             void helpers.setTouched(true);
           }
         }}

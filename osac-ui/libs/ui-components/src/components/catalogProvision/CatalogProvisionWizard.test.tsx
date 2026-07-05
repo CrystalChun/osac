@@ -318,11 +318,15 @@ describe('CatalogProvisionWizard', () => {
     await advanceToNetworkingStep(user);
 
     await waitFor(() => {
-      const select = document.getElementById('vm-virtual-network') as HTMLSelectElement;
-      const networkOptions = Array.from(select.options).filter((option) => option.value !== '');
+      expect(screen.getByLabelText(/^Virtual network/)).toHaveTextContent('tenant-vn');
+    });
+
+    await user.click(screen.getByLabelText(/^Virtual network/));
+
+    await waitFor(() => {
+      const networkOptions = screen.getAllByRole('option');
       expect(networkOptions).toHaveLength(1);
-      expect(networkOptions[0].value).toBe('vn-ready');
-      expect(select.value).toBe('vn-ready');
+      expect(networkOptions[0]).toHaveTextContent('tenant-vn');
     });
   });
 

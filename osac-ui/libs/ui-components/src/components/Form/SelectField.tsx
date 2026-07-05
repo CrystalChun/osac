@@ -1,4 +1,12 @@
-import { FormGroup, FormSelect, FormSelectOption } from '@patternfly/react-core';
+import { useEffect, useMemo, useState, type MouseEvent, type Ref } from 'react';
+import {
+  FormGroup,
+  MenuToggle,
+  type MenuToggleElement,
+  Select,
+  SelectList,
+  SelectOption,
+} from '@patternfly/react-core';
 import { useField } from 'formik';
 
 import { getVisibleFieldError } from './fieldError';
@@ -21,6 +29,8 @@ interface SelectFieldProps {
   isLoading?: boolean;
   placeholder?: string;
   loadingPlaceholder?: string;
+  /** When true, commits the sole option to Formik once loading finishes and exactly one option exists. */
+  autoSelectSingleOption?: boolean;
 }
 
 export const SelectField = ({
@@ -33,40 +43,83 @@ export const SelectField = ({
   isLoading = false,
   placeholder,
   loadingPlaceholder = 'Loading...',
+  autoSelectSingleOption = false,
 }: SelectFieldProps) => {
-  const [field, meta] = useField<string>(name);
+  const [field, meta, helpers] = useField<string>(name);
+  const [isOpen, setIsOpen] = useState(false);
   const showValidationErrors = useShowFieldValidationErrors();
   const error = getVisibleFieldError(meta, showValidationErrors);
   const validated = error ? 'error' : 'default';
   const effectivePlaceholder = isLoading ? loadingPlaceholder : placeholder;
   const controlDisabled = isDisabled || isLoading;
+  const fieldValue = field.value ?? '';
+
+  useEffect(() => {
+    if (
+      !autoSelectSingleOption ||
+      isLoading ||
+      isDisabled ||
+      options.length !== 1 ||
+      fieldValue.trim()
+    ) {
+      return;
+    }
+    void helpers.setValue(options[0].value, false);
+  }, [autoSelectSingleOption, fieldValue, helpers, isDisabled, isLoading, options]);
+
+  const toggleLabel = useMemo(() => {
+    if (!fieldValue.trim()) {
+      return effectivePlaceholder ?? '';
+    }
+    return options.find((option) => option.value === fieldValue)?.label ?? fieldValue;
+  }, [effectivePlaceholder, fieldValue, options]);
+
+  const onSelect = (
+    _event: MouseEvent<Element> | undefined,
+    value: string | number | undefined,
+  ) => {
+    const nextValue = value == null ? '' : String(value);
+    void helpers.setValue(nextValue, true);
+    void helpers.setTouched(true, false);
+    setIsOpen(false);
+  };
+
+  const toggle = (toggleRef: Ref<MenuToggleElement>) => (
+    <MenuToggle
+      ref={toggleRef}
+      id={fieldId}
+      onClick={() => setIsOpen((wasOpen) => !wasOpen)}
+      isExpanded={isOpen}
+      isDisabled={controlDisabled}
+      isFullWidth
+      status={validated === 'error' ? 'danger' : undefined}
+      aria-invalid={error ? true : undefined}
+      aria-describedby={error ? `${fieldId}-helper-error` : undefined}
+      aria-busy={isLoading || undefined}
+    >
+      {toggleLabel}
+    </MenuToggle>
+  );
 
   return (
     <FormGroup label={label} fieldId={fieldId} isRequired={isRequired}>
-      <FormSelect
-        id={fieldId}
-        name={name}
-        value={field.value ?? ''}
-        onChange={(_event, value) => {
-          void field.onChange({ target: { name, value } });
-        }}
-        onBlur={field.onBlur}
-        isDisabled={controlDisabled}
-        validated={validated}
-        aria-invalid={error ? true : undefined}
-        aria-describedby={error ? `${fieldId}-helper-error` : undefined}
-        aria-busy={isLoading || undefined}
-        placeholder={effectivePlaceholder}
+      <Select
+        id={`${fieldId}-select`}
+        isOpen={isOpen}
+        selected={fieldValue}
+        onSelect={onSelect}
+        onOpenChange={setIsOpen}
+        toggle={toggle}
+        shouldFocusToggleOnSelect
       >
-        {options.map((option) => (
-          <FormSelectOption
-            key={option.value}
-            value={option.value}
-            label={option.label}
-            isDisabled={option.isDisabled}
-          />
-        ))}
-      </FormSelect>
+        <SelectList>
+          {options.map((option) => (
+            <SelectOption key={option.value} value={option.value} isDisabled={option.isDisabled}>
+              {option.label}
+            </SelectOption>
+          ))}
+        </SelectList>
+      </Select>
       <FormFieldHelper error={error} fieldId={fieldId} />
     </FormGroup>
   );
