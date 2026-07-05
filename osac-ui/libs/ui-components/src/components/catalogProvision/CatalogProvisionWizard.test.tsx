@@ -2,7 +2,12 @@ import { screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 import type { ComputeInstanceCatalogItem } from '@osac/types';
-import { SecurityGroupState, InstanceTypeState, SubnetState, VirtualNetworkState } from '@osac/types';
+import {
+  InstanceTypeState,
+  SecurityGroupState,
+  SubnetState,
+  VirtualNetworkState,
+} from '@osac/types';
 
 import { createMockApiFetch } from './test/createMockApiFetch';
 import { vmCatalogItem } from './test/fixtures';

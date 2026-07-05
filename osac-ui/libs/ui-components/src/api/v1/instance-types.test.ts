@@ -19,9 +19,7 @@ const makeInstanceType = (overrides: Partial<InstanceType> = {}): InstanceType =
 
 describe('INSTANCE_TYPE_ACTIVE_LIST_FILTER', () => {
   it('filters instance types to active state using enum integer', () => {
-    expect(INSTANCE_TYPE_ACTIVE_LIST_FILTER).toBe(
-      `this.spec.state == ${InstanceTypeState.ACTIVE}`,
-    );
+    expect(INSTANCE_TYPE_ACTIVE_LIST_FILTER).toBe(`this.spec.state == ${InstanceTypeState.ACTIVE}`);
   });
 });
 
