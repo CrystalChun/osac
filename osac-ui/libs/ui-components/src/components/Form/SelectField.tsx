@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type MouseEvent, type Ref } from 'react';
+import { type MouseEvent, type Ref, useEffect, useMemo, useState } from 'react';
 import {
   FormGroup,
   MenuToggle,
@@ -12,6 +12,11 @@ import { useField } from 'formik';
 import { getVisibleFieldError } from './fieldError';
 import { useShowFieldValidationErrors } from './FieldValidationContext';
 import { FormFieldHelper } from './FormFieldHelper';
+import {
+  EMPTY_LABELED_RESOURCE_REF,
+  type LabeledResourceRef,
+  isLabeledResourceRefEmpty,
+} from './labeledResourceRef';
 
 export interface SelectFieldOption {
   value: string;
@@ -45,14 +50,15 @@ export const SelectField = ({
   loadingPlaceholder = 'Loading...',
   autoSelectSingleOption = false,
 }: SelectFieldProps) => {
-  const [field, meta, helpers] = useField<string>(name);
+  const [field, meta, helpers] = useField<LabeledResourceRef>(name);
   const [isOpen, setIsOpen] = useState(false);
   const showValidationErrors = useShowFieldValidationErrors();
   const error = getVisibleFieldError(meta, showValidationErrors);
   const validated = error ? 'error' : 'default';
   const effectivePlaceholder = isLoading ? loadingPlaceholder : placeholder;
   const controlDisabled = isDisabled || isLoading;
-  const fieldValue = field.value ?? '';
+  const fieldValue = field.value ?? EMPTY_LABELED_RESOURCE_REF;
+  const selectedValue = fieldValue.value;
 
   useEffect(() => {
     if (
@@ -60,26 +66,35 @@ export const SelectField = ({
       isLoading ||
       isDisabled ||
       options.length !== 1 ||
-      fieldValue.trim()
+      !isLabeledResourceRefEmpty(fieldValue)
     ) {
       return;
     }
-    void helpers.setValue(options[0].value, false);
+    void helpers.setValue({ value: options[0].value, label: options[0].label }, false);
   }, [autoSelectSingleOption, fieldValue, helpers, isDisabled, isLoading, options]);
 
   const toggleLabel = useMemo(() => {
-    if (!fieldValue.trim()) {
+    if (isLabeledResourceRefEmpty(fieldValue)) {
       return effectivePlaceholder ?? '';
     }
-    return options.find((option) => option.value === fieldValue)?.label ?? fieldValue;
-  }, [effectivePlaceholder, fieldValue, options]);
+    return fieldValue.label.trim() || fieldValue.value;
+  }, [effectivePlaceholder, fieldValue]);
 
   const onSelect = (
     _event: MouseEvent<Element> | undefined,
     value: string | number | undefined,
   ) => {
-    const nextValue = value == null ? '' : String(value);
-    void helpers.setValue(nextValue, true);
+    if (value == null) {
+      void helpers.setValue(EMPTY_LABELED_RESOURCE_REF, true);
+    } else {
+      const option = options.find((entry) => entry.value === String(value));
+      void helpers.setValue(
+        option
+          ? { value: option.value, label: option.label }
+          : { value: String(value), label: String(value) },
+        true,
+      );
+    }
     void helpers.setTouched(true, false);
     setIsOpen(false);
   };
@@ -106,7 +121,7 @@ export const SelectField = ({
       <Select
         id={`${fieldId}-select`}
         isOpen={isOpen}
-        selected={fieldValue}
+        selected={selectedValue}
         onSelect={onSelect}
         onOpenChange={setIsOpen}
         toggle={toggle}

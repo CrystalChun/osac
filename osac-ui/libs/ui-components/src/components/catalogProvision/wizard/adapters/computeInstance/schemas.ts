@@ -2,6 +2,10 @@ import type { TFunction } from 'i18next';
 import * as yup from 'yup';
 
 import {
+  labeledResourceRefArraySchema,
+  labeledResourceRefSchema,
+} from '../../../../Form/labeledResourceRefSchema';
+import {
   getCatalogFieldOverlay,
   hasCatalogFieldDefinition,
   mergeCatalogValidation,
@@ -52,10 +56,9 @@ const buildComputeInstanceFieldDefinitions = (catalogItem: unknown, t: TFunction
         t('catalogProvision.validation.imageRequired'),
       ),
     }),
-    specInstanceType: yup
-      .string()
-      .trim()
-      .required(t('catalogProvision.validation.instanceTypeRequired')),
+    specInstanceType: labeledResourceRefSchema(
+      t('catalogProvision.validation.instanceTypeRequired'),
+    ),
     specUserData: mergeCatalogValidation(
       yup.string(),
       userDataOverlay,
@@ -77,14 +80,13 @@ const buildComputeInstanceFieldDefinitions = (catalogItem: unknown, t: TFunction
       ),
     }),
     specNetworking: yup.object({
-      virtualNetworkId: yup
-        .string()
-        .required(t('catalogProvision.validation.virtualNetworkRequired')),
-      subnetId: yup.string().required(t('catalogProvision.validation.subnetRequired')),
-      securityGroupIds: yup
-        .array()
-        .of(yup.string().defined())
-        .min(1, t('catalogProvision.validation.securityGroupRequired')),
+      virtualNetwork: labeledResourceRefSchema(
+        t('catalogProvision.validation.virtualNetworkRequired'),
+      ),
+      subnet: labeledResourceRefSchema(t('catalogProvision.validation.subnetRequired')),
+      securityGroups: labeledResourceRefArraySchema(
+        t('catalogProvision.validation.securityGroupRequired'),
+      ),
     }),
   };
 };

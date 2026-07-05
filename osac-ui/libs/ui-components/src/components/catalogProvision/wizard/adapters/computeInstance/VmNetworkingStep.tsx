@@ -5,6 +5,7 @@ import { useFormikContext } from 'formik';
 import type { ComputeInstanceCatalogItem } from '@osac/types';
 
 import type { ComputeInstanceWizardValues } from './fields';
+import { EMPTY_LABELED_RESOURCE_REF } from './fields';
 import {
   VIRTUAL_NETWORK_READY_LIST_FILTER,
   resourceDisplayName,
@@ -26,7 +27,7 @@ interface Props {
 export const VmNetworkingStep = ({ catalogItem }: Props) => {
   const { t } = useTranslation();
   const { values, setFieldValue } = useFormikContext<ComputeInstanceWizardValues>();
-  const virtualNetworkId = values.spec.networking.virtualNetworkId;
+  const virtualNetworkId = values.spec.networking.virtualNetwork.value;
 
   const {
     data: virtualNetworks = [],
@@ -93,8 +94,8 @@ export const VmNetworkingStep = ({ catalogItem }: Props) => {
     const previous = previousVirtualNetworkIdRef.current;
     previousVirtualNetworkIdRef.current = virtualNetworkId;
     if (previous && previous !== virtualNetworkId) {
-      void setFieldValue('spec.networking.subnetId', '');
-      void setFieldValue('spec.networking.securityGroupIds', []);
+      void setFieldValue('spec.networking.subnet', EMPTY_LABELED_RESOURCE_REF);
+      void setFieldValue('spec.networking.securityGroups', []);
     }
   }, [setFieldValue, virtualNetworkId]);
 
@@ -129,7 +130,7 @@ export const VmNetworkingStep = ({ catalogItem }: Props) => {
       <StackItem>
         <OsacForm>
           <SelectField
-            name="spec.networking.virtualNetworkId"
+            name="spec.networking.virtualNetwork"
             label={t('catalogProvision.vm.fields.virtualNetwork')}
             fieldId="vm-virtual-network"
             isRequired
@@ -140,7 +141,7 @@ export const VmNetworkingStep = ({ catalogItem }: Props) => {
             options={virtualNetworkOptions}
           />
           <SelectField
-            name="spec.networking.subnetId"
+            name="spec.networking.subnet"
             label={t('catalogProvision.vm.fields.subnet')}
             fieldId="vm-subnet"
             isRequired
@@ -152,7 +153,7 @@ export const VmNetworkingStep = ({ catalogItem }: Props) => {
             options={subnetOptions}
           />
           <MultiSelectField
-            name="spec.networking.securityGroupIds"
+            name="spec.networking.securityGroups"
             label={t('catalogProvision.vm.fields.securityGroup')}
             fieldId="vm-security-group"
             isRequired

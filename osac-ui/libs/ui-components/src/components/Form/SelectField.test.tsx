@@ -4,24 +4,26 @@ import { Formik, type FormikErrors } from 'formik';
 import { describe, expect, it } from 'vitest';
 import * as yup from 'yup';
 
+import { EMPTY_LABELED_RESOURCE_REF, type LabeledResourceRef } from './labeledResourceRef';
+import { labeledResourceRefSchema } from './labeledResourceRefSchema';
 import { SelectField } from './SelectField';
 
 const renderSelect = ({
   autoSelectSingleOption = false,
-  initialValue = '',
+  initialValue = EMPTY_LABELED_RESOURCE_REF,
   isLoading = false,
 }: {
   autoSelectSingleOption?: boolean;
-  initialValue?: string;
+  initialValue?: LabeledResourceRef;
   isLoading?: boolean;
 } = {}) => {
-  let latestErrors: FormikErrors<{ kind: string }> = {};
+  let latestErrors: FormikErrors<{ kind: LabeledResourceRef }> = {};
 
   render(
     <Formik
       initialValues={{ kind: initialValue }}
       validationSchema={yup.object({
-        kind: yup.string().required('Kind is required'),
+        kind: labeledResourceRefSchema('Kind is required'),
       })}
       onSubmit={() => undefined}
     >
@@ -37,7 +39,7 @@ const renderSelect = ({
             placeholder="Select a kind"
             options={[{ value: 'only-option', label: 'Only option label' }]}
           />
-          <output aria-label="formik-value">{values.kind || '(empty)'}</output>
+          <output aria-label="formik-value">{values.kind.value || '(empty)'}</output>
           <button
             type="button"
             onClick={() => {
@@ -100,7 +102,7 @@ describe('SelectField', () => {
 
   it('does not auto-select when multiple options are available', async () => {
     render(
-      <Formik initialValues={{ kind: '' }} onSubmit={() => undefined}>
+      <Formik initialValues={{ kind: EMPTY_LABELED_RESOURCE_REF }} onSubmit={() => undefined}>
         {({ values }) => (
           <>
             <SelectField
@@ -114,7 +116,7 @@ describe('SelectField', () => {
                 { value: 'large', label: 'Large' },
               ]}
             />
-            <output aria-label="formik-value">{values.kind || '(empty)'}</output>
+            <output aria-label="formik-value">{values.kind.value || '(empty)'}</output>
           </>
         )}
       </Formik>,
@@ -131,7 +133,7 @@ describe('SelectField', () => {
     const user = userEvent.setup();
 
     render(
-      <Formik initialValues={{ kind: '' }} onSubmit={() => undefined}>
+      <Formik initialValues={{ kind: EMPTY_LABELED_RESOURCE_REF }} onSubmit={() => undefined}>
         {({ values }) => (
           <>
             <SelectField
@@ -144,7 +146,7 @@ describe('SelectField', () => {
                 { value: 'large', label: 'Large' },
               ]}
             />
-            <output aria-label="formik-value">{values.kind || '(empty)'}</output>
+            <output aria-label="formik-value">{values.kind.value || '(empty)'}</output>
           </>
         )}
       </Formik>,
@@ -164,10 +166,10 @@ describe('SelectField', () => {
 
     render(
       <Formik
-        initialValues={{ kind: '' }}
+        initialValues={{ kind: EMPTY_LABELED_RESOURCE_REF }}
         validateOnBlur
         validationSchema={yup.object({
-          kind: yup.string().required('Kind is required'),
+          kind: labeledResourceRefSchema('Kind is required'),
         })}
         onSubmit={() => undefined}
       >

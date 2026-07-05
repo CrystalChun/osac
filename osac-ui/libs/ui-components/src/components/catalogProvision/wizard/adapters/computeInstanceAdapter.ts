@@ -22,15 +22,14 @@ import {
 import { buildComputeInstanceStepSchema } from './computeInstance/schemas';
 import { VmConfigurationStep } from './computeInstance/VmConfigurationStep';
 import { VmNetworkingStep } from './computeInstance/VmNetworkingStep';
-import type { CatalogProvisionAdapter, ReviewContext } from './types';
+import type { CatalogProvisionAdapter } from './types';
 import { useComputeInstanceCatalogItems } from '../../../../api/v1/compute-instance-catalog-item';
 import type { BuildComputeInstanceCreateBodyInput } from '../../../../api/v1/compute-instance-wire';
-import { formatInstanceTypeReviewLabel } from '../../../../api/v1/instance-types';
-import {
-  formatResourceIdForReview,
-  formatResourceIdsForReview,
-} from '../../../../api/v1/networking';
 import { useTranslation } from '../../../../hooks/useTranslation';
+import {
+  formatLabeledResourceRefForReview,
+  formatLabeledResourceRefsForReview,
+} from '../../../Form/labeledResourceRef';
 
 export {
   buildComputeInstanceCreatePayload,
@@ -41,7 +40,6 @@ const buildReviewSections = (
   values: ComputeInstanceWizardValues,
   catalogItem: ComputeInstanceCatalogItem,
   t: TFunction,
-  context: ReviewContext = {},
 ): ReviewSection[] => {
   const definitions = readCatalogFieldDefinitions(catalogItem);
   const imageOverlay = getCatalogFieldOverlay(
@@ -79,11 +77,7 @@ const buildReviewSections = (
         reviewRow(imageOverlay.label, formatReviewScalar(values.spec.image.sourceRef)),
         reviewRow(
           t('catalogProvision.vm.fields.instanceType'),
-          formatInstanceTypeReviewLabel(
-            values.spec.instanceType,
-            context.instanceTypes ?? [],
-            t('catalogProvision.instanceTypes.deprecatedSuffix'),
-          ),
+          formatLabeledResourceRefForReview(values.spec.instanceType),
         ),
         reviewRow(bootDiskOverlay.label, formatBootDiskSizeForReview(values.spec.bootDisk.sizeGib)),
         reviewRow(userDataOverlay.label, formatReviewScalar(values.spec.userData, true)),
@@ -94,21 +88,15 @@ const buildReviewSections = (
       rows: [
         reviewRow(
           t('catalogProvision.vm.fields.virtualNetwork'),
-          formatResourceIdForReview(
-            values.spec.networking.virtualNetworkId,
-            context.virtualNetworks ?? [],
-          ),
+          formatLabeledResourceRefForReview(values.spec.networking.virtualNetwork),
         ),
         reviewRow(
           t('catalogProvision.vm.fields.subnet'),
-          formatResourceIdForReview(values.spec.networking.subnetId, context.subnets ?? []),
+          formatLabeledResourceRefForReview(values.spec.networking.subnet),
         ),
         reviewRow(
           t('catalogProvision.vm.fields.securityGroup'),
-          formatResourceIdsForReview(
-            values.spec.networking.securityGroupIds,
-            context.securityGroups ?? [],
-          ),
+          formatLabeledResourceRefsForReview(values.spec.networking.securityGroups),
         ),
       ],
     },
@@ -143,8 +131,7 @@ export const useComputeInstanceAdapter = (): CatalogProvisionAdapter<
       resolveGeneralFields: (catalogItem) => buildVmGeneralFields(catalogItem, t),
       getStepValidationSchema: (catalogItem, stepId) =>
         buildComputeInstanceStepSchema(catalogItem, stepId, t),
-      getReviewSections: (values, catalogItem, context) =>
-        buildReviewSections(values, catalogItem, t, context),
+      getReviewSections: (values, catalogItem) => buildReviewSections(values, catalogItem, t),
       onCatalogItemSelected: (item, helpers) => {
         helpers.resetForm({
           values: {
