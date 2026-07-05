@@ -2,7 +2,7 @@ import { screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 import type { ComputeInstanceCatalogItem } from '@osac/types';
-import { SecurityGroupState, SubnetState, VirtualNetworkState } from '@osac/types';
+import { SecurityGroupState, InstanceTypeState, SubnetState, VirtualNetworkState } from '@osac/types';
 
 import { createMockApiFetch } from './test/createMockApiFetch';
 import { vmCatalogItem } from './test/fixtures';
@@ -279,6 +279,38 @@ describe('CatalogProvisionWizard', () => {
 
     await waitFor(() => {
       expect(screen.getByLabelText(/VM image/)).toHaveValue('quay.io/example/rhel9');
+    });
+  });
+
+  it('shows only active instance types when deprecated and active share a name', async () => {
+    const { user } = await renderWizard({
+      apiFixtures: {
+        instanceTypes: [
+          {
+            id: 'standard-deprecated',
+            metadata: { name: 'standard-4-8' },
+            spec: { cores: 4, memory_gib: 8, state: InstanceTypeState.DEPRECATED },
+          },
+          {
+            id: 'standard-active',
+            metadata: { name: 'standard-4-8' },
+            spec: { cores: 4, memory_gib: 8, state: InstanceTypeState.ACTIVE },
+          },
+        ],
+      },
+    });
+    await advanceToConfigurationStep(user);
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(/^Instance type/)).not.toBeDisabled();
+    });
+
+    await user.click(screen.getByLabelText(/^Instance type/));
+
+    await waitFor(() => {
+      const instanceTypeOptions = screen.getAllByRole('option');
+      expect(instanceTypeOptions).toHaveLength(1);
+      expect(instanceTypeOptions[0]).toHaveTextContent('standard-4-8');
     });
   });
 

@@ -4,6 +4,7 @@ import { Alert, Button, Stack, StackItem } from '@patternfly/react-core';
 import type { ComputeInstanceCatalogItem } from '@osac/types';
 
 import {
+  INSTANCE_TYPE_ACTIVE_LIST_FILTER,
   formatInstanceTypeOptionLabel,
   useInstanceTypes,
 } from '../../../../../api/v1/instance-types';
@@ -30,7 +31,7 @@ export const VmConfigurationStep = ({ catalogItem }: Props) => {
     isPending: instanceTypesLoading,
     isError: instanceTypesError,
     refetch: refetchInstanceTypes,
-  } = useInstanceTypes();
+  } = useInstanceTypes({ filter: INSTANCE_TYPE_ACTIVE_LIST_FILTER });
 
   const instanceTypeOptions = useMemo(
     () =>

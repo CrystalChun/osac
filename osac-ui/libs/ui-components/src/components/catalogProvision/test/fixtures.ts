@@ -1,5 +1,10 @@
 import type { ComputeInstanceCatalogItem } from '@osac/types';
-import { SecurityGroupState, SubnetState, VirtualNetworkState } from '@osac/types';
+import {
+  InstanceTypeState,
+  SecurityGroupState,
+  SubnetState,
+  VirtualNetworkState,
+} from '@osac/types';
 
 export const vmCatalogItem = {
   id: 'catalog-rhel-9',
@@ -51,6 +56,6 @@ export const mockInstanceType = {
   spec: {
     cores: 4,
     memory_gib: 8,
-    state: 'INSTANCE_TYPE_STATE_ACTIVE',
+    state: InstanceTypeState.ACTIVE,
   },
 };

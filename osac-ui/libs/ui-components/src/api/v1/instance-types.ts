@@ -20,13 +20,16 @@ type InstanceTypesQueryOptions = {
   enabled?: boolean;
 };
 
+/** CEL list filters compare enum fields to integer literals (see fulfillment-service docs/FILTER.md). */
+export const INSTANCE_TYPE_ACTIVE_LIST_FILTER = `this.spec.state == ${InstanceTypeState.ACTIVE}`;
+
 export const useInstanceTypes = (
   params: ListInstanceTypesParams = {},
   options: InstanceTypesQueryOptions = {},
 ) =>
   useApiQuery<InstanceTypesListResponse, InstanceType[]>({
     queryKey: ['v1/instance_types', null, params],
-    select: (data) => data.items.filter((item) => !isObsoleteInstanceType(item)),
+    select: (data) => data.items,
     meta: { decode: InstanceTypesListResponseSchema },
     enabled: options.enabled ?? true,
   });

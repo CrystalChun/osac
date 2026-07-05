@@ -1,6 +1,7 @@
 import type { ComputeInstanceCatalogItem } from '@osac/types';
 import {
   ComputeInstanceCatalogItemsListResponseSchema,
+  InstanceTypeState,
   InstanceTypesListResponseSchema,
   SecurityGroupsListResponseSchema,
   SubnetsListResponseSchema,
@@ -78,6 +79,19 @@ const filterSecurityGroups = (items: (typeof mockSecurityGroup)[], filter: strin
       matchesVirtualNetworkScopeFilter(filter, item.spec?.virtualNetwork),
   );
 
+const matchesInstanceTypeActiveFilter = (
+  filter: string | undefined,
+  state: number | undefined,
+): boolean => {
+  if (!filter?.includes('this.spec.state ==')) {
+    return true;
+  }
+  return state === InstanceTypeState.ACTIVE;
+};
+
+const filterInstanceTypes = (items: (typeof mockInstanceType)[], filter: string | undefined) =>
+  items.filter((item) => matchesInstanceTypeActiveFilter(filter, item.spec?.state));
+
 export const createMockApiFetch = (fixtures: WizardApiFixtures = {}): ApiFetch => {
   const catalogItems = fixtures.catalogItems ?? [vmCatalogItem];
   const virtualNetworks = fixtures.virtualNetworks ?? [mockVirtualNetwork];
@@ -117,7 +131,7 @@ export const createMockApiFetch = (fixtures: WizardApiFixtures = {}): ApiFetch =
       case 'v1/instance_types':
         return decodeRoute(
           route,
-          { items: instanceTypes },
+          { items: filterInstanceTypes(instanceTypes, filter) },
           decode ?? InstanceTypesListResponseSchema,
         );
       default:
