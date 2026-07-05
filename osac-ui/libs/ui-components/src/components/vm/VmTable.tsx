@@ -13,6 +13,7 @@ import { VmActionsMenu } from './VmActionsMenu';
 import { VmInstanceTypeLabel } from './VmInstanceTypeLabel';
 import { useTranslation } from '../../hooks/useTranslation';
 import { VmStatusLabel } from '../../VmStatusLabel';
+import { Timestamp } from '../Primitives/Timestamp';
 
 interface VmTableProps {
   vms: ComputeInstance[];
@@ -41,6 +42,7 @@ export const VmTable = ({
           <Th>{t('Instance type')}</Th>
           <Th>{t('Internal IP')}</Th>
           <Th>{t('External IP')}</Th>
+          <Th>{t('Created')}</Th>
           <Th aria-label={t('Actions')} />
         </Tr>
       </Thead>
@@ -70,6 +72,9 @@ export const VmTable = ({
               </Td>
               <Td dataLabel={t('Internal IP')}>{locked ? '—' : internalIp || '—'}</Td>
               <Td dataLabel={t('External IP')}>{locked ? '—' : externalIp || '—'}</Td>
+              <Td dataLabel={t('Created')}>
+                <Timestamp value={vm.metadata?.creationTimestamp} />
+              </Td>
               <Td dataLabel={t('Actions')} isActionCell>
                 {locked ? null : <VmActionsMenu vm={vm} />}
               </Td>

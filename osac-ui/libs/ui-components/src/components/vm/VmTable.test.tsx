@@ -31,7 +31,7 @@ const standardInstanceType = {
 
 const runningVm = {
   id: 'vm-1',
-  metadata: { name: 'web-01' },
+  metadata: { name: 'web-01', creationTimestamp: '2024-01-01T00:00:00.000Z' },
   spec: { instanceType: 'standard-4-8' },
   status: {
     state: ComputeInstanceState.RUNNING,
@@ -60,17 +60,19 @@ describe('VmTable', () => {
     expect(screen.getByRole('columnheader', { name: 'Instance type' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: 'Internal IP' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: 'External IP' })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: 'Created' })).toBeInTheDocument();
     expect(screen.queryByRole('columnheader', { name: 'vCPU' })).not.toBeInTheDocument();
     expect(screen.queryByRole('columnheader', { name: 'Memory' })).not.toBeInTheDocument();
     expect(screen.queryByRole('columnheader', { name: 'IP' })).not.toBeInTheDocument();
   });
 
-  it('shows friendly instance type name and split IP addresses', async () => {
+  it('shows friendly instance type name, split IP addresses, and created timestamp', async () => {
     await renderTable();
 
     expect(screen.getByText('Standard 4 vCPU / 8 GiB')).toBeInTheDocument();
     expect(screen.getByText('10.0.0.5')).toBeInTheDocument();
     expect(screen.getByText('203.0.113.1')).toBeInTheDocument();
+    expect(screen.getByRole('time')).toHaveAttribute('dateTime', '2024-01-01T00:00:00.000Z');
   });
 
   it('falls back to raw instance type id when lookup data is missing', async () => {
