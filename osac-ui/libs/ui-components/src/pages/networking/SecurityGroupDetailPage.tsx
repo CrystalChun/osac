@@ -13,8 +13,8 @@ import {
   DescriptionListGroup,
   DescriptionListTerm,
   Tab,
-  Tabs,
   TabTitleText,
+  Tabs,
 } from '@patternfly/react-core';
 
 import { SecurityGroupState } from '@osac/types';
@@ -50,16 +50,16 @@ export const SecurityGroupDetailPage = () => {
 
   const handleAddIngressRule = () => {
     // TODO: Open rule form modal/drawer
-    console.log('Add ingress rule');
   };
 
-  const handleEditIngressRule = (index: number) => {
+  const handleEditIngressRule = (_index: number) => {
     // TODO: Open rule form modal/drawer with pre-filled data
-    console.log('Edit ingress rule', index);
   };
 
   const handleDeleteIngressRule = async (index: number) => {
-    if (!sg) return;
+    if (!sg) {
+      return;
+    }
     const newIngress = [...(sg.spec?.ingress ?? [])];
     newIngress.splice(index, 1);
     await updateSecurityGroup.mutateAsync({
@@ -74,15 +74,17 @@ export const SecurityGroupDetailPage = () => {
   };
 
   const handleAddEgressRule = () => {
-    console.log('Add egress rule');
+    // TODO: Open rule form modal/drawer
   };
 
-  const handleEditEgressRule = (index: number) => {
-    console.log('Edit egress rule', index);
+  const handleEditEgressRule = (_index: number) => {
+    // TODO: Open rule form modal/drawer with pre-filled data
   };
 
   const handleDeleteEgressRule = async (index: number) => {
-    if (!sg) return;
+    if (!sg) {
+      return;
+    }
     const newEgress = [...(sg.spec?.egress ?? [])];
     newEgress.splice(index, 1);
     await updateSecurityGroup.mutateAsync({

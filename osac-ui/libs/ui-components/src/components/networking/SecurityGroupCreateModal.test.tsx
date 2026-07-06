@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { VirtualNetworkState } from '@osac/types';
 
 import * as networkingApi from '../../api/v1/networking';
+
 import { SecurityGroupCreateModal } from './SecurityGroupCreateModal';
 
 vi.mock('../../api/v1/networking', async (importOriginal) => {

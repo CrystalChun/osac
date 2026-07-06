@@ -13,7 +13,7 @@ import {
   StackItem,
   TextInput,
 } from '@patternfly/react-core';
-import { FieldArray, Formik } from 'formik';
+import { Formik } from 'formik';
 import * as Yup from 'yup';
 
 import { Protocol } from '@osac/types';
@@ -51,14 +51,6 @@ interface FormValues {
   ingressRules: RuleFormValues[];
   egressRules: RuleFormValues[];
 }
-
-const emptyRule: RuleFormValues = {
-  protocol: String(Protocol.TCP),
-  portFrom: '',
-  portTo: '',
-  ipv4Cidr: '',
-  ipv6Cidr: '',
-};
 
 const ruleSchema = Yup.object({
   protocol: Yup.string().required('Protocol is required'),

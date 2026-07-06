@@ -3,8 +3,8 @@ import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
 import { Protocol, type SecurityRule } from '@osac/types';
 
-import { SubtleContent } from '../SubtleContent/SubtleContent';
 import { useTranslation } from '../../hooks/useTranslation';
+import { SubtleContent } from '../SubtleContent/SubtleContent';
 
 interface SecurityGroupRulesTableProps {
   rules: SecurityRule[];
