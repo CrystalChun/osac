@@ -35,6 +35,11 @@ const getTenantUserNav = (t: TFunction): NavRow[] => [
         label: t('Virtual Networks'),
         path: '/networking/virtual-networks',
       },
+      {
+        id: 'security-groups',
+        label: t('Security Groups'),
+        path: '/networking/security-groups',
+      },
     ],
   },
 ];

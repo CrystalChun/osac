@@ -8,6 +8,8 @@ import { useSession } from '@osac/ui-components/hooks/use-session';
 import { AdminDashboardPage } from '@osac/ui-components/pages/admin/AdminDashboardPage';
 import { AdminNetworksPage } from '@osac/ui-components/pages/admin/AdminNetworksPage';
 import { AdminUsersPage } from '@osac/ui-components/pages/admin/AdminUsersPage';
+import { SecurityGroupDetailPage } from '@osac/ui-components/pages/networking/SecurityGroupDetailPage';
+import { SecurityGroupsListPage } from '@osac/ui-components/pages/networking/SecurityGroupsListPage';
 import { VirtualNetworkDetailPage } from '@osac/ui-components/pages/networking/VirtualNetworkDetailPage';
 import { VirtualNetworksListPage } from '@osac/ui-components/pages/networking/VirtualNetworksListPage';
 import { ProviderAdminDashboardPage } from '@osac/ui-components/pages/provider/ProviderAdminDashboardPage';
@@ -106,6 +108,22 @@ export const AppShell = ({ logout }: { logout: () => Promise<void> }) => {
           element={
             <RoleRoute allow={['tenantUser', 'tenantAdmin']} fallback={defaultRoute}>
               <VirtualNetworkDetailPage />
+            </RoleRoute>
+          }
+        />
+        <Route
+          path="/networking/security-groups"
+          element={
+            <RoleRoute allow={['tenantUser', 'tenantAdmin']} fallback={defaultRoute}>
+              <SecurityGroupsListPage />
+            </RoleRoute>
+          }
+        />
+        <Route
+          path="/networking/security-groups/:id"
+          element={
+            <RoleRoute allow={['tenantUser', 'tenantAdmin']} fallback={defaultRoute}>
+              <SecurityGroupDetailPage />
             </RoleRoute>
           }
         />
