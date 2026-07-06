@@ -19,20 +19,10 @@ const VIRTUAL_NETWORK_STATUS_MAP: Record<
 const resolveVirtualNetworkStatus = (
   state?: VirtualNetworkState,
 ): { status: StatusKind; text: string } => {
-  // VirtualNetworkState currently only has 4 states (UNSPECIFIED, PENDING, READY, FAILED).
-  // Unlike SubnetState, it doesn't include DELETING or DELETE_FAILED states.
-  // If these are added in the future, they should be mapped similar to Subnet:
-  // DELETING -> progressing/Deleting, DELETE_FAILED -> failed/Delete failed
-  switch (state) {
-    case VirtualNetworkState.PENDING:
-      return VIRTUAL_NETWORK_STATUS_MAP[VirtualNetworkState.PENDING];
-    case VirtualNetworkState.READY:
-      return VIRTUAL_NETWORK_STATUS_MAP[VirtualNetworkState.READY];
-    case VirtualNetworkState.FAILED:
-      return VIRTUAL_NETWORK_STATUS_MAP[VirtualNetworkState.FAILED];
-    default:
-      return VIRTUAL_NETWORK_STATUS_MAP[VirtualNetworkState.UNSPECIFIED];
+  if (state !== undefined && state in VIRTUAL_NETWORK_STATUS_MAP) {
+    return VIRTUAL_NETWORK_STATUS_MAP[state];
   }
+  return VIRTUAL_NETWORK_STATUS_MAP[VirtualNetworkState.UNSPECIFIED];
 };
 
 export const VirtualNetworkStatusLabel = ({ state }: VirtualNetworkStatusLabelProps) => {

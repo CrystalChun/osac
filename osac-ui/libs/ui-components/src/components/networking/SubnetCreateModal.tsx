@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   Alert,
   Button,
@@ -50,15 +50,9 @@ export const SubnetCreateModal = ({
   const hasIPv4 = Boolean(parentIPv4CIDR);
   const hasIPv6 = Boolean(parentIPv6CIDR);
 
-  const existingIPv4CIDRs = existingSubnets
-    .map((s) => s.spec?.ipv4Cidr)
-    .filter((cidr): cidr is string => Boolean(cidr));
-
-  const existingIPv6CIDRs = existingSubnets
-    .map((s) => s.spec?.ipv6Cidr)
-    .filter((cidr): cidr is string => Boolean(cidr));
-
-  const validationSchema = Yup.object({
+  const validationSchema = useMemo(
+    () =>
+      Yup.object({
     name: Yup.string().required('Name is required'),
     ipv4Cidr: hasIPv4
       ? cidrSchema
@@ -69,11 +63,22 @@ export const SubnetCreateModal = ({
             }
             return isSubnetWithinVN(value, parentIPv4CIDR);
           })
-          .test('no-overlap', 'CIDR overlaps with existing subnet', (value) => {
+          .test('no-overlap', function (value) {
             if (!value) {
               return true;
             }
-            return !hasSubnetOverlap(value, existingIPv4CIDRs);
+            const overlappingSubnet = existingSubnets.find((s) => {
+              const existingCidr = s.spec?.ipv4Cidr;
+              return existingCidr && hasSubnetOverlap(value, [existingCidr]);
+            });
+            if (overlappingSubnet) {
+              const subnetName = overlappingSubnet.metadata?.name || overlappingSubnet.id;
+              const subnetCidr = overlappingSubnet.spec?.ipv4Cidr;
+              return this.createError({
+                message: `CIDR overlaps with existing subnet "${subnetName}" (${subnetCidr})`,
+              });
+            }
+            return true;
           })
       : Yup.string(),
     ipv6Cidr: hasIPv6
@@ -85,14 +90,27 @@ export const SubnetCreateModal = ({
             }
             return isSubnetWithinVN(value, parentIPv6CIDR);
           })
-          .test('no-overlap', 'CIDR overlaps with existing subnet', (value) => {
+          .test('no-overlap', function (value) {
             if (!value) {
               return true;
             }
-            return !hasSubnetOverlap(value, existingIPv6CIDRs);
+            const overlappingSubnet = existingSubnets.find((s) => {
+              const existingCidr = s.spec?.ipv6Cidr;
+              return existingCidr && hasSubnetOverlap(value, [existingCidr]);
+            });
+            if (overlappingSubnet) {
+              const subnetName = overlappingSubnet.metadata?.name || overlappingSubnet.id;
+              const subnetCidr = overlappingSubnet.spec?.ipv6Cidr;
+              return this.createError({
+                message: `CIDR overlaps with existing subnet "${subnetName}" (${subnetCidr})`,
+              });
+            }
+            return true;
           })
       : Yup.string(),
-  });
+      }),
+    [hasIPv4, hasIPv6, parentIPv4CIDR, parentIPv6CIDR, existingSubnets],
+  );
 
   return (
     <Formik
@@ -142,7 +160,6 @@ export const SubnetCreateModal = ({
                       onChange={(_, value) => handleChange({ target: { name: 'name', value } })}
                       onBlur={handleBlur}
                       validated={touched.name && errors.name ? 'error' : 'default'}
-                      aria-label="Name"
                       aria-describedby={getFormFieldHelperDescribedBy(
                         'subnet-name',
                         touched.name ? errors.name : undefined,
@@ -166,7 +183,6 @@ export const SubnetCreateModal = ({
                         }
                         onBlur={handleBlur}
                         validated={touched.ipv4Cidr && errors.ipv4Cidr ? 'error' : 'default'}
-                        aria-label="IPv4 CIDR"
                         aria-describedby={getFormFieldHelperDescribedBy(
                           'subnet-ipv4-cidr',
                           touched.ipv4Cidr ? errors.ipv4Cidr : undefined,
@@ -193,7 +209,6 @@ export const SubnetCreateModal = ({
                         }
                         onBlur={handleBlur}
                         validated={touched.ipv6Cidr && errors.ipv6Cidr ? 'error' : 'default'}
-                        aria-label="IPv6 CIDR"
                         aria-describedby={getFormFieldHelperDescribedBy(
                           'subnet-ipv6-cidr',
                           touched.ipv6Cidr ? errors.ipv6Cidr : undefined,

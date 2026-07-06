@@ -51,9 +51,7 @@ export const VirtualNetworkCreateModal = ({
   const { data: networkClasses = [], isLoading: isLoadingNetworkClasses } = useNetworkClasses();
 
   const defaultNetworkClass: string =
-    networkClasses.find((nc) => nc.title === 'CUDN Network Implementation')?.id ??
-    networkClasses[0]?.id ??
-    '';
+    networkClasses.find((nc) => nc.isDefault)?.id ?? networkClasses[0]?.id ?? '';
 
   return (
     <Formik
@@ -104,7 +102,6 @@ export const VirtualNetworkCreateModal = ({
                       onChange={(_, value) => handleChange({ target: { name: 'name', value } })}
                       onBlur={handleBlur}
                       validated={touched.name && errors.name ? 'error' : 'default'}
-                      aria-label="Name"
                       aria-describedby={getFormFieldHelperDescribedBy(
                         'vn-name',
                         touched.name ? errors.name : undefined,
@@ -125,7 +122,6 @@ export const VirtualNetworkCreateModal = ({
                       onChange={(_, value) => handleChange({ target: { name: 'ipv4Cidr', value } })}
                       onBlur={handleBlur}
                       validated={touched.ipv4Cidr && errors.ipv4Cidr ? 'error' : 'default'}
-                      aria-label="IPv4 CIDR"
                       aria-describedby={getFormFieldHelperDescribedBy(
                         'vn-ipv4-cidr',
                         touched.ipv4Cidr ? errors.ipv4Cidr : undefined,
@@ -148,7 +144,6 @@ export const VirtualNetworkCreateModal = ({
                       onChange={(_, value) => handleChange({ target: { name: 'ipv6Cidr', value } })}
                       onBlur={handleBlur}
                       validated={touched.ipv6Cidr && errors.ipv6Cidr ? 'error' : 'default'}
-                      aria-label="IPv6 CIDR (Optional)"
                       aria-describedby={getFormFieldHelperDescribedBy(
                         'vn-ipv6-cidr',
                         touched.ipv6Cidr ? errors.ipv6Cidr : undefined,
