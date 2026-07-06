@@ -3,7 +3,6 @@ import { describe, expect, it } from 'vitest';
 import {
   SecurityGroupState,
   SubnetSchema,
-  SubnetState,
   VirtualNetworkSchema,
   VirtualNetworkState,
 } from '@osac/types';
