@@ -5,8 +5,8 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { Protocol, SecurityGroupState, VirtualNetworkState } from '@osac/types';
 
-import * as networkingApi from '../../api/v1/networking';
 import { SecurityGroupsListPage } from './SecurityGroupsListPage';
+import * as networkingApi from '../../api/v1/networking';
 
 vi.mock('../../api/v1/networking', async (importOriginal) => {
   const actual = await importOriginal<typeof networkingApi>();
