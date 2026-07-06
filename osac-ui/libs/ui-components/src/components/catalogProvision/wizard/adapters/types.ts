@@ -2,8 +2,6 @@ import type { ComponentType } from 'react';
 import type { FormikHelpers } from 'formik';
 import type { AnyObjectSchema } from 'yup';
 
-import type { InstanceType, SecurityGroup, Subnet, VirtualNetwork } from '@osac/types';
-
 import type { CatalogProvisionKind } from '../../catalogFieldDefinition';
 import type { CatalogProvisionCatalogItem } from '../../catalogProvisionItem';
 import type { ReviewSection } from '../catalogOverlay';
@@ -27,13 +25,6 @@ export interface GeneralFieldDescriptor {
   isDisabled?: boolean;
 }
 
-export interface ReviewContext {
-  securityGroups?: SecurityGroup[];
-  instanceTypes?: InstanceType[];
-  virtualNetworks?: VirtualNetwork[];
-  subnets?: Subnet[];
-}
-
 export interface CatalogProvisionAdapter<
   TItem extends CatalogProvisionCatalogItem,
   TValues,
@@ -50,11 +41,7 @@ export interface CatalogProvisionAdapter<
     catalogItem: TItem | null,
     stepId: WizardStepId,
   ) => AnyObjectSchema | undefined;
-  getReviewSections: (
-    values: TValues,
-    catalogItem: TItem,
-    context?: ReviewContext,
-  ) => ReviewSection[];
+  getReviewSections: (values: TValues, catalogItem: TItem) => ReviewSection[];
   onCatalogItemSelected?: (item: TItem, helpers: FormikHelpers<TValues>) => void | Promise<void>;
   wizardTitleKey: string;
   wizardDescriptionKey: string;

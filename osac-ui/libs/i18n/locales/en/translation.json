@@ -35,6 +35,7 @@
   "catalogProvision.steps.configuration.title": "Configuration",
   "catalogProvision.steps.general.title": "General",
   "catalogProvision.steps.networking.title": "Networking",
+  "catalogProvision.steps.review.title": "Review",
   "catalogProvision.validation.bootDiskNumber": "Boot disk size must be a number",
   "catalogProvision.validation.catalogItemRequired": "Select a catalog item",
   "catalogProvision.validation.imageRequired": "VM image is required",

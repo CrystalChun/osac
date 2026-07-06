@@ -1,10 +1,13 @@
+import type { LabeledResourceRef } from '../../../../Form/labeledResourceRef';
+import { EMPTY_LABELED_RESOURCE_REF } from '../../../../Form/labeledResourceRef';
+
 /** VMs are always created in the running state; stop/start is handled on the details page. */
 export const VM_CREATE_RUN_STRATEGY = 'Always' as const;
 
 export interface ComputeInstanceNetworkingValues {
-  virtualNetworkId: string;
-  subnetId: string;
-  securityGroupIds: string[];
+  virtualNetwork: LabeledResourceRef;
+  subnet: LabeledResourceRef;
+  securityGroups: LabeledResourceRef[];
 }
 
 export interface ComputeInstanceWizardValues {
@@ -17,7 +20,7 @@ export interface ComputeInstanceWizardValues {
     image: {
       sourceRef: string;
     };
-    instanceType: string;
+    instanceType: LabeledResourceRef;
     userData: string;
     bootDisk: {
       sizeGib: string;
@@ -25,6 +28,8 @@ export interface ComputeInstanceWizardValues {
     networking: ComputeInstanceNetworkingValues;
   };
 }
+
+export { EMPTY_LABELED_RESOURCE_REF };
 
 export const CONFIGURATION_CATALOG_PATHS = [
   'spec.image.source_ref',

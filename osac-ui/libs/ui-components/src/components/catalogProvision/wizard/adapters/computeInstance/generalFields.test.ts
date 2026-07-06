@@ -122,9 +122,9 @@ describe('buildComputeInstanceCreatePayload ssh key', () => {
         sshKey: 'ssh-ed25519 locked',
         image: { sourceRef: 'quay.io/example/rhel9' },
         networking: {
-          virtualNetworkId: 'vn-1',
-          subnetId: 'subnet-1',
-          securityGroupIds: ['sg-1'],
+          virtualNetwork: { value: 'vn-1', label: 'tenant-vn' },
+          subnet: { value: 'subnet-1', label: 'tenant-subnet' },
+          securityGroups: [{ value: 'sg-1', label: 'default-sg' }],
         },
       },
     };
@@ -145,9 +145,9 @@ describe('buildComputeInstanceCreatePayload ssh key', () => {
         sshKey: 'ssh-ed25519 default',
         image: { sourceRef: 'quay.io/example/rhel9' },
         networking: {
-          virtualNetworkId: 'vn-1',
-          subnetId: 'subnet-1',
-          securityGroupIds: ['sg-1'],
+          virtualNetwork: { value: 'vn-1', label: 'tenant-vn' },
+          subnet: { value: 'subnet-1', label: 'tenant-subnet' },
+          securityGroups: [{ value: 'sg-1', label: 'default-sg' }],
         },
       },
     };
@@ -167,9 +167,9 @@ describe('buildComputeInstanceCreatePayload ssh key', () => {
         ...createEmptyComputeInstanceValues().spec,
         image: { sourceRef: 'quay.io/example/rhel9' },
         networking: {
-          virtualNetworkId: 'vn-1',
-          subnetId: 'subnet-1',
-          securityGroupIds: ['sg-1'],
+          virtualNetwork: { value: 'vn-1', label: 'tenant-vn' },
+          subnet: { value: 'subnet-1', label: 'tenant-subnet' },
+          securityGroups: [{ value: 'sg-1', label: 'default-sg' }],
         },
       },
     };

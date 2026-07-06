@@ -8,13 +8,6 @@ import {
 import type { ComputeInstanceCatalogItem } from '@osac/types';
 
 import type { BuildComputeInstanceCreateBodyInput } from '../../../../api/v1/compute-instance-wire';
-import { useInstanceTypes } from '../../../../api/v1/instance-types';
-import {
-  useSecurityGroups,
-  useSubnets,
-  useVirtualNetworks,
-  virtualNetworkFilterForSubnetList,
-} from '../../../../api/v1/networking';
 import { useTranslation } from '../../../../hooks/useTranslation';
 import type { ComputeInstanceWizardValues } from '../adapters/computeInstance/fields';
 import type { CatalogProvisionAdapter } from '../adapters/types';
@@ -31,32 +24,11 @@ interface Props {
 
 export const ReviewStep = ({ adapter, catalogItem, values }: Props) => {
   const { t } = useTranslation();
-  const virtualNetworkId = values.spec.networking.virtualNetworkId;
-  const subnetFilter = virtualNetworkId
-    ? virtualNetworkFilterForSubnetList(virtualNetworkId)
-    : undefined;
-  const securityGroupFilter = subnetFilter;
-  const { data: virtualNetworks = [] } = useVirtualNetworks();
-  const { data: subnets = [] } = useSubnets(subnetFilter ? { filter: subnetFilter } : {}, {
-    enabled: Boolean(virtualNetworkId),
-  });
-  const { data: securityGroups = [] } = useSecurityGroups(
-    securityGroupFilter ? { filter: securityGroupFilter } : {},
-    { enabled: Boolean(virtualNetworkId) },
-  );
-  const { data: instanceTypes = [] } = useInstanceTypes();
-  const sections = catalogItem
-    ? adapter.getReviewSections(values, catalogItem, {
-        securityGroups,
-        instanceTypes,
-        virtualNetworks,
-        subnets,
-      })
-    : [];
+  const sections = catalogItem ? adapter.getReviewSections(values, catalogItem) : [];
   const rows = sections.flatMap((section) => section.rows);
 
   return (
-    <DescriptionList isHorizontal isCompact>
+    <DescriptionList isHorizontal isCompact aria-label={t('catalogProvision.steps.review.title')}>
       <DescriptionListGroup>
         <DescriptionListTerm>{t('catalogProvision.review.catalogItem')}</DescriptionListTerm>
         <DescriptionListDescription>{catalogItem?.title ?? '—'}</DescriptionListDescription>

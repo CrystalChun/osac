@@ -1,11 +1,10 @@
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { Alert, Button, Stack, StackItem } from '@patternfly/react-core';
-import { useFormikContext } from 'formik';
 
 import type { ComputeInstanceCatalogItem } from '@osac/types';
 
-import type { ComputeInstanceWizardValues } from './fields';
 import {
+  INSTANCE_TYPE_ACTIVE_LIST_FILTER,
   formatInstanceTypeOptionLabel,
   useInstanceTypes,
 } from '../../../../../api/v1/instance-types';
@@ -26,15 +25,13 @@ interface Props {
 
 export const VmConfigurationStep = ({ catalogItem }: Props) => {
   const { t } = useTranslation();
-  const { values, setFieldValue } = useFormikContext<ComputeInstanceWizardValues>();
-  const instanceTypeId = values.spec.instanceType;
 
   const {
     data: instanceTypes = [],
     isPending: instanceTypesLoading,
     isError: instanceTypesError,
     refetch: refetchInstanceTypes,
-  } = useInstanceTypes();
+  } = useInstanceTypes({ filter: INSTANCE_TYPE_ACTIVE_LIST_FILTER });
 
   const instanceTypeOptions = useMemo(
     () =>
@@ -47,12 +44,6 @@ export const VmConfigurationStep = ({ catalogItem }: Props) => {
       })),
     [instanceTypes, t],
   );
-
-  useEffect(() => {
-    if (instanceTypeOptions.length === 1 && !instanceTypeId) {
-      void setFieldValue('spec.instanceType', instanceTypeOptions[0].value);
-    }
-  }, [instanceTypeId, instanceTypeOptions, setFieldValue]);
 
   const definitions = useMemo(() => readCatalogFieldDefinitions(catalogItem), [catalogItem]);
 
@@ -108,7 +99,8 @@ export const VmConfigurationStep = ({ catalogItem }: Props) => {
             label={t('catalogProvision.vm.fields.instanceType')}
             fieldId="vm-instance-type"
             isRequired
-            isDisabled={instanceTypesLoading}
+            autoSelectSingleOption
+            isLoading={instanceTypesLoading}
             placeholder={t('catalogProvision.vm.placeholders.selectInstanceType')}
             options={instanceTypeOptions}
           />

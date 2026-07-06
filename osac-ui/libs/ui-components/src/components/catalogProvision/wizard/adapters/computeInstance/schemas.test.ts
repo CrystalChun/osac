@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { ValidationError } from 'yup';
 
 import type { ComputeInstanceWizardValues } from './fields';
+import { EMPTY_LABELED_RESOURCE_REF } from './fields';
 import { buildComputeInstanceStepSchema } from './schemas';
 import { vmCatalogItem } from '../../../test/fixtures';
 
@@ -13,10 +14,14 @@ const emptyValues: ComputeInstanceWizardValues = {
   spec: {
     sshKey: '',
     image: { sourceRef: '' },
-    instanceType: '',
+    instanceType: EMPTY_LABELED_RESOURCE_REF,
     userData: '',
     bootDisk: { sizeGib: '' },
-    networking: { virtualNetworkId: '', subnetId: '', securityGroupIds: [] },
+    networking: {
+      virtualNetwork: EMPTY_LABELED_RESOURCE_REF,
+      subnet: EMPTY_LABELED_RESOURCE_REF,
+      securityGroups: [],
+    },
   },
 };
 
@@ -81,7 +86,7 @@ describe('buildComputeInstanceStepSchema', () => {
         spec: {
           ...emptyValues.spec,
           image: { sourceRef: 'quay.io/example/rhel9' },
-          instanceType: 'standard-4-8',
+          instanceType: { value: 'standard-4-8', label: 'standard-4-8' },
           bootDisk: { sizeGib: 'not-a-number' },
         },
       },
@@ -109,9 +114,9 @@ describe('buildComputeInstanceStepSchema', () => {
     expect(errors).toEqual({
       spec: {
         networking: {
-          virtualNetworkId: 'catalogProvision.validation.virtualNetworkRequired',
-          subnetId: 'catalogProvision.validation.subnetRequired',
-          securityGroupIds: 'catalogProvision.validation.securityGroupRequired',
+          virtualNetwork: 'catalogProvision.validation.virtualNetworkRequired',
+          subnet: 'catalogProvision.validation.subnetRequired',
+          securityGroups: 'catalogProvision.validation.securityGroupRequired',
         },
       },
     });

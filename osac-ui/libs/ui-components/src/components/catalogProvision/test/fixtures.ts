@@ -1,4 +1,10 @@
 import type { ComputeInstanceCatalogItem } from '@osac/types';
+import {
+  InstanceTypeState,
+  SecurityGroupState,
+  SubnetState,
+  VirtualNetworkState,
+} from '@osac/types';
 
 export const vmCatalogItem = {
   id: 'catalog-rhel-9',
@@ -27,18 +33,21 @@ export const unpublishedCatalogItem = {
 export const mockVirtualNetwork = {
   id: 'vn-1',
   metadata: { name: 'tenant-vn' },
+  status: { state: VirtualNetworkState.READY },
 };
 
 export const mockSubnet = {
   id: 'subnet-1',
   metadata: { name: 'tenant-subnet' },
   spec: { virtualNetwork: 'vn-1' },
+  status: { state: SubnetState.READY },
 };
 
 export const mockSecurityGroup = {
   id: 'sg-1',
   metadata: { name: 'default-sg' },
   spec: { virtualNetwork: 'vn-1' },
+  status: { state: SecurityGroupState.READY },
 };
 
 export const mockInstanceType = {
@@ -47,6 +56,6 @@ export const mockInstanceType = {
   spec: {
     cores: 4,
     memory_gib: 8,
-    state: 'INSTANCE_TYPE_STATE_ACTIVE',
+    state: InstanceTypeState.ACTIVE,
   },
 };

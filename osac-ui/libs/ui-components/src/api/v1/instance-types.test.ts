@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { type InstanceType, InstanceTypeState } from '@osac/types';
 
 import {
+  INSTANCE_TYPE_ACTIVE_LIST_FILTER,
   formatInstanceTypeDisplayName,
   formatInstanceTypeReviewLabelFromType,
   isDeprecatedInstanceType,
@@ -15,6 +16,12 @@ const makeInstanceType = (overrides: Partial<InstanceType> = {}): InstanceType =
     spec: { cores: 4, memoryGib: 8, state: InstanceTypeState.ACTIVE },
     ...overrides,
   }) as InstanceType;
+
+describe('INSTANCE_TYPE_ACTIVE_LIST_FILTER', () => {
+  it('filters instance types to active state using enum integer', () => {
+    expect(INSTANCE_TYPE_ACTIVE_LIST_FILTER).toBe(`this.spec.state == ${InstanceTypeState.ACTIVE}`);
+  });
+});
 
 describe('formatInstanceTypeDisplayName', () => {
   it('returns em dash when instance type is undefined and no fallback', () => {

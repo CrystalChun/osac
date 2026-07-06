@@ -83,22 +83,26 @@ export const fillConfigurationStep = async (
   await user.type(imageInput, imageRef);
 };
 
+export const selectSelectField = async (
+  user: UserEvent,
+  label: RegExp,
+  optionLabel: string | RegExp,
+) => {
+  await user.click(screen.getByLabelText(label));
+  await user.click(screen.getByRole('option', { name: optionLabel }));
+};
+
 export const waitForConfigurationReady = async (user?: UserEvent) => {
   await waitFor(() => {
     expect(screen.getByLabelText(/^Instance type/)).not.toBeDisabled();
-  });
-
-  const instanceType = screen.getByLabelText(/^Instance type/) as HTMLSelectElement;
-  if (!instanceType.value && user) {
-    await user.selectOptions(instanceType, 'standard-4-8');
-  }
-
-  await waitFor(() => {
-    expect((screen.getByLabelText(/^Instance type/) as HTMLSelectElement).value).not.toBe('');
+    expect(screen.getByLabelText(/^Instance type/)).toHaveTextContent('standard-4-8');
   });
 
   const bootDisk = screen.queryByLabelText(/Boot disk/) as HTMLInputElement | null;
-  if (bootDisk && !bootDisk.value && user) {
+  if (bootDisk && !bootDisk.value) {
+    if (!user) {
+      throw new Error('Boot disk must be filled before leaving configuration');
+    }
     await user.clear(bootDisk);
     await user.type(bootDisk, '40');
   }
@@ -116,21 +120,11 @@ export const advanceToNetworkingStep = async (user: UserEvent) => {
 export const selectNetworkingPickers = async (user: UserEvent) => {
   await waitFor(() => {
     expect(screen.getByLabelText(/^Virtual network/)).not.toBeDisabled();
+    expect(screen.getByLabelText(/^Virtual network/)).toHaveTextContent('tenant-vn');
+    expect(screen.getByLabelText(/^Subnet/)).toHaveTextContent('tenant-subnet');
+    expect(screen.getByText('default-sg')).toBeInTheDocument();
   });
 
-  const vnSelect = screen.getByLabelText(/^Virtual network/);
-  await user.selectOptions(vnSelect, 'vn-1');
-
-  await waitFor(() => {
-    expect(screen.getByLabelText(/^Subnet/)).not.toBeDisabled();
-  });
-  await user.selectOptions(screen.getByLabelText(/^Subnet/), 'subnet-1');
-
-  await waitFor(() => {
-    expect(screen.getByLabelText(/^Security groups/)).not.toBeDisabled();
-  });
-
-  // A single security group is auto-selected; otherwise open the menu and pick one.
   const sgToggle = screen.getByLabelText(/^Security groups/);
   if (sgToggle.textContent === 'Select security groups') {
     await user.click(sgToggle);

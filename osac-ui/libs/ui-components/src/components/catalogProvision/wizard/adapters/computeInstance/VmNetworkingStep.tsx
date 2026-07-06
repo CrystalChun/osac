@@ -5,8 +5,11 @@ import { useFormikContext } from 'formik';
 import type { ComputeInstanceCatalogItem } from '@osac/types';
 
 import type { ComputeInstanceWizardValues } from './fields';
+import { EMPTY_LABELED_RESOURCE_REF } from './fields';
 import {
+  VIRTUAL_NETWORK_READY_LIST_FILTER,
   resourceDisplayName,
+  securityGroupFilterForVirtualNetworkList,
   useSecurityGroups,
   useSubnets,
   useVirtualNetworks,
@@ -24,19 +27,21 @@ interface Props {
 export const VmNetworkingStep = ({ catalogItem }: Props) => {
   const { t } = useTranslation();
   const { values, setFieldValue } = useFormikContext<ComputeInstanceWizardValues>();
-  const virtualNetworkId = values.spec.networking.virtualNetworkId;
+  const virtualNetworkId = values.spec.networking.virtualNetwork.value;
 
   const {
     data: virtualNetworks = [],
     isPending: virtualNetworksLoading,
     isError: virtualNetworksError,
     refetch: refetchVirtualNetworks,
-  } = useVirtualNetworks();
+  } = useVirtualNetworks({ filter: VIRTUAL_NETWORK_READY_LIST_FILTER });
 
   const subnetFilter = virtualNetworkId
     ? virtualNetworkFilterForSubnetList(virtualNetworkId)
     : undefined;
-  const securityGroupFilter = subnetFilter;
+  const securityGroupFilter = virtualNetworkId
+    ? securityGroupFilterForVirtualNetworkList(virtualNetworkId)
+    : undefined;
 
   const {
     data: subnets = [],
@@ -86,40 +91,11 @@ export const VmNetworkingStep = ({ catalogItem }: Props) => {
   const previousVirtualNetworkIdRef = useRef(virtualNetworkId);
 
   useEffect(() => {
-    if (virtualNetworkOptions.length === 1 && !virtualNetworkId) {
-      void setFieldValue('spec.networking.virtualNetworkId', virtualNetworkOptions[0].value);
-    }
-  }, [setFieldValue, virtualNetworkId, virtualNetworkOptions]);
-
-  useEffect(() => {
-    if (!virtualNetworkId) {
-      return;
-    }
-    if (subnetOptions.length === 1 && !values.spec.networking.subnetId) {
-      void setFieldValue('spec.networking.subnetId', subnetOptions[0].value);
-    }
-  }, [setFieldValue, subnetOptions, values.spec.networking.subnetId, virtualNetworkId]);
-
-  useEffect(() => {
-    if (!virtualNetworkId) {
-      return;
-    }
-    if (securityGroupOptions.length === 1 && values.spec.networking.securityGroupIds.length === 0) {
-      void setFieldValue('spec.networking.securityGroupIds', [securityGroupOptions[0].value]);
-    }
-  }, [
-    securityGroupOptions,
-    setFieldValue,
-    values.spec.networking.securityGroupIds.length,
-    virtualNetworkId,
-  ]);
-
-  useEffect(() => {
     const previous = previousVirtualNetworkIdRef.current;
     previousVirtualNetworkIdRef.current = virtualNetworkId;
     if (previous && previous !== virtualNetworkId) {
-      void setFieldValue('spec.networking.subnetId', '');
-      void setFieldValue('spec.networking.securityGroupIds', []);
+      void setFieldValue('spec.networking.subnet', EMPTY_LABELED_RESOURCE_REF);
+      void setFieldValue('spec.networking.securityGroups', []);
     }
   }, [setFieldValue, virtualNetworkId]);
 
@@ -154,34 +130,36 @@ export const VmNetworkingStep = ({ catalogItem }: Props) => {
       <StackItem>
         <OsacForm>
           <SelectField
-            name="spec.networking.virtualNetworkId"
+            name="spec.networking.virtualNetwork"
             label={t('catalogProvision.vm.fields.virtualNetwork')}
             fieldId="vm-virtual-network"
             isRequired
+            autoSelectSingleOption
             isLoading={virtualNetworksLoading}
-            isDisabled={virtualNetworksLoading}
             loadingPlaceholder={loadingPlaceholder}
             placeholder={t('catalogProvision.vm.placeholders.selectVirtualNetwork')}
             options={virtualNetworkOptions}
           />
           <SelectField
-            name="spec.networking.subnetId"
+            name="spec.networking.subnet"
             label={t('catalogProvision.vm.fields.subnet')}
             fieldId="vm-subnet"
             isRequired
+            autoSelectSingleOption
             isLoading={subnetListLoading}
-            isDisabled={!virtualNetworkId || subnetListLoading}
+            isDisabled={!virtualNetworkId}
             loadingPlaceholder={loadingPlaceholder}
             placeholder={t('catalogProvision.vm.placeholders.selectSubnet')}
             options={subnetOptions}
           />
           <MultiSelectField
-            name="spec.networking.securityGroupIds"
+            name="spec.networking.securityGroups"
             label={t('catalogProvision.vm.fields.securityGroup')}
             fieldId="vm-security-group"
             isRequired
+            autoSelectSingleOption
             isLoading={securityGroupListLoading}
-            isDisabled={!virtualNetworkId || securityGroupListLoading}
+            isDisabled={!virtualNetworkId}
             loadingPlaceholder={loadingPlaceholder}
             placeholder={t('catalogProvision.vm.placeholders.selectSecurityGroup')}
             options={securityGroupOptions}

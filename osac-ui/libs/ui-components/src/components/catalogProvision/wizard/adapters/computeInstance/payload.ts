@@ -1,7 +1,7 @@
 import type { ComputeInstanceCatalogItem } from '@osac/types';
 
 import type { ComputeInstanceWizardValues } from './fields';
-import { VM_CREATE_RUN_STRATEGY } from './fields';
+import { EMPTY_LABELED_RESOURCE_REF, VM_CREATE_RUN_STRATEGY } from './fields';
 import type { BuildComputeInstanceCreateBodyInput } from '../../../../../api/v1/compute-instance-wire';
 
 export const createEmptyComputeInstanceValues = (): ComputeInstanceWizardValues => ({
@@ -10,13 +10,13 @@ export const createEmptyComputeInstanceValues = (): ComputeInstanceWizardValues 
   spec: {
     sshKey: '',
     image: { sourceRef: '' },
-    instanceType: '',
+    instanceType: EMPTY_LABELED_RESOURCE_REF,
     userData: '',
     bootDisk: { sizeGib: '' },
     networking: {
-      virtualNetworkId: '',
-      subnetId: '',
-      securityGroupIds: [],
+      virtualNetwork: EMPTY_LABELED_RESOURCE_REF,
+      subnet: EMPTY_LABELED_RESOURCE_REF,
+      securityGroups: [],
     },
   },
 });
@@ -25,7 +25,7 @@ export const buildComputeInstanceCreatePayload = (
   values: ComputeInstanceWizardValues,
   catalogItem: ComputeInstanceCatalogItem,
 ): BuildComputeInstanceCreateBodyInput => {
-  const instanceType = values.spec.instanceType.trim();
+  const instanceType = values.spec.instanceType.value.trim();
 
   const spec: Record<string, unknown> = {
     catalogItem: catalogItem.id,
@@ -37,8 +37,8 @@ export const buildComputeInstanceCreatePayload = (
     runStrategy: VM_CREATE_RUN_STRATEGY,
     networkAttachments: [
       {
-        subnet: values.spec.networking.subnetId,
-        securityGroups: values.spec.networking.securityGroupIds,
+        subnet: values.spec.networking.subnet.value,
+        securityGroups: values.spec.networking.securityGroups.map((group) => group.value),
       },
     ],
   };
