@@ -276,3 +276,100 @@ export const useDeleteSubnet = () => {
     },
   });
 };
+
+export interface SecurityGroupInput {
+  name: string;
+  virtual_network: string;
+  ingress?: Array<{
+    protocol: number;
+    port_from?: number;
+    port_to?: number;
+    ipv4_cidr?: string;
+    ipv6_cidr?: string;
+  }>;
+  egress?: Array<{
+    protocol: number;
+    port_from?: number;
+    port_to?: number;
+    ipv4_cidr?: string;
+    ipv6_cidr?: string;
+  }>;
+}
+
+export const securityGroupFilterForVirtualNetwork = (virtualNetworkId: string): string =>
+  `this.spec.virtual_network == "${virtualNetworkId}"`;
+
+export const useCreateSecurityGroup = () => {
+  const apiFetch = useApiFetch();
+  const qc = useApiQueryClient();
+  return useMutation({
+    mutationFn: async (input: SecurityGroupInput): Promise<SecurityGroup> => {
+      const sg = await apiFetch<SecurityGroup>('v1/security_groups', {
+        method: 'POST',
+        body: {
+          metadata: { name: input.name },
+          spec: {
+            virtualNetwork: input.virtual_network,
+            ...(input.ingress && { ingress: input.ingress }),
+            ...(input.egress && { egress: input.egress }),
+          },
+        },
+        decode: SecurityGroupSchema,
+      });
+      if (!sg.id) {
+        throw new Error('Create response missing id');
+      }
+      return sg;
+    },
+    onSuccess: async () => {
+      await invalidateSecurityGroupsQueries(qc);
+    },
+  });
+};
+
+export const useUpdateSecurityGroup = () => {
+  const apiFetch = useApiFetch();
+  const qc = useApiQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      id,
+      input,
+    }: {
+      id: string;
+      input: Partial<SecurityGroupInput>;
+    }): Promise<SecurityGroup> => {
+      const sg = await apiFetch<SecurityGroup>('v1/security_groups', {
+        pathParams: [id],
+        method: 'PATCH',
+        body: {
+          ...(input.name && { metadata: { name: input.name } }),
+          spec: {
+            ...(input.virtual_network && { virtualNetwork: input.virtual_network }),
+            ...(input.ingress !== undefined && { ingress: input.ingress }),
+            ...(input.egress !== undefined && { egress: input.egress }),
+          },
+        },
+        decode: SecurityGroupSchema,
+      });
+      return sg;
+    },
+    onSuccess: async () => {
+      await invalidateSecurityGroupsQueries(qc);
+    },
+  });
+};
+
+export const useDeleteSecurityGroup = () => {
+  const apiFetch = useApiFetch();
+  const qc = useApiQueryClient();
+  return useMutation({
+    mutationFn: (id: string) =>
+      apiFetch<void>('v1/security_groups', {
+        pathParams: [id],
+        method: 'DELETE',
+      }),
+    onSuccess: async () => {
+      await invalidateSecurityGroupsQueries(qc);
+    },
+  });
+};

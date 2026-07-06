@@ -12,6 +12,7 @@ import { decodeFulfillmentResponse } from '../fulfillment-decode';
 import {
   VIRTUAL_NETWORK_READY_LIST_FILTER,
   escapeCelStringLiteral,
+  securityGroupFilterForVirtualNetwork,
   securityGroupFilterForVirtualNetworkList,
   virtualNetworkFilterForSubnetList,
 } from './networking';
@@ -52,6 +53,12 @@ describe('networking list filters', () => {
   it('combines virtual network scope and ready state for security groups', () => {
     expect(securityGroupFilterForVirtualNetworkList('vn-1')).toBe(
       `(this.spec.virtual_network == "vn-1") && (this.status.state == ${SecurityGroupState.READY})`,
+    );
+  });
+
+  it('filters security groups by virtual network id', () => {
+    expect(securityGroupFilterForVirtualNetwork('vn-123')).toBe(
+      'this.spec.virtual_network == "vn-123"',
     );
   });
 });
