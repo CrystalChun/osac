@@ -4,6 +4,7 @@ import { Button, SearchInput } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
 import { useCreateVirtualNetwork, useSubnets, useVirtualNetworks } from '../../api/v1/networking';
+import { CidrDisplay } from '../../components/networking/CidrDisplay';
 import { VirtualNetworkCreateModal } from '../../components/networking/VirtualNetworkCreateModal';
 import { VirtualNetworkStatusLabel } from '../../components/networking/VirtualNetworkStatusLabel';
 import ListPage from '../../components/Page/ListPage';
@@ -87,10 +88,6 @@ export const VirtualNetworksListPage = () => {
               <Tbody>
                 {filteredVNs.map((vn) => {
                   const name = vn.metadata?.name ?? vn.id;
-                  const ipv4Cidr = vn.spec?.ipv4Cidr;
-                  const ipv6Cidr = vn.spec?.ipv6Cidr;
-                  const cidr =
-                    ipv4Cidr && ipv6Cidr ? `${ipv4Cidr}, ${ipv6Cidr}` : ipv4Cidr || ipv6Cidr || '—';
                   const subnetCount = subnetCountByVN[vn.id] || 0;
 
                   return (
@@ -104,7 +101,9 @@ export const VirtualNetworksListPage = () => {
                           {name}
                         </Button>
                       </Td>
-                      <Td dataLabel="CIDR">{cidr}</Td>
+                      <Td dataLabel="CIDR">
+                        <CidrDisplay ipv4Cidr={vn.spec?.ipv4Cidr} ipv6Cidr={vn.spec?.ipv6Cidr} />
+                      </Td>
                       <Td dataLabel="Subnets">{subnetCount}</Td>
                       <Td dataLabel="Status">
                         <VirtualNetworkStatusLabel state={vn.status?.state} />

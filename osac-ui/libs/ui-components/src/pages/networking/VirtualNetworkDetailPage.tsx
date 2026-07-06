@@ -24,6 +24,7 @@ import {
   useVirtualNetwork,
   virtualNetworkFilterForSubnetList,
 } from '../../api/v1/networking';
+import { CidrDisplay } from '../../components/networking/CidrDisplay';
 import { SubnetCreateModal } from '../../components/networking/SubnetCreateModal';
 import { SubnetStatusLabel } from '../../components/networking/SubnetStatusLabel';
 import { VirtualNetworkStatusLabel } from '../../components/networking/VirtualNetworkStatusLabel';
@@ -92,9 +93,7 @@ export const VirtualNetworkDetailPage = () => {
                 <DescriptionListGroup>
                   <DescriptionListTerm>{t('CIDR')}</DescriptionListTerm>
                   <DescriptionListDescription>
-                    {vn?.spec?.ipv4Cidr && vn?.spec?.ipv6Cidr
-                      ? `${vn.spec.ipv4Cidr}, ${vn.spec.ipv6Cidr}`
-                      : vn?.spec?.ipv4Cidr || vn?.spec?.ipv6Cidr || '—'}
+                    <CidrDisplay ipv4Cidr={vn?.spec?.ipv4Cidr} ipv6Cidr={vn?.spec?.ipv6Cidr} />
                   </DescriptionListDescription>
                 </DescriptionListGroup>
 
@@ -142,24 +141,20 @@ export const VirtualNetworkDetailPage = () => {
                     </Tr>
                   </Thead>
                   <Tbody>
-                    {subnets.map((subnet) => {
-                      const ipv4Cidr = subnet.spec?.ipv4Cidr;
-                      const ipv6Cidr = subnet.spec?.ipv6Cidr;
-                      const cidr =
-                        ipv4Cidr && ipv6Cidr
-                          ? `${ipv4Cidr}, ${ipv6Cidr}`
-                          : ipv4Cidr || ipv6Cidr || '—';
-
-                      return (
-                        <Tr key={subnet.id}>
-                          <Td dataLabel="Name">{subnet.metadata?.name ?? subnet.id}</Td>
-                          <Td dataLabel="CIDR">{cidr}</Td>
-                          <Td dataLabel="Status">
-                            <SubnetStatusLabel state={subnet.status?.state} />
-                          </Td>
-                        </Tr>
-                      );
-                    })}
+                    {subnets.map((subnet) => (
+                      <Tr key={subnet.id}>
+                        <Td dataLabel="Name">{subnet.metadata?.name ?? subnet.id}</Td>
+                        <Td dataLabel="CIDR">
+                          <CidrDisplay
+                            ipv4Cidr={subnet.spec?.ipv4Cidr}
+                            ipv6Cidr={subnet.spec?.ipv6Cidr}
+                          />
+                        </Td>
+                        <Td dataLabel="Status">
+                          <SubnetStatusLabel state={subnet.status?.state} />
+                        </Td>
+                      </Tr>
+                    ))}
                   </Tbody>
                 </Table>
               )}

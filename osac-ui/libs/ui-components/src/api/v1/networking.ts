@@ -184,7 +184,8 @@ export interface VirtualNetworkInput {
 export interface SubnetInput {
   name: string;
   virtual_network: string;
-  ipv4_cidr: string;
+  ipv4_cidr?: string;
+  ipv6_cidr?: string;
 }
 
 export const useCreateVirtualNetwork = () => {
@@ -246,7 +247,8 @@ export const useCreateSubnet = () => {
           metadata: { name: input.name },
           spec: {
             virtualNetwork: input.virtual_network,
-            ipv4Cidr: input.ipv4_cidr,
+            ...(input.ipv4_cidr && { ipv4Cidr: input.ipv4_cidr }),
+            ...(input.ipv6_cidr && { ipv6Cidr: input.ipv6_cidr }),
           },
         },
         decode: SubnetSchema,
