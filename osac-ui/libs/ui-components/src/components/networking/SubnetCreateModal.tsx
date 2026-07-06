@@ -105,18 +105,6 @@ export const SubnetCreateModal = ({
                     {parentCIDR})
                   </p>
                 </StackItem>
-                {existingCIDRs.length > 0 && (
-                  <StackItem>
-                    <p>{t('Existing subnets')}:</p>
-                    <ul style={{ marginTop: '0.5rem', paddingLeft: '1.5rem' }}>
-                      {existingSubnets.map((subnet) => (
-                        <li key={subnet.id}>
-                          {subnet.metadata?.name ?? subnet.id}: {subnet.spec?.ipv4Cidr}
-                        </li>
-                      ))}
-                    </ul>
-                  </StackItem>
-                )}
                 <StackItem>
                   <FormGroup label={t('Name')} isRequired fieldId="subnet-name">
                     <TextInput

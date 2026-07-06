@@ -91,7 +91,6 @@
   "Example: 10.0.1.0/24": "Example: 10.0.1.0/24",
   "Example: 2001:db8::/32": "Example: 2001:db8::/32",
   "Example: 2001:db8::/64": "Example: 2001:db8::/64",
-  "Existing subnets": "Existing subnets",
   "External IP": "External IP",
   "Failed to create subnet": "Failed to create subnet",
   "Failed to create virtual network": "Failed to create virtual network",
