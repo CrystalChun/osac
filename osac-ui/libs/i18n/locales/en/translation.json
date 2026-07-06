@@ -104,7 +104,6 @@
   "Instance type": "Instance type",
   "Internal IP": "Internal IP",
   "IPv4 CIDR": "IPv4 CIDR",
-  "IPv6 CIDR": "IPv6 CIDR",
   "IPv6 CIDR (Optional)": "IPv6 CIDR (Optional)",
   "Loading subnets...": "Loading subnets...",
   "Manage virtual networks for your compute instances.": "Manage virtual networks for your compute instances.",

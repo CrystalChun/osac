@@ -90,18 +90,13 @@ export const VirtualNetworkDetailPage = () => {
             <CardBody>
               <DescriptionList isHorizontal>
                 <DescriptionListGroup>
-                  <DescriptionListTerm>{t('IPv4 CIDR')}</DescriptionListTerm>
+                  <DescriptionListTerm>{t('CIDR')}</DescriptionListTerm>
                   <DescriptionListDescription>
-                    {vn?.spec?.ipv4Cidr ?? '—'}
+                    {vn?.spec?.ipv4Cidr && vn?.spec?.ipv6Cidr
+                      ? `${vn.spec.ipv4Cidr}, ${vn.spec.ipv6Cidr}`
+                      : vn?.spec?.ipv4Cidr || vn?.spec?.ipv6Cidr || '—'}
                   </DescriptionListDescription>
                 </DescriptionListGroup>
-
-                {vn?.spec?.ipv6Cidr && (
-                  <DescriptionListGroup>
-                    <DescriptionListTerm>{t('IPv6 CIDR')}</DescriptionListTerm>
-                    <DescriptionListDescription>{vn.spec.ipv6Cidr}</DescriptionListDescription>
-                  </DescriptionListGroup>
-                )}
 
                 <DescriptionListGroup>
                   <DescriptionListTerm>{t('Status')}</DescriptionListTerm>
