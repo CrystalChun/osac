@@ -38,7 +38,10 @@ const getTenantAdminNav = (t: TFunction): NavRow[] => [
     kind: 'section',
     sectionId: 'nav-admin-services',
     label: t('Services'),
-    children: [{ id: 'clusters', label: t('Clusters'), path: '/clusters' }],
+    children: [
+      { id: 'compute-vms', label: t('Virtual Machines'), path: '/vms' },
+      { id: 'clusters', label: t('Clusters'), path: '/clusters' },
+    ],
   },
   {
     kind: 'section',

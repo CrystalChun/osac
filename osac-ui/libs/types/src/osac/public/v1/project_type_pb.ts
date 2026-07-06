@@ -17,7 +17,6 @@
 
 import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
-import { file_google_api_field_behavior } from "../../../google/api/field_behavior_pb";
 import type { Metadata } from "./metadata_type_pb";
 import { file_osac_public_v1_metadata_type } from "./metadata_type_pb";
 import type { Message } from "@bufbuild/protobuf";
@@ -26,17 +25,16 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/public/v1/project_type.proto.
  */
 export const file_osac_public_v1_project_type: GenFile = /*@__PURE__*/
-  fileDesc("CiFvc2FjL3B1YmxpYy92MS9wcm9qZWN0X3R5cGUucHJvdG8SDm9zYWMucHVibGljLnYxIpsBCgdQcm9qZWN0EgoKAmlkGAEgASgJEioKCG1ldGFkYXRhGAIgASgLMhgub3NhYy5wdWJsaWMudjEuTWV0YWRhdGESKQoEc3BlYxgDIAEoCzIbLm9zYWMucHVibGljLnYxLlByb2plY3RTcGVjEi0KBnN0YXR1cxgEIAEoCzIdLm9zYWMucHVibGljLnYxLlByb2plY3RTdGF0dXMiawoLUHJvamVjdFNwZWMSGAoGcGFyZW50GAEgASgJQgPgQQVIAIgBARINCgV0aXRsZRgCIAEoCRIYCgtkZXNjcmlwdGlvbhgDIAEoCUgBiAEBQgkKB19wYXJlbnRCDgoMX2Rlc2NyaXB0aW9uIl4KDVByb2plY3RTdGF0dXMSKwoFc3RhdGUYASABKA4yHC5vc2FjLnB1YmxpYy52MS5Qcm9qZWN0U3RhdGUSFAoHbWVzc2FnZRgCIAEoCUgAiAEBQgoKCF9tZXNzYWdlKrkBCgxQcm9qZWN0U3RhdGUSHQoZUFJPSkVDVF9TVEFURV9VTlNQRUNJRklFRBAAEhkKFVBST0pFQ1RfU1RBVEVfUEVORElORxABEhgKFFBST0pFQ1RfU1RBVEVfQUNUSVZFEAISGAoUUFJPSkVDVF9TVEFURV9GQUlMRUQQAxIaChZQUk9KRUNUX1NUQVRFX0RFTEVUSU5HEAQSHwobUFJPSkVDVF9TVEFURV9ERUxFVEVfRkFJTEVEEAViBnByb3RvMw", [file_google_api_field_behavior, file_osac_public_v1_metadata_type]);
+  fileDesc("CiFvc2FjL3B1YmxpYy92MS9wcm9qZWN0X3R5cGUucHJvdG8SDm9zYWMucHVibGljLnYxIpsBCgdQcm9qZWN0EgoKAmlkGAEgASgJEioKCG1ldGFkYXRhGAIgASgLMhgub3NhYy5wdWJsaWMudjEuTWV0YWRhdGESKQoEc3BlYxgDIAEoCzIbLm9zYWMucHVibGljLnYxLlByb2plY3RTcGVjEi0KBnN0YXR1cxgEIAEoCzIdLm9zYWMucHVibGljLnYxLlByb2plY3RTdGF0dXMiRgoLUHJvamVjdFNwZWMSDQoFdGl0bGUYAiABKAkSGAoLZGVzY3JpcHRpb24YAyABKAlIAIgBAUIOCgxfZGVzY3JpcHRpb24iXgoNUHJvamVjdFN0YXR1cxIrCgVzdGF0ZRgBIAEoDjIcLm9zYWMucHVibGljLnYxLlByb2plY3RTdGF0ZRIUCgdtZXNzYWdlGAIgASgJSACIAQFCCgoIX21lc3NhZ2UquQEKDFByb2plY3RTdGF0ZRIdChlQUk9KRUNUX1NUQVRFX1VOU1BFQ0lGSUVEEAASGQoVUFJPSkVDVF9TVEFURV9QRU5ESU5HEAESGAoUUFJPSkVDVF9TVEFURV9BQ1RJVkUQAhIYChRQUk9KRUNUX1NUQVRFX0ZBSUxFRBADEhoKFlBST0pFQ1RfU1RBVEVfREVMRVRJTkcQBBIfChtQUk9KRUNUX1NUQVRFX0RFTEVURV9GQUlMRUQQBWIGcHJvdG8z", [file_osac_public_v1_metadata_type]);
 
 /**
  * A project is a logical grouping of resources.
  *
- * Projects provide a way to organize and isolate resources, manage access controls, and track resource usage.
- * Projects can be nested to create hierarchical resource organization, allowing for flexible multi-level
- * resource grouping.
+ * Projects provide a way to organize and isolate resources, manage access controls, and track resource usage. Projects
+ * can be nested to create hierarchical resource organization, allowing for flexible multi-level resource grouping.
  *
- * For nested projects, the spec.parent field references the parent Project ID. Tenant isolation is
- * enforced via the standard metadata.tenant field.
+ * For nested projects, the parent is identified by the `metadata.project` field, which contains the full name of the
+ * parent project. Tenant isolation is enforced via the standard `metadata.tenant` field.
  *
  * Projects support the following use cases:
  * - Organizing resources by team, department, or application
@@ -92,20 +90,6 @@ export const ProjectSchema: GenMessage<Project> = /*@__PURE__*/
  */
 export type ProjectSpec = Message<"osac.public.v1.ProjectSpec"> & {
   /**
-   * Optional parent Project ID for nested projects. Immutable after creation.
-   *
-   * If specified, must reference the ID of an existing Project in ACTIVE state.
-   * Leave empty for top-level projects.
-   *
-   * Circular dependencies are not allowed (a project cannot be its own ancestor).
-   *
-   * Example: "550e8400-e29b-41d4-a716-446655440000"
-   *
-   * @generated from field: optional string parent = 1;
-   */
-  parent?: string | undefined;
-
-  /**
    * Human-friendly short description of the project, only a few words, suitable for displaying in one single line on
    * a UI or CLI. For example: "Production Environment" or "Development Workspace".
    *
@@ -149,12 +133,9 @@ export type ProjectStatus = Message<"osac.public.v1.ProjectStatus"> & {
   /**
    * Human-readable message providing additional details about the current state.
    *
-   * For PENDING state, this might contain progress information like "Validating parent project" or
-   * "Initializing project resources".
+   * For PENDING state, this might contain progress information like "Initializing project resources".
    *
    * For FAILED state, contains error details like:
-   * - "Parent project not found"
-   * - "Parent project not in ACTIVE state"
    * - "Circular dependency detected"
    *
    * For ACTIVE state, this is typically empty or contains confirmation like "Project ready for use".
@@ -199,7 +180,6 @@ export enum ProjectState {
    * The project is being initialized and is not ready for use yet.
    *
    * During this state, the system is:
-   * - Validating that the parent project (if specified) exists and is in ACTIVE state
    * - Checking for circular dependencies in the project hierarchy
    * - Initializing project resources and access controls
    *
@@ -213,7 +193,6 @@ export enum ProjectState {
    * The project is fully operational and ready for resources.
    *
    * In this state:
-   * - Parent project (if specified) is in ACTIVE state
    * - Project hierarchy is validated
    * - Access controls are configured
    * - Resources can be created and attached to the project
@@ -226,8 +205,6 @@ export enum ProjectState {
    * The project has encountered an error and is unusable.
    *
    * Common failure reasons include:
-   * - Parent project not found (for nested projects)
-   * - Parent project not in ACTIVE state (for nested projects)
    * - Circular dependency detected in project hierarchy
    * - Access control configuration error
    *

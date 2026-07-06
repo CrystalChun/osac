@@ -77,7 +77,7 @@ export const VmListPage = () => {
       description="View and filter your virtual machines."
       error={error}
       actions={
-        role === 'tenantUser' ? (
+        role === 'tenantUser' || role === 'tenantAdmin' ? (
           <Button variant="primary" onClick={() => navigate('/vms/create')}>
             Create virtual machine
           </Button>

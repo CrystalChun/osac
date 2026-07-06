@@ -18,20 +18,24 @@
 import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_google_api_field_behavior } from "../../../google/api/field_behavior_pb";
+import type { IPFamily } from "./ip_family_type_pb";
+import { file_osac_public_v1_ip_family_type } from "./ip_family_type_pb";
 import type { Metadata } from "./metadata_type_pb";
 import { file_osac_public_v1_metadata_type } from "./metadata_type_pb";
+import { file_osac_public_v1_public_ip_pool_type } from "./public_ip_pool_type_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file osac/public/v1/public_ip_type.proto.
  */
 export const file_osac_public_v1_public_ip_type: GenFile = /*@__PURE__*/
-  fileDesc("CiNvc2FjL3B1YmxpYy92MS9wdWJsaWNfaXBfdHlwZS5wcm90bxIOb3NhYy5wdWJsaWMudjEingEKCFB1YmxpY0lQEgoKAmlkGAEgASgJEioKCG1ldGFkYXRhGAIgASgLMhgub3NhYy5wdWJsaWMudjEuTWV0YWRhdGESKgoEc3BlYxgDIAEoCzIcLm9zYWMucHVibGljLnYxLlB1YmxpY0lQU3BlYxIuCgZzdGF0dXMYBCABKAsyHi5vc2FjLnB1YmxpYy52MS5QdWJsaWNJUFN0YXR1cyIkCgxQdWJsaWNJUFNwZWMSFAoEcG9vbBgBIAEoCUIG4EEC4EEFIqoBCg5QdWJsaWNJUFN0YXR1cxIxCgVzdGF0ZRgBIAEoDjIdLm9zYWMucHVibGljLnYxLlB1YmxpY0lQU3RhdGVCA+BBAxIZCgdtZXNzYWdlGAIgASgJQgPgQQNIAIgBARIUCgdhZGRyZXNzGAMgASgJQgPgQQMSEQoEcG9vbBgEIAEoCUID4EEDEhUKCGF0dGFjaGVkGAUgASgIQgPgQQNCCgoIX21lc3NhZ2UqpgEKDVB1YmxpY0lQU3RhdGUSHwobUFVCTElDX0lQX1NUQVRFX1VOU1BFQ0lGSUVEEAASGwoXUFVCTElDX0lQX1NUQVRFX1BFTkRJTkcQARIdChlQVUJMSUNfSVBfU1RBVEVfQUxMT0NBVEVEEAISGgoWUFVCTElDX0lQX1NUQVRFX0ZBSUxFRBADEhwKGFBVQkxJQ19JUF9TVEFURV9ERUxFVElORxAEYgZwcm90bzM", [file_google_api_field_behavior, file_osac_public_v1_metadata_type]);
+  fileDesc("CiNvc2FjL3B1YmxpYy92MS9wdWJsaWNfaXBfdHlwZS5wcm90bxIOb3NhYy5wdWJsaWMudjEingEKCFB1YmxpY0lQEgoKAmlkGAEgASgJEioKCG1ldGFkYXRhGAIgASgLMhgub3NhYy5wdWJsaWMudjEuTWV0YWRhdGESKgoEc3BlYxgDIAEoCzIcLm9zYWMucHVibGljLnYxLlB1YmxpY0lQU3BlYxIuCgZzdGF0dXMYBCABKAsyHi5vc2FjLnB1YmxpYy52MS5QdWJsaWNJUFN0YXR1cyJTCgxQdWJsaWNJUFNwZWMSEQoEcG9vbBgBIAEoCUID4EEFEjAKCWlwX2ZhbWlseRgCIAEoDjIYLm9zYWMucHVibGljLnYxLklQRmFtaWx5QgPgQQUiqgEKDlB1YmxpY0lQU3RhdHVzEjEKBXN0YXRlGAEgASgOMh0ub3NhYy5wdWJsaWMudjEuUHVibGljSVBTdGF0ZUID4EEDEhkKB21lc3NhZ2UYAiABKAlCA+BBA0gAiAEBEhQKB2FkZHJlc3MYAyABKAlCA+BBAxIRCgRwb29sGAQgASgJQgPgQQMSFQoIYXR0YWNoZWQYBSABKAhCA+BBA0IKCghfbWVzc2FnZSqmAQoNUHVibGljSVBTdGF0ZRIfChtQVUJMSUNfSVBfU1RBVEVfVU5TUEVDSUZJRUQQABIbChdQVUJMSUNfSVBfU1RBVEVfUEVORElORxABEh0KGVBVQkxJQ19JUF9TVEFURV9BTExPQ0FURUQQAhIaChZQVUJMSUNfSVBfU1RBVEVfRkFJTEVEEAMSHAoYUFVCTElDX0lQX1NUQVRFX0RFTEVUSU5HEARiBnByb3RvMw", [file_google_api_field_behavior, file_osac_public_v1_ip_family_type, file_osac_public_v1_metadata_type, file_osac_public_v1_public_ip_pool_type]);
 
 /**
  * Represents a public IP address allocated from a PublicIPPool.
  *
  * A PublicIP is a floating public IP address allocated from a parent PublicIPPool's CIDR ranges.
+ * The pool can be specified directly or auto-selected based on IP family preference.
  * The pool assignment is immutable after creation.
  *
  * Attachment to a target resource (e.g., ComputeInstance) is managed by a separate
@@ -83,23 +87,35 @@ export const PublicIPSchema: GenMessage<PublicIP> = /*@__PURE__*/
 /**
  * Defines the desired configuration for a PublicIP.
  *
- * The pool field is required and immutable: once a PublicIP is allocated from a pool, it cannot
- * be moved to a different pool.
+ * At most one of pool or ip_family may be provided on creation. If neither is specified, the
+ * system defaults to IPv4. Both fields are immutable after creation.
  *
  * @generated from message osac.public.v1.PublicIPSpec
  */
 export type PublicIPSpec = Message<"osac.public.v1.PublicIPSpec"> & {
   /**
-   * Parent PublicIPPool ID. Required and immutable after creation.
+   * Parent PublicIPPool ID. Mutually exclusive with ip_family.
    *
-   * Must reference the ID of an existing PublicIPPool in READY state. The system allocates an
-   * available IP address from this pool's CIDR ranges during provisioning.
+   * When provided, must reference the ID of an existing PublicIPPool in READY state. The system
+   * allocates an available IP address from this pool's CIDR ranges during provisioning.
+   * When ip_family is provided instead, the system auto-selects a pool and populates this field.
+   * Immutable after creation.
    *
    * Example: "pool-abc123"
    *
    * @generated from field: string pool = 1;
    */
   pool: string;
+
+  /**
+   * Desired IP address family. Mutually exclusive with pool. Immutable after creation.
+   *
+   * When set, the system selects a READY pool matching this family with the most available
+   * capacity. If neither pool nor ip_family is specified, defaults to IPv4.
+   *
+   * @generated from field: osac.public.v1.IPFamily ip_family = 2;
+   */
+  ipFamily: IPFamily;
 };
 
 /**

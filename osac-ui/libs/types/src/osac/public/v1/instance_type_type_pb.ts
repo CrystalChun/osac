@@ -78,7 +78,7 @@ export const InstanceTypeDeprecationSchema: GenMessage<InstanceTypeDeprecation> 
 /**
  * Describes a pre-configured compute bundle (cores, memory) that can be referenced by name when creating VMs.
  *
- * Instance types are admin-managed catalog resources. Organization users select an instance type by name instead
+ * Instance types are admin-managed catalog resources. Tenant users select an instance type by name instead
  * of specifying raw compute resources. Cloud Provider Admins control the available configurations through
  * lifecycle-managed instance types.
  *

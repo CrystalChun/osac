@@ -36,11 +36,12 @@ vi.mock('../../components/vm/VmInstanceTypeLabel', () => ({
 }));
 
 vi.mock('@osac/ui-components/hooks/use-session', () => ({
-  useSession: vi.fn(() => ({ role: 'tenantUser' })),
+  useSession: vi.fn(),
 }));
 
 const { useComputeInstances } = await import('@osac/ui-components/api/v1/compute-instance');
 const { useInstanceTypes } = await import('@osac/ui-components/api/v1/instance-types');
+const { useSession } = await import('@osac/ui-components/hooks/use-session');
 
 const vm = {
   id: 'vm-1',
@@ -66,6 +67,8 @@ const renderPage = async () => {
 
 describe('VmListPage', () => {
   beforeEach(() => {
+    vi.mocked(useSession).mockReturnValue({ role: 'tenantUser', username: 'user' });
+
     vi.mocked(useComputeInstances).mockReturnValue({
       data: [vm],
       isLoading: false,
@@ -92,6 +95,16 @@ describe('VmListPage', () => {
     expect(screen.getByText('Instance types unavailable')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'web-01' })).toBeInTheDocument();
     expect(screen.getByText('standard-4-8')).toBeInTheDocument();
+  });
+
+  it('shows create for tenant admin (e.g. mock mode default role)', async () => {
+    vi.mocked(useSession).mockReturnValue({ role: 'tenantAdmin', username: 'admin' });
+
+    await renderPage();
+
+    expect(
+      screen.getByRole('button', { name: 'Create virtual machine' }),
+    ).toBeInTheDocument();
   });
 
   it('keeps compute instance failures on the page-level error path', async () => {

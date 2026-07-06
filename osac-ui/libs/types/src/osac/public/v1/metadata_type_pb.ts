@@ -25,7 +25,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/public/v1/metadata_type.proto.
  */
 export const file_osac_public_v1_metadata_type: GenFile = /*@__PURE__*/
-  fileDesc("CiJvc2FjL3B1YmxpYy92MS9tZXRhZGF0YV90eXBlLnByb3RvEg5vc2FjLnB1YmxpYy52MSKTAwoITWV0YWRhdGESNgoSY3JlYXRpb25fdGltZXN0YW1wGAEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBI2ChJkZWxldGlvbl90aW1lc3RhbXAYAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEg8KB2NyZWF0b3IYAyABKAkSDAoEbmFtZRgEIAEoCRIOCgZ0ZW5hbnQYBSABKAkSNAoGbGFiZWxzGAcgAygLMiQub3NhYy5wdWJsaWMudjEuTWV0YWRhdGEuTGFiZWxzRW50cnkSPgoLYW5ub3RhdGlvbnMYCCADKAsyKS5vc2FjLnB1YmxpYy52MS5NZXRhZGF0YS5Bbm5vdGF0aW9uc0VudHJ5Eg8KB3ZlcnNpb24YCSABKAUaLQoLTGFiZWxzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ARoyChBBbm5vdGF0aW9uc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAFiBnByb3RvMw", [file_google_protobuf_timestamp]);
+  fileDesc("CiJvc2FjL3B1YmxpYy92MS9tZXRhZGF0YV90eXBlLnByb3RvEg5vc2FjLnB1YmxpYy52MSKkAwoITWV0YWRhdGESNgoSY3JlYXRpb25fdGltZXN0YW1wGAEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBI2ChJkZWxldGlvbl90aW1lc3RhbXAYAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEg8KB2NyZWF0b3IYAyABKAkSDAoEbmFtZRgEIAEoCRIOCgZ0ZW5hbnQYBSABKAkSNAoGbGFiZWxzGAcgAygLMiQub3NhYy5wdWJsaWMudjEuTWV0YWRhdGEuTGFiZWxzRW50cnkSPgoLYW5ub3RhdGlvbnMYCCADKAsyKS5vc2FjLnB1YmxpYy52MS5NZXRhZGF0YS5Bbm5vdGF0aW9uc0VudHJ5Eg8KB3ZlcnNpb24YCSABKAUSDwoHcHJvamVjdBgKIAEoCRotCgtMYWJlbHNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBGjIKEEFubm90YXRpb25zRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4AWIGcHJvdG8z", [file_google_protobuf_timestamp]);
 
 /**
  * Metadata common to all kinds of objects.
@@ -110,6 +110,29 @@ export type Metadata = Message<"osac.public.v1.Metadata"> & {
    * @generated from field: int32 version = 9;
    */
   version: number;
+
+  /**
+   * Full name of the project that the object is assigned to. It can be empty, which means the object belongs to
+   * the default project of the tenant.
+   *
+   * When not empty, the value is a dot-separated path of labels representing a hierarchy of projects. For example,
+   * `team-a.frontend.staging` represents a project nested three levels deep.
+   *
+   * Each label in the path has the same restrictions as DNS labels, as described in RFC 1035:
+   *
+   * - Must be between 1 and 63 characters long.
+   * - Must only contain letters (a-z), digits (0-9) and hyphens (-).
+   * - It isn't case sensitive.
+   *
+   * For project objects this field represents the parent project. For example, if a project named `frontend` has
+   * this field set to `team-a`, it means that `frontend` is a child of the `team-a` project, and its full name is
+   * `team-a.frontend`.
+   *
+   * For organization objects this field is always empty, as organizations don't belong to a project.
+   *
+   * @generated from field: string project = 10;
+   */
+  project: string;
 };
 
 /**

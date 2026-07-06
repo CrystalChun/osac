@@ -43,4 +43,22 @@ describe('decodeFulfillmentResponse', () => {
     const payload = { id: 'abc' };
     expect(decodeFulfillmentResponse(undefined, payload)).toBe(payload);
   });
+
+  it('ignores unknown JSON keys on nested messages (e.g. mock status.message)', () => {
+    const payload = {
+      id: 'vm-1',
+      metadata: { name: 'web-01' },
+      spec: { template: 'osac.templates.ocp_virt_vm' },
+      status: {
+        state: 'COMPUTE_INSTANCE_STATE_RUNNING',
+        message: 'belongs on conditions, not status — should be ignored',
+      },
+    };
+
+    const decoded = decodeFulfillmentResponse(ComputeInstanceSchema, payload) as {
+      status?: { state: number };
+    };
+
+    expect(decoded.status?.state).toBe(2); // COMPUTE_INSTANCE_STATE_RUNNING
+  });
 });
