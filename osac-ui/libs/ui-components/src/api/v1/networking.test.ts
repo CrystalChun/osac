@@ -103,6 +103,5 @@ describe('subnet create response decode', () => {
 
     expect(decoded.id).toBe('019f0d21-d4c2-7102-9cde-4a909ca1c071');
     expect(decoded.metadata?.name).toBe('subnet-web');
->>>>>>> 617cb93 (feat(networking): add VirtualNetworks and Subnets API hooks)
   });
 });

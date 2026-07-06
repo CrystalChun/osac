@@ -1,12 +1,11 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
+import { describe, expect, it, vi } from 'vitest';
 
 import { Protocol, SecurityGroupState, VirtualNetworkState } from '@osac/types';
 
 import * as networkingApi from '../../api/v1/networking';
-
 import { SecurityGroupsListPage } from './SecurityGroupsListPage';
 
 vi.mock('../../api/v1/networking', async (importOriginal) => {
