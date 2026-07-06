@@ -147,15 +147,24 @@ export const VirtualNetworkDetailPage = () => {
                     </Tr>
                   </Thead>
                   <Tbody>
-                    {subnets.map((subnet) => (
-                      <Tr key={subnet.id}>
-                        <Td dataLabel="Name">{subnet.metadata?.name ?? subnet.id}</Td>
-                        <Td dataLabel="CIDR">{subnet.spec?.ipv4Cidr ?? '—'}</Td>
-                        <Td dataLabel="Status">
-                          <SubnetStatusLabel state={subnet.status?.state} />
-                        </Td>
-                      </Tr>
-                    ))}
+                    {subnets.map((subnet) => {
+                      const ipv4Cidr = subnet.spec?.ipv4Cidr;
+                      const ipv6Cidr = subnet.spec?.ipv6Cidr;
+                      const cidr =
+                        ipv4Cidr && ipv6Cidr
+                          ? `${ipv4Cidr}, ${ipv6Cidr}`
+                          : ipv4Cidr || ipv6Cidr || '—';
+
+                      return (
+                        <Tr key={subnet.id}>
+                          <Td dataLabel="Name">{subnet.metadata?.name ?? subnet.id}</Td>
+                          <Td dataLabel="CIDR">{cidr}</Td>
+                          <Td dataLabel="Status">
+                            <SubnetStatusLabel state={subnet.status?.state} />
+                          </Td>
+                        </Tr>
+                      );
+                    })}
                   </Tbody>
                 </Table>
               )}

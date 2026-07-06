@@ -79,7 +79,7 @@ export const VirtualNetworksListPage = () => {
               <Thead>
                 <Tr>
                   <Th>{t('Name')}</Th>
-                  <Th>{t('IPv4 CIDR')}</Th>
+                  <Th>{t('CIDR')}</Th>
                   <Th>{t('Subnets')}</Th>
                   <Th>{t('Status')}</Th>
                 </Tr>
@@ -87,7 +87,10 @@ export const VirtualNetworksListPage = () => {
               <Tbody>
                 {filteredVNs.map((vn) => {
                   const name = vn.metadata?.name ?? vn.id;
-                  const ipv4Cidr = vn.spec?.ipv4Cidr ?? '—';
+                  const ipv4Cidr = vn.spec?.ipv4Cidr;
+                  const ipv6Cidr = vn.spec?.ipv6Cidr;
+                  const cidr =
+                    ipv4Cidr && ipv6Cidr ? `${ipv4Cidr}, ${ipv6Cidr}` : ipv4Cidr || ipv6Cidr || '—';
                   const subnetCount = subnetCountByVN[vn.id] || 0;
 
                   return (
@@ -101,7 +104,7 @@ export const VirtualNetworksListPage = () => {
                           {name}
                         </Button>
                       </Td>
-                      <Td dataLabel="IPv4 CIDR">{ipv4Cidr}</Td>
+                      <Td dataLabel="CIDR">{cidr}</Td>
                       <Td dataLabel="Subnets">{subnetCount}</Td>
                       <Td dataLabel="Status">
                         <VirtualNetworkStatusLabel state={vn.status?.state} />

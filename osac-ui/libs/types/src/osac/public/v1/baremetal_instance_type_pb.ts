@@ -18,8 +18,6 @@
 import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_google_api_field_behavior } from "../../../google/api/field_behavior_pb";
-import type { Any } from "../../../google/protobuf/any_pb";
-import { file_google_protobuf_any } from "../../../google/protobuf/any_pb";
 import type { Timestamp } from "../../../google/protobuf/timestamp_pb";
 import { file_google_protobuf_timestamp } from "../../../google/protobuf/timestamp_pb";
 import type { ConditionStatus } from "./condition_status_type_pb";
@@ -32,7 +30,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/public/v1/baremetal_instance_type.proto.
  */
 export const file_osac_public_v1_baremetal_instance_type: GenFile = /*@__PURE__*/
-  fileDesc("Cixvc2FjL3B1YmxpYy92MS9iYXJlbWV0YWxfaW5zdGFuY2VfdHlwZS5wcm90bxIOb3NhYy5wdWJsaWMudjEiuQEKEUJhcmVNZXRhbEluc3RhbmNlEgoKAmlkGAEgASgJEioKCG1ldGFkYXRhGAIgASgLMhgub3NhYy5wdWJsaWMudjEuTWV0YWRhdGESMwoEc3BlYxgDIAEoCzIlLm9zYWMucHVibGljLnYxLkJhcmVNZXRhbEluc3RhbmNlU3BlYxI3CgZzdGF0dXMYBCABKAsyJy5vc2FjLnB1YmxpYy52MS5CYXJlTWV0YWxJbnN0YW5jZVN0YXR1cyK3AwoVQmFyZU1ldGFsSW5zdGFuY2VTcGVjEhkKDGNhdGFsb2dfaXRlbRgBIAEoCUID4EEFEiAKDnNzaF9wdWJsaWNfa2V5GAIgASgJQgPgQQVIAIgBARIbCgl1c2VyX2RhdGEYAyABKAlCA+BBBUgBiAEBEkcKDHJ1bl9zdHJhdGVneRgEIAEoDjIsLm9zYWMucHVibGljLnYxLkJhcmVNZXRhbEluc3RhbmNlUnVuU3RyYXRlZ3lIAogBARIXCg9yZXN0YXJ0X3RyaWdnZXIYBSABKAMSXwoTdGVtcGxhdGVfcGFyYW1ldGVycxgGIAMoCzI9Lm9zYWMucHVibGljLnYxLkJhcmVNZXRhbEluc3RhbmNlU3BlYy5UZW1wbGF0ZVBhcmFtZXRlcnNFbnRyeUID4EEFGk8KF1RlbXBsYXRlUGFyYW1ldGVyc0VudHJ5EgsKA2tleRgBIAEoCRIjCgV2YWx1ZRgCIAEoCzIULmdvb2dsZS5wcm90b2J1Zi5Bbnk6AjgBQhEKD19zc2hfcHVibGljX2tleUIMCgpfdXNlcl9kYXRhQg8KDV9ydW5fc3RyYXRlZ3kiqQEKF0JhcmVNZXRhbEluc3RhbmNlU3RhdHVzEjUKBXN0YXRlGAEgASgOMiYub3NhYy5wdWJsaWMudjEuQmFyZU1ldGFsSW5zdGFuY2VTdGF0ZRI+Cgpjb25kaXRpb25zGAIgAygLMioub3NhYy5wdWJsaWMudjEuQmFyZU1ldGFsSW5zdGFuY2VDb25kaXRpb24SFwoPcmVzdGFydF90cmlnZ2VyGAMgASgDIocCChpCYXJlTWV0YWxJbnN0YW5jZUNvbmRpdGlvbhI8CgR0eXBlGAEgASgOMi4ub3NhYy5wdWJsaWMudjEuQmFyZU1ldGFsSW5zdGFuY2VDb25kaXRpb25UeXBlEi8KBnN0YXR1cxgCIAEoDjIfLm9zYWMucHVibGljLnYxLkNvbmRpdGlvblN0YXR1cxI4ChRsYXN0X3RyYW5zaXRpb25fdGltZRgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEwoGcmVhc29uGAQgASgJSACIAQESFAoHbWVzc2FnZRgFIAEoCUgBiAEBQgkKB19yZWFzb25CCgoIX21lc3NhZ2UqqgEKHEJhcmVNZXRhbEluc3RhbmNlUnVuU3RyYXRlZ3kSMAosQkFSRV9NRVRBTF9JTlNUQU5DRV9SVU5fU1RSQVRFR1lfVU5TUEVDSUZJRUQQABIrCidCQVJFX01FVEFMX0lOU1RBTkNFX1JVTl9TVFJBVEVHWV9BTFdBWVMQARIrCidCQVJFX01FVEFMX0lOU1RBTkNFX1JVTl9TVFJBVEVHWV9IQUxURUQQAirbAgoWQmFyZU1ldGFsSW5zdGFuY2VTdGF0ZRIpCiVCQVJFX01FVEFMX0lOU1RBTkNFX1NUQVRFX1VOU1BFQ0lGSUVEEAASKgomQkFSRV9NRVRBTF9JTlNUQU5DRV9TVEFURV9QUk9WSVNJT05JTkcQARIlCiFCQVJFX01FVEFMX0lOU1RBTkNFX1NUQVRFX1JVTk5JTkcQAhIkCiBCQVJFX01FVEFMX0lOU1RBTkNFX1NUQVRFX0ZBSUxFRBADEiYKIkJBUkVfTUVUQUxfSU5TVEFOQ0VfU1RBVEVfREVMRVRJTkcQBBImCiJCQVJFX01FVEFMX0lOU1RBTkNFX1NUQVRFX1NUQVJUSU5HEAUSJgoiQkFSRV9NRVRBTF9JTlNUQU5DRV9TVEFURV9TVE9QUElORxAGEiUKIUJBUkVfTUVUQUxfSU5TVEFOQ0VfU1RBVEVfU1RPUFBFRBAHKqADCh5CYXJlTWV0YWxJbnN0YW5jZUNvbmRpdGlvblR5cGUSMgouQkFSRV9NRVRBTF9JTlNUQU5DRV9DT05ESVRJT05fVFlQRV9VTlNQRUNJRklFRBAAEjIKLkJBUkVfTUVUQUxfSU5TVEFOQ0VfQ09ORElUSU9OX1RZUEVfUFJPVklTSU9ORUQQARI8CjhCQVJFX01FVEFMX0lOU1RBTkNFX0NPTkRJVElPTl9UWVBFX0NPTkZJR1VSQVRJT05fQVBQTElFRBACEiwKKEJBUkVfTUVUQUxfSU5TVEFOQ0VfQ09ORElUSU9OX1RZUEVfUkVBRFkQAxI6CjZCQVJFX01FVEFMX0lOU1RBTkNFX0NPTkRJVElPTl9UWVBFX1JFU1RBUlRfSU5fUFJPR1JFU1MQBBI1CjFCQVJFX01FVEFMX0lOU1RBTkNFX0NPTkRJVElPTl9UWVBFX1JFU1RBUlRfRkFJTEVEEAUSNwozQkFSRV9NRVRBTF9JTlNUQU5DRV9DT05ESVRJT05fVFlQRV9SRVNUQVJUX1JFUVVJUkVEEAZiBnByb3RvMw", [file_google_api_field_behavior, file_google_protobuf_any, file_google_protobuf_timestamp, file_osac_public_v1_condition_status_type, file_osac_public_v1_metadata_type]);
+  fileDesc("Cixvc2FjL3B1YmxpYy92MS9iYXJlbWV0YWxfaW5zdGFuY2VfdHlwZS5wcm90bxIOb3NhYy5wdWJsaWMudjEiuQEKEUJhcmVNZXRhbEluc3RhbmNlEgoKAmlkGAEgASgJEioKCG1ldGFkYXRhGAIgASgLMhgub3NhYy5wdWJsaWMudjEuTWV0YWRhdGESMwoEc3BlYxgDIAEoCzIlLm9zYWMucHVibGljLnYxLkJhcmVNZXRhbEluc3RhbmNlU3BlYxI3CgZzdGF0dXMYBCABKAsyJy5vc2FjLnB1YmxpYy52MS5CYXJlTWV0YWxJbnN0YW5jZVN0YXR1cyKFAgoVQmFyZU1ldGFsSW5zdGFuY2VTcGVjEhkKDGNhdGFsb2dfaXRlbRgBIAEoCUID4EEFEiAKDnNzaF9wdWJsaWNfa2V5GAIgASgJQgPgQQVIAIgBARIbCgl1c2VyX2RhdGEYAyABKAlCA+BBBUgBiAEBEkcKDHJ1bl9zdHJhdGVneRgEIAEoDjIsLm9zYWMucHVibGljLnYxLkJhcmVNZXRhbEluc3RhbmNlUnVuU3RyYXRlZ3lIAogBARIXCg9yZXN0YXJ0X3RyaWdnZXIYBSABKANCEQoPX3NzaF9wdWJsaWNfa2V5QgwKCl91c2VyX2RhdGFCDwoNX3J1bl9zdHJhdGVneSKpAQoXQmFyZU1ldGFsSW5zdGFuY2VTdGF0dXMSNQoFc3RhdGUYASABKA4yJi5vc2FjLnB1YmxpYy52MS5CYXJlTWV0YWxJbnN0YW5jZVN0YXRlEj4KCmNvbmRpdGlvbnMYAiADKAsyKi5vc2FjLnB1YmxpYy52MS5CYXJlTWV0YWxJbnN0YW5jZUNvbmRpdGlvbhIXCg9yZXN0YXJ0X3RyaWdnZXIYAyABKAMihwIKGkJhcmVNZXRhbEluc3RhbmNlQ29uZGl0aW9uEjwKBHR5cGUYASABKA4yLi5vc2FjLnB1YmxpYy52MS5CYXJlTWV0YWxJbnN0YW5jZUNvbmRpdGlvblR5cGUSLwoGc3RhdHVzGAIgASgOMh8ub3NhYy5wdWJsaWMudjEuQ29uZGl0aW9uU3RhdHVzEjgKFGxhc3RfdHJhbnNpdGlvbl90aW1lGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBITCgZyZWFzb24YBCABKAlIAIgBARIUCgdtZXNzYWdlGAUgASgJSAGIAQFCCQoHX3JlYXNvbkIKCghfbWVzc2FnZSqqAQocQmFyZU1ldGFsSW5zdGFuY2VSdW5TdHJhdGVneRIwCixCQVJFX01FVEFMX0lOU1RBTkNFX1JVTl9TVFJBVEVHWV9VTlNQRUNJRklFRBAAEisKJ0JBUkVfTUVUQUxfSU5TVEFOQ0VfUlVOX1NUUkFURUdZX0FMV0FZUxABEisKJ0JBUkVfTUVUQUxfSU5TVEFOQ0VfUlVOX1NUUkFURUdZX0hBTFRFRBACKtsCChZCYXJlTWV0YWxJbnN0YW5jZVN0YXRlEikKJUJBUkVfTUVUQUxfSU5TVEFOQ0VfU1RBVEVfVU5TUEVDSUZJRUQQABIqCiZCQVJFX01FVEFMX0lOU1RBTkNFX1NUQVRFX1BST1ZJU0lPTklORxABEiUKIUJBUkVfTUVUQUxfSU5TVEFOQ0VfU1RBVEVfUlVOTklORxACEiQKIEJBUkVfTUVUQUxfSU5TVEFOQ0VfU1RBVEVfRkFJTEVEEAMSJgoiQkFSRV9NRVRBTF9JTlNUQU5DRV9TVEFURV9ERUxFVElORxAEEiYKIkJBUkVfTUVUQUxfSU5TVEFOQ0VfU1RBVEVfU1RBUlRJTkcQBRImCiJCQVJFX01FVEFMX0lOU1RBTkNFX1NUQVRFX1NUT1BQSU5HEAYSJQohQkFSRV9NRVRBTF9JTlNUQU5DRV9TVEFURV9TVE9QUEVEEAcqoAMKHkJhcmVNZXRhbEluc3RhbmNlQ29uZGl0aW9uVHlwZRIyCi5CQVJFX01FVEFMX0lOU1RBTkNFX0NPTkRJVElPTl9UWVBFX1VOU1BFQ0lGSUVEEAASMgouQkFSRV9NRVRBTF9JTlNUQU5DRV9DT05ESVRJT05fVFlQRV9QUk9WSVNJT05FRBABEjwKOEJBUkVfTUVUQUxfSU5TVEFOQ0VfQ09ORElUSU9OX1RZUEVfQ09ORklHVVJBVElPTl9BUFBMSUVEEAISLAooQkFSRV9NRVRBTF9JTlNUQU5DRV9DT05ESVRJT05fVFlQRV9SRUFEWRADEjoKNkJBUkVfTUVUQUxfSU5TVEFOQ0VfQ09ORElUSU9OX1RZUEVfUkVTVEFSVF9JTl9QUk9HUkVTUxAEEjUKMUJBUkVfTUVUQUxfSU5TVEFOQ0VfQ09ORElUSU9OX1RZUEVfUkVTVEFSVF9GQUlMRUQQBRI3CjNCQVJFX01FVEFMX0lOU1RBTkNFX0NPTkRJVElPTl9UWVBFX1JFU1RBUlRfUkVRVUlSRUQQBmIGcHJvdG8z", [file_google_api_field_behavior, file_google_protobuf_timestamp, file_osac_public_v1_condition_status_type, file_osac_public_v1_metadata_type]);
 
 /**
  * Contains the details of a bare metal instance.
@@ -119,48 +117,6 @@ export type BareMetalInstanceSpec = Message<"osac.public.v1.BareMetalInstanceSpe
    * @generated from field: int64 restart_trigger = 5;
    */
   restartTrigger: bigint;
-
-  /**
-   * Values of the template parameters passed to the provisioning template.
-   *
-   * When using the HTTP+JSON version of the API the values must be represented as documented in the [ProtoJSON format
-   * document](https://protobuf.dev/programming-guides/json). For example, if the template has a `disk_layout`
-   * parameter of string type, the complete bare metal instance should be represented like this:
-   *
-   * ```json
-   * {
-   *   "spec": {
-   *     "catalog_item": "gpu-node",
-   *     "template_parameters": {
-   *       "disk_layout": {
-   *         "@type": "type.googleapis.com/google.protobuf.StringValue",
-   *         "value": "raid1"
-   *       }
-   *     }
-   *   }
-   * }
-   * ```
-   *
-   * The possible values of the `@type` are the same as those used by the `type_url` field of the `Any` type:
-   *
-   * | Type                           | Value                                             |
-   * |--------------------------------|---------------------------------------------------|
-   * | Boolean                        | `type.googleapis.com/google.protobuf.BoolValue`   |
-   * | Integer number, 32 bits        | `type.googleapis.com/google.protobuf.Int32Value`  |
-   * | Integer number, 64 bits        | `type.googleapis.com/google.protobuf.Int64Value`  |
-   * | Floating point number, 32 bits | `type.googleapis.com/google.protobuf.FloatValue`  |
-   * | Floating point number, 64 bits | `type.googleapis.com/google.protobuf.DoubleValue` |
-   * | String                         | `type.googleapis.com/google.protobuf.StringValue` |
-   * | Timestamp                      | `type.googleapis.com/google.protobuf.Timestamp`   |
-   * | Duration                       | `type.googleapis.com/google.protobuf.Duration`    |
-   * | Array of bytes                 | `type.googleapis.com/google.protobuf.BytesValue`  |
-   * | Any JSON value                 | `type.googleapis.com/google.protobuf.Value`       |
-   *
-   * These parameters can't be modified after the bare metal instance is created.
-   *
-   * @generated from field: map<string, google.protobuf.Any> template_parameters = 6;
-   */
-  templateParameters: { [key: string]: Any };
 };
 
 /**

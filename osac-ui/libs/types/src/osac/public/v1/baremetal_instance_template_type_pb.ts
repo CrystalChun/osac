@@ -17,8 +17,6 @@
 
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
-import type { Any } from "../../../google/protobuf/any_pb";
-import { file_google_protobuf_any } from "../../../google/protobuf/any_pb";
 import type { Metadata } from "./metadata_type_pb";
 import { file_osac_public_v1_metadata_type } from "./metadata_type_pb";
 import type { Message } from "@bufbuild/protobuf";
@@ -27,7 +25,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/public/v1/baremetal_instance_template_type.proto.
  */
 export const file_osac_public_v1_baremetal_instance_template_type: GenFile = /*@__PURE__*/
-  fileDesc("CjVvc2FjL3B1YmxpYy92MS9iYXJlbWV0YWxfaW5zdGFuY2VfdGVtcGxhdGVfdHlwZS5wcm90bxIOb3NhYy5wdWJsaWMudjEilwIKGUJhcmVNZXRhbEluc3RhbmNlVGVtcGxhdGUSCgoCaWQYASABKAkSKgoIbWV0YWRhdGEYAiABKAsyGC5vc2FjLnB1YmxpYy52MS5NZXRhZGF0YRINCgV0aXRsZRgDIAEoCRITCgtkZXNjcmlwdGlvbhgEIAEoCRJMCg1zcGVjX2RlZmF1bHRzGAUgASgLMjUub3NhYy5wdWJsaWMudjEuQmFyZU1ldGFsSW5zdGFuY2VUZW1wbGF0ZVNwZWNEZWZhdWx0cxJQCgpwYXJhbWV0ZXJzGAYgAygLMjwub3NhYy5wdWJsaWMudjEuQmFyZU1ldGFsSW5zdGFuY2VUZW1wbGF0ZVBhcmFtZXRlckRlZmluaXRpb24ipwEKLEJhcmVNZXRhbEluc3RhbmNlVGVtcGxhdGVQYXJhbWV0ZXJEZWZpbml0aW9uEgwKBG5hbWUYASABKAkSDQoFdGl0bGUYAiABKAkSEwoLZGVzY3JpcHRpb24YAyABKAkSEAoIcmVxdWlyZWQYBCABKAgSDAoEdHlwZRgFIAEoCRIlCgdkZWZhdWx0GAYgASgLMhQuZ29vZ2xlLnByb3RvYnVmLkFueSInCiVCYXJlTWV0YWxJbnN0YW5jZVRlbXBsYXRlU3BlY0RlZmF1bHRzYgZwcm90bzM", [file_google_protobuf_any, file_osac_public_v1_metadata_type]);
+  fileDesc("CjVvc2FjL3B1YmxpYy92MS9iYXJlbWV0YWxfaW5zdGFuY2VfdGVtcGxhdGVfdHlwZS5wcm90bxIOb3NhYy5wdWJsaWMudjEixQEKGUJhcmVNZXRhbEluc3RhbmNlVGVtcGxhdGUSCgoCaWQYASABKAkSKgoIbWV0YWRhdGEYAiABKAsyGC5vc2FjLnB1YmxpYy52MS5NZXRhZGF0YRINCgV0aXRsZRgDIAEoCRITCgtkZXNjcmlwdGlvbhgEIAEoCRJMCg1zcGVjX2RlZmF1bHRzGAUgASgLMjUub3NhYy5wdWJsaWMudjEuQmFyZU1ldGFsSW5zdGFuY2VUZW1wbGF0ZVNwZWNEZWZhdWx0cyInCiVCYXJlTWV0YWxJbnN0YW5jZVRlbXBsYXRlU3BlY0RlZmF1bHRzYgZwcm90bzM", [file_osac_public_v1_metadata_type]);
 
 /**
  * A bare metal instance template defines a hardware profile (host type, OS image, network configuration)
@@ -68,16 +66,6 @@ export type BareMetalInstanceTemplate = Message<"osac.public.v1.BareMetalInstanc
    * @generated from field: osac.public.v1.BareMetalInstanceTemplateSpecDefaults spec_defaults = 5;
    */
   specDefaults?: BareMetalInstanceTemplateSpecDefaults | undefined;
-
-  /**
-   * Definitions of the parameters that can be used to customize the template.
-   *
-   * Note that these are only the *definitions* of the parameters, not the actual values. The actual values are in the
-   * `spec.template_parameters` field of the bare metal instance.
-   *
-   * @generated from field: repeated osac.public.v1.BareMetalInstanceTemplateParameterDefinition parameters = 6;
-   */
-  parameters: BareMetalInstanceTemplateParameterDefinition[];
 };
 
 /**
@@ -86,92 +74,6 @@ export type BareMetalInstanceTemplate = Message<"osac.public.v1.BareMetalInstanc
  */
 export const BareMetalInstanceTemplateSchema: GenMessage<BareMetalInstanceTemplate> = /*@__PURE__*/
   messageDesc(file_osac_public_v1_baremetal_instance_template_type, 0);
-
-/**
- * Contains type and documentation of a template parameter.
- *
- * @generated from message osac.public.v1.BareMetalInstanceTemplateParameterDefinition
- */
-export type BareMetalInstanceTemplateParameterDefinition = Message<"osac.public.v1.BareMetalInstanceTemplateParameterDefinition"> & {
-  /**
-   * Name of the parameter.
-   *
-   * This is the name that should be used in the `template_parameters` field of the bare metal instance to assign a
-   * value to the parameter.
-   *
-   * @generated from field: string name = 1;
-   */
-  name: string;
-
-  /**
-   * Human friendly short description of the parameter, only a few words, suitable for displaying in one single line on
-   * a UI or CLI.
-   *
-   * @generated from field: string title = 2;
-   */
-  title: string;
-
-  /**
-   * Human friendly description of the parameter, using Markdown format.
-   *
-   * @generated from field: string description = 3;
-   */
-  description: string;
-
-  /**
-   * Indicates if this parameter is required or optional.
-   *
-   * Values for required parameters must be included when creating the bare metal instance, otherwise it will be
-   * rejected.
-   *
-   * Note that there may be other dependencies between parameters which may cause a bare metal instance to be rejected.
-   * For example, the allowed values of a parameter may depend on the value of another parameter. That kind of
-   * information will be in the `description` field.
-   *
-   * @generated from field: bool required = 4;
-   */
-  required: boolean;
-
-  /**
-   * Type of the parameter.
-   *
-   * The possible values are the same as those used by the `type_url` field of the `Any` type:
-   *
-   * | Type                           | Value                                             |
-   * |--------------------------------|---------------------------------------------------|
-   * | Boolean                        | `type.googleapis.com/google.protobuf.BoolValue`   |
-   * | Integer number, 32 bits        | `type.googleapis.com/google.protobuf.Int32Value`  |
-   * | Integer number, 64 bits        | `type.googleapis.com/google.protobuf.Int64Value`  |
-   * | Floating point number, 32 bits | `type.googleapis.com/google.protobuf.FloatValue`  |
-   * | Floating point number, 64 bits | `type.googleapis.com/google.protobuf.DoubleValue` |
-   * | String                         | `type.googleapis.com/google.protobuf.StringValue` |
-   * | Timestamp                      | `type.googleapis.com/google.protobuf.Timestamp`   |
-   * | Duration                       | `type.googleapis.com/google.protobuf.Duration`    |
-   * | Array of bytes                 | `type.googleapis.com/google.protobuf.BytesValue`  |
-   * | Any JSON value                 | `type.googleapis.com/google.protobuf.Value`       |
-   *
-   * When using the HTTP+JSON version of the API the value provided in the `template_parameters` field of the bare
-   * metal instance must be represented as documented in the
-   * [ProtoJSON format document](https://protobuf.dev/programming-guides/json).
-   *
-   * @generated from field: string type = 5;
-   */
-  type: string;
-
-  /**
-   * Default value for optional parameters.
-   *
-   * @generated from field: google.protobuf.Any default = 6;
-   */
-  default?: Any | undefined;
-};
-
-/**
- * Describes the message osac.public.v1.BareMetalInstanceTemplateParameterDefinition.
- * Use `create(BareMetalInstanceTemplateParameterDefinitionSchema)` to create a new message.
- */
-export const BareMetalInstanceTemplateParameterDefinitionSchema: GenMessage<BareMetalInstanceTemplateParameterDefinition> = /*@__PURE__*/
-  messageDesc(file_osac_public_v1_baremetal_instance_template_type, 1);
 
 /**
  * Default values for bare metal instance spec fields.
@@ -188,5 +90,5 @@ export type BareMetalInstanceTemplateSpecDefaults = Message<"osac.public.v1.Bare
  * Use `create(BareMetalInstanceTemplateSpecDefaultsSchema)` to create a new message.
  */
 export const BareMetalInstanceTemplateSpecDefaultsSchema: GenMessage<BareMetalInstanceTemplateSpecDefaults> = /*@__PURE__*/
-  messageDesc(file_osac_public_v1_baremetal_instance_template_type, 2);
+  messageDesc(file_osac_public_v1_baremetal_instance_template_type, 1);
 
