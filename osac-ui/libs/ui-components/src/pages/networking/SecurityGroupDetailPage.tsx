@@ -1,0 +1,210 @@
+import { useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import {
+  Alert,
+  Breadcrumb,
+  BreadcrumbItem,
+  Button,
+  Card,
+  CardBody,
+  CardTitle,
+  DescriptionList,
+  DescriptionListDescription,
+  DescriptionListGroup,
+  DescriptionListTerm,
+  Tab,
+  Tabs,
+  TabTitleText,
+} from '@patternfly/react-core';
+
+import { SecurityGroupState } from '@osac/types';
+
+import {
+  resourceDisplayName,
+  useSecurityGroup,
+  useUpdateSecurityGroup,
+  useVirtualNetworks,
+} from '../../api/v1/networking';
+import { SecurityGroupRulesTable } from '../../components/networking/SecurityGroupRulesTable';
+import { SecurityGroupStatusLabel } from '../../components/networking/SecurityGroupStatusLabel';
+import ListPage from '../../components/Page/ListPage';
+import ListPageBody from '../../components/Page/ListPageBody';
+import { useTranslation } from '../../hooks/useTranslation';
+
+export const SecurityGroupDetailPage = () => {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { id = '' } = useParams<{ id: string }>();
+  const [activeTabKey, setActiveTabKey] = useState<string | number>(0);
+
+  const { data: sg, isLoading, error } = useSecurityGroup(id);
+  const { data: virtualNetworks = [] } = useVirtualNetworks();
+  const updateSecurityGroup = useUpdateSecurityGroup();
+
+  const sgName = sg?.metadata?.name ?? id;
+  const isFailed = sg?.status?.state === SecurityGroupState.FAILED;
+
+  const vnId = sg?.spec?.virtualNetwork ?? '';
+  const vn = virtualNetworks.find((v) => v.id === vnId);
+  const vnName = resourceDisplayName(vn?.metadata, vnId);
+
+  const handleAddIngressRule = () => {
+    // TODO: Open rule form modal/drawer
+    console.log('Add ingress rule');
+  };
+
+  const handleEditIngressRule = (index: number) => {
+    // TODO: Open rule form modal/drawer with pre-filled data
+    console.log('Edit ingress rule', index);
+  };
+
+  const handleDeleteIngressRule = async (index: number) => {
+    if (!sg) return;
+    const newIngress = [...(sg.spec?.ingress ?? [])];
+    newIngress.splice(index, 1);
+    await updateSecurityGroup.mutateAsync({
+      id: sg.id,
+      input: {
+        name: sg.metadata?.name ?? '',
+        virtual_network: sg.spec?.virtualNetwork ?? '',
+        ingress: newIngress,
+        egress: sg.spec?.egress,
+      },
+    });
+  };
+
+  const handleAddEgressRule = () => {
+    console.log('Add egress rule');
+  };
+
+  const handleEditEgressRule = (index: number) => {
+    console.log('Edit egress rule', index);
+  };
+
+  const handleDeleteEgressRule = async (index: number) => {
+    if (!sg) return;
+    const newEgress = [...(sg.spec?.egress ?? [])];
+    newEgress.splice(index, 1);
+    await updateSecurityGroup.mutateAsync({
+      id: sg.id,
+      input: {
+        name: sg.metadata?.name ?? '',
+        virtual_network: sg.spec?.virtualNetwork ?? '',
+        ingress: sg.spec?.ingress,
+        egress: newEgress,
+      },
+    });
+  };
+
+  return (
+    <ListPage
+      title={sgName}
+      breadcrumb={
+        <Breadcrumb>
+          <BreadcrumbItem>
+            <Button
+              variant="link"
+              isInline
+              onClick={() => navigate('/networking/security-groups')}
+            >
+              {t('Security groups')}
+            </Button>
+          </BreadcrumbItem>
+          <BreadcrumbItem isActive>{sgName}</BreadcrumbItem>
+        </Breadcrumb>
+      }
+    >
+      <ListPageBody isLoading={isLoading} error={error}>
+        {isFailed && sg?.status?.message && (
+          <Alert
+            variant="danger"
+            title={t('Provisioning failed')}
+            isInline
+            style={{ marginBottom: '1rem' }}
+          >
+            {sg.status.message}
+          </Alert>
+        )}
+
+        <Tabs
+          activeKey={activeTabKey}
+          onSelect={(_event, tabIndex) => setActiveTabKey(tabIndex)}
+          aria-label="Security group tabs"
+        >
+          <Tab eventKey={0} title={<TabTitleText>{t('Inbound Rules')}</TabTitleText>}>
+            <Card>
+              <CardBody>
+                <SecurityGroupRulesTable
+                  rules={sg?.spec?.ingress ?? []}
+                  direction="ingress"
+                  onAddRule={handleAddIngressRule}
+                  onEditRule={handleEditIngressRule}
+                  onDeleteRule={handleDeleteIngressRule}
+                />
+              </CardBody>
+            </Card>
+          </Tab>
+
+          <Tab eventKey={1} title={<TabTitleText>{t('Outbound Rules')}</TabTitleText>}>
+            <Card>
+              <CardBody>
+                <SecurityGroupRulesTable
+                  rules={sg?.spec?.egress ?? []}
+                  direction="egress"
+                  onAddRule={handleAddEgressRule}
+                  onEditRule={handleEditEgressRule}
+                  onDeleteRule={handleDeleteEgressRule}
+                />
+              </CardBody>
+            </Card>
+          </Tab>
+
+          <Tab eventKey={2} title={<TabTitleText>{t('Details')}</TabTitleText>}>
+            <Card>
+              <CardTitle>{t('Details')}</CardTitle>
+              <CardBody>
+                <DescriptionList isHorizontal>
+                  <DescriptionListGroup>
+                    <DescriptionListTerm>{t('Name')}</DescriptionListTerm>
+                    <DescriptionListDescription>
+                      {sg?.metadata?.name ?? '—'}
+                    </DescriptionListDescription>
+                  </DescriptionListGroup>
+
+                  <DescriptionListGroup>
+                    <DescriptionListTerm>{t('Virtual Network')}</DescriptionListTerm>
+                    <DescriptionListDescription>
+                      <Button
+                        variant="link"
+                        isInline
+                        onClick={() => navigate(`/networking/virtual-networks/${vnId}`)}
+                      >
+                        {vnName}
+                      </Button>
+                    </DescriptionListDescription>
+                  </DescriptionListGroup>
+
+                  <DescriptionListGroup>
+                    <DescriptionListTerm>{t('Status')}</DescriptionListTerm>
+                    <DescriptionListDescription>
+                      <SecurityGroupStatusLabel state={sg?.status?.state} />
+                    </DescriptionListDescription>
+                  </DescriptionListGroup>
+
+                  {sg?.status?.message && (
+                    <DescriptionListGroup>
+                      <DescriptionListTerm>{t('Message')}</DescriptionListTerm>
+                      <DescriptionListDescription>
+                        {sg.status.message}
+                      </DescriptionListDescription>
+                    </DescriptionListGroup>
+                  )}
+                </DescriptionList>
+              </CardBody>
+            </Card>
+          </Tab>
+        </Tabs>
+      </ListPageBody>
+    </ListPage>
+  );
+};
