@@ -3,7 +3,8 @@ import * as yup from 'yup';
 
 import type { ClusterCatalogItem } from '@osac/types';
 
-import { isValidCidr } from './cidr';
+import { isValidPullSecret, isValidSshPublicKey } from '../../fields/credentialValidation';
+import { ipv4CidrsOverlap, isValidCidr } from './cidr';
 import {
   getCatalogFieldOverlay,
   hasCatalogFieldDefinition,
@@ -25,27 +26,27 @@ const buildClusterFieldDefinitions = (catalogItem: unknown, t: TFunction) => {
   const sshKeyOverlay = getCatalogFieldOverlay(
     CLUSTER_SSH_KEY_WIRE_PATH,
     definitions,
-    t('catalogProvision.cluster.fields.sshKey'),
+    t('SSH public key'),
   );
   const pullSecretOverlay = getCatalogFieldOverlay(
     CLUSTER_PULL_SECRET_WIRE_PATH,
     definitions,
-    t('catalogProvision.cluster.fields.pullSecret'),
+    t('Pull secret'),
   );
   const releaseImageOverlay = getCatalogFieldOverlay(
     CLUSTER_RELEASE_IMAGE_WIRE_PATH,
     definitions,
-    t('catalogProvision.cluster.fields.releaseImage'),
+    t('Release image'),
   );
   const podCidrOverlay = getCatalogFieldOverlay(
     CLUSTER_POD_CIDR_WIRE_PATH,
     definitions,
-    t('catalogProvision.cluster.fields.podCidr'),
+    t('Pod CIDR'),
   );
   const serviceCidrOverlay = getCatalogFieldOverlay(
     CLUSTER_SERVICE_CIDR_WIRE_PATH,
     definitions,
-    t('catalogProvision.cluster.fields.serviceCidr'),
+    t('Service CIDR'),
   );
 
   const sshKeyRequired = hasCatalogFieldDefinition(CLUSTER_SSH_KEY_WIRE_PATH, definitions);
@@ -54,10 +55,10 @@ const buildClusterFieldDefinitions = (catalogItem: unknown, t: TFunction) => {
     hostType: yup.string().required(),
     size: yup
       .string()
-      .required(t('catalogProvision.validation.clusterPoolSizeRequired'))
+      .required(t('Pool size is required'))
       .test(
         'pool-size-positive',
-        t('catalogProvision.validation.clusterPoolSizePositive'),
+        t('Pool size must be greater than zero'),
         (value) => {
           const parsed = Number(value?.trim());
           return Number.isFinite(parsed) && parsed > 0;
@@ -69,16 +70,31 @@ const buildClusterFieldDefinitions = (catalogItem: unknown, t: TFunction) => {
     catalogItemId: yup.string().required(t('catalogProvision.validation.catalogItemRequired')),
     metadataName: buildMetadataNameSchema(t),
     specSshPublicKey: mergeCatalogValidation(
-      yup.string(),
+      yup
+        .string()
+        .test(
+          'ssh-public-key',
+          t(
+            'SSH public key must be in the form "[TYPE] key [[EMAIL]]". Supported types are ssh-rsa, ssh-ed25519, and ecdsa-sha2-nistp256/384/521.',
+          ),
+          (value) => isValidSshPublicKey(value),
+        ),
       sshKeyOverlay,
       sshKeyRequired,
       t('catalogProvision.validation.required'),
     ),
     specPullSecret: mergeCatalogValidation(
-      yup.string().trim(),
+      yup
+        .string()
+        .trim()
+        .test(
+          'pull-secret',
+          t('Invalid pull secret format. Paste the complete JSON from your Red Hat account pull secret.'),
+          (value) => isValidPullSecret(value),
+        ),
       pullSecretOverlay,
       true,
-      t('catalogProvision.validation.clusterPullSecretRequired'),
+      t('Pull secret is required'),
     ),
     specReleaseImage: mergeCatalogValidation(
       yup.string().trim(),
@@ -134,6 +150,20 @@ const buildClusterFieldDefinitions = (catalogItem: unknown, t: TFunction) => {
           .string()
           .test('service-cidr', t('catalogProvision.validation.cidrFormat'), (value) =>
             isValidCidr(value ?? ''),
+          )
+          .test(
+            'service-cidr-no-overlap',
+            t('Service CIDR must not overlap the pod CIDR.'),
+            function (value) {
+              const podCidr = this.parent?.podCidr ?? '';
+              if (!value?.trim() || !podCidr.trim()) {
+                return true;
+              }
+              if (!isValidCidr(value) || !isValidCidr(podCidr)) {
+                return true;
+              }
+              return !ipv4CidrsOverlap(podCidr, value);
+            },
           ),
         serviceCidrOverlay,
         false,

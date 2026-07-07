@@ -34,7 +34,7 @@ import { useClusterAdapter } from './wizard/adapters/clusterAdapter';
 import { useComputeInstanceAdapter } from './wizard/adapters/computeInstanceAdapter';
 import type { CatalogProvisionAdapter } from './wizard/adapters/types';
 import { STEP_LABEL_KEYS, type WizardStepId, getWizardOrderedSteps } from './wizard/stepIds';
-import { CatalogStep, GeneralStep, ReviewStep } from './wizard/steps/WizardSteps';
+import { CatalogStep, ReviewStep } from './wizard/steps/WizardSteps';
 
 const hasWizardUnsavedProgress = (values: { catalogItemId?: string }): boolean =>
   Boolean(values.catalogItemId?.trim());
@@ -225,6 +225,7 @@ const WizardStepBody = ({
   const { t } = useTranslation();
   const ConfigurationStep = adapter.ConfigurationStep;
   const NetworkingStep = adapter.NetworkingStep;
+  const GeneralStepComponent = adapter.GeneralStep;
 
   return (
     <FieldValidationProvider value={validationAlert}>
@@ -242,9 +243,7 @@ const WizardStepBody = ({
           </StackItem>
         ) : null}
         {stepId === 'catalog' ? <CatalogStep adapter={adapter} /> : null}
-        {stepId === 'general' ? (
-          <GeneralStep fields={adapter.resolveGeneralFields(catalogItem)} />
-        ) : null}
+        {stepId === 'general' ? <GeneralStepComponent catalogItem={catalogItem} /> : null}
         {stepId === 'configuration' ? <ConfigurationStep catalogItem={catalogItem} /> : null}
         {stepId === 'networking' ? <NetworkingStep catalogItem={catalogItem} /> : null}
         {stepId === 'review' ? (

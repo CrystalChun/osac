@@ -38,7 +38,7 @@ export interface CatalogProvisionAdapter<
   buildCreatePayload: (values: TValues, catalogItem: TItem) => TPayload;
   ConfigurationStep: ComponentType<{ catalogItem: TItem | null }>;
   NetworkingStep: ComponentType<{ catalogItem: TItem | null }>;
-  resolveGeneralFields: (catalogItem: TItem | null) => GeneralFieldDescriptor[];
+  GeneralStep: ComponentType<{ catalogItem: TItem | null }>;
   getStepValidationSchema: (
     catalogItem: TItem | null,
     stepId: WizardStepId,

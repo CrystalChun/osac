@@ -16,6 +16,7 @@ interface InputFieldProps {
   resizeOrientation?: 'vertical' | 'horizontal' | 'both' | 'none';
   type?: 'text' | 'number' | 'password';
   helperText?: string;
+  onBlur?: () => void;
 }
 
 export const InputField = ({
@@ -29,6 +30,7 @@ export const InputField = ({
   resizeOrientation,
   type = 'text',
   helperText,
+  onBlur,
 }: InputFieldProps) => {
   const [field, meta] = useField<string>(name);
   const showValidationErrors = useShowFieldValidationErrors();
@@ -48,7 +50,10 @@ export const InputField = ({
           onChange={(_event, value) => {
             void field.onChange({ target: { name, value } });
           }}
-          onBlur={field.onBlur}
+          onBlur={(event) => {
+            field.onBlur(event);
+            onBlur?.();
+          }}
           isDisabled={isDisabled}
           validated={validated}
           aria-invalid={error ? true : undefined}
@@ -63,7 +68,10 @@ export const InputField = ({
           onChange={(_event, value) => {
             void field.onChange({ target: { name, value } });
           }}
-          onBlur={field.onBlur}
+          onBlur={(event) => {
+            field.onBlur(event);
+            onBlur?.();
+          }}
           isDisabled={isDisabled}
           validated={validated}
           aria-invalid={error ? true : undefined}

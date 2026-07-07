@@ -470,7 +470,7 @@ describe('CatalogProvisionWizard', () => {
     });
 
     await advanceToClusterConfigurationStep(user);
-    expect(screen.getByText('No worker pools in template')).toBeInTheDocument();
+    expect(screen.getByText('No node sets in template')).toBeInTheDocument();
     await clickWizardNext(user);
     await clickWizardNext(user);
     await user.click(screen.getByRole('button', { name: 'Create' }));

@@ -71,11 +71,48 @@ describe('buildClusterStepSchema', () => {
       metadata: { name: 'MyCluster' },
       spec: {
         ...emptyValues.spec,
-        pullSecret: 'secret',
+        pullSecret: '{"auths": {}}',
       },
     });
     expect(errors).toEqual({
       metadata: { name: 'catalogProvision.validation.nameDnsLabelCharset' },
+    });
+  });
+
+  it('rejects malformed pull secret on general step', async () => {
+    const errors = await validateStep('general', {
+      ...emptyValues,
+      catalogItemId: clusterCatalogItem.id,
+      metadata: { name: 'my-cluster' },
+      spec: {
+        ...emptyValues.spec,
+        pullSecret: '{"foo":"bar"}',
+      },
+    });
+    expect(errors).toEqual({
+      spec: {
+        pullSecret:
+          'Invalid pull secret format. Paste the complete JSON from your Red Hat account pull secret.',
+      },
+    });
+  });
+
+  it('rejects malformed ssh public key on general step', async () => {
+    const errors = await validateStep('general', {
+      ...emptyValues,
+      catalogItemId: clusterCatalogItem.id,
+      metadata: { name: 'my-cluster' },
+      spec: {
+        ...emptyValues.spec,
+        pullSecret: '{"auths": {}}',
+        sshPublicKey: 'not-a-key',
+      },
+    });
+    expect(errors).toEqual({
+      spec: {
+        sshPublicKey:
+          'SSH public key must be in the form "[TYPE] key [[EMAIL]]". Supported types are ssh-rsa, ssh-ed25519, and ecdsa-sha2-nistp256/384/521.',
+      },
     });
   });
 
@@ -86,7 +123,7 @@ describe('buildClusterStepSchema', () => {
       metadata: { name: 'my-cluster' },
     });
     expect(errors).toEqual({
-      spec: { pullSecret: 'catalogProvision.validation.clusterPullSecretRequired' },
+      spec: { pullSecret: 'Pull secret is required' },
     });
   });
 
@@ -99,7 +136,7 @@ describe('buildClusterStepSchema', () => {
         metadata: { name: 'my-cluster' },
         spec: {
           ...emptyValues.spec,
-          pullSecret: 'secret',
+          pullSecret: '{"auths": {}}',
           releaseImage: '4.17.0',
           nodeSets: {
             compute: { hostType: 'acme_1tb', size: '0' },
@@ -111,7 +148,7 @@ describe('buildClusterStepSchema', () => {
     expect(errors).toEqual({
       spec: {
         nodeSets: {
-          compute: { size: 'catalogProvision.validation.clusterPoolSizePositive' },
+          compute: { size: 'Pool size must be greater than zero' },
         },
       },
     });
@@ -126,7 +163,7 @@ describe('buildClusterStepSchema', () => {
         metadata: { name: 'my-cluster' },
         spec: {
           ...emptyValues.spec,
-          pullSecret: 'secret',
+          pullSecret: '{"auths": {}}',
           releaseImage: '4.17.0',
           nodeSets: {},
         },
@@ -156,6 +193,31 @@ describe('buildClusterStepSchema', () => {
       spec: {
         network: {
           podCidr: 'catalogProvision.validation.cidrFormat',
+        },
+      },
+    });
+  });
+
+  it('rejects overlapping pod and service CIDRs on networking step', async () => {
+    const errors = await validateStep(
+      'networking',
+      {
+        ...emptyValues,
+        catalogItemId: clusterCatalogItem.id,
+        spec: {
+          ...emptyValues.spec,
+          network: {
+            podCidr: '10.128.0.0/14',
+            serviceCidr: '10.128.0.0/14',
+          },
+        },
+      },
+      clusterCatalogItem,
+    );
+    expect(errors).toEqual({
+      spec: {
+        network: {
+          serviceCidr: 'Service CIDR must not overlap the pod CIDR.',
         },
       },
     });

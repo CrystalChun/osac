@@ -19,12 +19,12 @@ export const applyClusterCatalogNetworkingDefaults = (
   const podCidrOverlay = getCatalogFieldOverlay(
     'network.pod_cidr',
     definitions,
-    t('catalogProvision.cluster.fields.podCidr'),
+    t('Pod CIDR'),
   );
   const serviceCidrOverlay = getCatalogFieldOverlay(
     'network.service_cidr',
     definitions,
-    t('catalogProvision.cluster.fields.serviceCidr'),
+    t('Service CIDR'),
   );
 
   const podCidr = overlayDefaultToFormValue(podCidrOverlay);

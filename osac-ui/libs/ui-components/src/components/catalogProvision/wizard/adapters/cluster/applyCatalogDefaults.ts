@@ -19,7 +19,7 @@ export const applyClusterCatalogConfigurationDefaults = (
   const releaseImageOverlay = getCatalogFieldOverlay(
     'release_image',
     definitions,
-    t('catalogProvision.cluster.fields.releaseImage'),
+    t('Release image'),
   );
   const value = overlayDefaultToFormValue(releaseImageOverlay);
   if (value !== undefined) {

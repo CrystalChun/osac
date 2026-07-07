@@ -21,7 +21,7 @@ export const ClusterNetworkingStep = ({ catalogItem }: Props) => {
       getCatalogFieldOverlay(
         'network.pod_cidr',
         definitions,
-        t('catalogProvision.cluster.fields.podCidr'),
+        t('Pod CIDR'),
       ),
     [definitions, t],
   );
@@ -30,7 +30,7 @@ export const ClusterNetworkingStep = ({ catalogItem }: Props) => {
       getCatalogFieldOverlay(
         'network.service_cidr',
         definitions,
-        t('catalogProvision.cluster.fields.serviceCidr'),
+        t('Service CIDR'),
       ),
     [definitions, t],
   );
@@ -48,14 +48,14 @@ export const ClusterNetworkingStep = ({ catalogItem }: Props) => {
             label={podCidrOverlay.label}
             fieldId="cluster-pod-cidr"
             isDisabled={!podCidrOverlay.editable}
-            helperText={t('catalogProvision.cluster.fields.cidrDescription')}
+            helperText={t('Use CIDR notation (for example 10.128.0.0/14).')}
           />
           <InputField
             name="spec.network.serviceCidr"
             label={serviceCidrOverlay.label}
             fieldId="cluster-service-cidr"
             isDisabled={!serviceCidrOverlay.editable}
-            helperText={t('catalogProvision.cluster.fields.cidrDescription')}
+            helperText={t('Use CIDR notation (for example 172.30.0.0/16).')}
           />
         </OsacForm>
       </StackItem>

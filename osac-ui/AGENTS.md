@@ -6,9 +6,9 @@
 
 - **PatternFly 6** is the design system — prefer PatternFly components, tokens, and utilities over custom markup
 - **TypeScript strict mode** — no enums, use string unions or const maps; prefer interfaces over type aliases for public props
-- **One component per file** — keep page files focused on composition and data wiring; extract subcomponents
+- **One component or hook per file** — keep page files focused on composition and data wiring; extract subcomponents
 - **No inline styles** except for dynamic values that cannot be expressed in CSS
-- **Default exports** for React components; **named exports** for everything else (utilities, hooks, types, constants)
+- **Default exports** for React components and single-file hooks; **named exports** for everything else (utilities, types, constants, multi-export modules)
 - **No `console.log`** — ESLint enforces this
 - **Arrow function style** — `func-style: expression` is enforced
 
@@ -74,8 +74,42 @@ Multi-stage build images: `nodejs-22-minimal:9.8`, `go-toolset:1.25`, `ubi-minim
 
 - Use **TypeScript** with strict project settings; prefer **interfaces** over type aliases for public props; **avoid enums** — use string unions or const maps
 - Prefer **functional components** and declarative patterns; use the `function` keyword for named pure helpers when it improves hoisting and stack traces
-- **Default exports** for React components; **named exports** for everything else (utilities, hooks, types, constants)
-- **One component per file**: split each meaningful component into its own file in the same feature area (e.g., `feature-name/SubView.tsx`); keep page files focused on composition, data wiring, and layout. Exception: a tiny non-exported helper may stay if the file remains short
+- **One component or hook per file**: split each meaningful component or hook into its own file in the same feature area (e.g., `feature-name/SubView.tsx`, `useMyFeature.ts`); keep page files focused on composition, data wiring, and layout. Exception: a tiny non-exported helper may stay if the file remains short
+
+#### Component and hook exports
+
+React components and single-file hooks use a **default export**; everything else uses **named exports** (utilities, types, interfaces, constants, and modules that export multiple hooks). Define the component or hook as a local `const`, then export it at the bottom of the file:
+
+```tsx
+export interface MyWidgetProps {
+  title: string;
+}
+
+const MyWidget = ({ title }: MyWidgetProps) => {
+  return <Title headingLevel="h2">{title}</Title>;
+};
+
+export default MyWidget;
+```
+
+```ts
+export interface UseMyWidgetOptions {
+  enabled?: boolean;
+}
+
+const useMyWidget = ({ enabled = true }: UseMyWidgetOptions = {}) => {
+  // ...
+  return { enabled };
+};
+
+export default useMyWidget;
+```
+
+- **Good:** `export default MyWidget` / `export default useMyWidget` for the component or hook; named exports for related types and constants in the same file
+- **Bad:** `export const MyWidget = ...` or `export const useMyWidget = ...` in a dedicated component or hook file
+- **Bad:** `export default` for utilities or types-only modules
+- **Exception:** API and resource modules that export multiple hooks (e.g. `useClusters`, `useCluster`) keep **named exports**
+
 - **Restricted imports** (ESLint enforces):
   - Use `OsacForm` wrapper, not PF `Form` directly
   - Deep imports for PF icons/tokens (ESM): `@patternfly/react-icons/dist/esm/icons/<name>`

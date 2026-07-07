@@ -22,6 +22,12 @@ export interface ClusterWizardValues {
   };
 }
 
+export const CLUSTER_SSH_KEY_WIRE_PATH = 'ssh_public_key';
+export const CLUSTER_SSH_KEY_FORM_PATH = 'spec.sshPublicKey';
+export const CLUSTER_PULL_SECRET_FORM_PATH = 'spec.pullSecret';
+
+export const clusterSshKeyWirePath = CLUSTER_SSH_KEY_WIRE_PATH;
+
 export const CLUSTER_CONFIGURATION_CATALOG_PATHS = ['release_image', 'spec.release_image'] as const;
 
 export const CLUSTER_NETWORKING_CATALOG_PATHS = [

@@ -16,7 +16,7 @@ import { applyClusterCatalogNetworkingDefaults } from './cluster/applyCatalogNet
 import { ClusterConfigurationStep } from './cluster/ClusterConfigurationStep';
 import { ClusterNetworkingStep } from './cluster/ClusterNetworkingStep';
 import type { ClusterWizardValues } from './cluster/fields';
-import { buildClusterGeneralFields } from './cluster/generalFields';
+import ClusterGeneralStep from './cluster/ClusterGeneralStep';
 import { buildClusterCreatePayload, createEmptyClusterValues } from './cluster/payload';
 import { buildClusterStepSchema } from './cluster/schemas';
 import type { CatalogProvisionAdapter } from './types';
@@ -45,27 +45,27 @@ const buildReviewSections = (
   const sshKeyOverlay = getCatalogFieldOverlay(
     'ssh_public_key',
     definitions,
-    t('catalogProvision.cluster.fields.sshKey'),
+    t('SSH public key'),
   );
   const pullSecretOverlay = getCatalogFieldOverlay(
     'pull_secret',
     definitions,
-    t('catalogProvision.cluster.fields.pullSecret'),
+    t('Pull secret'),
   );
   const releaseImageOverlay = getCatalogFieldOverlay(
     'release_image',
     definitions,
-    t('catalogProvision.cluster.fields.releaseImage'),
+    t('Release image'),
   );
   const podCidrOverlay = getCatalogFieldOverlay(
     'network.pod_cidr',
     definitions,
-    t('catalogProvision.cluster.fields.podCidr'),
+    t('Pod CIDR'),
   );
   const serviceCidrOverlay = getCatalogFieldOverlay(
     'network.service_cidr',
     definitions,
-    t('catalogProvision.cluster.fields.serviceCidr'),
+    t('Service CIDR'),
   );
 
   return [
@@ -73,7 +73,7 @@ const buildReviewSections = (
       title: t('catalogProvision.steps.general.title'),
       rows: [
         reviewRow(
-          t('catalogProvision.cluster.fields.name'),
+          t('Name'),
           formatReviewScalar(values.metadata.name),
         ),
         reviewRow(sshKeyOverlay.label, formatReviewScalar(values.spec.sshPublicKey, true)),
@@ -85,7 +85,7 @@ const buildReviewSections = (
       rows: [
         reviewRow(releaseImageOverlay.label, formatReviewScalar(values.spec.releaseImage)),
         reviewRow(
-          t('catalogProvision.cluster.fields.nodeSets'),
+          t('Worker pools'),
           formatNodeSetsForReview(values.spec.nodeSets),
         ),
       ],
@@ -125,7 +125,7 @@ export const useClusterAdapter = (): CatalogProvisionAdapter<
       buildCreatePayload: buildClusterCreatePayload,
       ConfigurationStep: ClusterConfigurationStep,
       NetworkingStep: ClusterNetworkingStep,
-      resolveGeneralFields: (catalogItem) => buildClusterGeneralFields(catalogItem, t),
+      GeneralStep: ClusterGeneralStep,
       getStepValidationSchema: (catalogItem, stepId) =>
         buildClusterStepSchema(catalogItem, stepId, t),
       getReviewSections: (values, catalogItem) => buildReviewSections(values, catalogItem, t),
@@ -140,10 +140,12 @@ export const useClusterAdapter = (): CatalogProvisionAdapter<
         applyClusterCatalogGeneralDefaults(item, helpers, t);
         applyClusterCatalogNetworkingDefaults(item, helpers, t);
       },
-      wizardTitleKey: 'catalogProvision.cluster.wizardTitle',
-      wizardDescriptionKey: 'catalogProvision.cluster.wizardDescription',
-      breadcrumbCreateLabelKey: 'catalogProvision.cluster.breadcrumbCreate',
-      ariaLabelKey: 'catalogProvision.cluster.ariaLabel',
+      wizardTitleKey: t('Create cluster'),
+      wizardDescriptionKey: t(
+        'Select a catalog item, configure, and provision an OpenShift cluster.',
+      ),
+      breadcrumbCreateLabelKey: t('Create'),
+      ariaLabelKey: t('Create cluster wizard'),
     }),
     [t],
   );
