@@ -1,10 +1,11 @@
-import { FormGroup, FormSelect, FormSelectOption, TextInput } from '@patternfly/react-core';
+import { FormGroup, FormSelect, FormSelectOption } from '@patternfly/react-core';
 import { useFormikContext } from 'formik';
 
 import { Protocol } from '@osac/types';
 
 import { useTranslation } from '../../hooks/useTranslation';
 import { FormFieldHelper } from '../Form/FormFieldHelper';
+import { InputField } from '../Form/InputField';
 
 export interface RuleFormValues {
   protocol: Protocol;
@@ -20,8 +21,7 @@ interface SecurityGroupRuleFormProps {
 
 export const SecurityGroupRuleForm = ({ direction: _direction }: SecurityGroupRuleFormProps) => {
   const { t } = useTranslation();
-  const { values, errors, touched, setFieldValue, handleChange, handleBlur } =
-    useFormikContext<RuleFormValues>();
+  const { values, errors, touched, setFieldValue, handleBlur } = useFormikContext<RuleFormValues>();
 
   const showPortRange = values.protocol === Protocol.TCP || values.protocol === Protocol.UDP;
 
@@ -50,79 +50,35 @@ export const SecurityGroupRuleForm = ({ direction: _direction }: SecurityGroupRu
 
       {showPortRange && (
         <>
-          <FormGroup label={t('Port From')} isRequired fieldId="rule-port-from">
-            <TextInput
-              id="rule-port-from"
-              name="portFrom"
-              type="number"
-              value={values.portFrom}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              validated={touched.portFrom && errors.portFrom ? 'error' : 'default'}
-              aria-label={t('Port From')}
-            />
-            <FormFieldHelper
-              fieldId="rule-port-from"
-              error={touched.portFrom ? errors.portFrom : undefined}
-            />
-          </FormGroup>
-
-          <FormGroup label={t('Port To')} isRequired fieldId="rule-port-to">
-            <TextInput
-              id="rule-port-to"
-              name="portTo"
-              type="number"
-              value={values.portTo}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              validated={touched.portTo && errors.portTo ? 'error' : 'default'}
-              aria-label={t('Port To')}
-            />
-            <FormFieldHelper
-              fieldId="rule-port-to"
-              error={touched.portTo ? errors.portTo : undefined}
-            />
-          </FormGroup>
+          <InputField
+            name="portFrom"
+            label={t('Port From')}
+            fieldId="rule-port-from"
+            type="number"
+            isRequired
+          />
+          <InputField
+            name="portTo"
+            label={t('Port To')}
+            fieldId="rule-port-to"
+            type="number"
+            isRequired
+          />
         </>
       )}
 
-      <FormGroup label={t('IPv4 CIDR')} fieldId="rule-ipv4-cidr">
-        <TextInput
-          id="rule-ipv4-cidr"
-          name="ipv4Cidr"
-          type="text"
-          value={values.ipv4Cidr}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          validated={touched.ipv4Cidr && errors.ipv4Cidr ? 'error' : 'default'}
-          placeholder="0.0.0.0/0"
-          aria-label={t('IPv4 CIDR')}
-        />
-        <FormFieldHelper
-          fieldId="rule-ipv4-cidr"
-          description={t('Example: 192.168.1.0/24 or 0.0.0.0/0 for all')}
-          error={touched.ipv4Cidr ? errors.ipv4Cidr : undefined}
-        />
-      </FormGroup>
-
-      <FormGroup label={t('IPv6 CIDR (Optional)')} fieldId="rule-ipv6-cidr">
-        <TextInput
-          id="rule-ipv6-cidr"
-          name="ipv6Cidr"
-          type="text"
-          value={values.ipv6Cidr}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          validated={touched.ipv6Cidr && errors.ipv6Cidr ? 'error' : 'default'}
-          placeholder="::/0"
-          aria-label={t('IPv6 CIDR (Optional)')}
-        />
-        <FormFieldHelper
-          fieldId="rule-ipv6-cidr"
-          description={t('Example: 2001:db8::/32 or ::/0 for all')}
-          error={touched.ipv6Cidr ? errors.ipv6Cidr : undefined}
-        />
-      </FormGroup>
+      <InputField
+        name="ipv4Cidr"
+        label={t('IPv4 CIDR')}
+        fieldId="rule-ipv4-cidr"
+        helperText={t('Example: 192.168.1.0/24 or 0.0.0.0/0 for all')}
+      />
+      <InputField
+        name="ipv6Cidr"
+        label={t('IPv6 CIDR (Optional)')}
+        fieldId="rule-ipv6-cidr"
+        helperText={t('Example: 2001:db8::/32 or ::/0 for all')}
+      />
     </>
   );
 };

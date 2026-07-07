@@ -18,6 +18,7 @@ import { Protocol, type SecurityRule } from '@osac/types';
 
 import { type RuleFormValues, SecurityGroupRuleForm } from './SecurityGroupRuleForm';
 import { useTranslation } from '../../hooks/useTranslation';
+import { getErrorMessage } from '../../utils/error';
 
 const createRuleValidationSchema = (t: TFunction) =>
   Yup.object({
@@ -109,7 +110,7 @@ export const SecurityGroupRuleModal = ({
   mode,
 }: SecurityGroupRuleModalProps) => {
   const { t } = useTranslation();
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<unknown>();
 
   const defaultValues: RuleFormValues = {
     protocol: initialValues?.protocol ?? Protocol.TCP,
@@ -121,7 +122,7 @@ export const SecurityGroupRuleModal = ({
 
   const handleSubmit = (values: RuleFormValues) => {
     try {
-      setError(null);
+      setError(undefined);
       // Create a plain object without protobuf metadata
       const rule = {
         protocol: values.protocol,
@@ -138,11 +139,10 @@ export const SecurityGroupRuleModal = ({
       } as SecurityRule;
       // Parent closes modal immediately and runs mutation in background
       onSave(rule);
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : String(err);
+    } catch (err: unknown) {
       // eslint-disable-next-line no-console
       console.error('Failed to save rule:', err);
-      setError(errorMessage);
+      setError(err);
     }
   };
 
@@ -169,7 +169,7 @@ export const SecurityGroupRuleModal = ({
                   isInline
                   style={{ marginBottom: '1rem' }}
                 >
-                  {error}
+                  {getErrorMessage(error)}
                 </Alert>
               )}
               <SecurityGroupRuleForm direction={direction} />
