@@ -36,6 +36,7 @@ export const SecurityGroupDetailPage = () => {
   const navigate = useNavigate();
   const { id = '' } = useParams<{ id: string }>();
   const [activeTabKey, setActiveTabKey] = useState<string | number>(0);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const { data: sg, isLoading, error } = useSecurityGroup(id);
   const { data: virtualNetworks = [] } = useVirtualNetworks();
@@ -60,17 +61,22 @@ export const SecurityGroupDetailPage = () => {
     if (!sg) {
       return;
     }
-    const newIngress = [...(sg.spec?.ingress ?? [])];
-    newIngress.splice(index, 1);
-    await updateSecurityGroup.mutateAsync({
-      id: sg.id,
-      input: {
-        name: sg.metadata?.name ?? '',
-        virtual_network: sg.spec?.virtualNetwork ?? '',
-        ingress: newIngress,
-        egress: sg.spec?.egress,
-      },
-    });
+    try {
+      setDeleteError(null);
+      const newIngress = [...(sg.spec?.ingress ?? [])];
+      newIngress.splice(index, 1);
+      await updateSecurityGroup.mutateAsync({
+        id: sg.id,
+        input: {
+          name: sg.metadata?.name ?? '',
+          virtual_network: sg.spec?.virtualNetwork ?? '',
+          ingress: newIngress,
+          egress: sg.spec?.egress,
+        },
+      });
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : String(err));
+    }
   };
 
   const handleAddEgressRule = () => {
@@ -85,17 +91,22 @@ export const SecurityGroupDetailPage = () => {
     if (!sg) {
       return;
     }
-    const newEgress = [...(sg.spec?.egress ?? [])];
-    newEgress.splice(index, 1);
-    await updateSecurityGroup.mutateAsync({
-      id: sg.id,
-      input: {
-        name: sg.metadata?.name ?? '',
-        virtual_network: sg.spec?.virtualNetwork ?? '',
-        ingress: sg.spec?.ingress,
-        egress: newEgress,
-      },
-    });
+    try {
+      setDeleteError(null);
+      const newEgress = [...(sg.spec?.egress ?? [])];
+      newEgress.splice(index, 1);
+      await updateSecurityGroup.mutateAsync({
+        id: sg.id,
+        input: {
+          name: sg.metadata?.name ?? '',
+          virtual_network: sg.spec?.virtualNetwork ?? '',
+          ingress: sg.spec?.ingress,
+          egress: newEgress,
+        },
+      });
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : String(err));
+    }
   };
 
   return (
@@ -113,6 +124,17 @@ export const SecurityGroupDetailPage = () => {
       }
     >
       <ListPageBody isLoading={isLoading} error={error}>
+        {deleteError && (
+          <Alert
+            variant="danger"
+            title={t('Error')}
+            isInline
+            style={{ marginBottom: '1rem' }}
+          >
+            {deleteError}
+          </Alert>
+        )}
+
         {isFailed && sg?.status?.message && (
           <Alert
             variant="danger"
@@ -172,13 +194,17 @@ export const SecurityGroupDetailPage = () => {
                   <DescriptionListGroup>
                     <DescriptionListTerm>{t('Virtual Network')}</DescriptionListTerm>
                     <DescriptionListDescription>
-                      <Button
-                        variant="link"
-                        isInline
-                        onClick={() => navigate(`/networking/virtual-networks/${vnId}`)}
-                      >
-                        {vnName}
-                      </Button>
+                      {vnId ? (
+                        <Button
+                          variant="link"
+                          isInline
+                          onClick={() => navigate(`/networking/virtual-networks/${vnId}`)}
+                        >
+                          {vnName}
+                        </Button>
+                      ) : (
+                        vnName
+                      )}
                     </DescriptionListDescription>
                   </DescriptionListGroup>
 

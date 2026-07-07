@@ -297,7 +297,7 @@ export interface SecurityGroupInput {
 }
 
 export const securityGroupFilterForVirtualNetwork = (virtualNetworkId: string): string =>
-  `this.spec.virtual_network == "${virtualNetworkId}"`;
+  `this.spec.virtual_network == "${escapeCelStringLiteral(virtualNetworkId)}"`;
 
 export const useCreateSecurityGroup = () => {
   const apiFetch = useApiFetch();

@@ -99,13 +99,17 @@ export const SecurityGroupsListPage = () => {
                         </Button>
                       </Td>
                       <Td dataLabel="Virtual Network">
-                        <Button
-                          variant="link"
-                          isInline
-                          onClick={() => navigate(`/networking/virtual-networks/${vnId}`)}
-                        >
-                          {vnName}
-                        </Button>
+                        {vnId ? (
+                          <Button
+                            variant="link"
+                            isInline
+                            onClick={() => navigate(`/networking/virtual-networks/${vnId}`)}
+                          >
+                            {vnName}
+                          </Button>
+                        ) : (
+                          vnName
+                        )}
                       </Td>
                       <Td dataLabel="Inbound Rules">{ingressCount}</Td>
                       <Td dataLabel="Outbound Rules">{egressCount}</Td>

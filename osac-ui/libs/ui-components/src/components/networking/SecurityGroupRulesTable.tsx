@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next';
 import { Button } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
@@ -14,18 +15,18 @@ interface SecurityGroupRulesTableProps {
   onDeleteRule: (index: number) => void;
 }
 
-const protocolToString = (protocol: Protocol): string => {
+const protocolToString = (protocol: Protocol, t: TFunction): string => {
   switch (protocol) {
     case Protocol.TCP:
-      return 'TCP';
+      return t('TCP');
     case Protocol.UDP:
-      return 'UDP';
+      return t('UDP');
     case Protocol.ICMP:
-      return 'ICMP';
+      return t('ICMP');
     case Protocol.ALL:
-      return 'All';
+      return t('All');
     default:
-      return 'Unknown';
+      return t('Unknown');
   }
 };
 
@@ -87,7 +88,7 @@ export const SecurityGroupRulesTable = ({
         <Tbody>
           {rules.map((rule, index) => (
             <Tr key={index}>
-              <Td dataLabel="Protocol">{protocolToString(rule.protocol)}</Td>
+              <Td dataLabel="Protocol">{protocolToString(rule.protocol, t)}</Td>
               <Td dataLabel="Port Range">{formatPortRange(rule.portFrom, rule.portTo)}</Td>
               <Td dataLabel={cidrLabel}>{formatCidr(rule.ipv4Cidr, rule.ipv6Cidr)}</Td>
               <Td dataLabel="Actions">

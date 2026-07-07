@@ -18,22 +18,10 @@ const SECURITY_GROUP_STATUS_MAP: Record<SecurityGroupState, { status: StatusKind
 
 const resolveSecurityGroupStatus = (
   state?: SecurityGroupState,
-): { status: StatusKind; text: string } => {
-  switch (state) {
-    case SecurityGroupState.PENDING:
-      return SECURITY_GROUP_STATUS_MAP[SecurityGroupState.PENDING];
-    case SecurityGroupState.READY:
-      return SECURITY_GROUP_STATUS_MAP[SecurityGroupState.READY];
-    case SecurityGroupState.FAILED:
-      return SECURITY_GROUP_STATUS_MAP[SecurityGroupState.FAILED];
-    case SecurityGroupState.DELETING:
-      return SECURITY_GROUP_STATUS_MAP[SecurityGroupState.DELETING];
-    case SecurityGroupState.DELETE_FAILED:
-      return SECURITY_GROUP_STATUS_MAP[SecurityGroupState.DELETE_FAILED];
-    default:
-      return SECURITY_GROUP_STATUS_MAP[SecurityGroupState.UNSPECIFIED];
-  }
-};
+): { status: StatusKind; text: string } =>
+  state !== undefined && state in SECURITY_GROUP_STATUS_MAP
+    ? SECURITY_GROUP_STATUS_MAP[state]
+    : SECURITY_GROUP_STATUS_MAP[SecurityGroupState.UNSPECIFIED];
 
 export const SecurityGroupStatusLabel = ({ state }: SecurityGroupStatusLabelProps) => {
   const { status, text } = resolveSecurityGroupStatus(state);

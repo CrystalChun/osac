@@ -132,7 +132,7 @@ export const VirtualNetworkDetailPage = () => {
                   </DescriptionListDescription>
                 </DescriptionListGroup>
 
-                {vn?.status?.message && (
+                {vn?.status?.message && !isFailed && (
                   <DescriptionListGroup>
                     <DescriptionListTerm>{t('Message')}</DescriptionListTerm>
                     <DescriptionListDescription>{vn.status.message}</DescriptionListDescription>

@@ -61,6 +61,18 @@ describe('networking list filters', () => {
       'this.spec.virtual_network == "vn-123"',
     );
   });
+
+  it('escapes quotes in virtual network id for security group filter', () => {
+    expect(securityGroupFilterForVirtualNetwork('vn-"evil')).toBe(
+      'this.spec.virtual_network == "vn-\\"evil"',
+    );
+  });
+
+  it('escapes CEL injection in virtual network id for security group filter', () => {
+    expect(securityGroupFilterForVirtualNetwork(`"'] || true || this.id in ['`)).toBe(
+      `this.spec.virtual_network == "\\"'] || true || this.id in ['"`,
+    );
+  });
 });
 
 describe('virtualNetwork create response decode', () => {
