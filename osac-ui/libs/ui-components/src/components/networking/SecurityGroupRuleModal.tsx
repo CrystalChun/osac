@@ -109,19 +109,18 @@ export const SecurityGroupRuleModal = ({
   const handleSubmit = async (values: RuleFormValues) => {
     try {
       setError(null);
-      const rule: SecurityRule = {
+      // Create a plain object without protobuf metadata
+      const rule = {
         protocol: values.protocol,
-        portFrom:
-          values.portFrom && String(values.portFrom).trim() !== ''
-            ? parseInt(String(values.portFrom), 10)
-            : undefined,
-        portTo:
-          values.portTo && String(values.portTo).trim() !== ''
-            ? parseInt(String(values.portTo), 10)
-            : undefined,
-        ipv4Cidr: values.ipv4Cidr.trim() !== '' ? values.ipv4Cidr : undefined,
-        ipv6Cidr: values.ipv6Cidr.trim() !== '' ? values.ipv6Cidr : undefined,
-      };
+        ...(values.portFrom && String(values.portFrom).trim() !== '' && {
+          portFrom: parseInt(String(values.portFrom), 10),
+        }),
+        ...(values.portTo && String(values.portTo).trim() !== '' && {
+          portTo: parseInt(String(values.portTo), 10),
+        }),
+        ...(values.ipv4Cidr.trim() !== '' && { ipv4Cidr: values.ipv4Cidr }),
+        ...(values.ipv6Cidr.trim() !== '' && { ipv6Cidr: values.ipv6Cidr }),
+      } as SecurityRule;
       await onSave(rule);
       onClose();
     } catch (err) {
