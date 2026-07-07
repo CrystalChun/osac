@@ -32,6 +32,7 @@ import ListPage from '../../components/Page/ListPage';
 import ListPageBody from '../../components/Page/ListPageBody';
 import { SubtleContent } from '../../components/SubtleContent/SubtleContent';
 import { useTranslation } from '../../hooks/useTranslation';
+import { getErrorMessage } from '../../utils/error';
 
 export const VirtualNetworkDetailPage = () => {
   const { t } = useTranslation();
@@ -40,7 +41,11 @@ export const VirtualNetworkDetailPage = () => {
   const [isSubnetModalOpen, setIsSubnetModalOpen] = useState(false);
 
   const { data: vn, isLoading, error } = useVirtualNetwork(id);
-  const { data: subnets = [] } = useSubnets({
+  const {
+    data: subnets = [],
+    isLoading: isLoadingSubnets,
+    error: subnetsError,
+  } = useSubnets({
     filter: virtualNetworkFilterForSubnetList(id),
   });
 
@@ -127,7 +132,13 @@ export const VirtualNetworkDetailPage = () => {
               <CardTitle>{t('Subnets')}</CardTitle>
             </CardHeader>
             <CardBody>
-              {subnets.length === 0 ? (
+              {isLoadingSubnets ? (
+                <SubtleContent component="p">{t('Loading subnets...')}</SubtleContent>
+              ) : subnetsError ? (
+                <Alert variant="danger" title={t('Failed to load subnets')} isInline>
+                  {getErrorMessage(subnetsError)}
+                </Alert>
+              ) : subnets.length === 0 ? (
                 <SubtleContent component="p">
                   {t('No subnets yet. Create one to get started.')}
                 </SubtleContent>
