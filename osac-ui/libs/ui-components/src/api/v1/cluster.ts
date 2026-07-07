@@ -62,7 +62,10 @@ export const useProvisionCluster = () => {
   const apiFetch = useApiFetch();
   const qc = useApiQueryClient();
   return useMutation({
-    mutationFn: async ({ cluster, specCatalogItemOnly }: ProvisionClusterInput): Promise<Cluster> => {
+    mutationFn: async ({
+      cluster,
+      specCatalogItemOnly,
+    }: ProvisionClusterInput): Promise<Cluster> => {
       const created = await apiFetch<Cluster>('v1/clusters', {
         method: 'POST',
         body: buildClusterCreateBody(cluster, { specCatalogItemOnly }),
