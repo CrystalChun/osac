@@ -30,7 +30,7 @@ import { getErrorMessage } from '../../utils/error';
 interface SubnetCreateModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onCreate: (input: SubnetInput) => Promise<{ id: string }>;
+  onCreate: (input: SubnetInput) => Promise<void>;
   parentVN: VirtualNetwork;
   existingSubnets: Subnet[];
 }

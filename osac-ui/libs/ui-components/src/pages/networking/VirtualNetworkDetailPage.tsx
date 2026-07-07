@@ -54,9 +54,8 @@ export const VirtualNetworkDetailPage = () => {
   const createSubnet = useCreateSubnet();
 
   const handleCreateSubnet = async (input: Parameters<typeof createSubnet.mutateAsync>[0]) => {
-    const result = await createSubnet.mutateAsync(input);
+    await createSubnet.mutateAsync(input);
     setIsSubnetModalOpen(false);
-    return result;
   };
 
   const vnName = vn?.metadata?.name ?? id;
