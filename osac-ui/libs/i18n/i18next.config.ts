@@ -9,5 +9,6 @@ export default defineConfig({
     nsSeparator: '~',
     defaultValue: (key: string) => key,
     removeUnusedKeys: true,
+    sort: true,
   },
 });
