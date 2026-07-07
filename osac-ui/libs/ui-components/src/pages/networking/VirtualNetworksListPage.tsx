@@ -119,7 +119,6 @@ export const VirtualNetworksListPage = () => {
 
       {isCreateModalOpen && (
         <VirtualNetworkCreateModal
-          isOpen={isCreateModalOpen}
           onClose={() => setIsCreateModalOpen(false)}
           onCreate={handleCreate}
           onNavigate={handleNavigateToDetail}
