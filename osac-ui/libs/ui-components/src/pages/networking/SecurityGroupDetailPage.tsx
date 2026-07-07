@@ -104,11 +104,7 @@ export const SecurityGroupDetailPage = () => {
       breadcrumb={
         <Breadcrumb>
           <BreadcrumbItem>
-            <Button
-              variant="link"
-              isInline
-              onClick={() => navigate('/networking/security-groups')}
-            >
+            <Button variant="link" isInline onClick={() => navigate('/networking/security-groups')}>
               {t('Security groups')}
             </Button>
           </BreadcrumbItem>
@@ -196,9 +192,7 @@ export const SecurityGroupDetailPage = () => {
                   {sg?.status?.message && (
                     <DescriptionListGroup>
                       <DescriptionListTerm>{t('Message')}</DescriptionListTerm>
-                      <DescriptionListDescription>
-                        {sg.status.message}
-                      </DescriptionListDescription>
+                      <DescriptionListDescription>{sg.status.message}</DescriptionListDescription>
                     </DescriptionListGroup>
                   )}
                 </DescriptionList>

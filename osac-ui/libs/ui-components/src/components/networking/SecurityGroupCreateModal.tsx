@@ -191,7 +191,10 @@ export const SecurityGroupCreateModal = ({
                         touched.name ? errors.name : undefined,
                       )}
                     />
-                    <FormFieldHelper fieldId="sg-name" error={touched.name ? errors.name : undefined} />
+                    <FormFieldHelper
+                      fieldId="sg-name"
+                      error={touched.name ? errors.name : undefined}
+                    />
                   </FormGroup>
                 </StackItem>
               </Stack>

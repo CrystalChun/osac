@@ -32,9 +32,7 @@ export const SecurityGroupsListPage = () => {
     return !search || name.toLowerCase().includes(search.toLowerCase());
   });
 
-  const handleCreate = async (
-    input: Parameters<typeof createSecurityGroup.mutateAsync>[0],
-  ) => {
+  const handleCreate = async (input: Parameters<typeof createSecurityGroup.mutateAsync>[0]) => {
     const result = await createSecurityGroup.mutateAsync(input);
     return result;
   };
