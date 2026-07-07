@@ -145,6 +145,15 @@ export const getLabels = (t: TFunction) => ({
 });
 ```
 
+### Human-readable strings
+
+Translation keys must be **human-readable English** — the same natural language text that appears in the UI (or a clear, complete phrase that would read well to an end user). Keys are not identifiers; do not use dot-notation paths, camelCase slugs, or other machine-oriented key formats.
+
+- **Good:** `t('Cancel')`, `t('Could not load catalog items')`, `t('{{count}} catalog items available', { count })`
+- **Bad:** `t('catalogProvision.actions.cancel')`, `t('vm.details.loadError')`, `t('btn_submit')`
+
+Write strings for people first: use sentence case, proper punctuation, and complete phrases. Avoid abbreviations, internal jargon, or truncated labels unless they are standard UI terms (for example, `API`, `SSH`).
+
 ### Rules
 
 - **Good:** `t('This is OK', { someVar })` — hardcoded string key, extractable by the parser
