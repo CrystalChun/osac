@@ -200,6 +200,9 @@ export const SecurityGroupDetailPage = () => {
         egress: newEgress,
       },
     });
+
+    // Close modal after mutation completes
+    handleCloseRuleModal();
   };
 
   const handleCloseRuleModal = () => {

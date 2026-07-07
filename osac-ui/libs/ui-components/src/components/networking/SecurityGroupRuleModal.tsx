@@ -139,7 +139,7 @@ export const SecurityGroupRuleModal = ({
         ...(values.ipv6Cidr.trim() !== '' && { ipv6Cidr: values.ipv6Cidr }),
       } as SecurityRule;
       await onSave(rule);
-      onClose();
+      // Don't close here - let the parent component close after mutation completes
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err);
       // eslint-disable-next-line no-console
