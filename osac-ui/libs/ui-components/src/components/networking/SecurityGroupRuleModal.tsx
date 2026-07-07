@@ -125,7 +125,10 @@ export const SecurityGroupRuleModal = ({
       await onSave(rule);
       onClose();
     } catch (err) {
-      setError(t('Failed to save rule. Please try again.'));
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      // eslint-disable-next-line no-console
+      console.error('Failed to save rule:', err);
+      setError(errorMessage);
     }
   };
 
