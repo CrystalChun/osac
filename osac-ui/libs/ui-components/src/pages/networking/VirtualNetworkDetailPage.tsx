@@ -177,7 +177,6 @@ export const VirtualNetworkDetailPage = () => {
 
       {isSubnetModalOpen && vn && (
         <SubnetCreateModal
-          isOpen={isSubnetModalOpen}
           onClose={() => setIsSubnetModalOpen(false)}
           onCreate={handleCreateSubnet}
           parentVN={vn}

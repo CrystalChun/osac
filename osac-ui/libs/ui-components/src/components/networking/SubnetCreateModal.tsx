@@ -28,7 +28,6 @@ import { useTranslation } from '../../hooks/useTranslation';
 import { getErrorMessage } from '../../utils/error';
 
 interface SubnetCreateModalProps {
-  isOpen: boolean;
   onClose: () => void;
   onCreate: (input: SubnetInput) => Promise<void>;
   parentVN: VirtualNetwork;
@@ -36,7 +35,6 @@ interface SubnetCreateModalProps {
 }
 
 export const SubnetCreateModal = ({
-  isOpen,
   onClose,
   onCreate,
   parentVN,
@@ -135,7 +133,7 @@ export const SubnetCreateModal = ({
       {({ values, errors, touched, handleChange, handleBlur, handleSubmit, isSubmitting }) => (
         <Modal
           variant="small"
-          isOpen={isOpen}
+          isOpen
           onClose={isSubmitting ? undefined : onClose}
           aria-labelledby="subnet-create-modal-title"
         >
