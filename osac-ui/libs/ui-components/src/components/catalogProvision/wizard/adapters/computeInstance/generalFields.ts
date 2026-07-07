@@ -28,6 +28,7 @@ export const buildVmGeneralFields = (
     {
       name: 'metadata.name',
       labelKey: 'catalogProvision.vm.fields.name',
+      helperTextKey: 'catalogProvision.fields.nameDescription',
       isRequired: true,
     },
     {

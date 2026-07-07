@@ -76,6 +76,26 @@ describe('buildComputeInstanceStepSchema', () => {
     expect(errors).toEqual({ metadata: { name: 'catalogProvision.validation.nameRequired' } });
   });
 
+  it('rejects invalid DNS label names on general step', async () => {
+    const errors = await validateStep('general', {
+      ...emptyValues,
+      catalogItemId: vmCatalogItem.id,
+      metadata: { name: 'MyVM' },
+    });
+    expect(errors).toEqual({
+      metadata: { name: 'catalogProvision.validation.nameDnsLabelCharset' },
+    });
+  });
+
+  it('accepts valid DNS label name on general step', async () => {
+    const errors = await validateStep('general', {
+      ...emptyValues,
+      catalogItemId: vmCatalogItem.id,
+      metadata: { name: 'my-vm' },
+    });
+    expect(errors).toEqual({});
+  });
+
   it('validates boot disk as numeric on configuration step only', async () => {
     const errors = await validateStep(
       'configuration',

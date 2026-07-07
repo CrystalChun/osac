@@ -24,6 +24,11 @@ describe('buildVmGeneralFields', () => {
 
     const fields = buildVmGeneralFields(catalogItem, t);
     expect(fields).toHaveLength(2);
+    expect(fields[0]).toMatchObject({
+      name: 'metadata.name',
+      helperTextKey: 'catalogProvision.fields.nameDescription',
+      isRequired: true,
+    });
     expect(fields[1]).toMatchObject({
       name: 'spec.sshKey',
       label: 'Platform SSH key',

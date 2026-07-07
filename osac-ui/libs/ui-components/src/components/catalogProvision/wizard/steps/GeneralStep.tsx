@@ -29,6 +29,7 @@ export const GeneralStep = ({ fields }: Props) => {
             field.multiline ? CATALOG_PROVISION_MULTILINE_TEXTAREA.resizeOrientation : undefined
           }
           type={field.isPassword ? 'password' : 'text'}
+          helperText={field.helperTextKey ? t(field.helperTextKey) : undefined}
         />
       ))}
     </OsacForm>

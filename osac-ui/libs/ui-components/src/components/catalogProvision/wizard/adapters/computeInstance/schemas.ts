@@ -11,6 +11,7 @@ import {
   mergeCatalogValidation,
   readCatalogFieldDefinitions,
 } from '../../catalogOverlay';
+import { buildMetadataNameSchema } from '../../metadataNameSchema';
 import type { WizardStepId } from '../../stepIds';
 
 const buildComputeInstanceFieldDefinitions = (catalogItem: unknown, t: TFunction) => {
@@ -41,7 +42,7 @@ const buildComputeInstanceFieldDefinitions = (catalogItem: unknown, t: TFunction
 
   return {
     catalogItemId: yup.string().required(t('catalogProvision.validation.catalogItemRequired')),
-    metadataName: yup.string().trim().required(t('catalogProvision.validation.nameRequired')),
+    metadataName: buildMetadataNameSchema(t),
     specSshKey: mergeCatalogValidation(
       yup.string(),
       sshKeyOverlay,

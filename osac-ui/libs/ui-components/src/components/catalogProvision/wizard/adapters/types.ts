@@ -23,6 +23,8 @@ export interface GeneralFieldDescriptor {
   isRequired?: boolean;
   isPassword?: boolean;
   isDisabled?: boolean;
+  /** i18n key for InputField helperText (e.g. RFC 1035 DNS label description). */
+  helperTextKey?: string;
 }
 
 export interface CatalogProvisionAdapter<
