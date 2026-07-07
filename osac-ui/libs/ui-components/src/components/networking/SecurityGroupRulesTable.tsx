@@ -1,6 +1,6 @@
-import type { TFunction } from 'i18next';
 import { Button } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
+import type { TFunction } from 'i18next';
 
 import { Protocol, type SecurityRule } from '@osac/types';
 
