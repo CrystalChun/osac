@@ -74,7 +74,7 @@ export const SecurityGroupDetailPage = () => {
           egress: sg.spec?.egress,
         },
       });
-    } catch (_err) {
+    } catch {
       setDeleteError(t('Failed to delete rule. Please try again.'));
     }
   };
@@ -104,7 +104,7 @@ export const SecurityGroupDetailPage = () => {
           egress: newEgress,
         },
       });
-    } catch (_err) {
+    } catch {
       setDeleteError(t('Failed to delete rule. Please try again.'));
     }
   };
