@@ -40,13 +40,7 @@ describe('SecurityGroupCreateModal', () => {
   });
 
   it('renders modal with VN dropdown and Name field', () => {
-    render(
-      <SecurityGroupCreateModal
-        onClose={vi.fn()}
-        onCreate={vi.fn()}
-        onNavigate={vi.fn()}
-      />,
-    );
+    render(<SecurityGroupCreateModal onClose={vi.fn()} onCreate={vi.fn()} onNavigate={vi.fn()} />);
 
     expect(screen.getByText('Create security group')).toBeInTheDocument();
     expect(screen.getByLabelText(/Virtual Network/i)).toBeInTheDocument();
@@ -75,11 +69,7 @@ describe('SecurityGroupCreateModal', () => {
     const onNavigate = vi.fn();
 
     render(
-      <SecurityGroupCreateModal
-        onClose={vi.fn()}
-        onCreate={onCreate}
-        onNavigate={onNavigate}
-      />,
+      <SecurityGroupCreateModal onClose={vi.fn()} onCreate={onCreate} onNavigate={onNavigate} />,
     );
 
     await user.selectOptions(screen.getByLabelText(/Virtual Network/i), 'vn-1');
@@ -101,13 +91,7 @@ describe('SecurityGroupCreateModal', () => {
     const user = userEvent.setup();
     const onCreate = vi.fn().mockRejectedValue(new Error('API error'));
 
-    render(
-      <SecurityGroupCreateModal
-        onClose={vi.fn()}
-        onCreate={onCreate}
-        onNavigate={vi.fn()}
-      />,
-    );
+    render(<SecurityGroupCreateModal onClose={vi.fn()} onCreate={onCreate} onNavigate={vi.fn()} />);
 
     await user.selectOptions(screen.getByLabelText(/Virtual Network/i), 'vn-1');
     await user.type(screen.getByLabelText(/Name/i), 'sg-web');
@@ -122,13 +106,7 @@ describe('SecurityGroupCreateModal', () => {
     const user = userEvent.setup();
     const onClose = vi.fn();
 
-    render(
-      <SecurityGroupCreateModal
-        onClose={onClose}
-        onCreate={vi.fn()}
-        onNavigate={vi.fn()}
-      />,
-    );
+    render(<SecurityGroupCreateModal onClose={onClose} onCreate={vi.fn()} onNavigate={vi.fn()} />);
 
     await user.click(screen.getByRole('button', { name: /Cancel/i }));
     expect(onClose).toHaveBeenCalled();

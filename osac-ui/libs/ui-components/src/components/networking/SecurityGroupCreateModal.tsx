@@ -5,13 +5,11 @@ import {
   FormGroup,
   FormSelect,
   FormSelectOption,
-  Modal,
   ModalBody,
   ModalFooter,
   ModalHeader,
   Stack,
   StackItem,
-  TextInput,
 } from '@patternfly/react-core';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
@@ -21,10 +19,8 @@ import { Protocol } from '@osac/types';
 import { cidrSchema } from './cidr-validation';
 import type { SecurityGroupInput } from '../../api/v1/networking';
 import { useVirtualNetworks } from '../../api/v1/networking';
-import {
-  FormFieldHelper,
-  getFormFieldHelperDescribedBy,
-} from '../../components/Form/FormFieldHelper';
+import { FormFieldHelper } from '../../components/Form/FormFieldHelper';
+import { InputField } from '../../components/Form/InputField';
 import OsacForm from '../../components/Form/OsacForm';
 import { useTranslation } from '../../hooks/useTranslation';
 import { getErrorMessage } from '../../utils/error';
@@ -51,28 +47,30 @@ interface FormValues {
   egressRules: RuleFormValues[];
 }
 
-const ruleSchema = Yup.object({
-  protocol: Yup.string().required('Protocol is required'),
-  portFrom: Yup.number().when('protocol', {
-    is: (p: string) => p === String(Protocol.TCP) || p === String(Protocol.UDP),
-    then: (schema) => schema.min(1).max(65535),
-    otherwise: (schema) => schema.notRequired(),
-  }),
-  portTo: Yup.number().when('protocol', {
-    is: (p: string) => p === String(Protocol.TCP) || p === String(Protocol.UDP),
-    then: (schema) => schema.min(1).max(65535),
-    otherwise: (schema) => schema.notRequired(),
-  }),
-  ipv4Cidr: cidrSchema,
-  ipv6Cidr: cidrSchema,
-});
+const ruleSchema = (t: (key: string) => string) =>
+  Yup.object({
+    protocol: Yup.string().required(t('Protocol is required')),
+    portFrom: Yup.number().when('protocol', {
+      is: (p: string) => p === String(Protocol.TCP) || p === String(Protocol.UDP),
+      then: (schema) => schema.min(1).max(65535),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    portTo: Yup.number().when('protocol', {
+      is: (p: string) => p === String(Protocol.TCP) || p === String(Protocol.UDP),
+      then: (schema) => schema.min(1).max(65535),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    ipv4Cidr: cidrSchema,
+    ipv6Cidr: cidrSchema,
+  });
 
-const validationSchema = Yup.object({
-  name: Yup.string().required('Name is required'),
-  virtual_network: Yup.string().required('Virtual network is required'),
-  ingressRules: Yup.array().of(ruleSchema),
-  egressRules: Yup.array().of(ruleSchema),
-});
+const validationSchema = (t: (key: string) => string) =>
+  Yup.object({
+    name: Yup.string().required(t('Name is required')),
+    virtual_network: Yup.string().required(t('Virtual network is required')),
+    ingressRules: Yup.array().of(ruleSchema(t)),
+    egressRules: Yup.array().of(ruleSchema(t)),
+  });
 
 export const SecurityGroupCreateModal = ({
   onClose,
@@ -81,8 +79,8 @@ export const SecurityGroupCreateModal = ({
   virtualNetworkId,
 }: SecurityGroupCreateModalProps) => {
   const { t } = useTranslation();
-  const [error, setError] = React.useState<Error | null>(null);
-  const { data: virtualNetworks = [] } = useVirtualNetworks();
+  const [error, setError] = React.useState<unknown>();
+  const { data: virtualNetworks = [], isLoading, error: vnError } = useVirtualNetworks();
 
   return (
     <Formik<FormValues>
@@ -92,9 +90,9 @@ export const SecurityGroupCreateModal = ({
         ingressRules: [],
         egressRules: [],
       }}
-      validationSchema={validationSchema}
-      onSubmit={async (values, { setSubmitting }) => {
-        setError(null);
+      validationSchema={validationSchema(t)}
+      onSubmit={async (values) => {
+        setError(undefined);
         try {
           const input: SecurityGroupInput = {
             name: values.name,
@@ -121,19 +119,12 @@ export const SecurityGroupCreateModal = ({
           const result = await onCreate(input);
           onNavigate(result.id);
         } catch (err: unknown) {
-          setError(err instanceof Error ? err : new Error(String(err)));
-        } finally {
-          setSubmitting(false);
+          setError(err);
         }
       }}
     >
-      {({ values, errors, touched, handleChange, handleBlur, handleSubmit, isSubmitting }) => (
-        <Modal
-          variant="medium"
-          isOpen
-          onClose={isSubmitting ? undefined : onClose}
-          aria-labelledby="sg-create-modal-title"
-        >
+      {({ values, errors, touched, handleChange, handleSubmit, isSubmitting }) => (
+        <>
           <ModalHeader title={t('Create security group')} labelId="sg-create-modal-title" />
           <ModalBody>
             <OsacForm>
@@ -142,6 +133,14 @@ export const SecurityGroupCreateModal = ({
                   <StackItem>
                     <Alert variant="danger" title={t('Error')} isInline>
                       {getErrorMessage(error)}
+                    </Alert>
+                  </StackItem>
+                )}
+
+                {vnError && (
+                  <StackItem>
+                    <Alert variant="danger" title={t('Error loading virtual networks')} isInline>
+                      {getErrorMessage(vnError)}
                     </Alert>
                   </StackItem>
                 )}
@@ -158,6 +157,7 @@ export const SecurityGroupCreateModal = ({
                       validated={
                         touched.virtual_network && errors.virtual_network ? 'error' : 'default'
                       }
+                      isDisabled={isLoading}
                     >
                       <FormSelectOption value="" label={t('Select a virtual network')} />
                       {virtualNetworks.map((vn) => (
@@ -176,24 +176,7 @@ export const SecurityGroupCreateModal = ({
                 </StackItem>
 
                 <StackItem>
-                  <FormGroup label={t('Name')} isRequired fieldId="sg-name">
-                    <TextInput
-                      id="sg-name"
-                      name="name"
-                      value={values.name}
-                      onChange={(_, value) => handleChange({ target: { name: 'name', value } })}
-                      onBlur={handleBlur}
-                      validated={touched.name && errors.name ? 'error' : 'default'}
-                      aria-describedby={getFormFieldHelperDescribedBy(
-                        'sg-name',
-                        touched.name ? errors.name : undefined,
-                      )}
-                    />
-                    <FormFieldHelper
-                      fieldId="sg-name"
-                      error={touched.name ? errors.name : undefined}
-                    />
-                  </FormGroup>
+                  <InputField name="name" label={t('Name')} fieldId="sg-name" isRequired />
                 </StackItem>
               </Stack>
             </OsacForm>
@@ -211,7 +194,7 @@ export const SecurityGroupCreateModal = ({
               {t('Cancel')}
             </Button>
           </ModalFooter>
-        </Modal>
+        </>
       )}
     </Formik>
   );
