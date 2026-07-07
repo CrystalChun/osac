@@ -19,16 +19,12 @@ import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 import { VirtualNetworkState } from '@osac/types';
 
 import {
-  securityGroupFilterForVirtualNetwork,
-  useCreateSecurityGroup,
+  type SubnetInput,
   useCreateSubnet,
-  useSecurityGroups,
   useSubnets,
   useVirtualNetwork,
   virtualNetworkFilterForSubnetList,
 } from '../../api/v1/networking';
-import { SecurityGroupCreateModal } from '../../components/networking/SecurityGroupCreateModal';
-import { SecurityGroupStatusLabel } from '../../components/networking/SecurityGroupStatusLabel';
 import { SubnetCreateModal } from '../../components/networking/SubnetCreateModal';
 import { SubnetStatusLabel } from '../../components/networking/SubnetStatusLabel';
 import { VirtualNetworkStatusLabel } from '../../components/networking/VirtualNetworkStatusLabel';
@@ -43,7 +39,6 @@ export const VirtualNetworkDetailPage = () => {
   const navigate = useNavigate();
   const { id = '' } = useParams<{ id: string }>();
   const [isSubnetModalOpen, setIsSubnetModalOpen] = useState(false);
-  const [isSecurityGroupModalOpen, setIsSecurityGroupModalOpen] = useState(false);
 
   const { data: vn, isLoading, error } = useVirtualNetwork(id);
   const {
@@ -53,29 +48,12 @@ export const VirtualNetworkDetailPage = () => {
   } = useSubnets({
     filter: virtualNetworkFilterForSubnetList(id),
   });
-  const { data: securityGroups = [] } = useSecurityGroups({
-    filter: securityGroupFilterForVirtualNetwork(id),
-  });
 
   const createSubnet = useCreateSubnet();
-  const createSecurityGroup = useCreateSecurityGroup();
 
-  const handleCreateSubnet = async (input: Parameters<typeof createSubnet.mutateAsync>[0]) => {
-    const result = await createSubnet.mutateAsync(input);
+  const handleCreateSubnet = async (input: SubnetInput) => {
+    await createSubnet.mutateAsync(input);
     setIsSubnetModalOpen(false);
-    return result;
-  };
-
-  const handleCreateSecurityGroup = async (
-    input: Parameters<typeof createSecurityGroup.mutateAsync>[0],
-  ) => {
-    const result = await createSecurityGroup.mutateAsync(input);
-    return result;
-  };
-
-  const handleNavigateToSecurityGroup = (sgId: string) => {
-    setIsSecurityGroupModalOpen(false);
-    navigate(`/networking/security-groups/${sgId}`);
   };
 
   const vnName = vn?.metadata?.name ?? id;
@@ -194,64 +172,6 @@ export const VirtualNetworkDetailPage = () => {
               )}
             </CardBody>
           </Card>
-
-          <Card>
-            <CardHeader
-              actions={{
-                actions: (
-                  <Button variant="primary" onClick={() => setIsSecurityGroupModalOpen(true)}>
-                    {t('Create security group')}
-                  </Button>
-                ),
-              }}
-            >
-              <CardTitle>{t('Security Groups')}</CardTitle>
-            </CardHeader>
-            <CardBody>
-              {securityGroups.length === 0 ? (
-                <SubtleContent component="p">
-                  {t('No security groups yet. Create one to get started.')}
-                </SubtleContent>
-              ) : (
-                <Table aria-label="Security groups" variant="compact" borders>
-                  <Thead>
-                    <Tr>
-                      <Th>{t('Name')}</Th>
-                      <Th>{t('Inbound Rules')}</Th>
-                      <Th>{t('Outbound Rules')}</Th>
-                      <Th>{t('Status')}</Th>
-                    </Tr>
-                  </Thead>
-                  <Tbody>
-                    {securityGroups.map((sg) => {
-                      const name = sg.metadata?.name ?? sg.id;
-                      const ingressCount = sg.spec?.ingress?.length ?? 0;
-                      const egressCount = sg.spec?.egress?.length ?? 0;
-
-                      return (
-                        <Tr key={sg.id}>
-                          <Td dataLabel="Name">
-                            <Button
-                              variant="link"
-                              isInline
-                              onClick={() => navigate(`/networking/security-groups/${sg.id}`)}
-                            >
-                              {name}
-                            </Button>
-                          </Td>
-                          <Td dataLabel="Inbound Rules">{ingressCount}</Td>
-                          <Td dataLabel="Outbound Rules">{egressCount}</Td>
-                          <Td dataLabel="Status">
-                            <SecurityGroupStatusLabel state={sg.status?.state} />
-                          </Td>
-                        </Tr>
-                      );
-                    })}
-                  </Tbody>
-                </Table>
-              )}
-            </CardBody>
-          </Card>
         </ListPageBody>
       </ListPage>
 
@@ -262,16 +182,6 @@ export const VirtualNetworkDetailPage = () => {
           onCreate={handleCreateSubnet}
           parentVN={vn}
           existingSubnets={subnets}
-        />
-      )}
-
-      {isSecurityGroupModalOpen && (
-        <SecurityGroupCreateModal
-          isOpen={isSecurityGroupModalOpen}
-          onClose={() => setIsSecurityGroupModalOpen(false)}
-          onCreate={handleCreateSecurityGroup}
-          onNavigate={handleNavigateToSecurityGroup}
-          virtualNetworkId={id}
         />
       )}
     </>
