@@ -29,7 +29,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/public/v1/user_type.proto.
  */
 export const file_osac_public_v1_user_type: GenFile = /*@__PURE__*/
-  fileDesc("Ch5vc2FjL3B1YmxpYy92MS91c2VyX3R5cGUucHJvdG8SDm9zYWMucHVibGljLnYxIpIBCgRVc2VyEgoKAmlkGAEgASgJEioKCG1ldGFkYXRhGAIgASgLMhgub3NhYy5wdWJsaWMudjEuTWV0YWRhdGESJgoEc3BlYxgDIAEoCzIYLm9zYWMucHVibGljLnYxLlVzZXJTcGVjEioKBnN0YXR1cxgEIAEoCzIaLm9zYWMucHVibGljLnYxLlVzZXJTdGF0dXMi1gEKCFVzZXJTcGVjEhAKCHVzZXJuYW1lGAEgASgJEg0KBWVtYWlsGAIgASgJEhYKDmVtYWlsX3ZlcmlmaWVkGAMgASgIEg8KB2VuYWJsZWQYBCABKAgSEgoKZmlyc3RfbmFtZRgFIAEoCRIRCglsYXN0X25hbWUYBiABKAkSDgoGdGVuYW50GAcgASgJEjkKC2NyZWRlbnRpYWxzGAggASgLMh8ub3NhYy5wdWJsaWMudjEuVXNlckNyZWRlbnRpYWxzSACIAQFCDgoMX2NyZWRlbnRpYWxzIlEKD1VzZXJDcmVkZW50aWFscxIVCghwYXNzd29yZBgBIAEoCUgAiAEBEhoKEnRlbXBvcmFyeV9wYXNzd29yZBgCIAEoCEILCglfcGFzc3dvcmQiTgoKVXNlclN0YXR1cxINCgVwaGFzZRgBIAEoCRIxCgpjb25kaXRpb25zGAIgAygLMh0ub3NhYy5wdWJsaWMudjEuVXNlckNvbmRpdGlvbiLKAQoNVXNlckNvbmRpdGlvbhIMCgR0eXBlGAEgASgJEi8KBnN0YXR1cxgCIAEoDjIfLm9zYWMucHVibGljLnYxLkNvbmRpdGlvblN0YXR1cxI4ChRsYXN0X3RyYW5zaXRpb25fdGltZRgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEwoGcmVhc29uGAQgASgJSACIAQESFAoHbWVzc2FnZRgFIAEoCUgBiAEBQgkKB19yZWFzb25CCgoIX21lc3NhZ2ViBnByb3RvMw", [file_google_protobuf_timestamp, file_osac_public_v1_condition_status_type, file_osac_public_v1_metadata_type]);
+  fileDesc("Ch5vc2FjL3B1YmxpYy92MS91c2VyX3R5cGUucHJvdG8SDm9zYWMucHVibGljLnYxIpIBCgRVc2VyEgoKAmlkGAEgASgJEioKCG1ldGFkYXRhGAIgASgLMhgub3NhYy5wdWJsaWMudjEuTWV0YWRhdGESJgoEc3BlYxgDIAEoCzIYLm9zYWMucHVibGljLnYxLlVzZXJTcGVjEioKBnN0YXR1cxgEIAEoCzIaLm9zYWMucHVibGljLnYxLlVzZXJTdGF0dXMihwEKCFVzZXJTcGVjEhAKCHVzZXJuYW1lGAEgASgJEg0KBWVtYWlsGAIgASgJEg8KB2VuYWJsZWQYAyABKAgSOQoLY3JlZGVudGlhbHMYBCABKAsyHy5vc2FjLnB1YmxpYy52MS5Vc2VyQ3JlZGVudGlhbHNIAIgBAUIOCgxfY3JlZGVudGlhbHMiUQoPVXNlckNyZWRlbnRpYWxzEhUKCHBhc3N3b3JkGAEgASgJSACIAQESGgoSdGVtcG9yYXJ5X3Bhc3N3b3JkGAIgASgIQgsKCV9wYXNzd29yZCJOCgpVc2VyU3RhdHVzEg0KBXBoYXNlGAEgASgJEjEKCmNvbmRpdGlvbnMYAiADKAsyHS5vc2FjLnB1YmxpYy52MS5Vc2VyQ29uZGl0aW9uIsoBCg1Vc2VyQ29uZGl0aW9uEgwKBHR5cGUYASABKAkSLwoGc3RhdHVzGAIgASgOMh8ub3NhYy5wdWJsaWMudjEuQ29uZGl0aW9uU3RhdHVzEjgKFGxhc3RfdHJhbnNpdGlvbl90aW1lGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBITCgZyZWFzb24YBCABKAlIAIgBARIUCgdtZXNzYWdlGAUgASgJSAGIAQFCCQoHX3JlYXNvbkIKCghfbWVzc2FnZWIGcHJvdG8z", [file_google_protobuf_timestamp, file_osac_public_v1_condition_status_type, file_osac_public_v1_metadata_type]);
 
 /**
  * A user in a tenant's identity provider.
@@ -92,44 +92,16 @@ export type UserSpec = Message<"osac.public.v1.UserSpec"> & {
   email: string;
 
   /**
-   * Whether the email has been verified.
-   *
-   * @generated from field: bool email_verified = 3;
-   */
-  emailVerified: boolean;
-
-  /**
    * Whether the user account is enabled.
    *
-   * @generated from field: bool enabled = 4;
+   * @generated from field: bool enabled = 3;
    */
   enabled: boolean;
 
   /**
-   * First name of the user.
-   *
-   * @generated from field: string first_name = 5;
-   */
-  firstName: string;
-
-  /**
-   * Last name of the user.
-   *
-   * @generated from field: string last_name = 6;
-   */
-  lastName: string;
-
-  /**
-   * Tenant that this user belongs to.
-   *
-   * @generated from field: string tenant = 7;
-   */
-  tenant: string;
-
-  /**
    * Credentials for the user. This is write-only and will not be returned in responses.
    *
-   * @generated from field: optional osac.public.v1.UserCredentials credentials = 8;
+   * @generated from field: optional osac.public.v1.UserCredentials credentials = 4;
    */
   credentials?: UserCredentials | undefined;
 };

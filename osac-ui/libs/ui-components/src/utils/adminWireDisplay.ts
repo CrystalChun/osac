@@ -21,10 +21,6 @@ export const readUserDisplayName = (user: User): string => {
   if (fromExtras) {
     return fromExtras;
   }
-  const name = [user.spec?.firstName, user.spec?.lastName].filter(Boolean).join(' ');
-  if (name) {
-    return name;
-  }
   return user.spec?.username || user.metadata?.name || user.id;
 };
 
