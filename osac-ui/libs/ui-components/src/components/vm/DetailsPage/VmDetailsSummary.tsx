@@ -13,7 +13,7 @@ import GlobeIcon from '@patternfly/react-icons/dist/esm/icons/globe-icon';
 import NetworkWiredIcon from '@patternfly/react-icons/dist/esm/icons/network-wired-icon';
 import ServerIcon from '@patternfly/react-icons/dist/esm/icons/server-icon';
 
-import type { ComputeInstance } from '@osac/types';
+import type { ComputeInstance, InstanceType } from '@osac/types';
 
 import { useTranslation } from '../../../hooks/useTranslation';
 import { VmInstanceTypeLabel } from '../VmInstanceTypeLabel';
@@ -44,11 +44,17 @@ const SummaryCard = ({ icon: SummaryIconComponent, title, children }: SummaryCar
 
 interface VmDetailsSummaryProps {
   vm: ComputeInstance;
+  instanceType?: InstanceType;
+  isInstanceTypeLoading?: boolean;
 }
 
-const VmDetailsSummary = ({ vm }: VmDetailsSummaryProps) => {
+const VmDetailsSummary = ({
+  vm,
+  instanceType,
+  isInstanceTypeLoading = false,
+}: VmDetailsSummaryProps) => {
   const { t } = useTranslation();
-  const instanceTypeId = vm.spec?.instanceType;
+  const instanceTypeId = vm.spec?.instanceType?.trim();
   const publicIp = vm.status?.publicIpAddress;
   const internalIp = vm.status?.internalIpAddress;
 
@@ -56,7 +62,11 @@ const VmDetailsSummary = ({ vm }: VmDetailsSummaryProps) => {
     <Grid hasGutter role="group" aria-label={t('vm.details.summary.ariaLabel')}>
       <GridItem sm={6} md={4}>
         <SummaryCard icon={ServerIcon} title={t('catalogProvision.vm.fields.instanceType')}>
-          <VmInstanceTypeLabel instanceTypeId={instanceTypeId} />
+          <VmInstanceTypeLabel
+            instanceTypeId={instanceTypeId}
+            instanceType={instanceType}
+            isLoading={isInstanceTypeLoading}
+          />
         </SummaryCard>
       </GridItem>
       <GridItem sm={6} md={4}>

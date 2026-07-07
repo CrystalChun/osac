@@ -51,7 +51,8 @@ export const VmTable = ({
           const state = vm.status?.state;
           const locked = state === ComputeInstanceState.DELETING;
           const name = vm.metadata?.name ?? vm.id;
-          const instanceTypeId = vm.spec?.instanceType;
+          const instanceTypeId = vm.spec?.instanceType?.trim();
+          const instanceType = instanceTypeId ? instanceTypeById.get(instanceTypeId) : undefined;
           const internalIp = vm.status?.internalIpAddress;
           const externalIp = vm.status?.publicIpAddress;
 
@@ -66,7 +67,7 @@ export const VmTable = ({
               <Td dataLabel={t('Instance type')}>
                 <VmInstanceTypeLabel
                   instanceTypeId={instanceTypeId}
-                  instanceType={instanceTypeId ? instanceTypeById.get(instanceTypeId) : undefined}
+                  instanceType={instanceType}
                   isLoading={isInstanceTypesLoading}
                 />
               </Td>

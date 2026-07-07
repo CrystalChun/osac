@@ -1,7 +1,7 @@
 import type { ComponentProps } from 'react';
 import { I18nextProvider } from 'react-i18next';
 import { render, screen } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import type { InstanceType } from '@osac/types';
 
@@ -9,7 +9,6 @@ import { VmInstanceTypeLabel } from './VmInstanceTypeLabel';
 import { initTestI18n } from '../catalogProvision/test/i18n';
 
 vi.mock('../../api/v1/instance-types', () => ({
-  useInstanceType: vi.fn(),
   formatInstanceTypeDisplayName: (
     instanceType: { metadata?: { name?: string } } | undefined,
     _suffix: string,
@@ -17,17 +16,10 @@ vi.mock('../../api/v1/instance-types', () => ({
   ) => instanceType?.metadata?.name ?? fallbackId ?? '—',
 }));
 
-const { useInstanceType } = await import('../../api/v1/instance-types');
-
 const standardInstanceType = {
   id: 'standard-4-8',
   metadata: { name: 'Standard 4 vCPU / 8 GiB' },
 } as InstanceType;
-
-const defaultQueryResult = {
-  data: undefined,
-  isLoading: false,
-} as ReturnType<typeof useInstanceType>;
 
 const renderLabel = async (props: ComponentProps<typeof VmInstanceTypeLabel>) => {
   const i18n = await initTestI18n();
@@ -39,65 +31,38 @@ const renderLabel = async (props: ComponentProps<typeof VmInstanceTypeLabel>) =>
 };
 
 describe('VmInstanceTypeLabel', () => {
-  beforeEach(() => {
-    vi.mocked(useInstanceType).mockReturnValue(defaultQueryResult);
-  });
-
-  it('shows friendly name when instance type is preloaded', async () => {
+  it('shows friendly name when instance type is provided', async () => {
     await renderLabel({
       instanceTypeId: 'standard-4-8',
       instanceType: standardInstanceType,
-      isLoading: false,
     });
 
     expect(screen.getByText('Standard 4 vCPU / 8 GiB')).toBeInTheDocument();
-    expect(useInstanceType).toHaveBeenCalledWith(undefined);
   });
 
-  it('falls back to raw id when preloaded lookup has no match', async () => {
-    await renderLabel({
-      instanceTypeId: 'standard-4-8',
-      isLoading: false,
-    });
+  it('falls back to raw id when instance type is missing', async () => {
+    await renderLabel({ instanceTypeId: 'standard-4-8' });
 
     expect(screen.getByText('standard-4-8')).toBeInTheDocument();
   });
 
-  it('shows spinner while preloaded list is loading', async () => {
-    await renderLabel({
-      instanceTypeId: 'standard-4-8',
-      isLoading: true,
-    });
-
-    expect(screen.getByRole('progressbar')).toBeInTheDocument();
-  });
-
   it('shows em dash when instance type id is unset', async () => {
-    await renderLabel({ isLoading: false });
+    await renderLabel({});
 
     expect(screen.getByText('—')).toBeInTheDocument();
   });
 
-  it('fetches instance type when not in preloaded mode', async () => {
-    vi.mocked(useInstanceType).mockReturnValue({
-      data: standardInstanceType,
-      isLoading: false,
-    } as ReturnType<typeof useInstanceType>);
+  it('shows skeleton while loading when instance type id is set', async () => {
+    const { container } = await renderLabel({ instanceTypeId: 'standard-4-8', isLoading: true });
 
-    await renderLabel({ instanceTypeId: 'standard-4-8' });
-
-    expect(screen.getByText('Standard 4 vCPU / 8 GiB')).toBeInTheDocument();
-    expect(useInstanceType).toHaveBeenCalledWith('standard-4-8');
+    expect(container.querySelector('.pf-v6-c-skeleton')).toBeInTheDocument();
+    expect(screen.queryByText('standard-4-8')).not.toBeInTheDocument();
   });
 
-  it('shows spinner while fetching in fetch mode', async () => {
-    vi.mocked(useInstanceType).mockReturnValue({
-      data: undefined,
-      isLoading: true,
-    } as ReturnType<typeof useInstanceType>);
+  it('does not show skeleton while loading when instance type id is unset', async () => {
+    const { container } = await renderLabel({ isLoading: true });
 
-    await renderLabel({ instanceTypeId: 'standard-4-8' });
-
-    expect(screen.getByRole('progressbar')).toBeInTheDocument();
+    expect(container.querySelector('.pf-v6-c-skeleton')).not.toBeInTheDocument();
+    expect(screen.getByText('—')).toBeInTheDocument();
   });
 });
