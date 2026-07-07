@@ -440,7 +440,6 @@ export const SecurityGroupDetailPage = () => {
           </Button>
         </ModalFooter>
       </Modal>
-
     </ListPage>
   );
 };
