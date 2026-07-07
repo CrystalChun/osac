@@ -12,6 +12,8 @@ export type ApiRoute =
   | 'v1/compute_instance_templates'
   | 'v1/compute_instance_catalog_items'
   | 'v1/cluster_catalog_items'
+  | 'v1/cluster_templates'
+  | 'v1/host_types'
   | 'v1/instance_types'
   | 'v1/clusters'
   | 'v1/organizations'
