@@ -17,7 +17,6 @@ import {
   ModalFooter,
   ModalHeader,
   ModalVariant,
-  Spinner,
   Stack,
   StackItem,
   Tab,
@@ -116,17 +115,23 @@ export const SecurityGroupDetailPage = () => {
     if (!sg || !deleteRuleIndex) {
       return;
     }
+
+    // Close modal immediately
+    const ruleIndexToDelete = deleteRuleIndex;
+    setDeleteRuleIndex(null);
+
     try {
       setDeleteError(null);
       const newIngress = (sg.spec?.ingress ?? []).map(toPlainRule);
       const newEgress = (sg.spec?.egress ?? []).map(toPlainRule);
 
-      if (deleteRuleIndex.direction === 'ingress') {
-        newIngress.splice(deleteRuleIndex.index, 1);
+      if (ruleIndexToDelete.direction === 'ingress') {
+        newIngress.splice(ruleIndexToDelete.index, 1);
       } else {
-        newEgress.splice(deleteRuleIndex.index, 1);
+        newEgress.splice(ruleIndexToDelete.index, 1);
       }
 
+      // Mutation runs in background, onSuccess will invalidate cache and trigger refetch
       await updateSecurityGroup.mutateAsync({
         id: sg.id,
         input: {
@@ -136,7 +141,6 @@ export const SecurityGroupDetailPage = () => {
           egress: newEgress,
         },
       });
-      setDeleteRuleIndex(null);
     } catch {
       setDeleteError(t('Failed to delete rule. Please try again.'));
     }
@@ -173,6 +177,9 @@ export const SecurityGroupDetailPage = () => {
       return;
     }
 
+    // Close modal immediately
+    handleCloseRuleModal();
+
     const { direction, mode, ruleIndex } = ruleModalState;
     const newIngress = (sg.spec?.ingress ?? []).map(toPlainRule);
     const newEgress = (sg.spec?.egress ?? []).map(toPlainRule);
@@ -191,6 +198,7 @@ export const SecurityGroupDetailPage = () => {
       }
     }
 
+    // Mutation runs in background, onSuccess will invalidate cache and trigger refetch
     await updateSecurityGroup.mutateAsync({
       id: sg.id,
       input: {
@@ -200,9 +208,6 @@ export const SecurityGroupDetailPage = () => {
         egress: newEgress,
       },
     });
-
-    // Close modal after mutation completes
-    handleCloseRuleModal();
   };
 
   const handleCloseRuleModal = () => {
@@ -436,25 +441,6 @@ export const SecurityGroupDetailPage = () => {
         </ModalFooter>
       </Modal>
 
-      {/* Loading overlay for rule operations */}
-      {updateSecurityGroup.isPending && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.3)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 9999,
-          }}
-        >
-          <Spinner size="xl" />
-        </div>
-      )}
     </ListPage>
   );
 };

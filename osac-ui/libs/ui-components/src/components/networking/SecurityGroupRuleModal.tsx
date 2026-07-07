@@ -138,8 +138,8 @@ export const SecurityGroupRuleModal = ({
         ...(values.ipv4Cidr.trim() !== '' && { ipv4Cidr: values.ipv4Cidr }),
         ...(values.ipv6Cidr.trim() !== '' && { ipv6Cidr: values.ipv6Cidr }),
       } as SecurityRule;
-      await onSave(rule);
-      // Don't close here - let the parent component close after mutation completes
+      // Parent closes modal immediately and runs mutation in background
+      onSave(rule);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err);
       // eslint-disable-next-line no-console
