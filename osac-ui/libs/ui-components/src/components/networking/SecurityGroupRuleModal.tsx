@@ -112,12 +112,12 @@ export const SecurityGroupRuleModal = ({
       const rule: SecurityRule = {
         protocol: values.protocol,
         portFrom:
-          values.portFrom && values.portFrom.trim() !== ''
-            ? parseInt(values.portFrom, 10)
+          values.portFrom && String(values.portFrom).trim() !== ''
+            ? parseInt(String(values.portFrom), 10)
             : undefined,
         portTo:
-          values.portTo && values.portTo.trim() !== ''
-            ? parseInt(values.portTo, 10)
+          values.portTo && String(values.portTo).trim() !== ''
+            ? parseInt(String(values.portTo), 10)
             : undefined,
         ipv4Cidr: values.ipv4Cidr.trim() !== '' ? values.ipv4Cidr : undefined,
         ipv6Cidr: values.ipv6Cidr.trim() !== '' ? values.ipv6Cidr : undefined,
