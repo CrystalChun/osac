@@ -18,7 +18,7 @@ interface SecurityGroupRuleFormProps {
   direction: 'ingress' | 'egress';
 }
 
-export const SecurityGroupRuleForm = ({ direction }: SecurityGroupRuleFormProps) => {
+export const SecurityGroupRuleForm = ({ direction: _direction }: SecurityGroupRuleFormProps) => {
   const { t } = useTranslation();
   const { values, errors, touched, setFieldValue, handleChange, handleBlur } =
     useFormikContext<RuleFormValues>();

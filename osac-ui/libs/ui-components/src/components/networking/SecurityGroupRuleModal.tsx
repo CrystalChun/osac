@@ -1,7 +1,4 @@
 import { useState } from 'react';
-import { Formik } from 'formik';
-import type { TFunction } from 'i18next';
-import * as Yup from 'yup';
 import {
   Alert,
   Button,
@@ -13,6 +10,9 @@ import {
   ModalHeader,
   ModalVariant,
 } from '@patternfly/react-core';
+import { Formik } from 'formik';
+import type { TFunction } from 'i18next';
+import * as Yup from 'yup';
 
 import { Protocol, type SecurityRule } from '@osac/types';
 
@@ -54,7 +54,7 @@ const createRuleValidationSchema = (t: TFunction) =>
             if (!value) {
               return false;
             }
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
             const portFrom = this.parent.portFrom;
             if (!portFrom) {
               return true;
@@ -121,7 +121,7 @@ export const SecurityGroupRuleModal = ({
     ipv6Cidr: initialValues?.ipv6Cidr ?? '',
   };
 
-  const handleSubmit = async (values: RuleFormValues) => {
+  const handleSubmit = (values: RuleFormValues) => {
     try {
       setError(null);
       // Create a plain object without protobuf metadata
