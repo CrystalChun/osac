@@ -1,6 +1,9 @@
-import type { ComputeInstanceCatalogItem } from '@osac/types';
+import type { ClusterCatalogItem, ComputeInstanceCatalogItem } from '@osac/types';
 import {
+  ClusterCatalogItemsListResponseSchema,
+  ClusterTemplateSchema,
   ComputeInstanceCatalogItemsListResponseSchema,
+  HostTypeSchema,
   InstanceTypeState,
   InstanceTypesListResponseSchema,
   SecurityGroupsListResponseSchema,
@@ -10,6 +13,9 @@ import {
 } from '@osac/types';
 
 import {
+  clusterCatalogItem,
+  mockClusterTemplate,
+  mockHostType,
   mockInstanceType,
   mockSecurityGroup,
   mockSubnet,
@@ -21,6 +27,9 @@ import type { ApiFetch, ApiRoute } from '../../../api/types';
 
 export type WizardApiFixtures = {
   catalogItems?: ComputeInstanceCatalogItem[];
+  clusterCatalogItems?: ClusterCatalogItem[];
+  clusterTemplates?: Record<string, typeof mockClusterTemplate>;
+  hostTypes?: Record<string, typeof mockHostType>;
   virtualNetworks?: (typeof mockVirtualNetwork)[];
   subnets?: (typeof mockSubnet)[];
   securityGroups?: (typeof mockSecurityGroup)[];
@@ -94,13 +103,20 @@ const filterInstanceTypes = (items: (typeof mockInstanceType)[], filter: string 
 
 export const createMockApiFetch = (fixtures: WizardApiFixtures = {}): ApiFetch => {
   const catalogItems = fixtures.catalogItems ?? [vmCatalogItem];
+  const clusterCatalogItems = fixtures.clusterCatalogItems ?? [clusterCatalogItem];
+  const clusterTemplates = fixtures.clusterTemplates ?? {
+    [clusterCatalogItem.template]: mockClusterTemplate,
+  };
+  const hostTypes = fixtures.hostTypes ?? {
+    [mockHostType.id]: mockHostType,
+  };
   const virtualNetworks = fixtures.virtualNetworks ?? [mockVirtualNetwork];
   const subnets = fixtures.subnets ?? [mockSubnet];
   const securityGroups = fixtures.securityGroups ?? [mockSecurityGroup];
   const instanceTypes = fixtures.instanceTypes ?? [mockInstanceType];
 
   return async (route, options = {}) => {
-    const { decode, queryParams } = options;
+    const { decode, pathParams, queryParams } = options;
     const filter = typeof queryParams?.filter === 'string' ? queryParams.filter : undefined;
 
     switch (route) {
@@ -110,6 +126,28 @@ export const createMockApiFetch = (fixtures: WizardApiFixtures = {}): ApiFetch =
           { items: catalogItems },
           decode ?? ComputeInstanceCatalogItemsListResponseSchema,
         );
+      case 'v1/cluster_catalog_items':
+        return decodeRoute(
+          route,
+          { items: clusterCatalogItems },
+          decode ?? ClusterCatalogItemsListResponseSchema,
+        );
+      case 'v1/cluster_templates': {
+        const templateId = pathParams?.[0];
+        const template = templateId ? clusterTemplates[templateId] : undefined;
+        if (!template) {
+          throw new Error(`Cluster template not found in wizard test: ${templateId}`);
+        }
+        return decodeRoute(route, template, decode ?? ClusterTemplateSchema);
+      }
+      case 'v1/host_types': {
+        const hostTypeId = pathParams?.[0];
+        const hostType = hostTypeId ? hostTypes[hostTypeId] : undefined;
+        if (!hostType) {
+          throw new Error(`Host type not found in wizard test: ${hostTypeId}`);
+        }
+        return decodeRoute(route, hostType, decode ?? HostTypeSchema);
+      }
       case 'v1/virtual_networks':
         return decodeRoute(
           route,

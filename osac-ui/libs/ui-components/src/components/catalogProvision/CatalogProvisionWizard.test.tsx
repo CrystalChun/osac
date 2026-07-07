@@ -10,9 +10,10 @@ import {
 } from '@osac/types';
 
 import { createMockApiFetch } from './test/createMockApiFetch';
-import { vmCatalogItem } from './test/fixtures';
+import { clusterCatalogItem, mockClusterTemplate, vmCatalogItem } from './test/fixtures';
 import { renderWizard } from './test/renderWizard';
 import {
+  advanceToClusterConfigurationStep,
   advanceToConfigurationStep,
   advanceToNetworkingStep,
   advanceToReviewStep,
@@ -22,9 +23,11 @@ import {
   expectCatalogItemSelected,
   expectCatalogItemVisible,
   expectValidationAlert,
+  fillClusterGeneralStep,
   fillGeneralStep,
   getCancelModal,
   selectCatalogItem,
+  selectClusterCatalogItem,
   selectNetworkingPickers,
   waitForConfigurationReady,
 } from './test/wizardFlow.helpers';
@@ -433,5 +436,53 @@ describe('CatalogProvisionWizard', () => {
       expect(screen.getByText('provision failed')).toBeInTheDocument();
     });
     expect(screen.getByRole('button', { name: 'Create' })).toBeInTheDocument();
+  });
+
+  it('blocks Next on cluster general step when name is invalid', async () => {
+    const { user } = await renderWizard({ kind: 'cluster' });
+
+    await selectClusterCatalogItem(user);
+    await clickWizardNext(user);
+    await fillClusterGeneralStep(user, 'MyCluster');
+    await clickWizardNext(user);
+
+    await expectValidationAlert();
+    expect(
+      screen.getByText(
+        'Name must only contain lowercase letters (a-z), digits (0-9), and hyphens (-)',
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it('shows empty template warning and submits cluster create payload', async () => {
+    const onProvision = vi.fn().mockResolvedValue(undefined);
+    const { user } = await renderWizard({
+      kind: 'cluster',
+      onProvision,
+      apiFixtures: {
+        clusterTemplates: {
+          [clusterCatalogItem.template]: {
+            ...mockClusterTemplate,
+            nodeSets: {},
+          },
+        },
+      },
+    });
+
+    await advanceToClusterConfigurationStep(user);
+    expect(screen.getByText('No worker pools in template')).toBeInTheDocument();
+    await clickWizardNext(user);
+    await clickWizardNext(user);
+    await user.click(screen.getByRole('button', { name: 'Create' }));
+
+    await waitFor(() => {
+      expect(onProvision).toHaveBeenCalledTimes(1);
+    });
+
+    const payload = onProvision.mock.calls[0][0];
+    expect(payload.metadata?.name).toBe('my-cluster');
+    expect(payload.spec?.catalogItem).toBe(clusterCatalogItem.id);
+    expect(payload.spec?.releaseImage).toBe('4.17.0');
+    expect(payload.spec?.nodeSets).toBeUndefined();
   });
 });
