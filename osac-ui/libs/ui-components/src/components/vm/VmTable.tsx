@@ -2,77 +2,87 @@
  * flow: manage-virtual-machines
  * step: mvm_list_view
  */
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@patternfly/react-core';
+import { useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
-import type { ComputeInstance } from '@osac/types';
+import type { ComputeInstance, InstanceType } from '@osac/types';
 import { ComputeInstanceState } from '@osac/types';
 
 import { VmActionsMenu } from './VmActionsMenu';
+import { VmInstanceTypeLabel } from './VmInstanceTypeLabel';
+import { useTranslation } from '../../hooks/useTranslation';
 import { VmStatusLabel } from '../../VmStatusLabel';
-
-import './VmTable.css';
+import { Timestamp } from '../Primitives/Timestamp';
 
 interface VmTableProps {
   vms: ComputeInstance[];
+  instanceTypes?: InstanceType[];
+  isInstanceTypesLoading?: boolean;
 }
 
-export const VmTable = ({ vms }: VmTableProps) => {
-  const navigate = useNavigate();
+export const VmTable = ({
+  vms,
+  instanceTypes = [],
+  isInstanceTypesLoading = false,
+}: VmTableProps) => {
+  const { t } = useTranslation();
+
+  const instanceTypeById = useMemo(
+    () => new Map(instanceTypes.map((item) => [item.id, item])),
+    [instanceTypes],
+  );
 
   return (
-    <div className="osac-vm-table-shell">
-      <Table aria-label="Virtual machines" variant="compact" borders className="osac-vm-table">
-        <Thead>
-          <Tr>
-            <Th>Name</Th>
-            <Th>Status</Th>
-            <Th>vCPU</Th>
-            <Th>Memory</Th>
-            <Th>IP</Th>
-            <Th aria-label="Actions" />
-          </Tr>
-        </Thead>
-        <Tbody>
-          {vms.map((vm) => {
-            const state = vm.status?.state;
-            const locked = state === ComputeInstanceState.DELETING;
-            const name = vm.metadata?.name ?? vm.id;
-            const cores = vm.spec?.cores;
-            const memoryGib = vm.spec?.memoryGib;
-            const ip = vm.status?.publicIpAddress || vm.status?.internalIpAddress;
+    <Table aria-label={t('Virtual machines')} variant="compact">
+      <Thead>
+        <Tr>
+          <Th>{t('Name')}</Th>
+          <Th>{t('Status')}</Th>
+          <Th>{t('Instance type')}</Th>
+          <Th>{t('Internal IP')}</Th>
+          <Th>{t('External IP')}</Th>
+          <Th>{t('Created')}</Th>
+          <Th aria-label={t('Actions')} />
+        </Tr>
+      </Thead>
+      <Tbody>
+        {vms.map((vm) => {
+          const state = vm.status?.state;
+          const locked = state === ComputeInstanceState.DELETING;
+          const name = vm.metadata?.name ?? vm.id;
+          const instanceTypeId = vm.spec?.instanceType?.trim();
+          const instanceType = instanceTypeId ? instanceTypeById.get(instanceTypeId) : undefined;
+          const internalIp = vm.status?.internalIpAddress;
+          const externalIp = vm.status?.publicIpAddress;
 
-            return (
-              <Tr key={vm.id}>
-                <Td dataLabel="Name">
-                  {locked ? (
-                    name
-                  ) : (
-                    <Button
-                      variant="link"
-                      isInline
-                      className="osac-vm-table__name-link"
-                      onClick={() => navigate(`/vms/${vm.id}`)}
-                    >
-                      {name}
-                    </Button>
-                  )}
-                </Td>
-                <Td dataLabel="Status">
-                  <VmStatusLabel state={state} />
-                </Td>
-                <Td dataLabel="vCPU">{cores ?? '—'}</Td>
-                <Td dataLabel="Memory">{memoryGib != null ? `${memoryGib} GiB` : '—'}</Td>
-                <Td dataLabel="IP">{locked ? '—' : ip || '—'}</Td>
-                <Td dataLabel="Actions" isActionCell>
-                  {locked ? null : <VmActionsMenu vm={vm} />}
-                </Td>
-              </Tr>
-            );
-          })}
-        </Tbody>
-      </Table>
-    </div>
+          return (
+            <Tr key={vm.id}>
+              <Td dataLabel={t('Name')}>
+                {locked ? name : <Link to={`/vms/${encodeURIComponent(vm.id)}`}>{name}</Link>}
+              </Td>
+              <Td dataLabel={t('Status')}>
+                <VmStatusLabel state={state} />
+              </Td>
+              <Td dataLabel={t('Instance type')}>
+                <VmInstanceTypeLabel
+                  instanceTypeId={instanceTypeId}
+                  instanceType={instanceType}
+                  isLoading={isInstanceTypesLoading}
+                />
+              </Td>
+              <Td dataLabel={t('Internal IP')}>{locked ? '—' : internalIp || '—'}</Td>
+              <Td dataLabel={t('External IP')}>{locked ? '—' : externalIp || '—'}</Td>
+              <Td dataLabel={t('Created')}>
+                <Timestamp value={vm.metadata?.creationTimestamp} />
+              </Td>
+              <Td dataLabel={t('Actions')} isActionCell>
+                {locked ? null : <VmActionsMenu vm={vm} />}
+              </Td>
+            </Tr>
+          );
+        })}
+      </Tbody>
+    </Table>
   );
 };
