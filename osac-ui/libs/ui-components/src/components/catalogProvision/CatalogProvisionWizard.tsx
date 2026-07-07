@@ -23,6 +23,7 @@ import {
 import { type FormikProps, FormikProvider, useFormik } from 'formik';
 
 import type { CatalogProvisionKind } from './catalogFieldDefinition';
+import type { CatalogProvisionCatalogItem } from './catalogProvisionItem';
 import type {
   CatalogProvisionPayload,
   CatalogProvisionWizardValues,
@@ -31,6 +32,7 @@ import { useTranslation } from '../../hooks/useTranslation';
 import { FieldValidationProvider } from '../Form/FieldValidationContext';
 import { useClusterAdapter } from './wizard/adapters/clusterAdapter';
 import { useComputeInstanceAdapter } from './wizard/adapters/computeInstanceAdapter';
+import type { CatalogProvisionAdapter } from './wizard/adapters/types';
 import { STEP_LABEL_KEYS, type WizardStepId, getWizardOrderedSteps } from './wizard/stepIds';
 import { CatalogStep, GeneralStep, ReviewStep } from './wizard/steps/WizardSteps';
 
@@ -50,20 +52,22 @@ interface Props {
   onCloseHandlerChange?: (handler: CatalogProvisionWizardCloseHandler) => void;
 }
 
-type WizardAdapter =
-  | ReturnType<typeof useComputeInstanceAdapter>
-  | ReturnType<typeof useClusterAdapter>;
+type ErasedCatalogAdapter = CatalogProvisionAdapter<
+  CatalogProvisionCatalogItem,
+  CatalogProvisionWizardValues,
+  CatalogProvisionPayload
+>;
 
 interface WizardFooterProps {
   formik: FormikProps<CatalogProvisionWizardValues>;
-  catalogItem: { id: string } | null;
+  catalogItem: CatalogProvisionCatalogItem | null;
   setActiveStepId: (stepId: WizardStepId) => void;
   setProvisionError: (message: string | undefined) => void;
   setValidationAlert: (visible: boolean) => void;
   pending: boolean;
   setPending: (pending: boolean) => void;
   onProvision: Props['onProvision'];
-  buildCreatePayload: WizardAdapter['buildCreatePayload'];
+  buildCreatePayload: ErasedCatalogAdapter['buildCreatePayload'];
   close: (options?: { notifyClosed?: boolean }) => void;
   requestClose: () => void;
 }
@@ -131,10 +135,7 @@ const CatalogProvisionWizardFooter = ({
 
       setPending(true);
       setProvisionError(undefined);
-      const payload = buildCreatePayload(
-        values,
-        catalogItem as Parameters<WizardAdapter['buildCreatePayload']>[1],
-      );
+      const payload = buildCreatePayload(values, catalogItem);
       void Promise.resolve(onProvision(payload))
         .then(() => {
           close({ notifyClosed: false });
@@ -205,9 +206,9 @@ const CatalogProvisionWizardFooter = ({
 };
 
 interface WizardBodyProps {
-  adapter: WizardAdapter;
+  adapter: ErasedCatalogAdapter;
   stepId: WizardStepId;
-  catalogItem: { id: string; title: string } | null;
+  catalogItem: CatalogProvisionCatalogItem | null;
   values: CatalogProvisionWizardValues;
   provisionError?: string;
   validationAlert: boolean;
@@ -255,7 +256,7 @@ const WizardStepBody = ({
 };
 
 interface InnerProps extends Props {
-  adapter: WizardAdapter;
+  adapter: ErasedCatalogAdapter;
   initialValues: CatalogProvisionWizardValues;
 }
 
@@ -282,7 +283,7 @@ const CatalogProvisionWizardInner = ({
     setActiveStepId('catalog');
   }, [wizardResetKey]);
 
-  const selectedCatalogItem = schemaCatalogItemId
+  const selectedCatalogItem: CatalogProvisionCatalogItem | null = schemaCatalogItemId
     ? (catalogItems.find((item) => item.id === schemaCatalogItemId) ?? null)
     : null;
 
@@ -349,7 +350,7 @@ const CatalogProvisionWizardInner = ({
 };
 
 interface FormProps {
-  adapter: WizardAdapter;
+  adapter: ErasedCatalogAdapter;
   formik: FormikProps<CatalogProvisionWizardValues>;
   initialCatalogItemId?: string;
   orderedSteps: readonly WizardStepId[];
@@ -390,7 +391,7 @@ const CatalogProvisionWizardForm = ({
   t,
 }: FormProps) => {
   const { data: catalogItems = [] } = adapter.useCatalogItems();
-  const selectedCatalogItem = formik.values.catalogItemId
+  const selectedCatalogItem: CatalogProvisionCatalogItem | null = formik.values.catalogItemId
     ? (catalogItems.find((item) => item.id === formik.values.catalogItemId) ?? null)
     : null;
 
@@ -523,7 +524,9 @@ export const CatalogProvisionWizard = ({
 }: Props) => {
   const vmAdapter = useComputeInstanceAdapter();
   const clusterAdapter = useClusterAdapter();
-  const adapter = kind === 'cluster' ? clusterAdapter : vmAdapter;
+  const adapter = (kind === 'cluster'
+    ? clusterAdapter
+    : vmAdapter) as unknown as ErasedCatalogAdapter;
   const initialValues = useMemo(() => {
     const values = adapter.getInitialValues(null);
     if (initialCatalogItemId) {
