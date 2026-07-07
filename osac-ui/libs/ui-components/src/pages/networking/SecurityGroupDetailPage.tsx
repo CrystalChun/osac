@@ -61,6 +61,15 @@ export const SecurityGroupDetailPage = () => {
   const vn = virtualNetworks.find((v) => v.id === vnId);
   const vnName = resourceDisplayName(vn?.metadata, vnId);
 
+  // Helper to convert SecurityRule to plain object (strips protobuf metadata)
+  const toPlainRule = (r: SecurityRule) => ({
+    protocol: r.protocol,
+    ...(r.portFrom !== undefined && { portFrom: r.portFrom }),
+    ...(r.portTo !== undefined && { portTo: r.portTo }),
+    ...(r.ipv4Cidr && { ipv4Cidr: r.ipv4Cidr }),
+    ...(r.ipv6Cidr && { ipv6Cidr: r.ipv6Cidr }),
+  });
+
   const handleAddIngressRule = () => {
     setRuleModalState({
       isOpen: true,
@@ -89,15 +98,16 @@ export const SecurityGroupDetailPage = () => {
     }
     try {
       setDeleteError(null);
-      const newIngress = [...(sg.spec?.ingress ?? [])];
+      const newIngress = (sg.spec?.ingress ?? []).map(toPlainRule);
       newIngress.splice(index, 1);
+      const newEgress = (sg.spec?.egress ?? []).map(toPlainRule);
       await updateSecurityGroup.mutateAsync({
         id: sg.id,
         input: {
           name: sg.metadata?.name ?? '',
           virtual_network: sg.spec?.virtualNetwork ?? '',
           ingress: newIngress,
-          egress: sg.spec?.egress,
+          egress: newEgress,
         },
       });
     } catch {
@@ -133,14 +143,15 @@ export const SecurityGroupDetailPage = () => {
     }
     try {
       setDeleteError(null);
-      const newEgress = [...(sg.spec?.egress ?? [])];
+      const newIngress = (sg.spec?.ingress ?? []).map(toPlainRule);
+      const newEgress = (sg.spec?.egress ?? []).map(toPlainRule);
       newEgress.splice(index, 1);
       await updateSecurityGroup.mutateAsync({
         id: sg.id,
         input: {
           name: sg.metadata?.name ?? '',
           virtual_network: sg.spec?.virtualNetwork ?? '',
-          ingress: sg.spec?.ingress,
+          ingress: newIngress,
           egress: newEgress,
         },
       });
@@ -155,8 +166,8 @@ export const SecurityGroupDetailPage = () => {
     }
 
     const { direction, mode, ruleIndex } = ruleModalState;
-    const newIngress = [...(sg.spec?.ingress ?? [])];
-    const newEgress = [...(sg.spec?.egress ?? [])];
+    const newIngress = (sg.spec?.ingress ?? []).map(toPlainRule);
+    const newEgress = (sg.spec?.egress ?? []).map(toPlainRule);
 
     if (direction === 'ingress') {
       if (mode === 'add') {
