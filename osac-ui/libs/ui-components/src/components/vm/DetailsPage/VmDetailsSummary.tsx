@@ -59,9 +59,9 @@ const VmDetailsSummary = ({
   const internalIp = vm.status?.internalIpAddress;
 
   return (
-    <Grid hasGutter role="group" aria-label={t('vm.details.summary.ariaLabel')}>
+    <Grid hasGutter role="group" aria-label={t('Virtual machine summary')}>
       <GridItem sm={6} md={4}>
-        <SummaryCard icon={ServerIcon} title={t('catalogProvision.vm.fields.instanceType')}>
+        <SummaryCard icon={ServerIcon} title={t('Instance type')}>
           <VmInstanceTypeLabel
             instanceTypeId={instanceTypeId}
             instanceType={instanceType}
@@ -70,12 +70,12 @@ const VmDetailsSummary = ({
         </SummaryCard>
       </GridItem>
       <GridItem sm={6} md={4}>
-        <SummaryCard icon={GlobeIcon} title={t('vm.details.summary.publicIp')}>
+        <SummaryCard icon={GlobeIcon} title={t('Public IP')}>
           {publicIp || '—'}
         </SummaryCard>
       </GridItem>
       <GridItem sm={6} md={4}>
-        <SummaryCard icon={NetworkWiredIcon} title={t('vm.details.summary.internalIp')}>
+        <SummaryCard icon={NetworkWiredIcon} title={t('Internal IP')}>
           {internalIp || '—'}
         </SummaryCard>
       </GridItem>

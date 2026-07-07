@@ -25,9 +25,5 @@ export const VmInstanceTypeLabel = ({
     return <Skeleton width="150px" />;
   }
 
-  return formatInstanceTypeDisplayName(
-    instanceType,
-    t('catalogProvision.instanceTypes.deprecatedSuffix'),
-    instanceTypeId,
-  );
+  return formatInstanceTypeDisplayName(instanceType, ` (${t('deprecated')})`, instanceTypeId);
 };

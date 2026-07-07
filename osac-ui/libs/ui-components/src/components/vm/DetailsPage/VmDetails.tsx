@@ -63,7 +63,7 @@ const VmDetails = ({ vm }: Props) => {
               <FlexItem>
                 <ResourceDetailHeader
                   parentTo="/vms"
-                  parentLabel={t('vm.details.breadcrumb')}
+                  parentLabel={t('Virtual machines')}
                   resourceName={vm.metadata?.name ?? vm.id}
                   titleAddon={<VmStatusLabel state={vm.status?.state} />}
                 />
