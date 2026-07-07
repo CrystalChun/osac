@@ -35,11 +35,7 @@ export const decodeFulfillmentResponse = (
     throw new Error('Invalid response format for protobuf decode');
   }
   try {
-    return fromJson(schema, data as JsonValue, {
-      registry: fulfillmentDecodeRegistry,
-      // Tolerate extra JSON keys from mocks or newer API fields before types are regenerated.
-      ignoreUnknownFields: true,
-    });
+    return fromJson(schema, data as JsonValue, { registry: fulfillmentDecodeRegistry });
   } catch (error) {
     throw new Error(`Protobuf decode failed: ${getErrorMessage(error)}`);
   }
