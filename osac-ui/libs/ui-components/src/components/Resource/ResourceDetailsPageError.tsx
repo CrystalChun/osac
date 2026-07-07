@@ -60,7 +60,6 @@ export const ResourceDetailsPageError = ({
   if (variant === 'unauthorized') {
     return <QueryErrorPage error={props.error} />;
   }
-  console.log('props.error', props.error);
 
   const { status, title, body, icon } = variantConfig(resourceLabel)[variant];
 

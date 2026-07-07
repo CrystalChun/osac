@@ -136,7 +136,6 @@
   "vm.details.status.unknown": "Unknown",
   "vm.details.summary.ariaLabel": "Virtual machine summary",
   "vm.details.summary.internalIp": "Internal IP",
-  "vm.details.summary.loadingInstanceType": "Loading instance type",
   "vm.details.summary.publicIp": "Public IP",
   "vm.details.userData.collapse": "Collapse user data",
   "vm.details.userData.expand": "Expand user data",

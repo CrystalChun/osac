@@ -102,9 +102,7 @@ describe('VmListPage', () => {
 
     await renderPage();
 
-    expect(
-      screen.getByRole('button', { name: 'Create virtual machine' }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Create virtual machine' })).toBeInTheDocument();
   });
 
   it('keeps compute instance failures on the page-level error path', async () => {

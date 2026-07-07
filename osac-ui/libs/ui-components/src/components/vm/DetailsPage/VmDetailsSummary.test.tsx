@@ -28,10 +28,7 @@ const standardInstanceType = {
   metadata: { name: 'Standard 4 vCPU / 8 GiB' },
 } as InstanceType;
 
-const renderSummary = async (
-  instance: ComputeInstance = vm,
-  instanceType?: InstanceType,
-) => {
+const renderSummary = async (instance: ComputeInstance = vm, instanceType?: InstanceType) => {
   const i18n = await initTestI18n();
   return render(
     <I18nextProvider i18n={i18n}>
