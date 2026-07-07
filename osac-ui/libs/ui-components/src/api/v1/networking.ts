@@ -110,7 +110,7 @@ const virtualNetworkScopeFilter = (virtualNetworkId: string): string =>
   `this.spec.virtual_network == "${escapeCelStringLiteral(virtualNetworkId)}"`;
 
 export const resourceDisplayName = (metadata?: { name?: string }, id?: string): string =>
-  metadata?.name?.trim() || id?.trim() || '—';
+  metadata?.name?.trim() || id || '—';
 
 export const formatResourceIdsForReview = (
   ids: string[],
@@ -131,34 +131,28 @@ export const formatResourceIdsForReview = (
 export const formatResourceIdForReview = (
   id: string,
   resources: Array<{ id: string; metadata?: { name?: string } }>,
-): string => formatResourceIdsForReview(id.trim() ? [id] : [], resources);
+): string => formatResourceIdsForReview(id ? [id] : [], resources);
 
-export const useVirtualNetwork = (id: string) => {
-  const trimmedId = id?.trim() ?? '';
-  return useApiQuery<VirtualNetwork>({
-    queryKey: ['v1/virtual_networks', [trimmedId]],
+export const useVirtualNetwork = (id: string) =>
+  useApiQuery<VirtualNetwork>({
+    queryKey: ['v1/virtual_networks', [id]],
     meta: { decode: VirtualNetworkSchema },
-    enabled: Boolean(trimmedId),
+    enabled: Boolean(id),
   });
-};
 
-export const useSubnet = (id: string) => {
-  const trimmedId = id?.trim() ?? '';
-  return useApiQuery<Subnet>({
-    queryKey: ['v1/subnets', [trimmedId]],
+export const useSubnet = (id: string) =>
+  useApiQuery<Subnet>({
+    queryKey: ['v1/subnets', [id]],
     meta: { decode: SubnetSchema },
-    enabled: Boolean(trimmedId),
+    enabled: Boolean(id),
   });
-};
 
-export const useSecurityGroup = (id: string) => {
-  const trimmedId = id?.trim() ?? '';
-  return useApiQuery<SecurityGroup>({
-    queryKey: ['v1/security_groups', [trimmedId]],
+export const useSecurityGroup = (id: string) =>
+  useApiQuery<SecurityGroup>({
+    queryKey: ['v1/security_groups', [id]],
     meta: { decode: SecurityGroupSchema },
-    enabled: Boolean(trimmedId),
+    enabled: Boolean(id),
   });
-};
 
 export const invalidateVirtualNetworksQueries = async (
   qc: ReturnType<typeof useApiQueryClient>,
