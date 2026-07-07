@@ -47,21 +47,25 @@ export const VirtualNetworkCreateModal = ({
   onNavigate,
 }: VirtualNetworkCreateModalProps) => {
   const { t } = useTranslation();
-  const [error, setError] = React.useState<Error | null>(null);
-  const { data: networkClasses = [], isLoading: isLoadingNetworkClasses } = useNetworkClasses();
+  const [error, setError] = React.useState<unknown>();
+  const {
+    data: networkClasses = [],
+    isLoading: isLoadingNetworkClasses,
+    error: networkClassesError,
+  } = useNetworkClasses();
 
-  const defaultNetworkClass: string =
+  const defaultNetworkClass =
     networkClasses.find((nc) => nc.isDefault)?.id ?? networkClasses[0]?.id ?? '';
 
   return (
     <Formik
       initialValues={{ name: '', ipv4Cidr: '', ipv6Cidr: '' }}
       validationSchema={validationSchema}
-      onSubmit={async (values, { setSubmitting }) => {
-        setError(null);
+      onSubmit={async (values) => {
+        setError(undefined);
         try {
           if (!defaultNetworkClass) {
-            throw new Error('No network classes available');
+            throw new Error(t('No network classes available'));
           }
           const input: VirtualNetworkInput = {
             name: values.name,
@@ -76,9 +80,7 @@ export const VirtualNetworkCreateModal = ({
           const result = await onCreate(input);
           onNavigate(result.id);
         } catch (err: unknown) {
-          setError(err instanceof Error ? err : new Error(String(err)));
-        } finally {
-          setSubmitting(false);
+          setError(err);
         }
       }}
     >
@@ -157,7 +159,14 @@ export const VirtualNetworkCreateModal = ({
                     />
                   </FormGroup>
                 </StackItem>
-                {error && (
+                {networkClassesError !== undefined && (
+                  <StackItem>
+                    <Alert variant="danger" title={t('Failed to load network classes')} isInline>
+                      {getErrorMessage(networkClassesError)}
+                    </Alert>
+                  </StackItem>
+                )}
+                {error !== undefined && (
                   <StackItem>
                     <Alert variant="danger" title={t('Failed to create virtual network')} isInline>
                       {getErrorMessage(error)}

@@ -43,7 +43,7 @@ export const SubnetCreateModal = ({
   existingSubnets,
 }: SubnetCreateModalProps) => {
   const { t } = useTranslation();
-  const [error, setError] = React.useState<Error | null>(null);
+  const [error, setError] = React.useState<unknown>();
 
   const parentIPv4CIDR = parentVN.spec?.ipv4Cidr ?? '';
   const parentIPv6CIDR = parentVN.spec?.ipv6Cidr ?? '';
@@ -116,8 +116,8 @@ export const SubnetCreateModal = ({
     <Formik
       initialValues={{ name: '', ipv4Cidr: '', ipv6Cidr: '' }}
       validationSchema={validationSchema}
-      onSubmit={async (values, { setSubmitting }) => {
-        setError(null);
+      onSubmit={async (values) => {
+        setError(undefined);
         try {
           const input: SubnetInput = {
             name: values.name,
@@ -128,9 +128,7 @@ export const SubnetCreateModal = ({
           await onCreate(input);
           onClose();
         } catch (err: unknown) {
-          setError(err instanceof Error ? err : new Error(String(err)));
-        } finally {
-          setSubmitting(false);
+          setError(err);
         }
       }}
     >
@@ -223,7 +221,7 @@ export const SubnetCreateModal = ({
                     </FormGroup>
                   </StackItem>
                 )}
-                {error && (
+                {error !== undefined && (
                   <StackItem>
                     <Alert variant="danger" title={t('Failed to create subnet')} isInline>
                       {getErrorMessage(error)}

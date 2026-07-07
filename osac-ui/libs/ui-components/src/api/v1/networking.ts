@@ -133,46 +133,35 @@ export const formatResourceIdForReview = (
   resources: Array<{ id: string; metadata?: { name?: string } }>,
 ): string => formatResourceIdsForReview(id.trim() ? [id] : [], resources);
 
-export const useVirtualNetwork = (id: string) => {
-  const trimmedId = id?.trim() ?? '';
-  return useApiQuery<VirtualNetwork>({
-    queryKey: ['v1/virtual_networks', [trimmedId]],
+export const useVirtualNetwork = (id: string) =>
+  useApiQuery<VirtualNetwork>({
+    queryKey: ['v1/virtual_networks', [id]],
     meta: { decode: VirtualNetworkSchema },
-    enabled: Boolean(trimmedId),
+    enabled: Boolean(id),
   });
-};
 
-export const useSubnet = (id: string) => {
-  const trimmedId = id?.trim() ?? '';
-  return useApiQuery<Subnet>({
-    queryKey: ['v1/subnets', [trimmedId]],
+export const useSubnet = (id: string) =>
+  useApiQuery<Subnet>({
+    queryKey: ['v1/subnets', [id]],
     meta: { decode: SubnetSchema },
-    enabled: Boolean(trimmedId),
+    enabled: Boolean(id),
   });
-};
 
-export const useSecurityGroup = (id: string) => {
-  const trimmedId = id?.trim() ?? '';
-  return useApiQuery<SecurityGroup>({
-    queryKey: ['v1/security_groups', [trimmedId]],
+export const useSecurityGroup = (id: string) =>
+  useApiQuery<SecurityGroup>({
+    queryKey: ['v1/security_groups', [id]],
     meta: { decode: SecurityGroupSchema },
-    enabled: Boolean(trimmedId),
+    enabled: Boolean(id),
   });
-};
 
-export const invalidateVirtualNetworksQueries = async (
-  qc: ReturnType<typeof useApiQueryClient>,
-) => {
-  await qc.invalidateQueries({ queryKey: apiQueryKey('v1/virtual_networks', null) });
-};
+export const invalidateVirtualNetworksQueries = (qc: ReturnType<typeof useApiQueryClient>) =>
+  qc.invalidateQueries({ queryKey: apiQueryKey('v1/virtual_networks') });
 
-export const invalidateSubnetsQueries = async (qc: ReturnType<typeof useApiQueryClient>) => {
-  await qc.invalidateQueries({ queryKey: apiQueryKey('v1/subnets', null) });
-};
+export const invalidateSubnetsQueries = (qc: ReturnType<typeof useApiQueryClient>) =>
+  qc.invalidateQueries({ queryKey: apiQueryKey('v1/subnets') });
 
-export const invalidateSecurityGroupsQueries = async (qc: ReturnType<typeof useApiQueryClient>) => {
-  await qc.invalidateQueries({ queryKey: apiQueryKey('v1/security_groups', null) });
-};
+export const invalidateSecurityGroupsQueries = (qc: ReturnType<typeof useApiQueryClient>) =>
+  qc.invalidateQueries({ queryKey: apiQueryKey('v1/security_groups') });
 
 export interface VirtualNetworkInput {
   name: string;
@@ -215,9 +204,7 @@ export const useCreateVirtualNetwork = () => {
       }
       return vn;
     },
-    onSuccess: async () => {
-      await invalidateVirtualNetworksQueries(qc);
-    },
+    onSuccess: () => invalidateVirtualNetworksQueries(qc),
   });
 };
 
@@ -230,9 +217,7 @@ export const useDeleteVirtualNetwork = () => {
         pathParams: [id],
         method: 'DELETE',
       }),
-    onSuccess: async () => {
-      await invalidateVirtualNetworksQueries(qc);
-    },
+    onSuccess: () => invalidateVirtualNetworksQueries(qc),
   });
 };
 
@@ -258,9 +243,7 @@ export const useCreateSubnet = () => {
       }
       return subnet;
     },
-    onSuccess: async () => {
-      await invalidateSubnetsQueries(qc);
-    },
+    onSuccess: () => invalidateSubnetsQueries(qc),
   });
 };
 
@@ -273,8 +256,6 @@ export const useDeleteSubnet = () => {
         pathParams: [id],
         method: 'DELETE',
       }),
-    onSuccess: async () => {
-      await invalidateSubnetsQueries(qc);
-    },
+    onSuccess: () => invalidateSubnetsQueries(qc),
   });
 };
