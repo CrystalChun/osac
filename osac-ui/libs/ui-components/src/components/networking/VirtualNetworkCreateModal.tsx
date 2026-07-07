@@ -43,7 +43,7 @@ export const VirtualNetworkCreateModal = ({
   const [error, setError] = React.useState<Error | null>(null);
   const { data: networkClasses = [], isLoading: isLoadingNetworkClasses } = useNetworkClasses();
 
-  const defaultNetworkClass: string =
+  const defaultNetworkClass =
     networkClasses.find((nc) => nc.title === 'CUDN Network Implementation')?.id ??
     networkClasses[0]?.id ??
     '';
