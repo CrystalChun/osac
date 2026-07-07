@@ -73,6 +73,12 @@ describe('networking list filters', () => {
       `this.spec.virtual_network == "\\"'] || true || this.id in ['"`,
     );
   });
+
+  it('escapes trailing backslash in virtual network id for security group filter', () => {
+    expect(securityGroupFilterForVirtualNetwork('vn-\\')).toBe(
+      'this.spec.virtual_network == "vn-\\\\"',
+    );
+  });
 });
 
 describe('virtualNetwork create response decode', () => {

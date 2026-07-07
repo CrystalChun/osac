@@ -101,6 +101,7 @@
   "Failed to create subnet": "Failed to create subnet",
   "Failed to create virtual network": "Failed to create virtual network",
   "Failed to delete cluster": "Failed to delete cluster",
+  "Failed to delete rule. Please try again.": "Failed to delete rule. Please try again.",
   "Filter catalog by keyword": "Filter catalog by keyword",
   "Filter catalog by resource type": "Filter catalog by resource type",
   "Fixed": "Fixed",

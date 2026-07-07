@@ -75,7 +75,8 @@ export const SecurityGroupDetailPage = () => {
         },
       });
     } catch (err) {
-      setDeleteError(err instanceof Error ? err.message : String(err));
+      console.error('Failed to delete ingress rule:', err);
+      setDeleteError(t('Failed to delete rule. Please try again.'));
     }
   };
 
@@ -105,7 +106,8 @@ export const SecurityGroupDetailPage = () => {
         },
       });
     } catch (err) {
-      setDeleteError(err instanceof Error ? err.message : String(err));
+      console.error('Failed to delete egress rule:', err);
+      setDeleteError(t('Failed to delete rule. Please try again.'));
     }
   };
 
