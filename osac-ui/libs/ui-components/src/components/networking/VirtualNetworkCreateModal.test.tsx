@@ -26,7 +26,6 @@ describe('VirtualNetworkCreateModal', () => {
   it('renders with Name and IPv4 CIDR fields', () => {
     render(
       <VirtualNetworkCreateModal
-        isOpen
         onClose={mockOnClose}
         onCreate={mockOnCreate}
         onNavigate={mockOnNavigate}
@@ -42,7 +41,6 @@ describe('VirtualNetworkCreateModal', () => {
   it('Create button stays enabled', () => {
     render(
       <VirtualNetworkCreateModal
-        isOpen
         onClose={mockOnClose}
         onCreate={mockOnCreate}
         onNavigate={mockOnNavigate}
@@ -56,7 +54,6 @@ describe('VirtualNetworkCreateModal', () => {
   it('renders IPv6 CIDR field as optional', () => {
     render(
       <VirtualNetworkCreateModal
-        isOpen
         onClose={mockOnClose}
         onCreate={mockOnCreate}
         onNavigate={mockOnNavigate}
