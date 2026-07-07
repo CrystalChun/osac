@@ -1,8 +1,11 @@
 import { useState } from 'react';
+import { Formik } from 'formik';
 import type { TFunction } from 'i18next';
+import * as Yup from 'yup';
 import {
   Alert,
   Button,
+  // eslint-disable-next-line no-restricted-imports
   Form,
   Modal,
   ModalBody,
@@ -10,12 +13,10 @@ import {
   ModalHeader,
   ModalVariant,
 } from '@patternfly/react-core';
-import { Formik } from 'formik';
-import * as Yup from 'yup';
 
 import { Protocol, type SecurityRule } from '@osac/types';
 
-import { SecurityGroupRuleForm, type RuleFormValues } from './SecurityGroupRuleForm';
+import { type RuleFormValues, SecurityGroupRuleForm } from './SecurityGroupRuleForm';
 import { useTranslation } from '../../hooks/useTranslation';
 
 const createRuleValidationSchema = (t: TFunction) =>
@@ -28,7 +29,9 @@ const createRuleValidationSchema = (t: TFunction) =>
           .required(t('Port From is required for TCP/UDP'))
           .matches(/^\d+$/, t('Port must be a number'))
           .test('range', t('Port must be between 1 and 65535'), (value) => {
-            if (!value) return false;
+            if (!value) {
+              return false;
+            }
             const port = parseInt(value, 10);
             return port >= 1 && port <= 65535;
           }),
@@ -41,14 +44,22 @@ const createRuleValidationSchema = (t: TFunction) =>
           .required(t('Port To is required for TCP/UDP'))
           .matches(/^\d+$/, t('Port must be a number'))
           .test('range', t('Port must be between 1 and 65535'), (value) => {
-            if (!value) return false;
+            if (!value) {
+              return false;
+            }
             const port = parseInt(value, 10);
             return port >= 1 && port <= 65535;
           })
           .test('min', t('Port To must be >= Port From'), function (value) {
-            if (!value) return false;
+            if (!value) {
+              return false;
+            }
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             const portFrom = this.parent.portFrom;
-            if (!portFrom) return true;
+            if (!portFrom) {
+              return true;
+            }
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             return parseInt(value, 10) >= parseInt(portFrom, 10);
           }),
       otherwise: (schema) => schema.notRequired(),
@@ -64,7 +75,9 @@ const createRuleValidationSchema = (t: TFunction) =>
           ),
       otherwise: (schema) =>
         schema.test('format', t('Invalid IPv4 CIDR format (e.g., 192.168.1.0/24)'), (value) => {
-          if (!value || value.trim() === '') return true;
+          if (!value || value.trim() === '') {
+            return true;
+          }
           return /^(\d{1,3}\.){3}\d{1,3}\/\d{1,2}$/.test(value);
         }),
     }),
@@ -72,7 +85,9 @@ const createRuleValidationSchema = (t: TFunction) =>
       'format',
       t('Invalid IPv6 CIDR format (e.g., 2001:db8::/32)'),
       (value) => {
-        if (!value || value.trim() === '') return true;
+        if (!value || value.trim() === '') {
+          return true;
+        }
         return /^([0-9a-fA-F:]+)\/\d{1,3}$/.test(value);
       },
     ),
@@ -112,12 +127,14 @@ export const SecurityGroupRuleModal = ({
       // Create a plain object without protobuf metadata
       const rule = {
         protocol: values.protocol,
-        ...(values.portFrom && String(values.portFrom).trim() !== '' && {
-          portFrom: parseInt(String(values.portFrom), 10),
-        }),
-        ...(values.portTo && String(values.portTo).trim() !== '' && {
-          portTo: parseInt(String(values.portTo), 10),
-        }),
+        ...(values.portFrom &&
+          String(values.portFrom).trim() !== '' && {
+            portFrom: parseInt(String(values.portFrom), 10),
+          }),
+        ...(values.portTo &&
+          String(values.portTo).trim() !== '' && {
+            portTo: parseInt(String(values.portTo), 10),
+          }),
         ...(values.ipv4Cidr.trim() !== '' && { ipv4Cidr: values.ipv4Cidr }),
         ...(values.ipv6Cidr.trim() !== '' && { ipv6Cidr: values.ipv6Cidr }),
       } as SecurityRule;
@@ -148,7 +165,12 @@ export const SecurityGroupRuleModal = ({
           <Form onSubmit={(e) => e.preventDefault()}>
             <ModalBody>
               {error && (
-                <Alert variant="danger" title={t('Error')} isInline style={{ marginBottom: '1rem' }}>
+                <Alert
+                  variant="danger"
+                  title={t('Error')}
+                  isInline
+                  style={{ marginBottom: '1rem' }}
+                >
                   {error}
                 </Alert>
               )}

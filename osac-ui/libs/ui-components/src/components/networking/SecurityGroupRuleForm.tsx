@@ -3,8 +3,8 @@ import { useFormikContext } from 'formik';
 
 import { Protocol } from '@osac/types';
 
-import { FormFieldHelper } from '../Form/FormFieldHelper';
 import { useTranslation } from '../../hooks/useTranslation';
+import { FormFieldHelper } from '../Form/FormFieldHelper';
 
 export interface RuleFormValues {
   protocol: Protocol;
@@ -23,9 +23,7 @@ export const SecurityGroupRuleForm = ({ direction }: SecurityGroupRuleFormProps)
   const { values, errors, touched, setFieldValue, handleChange, handleBlur } =
     useFormikContext<RuleFormValues>();
 
-  const showPortRange =
-    values.protocol === Protocol.TCP || values.protocol === Protocol.UDP;
-  const cidrLabel = direction === 'ingress' ? t('Source CIDR') : t('Destination CIDR');
+  const showPortRange = values.protocol === Protocol.TCP || values.protocol === Protocol.UDP;
 
   return (
     <>

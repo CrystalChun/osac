@@ -88,6 +88,10 @@
   "Dashboard": "Dashboard",
   "Delete": "Delete",
   "Delete {{name}}?": "Delete {{name}}?",
+  "Delete rule": "Delete rule",
+  "Delete rule?": "Delete rule?",
+  "Delete security group": "Delete security group",
+  "Delete security group?": "Delete security group?",
   "deprecated": "deprecated",
   "Destination CIDR": "Destination CIDR",
   "Details": "Details",
@@ -158,11 +162,8 @@
   "Protocol": "Protocol",
   "Protocol is required": "Protocol is required",
   "Provisioning failed": "Provisioning failed",
-<<<<<<< HEAD
   "Public IP": "Public IP",
-=======
   "Save": "Save",
->>>>>>> f9a5fa1 (Implement SecurityGroup rule add/edit functionality)
   "Search catalog items": "Search catalog items",
   "Search security groups by name…": "Search security groups by name…",
   "Search virtual networks by name…": "Search virtual networks by name…",
@@ -179,6 +180,8 @@
   "TCP": "TCP",
   "Tenant organizations": "Tenant organizations",
   "This permanently deletes the cluster and all its resources. This action cannot be undone.": "This permanently deletes the cluster and all its resources. This action cannot be undone.",
+  "This will permanently delete the rule. This action cannot be undone. Traffic matching this rule will be blocked.": "This will permanently delete the rule. This action cannot be undone. Traffic matching this rule will be blocked.",
+  "This will permanently delete the security group and all its rules. This action cannot be undone.": "This will permanently delete the security group and all its rules. This action cannot be undone.",
   "UDP": "UDP",
   "Unauthorized": "Unauthorized",
   "Unknown": "Unknown",

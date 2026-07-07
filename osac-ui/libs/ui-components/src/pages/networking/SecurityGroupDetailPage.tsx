@@ -12,6 +12,14 @@ import {
   DescriptionListDescription,
   DescriptionListGroup,
   DescriptionListTerm,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  ModalVariant,
+  Spinner,
+  Stack,
+  StackItem,
   Tab,
   TabTitleText,
   Tabs,
@@ -21,6 +29,7 @@ import { SecurityGroupState, type SecurityRule } from '@osac/types';
 
 import {
   resourceDisplayName,
+  useDeleteSecurityGroup,
   useSecurityGroup,
   useUpdateSecurityGroup,
   useVirtualNetworks,
@@ -31,6 +40,7 @@ import { SecurityGroupStatusLabel } from '../../components/networking/SecurityGr
 import ListPage from '../../components/Page/ListPage';
 import ListPageBody from '../../components/Page/ListPageBody';
 import { useTranslation } from '../../hooks/useTranslation';
+import { getErrorMessage } from '../../utils/error';
 
 export const SecurityGroupDetailPage = () => {
   const { t } = useTranslation();
@@ -38,6 +48,11 @@ export const SecurityGroupDetailPage = () => {
   const { id = '' } = useParams<{ id: string }>();
   const [activeTabKey, setActiveTabKey] = useState<string | number>(0);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [deleteRuleIndex, setDeleteRuleIndex] = useState<{
+    index: number;
+    direction: 'ingress' | 'egress';
+  } | null>(null);
+  const [showDeleteSgModal, setShowDeleteSgModal] = useState(false);
   const [ruleModalState, setRuleModalState] = useState<{
     isOpen: boolean;
     mode: 'add' | 'edit';
@@ -53,6 +68,7 @@ export const SecurityGroupDetailPage = () => {
   const { data: sg, isLoading, error } = useSecurityGroup(id);
   const { data: virtualNetworks = [] } = useVirtualNetworks();
   const updateSecurityGroup = useUpdateSecurityGroup();
+  const deleteSecurityGroup = useDeleteSecurityGroup();
 
   const sgName = sg?.metadata?.name ?? id;
   const isFailed = sg?.status?.state === SecurityGroupState.FAILED;
@@ -92,15 +108,25 @@ export const SecurityGroupDetailPage = () => {
     });
   };
 
-  const handleDeleteIngressRule = async (index: number) => {
-    if (!sg) {
+  const handleDeleteIngressRule = (index: number) => {
+    setDeleteRuleIndex({ index, direction: 'ingress' });
+  };
+
+  const confirmDeleteRule = async () => {
+    if (!sg || !deleteRuleIndex) {
       return;
     }
     try {
       setDeleteError(null);
       const newIngress = (sg.spec?.ingress ?? []).map(toPlainRule);
-      newIngress.splice(index, 1);
       const newEgress = (sg.spec?.egress ?? []).map(toPlainRule);
+
+      if (deleteRuleIndex.direction === 'ingress') {
+        newIngress.splice(deleteRuleIndex.index, 1);
+      } else {
+        newEgress.splice(deleteRuleIndex.index, 1);
+      }
+
       await updateSecurityGroup.mutateAsync({
         id: sg.id,
         input: {
@@ -110,6 +136,7 @@ export const SecurityGroupDetailPage = () => {
           egress: newEgress,
         },
       });
+      setDeleteRuleIndex(null);
     } catch {
       setDeleteError(t('Failed to delete rule. Please try again.'));
     }
@@ -137,27 +164,8 @@ export const SecurityGroupDetailPage = () => {
     });
   };
 
-  const handleDeleteEgressRule = async (index: number) => {
-    if (!sg) {
-      return;
-    }
-    try {
-      setDeleteError(null);
-      const newIngress = (sg.spec?.ingress ?? []).map(toPlainRule);
-      const newEgress = (sg.spec?.egress ?? []).map(toPlainRule);
-      newEgress.splice(index, 1);
-      await updateSecurityGroup.mutateAsync({
-        id: sg.id,
-        input: {
-          name: sg.metadata?.name ?? '',
-          virtual_network: sg.spec?.virtualNetwork ?? '',
-          ingress: newIngress,
-          egress: newEgress,
-        },
-      });
-    } catch {
-      setDeleteError(t('Failed to delete rule. Please try again.'));
-    }
+  const handleDeleteEgressRule = (index: number) => {
+    setDeleteRuleIndex({ index, direction: 'egress' });
   };
 
   const handleSaveRule = async (rule: SecurityRule) => {
@@ -202,9 +210,23 @@ export const SecurityGroupDetailPage = () => {
     });
   };
 
+  const handleDeleteSecurityGroup = async () => {
+    try {
+      await deleteSecurityGroup.mutateAsync(id);
+      navigate('/networking/security-groups');
+    } catch {
+      // Error is shown in the modal
+    }
+  };
+
   return (
     <ListPage
       title={sgName}
+      actions={
+        <Button variant="danger" onClick={() => setShowDeleteSgModal(true)}>
+          {t('Delete')}
+        </Button>
+      }
       breadcrumb={
         <Breadcrumb>
           <BreadcrumbItem>
@@ -324,6 +346,112 @@ export const SecurityGroupDetailPage = () => {
         mode={ruleModalState.mode}
         initialValues={ruleModalState.initialValues}
       />
+
+      {/* Delete Rule Confirmation Modal */}
+      <Modal
+        variant={ModalVariant.small}
+        isOpen={deleteRuleIndex !== null}
+        onClose={() => setDeleteRuleIndex(null)}
+        aria-label={t('Delete rule')}
+      >
+        <ModalHeader title={t('Delete rule?')} titleIconVariant="warning" />
+        <ModalBody>
+          <Stack hasGutter>
+            <StackItem>
+              {t(
+                'This will permanently delete the rule. This action cannot be undone. Traffic matching this rule will be blocked.',
+              )}
+            </StackItem>
+            {deleteError && (
+              <StackItem>
+                <Alert variant="danger" title={t('Error')} isInline>
+                  {deleteError}
+                </Alert>
+              </StackItem>
+            )}
+          </Stack>
+        </ModalBody>
+        <ModalFooter>
+          <Button
+            variant="danger"
+            onClick={confirmDeleteRule}
+            isDisabled={updateSecurityGroup.isPending}
+            isLoading={updateSecurityGroup.isPending}
+          >
+            {t('Delete')}
+          </Button>
+          <Button
+            variant="link"
+            onClick={() => setDeleteRuleIndex(null)}
+            isDisabled={updateSecurityGroup.isPending}
+          >
+            {t('Cancel')}
+          </Button>
+        </ModalFooter>
+      </Modal>
+
+      {/* Delete Security Group Confirmation Modal */}
+      <Modal
+        variant={ModalVariant.small}
+        isOpen={showDeleteSgModal}
+        onClose={() => setShowDeleteSgModal(false)}
+        aria-label={t('Delete security group')}
+      >
+        <ModalHeader title={t('Delete security group?')} titleIconVariant="warning" />
+        <ModalBody>
+          <Stack hasGutter>
+            <StackItem>
+              {t(
+                'This will permanently delete the security group and all its rules. This action cannot be undone.',
+              )}
+            </StackItem>
+            {deleteSecurityGroup.error && (
+              <StackItem>
+                <Alert variant="danger" title={t('Error')} isInline>
+                  {getErrorMessage(deleteSecurityGroup.error)}
+                </Alert>
+              </StackItem>
+            )}
+          </Stack>
+        </ModalBody>
+        <ModalFooter>
+          <Button
+            variant="danger"
+            onClick={handleDeleteSecurityGroup}
+            isDisabled={deleteSecurityGroup.isPending}
+            isLoading={deleteSecurityGroup.isPending}
+          >
+            {t('Delete')}
+          </Button>
+          <Button
+            variant="link"
+            onClick={() => setShowDeleteSgModal(false)}
+            isDisabled={deleteSecurityGroup.isPending}
+          >
+            {t('Cancel')}
+          </Button>
+        </ModalFooter>
+      </Modal>
+
+      {/* Loading overlay for rule operations */}
+      {updateSecurityGroup.isPending && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.3)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+          }}
+        >
+          <Spinner size="xl" />
+        </div>
+      )}
     </ListPage>
   );
 };
