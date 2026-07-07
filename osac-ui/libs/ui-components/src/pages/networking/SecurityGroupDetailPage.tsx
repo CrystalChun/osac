@@ -17,7 +17,7 @@ import {
   Tabs,
 } from '@patternfly/react-core';
 
-import { SecurityGroupState } from '@osac/types';
+import { SecurityGroupState, type SecurityRule } from '@osac/types';
 
 import {
   resourceDisplayName,
@@ -25,6 +25,7 @@ import {
   useUpdateSecurityGroup,
   useVirtualNetworks,
 } from '../../api/v1/networking';
+import { SecurityGroupRuleModal } from '../../components/networking/SecurityGroupRuleModal';
 import { SecurityGroupRulesTable } from '../../components/networking/SecurityGroupRulesTable';
 import { SecurityGroupStatusLabel } from '../../components/networking/SecurityGroupStatusLabel';
 import ListPage from '../../components/Page/ListPage';
@@ -37,6 +38,17 @@ export const SecurityGroupDetailPage = () => {
   const { id = '' } = useParams<{ id: string }>();
   const [activeTabKey, setActiveTabKey] = useState<string | number>(0);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [ruleModalState, setRuleModalState] = useState<{
+    isOpen: boolean;
+    mode: 'add' | 'edit';
+    direction: 'ingress' | 'egress';
+    ruleIndex?: number;
+    initialValues?: SecurityRule;
+  }>({
+    isOpen: false,
+    mode: 'add',
+    direction: 'ingress',
+  });
 
   const { data: sg, isLoading, error } = useSecurityGroup(id);
   const { data: virtualNetworks = [] } = useVirtualNetworks();
@@ -50,11 +62,25 @@ export const SecurityGroupDetailPage = () => {
   const vnName = resourceDisplayName(vn?.metadata, vnId);
 
   const handleAddIngressRule = () => {
-    // TODO: Open rule form modal/drawer
+    setRuleModalState({
+      isOpen: true,
+      mode: 'add',
+      direction: 'ingress',
+    });
   };
 
-  const handleEditIngressRule = (_index: number) => {
-    // TODO: Open rule form modal/drawer with pre-filled data
+  const handleEditIngressRule = (index: number) => {
+    const rule = sg?.spec?.ingress?.[index];
+    if (!rule) {
+      return;
+    }
+    setRuleModalState({
+      isOpen: true,
+      mode: 'edit',
+      direction: 'ingress',
+      ruleIndex: index,
+      initialValues: rule,
+    });
   };
 
   const handleDeleteIngressRule = async (index: number) => {
@@ -80,11 +106,25 @@ export const SecurityGroupDetailPage = () => {
   };
 
   const handleAddEgressRule = () => {
-    // TODO: Open rule form modal/drawer
+    setRuleModalState({
+      isOpen: true,
+      mode: 'add',
+      direction: 'egress',
+    });
   };
 
-  const handleEditEgressRule = (_index: number) => {
-    // TODO: Open rule form modal/drawer with pre-filled data
+  const handleEditEgressRule = (index: number) => {
+    const rule = sg?.spec?.egress?.[index];
+    if (!rule) {
+      return;
+    }
+    setRuleModalState({
+      isOpen: true,
+      mode: 'edit',
+      direction: 'egress',
+      ruleIndex: index,
+      initialValues: rule,
+    });
   };
 
   const handleDeleteEgressRule = async (index: number) => {
@@ -107,6 +147,48 @@ export const SecurityGroupDetailPage = () => {
     } catch {
       setDeleteError(t('Failed to delete rule. Please try again.'));
     }
+  };
+
+  const handleSaveRule = async (rule: SecurityRule) => {
+    if (!sg) {
+      return;
+    }
+
+    const { direction, mode, ruleIndex } = ruleModalState;
+    const newIngress = [...(sg.spec?.ingress ?? [])];
+    const newEgress = [...(sg.spec?.egress ?? [])];
+
+    if (direction === 'ingress') {
+      if (mode === 'add') {
+        newIngress.push(rule);
+      } else if (mode === 'edit' && ruleIndex !== undefined) {
+        newIngress[ruleIndex] = rule;
+      }
+    } else {
+      if (mode === 'add') {
+        newEgress.push(rule);
+      } else if (mode === 'edit' && ruleIndex !== undefined) {
+        newEgress[ruleIndex] = rule;
+      }
+    }
+
+    await updateSecurityGroup.mutateAsync({
+      id: sg.id,
+      input: {
+        name: sg.metadata?.name ?? '',
+        virtual_network: sg.spec?.virtualNetwork ?? '',
+        ingress: newIngress,
+        egress: newEgress,
+      },
+    });
+  };
+
+  const handleCloseRuleModal = () => {
+    setRuleModalState({
+      isOpen: false,
+      mode: 'add',
+      direction: 'ingress',
+    });
   };
 
   return (
@@ -222,6 +304,15 @@ export const SecurityGroupDetailPage = () => {
           </Tab>
         </Tabs>
       </ListPageBody>
+
+      <SecurityGroupRuleModal
+        isOpen={ruleModalState.isOpen}
+        onClose={handleCloseRuleModal}
+        onSave={handleSaveRule}
+        direction={ruleModalState.direction}
+        mode={ruleModalState.mode}
+        initialValues={ruleModalState.initialValues}
+      />
     </ListPage>
   );
 };
