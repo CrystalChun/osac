@@ -127,7 +127,6 @@ export const SecurityGroupsListPage = () => {
 
       {isCreateModalOpen && (
         <SecurityGroupCreateModal
-          isOpen={isCreateModalOpen}
           onClose={() => setIsCreateModalOpen(false)}
           onCreate={handleCreate}
           onNavigate={handleNavigateToDetail}

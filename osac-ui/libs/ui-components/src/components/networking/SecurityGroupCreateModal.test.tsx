@@ -42,7 +42,6 @@ describe('SecurityGroupCreateModal', () => {
   it('renders modal with VN dropdown and Name field', () => {
     render(
       <SecurityGroupCreateModal
-        isOpen={true}
         onClose={vi.fn()}
         onCreate={vi.fn()}
         onNavigate={vi.fn()}
@@ -59,7 +58,6 @@ describe('SecurityGroupCreateModal', () => {
   it('pre-selects virtual network when virtualNetworkId prop is provided', () => {
     render(
       <SecurityGroupCreateModal
-        isOpen={true}
         onClose={vi.fn()}
         onCreate={vi.fn()}
         onNavigate={vi.fn()}
@@ -78,7 +76,6 @@ describe('SecurityGroupCreateModal', () => {
 
     render(
       <SecurityGroupCreateModal
-        isOpen={true}
         onClose={vi.fn()}
         onCreate={onCreate}
         onNavigate={onNavigate}
@@ -106,7 +103,6 @@ describe('SecurityGroupCreateModal', () => {
 
     render(
       <SecurityGroupCreateModal
-        isOpen={true}
         onClose={vi.fn()}
         onCreate={onCreate}
         onNavigate={vi.fn()}
@@ -128,7 +124,6 @@ describe('SecurityGroupCreateModal', () => {
 
     render(
       <SecurityGroupCreateModal
-        isOpen={true}
         onClose={onClose}
         onCreate={vi.fn()}
         onNavigate={vi.fn()}

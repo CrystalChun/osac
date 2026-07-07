@@ -30,7 +30,6 @@ import { useTranslation } from '../../hooks/useTranslation';
 import { getErrorMessage } from '../../utils/error';
 
 interface SecurityGroupCreateModalProps {
-  isOpen: boolean;
   onClose: () => void;
   onCreate: (input: SecurityGroupInput) => Promise<{ id: string }>;
   onNavigate: (id: string) => void;
@@ -76,7 +75,6 @@ const validationSchema = Yup.object({
 });
 
 export const SecurityGroupCreateModal = ({
-  isOpen,
   onClose,
   onCreate,
   onNavigate,
@@ -132,7 +130,7 @@ export const SecurityGroupCreateModal = ({
       {({ values, errors, touched, handleChange, handleBlur, handleSubmit, isSubmitting }) => (
         <Modal
           variant="medium"
-          isOpen={isOpen}
+          isOpen
           onClose={isSubmitting ? undefined : onClose}
           aria-labelledby="sg-create-modal-title"
         >
