@@ -94,7 +94,6 @@ const createRuleValidationSchema = (t: TFunction) =>
   });
 
 interface SecurityGroupRuleModalProps {
-  isOpen: boolean;
   onClose: () => void;
   onSave: (rule: SecurityRule) => Promise<void>;
   direction: 'ingress' | 'egress';
@@ -103,7 +102,6 @@ interface SecurityGroupRuleModalProps {
 }
 
 export const SecurityGroupRuleModal = ({
-  isOpen,
   onClose,
   onSave,
   direction,
@@ -151,7 +149,7 @@ export const SecurityGroupRuleModal = ({
   return (
     <Modal
       variant={ModalVariant.small}
-      isOpen={isOpen}
+      isOpen
       onClose={onClose}
       aria-label={mode === 'add' ? t('Add rule') : t('Edit rule')}
     >

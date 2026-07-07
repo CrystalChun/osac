@@ -346,14 +346,15 @@ export const SecurityGroupDetailPage = () => {
         </Tabs>
       </ListPageBody>
 
-      <SecurityGroupRuleModal
-        isOpen={ruleModalState.isOpen}
-        onClose={handleCloseRuleModal}
-        onSave={handleSaveRule}
-        direction={ruleModalState.direction}
-        mode={ruleModalState.mode}
-        initialValues={ruleModalState.initialValues}
-      />
+      {ruleModalState.isOpen && (
+        <SecurityGroupRuleModal
+          onClose={handleCloseRuleModal}
+          onSave={handleSaveRule}
+          direction={ruleModalState.direction}
+          mode={ruleModalState.mode}
+          initialValues={ruleModalState.initialValues}
+        />
+      )}
 
       {/* Delete Rule Confirmation Modal */}
       <Modal
