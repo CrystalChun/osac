@@ -110,7 +110,7 @@ const virtualNetworkScopeFilter = (virtualNetworkId: string): string =>
   `this.spec.virtual_network == "${escapeCelStringLiteral(virtualNetworkId)}"`;
 
 export const resourceDisplayName = (metadata?: { name?: string }, id?: string): string =>
-  metadata?.name?.trim() || id?.trim() || '—';
+  metadata?.name?.trim() || id || '—';
 
 export const formatResourceIdsForReview = (
   ids: string[],
@@ -131,7 +131,7 @@ export const formatResourceIdsForReview = (
 export const formatResourceIdForReview = (
   id: string,
   resources: Array<{ id: string; metadata?: { name?: string } }>,
-): string => formatResourceIdsForReview(id.trim() ? [id] : [], resources);
+): string => formatResourceIdsForReview(id ? [id] : [], resources);
 
 export const useVirtualNetwork = (id: string) =>
   useApiQuery<VirtualNetwork>({

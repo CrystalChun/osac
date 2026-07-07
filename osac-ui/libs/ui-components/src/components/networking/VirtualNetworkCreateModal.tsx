@@ -84,7 +84,7 @@ export const VirtualNetworkCreateModal = ({
         }
       }}
     >
-      {({ values, errors, touched, handleChange, handleBlur, handleSubmit, isSubmitting }) => (
+      {({ values, errors, touched, handleChange, handleBlur, submitForm, isSubmitting }) => (
         <Modal
           variant="small"
           isOpen={isOpen}
@@ -182,7 +182,7 @@ export const VirtualNetworkCreateModal = ({
             </Button>
             <Button
               variant="primary"
-              onClick={() => handleSubmit()}
+              onClick={submitForm}
               isDisabled={isSubmitting || isLoadingNetworkClasses || !defaultNetworkClass}
               isLoading={isSubmitting}
             >
