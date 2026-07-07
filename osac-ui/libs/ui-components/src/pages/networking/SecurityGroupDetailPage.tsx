@@ -125,12 +125,7 @@ export const SecurityGroupDetailPage = () => {
     >
       <ListPageBody isLoading={isLoading} error={error}>
         {deleteError && (
-          <Alert
-            variant="danger"
-            title={t('Error')}
-            isInline
-            style={{ marginBottom: '1rem' }}
-          >
+          <Alert variant="danger" title={t('Error')} isInline style={{ marginBottom: '1rem' }}>
             {deleteError}
           </Alert>
         )}
