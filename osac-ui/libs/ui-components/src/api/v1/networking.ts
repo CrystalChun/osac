@@ -154,19 +154,14 @@ export const useSecurityGroup = (id: string) =>
     enabled: Boolean(id),
   });
 
-export const invalidateVirtualNetworksQueries = async (
-  qc: ReturnType<typeof useApiQueryClient>,
-) => {
-  await qc.invalidateQueries({ queryKey: apiQueryKey('v1/virtual_networks', null) });
-};
+export const invalidateVirtualNetworksQueries = (qc: ReturnType<typeof useApiQueryClient>) =>
+  qc.invalidateQueries({ queryKey: apiQueryKey('v1/virtual_networks') });
 
-export const invalidateSubnetsQueries = async (qc: ReturnType<typeof useApiQueryClient>) => {
-  await qc.invalidateQueries({ queryKey: apiQueryKey('v1/subnets', null) });
-};
+export const invalidateSubnetsQueries = (qc: ReturnType<typeof useApiQueryClient>) =>
+  qc.invalidateQueries({ queryKey: apiQueryKey('v1/subnets') });
 
-export const invalidateSecurityGroupsQueries = async (qc: ReturnType<typeof useApiQueryClient>) => {
-  await qc.invalidateQueries({ queryKey: apiQueryKey('v1/security_groups', null) });
-};
+export const invalidateSecurityGroupsQueries = (qc: ReturnType<typeof useApiQueryClient>) =>
+  qc.invalidateQueries({ queryKey: apiQueryKey('v1/security_groups') });
 
 export interface VirtualNetworkInput {
   name: string;
@@ -208,9 +203,7 @@ export const useCreateVirtualNetwork = () => {
       }
       return vn;
     },
-    onSuccess: async () => {
-      await invalidateVirtualNetworksQueries(qc);
-    },
+    onSuccess: () => invalidateVirtualNetworksQueries(qc),
   });
 };
 
@@ -223,9 +216,7 @@ export const useDeleteVirtualNetwork = () => {
         pathParams: [id],
         method: 'DELETE',
       }),
-    onSuccess: async () => {
-      await invalidateVirtualNetworksQueries(qc);
-    },
+    onSuccess: () => invalidateVirtualNetworksQueries(qc),
   });
 };
 
@@ -250,9 +241,7 @@ export const useCreateSubnet = () => {
       }
       return subnet;
     },
-    onSuccess: async () => {
-      await invalidateSubnetsQueries(qc);
-    },
+    onSuccess: () => invalidateSubnetsQueries(qc),
   });
 };
 
@@ -265,9 +254,7 @@ export const useDeleteSubnet = () => {
         pathParams: [id],
         method: 'DELETE',
       }),
-    onSuccess: async () => {
-      await invalidateSubnetsQueries(qc);
-    },
+    onSuccess: () => invalidateSubnetsQueries(qc),
   });
 };
 
@@ -315,9 +302,7 @@ export const useCreateSecurityGroup = () => {
       }
       return sg;
     },
-    onSuccess: async () => {
-      await invalidateSecurityGroupsQueries(qc);
-    },
+    onSuccess: () => invalidateSecurityGroupsQueries(qc),
   });
 };
 
@@ -347,9 +332,7 @@ export const useUpdateSecurityGroup = () => {
       });
       return sg;
     },
-    onSuccess: async () => {
-      await invalidateSecurityGroupsQueries(qc);
-    },
+    onSuccess: () => invalidateSecurityGroupsQueries(qc),
   });
 };
 
@@ -362,8 +345,6 @@ export const useDeleteSecurityGroup = () => {
         pathParams: [id],
         method: 'DELETE',
       }),
-    onSuccess: async () => {
-      await invalidateSecurityGroupsQueries(qc);
-    },
+    onSuccess: () => invalidateSecurityGroupsQueries(qc),
   });
 };
