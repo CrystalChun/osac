@@ -100,7 +100,7 @@ export const SecurityGroupRuleForm = ({ direction: _direction }: SecurityGroupRu
         />
         <FormFieldHelper
           fieldId="rule-ipv4-cidr"
-          helperText={t('Example: 192.168.1.0/24 or 0.0.0.0/0 for all')}
+          description={t('Example: 192.168.1.0/24 or 0.0.0.0/0 for all')}
           error={touched.ipv4Cidr ? errors.ipv4Cidr : undefined}
         />
       </FormGroup>
@@ -119,7 +119,7 @@ export const SecurityGroupRuleForm = ({ direction: _direction }: SecurityGroupRu
         />
         <FormFieldHelper
           fieldId="rule-ipv6-cidr"
-          helperText={t('Example: 2001:db8::/32 or ::/0 for all')}
+          description={t('Example: 2001:db8::/32 or ::/0 for all')}
           error={touched.ipv6Cidr ? errors.ipv6Cidr : undefined}
         />
       </FormGroup>
