@@ -135,7 +135,7 @@ export const SecurityGroupCreateModal = ({
           <ModalBody>
             <OsacForm>
               <Stack hasGutter>
-                {error && (
+                {Boolean(error) && (
                   <StackItem>
                     <Alert variant="danger" title={t('Error')} isInline>
                       {getErrorMessage(error)}
@@ -143,7 +143,7 @@ export const SecurityGroupCreateModal = ({
                   </StackItem>
                 )}
 
-                {vnError && (
+                {Boolean(vnError) && (
                   <StackItem>
                     <Alert variant="danger" title={t('Error loading virtual networks')} isInline>
                       {getErrorMessage(vnError)}

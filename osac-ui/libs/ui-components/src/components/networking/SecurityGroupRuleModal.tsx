@@ -160,7 +160,7 @@ export const SecurityGroupRuleModal = ({
         {({ handleSubmit, isSubmitting, isValid }) => (
           <Form onSubmit={(e) => e.preventDefault()}>
             <ModalBody>
-              {error && (
+              {Boolean(error) && (
                 <Alert
                   variant="danger"
                   title={t('Error')}
