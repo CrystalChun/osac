@@ -22,7 +22,6 @@ import {
 } from '@osac/types';
 
 import { useApiFetch } from '../api-context';
-import { apiQueryKey } from '../types';
 import { useApiQuery, useApiQueryClient } from '../use-api-query';
 
 export type ListNetworkingParams = {
@@ -154,14 +153,21 @@ export const useSecurityGroup = (id: string) =>
     enabled: Boolean(id),
   });
 
+/**
+ * Invalidate by route prefix only (no pathParams/queryParams). Passing those
+ * through apiQueryKey would pad the tuple with explicit `undefined` entries,
+ * which fail partial key matching against list keys (whose 2nd element is
+ * `null`, not `undefined`) and by-id keys (whose 2nd element is an array) —
+ * see TanStack Query's partialMatchKey. A bare route-only key matches both.
+ */
 export const invalidateVirtualNetworksQueries = (qc: ReturnType<typeof useApiQueryClient>) =>
-  qc.invalidateQueries({ queryKey: apiQueryKey('v1/virtual_networks') });
+  qc.invalidateQueries({ queryKey: ['v1/virtual_networks'] });
 
 export const invalidateSubnetsQueries = (qc: ReturnType<typeof useApiQueryClient>) =>
-  qc.invalidateQueries({ queryKey: apiQueryKey('v1/subnets') });
+  qc.invalidateQueries({ queryKey: ['v1/subnets'] });
 
 export const invalidateSecurityGroupsQueries = (qc: ReturnType<typeof useApiQueryClient>) =>
-  qc.invalidateQueries({ queryKey: apiQueryKey('v1/security_groups') });
+  qc.invalidateQueries({ queryKey: ['v1/security_groups'] });
 
 export interface VirtualNetworkInput {
   name: string;

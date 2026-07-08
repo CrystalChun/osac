@@ -149,7 +149,7 @@ export const VirtualNetworkDetailPage = () => {
                   {t('No subnets yet. Create one to get started.')}
                 </SubtleContent>
               ) : (
-                <Table aria-label="Subnets" variant="compact" borders>
+                <Table aria-label={t('Subnets')} variant="compact" borders>
                   <Thead>
                     <Tr>
                       <Th>{t('Name')}</Th>

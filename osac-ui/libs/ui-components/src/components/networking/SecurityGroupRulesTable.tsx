@@ -88,10 +88,10 @@ export const SecurityGroupRulesTable = ({
         <Tbody>
           {rules.map((rule, index) => (
             <Tr key={index}>
-              <Td dataLabel="Protocol">{protocolToString(rule.protocol, t)}</Td>
-              <Td dataLabel="Port Range">{formatPortRange(rule.portFrom, rule.portTo)}</Td>
+              <Td dataLabel={t('Protocol')}>{protocolToString(rule.protocol, t)}</Td>
+              <Td dataLabel={t('Port Range')}>{formatPortRange(rule.portFrom, rule.portTo)}</Td>
               <Td dataLabel={cidrLabel}>{formatCidr(rule.ipv4Cidr, rule.ipv6Cidr)}</Td>
-              <Td dataLabel="Actions">
+              <Td dataLabel={t('Actions')}>
                 <Button variant="link" isInline onClick={() => onEditRule(index)}>
                   {t('Edit')}
                 </Button>

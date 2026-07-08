@@ -51,11 +51,11 @@ export const SubnetCreateModal = ({
   const validationSchema = useMemo(
     () =>
       Yup.object({
-        name: Yup.string().required('Name is required'),
+        name: Yup.string().required(t('Name is required')),
         ipv4Cidr: hasIPv4
           ? cidrSchema
-              .required('IPv4 CIDR is required')
-              .test('within-vn', 'CIDR must be within parent virtual network range', (value) => {
+              .required(t('IPv4 CIDR is required'))
+              .test('within-vn', t('CIDR must be within parent virtual network range'), (value) => {
                 if (!value || !parentIPv4CIDR) {
                   return true;
                 }
@@ -73,7 +73,10 @@ export const SubnetCreateModal = ({
                   const subnetName = overlappingSubnet.metadata?.name || overlappingSubnet.id;
                   const subnetCidr = overlappingSubnet.spec?.ipv4Cidr;
                   return this.createError({
-                    message: `CIDR overlaps with existing subnet "${subnetName}" (${subnetCidr})`,
+                    message: t('CIDR overlaps with existing subnet "{{name}}" ({{cidr}})', {
+                      name: subnetName,
+                      cidr: subnetCidr,
+                    }),
                   });
                 }
                 return true;
@@ -81,8 +84,8 @@ export const SubnetCreateModal = ({
           : Yup.string(),
         ipv6Cidr: hasIPv6
           ? cidrSchema
-              .required('IPv6 CIDR is required')
-              .test('within-vn', 'CIDR must be within parent virtual network range', (value) => {
+              .required(t('IPv6 CIDR is required'))
+              .test('within-vn', t('CIDR must be within parent virtual network range'), (value) => {
                 if (!value || !parentIPv6CIDR) {
                   return true;
                 }
@@ -100,14 +103,17 @@ export const SubnetCreateModal = ({
                   const subnetName = overlappingSubnet.metadata?.name || overlappingSubnet.id;
                   const subnetCidr = overlappingSubnet.spec?.ipv6Cidr;
                   return this.createError({
-                    message: `CIDR overlaps with existing subnet "${subnetName}" (${subnetCidr})`,
+                    message: t('CIDR overlaps with existing subnet "{{name}}" ({{cidr}})', {
+                      name: subnetName,
+                      cidr: subnetCidr,
+                    }),
                   });
                 }
                 return true;
               })
           : Yup.string(),
       }),
-    [hasIPv4, hasIPv6, parentIPv4CIDR, parentIPv6CIDR, existingSubnets],
+    [t, hasIPv4, hasIPv6, parentIPv4CIDR, parentIPv6CIDR, existingSubnets],
   );
 
   return (

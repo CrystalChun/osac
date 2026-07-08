@@ -1,3 +1,4 @@
+import { QueryClient } from '@tanstack/react-query';
 import { describe, expect, it } from 'vitest';
 
 import {
@@ -11,6 +12,9 @@ import { decodeFulfillmentResponse } from '../fulfillment-decode';
 import {
   VIRTUAL_NETWORK_READY_LIST_FILTER,
   escapeCelStringLiteral,
+  invalidateSecurityGroupsQueries,
+  invalidateSubnetsQueries,
+  invalidateVirtualNetworksQueries,
   securityGroupFilterForVirtualNetwork,
   securityGroupFilterForVirtualNetworkList,
   virtualNetworkFilterForSubnetList,
@@ -75,6 +79,44 @@ describe('networking list filters', () => {
     expect(securityGroupFilterForVirtualNetwork('vn-\\')).toBe(
       'this.spec.virtual_network == "vn-\\\\"',
     );
+  });
+});
+
+describe('networking query invalidation', () => {
+  const asApiQueryClient = (qc: QueryClient) =>
+    qc as unknown as Parameters<typeof invalidateVirtualNetworksQueries>[0];
+
+  it('invalidates both the list and by-id virtual network queries', async () => {
+    const qc = new QueryClient();
+    qc.setQueryData(['v1/virtual_networks', null, {}], { items: [] });
+    qc.setQueryData(['v1/virtual_networks', ['vn-1']], { id: 'vn-1' });
+
+    await invalidateVirtualNetworksQueries(asApiQueryClient(qc));
+
+    expect(qc.getQueryState(['v1/virtual_networks', null, {}])?.isInvalidated).toBe(true);
+    expect(qc.getQueryState(['v1/virtual_networks', ['vn-1']])?.isInvalidated).toBe(true);
+  });
+
+  it('invalidates both the list and by-id subnet queries', async () => {
+    const qc = new QueryClient();
+    qc.setQueryData(['v1/subnets', null, {}], { items: [] });
+    qc.setQueryData(['v1/subnets', ['subnet-1']], { id: 'subnet-1' });
+
+    await invalidateSubnetsQueries(asApiQueryClient(qc));
+
+    expect(qc.getQueryState(['v1/subnets', null, {}])?.isInvalidated).toBe(true);
+    expect(qc.getQueryState(['v1/subnets', ['subnet-1']])?.isInvalidated).toBe(true);
+  });
+
+  it('invalidates both the list and by-id security group queries', async () => {
+    const qc = new QueryClient();
+    qc.setQueryData(['v1/security_groups', null, {}], { items: [] });
+    qc.setQueryData(['v1/security_groups', ['sg-1']], { id: 'sg-1' });
+
+    await invalidateSecurityGroupsQueries(asApiQueryClient(qc));
+
+    expect(qc.getQueryState(['v1/security_groups', null, {}])?.isInvalidated).toBe(true);
+    expect(qc.getQueryState(['v1/security_groups', ['sg-1']])?.isInvalidated).toBe(true);
   });
 });
 
