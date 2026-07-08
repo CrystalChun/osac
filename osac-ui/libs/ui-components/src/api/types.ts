@@ -22,7 +22,9 @@ export type ApiRoute =
   | 'v1/network_classes'
   | 'v1/virtual_networks'
   | 'v1/subnets'
-  | 'v1/security_groups';
+  | 'v1/security_groups'
+  | 'v1/baremetal_instance_catalog_items'
+  | 'v1/baremetal_instances';
 
 /**
  * Strict 3-part tuple that encodes an API address.

@@ -5,22 +5,19 @@ import {
   DescriptionListTerm,
 } from '@patternfly/react-core';
 
+import { CatalogItem } from '@osac/ui-components/components/catalog/catalogItemDisplay';
+
 import { useTranslation } from '../../../../hooks/useTranslation';
-import type { CatalogProvisionCatalogItem } from '../../catalogProvisionItem';
 import type { CatalogProvisionAdapter } from '../adapters/types';
 
-interface Props<
-  TItem extends CatalogProvisionCatalogItem,
-  TValues extends { catalogItemId: string },
-  TPayload,
-> {
+interface Props<TItem extends CatalogItem, TValues extends { catalogItemId: string }, TPayload> {
   adapter: CatalogProvisionAdapter<TItem, TValues, TPayload>;
   catalogItem: TItem | null;
   values: TValues;
 }
 
 export const ReviewStep = <
-  TItem extends CatalogProvisionCatalogItem,
+  TItem extends CatalogItem,
   TValues extends { catalogItemId: string },
   TPayload,
 >({

@@ -14,7 +14,7 @@ import {
 
 import { CatalogFieldEditabilityLabel } from './CatalogFieldEditabilityLabel';
 import {
-  type CatalogItemForDisplay,
+  type CatalogItem,
   catalogItemMetadataLabelEntries,
   catalogItemResourceParts,
   formatCatalogFieldDefault,
@@ -24,7 +24,7 @@ import { catalogItemFieldDefinitions } from '../catalogProvision/catalogFieldDef
 import { SubtleContent } from '../SubtleContent/SubtleContent';
 
 interface CatalogItemDetailContentProps {
-  item: CatalogItemForDisplay;
+  item: CatalogItem;
 }
 
 export const CatalogItemDetailContent = ({ item }: CatalogItemDetailContentProps) => {

@@ -1,6 +1,7 @@
 import { useField, useFormikContext } from 'formik';
 
-import type { CatalogProvisionCatalogItem } from '../../catalogProvisionItem';
+import { CatalogItem } from '@osac/ui-components/components/catalog/catalogItemDisplay';
+
 import {
   getCatalogFieldOverlay,
   hasCatalogFieldDefinition,
@@ -12,7 +13,7 @@ import { useTranslation } from '../../../../hooks/useTranslation';
 import { InputField } from '../../../Form/InputField';
 
 interface SshKeyFieldProps {
-  catalogItem: CatalogProvisionCatalogItem | null;
+  catalogItem: CatalogItem | null;
   wirePath: string;
   name: string;
 }

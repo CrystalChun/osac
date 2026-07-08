@@ -23,12 +23,12 @@ import {
 import { type FormikProps, FormikProvider, useFormik } from 'formik';
 
 import type { CatalogProvisionKind } from './catalogFieldDefinition';
-import type { CatalogProvisionCatalogItem } from './catalogProvisionItem';
 import type {
   CatalogProvisionPayload,
   CatalogProvisionWizardValues,
 } from './catalogProvisionTypes';
 import { useTranslation } from '../../hooks/useTranslation';
+import { CatalogItem } from '../catalog/catalogItemDisplay';
 import { FieldValidationProvider } from '../Form/FieldValidationContext';
 import { useClusterAdapter } from './wizard/adapters/clusterAdapter';
 import { useComputeInstanceAdapter } from './wizard/adapters/computeInstanceAdapter';
@@ -53,14 +53,14 @@ interface Props {
 }
 
 type ErasedCatalogAdapter = CatalogProvisionAdapter<
-  CatalogProvisionCatalogItem,
+  CatalogItem,
   CatalogProvisionWizardValues,
   CatalogProvisionPayload
 >;
 
 interface WizardFooterProps {
   formik: FormikProps<CatalogProvisionWizardValues>;
-  catalogItem: CatalogProvisionCatalogItem | null;
+  catalogItem: CatalogItem | null;
   setActiveStepId: (stepId: WizardStepId) => void;
   setProvisionError: (message: string | undefined) => void;
   setValidationAlert: (visible: boolean) => void;
@@ -208,7 +208,7 @@ const CatalogProvisionWizardFooter = ({
 interface WizardBodyProps {
   adapter: ErasedCatalogAdapter;
   stepId: WizardStepId;
-  catalogItem: CatalogProvisionCatalogItem | null;
+  catalogItem: CatalogItem | null;
   values: CatalogProvisionWizardValues;
   provisionError?: string;
   validationAlert: boolean;
@@ -282,7 +282,7 @@ const CatalogProvisionWizardInner = ({
     setActiveStepId('catalog');
   }, [wizardResetKey]);
 
-  const selectedCatalogItem: CatalogProvisionCatalogItem | null = schemaCatalogItemId
+  const selectedCatalogItem: CatalogItem | null = schemaCatalogItemId
     ? (catalogItems.find((item) => item.id === schemaCatalogItemId) ?? null)
     : null;
 
@@ -390,7 +390,7 @@ const CatalogProvisionWizardForm = ({
   t,
 }: FormProps) => {
   const { data: catalogItems = [] } = adapter.useCatalogItems();
-  const selectedCatalogItem: CatalogProvisionCatalogItem | null = formik.values.catalogItemId
+  const selectedCatalogItem: CatalogItem | null = formik.values.catalogItemId
     ? (catalogItems.find((item) => item.id === formik.values.catalogItemId) ?? null)
     : null;
 
@@ -523,9 +523,7 @@ export const CatalogProvisionWizard = ({
 }: Props) => {
   const vmAdapter = useComputeInstanceAdapter();
   const clusterAdapter = useClusterAdapter();
-  const adapter = (kind === 'cluster'
-    ? clusterAdapter
-    : vmAdapter) as unknown as ErasedCatalogAdapter;
+  const adapter = (kind === 'cluster' ? clusterAdapter : vmAdapter) as ErasedCatalogAdapter;
   const initialValues = useMemo(() => {
     const values = adapter.getInitialValues(null);
     if (initialCatalogItemId) {

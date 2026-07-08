@@ -2,12 +2,12 @@ import type { ComponentType } from 'react';
 import type { FormikHelpers } from 'formik';
 import type { AnyObjectSchema } from 'yup';
 
+import type { CatalogItem } from '../../../catalog/catalogItemDisplay';
 import type { CatalogProvisionKind } from '../../catalogFieldDefinition';
-import type { CatalogProvisionCatalogItem } from '../../catalogProvisionItem';
 import type { ReviewSection } from '../catalogOverlay';
 import type { WizardStepId } from '../stepIds';
 
-export interface CatalogItemsQueryResult<TItem extends CatalogProvisionCatalogItem> {
+export interface CatalogItemsQueryResult<TItem extends CatalogItem> {
   data: TItem[];
   isPending: boolean;
   isError: boolean;
@@ -27,11 +27,7 @@ export interface GeneralFieldDescriptor {
   helperTextKey?: string;
 }
 
-export interface CatalogProvisionAdapter<
-  TItem extends CatalogProvisionCatalogItem,
-  TValues,
-  TPayload,
-> {
+export interface CatalogProvisionAdapter<TItem extends CatalogItem, TValues, TPayload> {
   kind: CatalogProvisionKind;
   useCatalogItems: () => CatalogItemsQueryResult<TItem>;
   getInitialValues: (catalogItem: TItem | null) => TValues;

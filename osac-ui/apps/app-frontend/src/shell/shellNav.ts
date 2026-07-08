@@ -23,6 +23,7 @@ const getTenantUserNav = (t: TFunction): NavRow[] => [
       { id: 'catalog', label: t('Catalog'), path: '/catalog' },
       { id: 'compute-vms', label: t('Virtual Machines'), path: '/vms' },
       { id: 'clusters', label: t('Clusters'), path: '/clusters' },
+      { id: 'bare-metal', label: t('Bare Metal'), path: '/bare-metal' },
     ],
   },
   {

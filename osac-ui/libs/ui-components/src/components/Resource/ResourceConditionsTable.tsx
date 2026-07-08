@@ -1,7 +1,11 @@
 import { Content } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
-import type { ClusterCondition, ComputeInstanceCondition } from '@osac/types';
+import type {
+  BareMetalInstanceCondition,
+  ClusterCondition,
+  ComputeInstanceCondition,
+} from '@osac/types';
 
 import {
   type ConditionResourceKind,
@@ -12,7 +16,7 @@ import {
 import { Timestamp } from '../Primitives/Timestamp';
 
 interface ResourceConditionsTableProps {
-  conditions: (ClusterCondition | ComputeInstanceCondition)[];
+  conditions: (ClusterCondition | ComputeInstanceCondition | BareMetalInstanceCondition)[];
   ariaLabel: string;
   conditionResourceKind: ConditionResourceKind;
   emptyMessage?: string;

@@ -1,9 +1,17 @@
-import { ClusterConditionType, ComputeInstanceConditionType, ConditionStatus } from '@osac/types';
+import {
+  BareMetalInstanceConditionType,
+  ClusterConditionType,
+  ComputeInstanceConditionType,
+  ConditionStatus,
+} from '@osac/types';
 
-export type ConditionResourceKind = 'cluster' | 'compute_instance';
+const BM_CONDITION_TYPE_PREFIX = /^BARE_METAL_INSTANCE_CONDITION_TYPE_/;
+const VM_CONDITION_TYPE_PREFIX = /^COMPUTE_INSTANCE_CONDITION_TYPE_/;
+
+export type ConditionResourceKind = 'cluster' | 'compute_instance' | 'bare_metal_instance';
 
 export const humanizeConditionType = (
-  type: ClusterConditionType | ComputeInstanceConditionType,
+  type: ClusterConditionType | ComputeInstanceConditionType | BareMetalInstanceConditionType,
   resourceKind: ConditionResourceKind,
 ): string => {
   if (resourceKind === 'cluster') {
@@ -11,10 +19,15 @@ export const humanizeConditionType = (
     if (typeof clusterName === 'string') {
       return clusterName.replace(/_/g, ' ');
     }
-  } else {
+  } else if (resourceKind === 'compute_instance') {
     const vmName = ComputeInstanceConditionType[type as ComputeInstanceConditionType];
     if (typeof vmName === 'string') {
-      return vmName.replace(/^COMPUTE_INSTANCE_CONDITION_TYPE_/, '').replace(/_/g, ' ');
+      return vmName.replace(VM_CONDITION_TYPE_PREFIX, '').replace(/_/g, ' ');
+    }
+  } else {
+    const bmName = BareMetalInstanceConditionType[type as BareMetalInstanceConditionType];
+    if (typeof bmName === 'string') {
+      return bmName.replace(BM_CONDITION_TYPE_PREFIX, '').replace(/_/g, ' ');
     }
   }
   return String(type);

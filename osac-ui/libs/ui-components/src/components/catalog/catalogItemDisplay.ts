@@ -1,3 +1,9 @@
+import type {
+  BareMetalInstanceCatalogItem,
+  ClusterCatalogItem,
+  ComputeInstanceCatalogItem,
+} from '@osac/types';
+
 import {
   CATALOG_ITEM_RESOURCE_FIELD_PATHS,
   type CatalogFieldDefinition,
@@ -10,46 +16,19 @@ import {
   resolvedFieldDefault,
 } from '../catalogProvision/catalogFieldDefinition';
 
-/** Minimal catalog item shape for display helpers — wire JSON and wizard drafts. */
-export interface CatalogItemForDisplay {
-  id: string;
-  title: string;
-  description?: string;
-  template?: string;
-  published?: boolean;
-  metadata?: {
-    name?: string;
-    labels?: Record<string, string>;
-  };
-  fieldDefinitions?: ReadonlyArray<{
-    path: string;
-    displayName?: string;
-    display_name?: string;
-    editable?: boolean;
-    default?: unknown;
-    validationSchema?: unknown;
-    validation_schema?: unknown;
-  }>;
-  field_definitions?: CatalogItemForDisplay['fieldDefinitions'];
-}
+export type CatalogItem =
+  | ClusterCatalogItem
+  | BareMetalInstanceCatalogItem
+  | ComputeInstanceCatalogItem;
 
-export type CatalogItemKind = 'vm' | 'cluster';
+export type CatalogItemKind = 'vm' | 'cluster' | 'bm';
 
-export const inferCatalogItemKind = (item: CatalogItemForDisplay): CatalogItemKind => {
-  if (
-    catalogItemFieldDefinitions(item).some((def) => isClusterCatalogItemResourceFieldPath(def.path))
-  ) {
-    return 'cluster';
-  }
-  return 'vm';
-};
-
-export const catalogFieldDefault = (item: CatalogItemForDisplay, path: string): unknown => {
+export const catalogFieldDefault = (item: CatalogItem, path: string): unknown => {
   const def = catalogItemFieldDefinitions(item).find((entry) => entry.path === path);
   return def ? resolvedFieldDefault(def) : undefined;
 };
 
-export const catalogItemSubtitle = (item: CatalogItemForDisplay): string => {
+export const catalogItemSubtitle = (item: CatalogItem): string => {
   const description = item.description?.trim();
   if (description) {
     return description.length <= 120 ? description : `${description.slice(0, 119)}…`;
@@ -58,7 +37,7 @@ export const catalogItemSubtitle = (item: CatalogItemForDisplay): string => {
 };
 
 export const catalogItemMetadataLabelEntries = (
-  item: CatalogItemForDisplay,
+  item: CatalogItem,
 ): Array<{ key: string; value: string }> => {
   const labels = item.metadata?.labels;
   if (!labels) {
@@ -71,7 +50,7 @@ export const catalogItemMetadataLabelEntries = (
 };
 
 export const catalogFieldDefinitionForPath = (
-  item: CatalogItemForDisplay,
+  item: CatalogItem,
   path: string,
 ): CatalogFieldDefinition | undefined => {
   return catalogItemFieldDefinitions(item).find((def) => def.path === path);
@@ -85,7 +64,7 @@ const FALLBACK_RESOURCE_LABELS: Record<CatalogItemResourceFieldPath, string> = {
 
 /** Field definitions shown as resource labels on catalog cards (VM or cluster). */
 export const catalogItemResourceFieldDefinitions = (
-  item: CatalogItemForDisplay,
+  item: CatalogItem,
 ): CatalogFieldDefinition[] => {
   const defs = catalogItemFieldDefinitions(item);
   const byPath = new Map(defs.map((def) => [def.path, def]));
@@ -122,18 +101,18 @@ const formatCatalogResourcePart = (def: CatalogFieldDefinition): string | null =
   return `${value} ${label}`;
 };
 
-export const catalogItemResourceParts = (item: CatalogItemForDisplay): string[] => {
+export const catalogItemResourceParts = (item: CatalogItem): string[] => {
   return catalogItemResourceFieldDefinitions(item)
     .map((def) => formatCatalogResourcePart(def))
     .filter((part): part is string => part != null);
 };
 
-export const catalogItemResourceLine = (item: CatalogItemForDisplay): string | undefined => {
+export const catalogItemResourceLine = (item: CatalogItem): string | undefined => {
   const parts = catalogItemResourceParts(item);
   return parts.length ? parts.join(' · ') : undefined;
 };
 
-export const searchableCatalogItemText = (item: CatalogItemForDisplay): string => {
+export const searchableCatalogItemText = (item: CatalogItem): string => {
   const labels = item.metadata?.labels ?? {};
   const fieldText = catalogItemFieldDefinitions(item)
     .map(
@@ -154,10 +133,7 @@ export const searchableCatalogItemText = (item: CatalogItemForDisplay): string =
     .toLowerCase();
 };
 
-export const filterCatalogItemsBySearch = <T extends CatalogItemForDisplay>(
-  items: T[],
-  search: string,
-): T[] => {
+export const filterCatalogItemsBySearch = (items: CatalogItem[], search: string): CatalogItem[] => {
   const searchTerm = search.trim().toLowerCase();
   if (!searchTerm) {
     return items;
