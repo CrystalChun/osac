@@ -1,7 +1,7 @@
 import { MemoryRouter } from 'react-router-dom';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { Protocol, SecurityGroupState, VirtualNetworkState } from '@osac/types';
 
@@ -148,6 +148,6 @@ describe('SecurityGroupsListPage', () => {
     );
 
     await user.click(screen.getByRole('button', { name: /Create security group/i }));
-    expect(screen.getByText('Create security group')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Create security group' })).toBeInTheDocument();
   });
 });

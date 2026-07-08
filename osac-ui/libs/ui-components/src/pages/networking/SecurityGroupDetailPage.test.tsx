@@ -1,6 +1,6 @@
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { render, screen, within } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { Protocol, SecurityGroupState, VirtualNetworkState } from '@osac/types';
 
@@ -14,6 +14,7 @@ vi.mock('../../api/v1/networking', async (importOriginal) => {
     useSecurityGroup: vi.fn(),
     useVirtualNetworks: vi.fn(),
     useUpdateSecurityGroup: vi.fn(),
+    useDeleteSecurityGroup: vi.fn(),
   };
 });
 
@@ -57,6 +58,12 @@ describe('SecurityGroupDetailPage', () => {
     vi.mocked(networkingApi.useUpdateSecurityGroup).mockReturnValue({
       mutateAsync: vi.fn(),
     } as unknown as ReturnType<typeof networkingApi.useUpdateSecurityGroup>);
+
+    vi.mocked(networkingApi.useDeleteSecurityGroup).mockReturnValue({
+      mutateAsync: vi.fn(),
+      isPending: false,
+      error: null,
+    } as unknown as ReturnType<typeof networkingApi.useDeleteSecurityGroup>);
   });
 
   it('renders breadcrumb with link to list page', () => {
@@ -69,7 +76,7 @@ describe('SecurityGroupDetailPage', () => {
     );
 
     expect(screen.getByRole('button', { name: /Security groups/i })).toBeInTheDocument();
-    expect(screen.getByText('sg-web')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'sg-web' })).toBeInTheDocument();
   });
 
   it('renders three tabs: Inbound Rules, Outbound Rules, Details', () => {
@@ -95,10 +102,11 @@ describe('SecurityGroupDetailPage', () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByText('Protocol')).toBeInTheDocument();
-    expect(screen.getByText('TCP')).toBeInTheDocument();
-    expect(screen.getByText('80')).toBeInTheDocument();
-    expect(screen.getByText('443')).toBeInTheDocument();
+    const tabPanel = within(screen.getByRole('tabpanel'));
+    expect(tabPanel.getByText('Protocol')).toBeInTheDocument();
+    expect(tabPanel.getAllByText('TCP')).toHaveLength(2);
+    expect(tabPanel.getByText('80')).toBeInTheDocument();
+    expect(tabPanel.getByText('443')).toBeInTheDocument();
   });
 
   it('shows FAILED alert when status is FAILED', () => {
@@ -119,7 +127,9 @@ describe('SecurityGroupDetailPage', () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByText('Provisioning failed')).toBeInTheDocument();
-    expect(screen.getByText('Network error')).toBeInTheDocument();
+    const alertTitle = screen.getByText('Provisioning failed');
+    expect(alertTitle).toBeInTheDocument();
+    const alert = alertTitle.closest('.pf-v6-c-alert') as HTMLElement;
+    expect(within(alert).getByText('Network error')).toBeInTheDocument();
   });
 });

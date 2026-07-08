@@ -140,8 +140,6 @@ export const SecurityGroupRuleModal = ({
       // Parent closes modal immediately and runs mutation in background
       onSave(rule);
     } catch (err: unknown) {
-      // eslint-disable-next-line no-console
-      console.error('Failed to save rule:', err);
       setError(err);
     }
   };
