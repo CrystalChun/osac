@@ -185,7 +185,7 @@ importers:
         specifier: ^23.0.0
         version: 23.16.8
       ip-address:
-        specifier: 10.2.0
+        specifier: ^10.2.0
         version: 10.2.0
       react:
         specifier: ^19.2.4

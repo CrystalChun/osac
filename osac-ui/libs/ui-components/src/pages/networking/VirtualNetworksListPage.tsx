@@ -4,6 +4,7 @@ import { Button, SearchInput } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
 import { useCreateVirtualNetwork, useSubnets, useVirtualNetworks } from '../../api/v1/networking';
+import { CidrDisplay } from '../../components/networking/CidrDisplay';
 import { VirtualNetworkCreateModal } from '../../components/networking/VirtualNetworkCreateModal';
 import { VirtualNetworkStatusLabel } from '../../components/networking/VirtualNetworkStatusLabel';
 import ListPage from '../../components/Page/ListPage';
@@ -79,7 +80,7 @@ export const VirtualNetworksListPage = () => {
               <Thead>
                 <Tr>
                   <Th>{t('Name')}</Th>
-                  <Th>{t('IPv4 CIDR')}</Th>
+                  <Th>{t('CIDR')}</Th>
                   <Th>{t('Subnets')}</Th>
                   <Th>{t('Status')}</Th>
                 </Tr>
@@ -87,7 +88,6 @@ export const VirtualNetworksListPage = () => {
               <Tbody>
                 {filteredVNs.map((vn) => {
                   const name = vn.metadata?.name ?? vn.id;
-                  const ipv4Cidr = vn.spec?.ipv4Cidr ?? '—';
                   const subnetCount = subnetCountByVN[vn.id] || 0;
 
                   return (
@@ -101,7 +101,9 @@ export const VirtualNetworksListPage = () => {
                           {name}
                         </Button>
                       </Td>
-                      <Td dataLabel="IPv4 CIDR">{ipv4Cidr}</Td>
+                      <Td dataLabel="CIDR">
+                        <CidrDisplay ipv4Cidr={vn.spec?.ipv4Cidr} ipv6Cidr={vn.spec?.ipv6Cidr} />
+                      </Td>
                       <Td dataLabel="Subnets">{subnetCount}</Td>
                       <Td dataLabel="Status">
                         <VirtualNetworkStatusLabel state={vn.status?.state} />
@@ -117,7 +119,6 @@ export const VirtualNetworksListPage = () => {
 
       {isCreateModalOpen && (
         <VirtualNetworkCreateModal
-          isOpen={isCreateModalOpen}
           onClose={() => setIsCreateModalOpen(false)}
           onCreate={handleCreate}
           onNavigate={handleNavigateToDetail}

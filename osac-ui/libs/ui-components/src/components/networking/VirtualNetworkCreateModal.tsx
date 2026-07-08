@@ -2,14 +2,12 @@ import React from 'react';
 import {
   Alert,
   Button,
-  FormGroup,
   Modal,
   ModalBody,
   ModalFooter,
   ModalHeader,
   Stack,
   StackItem,
-  TextInput,
 } from '@patternfly/react-core';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
@@ -17,16 +15,12 @@ import * as Yup from 'yup';
 import { cidrSchema } from './cidr-validation';
 import type { VirtualNetworkInput } from '../../api/v1/networking';
 import { useNetworkClasses } from '../../api/v1/networking';
-import {
-  FormFieldHelper,
-  getFormFieldHelperDescribedBy,
-} from '../../components/Form/FormFieldHelper';
+import { InputField } from '../../components/Form/InputField';
 import OsacForm from '../../components/Form/OsacForm';
 import { useTranslation } from '../../hooks/useTranslation';
 import { getErrorMessage } from '../../utils/error';
 
 interface VirtualNetworkCreateModalProps {
-  isOpen: boolean;
   onClose: () => void;
   onCreate: (input: VirtualNetworkInput) => Promise<{ id: string }>;
   onNavigate: (id: string) => void;
@@ -41,7 +35,6 @@ const validationSchema = Yup.object({
 });
 
 export const VirtualNetworkCreateModal = ({
-  isOpen,
   onClose,
   onCreate,
   onNavigate,
@@ -50,7 +43,7 @@ export const VirtualNetworkCreateModal = ({
   const [error, setError] = React.useState<Error | null>(null);
   const { data: networkClasses = [], isLoading: isLoadingNetworkClasses } = useNetworkClasses();
 
-  const defaultNetworkClass: string =
+  const defaultNetworkClass =
     networkClasses.find((nc) => nc.title === 'CUDN Network Implementation')?.id ??
     networkClasses[0]?.id ??
     '';
@@ -84,10 +77,10 @@ export const VirtualNetworkCreateModal = ({
         }
       }}
     >
-      {({ values, errors, touched, handleChange, handleBlur, handleSubmit, isSubmitting }) => (
+      {({ submitForm, isSubmitting }) => (
         <Modal
           variant="small"
-          isOpen={isOpen}
+          isOpen
           onClose={isSubmitting ? undefined : onClose}
           aria-labelledby="vn-create-modal-title"
         >
@@ -96,71 +89,23 @@ export const VirtualNetworkCreateModal = ({
             <OsacForm>
               <Stack hasGutter>
                 <StackItem>
-                  <FormGroup label={t('Name')} isRequired fieldId="vn-name">
-                    <TextInput
-                      id="vn-name"
-                      name="name"
-                      value={values.name}
-                      onChange={(_, value) => handleChange({ target: { name: 'name', value } })}
-                      onBlur={handleBlur}
-                      validated={touched.name && errors.name ? 'error' : 'default'}
-                      aria-label="Name"
-                      aria-describedby={getFormFieldHelperDescribedBy(
-                        'vn-name',
-                        touched.name ? errors.name : undefined,
-                      )}
-                    />
-                    <FormFieldHelper
-                      fieldId="vn-name"
-                      error={touched.name ? errors.name : undefined}
-                    />
-                  </FormGroup>
+                  <InputField name="name" label={t('Name')} fieldId="vn-name" isRequired />
                 </StackItem>
                 <StackItem>
-                  <FormGroup label={t('IPv4 CIDR')} fieldId="vn-ipv4-cidr">
-                    <TextInput
-                      id="vn-ipv4-cidr"
-                      name="ipv4Cidr"
-                      value={values.ipv4Cidr}
-                      onChange={(_, value) => handleChange({ target: { name: 'ipv4Cidr', value } })}
-                      onBlur={handleBlur}
-                      validated={touched.ipv4Cidr && errors.ipv4Cidr ? 'error' : 'default'}
-                      aria-label="IPv4 CIDR"
-                      aria-describedby={getFormFieldHelperDescribedBy(
-                        'vn-ipv4-cidr',
-                        touched.ipv4Cidr ? errors.ipv4Cidr : undefined,
-                        t('Example: 10.0.0.0/16'),
-                      )}
-                    />
-                    <FormFieldHelper
-                      fieldId="vn-ipv4-cidr"
-                      error={touched.ipv4Cidr ? errors.ipv4Cidr : undefined}
-                      description={t('Example: 10.0.0.0/16')}
-                    />
-                  </FormGroup>
+                  <InputField
+                    name="ipv4Cidr"
+                    label={t('IPv4 CIDR')}
+                    fieldId="vn-ipv4-cidr"
+                    helperText={t('Example: 10.0.0.0/16')}
+                  />
                 </StackItem>
                 <StackItem>
-                  <FormGroup label={t('IPv6 CIDR (Optional)')} fieldId="vn-ipv6-cidr">
-                    <TextInput
-                      id="vn-ipv6-cidr"
-                      name="ipv6Cidr"
-                      value={values.ipv6Cidr}
-                      onChange={(_, value) => handleChange({ target: { name: 'ipv6Cidr', value } })}
-                      onBlur={handleBlur}
-                      validated={touched.ipv6Cidr && errors.ipv6Cidr ? 'error' : 'default'}
-                      aria-label="IPv6 CIDR (Optional)"
-                      aria-describedby={getFormFieldHelperDescribedBy(
-                        'vn-ipv6-cidr',
-                        touched.ipv6Cidr ? errors.ipv6Cidr : undefined,
-                        t('Example: 2001:db8::/32'),
-                      )}
-                    />
-                    <FormFieldHelper
-                      fieldId="vn-ipv6-cidr"
-                      error={touched.ipv6Cidr ? errors.ipv6Cidr : undefined}
-                      description={t('Example: 2001:db8::/32')}
-                    />
-                  </FormGroup>
+                  <InputField
+                    name="ipv6Cidr"
+                    label={t('IPv6 CIDR (Optional)')}
+                    fieldId="vn-ipv6-cidr"
+                    helperText={t('Example: 2001:db8::/32')}
+                  />
                 </StackItem>
                 {error && (
                   <StackItem>
@@ -178,7 +123,7 @@ export const VirtualNetworkCreateModal = ({
             </Button>
             <Button
               variant="primary"
-              onClick={() => handleSubmit()}
+              onClick={submitForm}
               isDisabled={isSubmitting || isLoadingNetworkClasses || !defaultNetworkClass}
               isLoading={isSubmitting}
             >

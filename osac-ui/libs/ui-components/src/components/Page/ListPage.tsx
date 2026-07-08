@@ -5,8 +5,8 @@ type ListPageProps = {
   title: string;
   description?: string;
   actions?: React.ReactNode;
-  error?: unknown;
   breadcrumb?: React.ReactNode;
+  error?: unknown;
   children: React.ReactNode;
 };
 
@@ -14,8 +14,8 @@ const ListPage: React.FC<ListPageProps> = ({
   title,
   description,
   actions,
-  error,
   breadcrumb,
+  error,
   children,
 }) => (
   <PageSection hasBodyWrapper={false}>

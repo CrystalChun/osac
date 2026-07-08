@@ -3,7 +3,6 @@ import { describe, expect, it } from 'vitest';
 import {
   SecurityGroupState,
   SubnetSchema,
-  SubnetState,
   VirtualNetworkSchema,
   VirtualNetworkState,
 } from '@osac/types';
@@ -32,21 +31,19 @@ describe('networking list filters', () => {
     expect(escapeCelStringLiteral('path\\to\\thing')).toBe('path\\\\to\\\\thing');
   });
 
-  it('combines virtual network scope and ready state for subnets', () => {
-    expect(virtualNetworkFilterForSubnetList('vn-1')).toBe(
-      `(this.spec.virtual_network == "vn-1") && (this.status.state == ${SubnetState.READY})`,
-    );
+  it('filters subnets by virtual network scope only (shows all states)', () => {
+    expect(virtualNetworkFilterForSubnetList('vn-1')).toBe('this.spec.virtual_network == "vn-1"');
   });
 
   it('escapes quotes in virtual network id when building subnet filter', () => {
     expect(virtualNetworkFilterForSubnetList('vn-"evil')).toBe(
-      `(this.spec.virtual_network == "vn-\\"evil") && (this.status.state == ${SubnetState.READY})`,
+      'this.spec.virtual_network == "vn-\\"evil"',
     );
   });
 
   it('escapes CEL injection characters in virtual network id when building subnet filter', () => {
     expect(virtualNetworkFilterForSubnetList(`"'] || true || this.id in ['`)).toBe(
-      `(this.spec.virtual_network == "\\"'] || true || this.id in ['") && (this.status.state == ${SubnetState.READY})`,
+      `this.spec.virtual_network == "\\"'] || true || this.id in ['"`,
     );
   });
 

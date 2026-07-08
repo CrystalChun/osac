@@ -15,10 +15,12 @@ const SUBNET_STATUS_MAP: Record<SubnetState, { status: StatusKind; text: string 
   [SubnetState.DELETE_FAILED]: { status: 'failed', text: 'Delete Failed' },
 };
 
-const resolveSubnetStatus = (state?: SubnetState): { status: StatusKind; text: string } =>
-  state !== undefined && state in SUBNET_STATUS_MAP
-    ? SUBNET_STATUS_MAP[state]
-    : SUBNET_STATUS_MAP[SubnetState.UNSPECIFIED];
+const resolveSubnetStatus = (state?: SubnetState): { status: StatusKind; text: string } => {
+  if (state !== undefined && state in SUBNET_STATUS_MAP) {
+    return SUBNET_STATUS_MAP[state];
+  }
+  return SUBNET_STATUS_MAP[SubnetState.UNSPECIFIED];
+};
 
 export const SubnetStatusLabel = ({ state }: SubnetStatusLabelProps) => {
   const { status, text } = resolveSubnetStatus(state);

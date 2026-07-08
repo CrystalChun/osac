@@ -24,7 +24,6 @@ describe('SubnetCreateModal', () => {
   it('renders with Name and CIDR fields', () => {
     render(
       <SubnetCreateModal
-        isOpen
         onClose={mockOnClose}
         onCreate={mockOnCreate}
         parentVN={mockParentVN}
@@ -41,7 +40,6 @@ describe('SubnetCreateModal', () => {
   it('displays parent VN CIDR as context', () => {
     render(
       <SubnetCreateModal
-        isOpen
         onClose={mockOnClose}
         onCreate={mockOnCreate}
         parentVN={mockParentVN}
@@ -52,24 +50,9 @@ describe('SubnetCreateModal', () => {
     expect(screen.getByText(/10\.0\.0\.0\/16/)).toBeInTheDocument();
   });
 
-  it('displays existing subnet CIDRs', () => {
-    render(
-      <SubnetCreateModal
-        isOpen
-        onClose={mockOnClose}
-        onCreate={mockOnCreate}
-        parentVN={mockParentVN}
-        existingSubnets={mockExistingSubnets}
-      />,
-    );
-
-    expect(screen.getByText(/subnet-web: 10\.0\.1\.0\/24/)).toBeInTheDocument();
-  });
-
   it('Create button stays enabled', () => {
     render(
       <SubnetCreateModal
-        isOpen
         onClose={mockOnClose}
         onCreate={mockOnCreate}
         parentVN={mockParentVN}

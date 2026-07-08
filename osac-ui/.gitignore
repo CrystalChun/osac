@@ -54,3 +54,4 @@ proxy/osac-proxy
 
 # AI workflow artifacts
 .artifacts/
+/.claude/
