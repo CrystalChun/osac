@@ -5,6 +5,7 @@ import {
   FormGroup,
   FormSelect,
   FormSelectOption,
+  Modal,
   ModalBody,
   ModalFooter,
   ModalHeader,
@@ -124,7 +125,12 @@ export const SecurityGroupCreateModal = ({
       }}
     >
       {({ values, errors, touched, handleChange, handleSubmit, isSubmitting }) => (
-        <>
+        <Modal
+          variant="medium"
+          isOpen
+          onClose={isSubmitting ? undefined : onClose}
+          aria-labelledby="sg-create-modal-title"
+        >
           <ModalHeader title={t('Create security group')} labelId="sg-create-modal-title" />
           <ModalBody>
             <OsacForm>
@@ -194,7 +200,7 @@ export const SecurityGroupCreateModal = ({
               {t('Cancel')}
             </Button>
           </ModalFooter>
-        </>
+        </Modal>
       )}
     </Formik>
   );
