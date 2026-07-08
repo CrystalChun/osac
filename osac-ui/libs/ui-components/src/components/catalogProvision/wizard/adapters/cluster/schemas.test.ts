@@ -139,7 +139,7 @@ describe('buildClusterStepSchema', () => {
           pullSecret: '{"auths": {}}',
           releaseImage: '4.17.0',
           nodeSets: {
-            compute: { hostType: 'acme_1tb', size: '0' },
+            compute: { hostType: { value: 'acme_1tb', label: '' }, size: '0' },
           },
         },
       },

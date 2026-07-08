@@ -1,7 +1,9 @@
 import type { ClusterTemplate } from '@osac/types';
 
+import type { LabeledResourceRef } from '../../../../Form/labeledResourceRef';
+
 export interface ClusterNodeSetValues {
-  hostType: string;
+  hostType: LabeledResourceRef;
   size: string;
 }
 
@@ -44,7 +46,7 @@ export const buildNodeSetsFromTemplate = (
   for (const [poolName, pool] of Object.entries(template.nodeSets ?? {})) {
     const defaultSize = pool.size > 0 ? pool.size : 1;
     nodeSets[poolName] = {
-      hostType: pool.hostType,
+      hostType: { value: pool.hostType, label: '' },
       size: String(defaultSize),
     };
   }

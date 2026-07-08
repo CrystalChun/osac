@@ -11,6 +11,7 @@ import {
   mergeCatalogValidation,
   readCatalogFieldDefinitions,
 } from '../../catalogOverlay';
+import { labeledResourceRefSchema } from '../../../../Form/labeledResourceRefSchema';
 import { buildMetadataNameSchema } from '../../metadataNameSchema';
 import type { WizardStepId } from '../../stepIds';
 
@@ -52,7 +53,7 @@ const buildClusterFieldDefinitions = (catalogItem: unknown, t: TFunction) => {
   const sshKeyRequired = hasCatalogFieldDefinition(CLUSTER_SSH_KEY_WIRE_PATH, definitions);
 
   const nodeSetEntrySchema = yup.object({
-    hostType: yup.string().required(),
+    hostType: labeledResourceRefSchema(t('Host type is required')),
     size: yup
       .string()
       .required(t('Pool size is required'))
@@ -103,7 +104,10 @@ const buildClusterFieldDefinitions = (catalogItem: unknown, t: TFunction) => {
       t('catalogProvision.validation.clusterReleaseImageRequired'),
     ),
     specNodeSets: yup.object().test('node-sets', '', (value, context) => {
-      const nodeSets = (value ?? {}) as Record<string, { hostType?: string; size?: string }>;
+      const nodeSets = (value ?? {}) as Record<
+        string,
+        { hostType?: { value?: string; label?: string }; size?: string }
+      >;
       const poolNames = Object.keys(nodeSets);
       if (poolNames.length === 0) {
         return true;

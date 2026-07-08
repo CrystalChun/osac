@@ -40,7 +40,7 @@ export const buildClusterCreatePayload = (
       continue;
     }
     nodeSetsWire[poolName] = {
-      hostType: pool.hostType,
+      hostType: pool.hostType.value.trim(),
       size,
     };
   }

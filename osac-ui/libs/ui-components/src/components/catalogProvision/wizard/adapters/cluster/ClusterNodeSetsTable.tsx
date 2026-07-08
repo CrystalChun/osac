@@ -1,11 +1,14 @@
+import { useEffect } from 'react';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
+import { useFormikContext } from 'formik';
 
 import type { ClusterTemplate } from '@osac/types';
 
-import type { ClusterNodeSetValues } from './fields';
+import type { ClusterNodeSetValues, ClusterWizardValues } from './fields';
 import ClusterPoolSizeField from '../../fields/ClusterPoolSizeField';
 import { hostTypeDisplayName, useHostType } from '../../../../../api/v1/host-types';
 import { useTranslation } from '../../../../../hooks/useTranslation';
+import { formatLabeledResourceRefForReview } from '../../../../Form/labeledResourceRef';
 
 interface ClusterNodeSetsTableProps {
   templateLoading: boolean;
@@ -14,12 +17,29 @@ interface ClusterNodeSetsTableProps {
   nodeSets: Record<string, ClusterNodeSetValues>;
 }
 
-const ClusterPoolHostTypeLabel = ({ hostTypeId }: { hostTypeId: string }) => {
-  const { data: hostType } = useHostType(hostTypeId);
-  if (!hostType) {
-    return hostTypeId;
-  }
-  return hostTypeDisplayName(hostType);
+const ClusterPoolHostTypeCell = ({
+  poolName,
+  hostTypeRef,
+}: {
+  poolName: string;
+  hostTypeRef: ClusterNodeSetValues['hostType'];
+}) => {
+  const hostTypeId = hostTypeRef.value.trim();
+  const { data: hostType } = useHostType(hostTypeId || undefined);
+  const { setFieldValue } = useFormikContext<ClusterWizardValues>();
+
+  useEffect(() => {
+    if (!hostType || !hostTypeId) {
+      return;
+    }
+    const label = hostTypeDisplayName(hostType);
+    if (hostTypeRef.label === label) {
+      return;
+    }
+    void setFieldValue(`spec.nodeSets.${poolName}.hostType`, { value: hostTypeId, label }, false);
+  }, [hostType, hostTypeId, hostTypeRef.label, poolName, setFieldValue]);
+
+  return formatLabeledResourceRefForReview(hostTypeRef);
 };
 
 const ClusterNodeSetsTable = ({
@@ -52,12 +72,15 @@ const ClusterNodeSetsTable = ({
         ) : null}
         {poolNames.map((poolName) => {
           const pool = nodeSets[poolName];
-          const hostTypeId = pool?.hostType ?? template?.nodeSets?.[poolName]?.hostType ?? '';
+          const hostTypeRef = pool?.hostType ?? {
+            value: template?.nodeSets?.[poolName]?.hostType ?? '',
+            label: '',
+          };
           return (
             <Tr key={poolName}>
               <Td>{poolName}</Td>
               <Td>
-                <ClusterPoolHostTypeLabel hostTypeId={hostTypeId} />
+                <ClusterPoolHostTypeCell poolName={poolName} hostTypeRef={hostTypeRef} />
               </Td>
               <Td>
                 <ClusterPoolSizeField poolName={poolName} isRequired={poolNames.length > 0} />

@@ -14,6 +14,7 @@ import { clusterCatalogItem, mockClusterTemplate, vmCatalogItem } from './test/f
 import { renderWizard } from './test/renderWizard';
 import {
   advanceToClusterConfigurationStep,
+  advanceToClusterReviewStep,
   advanceToConfigurationStep,
   advanceToNetworkingStep,
   advanceToReviewStep,
@@ -452,6 +453,16 @@ describe('CatalogProvisionWizard', () => {
         'Name must only contain lowercase letters (a-z), digits (0-9), and hyphens (-)',
       ),
     ).toBeInTheDocument();
+  });
+
+  it('shows host type display name on the cluster review step', async () => {
+    const { user } = await renderWizard({ kind: 'cluster' });
+
+    await advanceToClusterReviewStep(user);
+
+    await waitFor(() => {
+      expect(screen.getByText('compute: 3 × ACME 1TB')).toBeInTheDocument();
+    });
   });
 
   it('shows empty template warning and submits cluster create payload', async () => {

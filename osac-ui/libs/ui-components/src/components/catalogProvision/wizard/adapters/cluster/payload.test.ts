@@ -15,7 +15,7 @@ describe('buildClusterCreatePayload', () => {
         pullSecret: '{"auths":{}}',
         releaseImage: '4.17.0',
         nodeSets: {
-          compute: { hostType: 'acme_1tb', size: '3' },
+          compute: { hostType: { value: 'acme_1tb', label: '' }, size: '3' },
         },
         network: {
           podCidr: '10.128.0.0/14',

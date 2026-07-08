@@ -23,6 +23,7 @@ import type { CatalogProvisionAdapter } from './types';
 import { useClusterCatalogItems } from '../../../../api/v1/cluster-catalog-item';
 import type { BuildClusterCreateBodyInput } from '../../../../api/v1/cluster-wire';
 import { useTranslation } from '../../../../hooks/useTranslation';
+import { formatLabeledResourceRefForReview } from '../../../Form/labeledResourceRef';
 
 export { buildClusterCreatePayload, createEmptyClusterValues } from './cluster/payload';
 
@@ -32,7 +33,10 @@ const formatNodeSetsForReview = (nodeSets: ClusterWizardValues['spec']['nodeSets
     return '—';
   }
   return entries
-    .map(([poolName, pool]) => `${poolName}: ${pool.size} × ${pool.hostType}`)
+    .map(
+      ([poolName, pool]) =>
+        `${poolName}: ${pool.size} × ${formatLabeledResourceRefForReview(pool.hostType)}`,
+    )
     .join(', ');
 };
 
