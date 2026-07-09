@@ -76,7 +76,7 @@ export const VirtualNetworksListPage = () => {
                 : t('No virtual networks yet. Create one to get started.')}
             </SubtleContent>
           ) : (
-            <Table aria-label="Virtual networks" variant="compact" borders>
+            <Table aria-label={t('Virtual networks')} variant="compact" borders>
               <Thead>
                 <Tr>
                   <Th>{t('Name')}</Th>
@@ -92,7 +92,7 @@ export const VirtualNetworksListPage = () => {
 
                   return (
                     <Tr key={vn.id}>
-                      <Td dataLabel="Name">
+                      <Td dataLabel={t('Name')}>
                         <Button
                           variant="link"
                           isInline
@@ -101,11 +101,11 @@ export const VirtualNetworksListPage = () => {
                           {name}
                         </Button>
                       </Td>
-                      <Td dataLabel="CIDR">
+                      <Td dataLabel={t('CIDR')}>
                         <CidrDisplay ipv4Cidr={vn.spec?.ipv4Cidr} ipv6Cidr={vn.spec?.ipv6Cidr} />
                       </Td>
-                      <Td dataLabel="Subnets">{subnetCount}</Td>
-                      <Td dataLabel="Status">
+                      <Td dataLabel={t('Subnets')}>{subnetCount}</Td>
+                      <Td dataLabel={t('Status')}>
                         <VirtualNetworkStatusLabel state={vn.status?.state} />
                       </Td>
                     </Tr>

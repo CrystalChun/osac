@@ -22,7 +22,6 @@ import {
 } from '@osac/types';
 
 import { useApiFetch } from '../api-context';
-import { apiQueryKey } from '../types';
 import { useApiQuery, useApiQueryClient } from '../use-api-query';
 
 export type ListNetworkingParams = {
@@ -154,14 +153,21 @@ export const useSecurityGroup = (id: string) =>
     enabled: Boolean(id),
   });
 
+/**
+ * Invalidate by route prefix only (no pathParams/queryParams). Passing those
+ * through apiQueryKey would pad the tuple with explicit `undefined` entries,
+ * which fail partial key matching against list keys (whose 2nd element is
+ * `null`, not `undefined`) and by-id keys (whose 2nd element is an array) —
+ * see TanStack Query's partialMatchKey. A bare route-only key matches both.
+ */
 export const invalidateVirtualNetworksQueries = (qc: ReturnType<typeof useApiQueryClient>) =>
-  qc.invalidateQueries({ queryKey: apiQueryKey('v1/virtual_networks') });
+  qc.invalidateQueries({ queryKey: ['v1/virtual_networks'] });
 
 export const invalidateSubnetsQueries = (qc: ReturnType<typeof useApiQueryClient>) =>
-  qc.invalidateQueries({ queryKey: apiQueryKey('v1/subnets') });
+  qc.invalidateQueries({ queryKey: ['v1/subnets'] });
 
 export const invalidateSecurityGroupsQueries = (qc: ReturnType<typeof useApiQueryClient>) =>
-  qc.invalidateQueries({ queryKey: apiQueryKey('v1/security_groups') });
+  qc.invalidateQueries({ queryKey: ['v1/security_groups'] });
 
 export interface VirtualNetworkInput {
   name: string;
@@ -257,5 +263,63 @@ export const useDeleteSubnet = () => {
         method: 'DELETE',
       }),
     onSuccess: () => invalidateSubnetsQueries(qc),
+  });
+};
+
+export const securityGroupFilterForVirtualNetwork = (virtualNetworkId: string): string =>
+  `this.spec.virtual_network == "${escapeCelStringLiteral(virtualNetworkId)}"`;
+
+export const useCreateSecurityGroup = () => {
+  const apiFetch = useApiFetch();
+  const qc = useApiQueryClient();
+  return useMutation({
+    mutationFn: async (body: SecurityGroup): Promise<SecurityGroup> => {
+      const sg = await apiFetch<SecurityGroup>('v1/security_groups', {
+        method: 'POST',
+        body,
+        decode: SecurityGroupSchema,
+      });
+      if (!sg.id) {
+        throw new Error('Create response missing id');
+      }
+      return sg;
+    },
+    onSuccess: () => invalidateSecurityGroupsQueries(qc),
+  });
+};
+
+export const useUpdateSecurityGroup = () => {
+  const apiFetch = useApiFetch();
+  const qc = useApiQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      id,
+      input,
+    }: {
+      id: string;
+      input: Partial<SecurityGroup>;
+    }): Promise<SecurityGroup> => {
+      const sg = await apiFetch<SecurityGroup>('v1/security_groups', {
+        pathParams: [id],
+        method: 'PATCH',
+        body: input,
+        decode: SecurityGroupSchema,
+      });
+      return sg;
+    },
+    onSuccess: () => invalidateSecurityGroupsQueries(qc),
+  });
+};
+
+export const useDeleteSecurityGroup = () => {
+  const apiFetch = useApiFetch();
+  const qc = useApiQueryClient();
+  return useMutation({
+    mutationFn: (id: string) =>
+      apiFetch<void>('v1/security_groups', {
+        pathParams: [id],
+        method: 'DELETE',
+      }),
+    onSuccess: () => invalidateSecurityGroupsQueries(qc),
   });
 };

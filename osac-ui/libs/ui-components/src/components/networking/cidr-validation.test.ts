@@ -27,6 +27,14 @@ describe('cidrSchema', () => {
     await expect(cidrSchema.validate('192.168.1.0/99')).rejects.toThrow();
   });
 
+  it('validates valid IPv6 CIDR with compressed prefix', async () => {
+    await expect(cidrSchema.validate('2001:db8::/32')).resolves.toBe('2001:db8::/32');
+  });
+
+  it('rejects invalid IPv6 CIDR with invalid prefix', async () => {
+    await expect(cidrSchema.validate('2001:db8::/199')).rejects.toThrow();
+  });
+
   it('rejects non-CIDR string', async () => {
     await expect(cidrSchema.validate('not-a-cidr')).rejects.toThrow();
   });
