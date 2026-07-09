@@ -13,7 +13,7 @@ import { createMockApiFetch } from './test/createMockApiFetch';
 import { clusterCatalogItem, vmCatalogItem } from './test/fixtures';
 import { renderWizard } from './test/renderWizard';
 import {
-  addClusterNodeSetRow,
+  fillClusterNodeSetRow,
   advanceToClusterConfigurationStep,
   advanceToClusterReviewStep,
   advanceToConfigurationStep,
@@ -466,7 +466,7 @@ describe('CatalogProvisionWizard', () => {
     });
   });
 
-  it('starts with empty node sets and submits cluster create payload after adding a row', async () => {
+  it('starts with one node set and submits cluster create payload after filling it', async () => {
     const onProvision = vi.fn().mockResolvedValue(undefined);
     const { user } = await renderWizard({
       kind: 'cluster',
@@ -474,9 +474,9 @@ describe('CatalogProvisionWizard', () => {
     });
 
     await advanceToClusterConfigurationStep(user);
-    expect(screen.getByText('No node sets added yet.')).toBeInTheDocument();
+    expect(screen.getByText('Node set 1')).toBeInTheDocument();
 
-    await addClusterNodeSetRow(user);
+    await fillClusterNodeSetRow(user);
     await clickWizardNext(user);
     await clickWizardNext(user);
     await user.click(screen.getByRole('button', { name: 'Create' }));

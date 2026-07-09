@@ -1,6 +1,7 @@
 import type { ClusterCatalogItem } from '@osac/types';
 
 import type { ClusterWizardValues } from './fields';
+import { createEmptyNodeSetRow } from './fields';
 import type { BuildClusterCreateBodyInput } from '../../../../../api/v1/cluster-wire';
 
 export const createEmptyClusterValues = (): ClusterWizardValues => ({
@@ -10,7 +11,7 @@ export const createEmptyClusterValues = (): ClusterWizardValues => ({
     sshPublicKey: '',
     pullSecret: '',
     releaseImage: '',
-    nodeSetRows: [],
+    nodeSetRows: [createEmptyNodeSetRow()],
     network: {
       podCidr: '',
       serviceCidr: '',

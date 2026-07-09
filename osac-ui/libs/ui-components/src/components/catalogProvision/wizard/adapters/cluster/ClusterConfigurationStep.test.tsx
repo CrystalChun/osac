@@ -1,4 +1,4 @@
-import { fireEvent, screen, waitFor, within } from '@testing-library/react';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { Formik } from 'formik';
 import { describe, expect, it } from 'vitest';
 
@@ -13,7 +13,7 @@ import { renderWizardElement } from '../../../test/renderWizard';
 const t = (key: string) => key;
 
 describe('ClusterConfigurationStep', () => {
-  it('starts with an empty node sets table and add action', async () => {
+  it('starts with one node set and add action', async () => {
     renderWizardElement(
       <Formik initialValues={createEmptyClusterValues()} onSubmit={() => undefined}>
         <ClusterConfigurationStep catalogItem={clusterCatalogItem} />
@@ -21,12 +21,15 @@ describe('ClusterConfigurationStep', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText('No node sets added yet.')).toBeInTheDocument();
+      expect(screen.getByText('Node set 1')).toBeInTheDocument();
+      expect(screen.getByText('Select host type')).toBeInTheDocument();
+      expect(screen.getByRole('spinbutton', { name: /^Nodes/ })).toBeInTheDocument();
     });
+    expect(screen.queryByRole('button', { name: 'Remove node set' })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Add node set' })).toBeInTheDocument();
   });
 
-  it('adds a node set row with host type picker and size field', async () => {
+  it('adds another node set row when Add node set is clicked', async () => {
     const { user } = await renderWizardElement(
       <Formik initialValues={createEmptyClusterValues()} onSubmit={() => undefined}>
         <ClusterConfigurationStep catalogItem={clusterCatalogItem} />
@@ -36,9 +39,8 @@ describe('ClusterConfigurationStep', () => {
     await user.click(screen.getByRole('button', { name: 'Add node set' }));
 
     await waitFor(() => {
-      const table = screen.getByRole('grid', { name: 'Node sets' });
-      expect(within(table).getByText('Select host type')).toBeInTheDocument();
-      expect(within(table).getByRole('spinbutton')).toBeInTheDocument();
+      expect(screen.getByText('Node set 2')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Remove node set' })).toBeInTheDocument();
     });
   });
 

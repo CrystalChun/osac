@@ -181,17 +181,16 @@ export const waitForClusterConfigurationReady = async () => {
   });
 };
 
-export const addClusterNodeSetRow = async (
+export const fillClusterNodeSetRow = async (
   user: UserEvent,
   hostTypeLabel = 'ACME 1TB',
   size = '3',
 ) => {
-  await user.click(screen.getByRole('button', { name: 'Add node set' }));
   await waitFor(() => {
-    expect(screen.getByLabelText(/^Host type/)).toBeInTheDocument();
+    expect(screen.getByText('Node set 1')).toBeInTheDocument();
   });
   await selectSelectField(user, /^Host type/, hostTypeLabel);
-  const sizeInput = screen.getByRole('spinbutton');
+  const sizeInput = screen.getByRole('spinbutton', { name: /^Nodes/ });
   await user.clear(sizeInput);
   await user.type(sizeInput, size);
 };
@@ -209,7 +208,7 @@ export const advanceToClusterConfigurationStep = async (user: UserEvent, name = 
 
 export const advanceToClusterReviewStep = async (user: UserEvent) => {
   await advanceToClusterConfigurationStep(user);
-  await addClusterNodeSetRow(user);
+  await fillClusterNodeSetRow(user);
   await clickWizardNext(user);
   await waitFor(() => {
     expect(screen.getByLabelText(/Pod CIDR/)).toBeInTheDocument();

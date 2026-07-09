@@ -3,7 +3,7 @@ import { FormSection, Stack, StackItem } from '@patternfly/react-core';
 
 import type { ClusterCatalogItem } from '@osac/types';
 
-import ClusterNodeSetsTable from './ClusterNodeSetsTable';
+import ClusterNodeSetsArrayField from './ClusterNodeSetsArrayField';
 import { useTranslation } from '../../../../../hooks/useTranslation';
 import { InputField } from '../../../../Form/InputField';
 import OsacForm from '../../../../Form/OsacForm';
@@ -38,7 +38,7 @@ export const ClusterConfigurationStep = ({ catalogItem }: Props) => {
             isDisabled={!releaseImageOverlay.editable}
           />
           <FormSection title={t('Node Sets')} titleElement="h2">
-            <ClusterNodeSetsTable />
+            <ClusterNodeSetsArrayField />
           </FormSection>
         </OsacForm>
       </StackItem>
