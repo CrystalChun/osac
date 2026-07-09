@@ -13,7 +13,6 @@ import { createMockApiFetch } from './test/createMockApiFetch';
 import { clusterCatalogItem, vmCatalogItem } from './test/fixtures';
 import { renderWizard } from './test/renderWizard';
 import {
-  fillClusterNodeSetRow,
   advanceToClusterConfigurationStep,
   advanceToClusterReviewStep,
   advanceToConfigurationStep,
@@ -26,6 +25,7 @@ import {
   expectCatalogItemVisible,
   expectValidationAlert,
   fillClusterGeneralStep,
+  fillClusterNodeSetRow,
   fillGeneralStep,
   getCancelModal,
   selectCatalogItem,
