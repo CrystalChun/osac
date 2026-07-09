@@ -1,10 +1,7 @@
-import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Alert,
   Button,
-  FormGroup,
-  FormSelect,
-  FormSelectOption,
   Modal,
   ModalBody,
   ModalFooter,
@@ -13,118 +10,66 @@ import {
   StackItem,
 } from '@patternfly/react-core';
 import { Formik } from 'formik';
+import type { TFunction } from 'i18next';
 import * as Yup from 'yup';
 
-import { Protocol } from '@osac/types';
+import type { SecurityGroup } from '@osac/types';
 
-import { cidrSchema } from './cidr-validation';
-import type { SecurityGroupInput } from '../../api/v1/networking';
-import { useVirtualNetworks } from '../../api/v1/networking';
-import { FormFieldHelper } from '../../components/Form/FormFieldHelper';
+import { useCreateSecurityGroup, useVirtualNetworks } from '../../api/v1/networking';
 import { InputField } from '../../components/Form/InputField';
+import { labeledResourceRefSchema } from '../../components/Form/labeledResourceRefSchema';
 import OsacForm from '../../components/Form/OsacForm';
+import { SelectField } from '../../components/Form/SelectField';
 import { useTranslation } from '../../hooks/useTranslation';
 import { getErrorMessage } from '../../utils/error';
 
 interface SecurityGroupCreateModalProps {
   onClose: () => void;
-  onCreate: (input: SecurityGroupInput) => Promise<{ id: string }>;
-  onNavigate: (id: string) => void;
-  virtualNetworkId?: string;
-}
-
-interface RuleFormValues {
-  protocol: string;
-  portFrom: string;
-  portTo: string;
-  ipv4Cidr: string;
-  ipv6Cidr: string;
 }
 
 interface FormValues {
   name: string;
-  virtual_network: string;
-  ingressRules: RuleFormValues[];
-  egressRules: RuleFormValues[];
+  virtualNetwork: { value: string; label: string };
 }
 
-const ruleSchema = (t: (key: string) => string) =>
-  Yup.object({
-    protocol: Yup.string().required(t('Protocol is required')),
-    portFrom: Yup.number().when('protocol', {
-      is: (p: string) => p === String(Protocol.TCP) || p === String(Protocol.UDP),
-      then: (schema) => schema.min(1).max(65535),
-      otherwise: (schema) => schema.notRequired(),
-    }),
-    portTo: Yup.number().when('protocol', {
-      is: (p: string) => p === String(Protocol.TCP) || p === String(Protocol.UDP),
-      then: (schema) => schema.min(1).max(65535),
-      otherwise: (schema) => schema.notRequired(),
-    }),
-    ipv4Cidr: cidrSchema,
-    ipv6Cidr: cidrSchema,
-  });
-
-const validationSchema = (t: (key: string) => string) =>
+const validationSchema = (t: TFunction) =>
   Yup.object({
     name: Yup.string().required(t('Name is required')),
-    virtual_network: Yup.string().required(t('Virtual network is required')),
-    ingressRules: Yup.array().of(ruleSchema(t)),
-    egressRules: Yup.array().of(ruleSchema(t)),
+    virtualNetwork: labeledResourceRefSchema(t('Virtual network is required')),
   });
 
-export const SecurityGroupCreateModal = ({
-  onClose,
-  onCreate,
-  onNavigate,
-  virtualNetworkId,
-}: SecurityGroupCreateModalProps) => {
+export const SecurityGroupCreateModal = ({ onClose }: SecurityGroupCreateModalProps) => {
   const { t } = useTranslation();
-  const [error, setError] = React.useState<unknown>();
+  const navigate = useNavigate();
+  const createSecurityGroup = useCreateSecurityGroup();
   const { data: virtualNetworks = [], isLoading, error: vnError } = useVirtualNetworks();
+
+  const virtualNetworkOptions = virtualNetworks.map((vn) => ({
+    value: vn.id,
+    label: `${vn.metadata?.name ?? vn.id} (${vn.spec?.ipv4Cidr ?? ''})`,
+  }));
 
   return (
     <Formik<FormValues>
       initialValues={{
         name: '',
-        virtual_network: virtualNetworkId ?? '',
-        ingressRules: [],
-        egressRules: [],
+        virtualNetwork: { value: '', label: '' },
       }}
       validationSchema={validationSchema(t)}
       onSubmit={async (values) => {
-        setError(undefined);
         try {
-          const input: SecurityGroupInput = {
-            name: values.name,
-            virtual_network: values.virtual_network,
-            ingress: values.ingressRules
-              .filter((r) => r.protocol)
-              .map((r) => ({
-                protocol: Number(r.protocol),
-                ...(r.portFrom && { port_from: Number(r.portFrom) }),
-                ...(r.portTo && { port_to: Number(r.portTo) }),
-                ...(r.ipv4Cidr && { ipv4_cidr: r.ipv4Cidr }),
-                ...(r.ipv6Cidr && { ipv6_cidr: r.ipv6Cidr }),
-              })),
-            egress: values.egressRules
-              .filter((r) => r.protocol)
-              .map((r) => ({
-                protocol: Number(r.protocol),
-                ...(r.portFrom && { port_from: Number(r.portFrom) }),
-                ...(r.portTo && { port_to: Number(r.portTo) }),
-                ...(r.ipv4Cidr && { ipv4_cidr: r.ipv4Cidr }),
-                ...(r.ipv6Cidr && { ipv6_cidr: r.ipv6Cidr }),
-              })),
-          };
-          const result = await onCreate(input);
-          onNavigate(result.id);
-        } catch (err: unknown) {
-          setError(err);
+          const body = {
+            metadata: { name: values.name },
+            spec: { virtualNetwork: values.virtualNetwork.value, ingress: [], egress: [] },
+          } as unknown as SecurityGroup;
+          const sg = await createSecurityGroup.mutateAsync(body);
+          navigate(`/networking/security-groups/${sg.id}`);
+        } catch {
+          // Error is surfaced via createSecurityGroup.error below
         }
       }}
     >
-      {({ values, errors, touched, handleChange, handleSubmit, isSubmitting }) => (
+      {({ submitForm, isSubmitting, isValid }) => (
         <Modal
           variant="medium"
           isOpen
@@ -135,15 +80,15 @@ export const SecurityGroupCreateModal = ({
           <ModalBody>
             <OsacForm>
               <Stack hasGutter>
-                {Boolean(error) && (
+                {!!createSecurityGroup.error && (
                   <StackItem>
                     <Alert variant="danger" title={t('Error')} isInline>
-                      {getErrorMessage(error)}
+                      {getErrorMessage(createSecurityGroup.error)}
                     </Alert>
                   </StackItem>
                 )}
 
-                {Boolean(vnError) && (
+                {!!vnError && (
                   <StackItem>
                     <Alert variant="danger" title={t('Error loading virtual networks')} isInline>
                       {getErrorMessage(vnError)}
@@ -152,33 +97,15 @@ export const SecurityGroupCreateModal = ({
                 )}
 
                 <StackItem>
-                  <FormGroup label={t('Virtual Network')} isRequired fieldId="sg-vn">
-                    <FormSelect
-                      id="sg-vn"
-                      name="virtual_network"
-                      value={values.virtual_network}
-                      onChange={(_, value) =>
-                        handleChange({ target: { name: 'virtual_network', value } })
-                      }
-                      validated={
-                        touched.virtual_network && errors.virtual_network ? 'error' : 'default'
-                      }
-                      isDisabled={isLoading}
-                    >
-                      <FormSelectOption value="" label={t('Select a virtual network')} />
-                      {virtualNetworks.map((vn) => (
-                        <FormSelectOption
-                          key={vn.id}
-                          value={vn.id}
-                          label={`${vn.metadata?.name ?? vn.id} (${vn.spec?.ipv4Cidr ?? ''})`}
-                        />
-                      ))}
-                    </FormSelect>
-                    <FormFieldHelper
-                      fieldId="sg-vn"
-                      error={touched.virtual_network ? errors.virtual_network : undefined}
-                    />
-                  </FormGroup>
+                  <SelectField
+                    name="virtualNetwork"
+                    label={t('Virtual Network')}
+                    fieldId="sg-vn"
+                    isRequired
+                    isLoading={isLoading}
+                    placeholder={t('Select a virtual network')}
+                    options={virtualNetworkOptions}
+                  />
                 </StackItem>
 
                 <StackItem>
@@ -190,9 +117,9 @@ export const SecurityGroupCreateModal = ({
           <ModalFooter>
             <Button
               variant="primary"
-              onClick={() => handleSubmit()}
+              onClick={submitForm}
               isLoading={isSubmitting}
-              isDisabled={isSubmitting}
+              isDisabled={isSubmitting || !isValid}
             >
               {t('Create')}
             </Button>

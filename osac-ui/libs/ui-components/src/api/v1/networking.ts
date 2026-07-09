@@ -266,25 +266,6 @@ export const useDeleteSubnet = () => {
   });
 };
 
-export interface SecurityGroupInput {
-  name: string;
-  virtual_network: string;
-  ingress?: Array<{
-    protocol: number;
-    port_from?: number;
-    port_to?: number;
-    ipv4_cidr?: string;
-    ipv6_cidr?: string;
-  }>;
-  egress?: Array<{
-    protocol: number;
-    port_from?: number;
-    port_to?: number;
-    ipv4_cidr?: string;
-    ipv6_cidr?: string;
-  }>;
-}
-
 export const securityGroupFilterForVirtualNetwork = (virtualNetworkId: string): string =>
   `this.spec.virtual_network == "${escapeCelStringLiteral(virtualNetworkId)}"`;
 
@@ -292,17 +273,10 @@ export const useCreateSecurityGroup = () => {
   const apiFetch = useApiFetch();
   const qc = useApiQueryClient();
   return useMutation({
-    mutationFn: async (input: SecurityGroupInput): Promise<SecurityGroup> => {
+    mutationFn: async (body: SecurityGroup): Promise<SecurityGroup> => {
       const sg = await apiFetch<SecurityGroup>('v1/security_groups', {
         method: 'POST',
-        body: {
-          metadata: { name: input.name },
-          spec: {
-            virtualNetwork: input.virtual_network,
-            ...(input.ingress && { ingress: input.ingress }),
-            ...(input.egress && { egress: input.egress }),
-          },
-        },
+        body,
         decode: SecurityGroupSchema,
       });
       if (!sg.id) {
@@ -323,19 +297,12 @@ export const useUpdateSecurityGroup = () => {
       input,
     }: {
       id: string;
-      input: Partial<SecurityGroupInput>;
+      input: Partial<SecurityGroup>;
     }): Promise<SecurityGroup> => {
       const sg = await apiFetch<SecurityGroup>('v1/security_groups', {
         pathParams: [id],
         method: 'PATCH',
-        body: {
-          ...(input.name && { metadata: { name: input.name } }),
-          spec: {
-            ...(input.virtual_network && { virtualNetwork: input.virtual_network }),
-            ...(input.ingress !== undefined && { ingress: input.ingress }),
-            ...(input.egress !== undefined && { egress: input.egress }),
-          },
-        },
+        body: input,
         decode: SecurityGroupSchema,
       });
       return sg;

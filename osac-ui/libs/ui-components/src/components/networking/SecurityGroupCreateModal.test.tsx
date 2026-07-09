@@ -1,3 +1,4 @@
+import { MemoryRouter } from 'react-router-dom';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -12,6 +13,7 @@ vi.mock('../../api/v1/networking', async (importOriginal) => {
   return {
     ...actual,
     useVirtualNetworks: vi.fn(),
+    useCreateSecurityGroup: vi.fn(),
   };
 });
 
@@ -31,16 +33,31 @@ describe('SecurityGroupCreateModal', () => {
     },
   ];
 
+  const mutateAsync = vi.fn();
+
   beforeEach(() => {
+    vi.clearAllMocks();
     vi.mocked(networkingApi.useVirtualNetworks).mockReturnValue({
       data: mockVirtualNetworks,
       isLoading: false,
       error: null,
     } as ReturnType<typeof networkingApi.useVirtualNetworks>);
+
+    vi.mocked(networkingApi.useCreateSecurityGroup).mockReturnValue({
+      mutateAsync,
+      error: null,
+    } as unknown as ReturnType<typeof networkingApi.useCreateSecurityGroup>);
   });
 
+  const renderModal = (onClose = vi.fn()) =>
+    render(
+      <MemoryRouter>
+        <SecurityGroupCreateModal onClose={onClose} />
+      </MemoryRouter>,
+    );
+
   it('renders modal with VN dropdown and Name field', () => {
-    render(<SecurityGroupCreateModal onClose={vi.fn()} onCreate={vi.fn()} onNavigate={vi.fn()} />);
+    renderModal();
 
     expect(screen.getByText('Create security group')).toBeInTheDocument();
     expect(screen.getByLabelText(/Virtual Network/i)).toBeInTheDocument();
@@ -49,51 +66,39 @@ describe('SecurityGroupCreateModal', () => {
     expect(screen.getByRole('button', { name: /Cancel/i })).toBeInTheDocument();
   });
 
-  it('pre-selects virtual network when virtualNetworkId prop is provided', () => {
-    render(
-      <SecurityGroupCreateModal
-        onClose={vi.fn()}
-        onCreate={vi.fn()}
-        onNavigate={vi.fn()}
-        virtualNetworkId="vn-1"
-      />,
-    );
-
-    const vnSelect = screen.getByLabelText(/Virtual Network/i) as HTMLSelectElement;
-    expect(vnSelect.value).toBe('vn-1');
-  });
-
-  it('calls onCreate and onNavigate on successful submit', async () => {
+  it('calls createSecurityGroup on successful submit', async () => {
     const user = userEvent.setup();
-    const onCreate = vi.fn().mockResolvedValue({ id: 'sg-new' });
-    const onNavigate = vi.fn();
+    mutateAsync.mockResolvedValue({ id: 'sg-new' });
 
-    render(
-      <SecurityGroupCreateModal onClose={vi.fn()} onCreate={onCreate} onNavigate={onNavigate} />,
-    );
+    renderModal();
 
-    await user.selectOptions(screen.getByLabelText(/Virtual Network/i), 'vn-1');
+    await user.click(screen.getByLabelText(/Virtual Network/i));
+    await user.click(screen.getByRole('option', { name: /vn-prod/i }));
     await user.type(screen.getByLabelText(/Name/i), 'sg-web');
     await user.click(screen.getByRole('button', { name: /Create/i }));
 
     await waitFor(() => {
-      expect(onCreate).toHaveBeenCalledWith({
-        name: 'sg-web',
-        virtual_network: 'vn-1',
-        ingress: [],
-        egress: [],
-      });
-      expect(onNavigate).toHaveBeenCalledWith('sg-new');
+      expect(mutateAsync).toHaveBeenCalledWith(
+        expect.objectContaining({
+          metadata: { name: 'sg-web' },
+          spec: { virtualNetwork: 'vn-1', ingress: [], egress: [] },
+        }),
+      );
     });
   });
 
-  it('shows error alert when onCreate fails', async () => {
+  it('shows error alert when create fails', async () => {
     const user = userEvent.setup();
-    const onCreate = vi.fn().mockRejectedValue(new Error('API error'));
+    mutateAsync.mockRejectedValue(new Error('API error'));
+    vi.mocked(networkingApi.useCreateSecurityGroup).mockReturnValue({
+      mutateAsync,
+      error: new Error('API error'),
+    } as unknown as ReturnType<typeof networkingApi.useCreateSecurityGroup>);
 
-    render(<SecurityGroupCreateModal onClose={vi.fn()} onCreate={onCreate} onNavigate={vi.fn()} />);
+    renderModal();
 
-    await user.selectOptions(screen.getByLabelText(/Virtual Network/i), 'vn-1');
+    await user.click(screen.getByLabelText(/Virtual Network/i));
+    await user.click(screen.getByRole('option', { name: /vn-prod/i }));
     await user.type(screen.getByLabelText(/Name/i), 'sg-web');
     await user.click(screen.getByRole('button', { name: /Create/i }));
 
@@ -106,7 +111,7 @@ describe('SecurityGroupCreateModal', () => {
     const user = userEvent.setup();
     const onClose = vi.fn();
 
-    render(<SecurityGroupCreateModal onClose={onClose} onCreate={vi.fn()} onNavigate={vi.fn()} />);
+    renderModal(onClose);
 
     await user.click(screen.getByRole('button', { name: /Cancel/i }));
     expect(onClose).toHaveBeenCalled();

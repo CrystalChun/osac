@@ -15,7 +15,7 @@ interface SecurityGroupRulesTableProps {
   onDeleteRule: (index: number) => void;
 }
 
-const protocolToString = (protocol: Protocol, t: TFunction): string => {
+export const protocolToString = (protocol: Protocol, t: TFunction): string => {
   switch (protocol) {
     case Protocol.TCP:
       return t('TCP');

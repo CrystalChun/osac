@@ -1,52 +1,45 @@
-import { FormGroup, FormSelect, FormSelectOption } from '@patternfly/react-core';
 import { useFormikContext } from 'formik';
 
 import { Protocol } from '@osac/types';
 
+import { protocolToString } from './SecurityGroupRulesTable';
 import { useTranslation } from '../../hooks/useTranslation';
-import { FormFieldHelper } from '../Form/FormFieldHelper';
 import { InputField } from '../Form/InputField';
+import type { LabeledResourceRef } from '../Form/labeledResourceRef';
+import { SelectField } from '../Form/SelectField';
 
 export interface RuleFormValues {
-  protocol: Protocol;
+  protocol: LabeledResourceRef;
   portFrom: string;
   portTo: string;
   ipv4Cidr: string;
   ipv6Cidr: string;
 }
 
-interface SecurityGroupRuleFormProps {
-  direction: 'ingress' | 'egress';
-}
-
-export const SecurityGroupRuleForm = ({ direction: _direction }: SecurityGroupRuleFormProps) => {
+export const SecurityGroupRuleForm = () => {
   const { t } = useTranslation();
-  const { values, errors, touched, setFieldValue, handleBlur } = useFormikContext<RuleFormValues>();
+  const { values } = useFormikContext<RuleFormValues>();
 
-  const showPortRange = values.protocol === Protocol.TCP || values.protocol === Protocol.UDP;
+  const protocolOptions = [
+    { value: String(Protocol.TCP), label: protocolToString(Protocol.TCP, t) },
+    { value: String(Protocol.UDP), label: protocolToString(Protocol.UDP, t) },
+    { value: String(Protocol.ICMP), label: protocolToString(Protocol.ICMP, t) },
+    { value: String(Protocol.ALL), label: protocolToString(Protocol.ALL, t) },
+  ];
+
+  const showPortRange =
+    values.protocol.value === String(Protocol.TCP) ||
+    values.protocol.value === String(Protocol.UDP);
 
   return (
     <>
-      <FormGroup label={t('Protocol')} isRequired fieldId="rule-protocol">
-        <FormSelect
-          id="rule-protocol"
-          name="protocol"
-          value={values.protocol}
-          onChange={(_event, value) => setFieldValue('protocol', Number(value))}
-          onBlur={handleBlur}
-          validated={touched.protocol && errors.protocol ? 'error' : 'default'}
-          aria-label={t('Protocol')}
-        >
-          <FormSelectOption value={Protocol.TCP} label={t('TCP')} />
-          <FormSelectOption value={Protocol.UDP} label={t('UDP')} />
-          <FormSelectOption value={Protocol.ICMP} label={t('ICMP')} />
-          <FormSelectOption value={Protocol.ALL} label={t('All')} />
-        </FormSelect>
-        <FormFieldHelper
-          fieldId="rule-protocol"
-          error={touched.protocol ? errors.protocol : undefined}
-        />
-      </FormGroup>
+      <SelectField
+        name="protocol"
+        label={t('Protocol')}
+        fieldId="rule-protocol"
+        isRequired
+        options={protocolOptions}
+      />
 
       {showPortRange && (
         <>

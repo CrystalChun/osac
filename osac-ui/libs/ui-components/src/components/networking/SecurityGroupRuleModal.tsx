@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import {
   Alert,
   Button,
@@ -14,17 +13,22 @@ import { Formik } from 'formik';
 import type { TFunction } from 'i18next';
 import * as Yup from 'yup';
 
-import { Protocol, type SecurityRule } from '@osac/types';
+import { Protocol, type SecurityGroup, type SecurityRule } from '@osac/types';
 
 import { type RuleFormValues, SecurityGroupRuleForm } from './SecurityGroupRuleForm';
+import { protocolToString } from './SecurityGroupRulesTable';
+import { toPlainRule } from './securityGroupRuleUtils';
+import { useUpdateSecurityGroup } from '../../api/v1/networking';
 import { useTranslation } from '../../hooks/useTranslation';
 import { getErrorMessage } from '../../utils/error';
+import { labeledResourceRefSchema } from '../Form/labeledResourceRefSchema';
 
 const createRuleValidationSchema = (t: TFunction) =>
   Yup.object({
-    protocol: Yup.number().required(t('Protocol is required')),
+    protocol: labeledResourceRefSchema(t('Protocol is required')),
     portFrom: Yup.string().when('protocol', {
-      is: (protocol: Protocol) => protocol === Protocol.TCP || protocol === Protocol.UDP,
+      is: (protocol: { value?: string }) =>
+        protocol?.value === String(Protocol.TCP) || protocol?.value === String(Protocol.UDP),
       then: (schema) =>
         schema
           .required(t('Port From is required for TCP/UDP'))
@@ -39,7 +43,8 @@ const createRuleValidationSchema = (t: TFunction) =>
       otherwise: (schema) => schema.notRequired(),
     }),
     portTo: Yup.string().when('protocol', {
-      is: (protocol: Protocol) => protocol === Protocol.TCP || protocol === Protocol.UDP,
+      is: (protocol: { value?: string }) =>
+        protocol?.value === String(Protocol.TCP) || protocol?.value === String(Protocol.UDP),
       then: (schema) =>
         schema
           .required(t('Port To is required for TCP/UDP'))
@@ -96,36 +101,39 @@ const createRuleValidationSchema = (t: TFunction) =>
 
 interface SecurityGroupRuleModalProps {
   onClose: () => void;
-  onSave: (rule: SecurityRule) => Promise<void>;
+  securityGroup: SecurityGroup;
   direction: 'ingress' | 'egress';
-  initialValues?: SecurityRule;
-  mode: 'add' | 'edit';
+  ruleIndex?: number;
 }
 
 export const SecurityGroupRuleModal = ({
   onClose,
-  onSave,
+  securityGroup,
   direction,
-  initialValues,
-  mode,
+  ruleIndex,
 }: SecurityGroupRuleModalProps) => {
   const { t } = useTranslation();
-  const [error, setError] = useState<unknown>();
+  const updateSecurityGroup = useUpdateSecurityGroup();
+
+  const mode: 'add' | 'edit' = ruleIndex === undefined ? 'add' : 'edit';
+  const initialValues: SecurityRule | undefined =
+    ruleIndex !== undefined ? securityGroup.spec?.[direction]?.[ruleIndex] : undefined;
 
   const defaultValues: RuleFormValues = {
-    protocol: initialValues?.protocol ?? Protocol.TCP,
+    protocol: {
+      value: String(initialValues?.protocol ?? Protocol.TCP),
+      label: protocolToString(initialValues?.protocol ?? Protocol.TCP, t),
+    },
     portFrom: initialValues?.portFrom?.toString() ?? '',
     portTo: initialValues?.portTo?.toString() ?? '',
     ipv4Cidr: initialValues?.ipv4Cidr ?? '',
     ipv6Cidr: initialValues?.ipv6Cidr ?? '',
   };
 
-  const handleSubmit = (values: RuleFormValues) => {
+  const handleSubmit = async (values: RuleFormValues) => {
     try {
-      setError(undefined);
-      // Create a plain object without protobuf metadata
       const rule = {
-        protocol: values.protocol,
+        protocol: Number(values.protocol.value),
         ...(values.portFrom &&
           String(values.portFrom).trim() !== '' && {
             portFrom: parseInt(String(values.portFrom), 10),
@@ -137,10 +145,30 @@ export const SecurityGroupRuleModal = ({
         ...(values.ipv4Cidr.trim() !== '' && { ipv4Cidr: values.ipv4Cidr }),
         ...(values.ipv6Cidr.trim() !== '' && { ipv6Cidr: values.ipv6Cidr }),
       } as SecurityRule;
-      // Parent closes modal immediately and runs mutation in background
-      onSave(rule);
-    } catch (err: unknown) {
-      setError(err);
+
+      const newIngress = (securityGroup.spec?.ingress ?? []).map(toPlainRule);
+      const newEgress = (securityGroup.spec?.egress ?? []).map(toPlainRule);
+      const targetList = direction === 'ingress' ? newIngress : newEgress;
+      if (ruleIndex !== undefined) {
+        targetList[ruleIndex] = rule;
+      } else {
+        targetList.push(rule);
+      }
+
+      await updateSecurityGroup.mutateAsync({
+        id: securityGroup.id,
+        input: {
+          metadata: { name: securityGroup.metadata?.name ?? '' },
+          spec: {
+            virtualNetwork: securityGroup.spec?.virtualNetwork ?? '',
+            ingress: newIngress,
+            egress: newEgress,
+          },
+        } as unknown as Partial<SecurityGroup>,
+      });
+      onClose();
+    } catch {
+      // Error is surfaced via updateSecurityGroup.error below
     }
   };
 
@@ -157,30 +185,31 @@ export const SecurityGroupRuleModal = ({
         validationSchema={createRuleValidationSchema(t)}
         onSubmit={handleSubmit}
       >
-        {({ handleSubmit, isSubmitting, isValid }) => (
+        {({ handleSubmit: formikSubmit, isValid }) => (
           <Form onSubmit={(e) => e.preventDefault()}>
             <ModalBody>
-              {Boolean(error) && (
+              {!!updateSecurityGroup.error && (
                 <Alert
                   variant="danger"
                   title={t('Error')}
                   isInline
                   style={{ marginBottom: '1rem' }}
                 >
-                  {getErrorMessage(error)}
+                  {getErrorMessage(updateSecurityGroup.error)}
                 </Alert>
               )}
-              <SecurityGroupRuleForm direction={direction} />
+              <SecurityGroupRuleForm />
             </ModalBody>
             <ModalFooter>
               <Button
                 variant="primary"
-                onClick={() => handleSubmit()}
-                isDisabled={isSubmitting || !isValid}
+                onClick={() => formikSubmit()}
+                isDisabled={updateSecurityGroup.isPending || !isValid}
+                isLoading={updateSecurityGroup.isPending}
               >
                 {mode === 'add' ? t('Add') : t('Save')}
               </Button>
-              <Button variant="link" onClick={onClose}>
+              <Button variant="link" onClick={onClose} isDisabled={updateSecurityGroup.isPending}>
                 {t('Cancel')}
               </Button>
             </ModalFooter>
