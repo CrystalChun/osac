@@ -90,6 +90,25 @@ export const CatalogPage = ({ isProviderGlobal = false }: Props) => {
     setSelectedCatalogItem(null);
   };
 
+  const catalogCreateAction = useMemo(() => {
+    if (!selectedCatalogItem) {
+      return null;
+    }
+    if (selectedCatalogItem.kind === 'vm') {
+      return {
+        label: t('Create virtual machine'),
+        path: `/vms/create/${selectedCatalogItem.item.id}`,
+      };
+    }
+    if (selectedCatalogItem.kind === 'cluster') {
+      return {
+        label: t('Create cluster'),
+        path: `/clusters/create/${selectedCatalogItem.item.id}`,
+      };
+    }
+    return null;
+  }, [selectedCatalogItem, t]);
+
   return (
     <ListPage
       title={isProviderGlobal ? t('Global catalog') : t('Catalog')}
@@ -99,12 +118,9 @@ export const CatalogPage = ({ isProviderGlobal = false }: Props) => {
         item={selectedCatalogItem?.item ?? null}
         onClose={() => setSelectedCatalogItem(null)}
         actions={
-          selectedCatalogItem?.kind === 'vm' ? (
-            <Button
-              variant="primary"
-              onClick={() => navigate(`/vms/create/${selectedCatalogItem.item.id}`)}
-            >
-              {t('Create virtual machine')}
+          catalogCreateAction ? (
+            <Button variant="primary" onClick={() => navigate(catalogCreateAction.path)}>
+              {catalogCreateAction.label}
             </Button>
           ) : null
         }
