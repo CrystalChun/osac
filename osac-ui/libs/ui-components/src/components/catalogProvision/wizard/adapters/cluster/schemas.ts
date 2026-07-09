@@ -5,7 +5,7 @@ import type { ClusterCatalogItem } from '@osac/types';
 
 import type { ClusterNodeSetRow } from './fields';
 import { labeledResourceRefSchema } from '../../../../Form/labeledResourceRefSchema';
-import { cidrSchema, cidrsOverlap, isValidCidr } from '../../../../networking/cidr-validation';
+import { cidrSchema, cidrsOverlap, isValidCidr } from '../../../../../validation/cidr-validation';
 import {
   getCatalogFieldOverlay,
   hasCatalogFieldDefinition,

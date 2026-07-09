@@ -16,7 +16,7 @@ import * as Yup from 'yup';
 
 import type { Subnet, VirtualNetwork } from '@osac/types';
 
-import { cidrSchema, hasSubnetOverlap, isSubnetWithinVN } from './cidr-validation';
+import { cidrSchema, hasSubnetOverlap, isSubnetWithinVN } from '../../validation/cidr-validation';
 import { CidrDisplay } from './CidrDisplay';
 import type { SubnetInput } from '../../api/v1/networking';
 import {

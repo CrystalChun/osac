@@ -12,7 +12,7 @@ import {
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 
-import { cidrSchema } from './cidr-validation';
+import { cidrSchema } from '../../validation/cidr-validation';
 import type { VirtualNetworkInput } from '../../api/v1/networking';
 import { useNetworkClasses } from '../../api/v1/networking';
 import { InputField } from '../../components/Form/InputField';
