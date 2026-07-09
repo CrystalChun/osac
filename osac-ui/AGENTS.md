@@ -1,6 +1,6 @@
 # osac-ui
 
-Web console for the [Open Sovereign AI Cloud (OSAC)](https://github.com/osac-project/) project — a self-service platform for deploying OpenShift clusters, virtual machines, and bare metal hosts. pnpm monorepo with React 19 + PatternFly 6 (frontend) and a Go chi reverse proxy (BFF with OIDC authentication).
+> See [README.md](README.md) for project overview and quick start. This file contains agent-specific development conventions and quality standards.
 
 ## Critical Rules
 
@@ -14,78 +14,61 @@ Web console for the [Open Sovereign AI Cloud (OSAC)](https://github.com/osac-pro
 
 ## Dev Environment
 
-Prerequisites: Node.js 20+, pnpm 9+, Go 1.23+
+**Stack**: pnpm 9+ monorepo, Node.js 20+, React 19, TypeScript 5.9, PatternFly 6, Go 1.25+ (proxy)
 
+**Prerequisites**:
+- pnpm must be installed globally (`npm install -g pnpm@9`) — not included by default
+
+**Setup**:
 ```bash
-pnpm install                   # Install dependencies
+pnpm install
+FULFILLMENT_API_URL=https://... pnpm dev  # Go proxy + Vite on :5173
+```
 
-# Start development servers
-FULFILLMENT_API_URL=https://... pnpm dev    # Go proxy and Vite on :5173
+**Key commands**:
+- `pnpm build` — TypeScript check + Vite build + Go binary
+- `pnpm test` — Vitest unit tests across all packages
+- `pnpm e2e:ci` — Cypress E2E tests
+- `pnpm lint` — ESLint + Prettier + i18n sync check (CI fails if out of sync)
+- `pnpm format` — Auto-fix linting and formatting issues
+- `pnpm gen-types` — Regenerate TypeScript from protobuf (libs/types)
+- `pnpm i18n` — Extract t() keys to libs/i18n/locales/en/translation.json
+- `pnpm check:pf-primitives` — Validate PatternFly usage (custom linter)
+- `pnpm graph:statecharts` — Generate statechart graphs (XState) to docs/specs/graphs/
 
-# Build
-pnpm build                     # TypeScript check + Vite build + Go binary
-
-# Test
-pnpm test                      # Vitest unit tests
-pnpm e2e:ci                    # Cypress E2E tests
-
-# Lint and format
-pnpm lint                      # ESLint + Prettier + i18n sync check
-pnpm format                    # Prettier write
-
-# Type generation
-pnpm gen-types                 # Regenerate TS types from protobuf
-
-# Translations
-pnpm i18n                      # Extract t() keys and update libs/i18n/locales/en/translation.json
-
-# Validate PatternFly usage
-pnpm check:pf-primitives
-
-# Container build
+**Container**:
+```bash
 podman build -t osac:latest -f Containerfile .
+podman run -p 8080:8080 -e FULFILLMENT_API_URL=https://... osac:latest
 ```
+Multi-stage build images: `nodejs-22-minimal:9.8`, `go-toolset:1.25`, `ubi-minimal:9.5` (see Containerfile)
 
-## Repository Structure
+**Go proxy** (proxy/):
+- chi router with OIDC auth + API forwarding
+- Required env: `FULFILLMENT_API_URL`
+- Optional: `OIDC_CLIENT_ID`, `BASE_UI_URL`, TLS CA files, insecure flags (dev only)
+- Proxied paths: `/api/fulfillment/v1/*`, `/api/events/v1/*`, `/api/osac/public/v1/*`
+- Development: `cd proxy && nodemon --watch 'proxy/**/*' --exec 'go run' main.go`
 
-```text
-osac-ui/
-├── apps/
-│   ├── app-frontend/          # React 19 SPA (Vite + TypeScript + PatternFly 6)
-│   └── e2e/                   # Cypress end-to-end tests
-├── libs/
-│   ├── i18n/                  # Translation extraction config + generated locale files
-│   ├── api-contracts/         # Shared TS types + wire normalizers
-│   ├── types/                 # Generated types from protobuf (do not edit)
-│   └── ui-components/         # Shared PatternFly 6 component library
-├── proxy/                     # Go chi reverse proxy (OIDC auth + API forwarding)
-├── deploy/
-│   └── chart/                 # Helm chart for Kubernetes deployment
-├── docs/
-│   ├── specs/                 # Feature specs, statecharts, flow definitions
-│   └── runbook.md             # Development and deployment instructions
-├── scripts/                   # Helper scripts (PF validation, statechart graphs)
-└── pnpm-workspace.yaml        # Workspace: apps/*, libs/*
-```
+## Key Workspace Packages
 
-### Workspace Packages
-
-| Package | Purpose |
-|---------|---------|
-| `@osac/app-frontend` | React SPA — Vite, React 19, TanStack Query, react-router-dom 7 |
-| `@osac/e2e` | Cypress E2E tests |
-| `@osac/i18n` | Translation extraction config (`i18next.config.ts`) + generated locale files |
-| `@osac/api-contracts` | Shared TS types + wire normalizers (single source of truth for API types) |
-| `@osac/types` | Generated protobuf types (do not edit) |
-| `@osac/ui-components` | Shared PatternFly 6 components (consumed at source, no build step) |
+| Package | Agent-Relevant Notes |
+|---------|---------------------|
+| `@osac/app-frontend` | React SPA — all user-facing pages and routing logic |
+| `@osac/ui-components` | Shared components consumed at source (no build) — most feature work happens here |
+| `@osac/types` | Generated protobuf types — **never edit**, regenerate with `pnpm gen-types` |
+| `@osac/i18n` | Translation extraction — `locales/en/translation.json` is generated, not hand-edited |
 
 ## Code Style
 
 - **ESLint 9** + TypeScript-ESLint with strict rules
 - **Prettier**: single quotes, trailing commas, 100 char print width, 2-space indent
-- **Import sorting**: enforced by ESLint `sort-imports`
+- **Import sorting**: enforced by ESLint `sort-imports` + `import/order` (alphabetized, grouped)
+  - Order: builtin/external → internal (@osac/*) → parent/sibling → object (assets)
+  - React imports first in external group
 - **Arrow functions**: `prefer-arrow-callback` + `func-style: expression`
 - **Unused vars**: error with `^_` ignore pattern
+- **No console.log** — ESLint errors on console usage
 
 ### TypeScript and React
 
@@ -93,6 +76,12 @@ osac-ui/
 - Prefer **functional components** and declarative patterns; use the `function` keyword for named pure helpers when it improves hoisting and stack traces
 - **Default exports** for React components; **named exports** for everything else (utilities, hooks, types, constants)
 - **One component per file**: split each meaningful component into its own file in the same feature area (e.g., `feature-name/SubView.tsx`); keep page files focused on composition, data wiring, and layout. Exception: a tiny non-exported helper may stay if the file remains short
+- **Restricted imports** (ESLint enforces):
+  - Use `OsacForm` wrapper, not PF `Form` directly
+  - Deep imports for PF icons/tokens (ESM): `@patternfly/react-icons/dist/esm/icons/<name>`
+  - Deep imports for lodash-es: `lodash-es/<function>`
+  - Use `@osac/ui-components/hooks/useTranslation`, never `react-i18next` directly
+  - ui-components: use `useApiQuery`, never `@tanstack/react-query` `useQuery` directly
 - Do not add dependencies without aligning with existing stack and license policy; prefer patterns already present in the target package
 
 ### Styling
@@ -167,17 +156,97 @@ export const getLabels = (t: TFunction) => ({
 
 ## Test
 
-- **Unit tests**: Vitest + React Testing Library + jsdom
-- **E2E tests**: Cypress (`apps/e2e/`)
+**Unit tests** (Vitest + React Testing Library):
+- Framework: Vitest 4.x with jsdom
+- Run: `pnpm test` (all packages) or per-package `pnpm --filter <pkg> run test`
+- Location: `*.test.tsx` files alongside source
+- Example paths:
+  - `libs/ui-components/src/VmStatusLabel.test.tsx`
+  - `libs/ui-components/src/api/fulfillment-decode.test.ts`
+  - `libs/ui-components/src/components/Form/fieldError.test.ts`
+
+**E2E tests** (Cypress):
+- Package: `@osac/e2e` (apps/e2e/)
+- Run: `pnpm e2e:ci` (headless) or `pnpm --filter @osac/e2e run e2e` (interactive)
+- Config: apps/e2e/cypress.config.ts
+- Base URL: http://localhost:5173 (dev server must be running)
+
+**Test guidelines**:
 - Assert what the user sees and does — prefer accessible queries (labels, roles, names)
-- Cover happy path, loading, empty, and error states when the spec implies them
+- Cover happy path, loading, empty, and error states
 - Prefer stable, user-facing selectors over brittle DOM structure
+- No `data-testid` unless team standard requires it
+
+**Test configuration**:
+- apps/app-frontend/vitest.config.ts — SPA unit tests
+- ESLint relaxes type safety rules for test files (no-unsafe-* off)
+- Testing libraries: @testing-library/react 16.x, @testing-library/jest-dom 6.x
 
 ## Specs and Traceability
 
 - Implement and test only what documented acceptance criteria require; use stable IDs (`AC-1`, `AC-2`, …) in PR text and tie tests to ACs
 - If the spec is ambiguous, do not invent product behavior — document assumptions in the PR or spec under _Open questions_
 - Out-of-scope items from the spec must not appear as drive-by features
+
+## Build
+
+**Frontend build** (apps/app-frontend):
+- `pnpm --filter @osac/app-frontend run build`
+- TypeScript compilation (`tsc -b tsconfig.build.json`)
+- Vite bundling → `apps/app-frontend/dist/`
+- vite-plugin-static-copy: copies libs/i18n/locales/ to dist/locales/
+
+**Go proxy build** (proxy/):
+```bash
+cd proxy && go build -o osac-proxy .
+```
+
+**Multi-stage container** (Containerfile):
+1. ubi9/nodejs-22-minimal: install pnpm deps
+2. Build SPA → apps/app-frontend/dist
+3. ubi9/go-toolset:1.25: build Go proxy binary
+4. ubi9/ubi-minimal:9.5: copy binary + SPA dist → /app/public
+
+**Full build** (root):
+```bash
+pnpm build  # Builds frontend + proxy binary
+```
+
+**Type generation**:
+- libs/types uses @bufbuild/buf to generate TS types from protobuf
+- Run `pnpm gen-types` after proto changes
+- Never edit libs/types/src/*.ts manually
+
+**i18n build**:
+- i18next-cli extracts t() calls from source
+- Updates libs/i18n/locales/en/translation.json
+- CI fails if file is out of sync (`pnpm run i18n` in lint step)
+
+## Architecture (Agent Key Points)
+
+**API layer split** (enforced by ESLint):
+- `ui-components`: `useApiQuery` wrapper (no queryFn, just options) — never imports `useQuery` directly
+- `app-frontend`: supplies queryFn per route
+- See [docs/api-query-arch.md](docs/api-query-arch.md) for details
+
+**i18n flow**:
+- English text is the key (e.g., `t('Save changes')`)
+- i18next-cli extracts to `libs/i18n/locales/en/translation.json` (generated, not hand-edited)
+- Runtime: i18next-http-backend loads from `/locales/{{lng}}/{{ns}}.json`
+- CI enforces sync: `pnpm run i18n --ci` (fails if out of date)
+
+**Type generation**:
+- Protobuf → TypeScript via @bufbuild/buf + @bufbuild/protobuf
+- Never edit libs/types/src/*.ts manually — regenerate with `pnpm gen-types`
+
+**Component organization** (libs/ui-components/src):
+- `components/`: catalog, catalogProvision, Cluster, dashboard, Form, Page, Primitives, Resource, vm, shared
+- `pages/`: admin, provider, tenant
+- `api/`: fulfillment-decode, types, use-api-query
+  - `api/v1/`: compute-instance, instance-types (domain models)
+
+**Custom tooling**:
+- `scripts/check-pf-primitives.mjs`: validates PatternFly usage (run via `pnpm check:pf-primitives`)
 
 ## Quality Bar
 
@@ -187,40 +256,66 @@ export const getLabels = (t: TFunction) => ({
 
 ## Security
 
-- No secrets, tokens, or credentials in source or tests; use existing env/config patterns
-- Sanitize or escape user-controlled content per framework norms; validate inputs at trust boundaries
-- Follow authz semantics described in architecture/specs — do not bypass checks for convenience
+**Agent guidelines**:
+- No secrets, tokens, or credentials in source or tests
+- Use existing env/config patterns for sensitive data (see proxy/ env vars)
+- Sanitize or escape user-controlled content per framework norms
+- Validate inputs at trust boundaries
+- Follow authz semantics from architecture/specs — do not bypass checks
+- gitleaks config: `.gitleaks.toml` (pre-commit hook integration via rh-pre-commit)
 
-## Go Proxy
+## PR Conventions
 
-The Go reverse proxy handles OIDC authentication and forwards API requests to the fulfillment service.
+**Branch naming**: feature/<description> or fix/<ticket>
 
-| Env Var | Required | Description |
-|---------|----------|-------------|
-| `FULFILLMENT_API_URL` | Yes | Upstream API base URL |
-| `PORT` | No | Listen port (default: `8080`) |
-| `HOST` | No | Listen host (default: `0.0.0.0`) |
-| `BASE_UI_URL` | No | Public base URL of the UI — used to compute the `/callback` redirect URI; derived from the SPA's `redirect_base` query parameter if unset |
-| `OIDC_CLIENT_ID` | No | OIDC client ID (default: `osac-ui`) |
-| `OIDC_TLS_CA_FILE` | No | Custom CA bundle for the OIDC IdP |
-| `OIDC_TLS_INSECURE` | No | Skip TLS verification for the OIDC IdP (dev only) |
-| `FULFILLMENT_TLS_CA_FILE` | No | Custom CA bundle for the fulfillment service |
-| `FULFILLMENT_TLS_INSECURE` | No | Skip TLS verification for the fulfillment service (dev only) |
+**Commit messages**:
+- Sign-off required (DCO)
+- Prefix with ticket if applicable (e.g., "OSAC-1886: add VM details page")
+- Conventional commits style observed in git log (feat, fix, refactor)
 
-Proxied paths: `/api/fulfillment/v1/*`, `/api/events/v1/*`, `/api/osac/public/v1/*`
+**AI attribution**:
+```
+Assisted-by: Claude Code <noreply@anthropic.com>
+```
+(Never use Co-Authored-By for AI tools — Red Hat standard)
 
-## CI
+**PR review**:
+- CI must pass: lint (TS + Go), container build
+- On main merge or tag: publish container image to ghcr.io
+- On `v*` tags: publish Helm chart to GHCR
 
-GitHub Actions (`.github/workflows/`):
-- **lint.yaml** — ESLint + Prettier + i18n sync check (TS/TSX) + golangci-lint (Go proxy) on PRs
-- **container-build.yaml** — `podman build` on PRs (no push)
-- **publish-image.yaml** — build + push to `ghcr.io/` on main and `v*` tags
-- **publish-charts.yaml** — Helm chart to GHCR on `v*` tags
+**Scope discipline**:
+- Implement and test only what documented acceptance criteria require
+- Use stable IDs (AC-1, AC-2) in PR text and tie tests to ACs
+- No drive-by features unrelated to the spec
+- No broad refactors unrelated to current spec
+- Smallest diff that satisfies ACs
 
-## Documentation
+**Code review expectations**:
+- Match existing formatting, import order, file layout, naming
+- Run linters and tests before submitting
+- Fix new violations you introduce
+- No secrets, tokens, or credentials in source
+- Sanitize user-controlled content
+- Follow authz semantics from architecture/specs
 
-| Area | Location |
-|------|----------|
-| Feature specs and acceptance criteria | `docs/specs/` |
-| Statechart definitions (XState) | `docs/specs/statecharts/` |
-| Development and deployment runbook | `docs/runbook.md` |
+## Go Proxy (Agent Notes)
+
+**Code style** (golangci-lint config v2):
+- Linters: errcheck, staticcheck, govet, ineffassign, unused, misspell, revive, exhaustive, noctx, bodyclose
+- Formatters: gofmt, goimports (local-prefixes: github.com/osac/proxy)
+- Test files: errcheck disabled
+
+**Development**:
+```bash
+cd proxy && nodemon --watch 'proxy/**/*' --exec 'go run' main.go
+```
+
+See README.md for env vars and deployment details.
+
+## Specs and Traceability Reference
+
+| Spec Type | Location |
+|-----------|----------|
+| Feature acceptance criteria | Per-feature documentation |
+| Statechart graphs (XState) | `docs/specs/graphs/` (generated by `pnpm graph:statecharts`) |
