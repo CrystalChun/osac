@@ -5,7 +5,7 @@ import type { ClusterCatalogItem } from '@osac/types';
 
 import type { ClusterNodeSetRow } from './fields';
 import { labeledResourceRefSchema } from '../../../../Form/labeledResourceRefSchema';
-import { cidrsOverlap, isValidCidr } from '../../../../networking/cidr-validation';
+import { cidrSchema, cidrsOverlap, isValidCidr } from '../../../../networking/cidr-validation';
 import {
   getCatalogFieldOverlay,
   hasCatalogFieldDefinition,
@@ -117,36 +117,27 @@ const buildClusterFieldDefinitions = (catalogItem: unknown, t: TFunction) => {
       }),
     specNetwork: yup.object({
       podCidr: mergeCatalogValidation(
-        yup
-          .string()
-          .test('pod-cidr', t('Enter a valid CIDR (for example 10.128.0.0/14)'), (value) =>
-            isValidCidr(value ?? ''),
-          ),
+        cidrSchema,
         podCidrOverlay,
         false,
         t('This field is required'),
       ),
       serviceCidr: mergeCatalogValidation(
-        yup
-          .string()
-          .test('service-cidr', t('Enter a valid CIDR (for example 10.128.0.0/14)'), (value) =>
-            isValidCidr(value ?? ''),
-          )
-          .test(
-            'service-cidr-no-overlap',
-            t('Service CIDR must not overlap the pod CIDR.'),
-            function (value) {
-              const parent = this.parent as { podCidr?: string } | undefined;
-              const podCidr = parent?.podCidr ?? '';
-              if (!value?.trim() || !podCidr.trim()) {
-                return true;
-              }
-              if (!isValidCidr(value) || !isValidCidr(podCidr)) {
-                return true;
-              }
-              return !cidrsOverlap(podCidr, value);
-            },
-          ),
+        cidrSchema.test(
+          'service-cidr-no-overlap',
+          t('Service CIDR must not overlap the pod CIDR.'),
+          function (value) {
+            const parent = this.parent as { podCidr?: string } | undefined;
+            const podCidr = parent?.podCidr ?? '';
+            if (!value?.trim() || !podCidr.trim()) {
+              return true;
+            }
+            if (!isValidCidr(value) || !isValidCidr(podCidr)) {
+              return true;
+            }
+            return !cidrsOverlap(podCidr, value);
+          },
+        ),
         serviceCidrOverlay,
         false,
         t('This field is required'),

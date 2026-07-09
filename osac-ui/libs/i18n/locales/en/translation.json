@@ -92,7 +92,6 @@
   "Each host type can only be selected once": "Each host type can only be selected once",
   "Editable": "Editable",
   "Editable fields can be changed when creating from this catalog item. Fixed fields use the default value shown.": "Editable fields can be changed when creating from this catalog item. Fixed fields use the default value shown.",
-  "Enter a valid CIDR (for example 10.128.0.0/14)": "Enter a valid CIDR (for example 10.128.0.0/14)",
   "Example: 10.0.0.0/16": "Example: 10.0.0.0/16",
   "Example: 10.0.1.0/24": "Example: 10.0.1.0/24",
   "Example: 2001:db8::/32": "Example: 2001:db8::/32",

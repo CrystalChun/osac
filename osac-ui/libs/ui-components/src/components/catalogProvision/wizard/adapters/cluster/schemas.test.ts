@@ -233,10 +233,29 @@ describe('buildClusterStepSchema', () => {
     expect(errors).toEqual({
       spec: {
         network: {
-          podCidr: 'Enter a valid CIDR (for example 10.128.0.0/14)',
+          podCidr: 'Invalid CIDR notation',
         },
       },
     });
+  });
+
+  it('accepts IPv6 pod and service CIDRs on networking step', async () => {
+    const errors = await validateStep(
+      'networking',
+      {
+        ...emptyValues,
+        catalogItemId: clusterCatalogItem.id,
+        spec: {
+          ...emptyValues.spec,
+          network: {
+            podCidr: 'fd01::/48',
+            serviceCidr: 'fd02::/112',
+          },
+        },
+      },
+      clusterCatalogItem,
+    );
+    expect(errors).toEqual({});
   });
 
   it('rejects overlapping pod and service CIDRs on networking step', async () => {
