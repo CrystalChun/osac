@@ -3,9 +3,9 @@ import * as yup from 'yup';
 
 import type { ClusterCatalogItem } from '@osac/types';
 
-import { ipv4CidrsOverlap, isValidCidr } from './cidr';
 import type { ClusterNodeSetRow } from './fields';
 import { labeledResourceRefSchema } from '../../../../Form/labeledResourceRefSchema';
+import { cidrsOverlap, isValidCidr } from '../../../../networking/cidr-validation';
 import {
   getCatalogFieldOverlay,
   hasCatalogFieldDefinition,
@@ -68,7 +68,7 @@ const buildClusterFieldDefinitions = (catalogItem: unknown, t: TFunction) => {
   const rowSchema = nodeSetRowSchema(t);
 
   return {
-    catalogItemId: yup.string().required(t('catalogProvision.validation.catalogItemRequired')),
+    catalogItemId: yup.string().required(t('Select a catalog item')),
     metadataName: buildMetadataNameSchema(t),
     specSshPublicKey: mergeCatalogValidation(
       yup
@@ -82,7 +82,7 @@ const buildClusterFieldDefinitions = (catalogItem: unknown, t: TFunction) => {
         ),
       sshKeyOverlay,
       sshKeyRequired,
-      t('catalogProvision.validation.required'),
+      t('This field is required'),
     ),
     specPullSecret: mergeCatalogValidation(
       yup
@@ -103,7 +103,7 @@ const buildClusterFieldDefinitions = (catalogItem: unknown, t: TFunction) => {
       yup.string().trim(),
       releaseImageOverlay,
       true,
-      t('catalogProvision.validation.clusterReleaseImageRequired'),
+      t('Release image is required'),
     ),
     specNodeSetRows: yup
       .array()
@@ -119,17 +119,17 @@ const buildClusterFieldDefinitions = (catalogItem: unknown, t: TFunction) => {
       podCidr: mergeCatalogValidation(
         yup
           .string()
-          .test('pod-cidr', t('catalogProvision.validation.cidrFormat'), (value) =>
+          .test('pod-cidr', t('Enter a valid CIDR (for example 10.128.0.0/14)'), (value) =>
             isValidCidr(value ?? ''),
           ),
         podCidrOverlay,
         false,
-        t('catalogProvision.validation.required'),
+        t('This field is required'),
       ),
       serviceCidr: mergeCatalogValidation(
         yup
           .string()
-          .test('service-cidr', t('catalogProvision.validation.cidrFormat'), (value) =>
+          .test('service-cidr', t('Enter a valid CIDR (for example 10.128.0.0/14)'), (value) =>
             isValidCidr(value ?? ''),
           )
           .test(
@@ -144,12 +144,12 @@ const buildClusterFieldDefinitions = (catalogItem: unknown, t: TFunction) => {
               if (!isValidCidr(value) || !isValidCidr(podCidr)) {
                 return true;
               }
-              return !ipv4CidrsOverlap(podCidr, value);
+              return !cidrsOverlap(podCidr, value);
             },
           ),
         serviceCidrOverlay,
         false,
-        t('catalogProvision.validation.required'),
+        t('This field is required'),
       ),
     }),
   };

@@ -13,7 +13,10 @@ import {
 import { apiQueryKey } from '@osac/ui-components/api/types';
 import { useApiQueryClient } from '@osac/ui-components/api/use-api-query';
 import { useProvisionCluster } from '@osac/ui-components/api/v1/cluster';
-import type { BuildClusterCreateBodyInput } from '@osac/ui-components/api/v1/cluster-wire';
+import {
+  type BuildClusterCreateBodyInput,
+  buildClusterCreateBody,
+} from '@osac/ui-components/api/v1/cluster-wire';
 import {
   CatalogProvisionWizard,
   type CatalogProvisionWizardCloseHandler,
@@ -38,10 +41,9 @@ export const ClusterCreatePage = () => {
 
   const handleWizardProvision = useCallback(
     async (cluster: BuildClusterCreateBodyInput) => {
-      const created = await provisionCluster.mutateAsync({
-        cluster,
-        specCatalogItemOnly: true,
-      });
+      const created = await provisionCluster.mutateAsync(
+        buildClusterCreateBody(cluster, { specCatalogItemOnly: true }),
+      );
       if (!created.id) {
         throw new Error('Create response missing id');
       }

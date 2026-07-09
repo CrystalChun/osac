@@ -12,6 +12,7 @@ import { initTestI18n } from '../../components/catalogProvision/test/i18n';
 import {
   clickWizardNext,
   fillClusterGeneralStep,
+  fillClusterNodeSetRow,
   selectClusterCatalogItem,
 } from '../../components/catalogProvision/test/wizardFlow.helpers';
 import { WizardTestProvidersWithI18n } from '../../components/catalogProvision/test/WizardTestProviders';
@@ -59,6 +60,7 @@ describe('ClusterCreatePage', () => {
     await waitFor(() => {
       expect(screen.getByLabelText(/Release image/)).toBeInTheDocument();
     });
+    await fillClusterNodeSetRow(user);
     await clickWizardNext(user);
     await clickWizardNext(user);
     await user.click(screen.getByRole('button', { name: 'Create' }));

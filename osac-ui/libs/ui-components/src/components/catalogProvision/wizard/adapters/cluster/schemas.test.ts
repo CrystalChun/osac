@@ -62,7 +62,7 @@ const validateStep = async (
 describe('buildClusterStepSchema', () => {
   it('requires catalog item on catalog step', async () => {
     const errors = await validateStep('catalog', emptyValues);
-    expect(errors).toEqual({ catalogItemId: 'catalogProvision.validation.catalogItemRequired' });
+    expect(errors).toEqual({ catalogItemId: 'Select a catalog item' });
   });
 
   it('rejects invalid DNS label names on general step', async () => {
@@ -233,7 +233,7 @@ describe('buildClusterStepSchema', () => {
     expect(errors).toEqual({
       spec: {
         network: {
-          podCidr: 'catalogProvision.validation.cidrFormat',
+          podCidr: 'Enter a valid CIDR (for example 10.128.0.0/14)',
         },
       },
     });

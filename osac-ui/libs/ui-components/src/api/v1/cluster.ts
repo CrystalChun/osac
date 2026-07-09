@@ -10,7 +10,6 @@ import {
 import { useApiFetch } from '../api-context';
 import { apiQueryKey } from '../types';
 import { useApiQuery, useApiQueryClient } from '../use-api-query';
-import { type BuildClusterCreateBodyInput, buildClusterCreateBody } from './cluster-wire';
 
 export type ListClustersParams = {
   filter?: string;
@@ -52,23 +51,14 @@ export const useDeleteCluster = () => {
   });
 };
 
-export type ProvisionClusterInput = {
-  cluster: BuildClusterCreateBodyInput;
-  /** When true, POST body must include `spec.catalog_item`. */
-  specCatalogItemOnly?: boolean;
-};
-
 export const useProvisionCluster = () => {
   const apiFetch = useApiFetch();
   const qc = useApiQueryClient();
   return useMutation({
-    mutationFn: async ({
-      cluster,
-      specCatalogItemOnly,
-    }: ProvisionClusterInput): Promise<Cluster> => {
+    mutationFn: async (body: Record<string, unknown>): Promise<Cluster> => {
       const created = await apiFetch<Cluster>('v1/clusters', {
         method: 'POST',
-        body: buildClusterCreateBody(cluster, { specCatalogItemOnly }),
+        body,
         decode: ClusterSchema,
       });
       if (!created.id) {
