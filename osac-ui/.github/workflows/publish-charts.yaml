@@ -1,14 +1,33 @@
 name: Publish charts
 
 on:
-  push:
-    tags:
-    - 'v*'
+  workflow_run:
+    workflows: ["Publish container image"]
+    types: [completed]
 
 jobs:
 
+  guard:
+    name: Verify image build succeeded
+    runs-on: ubuntu-latest
+    if: >
+      github.event.workflow_run.event == 'push' &&
+      startsWith(github.event.workflow_run.head_branch, 'v')
+    outputs:
+      tag: ${{ github.event.workflow_run.head_branch }}
+      sha: ${{ github.event.workflow_run.head_sha }}
+    steps:
+    - name: Check image build result
+      run: |
+        if [[ "${{ github.event.workflow_run.conclusion }}" != "success" ]]; then
+          echo "::error::Image build for tag ${{ github.event.workflow_run.head_branch }} did not succeed (conclusion: ${{ github.event.workflow_run.conclusion }}). Refusing to publish chart."
+          exit 1
+        fi
+        echo "Image build succeeded for tag ${{ github.event.workflow_run.head_branch }}"
+
   publish-ui-chart:
     name: Publish UI chart
+    needs: guard
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -16,16 +35,19 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
+        ref: ${{ needs.guard.outputs.sha }}
         fetch-depth: 0
         persist-credentials: false
     - id: run
+      env:
+        TAG: ${{ needs.guard.outputs.tag }}
       run: |
         # Login to the registry:
         export registry="ghcr.io"
         echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login --username "${{ github.actor }}" --password-stdin "${registry}"
 
-        # Get the git version:
-        export git_version="$(git describe --tags)"
+        # Get the git version from the tag that triggered the image build:
+        export git_version="${TAG}"
 
         # Update the image reference in the chart:
         export app_version="${git_version}"
@@ -43,12 +65,13 @@ jobs:
 
     - name: Create GitHub Release
       run: |
-        gh release create "${GITHUB_REF_NAME}" \
+        gh release create "${TAG}" \
           --repo "${{ github.repository }}" \
-          --title "osac-ui ${GITHUB_REF_NAME}" \
+          --title "osac-ui ${TAG}" \
           --generate-notes \
-        || gh release edit "${GITHUB_REF_NAME}" \
+        || gh release edit "${TAG}" \
           --repo "${{ github.repository }}" \
-          --title "osac-ui ${GITHUB_REF_NAME}"
+          --title "osac-ui ${TAG}"
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        TAG: ${{ needs.guard.outputs.tag }}
