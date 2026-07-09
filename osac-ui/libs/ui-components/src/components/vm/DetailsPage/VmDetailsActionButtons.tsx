@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Flex } from '@patternfly/react-core';
 import DumpsterIcon from '@patternfly/react-icons/dist/esm/icons/dumpster-icon';
+import GlobeIcon from '@patternfly/react-icons/dist/esm/icons/globe-icon';
 import PlayIcon from '@patternfly/react-icons/dist/esm/icons/play-icon';
 import StopIcon from '@patternfly/react-icons/dist/esm/icons/stop-icon';
 import SyncAltIcon from '@patternfly/react-icons/dist/esm/icons/sync-alt-icon';
@@ -9,6 +10,7 @@ import SyncAltIcon from '@patternfly/react-icons/dist/esm/icons/sync-alt-icon';
 import type { ComputeInstance } from '@osac/types';
 import { ComputeInstanceState } from '@osac/types';
 
+import AttachPublicIpModal from './AttachPublicIpModal';
 import VmDeleteConfirmModal from './VmDeleteConfirmModal';
 import { usePatchComputeInstance } from '../../../api/v1/compute-instance';
 
@@ -19,6 +21,7 @@ interface VmDetailsActionButtonsProps {
 const VmDetailsActionButtons = ({ vm }: VmDetailsActionButtonsProps) => {
   const navigate = useNavigate();
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [attachPublicIpOpen, setAttachPublicIpOpen] = useState(false);
   const patchVm = usePatchComputeInstance();
 
   const state = vm.status?.state;
@@ -28,6 +31,7 @@ const VmDetailsActionButtons = ({ vm }: VmDetailsActionButtonsProps) => {
     state === ComputeInstanceState.RUNNING || state === ComputeInstanceState.PAUSED;
   const canDelete =
     state !== ComputeInstanceState.DELETING && state !== ComputeInstanceState.STARTING;
+  const canAttachPublicIp = state === ComputeInstanceState.RUNNING && !vm.status?.publicIpAddress;
 
   return (
     <>
@@ -36,6 +40,13 @@ const VmDetailsActionButtons = ({ vm }: VmDetailsActionButtonsProps) => {
           vm={vm}
           onClose={() => setDeleteOpen(false)}
           onSuccess={() => navigate('/vms')}
+        />
+      )}
+      {attachPublicIpOpen && (
+        <AttachPublicIpModal
+          vm={vm}
+          onClose={() => setAttachPublicIpOpen(false)}
+          onSuccess={() => setAttachPublicIpOpen(false)}
         />
       )}
       <Flex
@@ -78,6 +89,18 @@ const VmDetailsActionButtons = ({ vm }: VmDetailsActionButtonsProps) => {
           }}
         >
           Restart
+        </Button>
+        <Button
+          variant="secondary"
+          icon={<GlobeIcon />}
+          isDisabled={!canAttachPublicIp}
+          onClick={() => {
+            if (canAttachPublicIp) {
+              setAttachPublicIpOpen(true);
+            }
+          }}
+        >
+          Attach public IP
         </Button>
         <Button
           variant="danger"
