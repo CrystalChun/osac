@@ -67,7 +67,19 @@ export const useAttachPublicIp = () => {
         throw new Error('Create response missing id');
       }
 
-      const allocated = await pollPublicIpUntilAllocated(apiFetch, created.id);
+      let allocated: PublicIP;
+      try {
+        allocated = await pollPublicIpUntilAllocated(apiFetch, created.id);
+      } catch (err) {
+        // Best-effort cleanup: Delete requires ALLOCATED state, so this only succeeds if the
+        // PublicIP allocated in the window between our last poll and giving up; otherwise it's
+        // a harmless no-op and the resource is left for backend cleanup.
+        await apiFetch<void>('v1/public_ips', {
+          pathParams: [created.id],
+          method: 'DELETE',
+        }).catch(() => undefined);
+        throw err;
+      }
 
       try {
         return await apiFetch<PublicIPAttachment>('v1/public_ip_attachments', {
