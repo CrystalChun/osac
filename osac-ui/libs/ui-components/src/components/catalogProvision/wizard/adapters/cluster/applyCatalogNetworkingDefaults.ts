@@ -16,11 +16,7 @@ export const applyClusterCatalogNetworkingDefaults = (
   t: TFunction,
 ): void => {
   const definitions = readCatalogFieldDefinitions(catalogItem);
-  const podCidrOverlay = getCatalogFieldOverlay(
-    'network.pod_cidr',
-    definitions,
-    t('Pod CIDR'),
-  );
+  const podCidrOverlay = getCatalogFieldOverlay('network.pod_cidr', definitions, t('Pod CIDR'));
   const serviceCidrOverlay = getCatalogFieldOverlay(
     'network.service_cidr',
     definitions,

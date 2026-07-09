@@ -2,9 +2,7 @@ const ipv4ToInt = (octets: string[]): number =>
   octets.reduce((acc, octet) => (acc << 8) + Number(octet), 0) >>> 0;
 
 /** Returns inclusive IPv4 range for a CIDR, or null when not a valid IPv4 CIDR. */
-export const parseIpv4CidrRange = (
-  value: string,
-): { start: number; end: number } | null => {
+export const parseIpv4CidrRange = (value: string): { start: number; end: number } | null => {
   const trimmed = value.trim();
   if (!trimmed || !isValidCidr(trimmed) || trimmed.includes(':')) {
     return null;

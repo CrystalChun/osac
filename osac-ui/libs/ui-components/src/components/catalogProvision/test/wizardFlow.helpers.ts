@@ -175,6 +175,12 @@ export const fillClusterGeneralStep = async (
   fireEvent.change(pullSecretInput, { target: { value: pullSecret } });
 };
 
+export const waitForClusterConfigurationReady = async () => {
+  await waitFor(() => {
+    expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+  });
+};
+
 export const advanceToClusterConfigurationStep = async (user: UserEvent, name = 'my-cluster') => {
   await selectClusterCatalogItem(user);
   await clickWizardNext(user);
@@ -183,6 +189,7 @@ export const advanceToClusterConfigurationStep = async (user: UserEvent, name = 
   await waitFor(() => {
     expect(screen.getByLabelText(/Release image/)).toBeInTheDocument();
   });
+  await waitForClusterConfigurationReady();
 };
 
 export const advanceToClusterReviewStep = async (user: UserEvent) => {

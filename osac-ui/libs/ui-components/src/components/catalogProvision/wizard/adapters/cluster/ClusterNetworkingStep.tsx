@@ -17,21 +17,11 @@ export const ClusterNetworkingStep = ({ catalogItem }: Props) => {
 
   const definitions = useMemo(() => readCatalogFieldDefinitions(catalogItem), [catalogItem]);
   const podCidrOverlay = useMemo(
-    () =>
-      getCatalogFieldOverlay(
-        'network.pod_cidr',
-        definitions,
-        t('Pod CIDR'),
-      ),
+    () => getCatalogFieldOverlay('network.pod_cidr', definitions, t('Pod CIDR')),
     [definitions, t],
   );
   const serviceCidrOverlay = useMemo(
-    () =>
-      getCatalogFieldOverlay(
-        'network.service_cidr',
-        definitions,
-        t('Service CIDR'),
-      ),
+    () => getCatalogFieldOverlay('network.service_cidr', definitions, t('Service CIDR')),
     [definitions, t],
   );
 

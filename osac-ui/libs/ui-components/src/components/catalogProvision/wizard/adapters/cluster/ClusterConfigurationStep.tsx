@@ -29,12 +29,7 @@ export const ClusterConfigurationStep = ({ catalogItem }: Props) => {
 
   const definitions = useMemo(() => readCatalogFieldDefinitions(catalogItem), [catalogItem]);
   const releaseImageOverlay = useMemo(
-    () =>
-      getCatalogFieldOverlay(
-        'release_image',
-        definitions,
-        t('Release image'),
-      ),
+    () => getCatalogFieldOverlay('release_image', definitions, t('Release image')),
     [definitions, t],
   );
 
@@ -42,14 +37,34 @@ export const ClusterConfigurationStep = ({ catalogItem }: Props) => {
   const hasEmptyTemplatePools = Boolean(template && poolNames.length === 0);
 
   useEffect(() => {
-    if (!template || poolNames.length === 0) {
+    if (!templateId) {
+      void setFieldValue('templateState', { resolved: true, poolNames: [] }, false);
       return;
     }
-    if (Object.keys(values.spec.nodeSets).length > 0) {
+    if (templateLoading) {
+      void setFieldValue('templateState', { resolved: false, poolNames: [] }, false);
       return;
     }
-    void setFieldValue('spec.nodeSets', buildNodeSetsFromTemplate(template));
-  }, [poolNames.length, setFieldValue, template, values.spec.nodeSets]);
+    if (templateError) {
+      void setFieldValue('templateState', { resolved: false, poolNames: [] }, false);
+      return;
+    }
+    if (!template) {
+      return;
+    }
+    void setFieldValue('templateState', { resolved: true, poolNames }, false);
+    if (poolNames.length > 0 && Object.keys(values.spec.nodeSets).length === 0) {
+      void setFieldValue('spec.nodeSets', buildNodeSetsFromTemplate(template));
+    }
+  }, [
+    poolNames,
+    setFieldValue,
+    template,
+    templateError,
+    templateId,
+    templateLoading,
+    values.spec.nodeSets,
+  ]);
 
   if (!catalogItem) {
     return null;
@@ -68,12 +83,10 @@ export const ClusterConfigurationStep = ({ catalogItem }: Props) => {
       ) : null}
       {hasEmptyTemplatePools ? (
         <StackItem>
-          <Alert
-            variant="warning"
-            isInline
-            title={t('No node sets in template')}
-          >
-            {t('This catalog template has no node sets defined. You can continue, but the cluster may fail to provision without node sets.')}
+          <Alert variant="warning" isInline title={t('No node sets in template')}>
+            {t(
+              'This catalog template has no node sets defined. You can continue, but the cluster may fail to provision without node sets.',
+            )}
           </Alert>
         </StackItem>
       ) : null}

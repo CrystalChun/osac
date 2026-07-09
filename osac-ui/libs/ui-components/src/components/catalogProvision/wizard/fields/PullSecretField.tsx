@@ -1,9 +1,9 @@
 import type { ClusterCatalogItem } from '@osac/types';
 
-import { getCatalogFieldOverlay, readCatalogFieldDefinitions } from '../catalogOverlay';
-import { CATALOG_PROVISION_MULTILINE_TEXTAREA } from '../constants';
 import { useTranslation } from '../../../../hooks/useTranslation';
 import { InputField } from '../../../Form/InputField';
+import { getCatalogFieldOverlay, readCatalogFieldDefinitions } from '../catalogOverlay';
+import { CATALOG_PROVISION_MULTILINE_TEXTAREA } from '../constants';
 
 interface PullSecretFieldProps {
   catalogItem: ClusterCatalogItem | null;

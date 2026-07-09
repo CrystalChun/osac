@@ -66,14 +66,14 @@ export const ClusterCreatePage = () => {
                 {t('Clusters')}
               </Button>
             </BreadcrumbItem>
-            <BreadcrumbItem isActive>
-              {t('Create')}
-            </BreadcrumbItem>
+            <BreadcrumbItem isActive>{t('Create')}</BreadcrumbItem>
           </Breadcrumb>
           <Title headingLevel="h1" size="3xl">
             {t('Create cluster')}
           </Title>
-          <Content component="p">{t('Select a catalog item, configure, and provision an OpenShift cluster.')}</Content>
+          <Content component="p">
+            {t('Select a catalog item, configure, and provision an OpenShift cluster.')}
+          </Content>
         </Stack>
       </PageSection>
       <CatalogProvisionWizard

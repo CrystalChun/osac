@@ -5,10 +5,10 @@ import { useFormikContext } from 'formik';
 import type { ClusterTemplate } from '@osac/types';
 
 import type { ClusterNodeSetValues, ClusterWizardValues } from './fields';
-import ClusterPoolSizeField from '../../fields/ClusterPoolSizeField';
 import { hostTypeDisplayName, useHostType } from '../../../../../api/v1/host-types';
 import { useTranslation } from '../../../../../hooks/useTranslation';
 import { formatLabeledResourceRefForReview } from '../../../../Form/labeledResourceRef';
+import ClusterPoolSizeField from '../../fields/ClusterPoolSizeField';
 
 interface ClusterNodeSetsTableProps {
   templateLoading: boolean;

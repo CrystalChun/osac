@@ -5,9 +5,9 @@ import { describe, expect, it } from 'vitest';
 import { ClusterConfigurationStep } from './ClusterConfigurationStep';
 import { createEmptyClusterValues } from './payload';
 import { buildClusterStepSchema } from './schemas';
+import { FieldValidationProvider } from '../../../../Form/FieldValidationContext';
 import { clusterCatalogItem } from '../../../test/fixtures';
 import { renderWizardElement } from '../../../test/renderWizard';
-import { FieldValidationProvider } from '../../../../Form/FieldValidationContext';
 
 const t = (key: string) => key;
 

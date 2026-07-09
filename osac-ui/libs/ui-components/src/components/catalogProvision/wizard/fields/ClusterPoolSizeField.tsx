@@ -6,7 +6,6 @@ interface ClusterPoolSizeFieldProps {
 }
 
 const ClusterPoolSizeField = ({ poolName, isRequired = false }: ClusterPoolSizeFieldProps) => {
-
   return (
     <InputField
       name={`spec.nodeSets.${poolName}.size`}

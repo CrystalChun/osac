@@ -14,9 +14,9 @@ import { applyClusterCatalogConfigurationDefaults } from './cluster/applyCatalog
 import { applyClusterCatalogGeneralDefaults } from './cluster/applyCatalogGeneralDefaults';
 import { applyClusterCatalogNetworkingDefaults } from './cluster/applyCatalogNetworkingDefaults';
 import { ClusterConfigurationStep } from './cluster/ClusterConfigurationStep';
+import ClusterGeneralStep from './cluster/ClusterGeneralStep';
 import { ClusterNetworkingStep } from './cluster/ClusterNetworkingStep';
 import type { ClusterWizardValues } from './cluster/fields';
-import ClusterGeneralStep from './cluster/ClusterGeneralStep';
 import { buildClusterCreatePayload, createEmptyClusterValues } from './cluster/payload';
 import { buildClusterStepSchema } from './cluster/schemas';
 import type { CatalogProvisionAdapter } from './types';
@@ -46,26 +46,14 @@ const buildReviewSections = (
   t: TFunction,
 ): ReviewSection[] => {
   const definitions = readCatalogFieldDefinitions(catalogItem);
-  const sshKeyOverlay = getCatalogFieldOverlay(
-    'ssh_public_key',
-    definitions,
-    t('SSH public key'),
-  );
-  const pullSecretOverlay = getCatalogFieldOverlay(
-    'pull_secret',
-    definitions,
-    t('Pull secret'),
-  );
+  const sshKeyOverlay = getCatalogFieldOverlay('ssh_public_key', definitions, t('SSH public key'));
+  const pullSecretOverlay = getCatalogFieldOverlay('pull_secret', definitions, t('Pull secret'));
   const releaseImageOverlay = getCatalogFieldOverlay(
     'release_image',
     definitions,
     t('Release image'),
   );
-  const podCidrOverlay = getCatalogFieldOverlay(
-    'network.pod_cidr',
-    definitions,
-    t('Pod CIDR'),
-  );
+  const podCidrOverlay = getCatalogFieldOverlay('network.pod_cidr', definitions, t('Pod CIDR'));
   const serviceCidrOverlay = getCatalogFieldOverlay(
     'network.service_cidr',
     definitions,
@@ -76,10 +64,7 @@ const buildReviewSections = (
     {
       title: t('catalogProvision.steps.general.title'),
       rows: [
-        reviewRow(
-          t('Name'),
-          formatReviewScalar(values.metadata.name),
-        ),
+        reviewRow(t('Name'), formatReviewScalar(values.metadata.name)),
         reviewRow(sshKeyOverlay.label, formatReviewScalar(values.spec.sshPublicKey, true)),
         reviewRow(pullSecretOverlay.label, formatReviewScalar(values.spec.pullSecret, true)),
       ],
@@ -88,10 +73,7 @@ const buildReviewSections = (
       title: t('catalogProvision.steps.configuration.title'),
       rows: [
         reviewRow(releaseImageOverlay.label, formatReviewScalar(values.spec.releaseImage)),
-        reviewRow(
-          t('Worker pools'),
-          formatNodeSetsForReview(values.spec.nodeSets),
-        ),
+        reviewRow(t('Worker pools'), formatNodeSetsForReview(values.spec.nodeSets)),
       ],
     },
     {
@@ -134,10 +116,14 @@ export const useClusterAdapter = (): CatalogProvisionAdapter<
         buildClusterStepSchema(catalogItem, stepId, t),
       getReviewSections: (values, catalogItem) => buildReviewSections(values, catalogItem, t),
       onCatalogItemSelected: (item, helpers) => {
+        const templateId = item.template?.trim() ?? '';
         helpers.resetForm({
           values: {
             ...createEmptyClusterValues(),
             catalogItemId: item.id,
+            templateState: templateId
+              ? { resolved: false, poolNames: [] }
+              : { resolved: true, poolNames: [] },
           },
         });
         applyClusterCatalogConfigurationDefaults(item, helpers, t);

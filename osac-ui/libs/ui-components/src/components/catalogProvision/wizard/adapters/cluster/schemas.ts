@@ -3,15 +3,15 @@ import * as yup from 'yup';
 
 import type { ClusterCatalogItem } from '@osac/types';
 
-import { isValidPullSecret, isValidSshPublicKey } from '../../fields/credentialValidation';
 import { ipv4CidrsOverlap, isValidCidr } from './cidr';
+import { labeledResourceRefSchema } from '../../../../Form/labeledResourceRefSchema';
 import {
   getCatalogFieldOverlay,
   hasCatalogFieldDefinition,
   mergeCatalogValidation,
   readCatalogFieldDefinitions,
 } from '../../catalogOverlay';
-import { labeledResourceRefSchema } from '../../../../Form/labeledResourceRefSchema';
+import { isValidPullSecret, isValidSshPublicKey } from '../../fields/credentialValidation';
 import { buildMetadataNameSchema } from '../../metadataNameSchema';
 import type { WizardStepId } from '../../stepIds';
 
@@ -57,14 +57,10 @@ const buildClusterFieldDefinitions = (catalogItem: unknown, t: TFunction) => {
     size: yup
       .string()
       .required(t('Pool size is required'))
-      .test(
-        'pool-size-positive',
-        t('Pool size must be greater than zero'),
-        (value) => {
-          const parsed = Number(value?.trim());
-          return Number.isFinite(parsed) && parsed > 0;
-        },
-      ),
+      .test('pool-size-positive', t('Pool size must be greater than zero'), (value) => {
+        const parsed = Number(value?.trim());
+        return Number.isFinite(parsed) && parsed > 0;
+      }),
   });
 
   return {
@@ -90,7 +86,9 @@ const buildClusterFieldDefinitions = (catalogItem: unknown, t: TFunction) => {
         .trim()
         .test(
           'pull-secret',
-          t('Invalid pull secret format. Paste the complete JSON from your Red Hat account pull secret.'),
+          t(
+            'Invalid pull secret format. Paste the complete JSON from your Red Hat account pull secret.',
+          ),
           (value) => isValidPullSecret(value),
         ),
       pullSecretOverlay,
@@ -103,12 +101,22 @@ const buildClusterFieldDefinitions = (catalogItem: unknown, t: TFunction) => {
       true,
       t('catalogProvision.validation.clusterReleaseImageRequired'),
     ),
-    specNodeSets: yup.object().test('node-sets', '', (value, context) => {
+    specNodeSets: yup.object().test('node-sets', '', function (value) {
       const nodeSets = (value ?? {}) as Record<
         string,
         { hostType?: { value?: string; label?: string }; size?: string }
       >;
+      const root = this.from?.[this.from.length - 1]?.value as
+        | { templateState?: { poolNames?: string[] } }
+        | undefined;
+      const expectedPools = root?.templateState?.poolNames ?? [];
       const poolNames = Object.keys(nodeSets);
+      if (expectedPools.length > 0 && poolNames.length === 0) {
+        return this.createError({
+          message: t('Worker pools are required'),
+          path: `${this.path}`,
+        });
+      }
       if (poolNames.length === 0) {
         return true;
       }
@@ -136,7 +144,7 @@ const buildClusterFieldDefinitions = (catalogItem: unknown, t: TFunction) => {
       if (errors.length === 0) {
         return true;
       }
-      return new yup.ValidationError(errors, value, context.path);
+      return new yup.ValidationError(errors, value, this.path);
     }),
     specNetwork: yup.object({
       podCidr: mergeCatalogValidation(
@@ -159,7 +167,8 @@ const buildClusterFieldDefinitions = (catalogItem: unknown, t: TFunction) => {
             'service-cidr-no-overlap',
             t('Service CIDR must not overlap the pod CIDR.'),
             function (value) {
-              const podCidr = this.parent?.podCidr ?? '';
+              const parent = this.parent as { podCidr?: string } | undefined;
+              const podCidr = parent?.podCidr ?? '';
               if (!value?.trim() || !podCidr.trim()) {
                 return true;
               }
@@ -203,13 +212,31 @@ export const buildClusterStepSchema = (
           pullSecret: fields.specPullSecret,
         }),
       });
-    case 'configuration':
+    case 'configuration': {
+      const templateId = catalogItem?.template?.trim() ?? '';
       return yup.object({
+        templateState: yup
+          .object({
+            resolved: yup.boolean().required(),
+            poolNames: yup.array().of(yup.string().required()).required(),
+          })
+          .test('template-ready', function (templateState) {
+            if (!templateId) {
+              return true;
+            }
+            if (!templateState?.resolved) {
+              return this.createError({
+                message: t('Wait for the cluster template to load before continuing.'),
+              });
+            }
+            return true;
+          }),
         spec: yup.object({
           releaseImage: fields.specReleaseImage,
           nodeSets: fields.specNodeSets,
         }),
       });
+    }
     case 'networking':
       return yup.object({
         spec: yup.object({

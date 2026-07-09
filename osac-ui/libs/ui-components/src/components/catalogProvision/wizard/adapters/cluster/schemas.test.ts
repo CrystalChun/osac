@@ -9,6 +9,7 @@ const t = (key: string) => key;
 
 const emptyValues: ClusterWizardValues = {
   catalogItemId: '',
+  templateState: { resolved: true, poolNames: [] },
   metadata: { name: '' },
   spec: {
     sshPublicKey: '',
@@ -133,6 +134,7 @@ describe('buildClusterStepSchema', () => {
       {
         ...emptyValues,
         catalogItemId: clusterCatalogItem.id,
+        templateState: { resolved: true, poolNames: ['compute'] },
         metadata: { name: 'my-cluster' },
         spec: {
           ...emptyValues.spec,
@@ -160,6 +162,7 @@ describe('buildClusterStepSchema', () => {
       {
         ...emptyValues,
         catalogItemId: clusterCatalogItem.id,
+        templateState: { resolved: true, poolNames: [] },
         metadata: { name: 'my-cluster' },
         spec: {
           ...emptyValues.spec,
@@ -171,6 +174,50 @@ describe('buildClusterStepSchema', () => {
       clusterCatalogItem,
     );
     expect(errors).toEqual({});
+  });
+
+  it('blocks configuration step while cluster template is loading', async () => {
+    const errors = await validateStep(
+      'configuration',
+      {
+        ...emptyValues,
+        catalogItemId: clusterCatalogItem.id,
+        templateState: { resolved: false, poolNames: [] },
+        metadata: { name: 'my-cluster' },
+        spec: {
+          ...emptyValues.spec,
+          pullSecret: '{"auths": {}}',
+          releaseImage: '4.17.0',
+          nodeSets: {},
+        },
+      },
+      clusterCatalogItem,
+    );
+    expect(errors).toEqual({
+      templateState: 'Wait for the cluster template to load before continuing.',
+    });
+  });
+
+  it('requires worker pools when template defines node sets', async () => {
+    const errors = await validateStep(
+      'configuration',
+      {
+        ...emptyValues,
+        catalogItemId: clusterCatalogItem.id,
+        templateState: { resolved: true, poolNames: ['compute'] },
+        metadata: { name: 'my-cluster' },
+        spec: {
+          ...emptyValues.spec,
+          pullSecret: '{"auths": {}}',
+          releaseImage: '4.17.0',
+          nodeSets: {},
+        },
+      },
+      clusterCatalogItem,
+    );
+    expect(errors).toEqual({
+      spec: { nodeSets: 'Worker pools are required' },
+    });
   });
 
   it('validates CIDR format on networking step when values are present', async () => {

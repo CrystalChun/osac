@@ -22,11 +22,7 @@ export const applyClusterCatalogGeneralDefaults = (
     definitions,
     t('SSH public key'),
   );
-  const pullSecretOverlay = getCatalogFieldOverlay(
-    'pull_secret',
-    definitions,
-    t('Pull secret'),
-  );
+  const pullSecretOverlay = getCatalogFieldOverlay('pull_secret', definitions, t('Pull secret'));
 
   if (sshKeyOverlay.defaultValue !== undefined) {
     const value = overlayDefaultToFormValue(sshKeyOverlay);

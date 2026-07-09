@@ -5,6 +5,7 @@ import type { BuildClusterCreateBodyInput } from '../../../../../api/v1/cluster-
 
 export const createEmptyClusterValues = (): ClusterWizardValues => ({
   catalogItemId: '',
+  templateState: { resolved: true, poolNames: [] },
   metadata: { name: '' },
   spec: {
     sshPublicKey: '',

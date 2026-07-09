@@ -7,8 +7,15 @@ export interface ClusterNodeSetValues {
   size: string;
 }
 
+/** Tracks cluster template fetch state for Configuration-step validation. */
+export interface ClusterTemplateState {
+  resolved: boolean;
+  poolNames: string[];
+}
+
 export interface ClusterWizardValues {
   catalogItemId: string;
+  templateState: ClusterTemplateState;
   metadata: {
     name: string;
   };
