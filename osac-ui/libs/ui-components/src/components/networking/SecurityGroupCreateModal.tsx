@@ -25,6 +25,8 @@ import { getErrorMessage } from '../../utils/error';
 
 interface SecurityGroupCreateModalProps {
   onClose: () => void;
+  /** Pre-select and lock the virtual network, e.g. when creating from a VN's detail page. */
+  virtualNetworkId?: string;
 }
 
 interface FormValues {
@@ -38,7 +40,10 @@ const validationSchema = (t: TFunction) =>
     virtualNetwork: labeledResourceRefSchema(t('Virtual network is required')),
   });
 
-export const SecurityGroupCreateModal = ({ onClose }: SecurityGroupCreateModalProps) => {
+export const SecurityGroupCreateModal = ({
+  onClose,
+  virtualNetworkId,
+}: SecurityGroupCreateModalProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const createSecurityGroup = useCreateSecurityGroup();
@@ -49,11 +54,19 @@ export const SecurityGroupCreateModal = ({ onClose }: SecurityGroupCreateModalPr
     label: `${vn.metadata?.name ?? vn.id} (${vn.spec?.ipv4Cidr ?? ''})`,
   }));
 
+  const preselectedVirtualNetwork = virtualNetworkId
+    ? (virtualNetworkOptions.find((option) => option.value === virtualNetworkId) ?? {
+        value: virtualNetworkId,
+        label: virtualNetworkId,
+      })
+    : { value: '', label: '' };
+
   return (
     <Formik<FormValues>
+      enableReinitialize
       initialValues={{
         name: '',
-        virtualNetwork: { value: '', label: '' },
+        virtualNetwork: preselectedVirtualNetwork,
       }}
       validationSchema={validationSchema(t)}
       onSubmit={async (values) => {
@@ -103,6 +116,7 @@ export const SecurityGroupCreateModal = ({ onClose }: SecurityGroupCreateModalPr
                     fieldId="sg-vn"
                     isRequired
                     isLoading={isLoading}
+                    isDisabled={Boolean(virtualNetworkId)}
                     placeholder={t('Select a virtual network')}
                     options={virtualNetworkOptions}
                   />

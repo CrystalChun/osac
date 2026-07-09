@@ -20,11 +20,15 @@ import { VirtualNetworkState } from '@osac/types';
 
 import {
   type SubnetInput,
+  securityGroupFilterForVirtualNetwork,
   useCreateSubnet,
+  useSecurityGroups,
   useSubnets,
   useVirtualNetwork,
   virtualNetworkFilterForSubnetList,
 } from '../../api/v1/networking';
+import { SecurityGroupCreateModal } from '../../components/networking/SecurityGroupCreateModal';
+import { SecurityGroupStatusLabel } from '../../components/networking/SecurityGroupStatusLabel';
 import { SubnetCreateModal } from '../../components/networking/SubnetCreateModal';
 import { SubnetStatusLabel } from '../../components/networking/SubnetStatusLabel';
 import { VirtualNetworkStatusLabel } from '../../components/networking/VirtualNetworkStatusLabel';
@@ -39,6 +43,7 @@ export const VirtualNetworkDetailPage = () => {
   const navigate = useNavigate();
   const { id = '' } = useParams<{ id: string }>();
   const [isSubnetModalOpen, setIsSubnetModalOpen] = useState(false);
+  const [isSecurityGroupModalOpen, setIsSecurityGroupModalOpen] = useState(false);
 
   const { data: vn, isLoading, error } = useVirtualNetwork(id);
   const {
@@ -47,6 +52,13 @@ export const VirtualNetworkDetailPage = () => {
     error: subnetsError,
   } = useSubnets({
     filter: virtualNetworkFilterForSubnetList(id),
+  });
+  const {
+    data: securityGroups = [],
+    isLoading: isLoadingSecurityGroups,
+    error: securityGroupsError,
+  } = useSecurityGroups({
+    filter: securityGroupFilterForVirtualNetwork(id),
   });
 
   const createSubnet = useCreateSubnet();
@@ -172,8 +184,79 @@ export const VirtualNetworkDetailPage = () => {
               )}
             </CardBody>
           </Card>
+
+          <Card>
+            <CardHeader
+              actions={{
+                actions: (
+                  <Button variant="primary" onClick={() => setIsSecurityGroupModalOpen(true)}>
+                    {t('Create security group')}
+                  </Button>
+                ),
+              }}
+            >
+              <CardTitle>{t('Security groups')}</CardTitle>
+            </CardHeader>
+            <CardBody>
+              {isLoadingSecurityGroups ? (
+                <SubtleContent component="p">{t('Loading security groups...')}</SubtleContent>
+              ) : securityGroupsError ? (
+                <Alert variant="danger" title={t('Failed to load security groups')} isInline>
+                  {getErrorMessage(securityGroupsError)}
+                </Alert>
+              ) : securityGroups.length === 0 ? (
+                <SubtleContent component="p">
+                  {t('No security groups yet. Create one to get started.')}
+                </SubtleContent>
+              ) : (
+                <Table aria-label={t('Security groups')} variant="compact" borders>
+                  <Thead>
+                    <Tr>
+                      <Th>{t('Name')}</Th>
+                      <Th>{t('Inbound Rules')}</Th>
+                      <Th>{t('Outbound Rules')}</Th>
+                      <Th>{t('Status')}</Th>
+                    </Tr>
+                  </Thead>
+                  <Tbody>
+                    {securityGroups.map((sg) => {
+                      const sgName = sg.metadata?.name ?? sg.id;
+                      const ingressCount = sg.spec?.ingress?.length ?? 0;
+                      const egressCount = sg.spec?.egress?.length ?? 0;
+
+                      return (
+                        <Tr key={sg.id}>
+                          <Td dataLabel={t('Name')}>
+                            <Button
+                              variant="link"
+                              isInline
+                              onClick={() => navigate(`/networking/security-groups/${sg.id}`)}
+                            >
+                              {sgName}
+                            </Button>
+                          </Td>
+                          <Td dataLabel={t('Inbound Rules')}>{ingressCount}</Td>
+                          <Td dataLabel={t('Outbound Rules')}>{egressCount}</Td>
+                          <Td dataLabel={t('Status')}>
+                            <SecurityGroupStatusLabel state={sg.status?.state} />
+                          </Td>
+                        </Tr>
+                      );
+                    })}
+                  </Tbody>
+                </Table>
+              )}
+            </CardBody>
+          </Card>
         </ListPageBody>
       </ListPage>
+
+      {isSecurityGroupModalOpen && (
+        <SecurityGroupCreateModal
+          onClose={() => setIsSecurityGroupModalOpen(false)}
+          virtualNetworkId={id}
+        />
+      )}
 
       {isSubnetModalOpen && vn && (
         <SubnetCreateModal
