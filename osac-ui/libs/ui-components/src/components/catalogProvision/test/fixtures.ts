@@ -54,6 +54,12 @@ export const mockHostType = {
   title: 'ACME 1TB',
 };
 
+export const mockHostTypeH100 = {
+  id: 'acme_1tb_h100',
+  metadata: { name: 'acme_1tb_h100' },
+  title: 'ACME 1TB H100',
+};
+
 export const unpublishedCatalogItem = {
   ...vmCatalogItem,
   id: 'catalog-unpublished',

@@ -4,6 +4,7 @@ import {
   ClusterTemplateSchema,
   ComputeInstanceCatalogItemsListResponseSchema,
   HostTypeSchema,
+  HostTypesListResponseSchema,
   InstanceTypeState,
   InstanceTypesListResponseSchema,
   SecurityGroupsListResponseSchema,
@@ -16,6 +17,7 @@ import {
   clusterCatalogItem,
   mockClusterTemplate,
   mockHostType,
+  mockHostTypeH100,
   mockInstanceType,
   mockSecurityGroup,
   mockSubnet,
@@ -109,6 +111,7 @@ export const createMockApiFetch = (fixtures: WizardApiFixtures = {}): ApiFetch =
   };
   const hostTypes = fixtures.hostTypes ?? {
     [mockHostType.id]: mockHostType,
+    [mockHostTypeH100.id]: mockHostTypeH100,
   };
   const virtualNetworks = fixtures.virtualNetworks ?? [mockVirtualNetwork];
   const subnets = fixtures.subnets ?? [mockSubnet];
@@ -142,7 +145,18 @@ export const createMockApiFetch = (fixtures: WizardApiFixtures = {}): ApiFetch =
       }
       case 'v1/host_types': {
         const hostTypeId = pathParams?.[0];
-        const hostType = hostTypeId ? hostTypes[hostTypeId] : undefined;
+        if (!hostTypeId) {
+          return decodeRoute(
+            route,
+            {
+              items: Object.values(hostTypes),
+              size: Object.keys(hostTypes).length,
+              total: Object.keys(hostTypes).length,
+            },
+            decode ?? HostTypesListResponseSchema,
+          );
+        }
+        const hostType = hostTypes[hostTypeId];
         if (!hostType) {
           throw new Error(`Host type not found in wizard test: ${hostTypeId}`);
         }

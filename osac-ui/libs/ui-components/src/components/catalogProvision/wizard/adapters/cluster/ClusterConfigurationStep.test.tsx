@@ -1,8 +1,9 @@
-import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { Formik } from 'formik';
 import { describe, expect, it } from 'vitest';
 
 import { ClusterConfigurationStep } from './ClusterConfigurationStep';
+import { createEmptyNodeSetRow } from './fields';
 import { createEmptyClusterValues } from './payload';
 import { buildClusterStepSchema } from './schemas';
 import { FieldValidationProvider } from '../../../../Form/FieldValidationContext';
@@ -12,50 +13,37 @@ import { renderWizardElement } from '../../../test/renderWizard';
 const t = (key: string) => key;
 
 describe('ClusterConfigurationStep', () => {
-  it('shows empty template warning when template has no node sets', async () => {
+  it('starts with an empty node sets table and add action', async () => {
     renderWizardElement(
       <Formik initialValues={createEmptyClusterValues()} onSubmit={() => undefined}>
         <ClusterConfigurationStep catalogItem={clusterCatalogItem} />
       </Formik>,
-      {
-        apiFixtures: {
-          clusterTemplates: {
-            [clusterCatalogItem.template]: {
-              id: clusterCatalogItem.template,
-              metadata: { name: clusterCatalogItem.template },
-              nodeSets: {},
-            },
-          },
-        },
-      },
     );
 
     await waitFor(() => {
-      expect(screen.getByText('No node sets in template')).toBeInTheDocument();
+      expect(screen.getByText('No node sets added yet.')).toBeInTheDocument();
     });
-    expect(screen.getByText('No node sets defined in the template.')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Add node set' })).toBeInTheDocument();
   });
 
-  it('renders node sets table with host type and size fields', async () => {
+  it('adds a node set row with host type picker and size field', async () => {
     const { user } = await renderWizardElement(
       <Formik initialValues={createEmptyClusterValues()} onSubmit={() => undefined}>
         <ClusterConfigurationStep catalogItem={clusterCatalogItem} />
       </Formik>,
     );
 
-    await waitFor(() => {
-      expect(screen.getByText('compute')).toBeInTheDocument();
-      expect(screen.getByText('ACME 1TB')).toBeInTheDocument();
-    });
+    await user.click(screen.getByRole('button', { name: 'Add node set' }));
 
-    const sizeInput = screen.getByRole('spinbutton');
-    expect(sizeInput).toHaveValue(3);
-    await user.clear(sizeInput);
-    await user.type(sizeInput, '5');
-    expect(sizeInput).toHaveValue(5);
+    await waitFor(() => {
+      const table = screen.getByRole('grid', { name: 'Node sets' });
+      expect(within(table).getByText('Select host type')).toBeInTheDocument();
+      expect(within(table).getByRole('spinbutton')).toBeInTheDocument();
+    });
   });
 
   it('shows pool size validation error when size is zero', async () => {
+    const row = createEmptyNodeSetRow();
     await renderWizardElement(
       <FieldValidationProvider value>
         <Formik
@@ -65,9 +53,13 @@ describe('ClusterConfigurationStep', () => {
             spec: {
               ...createEmptyClusterValues().spec,
               releaseImage: '4.17.0',
-              nodeSets: {
-                compute: { hostType: { value: 'acme_1tb', label: '' }, size: '3' },
-              },
+              nodeSetRows: [
+                {
+                  ...row,
+                  hostType: { value: 'acme_1tb', label: 'ACME 1TB' },
+                  size: '3',
+                },
+              ],
             },
           }}
           validationSchema={buildClusterStepSchema(clusterCatalogItem, 'configuration', t)}

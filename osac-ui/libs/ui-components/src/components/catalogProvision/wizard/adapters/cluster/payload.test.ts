@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
+import { createEmptyNodeSetRow } from './fields';
 import { buildClusterCreatePayload, createEmptyClusterValues } from './payload';
 import { clusterCatalogItem } from '../../../test/fixtures';
 
 describe('buildClusterCreatePayload', () => {
-  it('builds catalog-item create payload with node sets and optional network', () => {
+  it('builds catalog-item create payload with node sets keyed by host type id', () => {
+    const row = createEmptyNodeSetRow();
     const values = {
       ...createEmptyClusterValues(),
       catalogItemId: clusterCatalogItem.id,
@@ -14,9 +16,13 @@ describe('buildClusterCreatePayload', () => {
         sshPublicKey: 'ssh-rsa AAAA',
         pullSecret: '{"auths":{}}',
         releaseImage: '4.17.0',
-        nodeSets: {
-          compute: { hostType: { value: 'acme_1tb', label: '' }, size: '3' },
-        },
+        nodeSetRows: [
+          {
+            ...row,
+            hostType: { value: 'acme_1tb', label: 'ACME 1TB' },
+            size: '3',
+          },
+        ],
         network: {
           podCidr: '10.128.0.0/14',
           serviceCidr: '',
@@ -32,7 +38,7 @@ describe('buildClusterCreatePayload', () => {
         pullSecret: '{"auths":{}}',
         releaseImage: '4.17.0',
         nodeSets: {
-          compute: { hostType: 'acme_1tb', size: 3 },
+          acme_1tb: { hostType: 'acme_1tb', size: 3 },
         },
         network: {
           podCidr: '10.128.0.0/14',
@@ -41,7 +47,7 @@ describe('buildClusterCreatePayload', () => {
     });
   });
 
-  it('omits blank optional fields and node sets when empty', () => {
+  it('omits blank optional fields and node sets when no valid rows exist', () => {
     const values = {
       ...createEmptyClusterValues(),
       catalogItemId: clusterCatalogItem.id,
@@ -50,7 +56,7 @@ describe('buildClusterCreatePayload', () => {
         ...createEmptyClusterValues().spec,
         pullSecret: 'secret',
         releaseImage: '4.17.0',
-        nodeSets: {},
+        nodeSetRows: [],
         network: { podCidr: '', serviceCidr: '' },
       },
     };

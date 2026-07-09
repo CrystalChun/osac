@@ -1,21 +1,13 @@
-import type { ClusterTemplate } from '@osac/types';
-
 import type { LabeledResourceRef } from '../../../../Form/labeledResourceRef';
 
-export interface ClusterNodeSetValues {
+export interface ClusterNodeSetRow {
+  rowId: string;
   hostType: LabeledResourceRef;
   size: string;
 }
 
-/** Tracks cluster template fetch state for Configuration-step validation. */
-export interface ClusterTemplateState {
-  resolved: boolean;
-  poolNames: string[];
-}
-
 export interface ClusterWizardValues {
   catalogItemId: string;
-  templateState: ClusterTemplateState;
   metadata: {
     name: string;
   };
@@ -23,7 +15,7 @@ export interface ClusterWizardValues {
     sshPublicKey: string;
     pullSecret: string;
     releaseImage: string;
-    nodeSets: Record<string, ClusterNodeSetValues>;
+    nodeSetRows: ClusterNodeSetRow[];
     network: {
       podCidr: string;
       serviceCidr: string;
@@ -46,16 +38,15 @@ export const CLUSTER_NETWORKING_CATALOG_PATHS = [
   'spec.network.service_cidr',
 ] as const;
 
-export const buildNodeSetsFromTemplate = (
-  template: ClusterTemplate,
-): Record<string, ClusterNodeSetValues> => {
-  const nodeSets: Record<string, ClusterNodeSetValues> = {};
-  for (const [poolName, pool] of Object.entries(template.nodeSets ?? {})) {
-    const defaultSize = pool.size > 0 ? pool.size : 1;
-    nodeSets[poolName] = {
-      hostType: { value: pool.hostType, label: '' },
-      size: String(defaultSize),
-    };
-  }
-  return nodeSets;
+let nextNodeSetRowId = 0;
+
+export const createNodeSetRowId = (): string => {
+  nextNodeSetRowId += 1;
+  return `node-set-row-${nextNodeSetRowId}`;
 };
+
+export const createEmptyNodeSetRow = (): ClusterNodeSetRow => ({
+  rowId: createNodeSetRowId(),
+  hostType: { value: '', label: '' },
+  size: '',
+});

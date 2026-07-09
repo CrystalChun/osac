@@ -4,6 +4,7 @@ import * as yup from 'yup';
 import type { ClusterCatalogItem } from '@osac/types';
 
 import { ipv4CidrsOverlap, isValidCidr } from './cidr';
+import type { ClusterNodeSetRow } from './fields';
 import { labeledResourceRefSchema } from '../../../../Form/labeledResourceRefSchema';
 import {
   getCatalogFieldOverlay,
@@ -20,6 +21,19 @@ const CLUSTER_PULL_SECRET_WIRE_PATH = 'pull_secret';
 const CLUSTER_RELEASE_IMAGE_WIRE_PATH = 'release_image';
 const CLUSTER_POD_CIDR_WIRE_PATH = 'network.pod_cidr';
 const CLUSTER_SERVICE_CIDR_WIRE_PATH = 'network.service_cidr';
+
+const nodeSetRowSchema = (t: TFunction) =>
+  yup.object({
+    rowId: yup.string().required(),
+    hostType: labeledResourceRefSchema(t('Host type is required')),
+    size: yup
+      .string()
+      .required(t('Pool size is required'))
+      .test('pool-size-positive', t('Pool size must be greater than zero'), (value) => {
+        const parsed = Number(value?.trim());
+        return Number.isFinite(parsed) && parsed > 0;
+      }),
+  });
 
 const buildClusterFieldDefinitions = (catalogItem: unknown, t: TFunction) => {
   const definitions = readCatalogFieldDefinitions(catalogItem);
@@ -51,17 +65,7 @@ const buildClusterFieldDefinitions = (catalogItem: unknown, t: TFunction) => {
   );
 
   const sshKeyRequired = hasCatalogFieldDefinition(CLUSTER_SSH_KEY_WIRE_PATH, definitions);
-
-  const nodeSetEntrySchema = yup.object({
-    hostType: labeledResourceRefSchema(t('Host type is required')),
-    size: yup
-      .string()
-      .required(t('Pool size is required'))
-      .test('pool-size-positive', t('Pool size must be greater than zero'), (value) => {
-        const parsed = Number(value?.trim());
-        return Number.isFinite(parsed) && parsed > 0;
-      }),
-  });
+  const rowSchema = nodeSetRowSchema(t);
 
   return {
     catalogItemId: yup.string().required(t('catalogProvision.validation.catalogItemRequired')),
@@ -101,51 +105,16 @@ const buildClusterFieldDefinitions = (catalogItem: unknown, t: TFunction) => {
       true,
       t('catalogProvision.validation.clusterReleaseImageRequired'),
     ),
-    specNodeSets: yup.object().test('node-sets', '', function (value) {
-      const nodeSets = (value ?? {}) as Record<
-        string,
-        { hostType?: { value?: string; label?: string }; size?: string }
-      >;
-      const root = this.from?.[this.from.length - 1]?.value as
-        | { templateState?: { poolNames?: string[] } }
-        | undefined;
-      const expectedPools = root?.templateState?.poolNames ?? [];
-      const poolNames = Object.keys(nodeSets);
-      if (expectedPools.length > 0 && poolNames.length === 0) {
-        return this.createError({
-          message: t('Worker pools are required'),
-          path: `${this.path}`,
-        });
-      }
-      if (poolNames.length === 0) {
-        return true;
-      }
-      const errors: yup.ValidationError[] = [];
-      for (const poolName of poolNames) {
-        try {
-          nodeSetEntrySchema.validateSync(nodeSets[poolName], { abortEarly: false });
-        } catch (error) {
-          if (error instanceof yup.ValidationError) {
-            for (const inner of error.inner.length > 0 ? error.inner : [error]) {
-              if (!inner.path) {
-                continue;
-              }
-              errors.push(
-                new yup.ValidationError(
-                  inner.message,
-                  inner.value,
-                  `spec.nodeSets.${poolName}.${inner.path}`,
-                ),
-              );
-            }
-          }
-        }
-      }
-      if (errors.length === 0) {
-        return true;
-      }
-      return new yup.ValidationError(errors, value, this.path);
-    }),
+    specNodeSetRows: yup
+      .array()
+      .of(rowSchema)
+      .min(1, t('At least one node set is required'))
+      .test('unique-host-types', t('Each host type can only be selected once'), (rows) => {
+        const hostTypeIds = (rows ?? [])
+          .map((row) => row?.hostType?.value?.trim() ?? '')
+          .filter(Boolean);
+        return new Set(hostTypeIds).size === hostTypeIds.length;
+      }),
     specNetwork: yup.object({
       podCidr: mergeCatalogValidation(
         yup
@@ -212,31 +181,13 @@ export const buildClusterStepSchema = (
           pullSecret: fields.specPullSecret,
         }),
       });
-    case 'configuration': {
-      const templateId = catalogItem?.template?.trim() ?? '';
+    case 'configuration':
       return yup.object({
-        templateState: yup
-          .object({
-            resolved: yup.boolean().required(),
-            poolNames: yup.array().of(yup.string().required()).required(),
-          })
-          .test('template-ready', function (templateState) {
-            if (!templateId) {
-              return true;
-            }
-            if (!templateState?.resolved) {
-              return this.createError({
-                message: t('Wait for the cluster template to load before continuing.'),
-              });
-            }
-            return true;
-          }),
         spec: yup.object({
           releaseImage: fields.specReleaseImage,
-          nodeSets: fields.specNodeSets,
+          nodeSetRows: fields.specNodeSetRows,
         }),
       });
-    }
     case 'networking':
       return yup.object({
         spec: yup.object({
@@ -247,3 +198,5 @@ export const buildClusterStepSchema = (
       return undefined;
   }
 };
+
+export type { ClusterNodeSetRow };

@@ -10,9 +10,10 @@ import {
 } from '@osac/types';
 
 import { createMockApiFetch } from './test/createMockApiFetch';
-import { clusterCatalogItem, mockClusterTemplate, vmCatalogItem } from './test/fixtures';
+import { clusterCatalogItem, vmCatalogItem } from './test/fixtures';
 import { renderWizard } from './test/renderWizard';
 import {
+  addClusterNodeSetRow,
   advanceToClusterConfigurationStep,
   advanceToClusterReviewStep,
   advanceToConfigurationStep,
@@ -461,27 +462,21 @@ describe('CatalogProvisionWizard', () => {
     await advanceToClusterReviewStep(user);
 
     await waitFor(() => {
-      expect(screen.getByText('compute: 3 × ACME 1TB')).toBeInTheDocument();
+      expect(screen.getByText('ACME 1TB: 3')).toBeInTheDocument();
     });
   });
 
-  it('shows empty template warning and submits cluster create payload', async () => {
+  it('starts with empty node sets and submits cluster create payload after adding a row', async () => {
     const onProvision = vi.fn().mockResolvedValue(undefined);
     const { user } = await renderWizard({
       kind: 'cluster',
       onProvision,
-      apiFixtures: {
-        clusterTemplates: {
-          [clusterCatalogItem.template]: {
-            ...mockClusterTemplate,
-            nodeSets: {},
-          },
-        },
-      },
     });
 
     await advanceToClusterConfigurationStep(user);
-    expect(screen.getByText('No node sets in template')).toBeInTheDocument();
+    expect(screen.getByText('No node sets added yet.')).toBeInTheDocument();
+
+    await addClusterNodeSetRow(user);
     await clickWizardNext(user);
     await clickWizardNext(user);
     await user.click(screen.getByRole('button', { name: 'Create' }));
@@ -494,6 +489,8 @@ describe('CatalogProvisionWizard', () => {
     expect(payload.metadata?.name).toBe('my-cluster');
     expect(payload.spec?.catalogItem).toBe(clusterCatalogItem.id);
     expect(payload.spec?.releaseImage).toBe('4.17.0');
-    expect(payload.spec?.nodeSets).toBeUndefined();
+    expect(payload.spec?.nodeSets).toEqual({
+      acme_1tb: { hostType: 'acme_1tb', size: 3 },
+    });
   });
 });

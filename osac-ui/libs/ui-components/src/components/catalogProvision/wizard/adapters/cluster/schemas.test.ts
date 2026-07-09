@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { ValidationError } from 'yup';
 
 import type { ClusterWizardValues } from './fields';
+import { createEmptyNodeSetRow } from './fields';
 import { buildClusterStepSchema } from './schemas';
 import { clusterCatalogItem } from '../../../test/fixtures';
 
@@ -9,13 +10,12 @@ const t = (key: string) => key;
 
 const emptyValues: ClusterWizardValues = {
   catalogItemId: '',
-  templateState: { resolved: true, poolNames: [] },
   metadata: { name: '' },
   spec: {
     sshPublicKey: '',
     pullSecret: '',
     releaseImage: '',
-    nodeSets: {},
+    nodeSetRows: [],
     network: {
       podCidr: '',
       serviceCidr: '',
@@ -128,95 +128,89 @@ describe('buildClusterStepSchema', () => {
     });
   });
 
-  it('requires positive pool sizes on configuration step when pools exist', async () => {
+  it('requires at least one node set on configuration step', async () => {
     const errors = await validateStep(
       'configuration',
       {
         ...emptyValues,
         catalogItemId: clusterCatalogItem.id,
-        templateState: { resolved: true, poolNames: ['compute'] },
         metadata: { name: 'my-cluster' },
         spec: {
           ...emptyValues.spec,
           pullSecret: '{"auths": {}}',
           releaseImage: '4.17.0',
-          nodeSets: {
-            compute: { hostType: { value: 'acme_1tb', label: '' }, size: '0' },
-          },
+          nodeSetRows: [],
+        },
+      },
+      clusterCatalogItem,
+    );
+    expect(errors).toEqual({
+      spec: { nodeSetRows: 'At least one node set is required' },
+    });
+  });
+
+  it('requires positive pool sizes on configuration step', async () => {
+    const row = createEmptyNodeSetRow();
+    const errors = await validateStep(
+      'configuration',
+      {
+        ...emptyValues,
+        catalogItemId: clusterCatalogItem.id,
+        metadata: { name: 'my-cluster' },
+        spec: {
+          ...emptyValues.spec,
+          pullSecret: '{"auths": {}}',
+          releaseImage: '4.17.0',
+          nodeSetRows: [
+            {
+              ...row,
+              hostType: { value: 'acme_1tb', label: 'ACME 1TB' },
+              size: '0',
+            },
+          ],
         },
       },
       clusterCatalogItem,
     );
     expect(errors).toEqual({
       spec: {
-        nodeSets: {
-          compute: { size: 'Pool size must be greater than zero' },
-        },
+        'nodeSetRows[0]': { size: 'Pool size must be greater than zero' },
       },
     });
   });
 
-  it('does not block configuration step when node sets are empty', async () => {
+  it('rejects duplicate host types on configuration step', async () => {
+    const row = createEmptyNodeSetRow();
     const errors = await validateStep(
       'configuration',
       {
         ...emptyValues,
         catalogItemId: clusterCatalogItem.id,
-        templateState: { resolved: true, poolNames: [] },
         metadata: { name: 'my-cluster' },
         spec: {
           ...emptyValues.spec,
           pullSecret: '{"auths": {}}',
           releaseImage: '4.17.0',
-          nodeSets: {},
-        },
-      },
-      clusterCatalogItem,
-    );
-    expect(errors).toEqual({});
-  });
-
-  it('blocks configuration step while cluster template is loading', async () => {
-    const errors = await validateStep(
-      'configuration',
-      {
-        ...emptyValues,
-        catalogItemId: clusterCatalogItem.id,
-        templateState: { resolved: false, poolNames: [] },
-        metadata: { name: 'my-cluster' },
-        spec: {
-          ...emptyValues.spec,
-          pullSecret: '{"auths": {}}',
-          releaseImage: '4.17.0',
-          nodeSets: {},
+          nodeSetRows: [
+            {
+              ...row,
+              rowId: 'row-1',
+              hostType: { value: 'acme_1tb', label: 'ACME 1TB' },
+              size: '3',
+            },
+            {
+              ...row,
+              rowId: 'row-2',
+              hostType: { value: 'acme_1tb', label: 'ACME 1TB' },
+              size: '2',
+            },
+          ],
         },
       },
       clusterCatalogItem,
     );
     expect(errors).toEqual({
-      templateState: 'Wait for the cluster template to load before continuing.',
-    });
-  });
-
-  it('requires worker pools when template defines node sets', async () => {
-    const errors = await validateStep(
-      'configuration',
-      {
-        ...emptyValues,
-        catalogItemId: clusterCatalogItem.id,
-        templateState: { resolved: true, poolNames: ['compute'] },
-        metadata: { name: 'my-cluster' },
-        spec: {
-          ...emptyValues.spec,
-          pullSecret: '{"auths": {}}',
-          releaseImage: '4.17.0',
-          nodeSets: {},
-        },
-      },
-      clusterCatalogItem,
-    );
-    expect(errors).toEqual({
-      spec: { nodeSets: 'Worker pools are required' },
+      spec: { nodeSetRows: 'Each host type can only be selected once' },
     });
   });
 

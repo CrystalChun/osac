@@ -27,16 +27,14 @@ import { formatLabeledResourceRefForReview } from '../../../Form/labeledResource
 
 export { buildClusterCreatePayload, createEmptyClusterValues } from './cluster/payload';
 
-const formatNodeSetsForReview = (nodeSets: ClusterWizardValues['spec']['nodeSets']): string => {
-  const entries = Object.entries(nodeSets);
-  if (entries.length === 0) {
+const formatNodeSetsForReview = (
+  nodeSetRows: ClusterWizardValues['spec']['nodeSetRows'],
+): string => {
+  if (nodeSetRows.length === 0) {
     return '—';
   }
-  return entries
-    .map(
-      ([poolName, pool]) =>
-        `${poolName}: ${pool.size} × ${formatLabeledResourceRefForReview(pool.hostType)}`,
-    )
+  return nodeSetRows
+    .map((row) => `${formatLabeledResourceRefForReview(row.hostType)}: ${row.size}`)
     .join(', ');
 };
 
@@ -73,7 +71,7 @@ const buildReviewSections = (
       title: t('catalogProvision.steps.configuration.title'),
       rows: [
         reviewRow(releaseImageOverlay.label, formatReviewScalar(values.spec.releaseImage)),
-        reviewRow(t('Worker pools'), formatNodeSetsForReview(values.spec.nodeSets)),
+        reviewRow(t('Node sets'), formatNodeSetsForReview(values.spec.nodeSetRows)),
       ],
     },
     {
@@ -116,14 +114,10 @@ export const useClusterAdapter = (): CatalogProvisionAdapter<
         buildClusterStepSchema(catalogItem, stepId, t),
       getReviewSections: (values, catalogItem) => buildReviewSections(values, catalogItem, t),
       onCatalogItemSelected: (item, helpers) => {
-        const templateId = item.template?.trim() ?? '';
         helpers.resetForm({
           values: {
             ...createEmptyClusterValues(),
             catalogItemId: item.id,
-            templateState: templateId
-              ? { resolved: false, poolNames: [] }
-              : { resolved: true, poolNames: [] },
           },
         });
         applyClusterCatalogConfigurationDefaults(item, helpers, t);

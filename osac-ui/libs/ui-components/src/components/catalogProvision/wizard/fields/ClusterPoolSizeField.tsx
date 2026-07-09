@@ -1,16 +1,16 @@
 import { InputField } from '../../../Form/InputField';
 
 interface ClusterPoolSizeFieldProps {
-  poolName: string;
+  rowIndex: number;
   isRequired?: boolean;
 }
 
-const ClusterPoolSizeField = ({ poolName, isRequired = false }: ClusterPoolSizeFieldProps) => {
+const ClusterPoolSizeField = ({ rowIndex, isRequired = false }: ClusterPoolSizeFieldProps) => {
   return (
     <InputField
-      name={`spec.nodeSets.${poolName}.size`}
+      name={`spec.nodeSetRows.${rowIndex}.size`}
       label={''}
-      fieldId={`cluster-pool-size-${poolName}`}
+      fieldId={`cluster-node-set-size-${rowIndex}`}
       isRequired={isRequired}
       type="number"
     />

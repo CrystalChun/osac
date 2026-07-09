@@ -5,13 +5,12 @@ import type { BuildClusterCreateBodyInput } from '../../../../../api/v1/cluster-
 
 export const createEmptyClusterValues = (): ClusterWizardValues => ({
   catalogItemId: '',
-  templateState: { resolved: true, poolNames: [] },
   metadata: { name: '' },
   spec: {
     sshPublicKey: '',
     pullSecret: '',
     releaseImage: '',
-    nodeSets: {},
+    nodeSetRows: [],
     network: {
       podCidr: '',
       serviceCidr: '',
@@ -35,13 +34,14 @@ export const buildClusterCreatePayload = (
   }
 
   const nodeSetsWire: Record<string, { hostType: string; size: number }> = {};
-  for (const [poolName, pool] of Object.entries(values.spec.nodeSets)) {
-    const size = Number(pool.size);
-    if (!Number.isFinite(size) || size <= 0) {
+  for (const row of values.spec.nodeSetRows) {
+    const hostTypeId = row.hostType.value.trim();
+    const size = Number(row.size);
+    if (!hostTypeId || !Number.isFinite(size) || size <= 0) {
       continue;
     }
-    nodeSetsWire[poolName] = {
-      hostType: pool.hostType.value.trim(),
+    nodeSetsWire[hostTypeId] = {
+      hostType: hostTypeId,
       size,
     };
   }
