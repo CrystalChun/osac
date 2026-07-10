@@ -49,7 +49,7 @@ export const ClusterCreatePage = () => {
         throw new Error('Create response missing id');
       }
       qc.setQueryData(apiQueryKey('v1/clusters', [created.id]), created);
-      navigate(`/clusters/${created.id}`, { replace: true });
+      navigate(`/clusters/${created.id}`);
     },
     [navigate, provisionCluster, qc],
   );

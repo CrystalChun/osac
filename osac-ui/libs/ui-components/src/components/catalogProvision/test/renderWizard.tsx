@@ -27,7 +27,7 @@ export const renderWizard = async (options: RenderWizardOptions = {}) => {
 
   const view = render(
     <CatalogProvisionWizard
-      kind={options.kind}
+      kind={options.kind || 'compute_instance'}
       initialCatalogItemId={options.initialCatalogItemId}
       onProvision={onProvision}
       onClosed={onClosed}

@@ -4,7 +4,7 @@
 
 import { protobufValueToPlain } from './protobuf-value';
 
-export type CatalogProvisionKind = 'compute_instance' | 'cluster';
+export type CatalogProvisionKind = 'compute_instance' | 'cluster' | 'bare_metal_instance';
 
 export interface CatalogFieldDefinition {
   path: string;

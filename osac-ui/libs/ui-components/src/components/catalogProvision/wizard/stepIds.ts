@@ -1,3 +1,5 @@
+import { CatalogProvisionKind } from '../catalogFieldDefinition';
+
 export const WIZARD_STEP_IDS = [
   'catalog',
   'general',
@@ -16,4 +18,16 @@ export const STEP_LABEL_KEYS: Record<WizardStepId, string> = {
   review: 'catalogProvision.steps.review.title',
 };
 
-export const getWizardOrderedSteps = (): readonly WizardStepId[] => WIZARD_STEP_IDS;
+const BARE_METAL_WIZARD_STEPS: readonly WizardStepId[] = [
+  'catalog',
+  'general',
+  'configuration',
+  'review',
+];
+
+export const getWizardOrderedSteps = (kind?: CatalogProvisionKind): readonly WizardStepId[] => {
+  if (kind === 'bare_metal_instance') {
+    return BARE_METAL_WIZARD_STEPS;
+  }
+  return WIZARD_STEP_IDS;
+};
