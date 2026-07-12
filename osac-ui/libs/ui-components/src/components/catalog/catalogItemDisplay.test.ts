@@ -1,11 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
 import {
-  type CatalogItemForDisplay,
   catalogItemResourceLine,
   catalogItemResourceParts,
   filterCatalogItemsBySearch,
-  inferCatalogItemKind,
 } from './catalogItemDisplay';
 import {
   catalogItemFieldDefinitions,
@@ -126,31 +124,6 @@ describe('catalog display with wire field_definitions', () => {
 
     expect(catalogItemResourceParts(wireItem)).toEqual(['fc430 Host Type', '2 Worker Count']);
     expect(catalogItemResourceLine(wireItem)).toBe('fc430 Host Type · 2 Worker Count');
-  });
-});
-
-describe('inferCatalogItemKind', () => {
-  it('infers vm from compute resource fields', () => {
-    const item: CatalogItemForDisplay = {
-      id: 'vm-1',
-      title: 'VM',
-      field_definitions: [{ path: 'cores', default: 4 }],
-    };
-    expect(inferCatalogItemKind(item)).toBe('vm');
-  });
-
-  it('infers cluster from node set fields', () => {
-    const item: CatalogItemForDisplay = {
-      id: 'cluster-1',
-      title: 'Cluster',
-      field_definitions: [{ path: 'node_sets.fc430.size', default: 2 }],
-    };
-    expect(inferCatalogItemKind(item)).toBe('cluster');
-  });
-
-  it('defaults to vm when no cluster resource fields exist', () => {
-    const item: CatalogItemForDisplay = { id: 'empty-1', title: 'Untyped' };
-    expect(inferCatalogItemKind(item)).toBe('vm');
   });
 });
 

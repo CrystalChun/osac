@@ -5,8 +5,9 @@
 import { useNavigate } from 'react-router-dom';
 import { Alert, Button } from '@patternfly/react-core';
 
+import { useClusters } from '@osac/ui-components/api/v1/cluster';
+
 import { ClustersTable } from './ClustersTable';
-import { useClusters } from '../../api/v1/cluster';
 import { useTranslation } from '../../hooks/useTranslation';
 import ListPage from '../Page/ListPage';
 import ListPageBody from '../Page/ListPageBody';

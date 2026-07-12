@@ -76,6 +76,7 @@ export default defineConfig(
       'func-style': ['error', 'expression', { allowArrowFunctions: true }],
       'semi': ['error', 'always'],
       'curly': ['error', 'all'],
+      '@typescript-eslint/no-non-null-assertion': 'error',
     },
   },
 

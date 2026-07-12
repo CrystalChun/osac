@@ -26,6 +26,9 @@ export const formatHttpApiErrorMessage = (status: number, body: string, statusTe
 
 export const getErrorMessage = (error: unknown): string => {
   if (error instanceof Error) {
+    if ('rawMessage' in error && typeof error.rawMessage === 'string') {
+      return error.rawMessage;
+    }
     return error.message || '';
   }
   if (typeof error === 'string') {

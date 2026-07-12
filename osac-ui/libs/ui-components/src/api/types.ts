@@ -1,7 +1,5 @@
 import { UseQueryOptions } from '@tanstack/react-query';
 
-import type { FulfillmentDecodeSchema } from './fulfillment-decode';
-
 /**
  * All known API base routes. Adding a new resource hook requires adding its
  * route here first — unknown strings are rejected at compile time everywhere
@@ -35,20 +33,15 @@ export type ApiRoute =
  */
 export type ApiQueryKey = [
   baseUrl: ApiRoute,
-  pathParams?: (string | number)[] | null,
-  queryParams?: Record<string, string | number | boolean | null | undefined>,
+  pathParams?: (string | number)[] | undefined,
+  queryParams?: Record<string, unknown>,
 ];
-
-export type ApiQueryMeta = {
-  decode?: FulfillmentDecodeSchema;
-};
 
 export type UseApiQueryOptions<TQueryFnData, TError, TData> = Omit<
   UseQueryOptions<TQueryFnData, TError, TData, ApiQueryKey>,
-  'queryKey' | 'meta' | 'queryFn'
+  'queryKey' | 'meta'
 > & {
   queryKey: ApiQueryKey;
-  meta?: ApiQueryMeta;
 };
 
 /**
@@ -59,38 +52,30 @@ export type UseApiQueryOptions<TQueryFnData, TError, TData> = Omit<
  * qc.invalidateQueries({ queryKey: apiQueryKey('v1/compute_instances') });
  */
 export const apiQueryKey = (
-  baseUrl: ApiRoute,
-  pathParams?: (string | number)[] | null,
+  baseUrl: ApiQueryKey[0],
+  pathParams?: ApiQueryKey[1],
   queryParams?: ApiQueryKey[2],
-): ApiQueryKey => [baseUrl, pathParams, queryParams];
+): ApiQueryKey => {
+  const path = Array.isArray(pathParams) && pathParams.length > 0 ? pathParams : undefined;
+  const query =
+    queryParams != null && typeof queryParams === 'object' && Object.keys(queryParams).length > 0
+      ? queryParams
+      : undefined;
+
+  if (query !== undefined) {
+    return [baseUrl, path, query];
+  }
+  if (path !== undefined) {
+    return [baseUrl, path];
+  }
+  return [baseUrl];
+};
 
 export type ApiQueryParams = Record<string, string | number | boolean | null | undefined>;
 
-/**
- * Options shared by reads (queryFn) and writes (mutationFn).
- * The app's ApiProvider constructs the final URL and handles credentials /
- * error handling — callers only supply the route and what varies per call.
- */
-export type ApiFetchOptions = {
-  /** Dynamic path segments appended after the route, e.g. ['abc-123'] → /v1/compute_instances/abc-123 */
-  pathParams?: (string | number)[] | null;
-  /** Query-string parameters (GET requests / filtering). */
-  queryParams?: ApiQueryParams;
-  /** HTTP method — defaults to 'GET'. */
-  method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-  /** Request body — serialised to JSON by the provider. */
-  body?: unknown;
-  /** Parse the response with protobuf `fromJson` using the given message schema. */
-  decode?: FulfillmentDecodeSchema;
-  /** Return the response as raw text instead of parsing as JSON. */
-  rawText?: boolean;
-  /** AbortSignal for request cancellation. */
-  signal?: AbortSignal;
+export type ListParams = {
+  filter?: string;
+  limit?: number;
+  offset?: number;
+  order?: string;
 };
-
-/**
- * Typed fetch function provided by ApiProvider.
- * The first argument must be a known ApiRoute; the provider prepends the
- * app-level base URL so callers never hard-code it.
- */
-export type ApiFetch = <T = unknown>(route: ApiRoute, options?: ApiFetchOptions) => Promise<T>;

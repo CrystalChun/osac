@@ -2,7 +2,7 @@ import { Skeleton } from '@patternfly/react-core';
 
 import type { InstanceType } from '@osac/types';
 
-import { formatInstanceTypeDisplayName } from '../../api/v1/instance-types';
+import { formatInstanceTypeDisplayName } from './utils';
 import { useTranslation } from '../../hooks/useTranslation';
 
 export interface VmInstanceTypeLabelProps {

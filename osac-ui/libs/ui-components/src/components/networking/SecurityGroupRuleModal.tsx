@@ -1,3 +1,4 @@
+import { MessageInitShape } from '@bufbuild/protobuf';
 import {
   Alert,
   Button,
@@ -13,7 +14,7 @@ import { Formik } from 'formik';
 import type { TFunction } from 'i18next';
 import * as Yup from 'yup';
 
-import { Protocol, type SecurityGroup, type SecurityRule } from '@osac/types';
+import { Protocol, type SecurityGroup, SecurityGroupSchema, type SecurityRule } from '@osac/types';
 
 import { type RuleFormValues, SecurityGroupRuleForm } from './SecurityGroupRuleForm';
 import { protocolToString } from './SecurityGroupRulesTable';
@@ -155,17 +156,17 @@ export const SecurityGroupRuleModal = ({
         targetList.push(rule);
       }
 
-      await updateSecurityGroup.mutateAsync({
+      const object: MessageInitShape<typeof SecurityGroupSchema> = {
         id: securityGroup.id,
-        input: {
-          metadata: { name: securityGroup.metadata?.name ?? '' },
-          spec: {
-            virtualNetwork: securityGroup.spec?.virtualNetwork ?? '',
-            ingress: newIngress,
-            egress: newEgress,
-          },
-        } as unknown as Partial<SecurityGroup>,
-      });
+        metadata: { name: securityGroup.metadata?.name ?? '' },
+        spec: {
+          virtualNetwork: securityGroup.spec?.virtualNetwork ?? '',
+          ingress: newIngress,
+          egress: newEgress,
+        },
+      };
+
+      await updateSecurityGroup.mutateAsync({ object });
       onClose();
     } catch {
       // Error is surfaced via updateSecurityGroup.error below

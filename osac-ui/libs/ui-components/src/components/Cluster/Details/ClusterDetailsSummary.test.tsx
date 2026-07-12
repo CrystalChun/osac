@@ -48,23 +48,4 @@ describe('ClusterDetailsSummary', () => {
     expect(screen.getByText('https://api.example.com:6443')).toBeInTheDocument();
     expect(screen.getByText('https://console.example.com')).toBeInTheDocument();
   });
-
-  it('shows worker count from spec node_sets decoded from wire JSON', async () => {
-    const { decodeFulfillmentResponse } = await import('../../../api/fulfillment-decode');
-    const { ClusterSchema: schema } = await import('@osac/types');
-
-    const cluster = decodeFulfillmentResponse(schema, {
-      id: 'cl-1',
-      spec: {
-        node_sets: {
-          compute: { host_type: 'acme_1tb', size: 3 },
-        },
-      },
-      status: { state: 'CLUSTER_STATE_PROGRESSING' },
-    }) as Cluster;
-
-    renderSummary(cluster);
-
-    expect(screen.getByText('3')).toBeInTheDocument();
-  });
 });

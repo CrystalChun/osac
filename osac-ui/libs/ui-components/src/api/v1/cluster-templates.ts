@@ -1,10 +1,15 @@
-import { type ClusterTemplate, ClusterTemplateSchema } from '@osac/types';
+import { ClusterTemplates } from '@osac/types';
 
+import { useApiFetch } from '../api-context';
+import { apiQueryKey } from '../types';
 import { useApiQuery } from '../use-api-query';
 
-export const useClusterTemplate = (id: string | undefined) =>
-  useApiQuery<ClusterTemplate>({
-    queryKey: ['v1/cluster_templates', id ? [id] : null],
-    meta: { decode: ClusterTemplateSchema },
+export const useClusterTemplate = (id: string | undefined) => {
+  const client = useApiFetch(ClusterTemplates);
+  return useApiQuery({
+    queryKey: apiQueryKey('v1/cluster_templates', id ? [id] : null),
+    queryFn: () => client.get({ id: id ?? '' }),
+    select: (data) => data.object,
     enabled: Boolean(id),
   });
+};

@@ -1,47 +1,48 @@
-import { MessageInitShape, create, toJson } from '@bufbuild/protobuf';
+import { type MessageInitShape } from '@bufbuild/protobuf';
 import { useMutation } from '@tanstack/react-query';
 
 import {
-  type BareMetalInstance,
-  type BareMetalInstanceCatalogItem,
-  type BareMetalInstanceCatalogItemsListResponse,
-  BareMetalInstanceCatalogItemsListResponseSchema,
+  BareMetalInstanceCatalogItems,
   BareMetalInstanceRunStrategy,
   BareMetalInstanceSchema,
-  type BareMetalInstancesListResponse,
-  BareMetalInstancesListResponseSchema,
+  BareMetalInstances,
 } from '@osac/types';
 
 import { useApiFetch } from '../api-context';
 import { apiQueryKey } from '../types';
-import { useApiQuery, useApiQueryClient } from '../use-api-query';
+import { type ApiQueryClient, useApiQuery, useApiQueryClient } from '../use-api-query';
 
-export const useBareMetalInstances = () =>
-  useApiQuery<BareMetalInstancesListResponse, BareMetalInstance[]>({
-    queryKey: apiQueryKey('v1/baremetal_instances', null),
-    select: (data: BareMetalInstancesListResponse) => data.items,
-    meta: { decode: BareMetalInstancesListResponseSchema },
+export const useBareMetalInstances = () => {
+  const client = useApiFetch(BareMetalInstances);
+  return useApiQuery({
+    queryKey: apiQueryKey('v1/baremetal_instances'),
+    queryFn: () => client.list({}),
+    select: (data) => data.items,
   });
+};
 
-export const useBareMetalInstance = (id: string) =>
-  useApiQuery<BareMetalInstance>({
+export const useBareMetalInstance = (id: string) => {
+  const client = useApiFetch(BareMetalInstances);
+  return useApiQuery({
     queryKey: apiQueryKey('v1/baremetal_instances', [id]),
-    meta: { decode: BareMetalInstanceSchema },
+    queryFn: () => client.get({ id }),
+    select: (data) => data.object,
     enabled: Boolean(id),
   });
+};
 
-export const useBareMetalInstanceCatalogItems = (enabled = true) =>
-  useApiQuery<BareMetalInstanceCatalogItemsListResponse, BareMetalInstanceCatalogItem[]>({
+export const useBareMetalInstanceCatalogItems = (enabled = true) => {
+  const client = useApiFetch(BareMetalInstanceCatalogItems);
+  return useApiQuery({
     queryKey: apiQueryKey('v1/baremetal_instance_catalog_items'),
-    select: (data: BareMetalInstanceCatalogItemsListResponse) => data.items,
-    meta: { decode: BareMetalInstanceCatalogItemsListResponseSchema },
+    queryFn: () => client.list({}),
+    select: (data) => data.items,
     enabled,
   });
+};
 
-export const invalidateBareMetalInstancesQueries = async (
-  qc: ReturnType<typeof useApiQueryClient>,
-) => {
-  await qc.invalidateQueries({ queryKey: apiQueryKey('v1/baremetal_instances', null) });
+export const invalidateBareMetalInstancesQueries = async (qc: ApiQueryClient) => {
+  await qc.invalidateQueries({ queryKey: apiQueryKey('v1/baremetal_instances') });
 };
 
 export type BareMetalPowerAction = 'start' | 'stop' | 'restart';
@@ -50,58 +51,44 @@ export type PatchBareMetalInstanceInput =
   | { id: string; action: 'start' | 'stop' }
   | { id: string; action: 'restart'; currentTrigger: bigint };
 
-const buildPatchBody = (input: PatchBareMetalInstanceInput): Record<string, unknown> => {
+const buildPatchBody = (
+  input: PatchBareMetalInstanceInput,
+): MessageInitShape<typeof BareMetalInstanceSchema> => {
   switch (input.action) {
     case 'start':
-      return { spec: { run_strategy: BareMetalInstanceRunStrategy.ALWAYS } };
+      return { spec: { runStrategy: BareMetalInstanceRunStrategy.ALWAYS } };
     case 'stop':
-      return { spec: { run_strategy: BareMetalInstanceRunStrategy.HALTED } };
+      return { spec: { runStrategy: BareMetalInstanceRunStrategy.HALTED } };
     case 'restart':
-      return { spec: { restart_trigger: String(input.currentTrigger + 1n) } };
+      return { spec: { restartTrigger: input.currentTrigger + 1n } };
   }
 };
 
 export const usePatchBareMetalInstance = () => {
-  const apiFetch = useApiFetch();
+  const client = useApiFetch(BareMetalInstances);
   const qc = useApiQueryClient();
   return useMutation({
     mutationFn: (input: PatchBareMetalInstanceInput) =>
-      apiFetch<BareMetalInstance>('v1/baremetal_instances', {
-        pathParams: [input.id],
-        method: 'PATCH',
-        body: buildPatchBody(input),
-        decode: BareMetalInstanceSchema,
-      }),
+      client.update({ object: { id: input.id, ...buildPatchBody(input) } }).then((r) => r.object),
     onSuccess: () => invalidateBareMetalInstancesQueries(qc),
   });
 };
 
 export const useDeleteBareMetalInstance = () => {
-  const apiFetch = useApiFetch();
+  const client = useApiFetch(BareMetalInstances);
   const qc = useApiQueryClient();
   return useMutation({
-    mutationFn: (id: string) =>
-      apiFetch<void>('v1/baremetal_instances', {
-        pathParams: [id],
-        method: 'DELETE',
-      }),
+    mutationFn: (id: string) => client.delete({ id }),
     onSuccess: () => invalidateBareMetalInstancesQueries(qc),
   });
 };
 
 export const useCreateBareMetalInstance = () => {
-  const apiFetch = useApiFetch();
+  const client = useApiFetch(BareMetalInstances);
   const qc = useApiQueryClient();
   return useMutation({
-    mutationFn: (bmi: MessageInitShape<typeof BareMetalInstanceSchema>) => {
-      const message = create(BareMetalInstanceSchema, bmi);
-      const body = toJson(BareMetalInstanceSchema, message);
-      return apiFetch<BareMetalInstance>('v1/baremetal_instances', {
-        method: 'POST',
-        body,
-        decode: BareMetalInstanceSchema,
-      });
-    },
+    mutationFn: (bmi: MessageInitShape<typeof BareMetalInstanceSchema>) =>
+      client.create({ object: bmi }).then((r) => r.object),
     onSuccess: () => invalidateBareMetalInstancesQueries(qc),
   });
 };

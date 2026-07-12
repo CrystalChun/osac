@@ -1,8 +1,9 @@
-import type { ClusterCatalogItem } from '@osac/types';
+import { type MessageInitShape } from '@bufbuild/protobuf';
+
+import { type ClusterCatalogItem, ClusterSchema } from '@osac/types';
 
 import type { ClusterWizardValues } from './fields';
 import { createEmptyNodeSetRow } from './fields';
-import type { BuildClusterCreateBodyInput } from '../../../../../api/v1/cluster-wire';
 
 export const createEmptyClusterValues = (): ClusterWizardValues => ({
   catalogItemId: '',
@@ -22,8 +23,8 @@ export const createEmptyClusterValues = (): ClusterWizardValues => ({
 export const buildClusterCreatePayload = (
   values: ClusterWizardValues,
   catalogItem: ClusterCatalogItem,
-): BuildClusterCreateBodyInput => {
-  const spec: Record<string, unknown> = {
+): MessageInitShape<typeof ClusterSchema> => {
+  const spec: MessageInitShape<typeof ClusterSchema>['spec'] = {
     catalogItem: catalogItem.id,
     releaseImage: values.spec.releaseImage.trim(),
     pullSecret: values.spec.pullSecret.trim(),
@@ -34,20 +35,17 @@ export const buildClusterCreatePayload = (
     spec.sshPublicKey = sshPublicKey;
   }
 
-  const nodeSetsWire: Record<string, { hostType: string; size: number }> = {};
+  const nodeSets: Record<string, { hostType: string; size: number }> = {};
   for (const row of values.spec.nodeSetRows) {
     const hostTypeId = row.hostType.value.trim();
     const size = Number(row.size);
     if (!hostTypeId || !Number.isFinite(size) || size <= 0) {
       continue;
     }
-    nodeSetsWire[hostTypeId] = {
-      hostType: hostTypeId,
-      size,
-    };
+    nodeSets[hostTypeId] = { hostType: hostTypeId, size };
   }
-  if (Object.keys(nodeSetsWire).length > 0) {
-    spec.nodeSets = nodeSetsWire;
+  if (Object.keys(nodeSets).length > 0) {
+    spec.nodeSets = nodeSets;
   }
 
   const podCidr = values.spec.network.podCidr.trim();

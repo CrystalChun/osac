@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
+import { type MessageInitShape } from '@bufbuild/protobuf';
 import type { TFunction } from 'i18next';
 
-import type { ClusterCatalogItem } from '@osac/types';
+import { type ClusterCatalogItem, ClusterSchema } from '@osac/types';
 
 import {
   type ReviewSection,
@@ -28,7 +29,6 @@ import { buildClusterCreatePayload, createEmptyClusterValues } from './cluster/p
 import { buildClusterStepSchema } from './cluster/schemas';
 import type { CatalogProvisionAdapter } from './types';
 import { useClusterCatalogItems } from '../../../../api/v1/cluster-catalog-item';
-import type { BuildClusterCreateBodyInput } from '../../../../api/v1/cluster-wire';
 import { useTranslation } from '../../../../hooks/useTranslation';
 import { formatLabeledResourceRefForReview } from '../../../Form/labeledResourceRef';
 
@@ -106,7 +106,7 @@ const buildReviewSections = (
 export const useClusterAdapter = (): CatalogProvisionAdapter<
   ClusterCatalogItem,
   ClusterWizardValues,
-  BuildClusterCreateBodyInput
+  MessageInitShape<typeof ClusterSchema>
 > => {
   const { t } = useTranslation();
 

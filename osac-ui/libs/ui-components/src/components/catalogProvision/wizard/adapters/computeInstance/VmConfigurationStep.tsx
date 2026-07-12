@@ -2,10 +2,10 @@ import { useMemo } from 'react';
 import { Alert, Button, Stack, StackItem } from '@patternfly/react-core';
 
 import type { ComputeInstanceCatalogItem } from '@osac/types';
+import { formatInstanceTypeOptionLabel } from '@osac/ui-components/components/vm/utils';
 
 import {
   INSTANCE_TYPE_ACTIVE_LIST_FILTER,
-  formatInstanceTypeOptionLabel,
   useInstanceTypes,
 } from '../../../../../api/v1/instance-types';
 import { useTranslation } from '../../../../../hooks/useTranslation';

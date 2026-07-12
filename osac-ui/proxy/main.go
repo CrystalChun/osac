@@ -34,8 +34,6 @@ func main() {
 		log.WithError(err).Fatal("Failed to get TLS configuration")
 	}
 
-	fulfillmentHandler := bridge.NewFulfillmentHandler(tlsConfig)
-
 	oidcTLSConfig, err := bridge.GetOIDCTlsConfig()
 	if err != nil {
 		log.WithError(err).Fatal("Failed to get OIDC TLS configuration")
@@ -84,18 +82,23 @@ func main() {
 		router.Post("/api/logout", authHandler.PostLogout)
 	}
 
-	// API routes — authenticated via session cookie (middleware injects Bearer header upstream).
-	router.Group(func(r chi.Router) {
-		r.Use(proxymiddleware.Auth)
-		for _, prefix := range []string{
-			"/api/fulfillment/v1",
-			"/api/events/v1",
-			"/api/osac/public/v1",
-		} {
-			r.Handle(prefix, fulfillmentHandler)
-			r.Handle(prefix+"/*", fulfillmentHandler)
+	// Connect JSON proxy — accepts Connect protocol (JSON) from the browser,
+	// translates to native gRPC via server reflection. No proto stubs needed.
+	grpcTarget, err := config.FulfillmentGrpcTarget()
+	if err != nil {
+		log.WithError(err).Fatal("Failed to resolve gRPC target from FULFILLMENT_API_URL")
+	}
+	if grpcTarget != "" {
+		connectHandler, err := bridge.NewConnectJSONProxy(grpcTarget, tlsConfig)
+		if err != nil {
+			log.WithError(err).Fatal("Failed to create Connect JSON proxy")
 		}
-	})
+		router.Group(func(r chi.Router) {
+			r.Use(proxymiddleware.Auth)
+			r.Handle("/api/fulfillment/*", http.StripPrefix("/api/fulfillment", connectHandler))
+		})
+		log.Info("Connect JSON proxy enabled")
+	}
 
 	log.Info("Serving SPA static files from /app/public")
 	spa := server.SpaHandler{Dir: "/app/public"}

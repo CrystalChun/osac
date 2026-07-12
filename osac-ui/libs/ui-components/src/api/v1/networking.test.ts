@@ -1,15 +1,8 @@
 import { QueryClient } from '@tanstack/react-query';
 import { describe, expect, it } from 'vitest';
 
-import {
-  SecurityGroupState,
-  SubnetSchema,
-  SubnetState,
-  VirtualNetworkSchema,
-  VirtualNetworkState,
-} from '@osac/types';
+import { SecurityGroupState, SubnetState, VirtualNetworkState } from '@osac/types';
 
-import { decodeFulfillmentResponse } from '../fulfillment-decode';
 import {
   VIRTUAL_NETWORK_READY_LIST_FILTER,
   escapeCelStringLiteral,
@@ -91,77 +84,34 @@ describe('networking query invalidation', () => {
 
   it('invalidates both the list and by-id virtual network queries', async () => {
     const qc = new QueryClient();
-    qc.setQueryData(['v1/virtual_networks', null, {}], { items: [] });
+    qc.setQueryData(['v1/virtual_networks'], { items: [] });
     qc.setQueryData(['v1/virtual_networks', ['vn-1']], { id: 'vn-1' });
 
     await invalidateVirtualNetworksQueries(asApiQueryClient(qc));
 
-    expect(qc.getQueryState(['v1/virtual_networks', null, {}])?.isInvalidated).toBe(true);
+    expect(qc.getQueryState(['v1/virtual_networks'])?.isInvalidated).toBe(true);
     expect(qc.getQueryState(['v1/virtual_networks', ['vn-1']])?.isInvalidated).toBe(true);
   });
 
   it('invalidates both the list and by-id subnet queries', async () => {
     const qc = new QueryClient();
-    qc.setQueryData(['v1/subnets', null, {}], { items: [] });
+    qc.setQueryData(['v1/subnets'], { items: [] });
     qc.setQueryData(['v1/subnets', ['subnet-1']], { id: 'subnet-1' });
 
     await invalidateSubnetsQueries(asApiQueryClient(qc));
 
-    expect(qc.getQueryState(['v1/subnets', null, {}])?.isInvalidated).toBe(true);
+    expect(qc.getQueryState(['v1/subnets'])?.isInvalidated).toBe(true);
     expect(qc.getQueryState(['v1/subnets', ['subnet-1']])?.isInvalidated).toBe(true);
   });
 
   it('invalidates both the list and by-id security group queries', async () => {
     const qc = new QueryClient();
-    qc.setQueryData(['v1/security_groups', null, {}], { items: [] });
+    qc.setQueryData(['v1/security_groups'], { items: [] });
     qc.setQueryData(['v1/security_groups', ['sg-1']], { id: 'sg-1' });
 
     await invalidateSecurityGroupsQueries(asApiQueryClient(qc));
 
-    expect(qc.getQueryState(['v1/security_groups', null, {}])?.isInvalidated).toBe(true);
+    expect(qc.getQueryState(['v1/security_groups'])?.isInvalidated).toBe(true);
     expect(qc.getQueryState(['v1/security_groups', ['sg-1']])?.isInvalidated).toBe(true);
-  });
-});
-
-describe('virtualNetwork create response decode', () => {
-  it('decodes the unwrapped REST create body as a VirtualNetwork', () => {
-    const payload = {
-      id: '019f0d21-d4c2-7102-9cde-4a909ca1c070',
-      metadata: { name: 'vn-prod' },
-      spec: {
-        ipv4_cidr: '10.0.0.0/16',
-      },
-      status: { state: 'VIRTUAL_NETWORK_STATE_PENDING' },
-    };
-
-    const decoded = decodeFulfillmentResponse(VirtualNetworkSchema, payload) as {
-      id: string;
-      metadata?: { name?: string };
-    };
-
-    expect(decoded.id).toBe('019f0d21-d4c2-7102-9cde-4a909ca1c070');
-    expect(decoded.metadata?.name).toBe('vn-prod');
-  });
-});
-
-describe('subnet create response decode', () => {
-  it('decodes the unwrapped REST create body as a Subnet', () => {
-    const payload = {
-      id: '019f0d21-d4c2-7102-9cde-4a909ca1c071',
-      metadata: { name: 'subnet-web' },
-      spec: {
-        virtual_network: '019f0d21-d4c2-7102-9cde-4a909ca1c070',
-        ipv4_cidr: '10.0.1.0/24',
-      },
-      status: { state: 'SUBNET_STATE_PENDING' },
-    };
-
-    const decoded = decodeFulfillmentResponse(SubnetSchema, payload) as {
-      id: string;
-      metadata?: { name?: string };
-    };
-
-    expect(decoded.id).toBe('019f0d21-d4c2-7102-9cde-4a909ca1c071');
-    expect(decoded.metadata?.name).toBe('subnet-web');
   });
 });

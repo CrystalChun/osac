@@ -3,10 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 
-import { ClusterSchema } from '@osac/types';
-
 import { ClusterCreatePage } from './ClusterCreatePage';
-import { createMockApiFetch } from '../../components/catalogProvision/test/createMockApiFetch';
 import { clusterCatalogItem } from '../../components/catalogProvision/test/fixtures';
 import { initTestI18n } from '../../components/catalogProvision/test/i18n';
 import {
@@ -26,12 +23,7 @@ const createdCluster = {
 describe('ClusterCreatePage', () => {
   it('navigates to cluster details after successful create', async () => {
     const i18n = await initTestI18n();
-    const fetch = vi.fn(async (route, options = {}) => {
-      if (route === 'v1/clusters' && options.method === 'POST') {
-        return createdCluster;
-      }
-      return createMockApiFetch()(route, options);
-    });
+    const onClusterCreate = vi.fn(() => createdCluster);
 
     render(
       <MemoryRouter initialEntries={['/clusters/create']}>
@@ -45,7 +37,7 @@ describe('ClusterCreatePage', () => {
       </MemoryRouter>,
       {
         wrapper: ({ children }) => (
-          <WizardTestProvidersWithI18n i18n={i18n} fetch={fetch}>
+          <WizardTestProvidersWithI18n i18n={i18n} transportOverrides={{ onClusterCreate }}>
             {children}
           </WizardTestProvidersWithI18n>
         ),
@@ -69,12 +61,6 @@ describe('ClusterCreatePage', () => {
       expect(screen.getByText(`Cluster details ${createdCluster.id}`)).toBeInTheDocument();
     });
 
-    expect(fetch).toHaveBeenCalledWith(
-      'v1/clusters',
-      expect.objectContaining({
-        method: 'POST',
-        decode: ClusterSchema,
-      }),
-    );
+    expect(onClusterCreate).toHaveBeenCalledTimes(1);
   });
 });

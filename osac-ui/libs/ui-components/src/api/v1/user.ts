@@ -1,16 +1,14 @@
-import type { User, UsersListResponse } from '@osac/types';
+import { Users } from '@osac/types';
 
+import { useApiFetch } from '../api-context';
+import { type ListParams, apiQueryKey } from '../types';
 import { useApiQuery } from '../use-api-query';
 
-export type ListUsersParams = {
-  filter?: string;
-  limit?: number;
-  offset?: number;
-};
-
-export const useUsers = (params: ListUsersParams = {}) => {
-  return useApiQuery<UsersListResponse, User[]>({
-    queryKey: ['v1/users', null, params],
+export const useUsers = (params: ListParams = {}) => {
+  const client = useApiFetch(Users);
+  return useApiQuery({
+    queryKey: apiQueryKey('v1/users', undefined, params),
+    queryFn: () => client.list(params),
     select: (data) => data.items,
   });
 };

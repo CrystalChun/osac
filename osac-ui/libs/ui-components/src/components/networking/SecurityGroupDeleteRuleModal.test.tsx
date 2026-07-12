@@ -58,8 +58,8 @@ describe('SecurityGroupDeleteRuleModal', () => {
 
     await waitFor(() => {
       expect(mutateAsync).toHaveBeenCalledWith({
-        id: 'sg-1',
-        input: expect.objectContaining({
+        object: expect.objectContaining({
+          id: 'sg-1',
           spec: expect.objectContaining({
             ingress: [expect.objectContaining({ portFrom: 443, portTo: 443 })],
           }),

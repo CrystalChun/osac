@@ -13,12 +13,12 @@ import type { ComputeInstance } from '@osac/types';
 
 import { useVmDetailsDisplay } from './useVmDetailsDisplay';
 import VmDetailsCatalogValue from './VmDetailsCatalogValue';
-import { formatInstanceTypeReviewLabelFromType } from '../../../api/v1/instance-types';
 import { useTranslation } from '../../../hooks/useTranslation';
 import { displayValue } from '../../../utils/detailFormatters';
 import { formatBootDiskSizeForReview } from '../../catalogProvision/wizard/catalogOverlay';
 import { Timestamp } from '../../Primitives/Timestamp';
 import { SubtleContent } from '../../SubtleContent/SubtleContent';
+import { formatInstanceTypeReviewLabelFromType } from '../utils';
 
 interface Props {
   vm: ComputeInstance;

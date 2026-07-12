@@ -1,8 +1,9 @@
-import type { ComputeInstanceCatalogItem } from '@osac/types';
+import { type MessageInitShape } from '@bufbuild/protobuf';
+
+import { type ComputeInstanceCatalogItem, ComputeInstanceSchema } from '@osac/types';
 
 import type { ComputeInstanceWizardValues } from './fields';
 import { EMPTY_LABELED_RESOURCE_REF, VM_CREATE_RUN_STRATEGY } from './fields';
-import type { BuildComputeInstanceCreateBodyInput } from '../../../../../api/v1/compute-instance-wire';
 
 export const createEmptyComputeInstanceValues = (): ComputeInstanceWizardValues => ({
   catalogItemId: '',
@@ -24,10 +25,10 @@ export const createEmptyComputeInstanceValues = (): ComputeInstanceWizardValues 
 export const buildComputeInstanceCreatePayload = (
   values: ComputeInstanceWizardValues,
   catalogItem: ComputeInstanceCatalogItem,
-): BuildComputeInstanceCreateBodyInput => {
+): MessageInitShape<typeof ComputeInstanceSchema> => {
   const instanceType = values.spec.instanceType.value.trim();
 
-  const spec: Record<string, unknown> = {
+  const spec: MessageInitShape<typeof ComputeInstanceSchema>['spec'] = {
     catalogItem: catalogItem.id,
     instanceType,
     image: {

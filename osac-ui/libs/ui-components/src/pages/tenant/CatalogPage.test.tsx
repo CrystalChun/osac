@@ -1,24 +1,20 @@
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { Code, ConnectError, createRouterTransport } from '@connectrpc/connect';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 
 import type { ClusterCatalogItem, ComputeInstanceCatalogItem } from '@osac/types';
-import {
-  ClusterCatalogItemsListResponseSchema,
-  ComputeInstanceCatalogItemsListResponseSchema,
-} from '@osac/types';
+import { ClusterCatalogItems, ComputeInstanceCatalogItems } from '@osac/types';
 
 import CatalogPage from './CatalogPage';
-import { decodeFulfillmentResponse } from '../../api/fulfillment-decode';
-import type { ApiFetch, ApiRoute } from '../../api/types';
+import { wrapWithAuthInterceptor } from '../../components/catalogProvision/test/createMockConnectTransport';
 import {
   unpublishedCatalogItem,
   vmCatalogItem,
 } from '../../components/catalogProvision/test/fixtures';
 import { initTestI18n } from '../../components/catalogProvision/test/i18n';
 import { WizardTestProvidersWithI18n } from '../../components/catalogProvision/test/WizardTestProviders';
-import { UnauthorizedError } from '../../utils/unauthorizedError';
 
 const clusterCatalogItem = {
   id: 'catalog-openshift-4',
@@ -30,7 +26,9 @@ const clusterCatalogItem = {
   fieldDefinitions: [],
 } as unknown as ClusterCatalogItem;
 
-type CatalogFetchHandlers = {
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+type CatalogTransportOptions = {
   vmItems?: ComputeInstanceCatalogItem[];
   clusterItems?: ClusterCatalogItem[];
   vmError?: Error;
@@ -39,52 +37,65 @@ type CatalogFetchHandlers = {
   clusterDelayMs?: number;
 };
 
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+const toConnectError = (error: Error) => {
+  if (error.name === 'UnauthorizedError') {
+    return new ConnectError('Unauthenticated', Code.Unauthenticated);
+  }
+  return new ConnectError(error.message, Code.Internal);
+};
 
-const createCatalogPageFetch =
-  ({
-    vmItems = [vmCatalogItem],
-    clusterItems = [clusterCatalogItem],
-    vmError,
-    clusterError,
-    vmDelayMs = 0,
-    clusterDelayMs = 0,
-  }: CatalogFetchHandlers = {}): ApiFetch =>
-  async (route: ApiRoute, options = {}) => {
-    const { decode } = options;
+const createCatalogPageTransport = ({
+  vmItems = [vmCatalogItem],
+  clusterItems = [clusterCatalogItem],
+  vmError,
+  clusterError,
+  vmDelayMs = 0,
+  clusterDelayMs = 0,
+}: CatalogTransportOptions = {}) =>
+  wrapWithAuthInterceptor(
+    createRouterTransport((router) => {
+      router.service(ComputeInstanceCatalogItems, {
+        list: async () => {
+          if (vmDelayMs) {
+            await delay(vmDelayMs);
+          }
+          if (vmError) {
+            throw toConnectError(vmError);
+          }
+          return { items: vmItems };
+        },
+        get: (req) => ({
+          object: vmItems.find((i) => i.id === req.id),
+        }),
+      });
 
-    switch (route) {
-      case 'v1/compute_instance_catalog_items':
-        await delay(vmDelayMs);
-        if (vmError) {
-          throw vmError;
-        }
-        return decodeFulfillmentResponse(decode ?? ComputeInstanceCatalogItemsListResponseSchema, {
-          items: vmItems,
-        });
-      case 'v1/cluster_catalog_items':
-        await delay(clusterDelayMs);
-        if (clusterError) {
-          throw clusterError;
-        }
-        return decodeFulfillmentResponse(decode ?? ClusterCatalogItemsListResponseSchema, {
-          items: clusterItems,
-        });
-      default:
-        throw new Error(`Unexpected API route in CatalogPage test: ${route}`);
-    }
-  };
+      router.service(ClusterCatalogItems, {
+        list: async () => {
+          if (clusterDelayMs) {
+            await delay(clusterDelayMs);
+          }
+          if (clusterError) {
+            throw toConnectError(clusterError);
+          }
+          return { items: clusterItems };
+        },
+        get: (req) => ({
+          object: clusterItems.find((i) => i.id === req.id),
+        }),
+      });
+    }),
+  );
 
-const unauthorizedCatalogFetch = createCatalogPageFetch({
-  vmError: new UnauthorizedError(),
-  clusterError: new UnauthorizedError(),
+const unauthorizedTransport = createCatalogPageTransport({
+  vmError: Object.assign(new Error(), { name: 'UnauthorizedError' }),
+  clusterError: Object.assign(new Error(), { name: 'UnauthorizedError' }),
 });
 
-const renderCatalogPage = async (fetch: ApiFetch = unauthorizedCatalogFetch) => {
+const renderCatalogPage = async (transport = unauthorizedTransport) => {
   const i18n = await initTestI18n();
   const view = render(
     <MemoryRouter>
-      <WizardTestProvidersWithI18n i18n={i18n} fetch={fetch}>
+      <WizardTestProvidersWithI18n i18n={i18n} transport={transport}>
         <CatalogPage />
       </WizardTestProvidersWithI18n>
     </MemoryRouter>,
@@ -93,11 +104,11 @@ const renderCatalogPage = async (fetch: ApiFetch = unauthorizedCatalogFetch) => 
   return { ...view, user: userEvent.setup() };
 };
 
-const renderCatalogPageWithCreateRoutes = async (fetch: ApiFetch = createCatalogPageFetch()) => {
+const renderCatalogPageWithCreateRoutes = async (transport = createCatalogPageTransport()) => {
   const i18n = await initTestI18n();
   const view = render(
     <MemoryRouter initialEntries={['/catalog']}>
-      <WizardTestProvidersWithI18n i18n={i18n} fetch={fetch}>
+      <WizardTestProvidersWithI18n i18n={i18n} transport={transport}>
         <Routes>
           <Route path="/catalog" element={<CatalogPage />} />
           <Route path="/clusters/create/:catalogItemId" element={<div>Create cluster page</div>} />
@@ -136,9 +147,9 @@ describe('CatalogPage', () => {
       expect(screen.getByText('Unauthorized')).toBeInTheDocument();
     });
 
-    await user.click(document.getElementById('catalog-type-filter-cluster')!);
+    await user.click(screen.getByRole('button', { name: 'Clusters' }));
 
-    expect(document.getElementById('catalog-type-filter-cluster')).toHaveAttribute(
+    expect(screen.getByRole('button', { name: 'Clusters' })).toHaveAttribute(
       'aria-pressed',
       'true',
     );
@@ -147,7 +158,7 @@ describe('CatalogPage', () => {
   });
 
   it('disables search while the active tab query is loading', async () => {
-    await renderCatalogPage(createCatalogPageFetch({ vmDelayMs: 250, clusterItems: [] }));
+    await renderCatalogPage(createCatalogPageTransport({ vmDelayMs: 250, clusterItems: [] }));
 
     const searchInput = screen.getByRole('textbox', { name: 'Filter catalog by keyword' });
     expect(searchInput).toBeDisabled();
@@ -167,29 +178,29 @@ describe('CatalogPage', () => {
 
     expect(screen.getByRole('textbox', { name: 'Filter catalog by keyword' })).toBeDisabled();
 
-    await user.click(document.getElementById('catalog-type-filter-cluster')!);
+    await user.click(screen.getByRole('button', { name: 'Clusters' }));
     expect(screen.getByRole('textbox', { name: 'Filter catalog by keyword' })).toBeDisabled();
   });
 
   it('shows VM catalog items on the default tab when the VM query succeeds', async () => {
-    await renderCatalogPage(createCatalogPageFetch());
+    await renderCatalogPage(createCatalogPageTransport());
 
     await waitFor(() => {
       expect(screen.getByText(vmCatalogItem.title)).toBeInTheDocument();
     });
 
-    expect(screen.getByRole('heading', { name: 'Virtual machines', level: 2 })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Virtual Machines', level: 2 })).toBeInTheDocument();
     expect(screen.queryByText(clusterCatalogItem.title)).not.toBeInTheDocument();
   });
 
   it('shows cluster catalog items after switching to the cluster tab', async () => {
-    const { user } = await renderCatalogPage(createCatalogPageFetch());
+    const { user } = await renderCatalogPage(createCatalogPageTransport());
 
     await waitFor(() => {
       expect(screen.getByText(vmCatalogItem.title)).toBeInTheDocument();
     });
 
-    await user.click(document.getElementById('catalog-type-filter-cluster')!);
+    await user.click(screen.getByRole('button', { name: 'Clusters' }));
 
     await waitFor(() => {
       expect(screen.getByText(clusterCatalogItem.title)).toBeInTheDocument();
@@ -200,7 +211,9 @@ describe('CatalogPage', () => {
 
   it('shows tab-specific errors without blocking the other tab', async () => {
     const { user } = await renderCatalogPage(
-      createCatalogPageFetch({ clusterError: new UnauthorizedError() }),
+      createCatalogPageTransport({
+        clusterError: Object.assign(new Error(), { name: 'UnauthorizedError' }),
+      }),
     );
 
     await waitFor(() => {
@@ -208,14 +221,14 @@ describe('CatalogPage', () => {
     });
     expect(screen.queryByText('Unauthorized')).not.toBeInTheDocument();
 
-    await user.click(document.getElementById('catalog-type-filter-cluster')!);
+    await user.click(screen.getByRole('button', { name: 'Clusters' }));
 
     await waitFor(() => {
       expect(screen.getByText('Unauthorized')).toBeInTheDocument();
     });
     expect(screen.queryByText(clusterCatalogItem.title)).not.toBeInTheDocument();
 
-    await user.click(document.getElementById('catalog-type-filter-vm')!);
+    await user.click(screen.getByRole('button', { name: 'Virtual Machines' }));
 
     await waitFor(() => {
       expect(screen.getByText(vmCatalogItem.title)).toBeInTheDocument();
@@ -225,7 +238,7 @@ describe('CatalogPage', () => {
 
   it('shows a generic section error for non-401 failures', async () => {
     await renderCatalogPage(
-      createCatalogPageFetch({ vmError: new Error('Catalog service unavailable') }),
+      createCatalogPageTransport({ vmError: new Error('Catalog service unavailable') }),
     );
 
     await waitFor(() => {
@@ -238,7 +251,7 @@ describe('CatalogPage', () => {
 
   it('shows an empty state when no published catalog items are returned', async () => {
     await renderCatalogPage(
-      createCatalogPageFetch({ vmItems: [], clusterItems: [unpublishedCatalogItem] }),
+      createCatalogPageTransport({ vmItems: [], clusterItems: [unpublishedCatalogItem] }),
     );
 
     await waitFor(() => {
@@ -260,7 +273,7 @@ describe('CatalogPage', () => {
     } as unknown as ComputeInstanceCatalogItem;
 
     const { user } = await renderCatalogPage(
-      createCatalogPageFetch({ vmItems: [vmCatalogItem, secondVmItem] }),
+      createCatalogPageTransport({ vmItems: [vmCatalogItem, secondVmItem] }),
     );
 
     await waitFor(() => {
@@ -277,7 +290,7 @@ describe('CatalogPage', () => {
   });
 
   it('shows a search-specific empty state when the filter matches nothing', async () => {
-    const { user } = await renderCatalogPage(createCatalogPageFetch());
+    const { user } = await renderCatalogPage(createCatalogPageTransport());
 
     await waitFor(() => {
       expect(screen.getByText(vmCatalogItem.title)).toBeInTheDocument();
@@ -303,7 +316,7 @@ describe('CatalogPage', () => {
       expect(screen.getByText(vmCatalogItem.title)).toBeInTheDocument();
     });
 
-    await user.click(document.getElementById('catalog-type-filter-cluster')!);
+    await user.click(screen.getByRole('button', { name: 'Clusters' }));
 
     await waitFor(() => {
       expect(screen.getByText(clusterCatalogItem.title)).toBeInTheDocument();

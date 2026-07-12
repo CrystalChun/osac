@@ -1,67 +1,53 @@
 import { useCallback, useEffect, useState } from 'react';
+import { type MessageInitShape } from '@bufbuild/protobuf';
 import { useMutation } from '@tanstack/react-query';
 
-import {
-  type Cluster,
-  ClusterSchema,
-  type ClustersListResponse,
-  ClustersListResponseSchema,
-} from '@osac/types';
+import { ClusterSchema, Clusters } from '@osac/types';
 
 import { useApiFetch } from '../api-context';
-import { apiQueryKey } from '../types';
-import { useApiQuery, useApiQueryClient } from '../use-api-query';
+import { type ListParams, apiQueryKey } from '../types';
+import { type ApiQueryClient, useApiQuery, useApiQueryClient } from '../use-api-query';
 
-export type ListClustersParams = {
-  filter?: string;
-  limit?: number;
-  offset?: number;
+export const useClusters = (params: ListParams = {}) => {
+  const client = useApiFetch(Clusters);
+  return useApiQuery({
+    queryKey: apiQueryKey('v1/clusters', undefined, params),
+    queryFn: () => client.list(params),
+    select: (data) => data.items,
+  });
 };
 
-export const useClusters = (params: ListClustersParams = {}) =>
-  useApiQuery<ClustersListResponse, Cluster[]>({
-    queryKey: ['v1/clusters', null, params],
-    select: (data: ClustersListResponse) => data.items,
-    meta: { decode: ClustersListResponseSchema },
-  });
-
 export const useCluster = (id: string) => {
+  const client = useApiFetch(Clusters);
   const trimmedId = id?.trim() ?? '';
-  return useApiQuery<Cluster>({
-    queryKey: ['v1/clusters', [trimmedId]],
-    meta: { decode: ClusterSchema },
+  return useApiQuery({
+    queryKey: apiQueryKey('v1/clusters', [trimmedId]),
+    queryFn: () => client.get({ id: trimmedId }),
+    select: (data) => data.object,
     enabled: Boolean(trimmedId),
   });
 };
 
-export const invalidateClustersQueries = async (qc: ReturnType<typeof useApiQueryClient>) => {
-  await qc.invalidateQueries({ queryKey: apiQueryKey('v1/clusters', null) });
+export const invalidateClustersQueries = async (qc: ApiQueryClient) => {
+  await qc.invalidateQueries({ queryKey: apiQueryKey('v1/clusters') });
 };
 
 export const useDeleteCluster = () => {
-  const apiFetch = useApiFetch();
+  const client = useApiFetch(Clusters);
   const qc = useApiQueryClient();
   return useMutation({
-    mutationFn: (id: string) =>
-      apiFetch<void>('v1/clusters', {
-        pathParams: [id],
-        method: 'DELETE',
-      }),
+    mutationFn: (id: string) => client.delete({ id }),
     onSuccess: () => invalidateClustersQueries(qc),
     retry: false,
   });
 };
 
 export const useProvisionCluster = () => {
-  const apiFetch = useApiFetch();
+  const client = useApiFetch(Clusters);
   const qc = useApiQueryClient();
   return useMutation({
-    mutationFn: (cluster: Cluster) =>
-      apiFetch<Cluster>('v1/clusters', {
-        method: 'POST',
-        body: cluster,
-        decode: ClusterSchema,
-      }),
+    mutationFn: (cluster: MessageInitShape<typeof ClusterSchema>) =>
+      client.create({ object: cluster }).then((r) => r.object),
     onSuccess: async () => {
       await invalidateClustersQueries(qc);
     },
@@ -82,7 +68,7 @@ const triggerDownload = (content: string, filename: string) => {
 };
 
 export const useDownloadKubeconfig = () => {
-  const apiFetch = useApiFetch();
+  const client = useApiFetch(Clusters);
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<unknown>();
 
@@ -91,25 +77,22 @@ export const useDownloadKubeconfig = () => {
       setIsPending(true);
       setError(undefined);
       try {
-        const kubeconfig = await apiFetch<string>('v1/clusters', {
-          pathParams: [id, 'kubeconfig'],
-          rawText: true,
-        });
-        triggerDownload(kubeconfig, `${clusterName}-kubeconfig.yaml`);
+        const resp = await client.getKubeconfig({ id });
+        triggerDownload(resp.kubeconfig, `${clusterName}-kubeconfig.yaml`);
       } catch (e) {
         setError(e);
       } finally {
         setIsPending(false);
       }
     },
-    [apiFetch],
+    [client],
   );
 
   return { download, isPending, error, setError };
 };
 
-export const useFetchClusterPassword = (clusterId: string) => {
-  const apiFetch = useApiFetch();
+export const useFetchClusterPassword = (id: string) => {
+  const client = useApiFetch(Clusters);
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<unknown>();
   const [password, setPassword] = useState<string>();
@@ -121,12 +104,8 @@ export const useFetchClusterPassword = (clusterId: string) => {
       setIsPending(true);
       setError(undefined);
       try {
-        const result = await apiFetch<string>('v1/clusters', {
-          pathParams: [clusterId, 'password'],
-          rawText: true,
-          signal: controller.signal,
-        });
-        setPassword(result);
+        const resp = await client.getPassword({ id }, { signal: controller.signal });
+        setPassword(resp.password);
       } catch (e) {
         if (!controller.signal.aborted) {
           setError(e);
@@ -137,8 +116,7 @@ export const useFetchClusterPassword = (clusterId: string) => {
         }
       }
     })();
-    return () => controller.abort();
-  }, [apiFetch, clusterId, resetId]);
+  }, [client, resetId, id]);
 
   const retry = useCallback(() => {
     setPassword(undefined);
