@@ -6,11 +6,10 @@ import ClusterIcon from '@patternfly/react-icons/dist/esm/icons/cluster-icon';
 import CubeIcon from '@patternfly/react-icons/dist/esm/icons/cube-icon';
 import GlobeIcon from '@patternfly/react-icons/dist/esm/icons/globe-icon';
 import NetworkIcon from '@patternfly/react-icons/dist/esm/icons/network-icon';
+import ServerIcon from '@patternfly/react-icons/dist/esm/icons/server-icon';
 import TachometerAltIcon from '@patternfly/react-icons/dist/esm/icons/tachometer-alt-icon';
 import UsersIcon from '@patternfly/react-icons/dist/esm/icons/users-icon';
 import VirtualMachineIcon from '@patternfly/react-icons/dist/esm/icons/virtual-machine-icon';
-
-import type { CatalogItemKind } from './components/catalog/catalogItemDisplay';
 
 const SHELL_NAV_ICONS: Record<string, ComponentType<SVGIconProps>> = {
   'compute-vms': VirtualMachineIcon,
@@ -24,6 +23,7 @@ const SHELL_NAV_ICONS: Record<string, ComponentType<SVGIconProps>> = {
   'provider-orgs': BuildingIcon,
   'provider-catalog': GlobeIcon,
   'provider-infra': ClusterIcon,
+  'bare-metal': ServerIcon,
 };
 
 export const shellNavIcon = (itemId: string) => {
@@ -32,10 +32,23 @@ export const shellNavIcon = (itemId: string) => {
 };
 
 interface CatalogItemIconProps {
-  kind: CatalogItemKind;
+  kind:
+    | 'osac.public.v1.ClusterCatalogItem'
+    | 'osac.public.v1.BareMetalInstanceCatalogItem'
+    | 'osac.public.v1.ComputeInstanceCatalogItem';
 }
 
 export const CatalogItemIcon = ({ kind }: CatalogItemIconProps) => {
-  const Icon = kind === 'cluster' ? CloudIcon : VirtualMachineIcon;
+  let Icon = VirtualMachineIcon;
+  switch (kind) {
+    case 'osac.public.v1.ClusterCatalogItem':
+      Icon = CloudIcon;
+      break;
+    case 'osac.public.v1.BareMetalInstanceCatalogItem':
+      Icon = ServerIcon;
+      break;
+    default:
+      Icon = VirtualMachineIcon;
+  }
   return <Icon aria-hidden className="pf-v6-u-font-size-lg" />;
 };

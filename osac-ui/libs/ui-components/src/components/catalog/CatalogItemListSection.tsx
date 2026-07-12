@@ -9,23 +9,21 @@ import {
 } from '@patternfly/react-core';
 
 import CatalogItemCard from './CatalogItemCard';
-import type { CatalogItemForDisplay, CatalogItemKind } from './catalogItemDisplay';
+import type { CatalogItem } from './catalogItemDisplay';
 import { getErrorMessage } from '../../utils/error';
 import QueryErrorState from '../Resource/QueryErrorState';
 
 interface CatalogItemListSectionProps {
   title: string;
-  kind: CatalogItemKind;
-  items: CatalogItemForDisplay[];
+  items: CatalogItem[];
   selectedItemId?: string | null;
-  onSelectItem: (item: CatalogItemForDisplay) => void;
+  onSelectItem: (item: CatalogItem) => void;
   isLoading?: boolean;
   error?: unknown;
 }
 
 export const CatalogItemListSection = ({
   title,
-  kind,
   items,
   selectedItemId = null,
   onSelectItem,
@@ -58,17 +56,12 @@ export const CatalogItemListSection = ({
         ) : null}
         {items.length > 0 ? (
           <StackItem>
-            <Gallery
-              hasGutter
-              minWidths={{ default: '200px', md: '240px', lg: '260px', xl: '280px' }}
-              maxWidths={{ md: '280px', lg: '320px', xl: '360px' }}
-            >
+            <Gallery hasGutter>
               {items.map((item) => (
                 <GalleryItem key={item.id}>
                   <CatalogItemCard
                     item={item}
-                    kind={kind}
-                    isBrowseSelected={selectedItemId === item.id}
+                    isSelected={selectedItemId === item.id}
                     onOpenDetails={() => onSelectItem(item)}
                   />
                 </GalleryItem>

@@ -15,11 +15,13 @@ export type ListComputeInstanceCatalogItemsParams = {
 
 export const useComputeInstanceCatalogItems = (
   params: ListComputeInstanceCatalogItemsParams = {},
+  enabled = true,
 ) =>
   useApiQuery<ComputeInstanceCatalogItemsListResponse, ComputeInstanceCatalogItem[]>({
     queryKey: ['v1/compute_instance_catalog_items', null, params],
     select: (data) => data.items.filter((item) => item.published),
     meta: { decode: ComputeInstanceCatalogItemsListResponseSchema },
+    enabled,
   });
 
 export const useComputeInstanceCatalogItem = (id: string | undefined) => {

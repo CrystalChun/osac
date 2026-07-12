@@ -15,6 +15,7 @@ import { VirtualNetworksListPage } from '@osac/ui-components/pages/networking/Vi
 import { ProviderAdminDashboardPage } from '@osac/ui-components/pages/provider/ProviderAdminDashboardPage';
 import { ProviderInfraTopologyPage } from '@osac/ui-components/pages/provider/ProviderInfraTopologyPage';
 import { ProviderTenantOrgsPage } from '@osac/ui-components/pages/provider/ProviderTenantOrgsPage';
+import { BareMetalRoutes } from '@osac/ui-components/pages/tenant/BareMetalRoutes';
 import { CatalogPage } from '@osac/ui-components/pages/tenant/CatalogPage';
 import { ClusterRoutes } from '@osac/ui-components/pages/tenant/ClusterRoutes';
 import { VmCreatePage } from '@osac/ui-components/pages/tenant/VmCreatePage';
@@ -91,6 +92,14 @@ export const AppShell = ({ logout }: { logout: () => Promise<void> }) => {
           element={
             <RoleRoute allow={['tenantUser', 'tenantAdmin']} fallback={defaultRoute}>
               <ClusterRoutes />
+            </RoleRoute>
+          }
+        />
+        <Route
+          path="/bare-metal/*"
+          element={
+            <RoleRoute allow={['tenantUser', 'tenantAdmin']} fallback={defaultRoute}>
+              <BareMetalRoutes />
             </RoleRoute>
           }
         />

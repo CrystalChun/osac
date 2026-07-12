@@ -15,18 +15,16 @@ import {
 } from '@patternfly/react-core';
 
 import { CatalogItemDetailContent } from './CatalogItemDetailContent';
-import type { CatalogItemForDisplay } from './catalogItemDisplay';
+import type { CatalogItem } from './catalogItemDisplay';
 import { catalogItemSubtitle } from './catalogItemDisplay';
 
 import './CatalogItemDetailDrawer.css';
 
 interface CatalogItemDetailDrawerProps {
-  item: CatalogItemForDisplay | null;
+  item: CatalogItem | undefined;
   onClose: () => void;
   actions?: ReactNode;
   children: ReactNode;
-  className?: string;
-  hostClassName?: string;
 }
 
 export const CatalogItemDetailDrawer = ({
@@ -34,8 +32,6 @@ export const CatalogItemDetailDrawer = ({
   onClose,
   actions,
   children,
-  className,
-  hostClassName,
 }: CatalogItemDetailDrawerProps) => {
   const titleId = useId();
   const drawerTitleRef = useRef<HTMLHeadingElement>(null);
@@ -46,16 +42,13 @@ export const CatalogItemDetailDrawer = ({
     }
   }, [item]);
 
-  const hostClass = ['catalog-item-detail-drawer-host', hostClassName].filter(Boolean).join(' ');
-  const drawerClass = ['catalog-item-detail-drawer', className].filter(Boolean).join(' ');
-
   if (!item) {
-    return <div className={hostClass}>{children}</div>;
+    return <div className="catalog-item-detail-drawer-host">{children}</div>;
   }
 
   return (
-    <div className={hostClass}>
-      <Drawer isExpanded isInline={false} position="right" className={drawerClass}>
+    <div className="catalog-item-detail-drawer-host">
+      <Drawer isExpanded isInline={false} position="right" className="catalog-item-detail-drawer">
         <DrawerContent
           panelContent={
             <DrawerPanelContent

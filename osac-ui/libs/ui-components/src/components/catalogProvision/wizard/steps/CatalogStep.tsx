@@ -17,31 +17,19 @@ import { useFormikContext } from 'formik';
 
 import { useTranslation } from '../../../../hooks/useTranslation';
 import CatalogItemCard from '../../../catalog/CatalogItemCard';
-import {
-  type CatalogItemKind,
-  filterCatalogItemsBySearch,
-} from '../../../catalog/catalogItemDisplay';
+import { CatalogItem, filterCatalogItemsBySearch } from '../../../catalog/catalogItemDisplay';
 import { getVisibleFieldError } from '../../../Form/fieldError';
 import { useShowFieldValidationErrors } from '../../../Form/FieldValidationContext';
 import { FormFieldHelper } from '../../../Form/FormFieldHelper';
-import type { CatalogProvisionCatalogItem } from '../../catalogProvisionItem';
 import type { CatalogProvisionAdapter } from '../adapters/types';
 
-interface Props<
-  TItem extends CatalogProvisionCatalogItem,
-  TValues extends { catalogItemId: string },
-  TPayload,
-> {
-  adapter: CatalogProvisionAdapter<TItem, TValues, TPayload>;
+interface Props<TValues extends { catalogItemId: string }, TPayload> {
+  adapter: CatalogProvisionAdapter<CatalogItem, TValues, TPayload>;
 }
 
-export const CatalogStep = <
-  TItem extends CatalogProvisionCatalogItem,
-  TValues extends { catalogItemId: string },
-  TPayload,
->({
+export const CatalogStep = <TValues extends { catalogItemId: string }, TPayload>({
   adapter,
-}: Props<TItem, TValues, TPayload>) => {
+}: Props<TValues, TPayload>) => {
   const { t } = useTranslation();
   const [search, setSearch] = useState('');
   const formik = useFormikContext<TValues>();
@@ -53,8 +41,6 @@ export const CatalogStep = <
     isError: catalogError,
     refetch: refetchCatalogItems,
   } = adapter.useCatalogItems();
-
-  const catalogItemKind: CatalogItemKind = adapter.kind === 'cluster' ? 'cluster' : 'vm';
 
   const filtered = useMemo(
     () => filterCatalogItemsBySearch(catalogItems, search),
@@ -69,7 +55,7 @@ export const CatalogStep = <
     showValidationErrors,
   );
 
-  const handleSelect = async (item: TItem) => {
+  const handleSelect = async (item: CatalogItem) => {
     await adapter.onCatalogItemSelected?.(item, formik);
   };
 
@@ -146,8 +132,6 @@ export const CatalogStep = <
                 <GalleryItem key={item.id}>
                   <CatalogItemCard
                     item={item}
-                    kind={catalogItemKind}
-                    id={`catalog-item-card-${item.id}`}
                     ouiaId={`catalog-item-option-${item.id}`}
                     selection={{
                       selected,

@@ -12,12 +12,14 @@ import {
   ToggleGroup,
   ToggleGroupItem,
 } from '@patternfly/react-core';
+import type { TFunction } from 'i18next';
 
+import { useBareMetalInstanceCatalogItems } from '@osac/ui-components/api/v1/baremetal-instance';
 import { useClusterCatalogItems } from '@osac/ui-components/api/v1/cluster-catalog-item';
 import { useComputeInstanceCatalogItems } from '@osac/ui-components/api/v1/compute-instance-catalog-item';
 import { CatalogItemDetailDrawer } from '@osac/ui-components/components/catalog/CatalogItemDetailDrawer';
 import type {
-  CatalogItemForDisplay,
+  CatalogItem,
   CatalogItemKind,
 } from '@osac/ui-components/components/catalog/catalogItemDisplay';
 import { filterCatalogItemsBySearch } from '@osac/ui-components/components/catalog/catalogItemDisplay';
@@ -25,69 +27,75 @@ import { CatalogItemListSection } from '@osac/ui-components/components/catalog/C
 import ListPage from '@osac/ui-components/components/Page/ListPage';
 import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
 
-type CatalogTypeFilter = 'vm' | 'cluster';
+type CatalogTypeFilter = 'vm' | 'cluster' | 'bm';
 
 interface SelectedCatalogItem {
   kind: CatalogItemKind;
-  item: CatalogItemForDisplay;
+  item: CatalogItem;
 }
 
 interface Props {
   isProviderGlobal?: boolean;
 }
 
+const getTypeLabel = (typeFilter: CatalogTypeFilter, t: TFunction) => {
+  switch (typeFilter) {
+    case 'vm':
+      return t('Virtual Machines');
+    case 'bm':
+      return t('Bare Metal Machines');
+    default:
+      return t('Clusters');
+  }
+};
+
+const useCatalogItems = (typeFilter: CatalogTypeFilter) => {
+  const vms = useComputeInstanceCatalogItems(undefined, typeFilter === 'vm');
+  const clusters = useClusterCatalogItems(undefined, typeFilter === 'cluster');
+  const bms = useBareMetalInstanceCatalogItems(typeFilter === 'bm');
+
+  switch (typeFilter) {
+    case 'vm':
+      return vms;
+    case 'bm':
+      return bms;
+    default:
+      return clusters;
+  }
+};
+
 export const CatalogPage = ({ isProviderGlobal = false }: Props) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState<CatalogTypeFilter>('vm');
-  const [selectedCatalogItem, setSelectedCatalogItem] = useState<SelectedCatalogItem | null>(null);
+  const [selectedCatalogItem, setSelectedCatalogItem] = useState<SelectedCatalogItem>();
 
-  const catalogTypeFilters = useMemo(
-    () =>
-      [
-        { value: 'vm' as const, label: t('Virtual machines') },
-        { value: 'cluster' as const, label: t('Clusters') },
-      ] satisfies ReadonlyArray<{ value: CatalogTypeFilter; label: string }>,
+  const catalogTypeFilters = useMemo<ReadonlyArray<{ value: CatalogTypeFilter; label: string }>>(
+    () => [
+      { value: 'vm', label: t('Virtual Machines') },
+      { value: 'cluster', label: t('Clusters') },
+      { value: 'bm', label: t('Bare Metal Machines') },
+    ],
     [t],
   );
 
-  const {
-    data: vmCatalogItems = [],
-    isLoading: vmLoading,
-    error: vmError,
-  } = useComputeInstanceCatalogItems();
-  const {
-    data: clusterCatalogItems = [],
-    isLoading: clusterLoading,
-    error: clusterError,
-  } = useClusterCatalogItems();
+  const { data = [], isLoading, error } = useCatalogItems(typeFilter);
 
-  const isVmFilter = typeFilter === 'vm';
-  const filteredVmItems = useMemo(
-    () => filterCatalogItemsBySearch(vmCatalogItems, search),
-    [search, vmCatalogItems],
-  );
-  const filteredClusterItems = useMemo(
-    () => filterCatalogItemsBySearch(clusterCatalogItems, search),
-    [search, clusterCatalogItems],
-  );
-  const filteredItems: CatalogItemForDisplay[] = isVmFilter
-    ? filteredVmItems
-    : filteredClusterItems;
+  const filteredItems = useMemo(() => filterCatalogItemsBySearch(data, search), [search, data]);
 
-  const isLoading = isVmFilter ? vmLoading : clusterLoading;
-  const activeError = isVmFilter ? vmError : clusterError;
   const searchTerm = search.trim();
-  const showEmptyState = !isLoading && !activeError && filteredItems.length === 0;
+  const showEmptyState = !isLoading && !error && filteredItems.length === 0;
 
   const pageDescription = isProviderGlobal
-    ? t('Browse published catalog items for virtual machines and clusters.')
-    : t('Browse catalog items and launch virtual machines or clusters from published offerings.');
+    ? t('Browse published catalog items for virtual machines, clusters, and bare metal machines.')
+    : t(
+        'Browse catalog items and launch virtual machines, clusters, or bare metal machines from published offerings.',
+      );
 
   const handleTypeFilterChange = (value: CatalogTypeFilter) => {
     setTypeFilter(value);
-    setSelectedCatalogItem(null);
+    setSelectedCatalogItem(undefined);
   };
 
   const catalogCreateAction = useMemo(() => {
@@ -115,8 +123,8 @@ export const CatalogPage = ({ isProviderGlobal = false }: Props) => {
       description={pageDescription}
     >
       <CatalogItemDetailDrawer
-        item={selectedCatalogItem?.item ?? null}
-        onClose={() => setSelectedCatalogItem(null)}
+        item={selectedCatalogItem?.item}
+        onClose={() => setSelectedCatalogItem(undefined)}
         actions={
           catalogCreateAction ? (
             <Button variant="primary" onClick={() => navigate(catalogCreateAction.path)}>
@@ -139,7 +147,7 @@ export const CatalogPage = ({ isProviderGlobal = false }: Props) => {
                   onChange={(_event, value) => setSearch(value)}
                   onClear={() => setSearch('')}
                   aria-label={t('Filter catalog by keyword')}
-                  isDisabled={isLoading || !!activeError}
+                  isDisabled={isLoading || !!error}
                 />
               </FlexItem>
               <FlexItem>
@@ -170,15 +178,12 @@ export const CatalogPage = ({ isProviderGlobal = false }: Props) => {
             </StackItem>
           ) : (
             <CatalogItemListSection
-              title={isVmFilter ? t('Virtual machines') : t('Clusters')}
-              kind={isVmFilter ? 'vm' : 'cluster'}
+              title={getTypeLabel(typeFilter, t)}
               items={filteredItems}
               isLoading={isLoading}
-              error={activeError}
+              error={error}
               selectedItemId={selectedCatalogItem?.item.id ?? null}
-              onSelectItem={(item) =>
-                setSelectedCatalogItem({ kind: isVmFilter ? 'vm' : 'cluster', item })
-              }
+              onSelectItem={(item) => setSelectedCatalogItem({ kind: typeFilter, item })}
             />
           )}
         </Stack>

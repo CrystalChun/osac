@@ -12,12 +12,11 @@ import {
   StackItem,
 } from '@patternfly/react-core';
 
-import type { CatalogItemForDisplay, CatalogItemKind } from './catalogItemDisplay';
+import type { CatalogItem } from './catalogItemDisplay';
 import {
   catalogItemMetadataLabelEntries,
   catalogItemResourceParts,
   catalogItemSubtitle,
-  inferCatalogItemKind,
 } from './catalogItemDisplay';
 import { useTranslation } from '../../hooks/useTranslation';
 import { CatalogItemIcon } from '../../icons';
@@ -29,24 +28,19 @@ export interface CatalogItemCardSelection {
 }
 
 interface CatalogItemCardProps {
-  item: CatalogItemForDisplay;
-  kind?: CatalogItemKind;
-  id?: string;
+  item: CatalogItem;
   ouiaId?: string;
   selection?: CatalogItemCardSelection;
   onOpenDetails?: () => void;
-  /** Highlights the card when its detail drawer is open (catalog page only). */
-  isBrowseSelected?: boolean;
+  isSelected?: boolean;
 }
 
 const CatalogItemCard = ({
   item,
-  kind,
-  id,
   ouiaId,
   selection,
   onOpenDetails,
-  isBrowseSelected = false,
+  isSelected,
 }: CatalogItemCardProps) => {
   const { t } = useTranslation();
   const resources = catalogItemResourceParts(item);
@@ -54,9 +48,8 @@ const CatalogItemCard = ({
   const subtitle = catalogItemSubtitle(item);
   const isBrowseMode = Boolean(onOpenDetails && !selection);
   const isWizardMode = Boolean(selection);
-  const cardId = id ?? `catalog-item-card-${item.id}`;
+  const cardId = `catalog-item-card-${item.id}`;
   const titleId = `${cardId}-title`;
-  const catalogKind = kind ?? inferCatalogItemKind(item);
 
   return (
     <Card
@@ -65,7 +58,7 @@ const CatalogItemCard = ({
       isSelectable={isWizardMode}
       isClickable={isBrowseMode}
       isSelected={selection?.selected}
-      isClicked={isBrowseMode && isBrowseSelected}
+      isClicked={isBrowseMode && isSelected}
       isFullHeight
     >
       <CardHeader
@@ -95,7 +88,7 @@ const CatalogItemCard = ({
       >
         <Flex alignItems={{ default: 'alignItemsFlexStart' }} gap={{ default: 'gapSm' }}>
           <FlexItem>
-            <CatalogItemIcon kind={catalogKind} />
+            <CatalogItemIcon kind={item.$typeName} />
           </FlexItem>
           <FlexItem flex={{ default: 'flex_1' }}>
             <CardTitle id={titleId}>{item.title}</CardTitle>
