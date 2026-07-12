@@ -26,7 +26,7 @@ const readRecord = (value: unknown): JsonRecord | undefined => {
 const camelToSnakeKey = (key: string): string =>
   key.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
 
-const isEmptyWireValue = (value: unknown): boolean => {
+export const isEmptyWireValue = (value: unknown): boolean => {
   if (value === undefined || value === null) {
     return true;
   }

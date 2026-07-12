@@ -1,6 +1,48 @@
 import { describe, expect, it } from 'vitest';
 
-import { cidrSchema, hasSubnetOverlap, isSubnetWithinVN } from './cidr-validation';
+import {
+  cidrSchema,
+  cidrsOverlap,
+  hasSubnetOverlap,
+  isSubnetWithinVN,
+  isValidCidr,
+} from './cidr-validation';
+
+describe('isValidCidr', () => {
+  it.each([
+    ['', true],
+    ['   ', true],
+    ['10.128.0.0/14', true],
+    ['172.30.0.0/16', true],
+    ['fd01::/48', true],
+    ['not-a-cidr', false],
+    ['10.0.0.0', false],
+    ['10.0.0.0/', false],
+    ['/24', false],
+    ['10.0.0.0/33', false],
+    ['256.0.0.0/8', false],
+  ])('validates %j as %s', (value, expected) => {
+    expect(isValidCidr(value)).toBe(expected);
+  });
+});
+
+describe('cidrsOverlap', () => {
+  it('detects identical overlapping CIDRs', () => {
+    expect(cidrsOverlap('10.128.0.0/14', '10.128.0.0/14')).toBe(true);
+  });
+
+  it('allows non-overlapping CIDRs', () => {
+    expect(cidrsOverlap('10.128.0.0/14', '172.30.0.0/16')).toBe(false);
+  });
+
+  it('ignores empty values', () => {
+    expect(cidrsOverlap('', '172.30.0.0/16')).toBe(false);
+  });
+
+  it('detects containment overlap when one CIDR is within another', () => {
+    expect(cidrsOverlap('10.0.0.0/8', '10.128.0.0/14')).toBe(true);
+  });
+});
 
 describe('cidrSchema', () => {
   it('validates valid IPv4 CIDR with prefix', async () => {

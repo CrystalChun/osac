@@ -1,4 +1,4 @@
-import type { ComputeInstanceCatalogItem } from '@osac/types';
+import type { ClusterCatalogItem, ComputeInstanceCatalogItem } from '@osac/types';
 import {
   InstanceTypeState,
   SecurityGroupState,
@@ -22,6 +22,43 @@ export const vmCatalogItem = {
     },
   ],
 } as unknown as ComputeInstanceCatalogItem;
+
+export const clusterCatalogItem = {
+  id: 'catalog-openshift-4',
+  metadata: { name: 'catalog-openshift-4' },
+  title: 'OpenShift 4 cluster',
+  description: 'Standard OpenShift cluster offering',
+  template: 'tpl-openshift-4',
+  published: true,
+  fieldDefinitions: [
+    {
+      path: 'release_image',
+      displayName: 'Release image',
+      editable: true,
+      default: '4.17.0',
+    },
+  ],
+} as unknown as ClusterCatalogItem;
+
+export const mockClusterTemplate = {
+  id: 'tpl-openshift-4',
+  metadata: { name: 'tpl-openshift-4' },
+  nodeSets: {
+    compute: { hostType: 'acme_1tb', size: 3 },
+  },
+};
+
+export const mockHostType = {
+  id: 'acme_1tb',
+  metadata: { name: 'acme_1tb' },
+  title: 'ACME 1TB',
+};
+
+export const mockHostTypeH100 = {
+  id: 'acme_1tb_h100',
+  metadata: { name: 'acme_1tb_h100' },
+  title: 'ACME 1TB H100',
+};
 
 export const unpublishedCatalogItem = {
   ...vmCatalogItem,

@@ -1,8 +1,8 @@
-import { screen, waitFor, within } from '@testing-library/react';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import type { UserEvent } from '@testing-library/user-event';
 import { expect } from 'vitest';
 
-import { vmCatalogItem } from './fixtures';
+import { clusterCatalogItem, vmCatalogItem } from './fixtures';
 
 const catalogItemGroup = () => screen.getByRole('radiogroup', { name: 'Catalog item' });
 
@@ -156,4 +156,65 @@ export const expectValidationAlert = async () => {
 export const getCancelModal = () => {
   const dialog = screen.getByRole('dialog');
   return within(dialog);
+};
+
+export const selectClusterCatalogItem = async (
+  user: UserEvent,
+  title = clusterCatalogItem.title,
+) => {
+  await selectCatalogItem(user, title);
+};
+
+export const fillClusterGeneralStep = async (
+  user: UserEvent,
+  name: string,
+  pullSecret = '{"auths":{}}',
+) => {
+  await fillGeneralStep(user, name);
+  const pullSecretInput = screen.getByLabelText(/Pull secret/);
+  fireEvent.change(pullSecretInput, { target: { value: pullSecret } });
+};
+
+export const waitForClusterConfigurationReady = async () => {
+  await waitFor(() => {
+    expect(screen.getByRole('button', { name: 'Add node set' })).toBeInTheDocument();
+  });
+};
+
+export const fillClusterNodeSetRow = async (
+  user: UserEvent,
+  hostTypeLabel = 'ACME 1TB',
+  size = '3',
+) => {
+  await waitFor(() => {
+    expect(screen.getByText('Node set 1')).toBeInTheDocument();
+  });
+  await selectSelectField(user, /^Host type/, hostTypeLabel);
+  const sizeInput = screen.getByRole('spinbutton', { name: /^Nodes/ });
+  await user.clear(sizeInput);
+  await user.type(sizeInput, size);
+};
+
+export const advanceToClusterConfigurationStep = async (user: UserEvent, name = 'my-cluster') => {
+  await selectClusterCatalogItem(user);
+  await clickWizardNext(user);
+  await fillClusterGeneralStep(user, name);
+  await clickWizardNext(user);
+  await waitFor(() => {
+    expect(screen.getByLabelText(/Release image/)).toBeInTheDocument();
+  });
+  await waitForClusterConfigurationReady();
+};
+
+export const advanceToClusterReviewStep = async (user: UserEvent) => {
+  await advanceToClusterConfigurationStep(user);
+  await fillClusterNodeSetRow(user);
+  await clickWizardNext(user);
+  await waitFor(() => {
+    expect(screen.getByLabelText(/Pod CIDR/)).toBeInTheDocument();
+  });
+  await clickWizardNext(user);
+  await waitFor(() => {
+    expect(screen.getByRole('button', { name: 'Create' })).toBeInTheDocument();
+  });
 };

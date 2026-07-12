@@ -1,4 +1,4 @@
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
@@ -86,6 +86,26 @@ const renderCatalogPage = async (fetch: ApiFetch = unauthorizedCatalogFetch) => 
     <MemoryRouter>
       <WizardTestProvidersWithI18n i18n={i18n} fetch={fetch}>
         <CatalogPage />
+      </WizardTestProvidersWithI18n>
+    </MemoryRouter>,
+  );
+
+  return { ...view, user: userEvent.setup() };
+};
+
+const renderCatalogPageWithCreateRoutes = async (fetch: ApiFetch = createCatalogPageFetch()) => {
+  const i18n = await initTestI18n();
+  const view = render(
+    <MemoryRouter initialEntries={['/catalog']}>
+      <WizardTestProvidersWithI18n i18n={i18n} fetch={fetch}>
+        <Routes>
+          <Route path="/catalog" element={<CatalogPage />} />
+          <Route path="/clusters/create/:catalogItemId" element={<div>Create cluster page</div>} />
+          <Route
+            path="/vms/create/:catalogItemId"
+            element={<div>Create virtual machine page</div>}
+          />
+        </Routes>
       </WizardTestProvidersWithI18n>
     </MemoryRouter>,
   );
@@ -274,5 +294,49 @@ describe('CatalogPage', () => {
       ).toBeInTheDocument();
     });
     expect(screen.getByText('No catalog items match your search.')).toBeInTheDocument();
+  });
+
+  it('navigates to cluster create from the catalog item drawer', async () => {
+    const { user } = await renderCatalogPageWithCreateRoutes();
+
+    await waitFor(() => {
+      expect(screen.getByText(vmCatalogItem.title)).toBeInTheDocument();
+    });
+
+    await user.click(document.getElementById('catalog-type-filter-cluster')!);
+
+    await waitFor(() => {
+      expect(screen.getByText(clusterCatalogItem.title)).toBeInTheDocument();
+    });
+
+    await user.click(
+      screen.getByRole('button', {
+        name: `Open catalog item details for ${clusterCatalogItem.title}`,
+      }),
+    );
+    await user.click(await screen.findByRole('button', { name: 'Create cluster' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Create cluster page')).toBeInTheDocument();
+    });
+  });
+
+  it('navigates to VM create from the catalog item drawer', async () => {
+    const { user } = await renderCatalogPageWithCreateRoutes();
+
+    await waitFor(() => {
+      expect(screen.getByText(vmCatalogItem.title)).toBeInTheDocument();
+    });
+
+    await user.click(
+      screen.getByRole('button', {
+        name: `Open catalog item details for ${vmCatalogItem.title}`,
+      }),
+    );
+    await user.click(await screen.findByRole('button', { name: 'Create virtual machine' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Create virtual machine page')).toBeInTheDocument();
+    });
   });
 });

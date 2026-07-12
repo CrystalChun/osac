@@ -31,6 +31,10 @@ export interface ComputeInstanceWizardValues {
 
 export { EMPTY_LABELED_RESOURCE_REF };
 
+export const VM_SSH_KEY_WIRE_PATH = 'ssh_key';
+export const VM_SSH_KEY_FORM_PATH = 'spec.sshKey';
+export const vmSshKeyWirePath = VM_SSH_KEY_WIRE_PATH;
+
 export const CONFIGURATION_CATALOG_PATHS = [
   'spec.image.source_ref',
   'spec.user_data',

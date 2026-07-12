@@ -4,7 +4,7 @@ import type { TFunction } from 'i18next';
 import type { ComputeInstanceCatalogItem } from '@osac/types';
 
 import type { ComputeInstanceWizardValues } from './fields';
-import { vmSshKeyWirePath } from './generalFields';
+import { vmSshKeyWirePath } from './fields';
 import {
   getCatalogFieldOverlay,
   overlayDefaultToFormValue,

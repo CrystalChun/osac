@@ -23,6 +23,8 @@ export interface GeneralFieldDescriptor {
   isRequired?: boolean;
   isPassword?: boolean;
   isDisabled?: boolean;
+  /** i18n key for InputField helperText (e.g. RFC 1035 DNS label description). */
+  helperTextKey?: string;
 }
 
 export interface CatalogProvisionAdapter<
@@ -36,7 +38,7 @@ export interface CatalogProvisionAdapter<
   buildCreatePayload: (values: TValues, catalogItem: TItem) => TPayload;
   ConfigurationStep: ComponentType<{ catalogItem: TItem | null }>;
   NetworkingStep: ComponentType<{ catalogItem: TItem | null }>;
-  resolveGeneralFields: (catalogItem: TItem | null) => GeneralFieldDescriptor[];
+  GeneralStep: ComponentType<{ catalogItem: TItem | null }>;
   getStepValidationSchema: (
     catalogItem: TItem | null,
     stepId: WizardStepId,

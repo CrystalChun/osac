@@ -14,13 +14,13 @@ import {
 import { applyVmCatalogConfigurationDefaults } from './computeInstance/applyCatalogDefaults';
 import { applyVmCatalogGeneralDefaults } from './computeInstance/applyCatalogGeneralDefaults';
 import type { ComputeInstanceWizardValues } from './computeInstance/fields';
-import { buildVmGeneralFields } from './computeInstance/generalFields';
 import {
   buildComputeInstanceCreatePayload,
   createEmptyComputeInstanceValues,
 } from './computeInstance/payload';
 import { buildComputeInstanceStepSchema } from './computeInstance/schemas';
 import { VmConfigurationStep } from './computeInstance/VmConfigurationStep';
+import VmGeneralStep from './computeInstance/VmGeneralStep';
 import { VmNetworkingStep } from './computeInstance/VmNetworkingStep';
 import type { CatalogProvisionAdapter } from './types';
 import { useComputeInstanceCatalogItems } from '../../../../api/v1/compute-instance-catalog-item';
@@ -128,7 +128,7 @@ export const useComputeInstanceAdapter = (): CatalogProvisionAdapter<
       buildCreatePayload: buildComputeInstanceCreatePayload,
       ConfigurationStep: VmConfigurationStep,
       NetworkingStep: VmNetworkingStep,
-      resolveGeneralFields: (catalogItem) => buildVmGeneralFields(catalogItem, t),
+      GeneralStep: VmGeneralStep,
       getStepValidationSchema: (catalogItem, stepId) =>
         buildComputeInstanceStepSchema(catalogItem, stepId, t),
       getReviewSections: (values, catalogItem) => buildReviewSections(values, catalogItem, t),

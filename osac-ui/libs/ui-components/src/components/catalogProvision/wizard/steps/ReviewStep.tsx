@@ -5,24 +5,29 @@ import {
   DescriptionListTerm,
 } from '@patternfly/react-core';
 
-import type { ComputeInstanceCatalogItem } from '@osac/types';
-
-import type { BuildComputeInstanceCreateBodyInput } from '../../../../api/v1/compute-instance-wire';
 import { useTranslation } from '../../../../hooks/useTranslation';
-import type { ComputeInstanceWizardValues } from '../adapters/computeInstance/fields';
+import type { CatalogProvisionCatalogItem } from '../../catalogProvisionItem';
 import type { CatalogProvisionAdapter } from '../adapters/types';
 
-interface Props {
-  adapter: CatalogProvisionAdapter<
-    ComputeInstanceCatalogItem,
-    ComputeInstanceWizardValues,
-    BuildComputeInstanceCreateBodyInput
-  >;
-  catalogItem: ComputeInstanceCatalogItem | null;
-  values: ComputeInstanceWizardValues;
+interface Props<
+  TItem extends CatalogProvisionCatalogItem,
+  TValues extends { catalogItemId: string },
+  TPayload,
+> {
+  adapter: CatalogProvisionAdapter<TItem, TValues, TPayload>;
+  catalogItem: TItem | null;
+  values: TValues;
 }
 
-export const ReviewStep = ({ adapter, catalogItem, values }: Props) => {
+export const ReviewStep = <
+  TItem extends CatalogProvisionCatalogItem,
+  TValues extends { catalogItemId: string },
+  TPayload,
+>({
+  adapter,
+  catalogItem,
+  values,
+}: Props<TItem, TValues, TPayload>) => {
   const { t } = useTranslation();
   const sections = catalogItem ? adapter.getReviewSections(values, catalogItem) : [];
   const rows = sections.flatMap((section) => section.rows);

@@ -12,13 +12,13 @@ import {
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 
-import { cidrSchema } from './cidr-validation';
 import type { VirtualNetworkInput } from '../../api/v1/networking';
 import { useNetworkClasses } from '../../api/v1/networking';
 import { InputField } from '../../components/Form/InputField';
 import OsacForm from '../../components/Form/OsacForm';
 import { useTranslation } from '../../hooks/useTranslation';
 import { getErrorMessage } from '../../utils/error';
+import { cidrSchema } from '../../validation/cidr-validation';
 
 interface VirtualNetworkCreateModalProps {
   onClose: () => void;

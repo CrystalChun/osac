@@ -16,7 +16,6 @@ import * as Yup from 'yup';
 
 import type { Subnet, VirtualNetwork } from '@osac/types';
 
-import { cidrSchema, hasSubnetOverlap, isSubnetWithinVN } from './cidr-validation';
 import { CidrDisplay } from './CidrDisplay';
 import type { SubnetInput } from '../../api/v1/networking';
 import {
@@ -26,6 +25,7 @@ import {
 import OsacForm from '../../components/Form/OsacForm';
 import { useTranslation } from '../../hooks/useTranslation';
 import { getErrorMessage } from '../../utils/error';
+import { cidrSchema, hasSubnetOverlap, isSubnetWithinVN } from '../../validation/cidr-validation';
 
 interface SubnetCreateModalProps {
   onClose: () => void;

@@ -50,3 +50,20 @@ export const useDeleteCluster = () => {
     retry: false,
   });
 };
+
+export const useProvisionCluster = () => {
+  const apiFetch = useApiFetch();
+  const qc = useApiQueryClient();
+  return useMutation({
+    mutationFn: (cluster: Cluster) =>
+      apiFetch<Cluster>('v1/clusters', {
+        method: 'POST',
+        body: cluster,
+        decode: ClusterSchema,
+      }),
+    onSuccess: async () => {
+      await invalidateClustersQueries(qc);
+    },
+    retry: false,
+  });
+};

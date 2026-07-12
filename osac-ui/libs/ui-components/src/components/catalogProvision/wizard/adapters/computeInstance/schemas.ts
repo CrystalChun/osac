@@ -11,6 +11,8 @@ import {
   mergeCatalogValidation,
   readCatalogFieldDefinitions,
 } from '../../catalogOverlay';
+import { isValidSshPublicKey } from '../../fields/credentialValidation';
+import { buildMetadataNameSchema } from '../../metadataNameSchema';
 import type { WizardStepId } from '../../stepIds';
 
 const buildComputeInstanceFieldDefinitions = (catalogItem: unknown, t: TFunction) => {
@@ -31,19 +33,23 @@ const buildComputeInstanceFieldDefinitions = (catalogItem: unknown, t: TFunction
     definitions,
     t('catalogProvision.vm.fields.bootDisk'),
   );
-  const sshKeyOverlay = getCatalogFieldOverlay(
-    'ssh_key',
-    definitions,
-    t('catalogProvision.vm.fields.sshKey'),
-  );
+  const sshKeyOverlay = getCatalogFieldOverlay('ssh_key', definitions, t('SSH public key'));
   const sshKeyRequired = hasCatalogFieldDefinition('ssh_key', definitions);
   const userDataRequired = hasCatalogFieldDefinition('spec.user_data', definitions);
 
   return {
     catalogItemId: yup.string().required(t('catalogProvision.validation.catalogItemRequired')),
-    metadataName: yup.string().trim().required(t('catalogProvision.validation.nameRequired')),
+    metadataName: buildMetadataNameSchema(t),
     specSshKey: mergeCatalogValidation(
-      yup.string(),
+      yup
+        .string()
+        .test(
+          'ssh-public-key',
+          t(
+            'SSH public key must be in the form "[TYPE] key [[EMAIL]]". Supported types are ssh-rsa, ssh-ed25519, and ecdsa-sha2-nistp256/384/521.',
+          ),
+          (value) => isValidSshPublicKey(value),
+        ),
       sshKeyOverlay,
       sshKeyRequired,
       t('catalogProvision.validation.required'),

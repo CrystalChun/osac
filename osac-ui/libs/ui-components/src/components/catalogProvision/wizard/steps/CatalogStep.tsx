@@ -15,9 +15,6 @@ import {
 } from '@patternfly/react-core';
 import { useFormikContext } from 'formik';
 
-import type { ComputeInstanceCatalogItem } from '@osac/types';
-
-import type { BuildComputeInstanceCreateBodyInput } from '../../../../api/v1/compute-instance-wire';
 import { useTranslation } from '../../../../hooks/useTranslation';
 import CatalogItemCard from '../../../catalog/CatalogItemCard';
 import {
@@ -27,21 +24,27 @@ import {
 import { getVisibleFieldError } from '../../../Form/fieldError';
 import { useShowFieldValidationErrors } from '../../../Form/FieldValidationContext';
 import { FormFieldHelper } from '../../../Form/FormFieldHelper';
-import type { ComputeInstanceWizardValues } from '../adapters/computeInstance/fields';
+import type { CatalogProvisionCatalogItem } from '../../catalogProvisionItem';
 import type { CatalogProvisionAdapter } from '../adapters/types';
 
-interface Props {
-  adapter: CatalogProvisionAdapter<
-    ComputeInstanceCatalogItem,
-    ComputeInstanceWizardValues,
-    BuildComputeInstanceCreateBodyInput
-  >;
+interface Props<
+  TItem extends CatalogProvisionCatalogItem,
+  TValues extends { catalogItemId: string },
+  TPayload,
+> {
+  adapter: CatalogProvisionAdapter<TItem, TValues, TPayload>;
 }
 
-export const CatalogStep = ({ adapter }: Props) => {
+export const CatalogStep = <
+  TItem extends CatalogProvisionCatalogItem,
+  TValues extends { catalogItemId: string },
+  TPayload,
+>({
+  adapter,
+}: Props<TItem, TValues, TPayload>) => {
   const { t } = useTranslation();
   const [search, setSearch] = useState('');
-  const formik = useFormikContext<ComputeInstanceWizardValues>();
+  const formik = useFormikContext<TValues>();
   const { values } = formik;
 
   const {
@@ -66,7 +69,7 @@ export const CatalogStep = ({ adapter }: Props) => {
     showValidationErrors,
   );
 
-  const handleSelect = async (item: ComputeInstanceCatalogItem) => {
+  const handleSelect = async (item: TItem) => {
     await adapter.onCatalogItemSelected?.(item, formik);
   };
 

@@ -2,6 +2,40 @@ import { Address4, Address6 } from 'ip-address';
 import * as Yup from 'yup';
 
 /**
+ * Returns true when value is empty or a valid IPv4/IPv6 CIDR.
+ */
+export const isValidCidr = (value: string): boolean => {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return true;
+  }
+  if (!trimmed.includes('/')) {
+    return false;
+  }
+  try {
+    return new Address4(trimmed).isCorrect();
+  } catch {
+    try {
+      return new Address6(trimmed).isCorrect();
+    } catch {
+      return false;
+    }
+  }
+};
+
+/**
+ * Returns true when two CIDRs overlap. Empty or invalid values do not overlap.
+ */
+export const cidrsOverlap = (left: string, right: string): boolean => {
+  const a = left.trim();
+  const b = right.trim();
+  if (!a || !b || !isValidCidr(a) || !isValidCidr(b)) {
+    return false;
+  }
+  return hasSubnetOverlap(a, [b]);
+};
+
+/**
  * Yup schema for validating IPv4 or IPv6 CIDR notation.
  * Use .required() when the field is mandatory.
  */
@@ -9,25 +43,7 @@ export const cidrSchema = Yup.string().test('valid-cidr', 'Invalid CIDR notation
   if (!value) {
     return true; // Allow empty for optional fields
   }
-
-  // CIDR must have a slash and prefix length
-  if (!value.includes('/')) {
-    return false;
-  }
-
-  try {
-    // Try parsing as IPv4 first
-    const addr4 = new Address4(value);
-    return addr4.isCorrect();
-  } catch {
-    try {
-      // Try parsing as IPv6
-      const addr6 = new Address6(value);
-      return addr6.isCorrect();
-    } catch {
-      return false;
-    }
-  }
+  return isValidCidr(value);
 });
 
 /**

@@ -3,73 +3,9 @@ import { describe, expect, it, vi } from 'vitest';
 import type { ComputeInstanceCatalogItem } from '@osac/types';
 
 import { applyVmCatalogGeneralDefaults } from './applyCatalogGeneralDefaults';
-import { buildVmGeneralFields } from './generalFields';
 import { buildComputeInstanceCreatePayload, createEmptyComputeInstanceValues } from './payload';
 
 const t = (key: string) => key;
-
-describe('buildVmGeneralFields', () => {
-  it('uses catalog display_name and disables ssh key when non-editable', () => {
-    const catalogItem = {
-      id: 'cat-1',
-      fieldDefinitions: [
-        {
-          path: 'ssh_key',
-          displayName: 'Platform SSH key',
-          editable: false,
-          default: { string_value: 'ssh-ed25519 AAAA' },
-        },
-      ],
-    } as unknown as ComputeInstanceCatalogItem;
-
-    const fields = buildVmGeneralFields(catalogItem, t);
-    expect(fields).toHaveLength(2);
-    expect(fields[1]).toMatchObject({
-      name: 'spec.sshKey',
-      label: 'Platform SSH key',
-      isDisabled: true,
-      multiline: true,
-    });
-  });
-
-  it('marks ssh key required when defined in catalog field_definitions', () => {
-    const catalogItem = {
-      id: 'cat-1',
-      fieldDefinitions: [
-        {
-          path: 'ssh_key',
-          displayName: 'Your SSH key',
-          editable: true,
-        },
-      ],
-    } as unknown as ComputeInstanceCatalogItem;
-
-    const fields = buildVmGeneralFields(catalogItem, t);
-    expect(fields[1]).toMatchObject({
-      isRequired: true,
-    });
-  });
-
-  it('keeps ssh key editable when catalog allows it', () => {
-    const catalogItem = {
-      id: 'cat-1',
-      fieldDefinitions: [
-        {
-          path: 'ssh_key',
-          displayName: 'Your SSH key',
-          editable: true,
-          default: { string_value: 'ssh-ed25519 AAAA' },
-        },
-      ],
-    } as unknown as ComputeInstanceCatalogItem;
-
-    const fields = buildVmGeneralFields(catalogItem, t);
-    expect(fields[1]).toMatchObject({
-      label: 'Your SSH key',
-      isDisabled: false,
-    });
-  });
-});
 
 describe('applyVmCatalogGeneralDefaults', () => {
   it('prefills ssh default from catalog when defined', () => {
