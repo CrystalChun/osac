@@ -94,13 +94,6 @@ export const SUBNET_READY_LIST_FILTER = readyStateFilter(SubnetState.READY);
 
 export const SECURITY_GROUP_READY_LIST_FILTER = readyStateFilter(SecurityGroupState.READY);
 
-const combineListFilters = (...parts: string[]): string => {
-  if (parts.length === 1) {
-    return parts[0];
-  }
-  return parts.map((part) => `(${part})`).join(' && ');
-};
-
 /** Escape a value for interpolation inside a CEL double-quoted string literal. */
 export const escapeCelStringLiteral = (value: string): string =>
   value.replaceAll('\\', '\\\\').replaceAll('"', '\\"');
