@@ -1,11 +1,7 @@
 import { QueryClient } from '@tanstack/react-query';
 import { describe, expect, it } from 'vitest';
 
-import {
-  SubnetSchema,
-  VirtualNetworkSchema,
-  VirtualNetworkState,
-} from '@osac/types';
+import { SubnetSchema, VirtualNetworkSchema, VirtualNetworkState } from '@osac/types';
 
 import { decodeFulfillmentResponse } from '../fulfillment-decode';
 import {
