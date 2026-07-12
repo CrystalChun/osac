@@ -252,7 +252,6 @@
   "Virtual Network": "Virtual Network",
   "Virtual network is required": "Virtual network is required",
   "Virtual networks": "Virtual networks",
-  "Virtual Networks": "Virtual Networks",
   "vm.details.actions.attach": "Attach",
   "vm.details.actions.attachPublicIpError": "Failed to attach public IP",
   "vm.details.actions.attachPublicIpModalTitle": "Attach public IP",
