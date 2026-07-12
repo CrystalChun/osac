@@ -2,7 +2,6 @@ import { QueryClient } from '@tanstack/react-query';
 import { describe, expect, it } from 'vitest';
 
 import {
-  SecurityGroupState,
   SubnetSchema,
   VirtualNetworkSchema,
   VirtualNetworkState,
@@ -51,9 +50,9 @@ describe('networking list filters', () => {
     );
   });
 
-  it('combines virtual network scope and ready state for security groups', () => {
+  it('filters security groups by virtual network scope only (shows all states)', () => {
     expect(securityGroupFilterForVirtualNetworkList('vn-1')).toBe(
-      `(this.spec.virtual_network == "vn-1") && (this.status.state == ${SecurityGroupState.READY})`,
+      'this.spec.virtual_network == "vn-1"',
     );
   });
 

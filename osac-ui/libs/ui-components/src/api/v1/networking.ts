@@ -83,7 +83,7 @@ export const virtualNetworkFilterForSubnetList = (virtualNetworkId: string): str
   virtualNetworkScopeFilter(virtualNetworkId);
 
 export const securityGroupFilterForVirtualNetworkList = (virtualNetworkId: string): string =>
-  combineListFilters(virtualNetworkScopeFilter(virtualNetworkId), SECURITY_GROUP_READY_LIST_FILTER);
+  virtualNetworkScopeFilter(virtualNetworkId);
 
 /** CEL list filters compare enum fields to integer literals (see fulfillment-service docs/FILTER.md). */
 const readyStateFilter = (readyState: number): string => `this.status.state == ${readyState}`;
