@@ -2,6 +2,7 @@ import type { TFunction } from 'i18next';
 import * as yup from 'yup';
 
 import { BareMetalInstanceCatalogItem } from '@osac/types';
+import { userDataSchema } from '@osac/ui-components/validation/user-data';
 
 import { BM_SSH_KEY_WIRE_PATH, BM_USER_DATA_WIRE_PATH } from './fields';
 import {
@@ -13,8 +14,6 @@ import {
 import { isValidSshPublicKey } from '../../fields/credentialValidation';
 import { buildMetadataNameSchema } from '../../metadataNameSchema';
 import type { WizardStepId } from '../../stepIds';
-
-const USER_DATA_MAX_BYTES = 65536;
 
 const buildBareMetalInstanceFieldDefinitions = (
   catalogItem: BareMetalInstanceCatalogItem | null,
@@ -54,12 +53,7 @@ const buildBareMetalInstanceFieldDefinitions = (
       t('Public SSH key is required'),
     ),
     specUserData: mergeCatalogValidation(
-      yup.string().test('user-data-max-bytes', t('User data must not exceed 64 KB.'), (value) => {
-        if (!value) {
-          return true;
-        }
-        return new TextEncoder().encode(value).byteLength <= USER_DATA_MAX_BYTES;
-      }),
+      userDataSchema(t),
       userDataOverlay,
       userDataRequired,
       t('User Data is required'),

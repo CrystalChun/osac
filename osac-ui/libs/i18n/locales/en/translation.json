@@ -70,7 +70,6 @@
   "catalogProvision.vm.fields.sshKey": "SSH public key",
   "catalogProvision.vm.fields.subnet": "Subnet",
   "catalogProvision.vm.fields.userData": "User Data",
-  "catalogProvision.vm.fields.userDataDescription": "cloud-init or Ignition configuration",
   "catalogProvision.vm.fields.virtualNetwork": "Virtual network",
   "catalogProvision.vm.placeholders.selectInstanceType": "Select an instance type",
   "catalogProvision.vm.placeholders.selectSecurityGroup": "Select security groups",
