@@ -77,11 +77,9 @@ export const VmListPage = () => {
       description="View and filter your virtual machines."
       error={error}
       actions={
-        role === 'tenantUser' ? (
-          <Button variant="primary" onClick={() => navigate('/vms/create')}>
-            Create virtual machine
-          </Button>
-        ) : undefined
+        <Button variant="primary" onClick={() => navigate('/vms/create')}>
+          Create virtual machine
+        </Button>
       }
     >
       <ListPageBody isLoading={isLoading} error={error}>

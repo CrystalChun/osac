@@ -1,5 +1,5 @@
 import { type ReactNode } from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { Page } from '@patternfly/react-core';
 
 import ErrorBoundary from '@osac/ui-components/components/ErrorBoundary/ErrorBoundary';
@@ -10,7 +10,7 @@ import { SecurityGroupsListPage } from '@osac/ui-components/pages/networking/Sec
 import { VirtualNetworkDetailPage } from '@osac/ui-components/pages/networking/VirtualNetworkDetailPage';
 import { VirtualNetworksListPage } from '@osac/ui-components/pages/networking/VirtualNetworksListPage';
 import { BareMetalRoutes } from '@osac/ui-components/pages/tenant/BareMetalRoutes';
-import { CatalogPage } from '@osac/ui-components/pages/tenant/CatalogPage';
+import CatalogPage from '@osac/ui-components/pages/tenant/CatalogPage';
 import { ClusterRoutes } from '@osac/ui-components/pages/tenant/ClusterRoutes';
 import { VmCreatePage } from '@osac/ui-components/pages/tenant/VmCreatePage';
 import { VmListPage } from '@osac/ui-components/pages/tenant/VmListPage';
@@ -19,9 +19,11 @@ import { ShellMasthead } from './ShellMasthead';
 import { defaultRouteForRole } from './shellRoutes';
 import { ShellSidebar } from './ShellSidebar';
 
-const ShellRoute = ({ children }: { children: ReactNode }) => (
-  <ErrorBoundary>{children}</ErrorBoundary>
-);
+const ShellRoute = ({ children }: { children: ReactNode }) => {
+  const { pathname } = useLocation();
+
+  return <ErrorBoundary key={pathname}>{children}</ErrorBoundary>;
+};
 
 export const AppShell = ({ logout }: { logout: () => Promise<void> }) => {
   const { role } = useSession();

@@ -42,11 +42,9 @@ export const BareMetalListPage = () => {
       description={t('View and manage your bare metal instances.')}
       error={error}
       actions={
-        role === 'tenantUser' ? (
-          <Button variant="primary" onClick={() => navigate('/bare-metal/create')}>
-            {t('Provision bare metal')}
-          </Button>
-        ) : undefined
+        <Button variant="primary" onClick={() => navigate('/bare-metal/create')}>
+          {t('Provision bare metal')}
+        </Button>
       }
     >
       <ListPageBody isLoading={isLoading} error={error}>

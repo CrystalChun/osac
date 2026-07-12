@@ -60,7 +60,7 @@ const useCatalogItems = (typeFilter: CatalogTypeFilter) => {
   }
 };
 
-export const CatalogPage = () => {
+const CatalogPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
@@ -188,3 +188,5 @@ export const CatalogPage = () => {
     </ListPage>
   );
 };
+
+export default CatalogPage;

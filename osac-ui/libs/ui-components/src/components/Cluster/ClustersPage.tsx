@@ -15,7 +15,6 @@ import ListPageBody from '../Page/ListPageBody';
 export const ClustersPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { role } = useSession();
   const { data: clusters = [], isLoading, error } = useClusters();
 
   return (
@@ -24,11 +23,9 @@ export const ClustersPage = () => {
       description="OpenShift clusters provisioned for your organization."
       error={error}
       actions={
-        role === 'tenantUser' ? (
-          <Button variant="primary" onClick={() => navigate('/clusters/create')}>
-            {t('Create cluster')}
-          </Button>
-        ) : undefined
+        <Button variant="primary" onClick={() => navigate('/clusters/create')}>
+          {t('Create cluster')}
+        </Button>
       }
     >
       <ListPageBody isLoading={isLoading} error={error}>

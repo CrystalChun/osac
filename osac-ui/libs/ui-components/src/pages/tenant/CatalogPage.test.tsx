@@ -9,7 +9,7 @@ import {
   ComputeInstanceCatalogItemsListResponseSchema,
 } from '@osac/types';
 
-import { CatalogPage } from './CatalogPage';
+import CatalogPage from './CatalogPage';
 import { decodeFulfillmentResponse } from '../../api/fulfillment-decode';
 import type { ApiFetch, ApiRoute } from '../../api/types';
 import {
