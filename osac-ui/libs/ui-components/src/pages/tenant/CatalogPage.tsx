@@ -34,10 +34,6 @@ interface SelectedCatalogItem {
   item: CatalogItem;
 }
 
-interface Props {
-  isProviderGlobal?: boolean;
-}
-
 const getTypeLabel = (typeFilter: CatalogTypeFilter, t: TFunction) => {
   switch (typeFilter) {
     case 'vm':
@@ -64,7 +60,7 @@ const useCatalogItems = (typeFilter: CatalogTypeFilter) => {
   }
 };
 
-export const CatalogPage = ({ isProviderGlobal = false }: Props) => {
+export const CatalogPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
@@ -87,11 +83,9 @@ export const CatalogPage = ({ isProviderGlobal = false }: Props) => {
   const searchTerm = search.trim();
   const showEmptyState = !isLoading && !error && filteredItems.length === 0;
 
-  const pageDescription = isProviderGlobal
-    ? t('Browse published catalog items for virtual machines, clusters, and bare metal machines.')
-    : t(
-        'Browse catalog items and launch virtual machines, clusters, or bare metal machines from published offerings.',
-      );
+  const pageDescription = t(
+    'Browse catalog items and launch virtual machines, clusters, or bare metal machines from published offerings.',
+  );
 
   const handleTypeFilterChange = (value: CatalogTypeFilter) => {
     setTypeFilter(value);
@@ -124,10 +118,7 @@ export const CatalogPage = ({ isProviderGlobal = false }: Props) => {
   }, [selectedCatalogItem, t]);
 
   return (
-    <ListPage
-      title={isProviderGlobal ? t('Global catalog') : t('Catalog')}
-      description={pageDescription}
-    >
+    <ListPage title={t('Catalog')} description={pageDescription}>
       <CatalogItemDetailDrawer
         item={selectedCatalogItem?.item}
         onClose={() => setSelectedCatalogItem(undefined)}

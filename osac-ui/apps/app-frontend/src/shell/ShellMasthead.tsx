@@ -44,7 +44,6 @@ export const ShellMasthead = ({ onLogout }: ShellMastheadProps) => {
   const [logoutError, setLogoutError] = React.useState<string>();
   const navigate = useNavigate();
   const { role, username } = useSession();
-
   const displayName = username || 'User';
 
   return (
