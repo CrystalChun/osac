@@ -1,0 +1,85 @@
+import { useMemo } from 'react';
+import type { MessageInitShape } from '@bufbuild/protobuf';
+import type { TFunction } from 'i18next';
+
+import type { BareMetalInstanceCatalogItem } from '@osac/types';
+import { BareMetalInstanceSchema } from '@osac/types';
+
+import { useBareMetalInstanceCatalogItems } from '../../../../api/v1/baremetal-instance';
+import { useTranslation } from '../../../../hooks/useTranslation';
+import { type ReviewSection, formatReviewScalar, reviewRow } from '../catalogOverlay';
+import BareMetalConfigurationStep from './bareMetalInstance/BareMetalConfigurationStep';
+import BareMetalGeneralStep from './bareMetalInstance/BareMetalGeneralStep';
+import {
+  type BareMetalInstanceWizardValues,
+  applyBmCatalogDefaults,
+  createEmptyBareMetalInstanceValues,
+} from './bareMetalInstance/fields';
+import { buildBareMetalInstanceCreatePayload } from './bareMetalInstance/payload';
+import { buildBareMetalInstanceStepSchema } from './bareMetalInstance/schemas';
+import type { CatalogProvisionAdapter } from './types';
+
+const buildBmReviewSections = (
+  values: BareMetalInstanceWizardValues,
+  _catalogItem: BareMetalInstanceCatalogItem,
+  t: TFunction,
+): ReviewSection[] => [
+  {
+    title: t('General'),
+    rows: [
+      reviewRow(t('Name'), formatReviewScalar(values.metadata.name)),
+      reviewRow(t('SSH public key'), formatReviewScalar(values.spec.sshKey, true)),
+    ],
+  },
+  {
+    title: t('Configuration'),
+    rows: [reviewRow(t('User data'), formatReviewScalar(values.spec.userData, true))],
+  },
+];
+
+export const useBareMetalInstanceAdapter = (): CatalogProvisionAdapter<
+  BareMetalInstanceCatalogItem,
+  BareMetalInstanceWizardValues,
+  MessageInitShape<typeof BareMetalInstanceSchema>
+> => {
+  const { t } = useTranslation();
+
+  return useMemo(
+    () => ({
+      kind: 'bare_metal_instance',
+      useCatalogItems: () => {
+        const query = useBareMetalInstanceCatalogItems();
+        return {
+          data: query.data ?? [],
+          isPending: query.isPending,
+          isError: query.isError,
+          refetch: () => {
+            void query.refetch();
+          },
+        };
+      },
+      getInitialValues: (_catalogItem) => createEmptyBareMetalInstanceValues(),
+      buildCreatePayload: (values, _catalogItem) => buildBareMetalInstanceCreatePayload(values),
+      ConfigurationStep: BareMetalConfigurationStep,
+      GeneralStep: BareMetalGeneralStep,
+      NetworkingStep: () => null,
+      getStepValidationSchema: (catalogItem, stepId) =>
+        buildBareMetalInstanceStepSchema(catalogItem, stepId, t),
+      getReviewSections: (values, catalogItem) => buildBmReviewSections(values, catalogItem, t),
+      onCatalogItemSelected: (item, helpers) => {
+        helpers.resetForm({
+          values: {
+            ...createEmptyBareMetalInstanceValues(),
+            catalogItemId: item.id,
+          },
+        });
+        applyBmCatalogDefaults(item, helpers, t);
+      },
+      wizardTitleKey: t('Provision bare metal'),
+      wizardDescriptionKey: t('Provision a bare metal instance from a catalog item.'),
+      breadcrumbCreateLabelKey: t('Provision bare metal'),
+      ariaLabelKey: t('Bare metal provisioning wizard'),
+    }),
+    [t],
+  );
+};

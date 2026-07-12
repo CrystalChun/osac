@@ -17,11 +17,13 @@ import ListPage from '@osac/ui-components/components/Page/ListPage';
 import ListPageBody from '@osac/ui-components/components/Page/ListPageBody';
 import { Timestamp } from '@osac/ui-components/components/Primitives/Timestamp';
 import { SubtleContent } from '@osac/ui-components/components/SubtleContent/SubtleContent';
+import { useSession } from '@osac/ui-components/hooks/use-session';
 import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
 
 export const BareMetalListPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { role } = useSession();
   const [search, setSearch] = useState('');
 
   const { data: instances = [], isLoading, error } = useBareMetalInstances();
@@ -39,6 +41,13 @@ export const BareMetalListPage = () => {
       title={t('Bare Metal')}
       description={t('View and manage your bare metal instances.')}
       error={error}
+      actions={
+        role === 'tenantUser' ? (
+          <Button variant="primary" onClick={() => navigate('/bare-metal/create')}>
+            {t('Provision bare metal')}
+          </Button>
+        ) : undefined
+      }
     >
       <ListPageBody isLoading={isLoading} error={error}>
         <Toolbar>

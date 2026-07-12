@@ -1,3 +1,4 @@
+import { MessageInitShape, create, toJson } from '@bufbuild/protobuf';
 import { useMutation } from '@tanstack/react-query';
 
 import {
@@ -24,14 +25,14 @@ export const useBareMetalInstances = () =>
 
 export const useBareMetalInstance = (id: string) =>
   useApiQuery<BareMetalInstance>({
-    queryKey: ['v1/baremetal_instances', [id]],
+    queryKey: apiQueryKey('v1/baremetal_instances', [id]),
     meta: { decode: BareMetalInstanceSchema },
     enabled: Boolean(id),
   });
 
 export const useBareMetalInstanceCatalogItems = (enabled = true) =>
   useApiQuery<BareMetalInstanceCatalogItemsListResponse, BareMetalInstanceCatalogItem[]>({
-    queryKey: ['v1/baremetal_instance_catalog_items'],
+    queryKey: apiQueryKey('v1/baremetal_instance_catalog_items'),
     select: (data: BareMetalInstanceCatalogItemsListResponse) => data.items,
     meta: { decode: BareMetalInstanceCatalogItemsListResponseSchema },
     enabled,
@@ -84,6 +85,23 @@ export const useDeleteBareMetalInstance = () => {
         pathParams: [id],
         method: 'DELETE',
       }),
+    onSuccess: () => invalidateBareMetalInstancesQueries(qc),
+  });
+};
+
+export const useCreateBareMetalInstance = () => {
+  const apiFetch = useApiFetch();
+  const qc = useApiQueryClient();
+  return useMutation({
+    mutationFn: (bmi: MessageInitShape<typeof BareMetalInstanceSchema>) => {
+      const message = create(BareMetalInstanceSchema, bmi);
+      const body = toJson(BareMetalInstanceSchema, message);
+      return apiFetch<BareMetalInstance>('v1/baremetal_instances', {
+        method: 'POST',
+        body,
+        decode: BareMetalInstanceSchema,
+      });
+    },
     onSuccess: () => invalidateBareMetalInstancesQueries(qc),
   });
 };

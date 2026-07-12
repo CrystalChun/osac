@@ -30,11 +30,17 @@ import type {
 import { useTranslation } from '../../hooks/useTranslation';
 import { CatalogItem } from '../catalog/catalogItemDisplay';
 import { FieldValidationProvider } from '../Form/FieldValidationContext';
+import { useBareMetalInstanceAdapter } from './wizard/adapters/bareMetalInstanceAdapter';
 import { useClusterAdapter } from './wizard/adapters/clusterAdapter';
 import { useComputeInstanceAdapter } from './wizard/adapters/computeInstanceAdapter';
 import type { CatalogProvisionAdapter } from './wizard/adapters/types';
 import { STEP_LABEL_KEYS, type WizardStepId, getWizardOrderedSteps } from './wizard/stepIds';
 import { CatalogStep, ReviewStep } from './wizard/steps/WizardSteps';
+
+export type {
+  CatalogProvisionPayload,
+  CatalogProvisionWizardValues,
+} from './catalogProvisionTypes';
 
 const hasWizardUnsavedProgress = (values: { catalogItemId?: string }): boolean =>
   Boolean(values.catalogItemId?.trim());
@@ -45,7 +51,7 @@ export type CatalogProvisionWizardCloseHandler = {
 };
 
 interface Props {
-  kind?: CatalogProvisionKind;
+  kind: CatalogProvisionKind;
   initialCatalogItemId?: string;
   onProvision: (payload: CatalogProvisionPayload) => void | Promise<void>;
   onClosed?: () => void;
@@ -268,7 +274,7 @@ const CatalogProvisionWizardInner = ({
   onCloseHandlerChange,
 }: InnerProps) => {
   const { t } = useTranslation();
-  const orderedSteps = useMemo(() => getWizardOrderedSteps(), []);
+  const orderedSteps = useMemo(() => getWizardOrderedSteps(adapter.kind), [adapter.kind]);
   const [wizardResetKey, setWizardResetKey] = useState(0);
   const [activeStepId, setActiveStepId] = useState<WizardStepId>('catalog');
   const [schemaCatalogItemId, setSchemaCatalogItemId] = useState(initialValues.catalogItemId);
@@ -515,7 +521,7 @@ const CatalogProvisionWizardForm = ({
 };
 
 export const CatalogProvisionWizard = ({
-  kind = 'compute_instance',
+  kind,
   initialCatalogItemId,
   onProvision,
   onClosed,
@@ -523,7 +529,10 @@ export const CatalogProvisionWizard = ({
 }: Props) => {
   const vmAdapter = useComputeInstanceAdapter();
   const clusterAdapter = useClusterAdapter();
-  const adapter = (kind === 'cluster' ? clusterAdapter : vmAdapter) as ErasedCatalogAdapter;
+  const bmAdapter = useBareMetalInstanceAdapter();
+  const adapter = (
+    kind === 'cluster' ? clusterAdapter : kind === 'bare_metal_instance' ? bmAdapter : vmAdapter
+  ) as ErasedCatalogAdapter;
   const initialValues = useMemo(() => {
     const values = adapter.getInitialValues(null);
     if (initialCatalogItemId) {
@@ -534,7 +543,7 @@ export const CatalogProvisionWizard = ({
 
   return (
     <CatalogProvisionWizardInner
-      key={kind}
+      kind={kind}
       adapter={adapter}
       initialCatalogItemId={initialCatalogItemId}
       initialValues={initialValues}

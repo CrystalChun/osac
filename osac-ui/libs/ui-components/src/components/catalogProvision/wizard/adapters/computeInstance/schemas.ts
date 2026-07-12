@@ -1,6 +1,8 @@
 import type { TFunction } from 'i18next';
 import * as yup from 'yup';
 
+import { userDataSchema } from '@osac/ui-components/validation/user-data';
+
 import {
   labeledResourceRefArraySchema,
   labeledResourceRefSchema,
@@ -66,7 +68,7 @@ const buildComputeInstanceFieldDefinitions = (catalogItem: unknown, t: TFunction
       t('catalogProvision.validation.instanceTypeRequired'),
     ),
     specUserData: mergeCatalogValidation(
-      yup.string(),
+      userDataSchema(t),
       userDataOverlay,
       userDataRequired,
       t('catalogProvision.validation.required'),

@@ -17,7 +17,7 @@ import {
   hasCatalogFieldDefinition,
   readCatalogFieldDefinitions,
 } from '../../catalogOverlay';
-import { CATALOG_PROVISION_MULTILINE_TEXTAREA } from '../../constants';
+import UserDataField from '../../fields/UserDataField';
 
 interface Props {
   catalogItem: ComputeInstanceCatalogItem | null;
@@ -113,17 +113,7 @@ export const VmConfigurationStep = ({ catalogItem }: Props) => {
             helperText={t('catalogProvision.vm.fields.bootDiskDescription')}
             isDisabled={!overlays.bootDisk.editable}
           />
-          <InputField
-            name="spec.userData"
-            label={overlays.userData.label}
-            fieldId="vm-user-data"
-            multiline
-            rows={CATALOG_PROVISION_MULTILINE_TEXTAREA.rows}
-            resizeOrientation={CATALOG_PROVISION_MULTILINE_TEXTAREA.resizeOrientation}
-            isRequired={overlays.userDataRequired}
-            helperText={t('catalogProvision.vm.fields.userDataDescription')}
-            isDisabled={!overlays.userData.editable}
-          />
+          <UserDataField catalogItem={catalogItem} name="spec.userData" wirePath="spec.user_data" />
         </OsacForm>
       </StackItem>
     </Stack>

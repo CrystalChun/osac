@@ -114,6 +114,12 @@ export const CatalogPage = ({ isProviderGlobal = false }: Props) => {
         path: `/clusters/create/${selectedCatalogItem.item.id}`,
       };
     }
+    if (selectedCatalogItem.kind === 'bm') {
+      return {
+        label: t('Provision bare metal'),
+        path: `/bare-metal/create/${selectedCatalogItem.item.id}`,
+      };
+    }
     return null;
   }, [selectedCatalogItem, t]);
 
