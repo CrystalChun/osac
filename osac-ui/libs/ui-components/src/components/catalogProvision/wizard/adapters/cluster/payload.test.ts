@@ -70,4 +70,30 @@ describe('buildClusterCreatePayload', () => {
     expect(payload.spec).not.toHaveProperty('nodeSets');
     expect(payload.spec).not.toHaveProperty('network');
   });
+
+  it('filters out invalid node set rows from the payload', () => {
+    const row = createEmptyNodeSetRow();
+    const values = {
+      ...createEmptyClusterValues(),
+      catalogItemId: clusterCatalogItem.id,
+      metadata: { name: 'filtered-pools' },
+      spec: {
+        ...createEmptyClusterValues().spec,
+        pullSecret: 'secret',
+        releaseImage: '4.17.0',
+        nodeSetRows: [
+          { ...row, hostType: { value: '', label: '' }, size: '3' },
+          { ...row, hostType: { value: 'acme_1tb', label: 'ACME 1TB' }, size: '0' },
+          { ...row, hostType: { value: 'acme_2tb', label: 'ACME 2TB' }, size: 'not-a-number' },
+          { ...row, hostType: { value: 'acme_1tb', label: 'ACME 1TB' }, size: '3' },
+        ],
+        network: { podCidr: '', serviceCidr: '' },
+      },
+    };
+
+    const payload = buildClusterCreatePayload(values, clusterCatalogItem);
+    expect(payload.spec?.nodeSets).toEqual({
+      acme_1tb: { hostType: 'acme_1tb', size: 3 },
+    });
+  });
 });

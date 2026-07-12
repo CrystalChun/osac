@@ -13,10 +13,17 @@ import {
 import { applyClusterCatalogConfigurationDefaults } from './cluster/applyCatalogDefaults';
 import { applyClusterCatalogGeneralDefaults } from './cluster/applyCatalogGeneralDefaults';
 import { applyClusterCatalogNetworkingDefaults } from './cluster/applyCatalogNetworkingDefaults';
-import { ClusterConfigurationStep } from './cluster/ClusterConfigurationStep';
+import ClusterConfigurationStep from './cluster/ClusterConfigurationStep';
 import ClusterGeneralStep from './cluster/ClusterGeneralStep';
 import { ClusterNetworkingStep } from './cluster/ClusterNetworkingStep';
 import type { ClusterWizardValues } from './cluster/fields';
+import {
+  CLUSTER_POD_CIDR_WIRE_PATH,
+  CLUSTER_PULL_SECRET_WIRE_PATH,
+  CLUSTER_RELEASE_IMAGE_WIRE_PATH,
+  CLUSTER_SERVICE_CIDR_WIRE_PATH,
+  CLUSTER_SSH_KEY_WIRE_PATH,
+} from './cluster/fields';
 import { buildClusterCreatePayload, createEmptyClusterValues } from './cluster/payload';
 import { buildClusterStepSchema } from './cluster/schemas';
 import type { CatalogProvisionAdapter } from './types';
@@ -44,16 +51,28 @@ const buildReviewSections = (
   t: TFunction,
 ): ReviewSection[] => {
   const definitions = readCatalogFieldDefinitions(catalogItem);
-  const sshKeyOverlay = getCatalogFieldOverlay('ssh_public_key', definitions, t('SSH public key'));
-  const pullSecretOverlay = getCatalogFieldOverlay('pull_secret', definitions, t('Pull secret'));
+  const sshKeyOverlay = getCatalogFieldOverlay(
+    CLUSTER_SSH_KEY_WIRE_PATH,
+    definitions,
+    t('SSH public key'),
+  );
+  const pullSecretOverlay = getCatalogFieldOverlay(
+    CLUSTER_PULL_SECRET_WIRE_PATH,
+    definitions,
+    t('Pull secret'),
+  );
   const releaseImageOverlay = getCatalogFieldOverlay(
-    'release_image',
+    CLUSTER_RELEASE_IMAGE_WIRE_PATH,
     definitions,
     t('Release image'),
   );
-  const podCidrOverlay = getCatalogFieldOverlay('network.pod_cidr', definitions, t('Pod CIDR'));
+  const podCidrOverlay = getCatalogFieldOverlay(
+    CLUSTER_POD_CIDR_WIRE_PATH,
+    definitions,
+    t('Pod CIDR'),
+  );
   const serviceCidrOverlay = getCatalogFieldOverlay(
-    'network.service_cidr',
+    CLUSTER_SERVICE_CIDR_WIRE_PATH,
     definitions,
     t('Service CIDR'),
   );

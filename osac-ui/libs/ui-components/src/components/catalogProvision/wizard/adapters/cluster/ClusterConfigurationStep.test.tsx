@@ -2,7 +2,7 @@ import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { Formik } from 'formik';
 import { describe, expect, it } from 'vitest';
 
-import { ClusterConfigurationStep } from './ClusterConfigurationStep';
+import ClusterConfigurationStep from './ClusterConfigurationStep';
 import { createEmptyNodeSetRow } from './fields';
 import { createEmptyClusterValues } from './payload';
 import { buildClusterStepSchema } from './schemas';

@@ -4,7 +4,7 @@ import type { TFunction } from 'i18next';
 import type { ClusterCatalogItem } from '@osac/types';
 
 import type { ClusterWizardValues } from './fields';
-import { clusterSshKeyWirePath } from './fields';
+import { CLUSTER_PULL_SECRET_WIRE_PATH, clusterSshKeyWirePath } from './fields';
 import {
   getCatalogFieldOverlay,
   overlayDefaultToFormValue,
@@ -22,7 +22,11 @@ export const applyClusterCatalogGeneralDefaults = (
     definitions,
     t('SSH public key'),
   );
-  const pullSecretOverlay = getCatalogFieldOverlay('pull_secret', definitions, t('Pull secret'));
+  const pullSecretOverlay = getCatalogFieldOverlay(
+    CLUSTER_PULL_SECRET_WIRE_PATH,
+    definitions,
+    t('Pull secret'),
+  );
 
   if (sshKeyOverlay.defaultValue !== undefined) {
     const value = overlayDefaultToFormValue(sshKeyOverlay);

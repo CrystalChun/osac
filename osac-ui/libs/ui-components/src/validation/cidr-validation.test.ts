@@ -38,6 +38,10 @@ describe('cidrsOverlap', () => {
   it('ignores empty values', () => {
     expect(cidrsOverlap('', '172.30.0.0/16')).toBe(false);
   });
+
+  it('detects containment overlap when one CIDR is within another', () => {
+    expect(cidrsOverlap('10.0.0.0/8', '10.128.0.0/14')).toBe(true);
+  });
 });
 
 describe('cidrSchema', () => {

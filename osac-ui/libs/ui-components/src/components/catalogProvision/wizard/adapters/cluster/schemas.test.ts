@@ -76,7 +76,9 @@ describe('buildClusterStepSchema', () => {
       },
     });
     expect(errors).toEqual({
-      metadata: { name: 'catalogProvision.validation.nameDnsLabelCharset' },
+      metadata: {
+        name: 'Name must only contain lowercase letters (a-z), digits (0-9), and hyphens (-)',
+      },
     });
   });
 

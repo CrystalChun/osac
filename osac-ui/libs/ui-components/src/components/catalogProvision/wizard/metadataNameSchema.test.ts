@@ -33,12 +33,12 @@ describe('buildMetadataNameSchema', () => {
     ['   ', 'catalogProvision.validation.nameRequired'],
     [
       'a234567890123456789012345678901234567890123456789012345678901234',
-      'catalogProvision.validation.nameDnsLabelMaxLength',
+      'Name must be at most 63 characters long',
     ],
-    ['MyVM', 'catalogProvision.validation.nameDnsLabelCharset'],
-    ['my_vm', 'catalogProvision.validation.nameDnsLabelCharset'],
-    ['-myvm', 'catalogProvision.validation.nameDnsLabelLeadingHyphen'],
-    ['myvm-', 'catalogProvision.validation.nameDnsLabelTrailingHyphen'],
+    ['MyVM', 'Name must only contain lowercase letters (a-z), digits (0-9), and hyphens (-)'],
+    ['my_vm', 'Name must only contain lowercase letters (a-z), digits (0-9), and hyphens (-)'],
+    ['-myvm', 'Name cannot start with a hyphen'],
+    ['myvm-', 'Name cannot end with a hyphen'],
   ])('rejects invalid name %s', async (name, expectedMessage) => {
     await expect(validateName(name)).resolves.toBe(expectedMessage);
   });

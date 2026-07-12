@@ -24,7 +24,6 @@ const PullSecretField = ({ catalogItem }: PullSecretFieldProps) => {
       multiline
       rows={CATALOG_PROVISION_MULTILINE_TEXTAREA.rows}
       resizeOrientation={CATALOG_PROVISION_MULTILINE_TEXTAREA.resizeOrientation}
-      type="password"
       helperText={t(
         'Pull secrets download OpenShift components and connect clusters to your Red Hat account. Copy the full JSON from OpenShift Cluster Manager (console.redhat.com/openshift/install/pull-secret).',
       )}

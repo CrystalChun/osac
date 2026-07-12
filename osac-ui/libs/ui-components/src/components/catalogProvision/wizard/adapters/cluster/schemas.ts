@@ -4,8 +4,15 @@ import * as yup from 'yup';
 import type { ClusterCatalogItem } from '@osac/types';
 
 import type { ClusterNodeSetRow } from './fields';
-import { labeledResourceRefSchema } from '../../../../Form/labeledResourceRefSchema';
+import {
+  CLUSTER_POD_CIDR_WIRE_PATH,
+  CLUSTER_PULL_SECRET_WIRE_PATH,
+  CLUSTER_RELEASE_IMAGE_WIRE_PATH,
+  CLUSTER_SERVICE_CIDR_WIRE_PATH,
+  CLUSTER_SSH_KEY_WIRE_PATH,
+} from './fields';
 import { cidrSchema, cidrsOverlap, isValidCidr } from '../../../../../validation/cidr-validation';
+import { labeledResourceRefSchema } from '../../../../Form/labeledResourceRefSchema';
 import {
   getCatalogFieldOverlay,
   hasCatalogFieldDefinition,
@@ -15,12 +22,6 @@ import {
 import { isValidPullSecret, isValidSshPublicKey } from '../../fields/credentialValidation';
 import { buildMetadataNameSchema } from '../../metadataNameSchema';
 import type { WizardStepId } from '../../stepIds';
-
-const CLUSTER_SSH_KEY_WIRE_PATH = 'ssh_public_key';
-const CLUSTER_PULL_SECRET_WIRE_PATH = 'pull_secret';
-const CLUSTER_RELEASE_IMAGE_WIRE_PATH = 'release_image';
-const CLUSTER_POD_CIDR_WIRE_PATH = 'network.pod_cidr';
-const CLUSTER_SERVICE_CIDR_WIRE_PATH = 'network.service_cidr';
 
 const nodeSetRowSchema = (t: TFunction) =>
   yup.object({

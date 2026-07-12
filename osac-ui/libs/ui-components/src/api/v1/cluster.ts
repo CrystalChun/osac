@@ -55,17 +55,12 @@ export const useProvisionCluster = () => {
   const apiFetch = useApiFetch();
   const qc = useApiQueryClient();
   return useMutation({
-    mutationFn: async (body: Record<string, unknown>): Promise<Cluster> => {
-      const created = await apiFetch<Cluster>('v1/clusters', {
+    mutationFn: (cluster: Cluster) =>
+      apiFetch<Cluster>('v1/clusters', {
         method: 'POST',
-        body,
+        body: cluster,
         decode: ClusterSchema,
-      });
-      if (!created.id) {
-        throw new Error('Create response missing id');
-      }
-      return created;
-    },
+      }),
     onSuccess: async () => {
       await invalidateClustersQueries(qc);
     },

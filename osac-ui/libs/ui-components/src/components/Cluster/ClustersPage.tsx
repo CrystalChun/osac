@@ -8,10 +8,12 @@ import { Alert, Button } from '@patternfly/react-core';
 import { ClustersTable } from './ClustersTable';
 import { useClusters } from '../../api/v1/cluster';
 import { useSession } from '../../hooks/use-session';
+import { useTranslation } from '../../hooks/useTranslation';
 import ListPage from '../Page/ListPage';
 import ListPageBody from '../Page/ListPageBody';
 
 export const ClustersPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { role } = useSession();
   const { data: clusters = [], isLoading, error } = useClusters();
@@ -24,7 +26,7 @@ export const ClustersPage = () => {
       actions={
         role === 'tenantUser' ? (
           <Button variant="primary" onClick={() => navigate('/clusters/create')}>
-            Create cluster
+            {t('Create cluster')}
           </Button>
         ) : undefined
       }

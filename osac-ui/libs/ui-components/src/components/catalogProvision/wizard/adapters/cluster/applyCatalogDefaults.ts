@@ -4,6 +4,7 @@ import type { TFunction } from 'i18next';
 import type { ClusterCatalogItem } from '@osac/types';
 
 import type { ClusterWizardValues } from './fields';
+import { CLUSTER_RELEASE_IMAGE_WIRE_PATH } from './fields';
 import {
   getCatalogFieldOverlay,
   overlayDefaultToFormValue,
@@ -17,7 +18,7 @@ export const applyClusterCatalogConfigurationDefaults = (
 ): void => {
   const definitions = readCatalogFieldDefinitions(catalogItem);
   const releaseImageOverlay = getCatalogFieldOverlay(
-    'release_image',
+    CLUSTER_RELEASE_IMAGE_WIRE_PATH,
     definitions,
     t('Release image'),
   );

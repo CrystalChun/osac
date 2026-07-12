@@ -10,6 +10,7 @@ import {
   Title,
 } from '@patternfly/react-core';
 
+import { type Cluster } from '@osac/types';
 import { apiQueryKey } from '@osac/ui-components/api/types';
 import { useApiQueryClient } from '@osac/ui-components/api/use-api-query';
 import { useProvisionCluster } from '@osac/ui-components/api/v1/cluster';
@@ -42,7 +43,7 @@ export const ClusterCreatePage = () => {
   const handleWizardProvision = useCallback(
     async (cluster: BuildClusterCreateBodyInput) => {
       const created = await provisionCluster.mutateAsync(
-        buildClusterCreateBody(cluster, { specCatalogItemOnly: true }),
+        buildClusterCreateBody(cluster) as Cluster,
       );
       if (!created.id) {
         throw new Error('Create response missing id');

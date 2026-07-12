@@ -14,8 +14,9 @@ import { useFormikContext } from 'formik';
 
 import type { ClusterWizardValues } from './fields';
 import { createEmptyNodeSetRow } from './fields';
-import { formatHostTypeOptionLabel, useHostTypes } from '../../../../../api/v1/host-types';
+import { hostTypeDisplayName, useHostTypes } from '../../../../../api/v1/host-types';
 import { useTranslation } from '../../../../../hooks/useTranslation';
+import { getErrorMessage } from '../../../../../utils/error';
 import { SelectField } from '../../../../Form/SelectField';
 import ClusterPoolSizeField from '../../fields/ClusterPoolSizeField';
 
@@ -24,8 +25,8 @@ const ClusterNodeSetsArrayField = () => {
   const { values, setFieldValue } = useFormikContext<ClusterWizardValues>();
   const {
     data: hostTypes = [],
-    isPending: hostTypesLoading,
-    isError: hostTypesError,
+    isLoading: hostTypesLoading,
+    error: hostTypesError,
     refetch: refetchHostTypes,
   } = useHostTypes();
 
@@ -43,7 +44,7 @@ const ClusterNodeSetsArrayField = () => {
     const currentHostTypeId = values.spec.nodeSetRows[rowIndex]?.hostType.value.trim() ?? '';
     return hostTypes.map((hostType) => ({
       value: hostType.id,
-      label: formatHostTypeOptionLabel(hostType),
+      label: hostTypeDisplayName(hostType),
       isDisabled: selectedHostTypeIds.has(hostType.id) && hostType.id !== currentHostTypeId,
     }));
   };
@@ -64,6 +65,7 @@ const ClusterNodeSetsArrayField = () => {
       {hostTypesError ? (
         <StackItem>
           <Alert variant="danger" isInline title={t('Could not load host types')}>
+            {getErrorMessage(hostTypesError)}
             <Button variant="link" isInline onClick={() => void refetchHostTypes()}>
               {t('catalogProvision.actions.retry')}
             </Button>

@@ -30,17 +30,12 @@ export const useHostTypes = (
     enabled: options.enabled ?? true,
   });
 
-export const useHostType = (id: string | undefined) => {
-  const trimmedId = id?.trim() ?? '';
-  return useApiQuery<HostType>({
-    queryKey: ['v1/host_types', trimmedId ? [trimmedId] : null],
+export const useHostType = (id: string | undefined) =>
+  useApiQuery<HostType>({
+    queryKey: ['v1/host_types', id ? [id] : null],
     meta: { decode: HostTypeSchema },
-    enabled: Boolean(trimmedId),
+    enabled: Boolean(id),
   });
-};
 
 export const hostTypeDisplayName = (hostType: HostType): string =>
   hostType.title?.trim() || resourceDisplayName(hostType.metadata, hostType.id);
-
-export const formatHostTypeOptionLabel = (hostType: HostType): string =>
-  hostTypeDisplayName(hostType);

@@ -4,6 +4,7 @@ import { FormSection, Stack, StackItem } from '@patternfly/react-core';
 import type { ClusterCatalogItem } from '@osac/types';
 
 import ClusterNodeSetsArrayField from './ClusterNodeSetsArrayField';
+import { CLUSTER_RELEASE_IMAGE_WIRE_PATH } from './fields';
 import { useTranslation } from '../../../../../hooks/useTranslation';
 import { InputField } from '../../../../Form/InputField';
 import OsacForm from '../../../../Form/OsacForm';
@@ -13,12 +14,12 @@ interface Props {
   catalogItem: ClusterCatalogItem | null;
 }
 
-export const ClusterConfigurationStep = ({ catalogItem }: Props) => {
+const ClusterConfigurationStep = ({ catalogItem }: Props) => {
   const { t } = useTranslation();
 
   const definitions = useMemo(() => readCatalogFieldDefinitions(catalogItem), [catalogItem]);
   const releaseImageOverlay = useMemo(
-    () => getCatalogFieldOverlay('release_image', definitions, t('Release image')),
+    () => getCatalogFieldOverlay(CLUSTER_RELEASE_IMAGE_WIRE_PATH, definitions, t('Release image')),
     [definitions, t],
   );
 
@@ -45,3 +46,5 @@ export const ClusterConfigurationStep = ({ catalogItem }: Props) => {
     </Stack>
   );
 };
+
+export default ClusterConfigurationStep;
