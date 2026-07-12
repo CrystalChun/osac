@@ -7,4 +7,5 @@ const OPERATING_MODE_LABELS: Record<DemoShellRole, string> = {
 };
 
 /** Masthead operating-mode label for the signed-in shell role. */
-export const operatingModeLabel = (role: DemoShellRole): string => OPERATING_MODE_LABELS[role] ?? role;
+export const operatingModeLabel = (role: DemoShellRole): string =>
+  OPERATING_MODE_LABELS[role] ?? role;
