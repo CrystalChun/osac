@@ -63,10 +63,6 @@ export const useAttachPublicIp = () => {
         body: { spec: { ipFamily } },
         decode: PublicIPSchema,
       });
-      if (!created.id) {
-        throw new Error('Create response missing id');
-      }
-
       let allocated: PublicIP;
       try {
         allocated = await pollPublicIpUntilAllocated(apiFetch, created.id);

@@ -6,6 +6,8 @@ import { IPFamily } from '@osac/types';
 
 import AttachPublicIpModal from './AttachPublicIpModal';
 
+const ATTACH_BUTTON_NAME = /Attach/i;
+
 const mutateAsync = vi.fn();
 const reset = vi.fn();
 let error: Error | null = null;
@@ -49,7 +51,7 @@ describe('AttachPublicIpModal', () => {
     const user = userEvent.setup();
     render(<AttachPublicIpModal vm={vm} onClose={mockOnClose} onSuccess={mockOnSuccess} />);
 
-    await user.click(screen.getByRole('button', { name: /Attach/i }));
+    await user.click(screen.getByRole('button', { name: ATTACH_BUTTON_NAME }));
 
     expect(mutateAsync).toHaveBeenCalledWith({
       computeInstanceId: 'vm-1',
@@ -63,7 +65,7 @@ describe('AttachPublicIpModal', () => {
     render(<AttachPublicIpModal vm={vm} onClose={mockOnClose} onSuccess={mockOnSuccess} />);
 
     await user.click(screen.getByRole('radio', { name: 'IPv6' }));
-    await user.click(screen.getByRole('button', { name: /Attach/i }));
+    await user.click(screen.getByRole('button', { name: ATTACH_BUTTON_NAME }));
 
     expect(mutateAsync).toHaveBeenCalledWith({
       computeInstanceId: 'vm-1',
@@ -77,7 +79,7 @@ describe('AttachPublicIpModal', () => {
     const user = userEvent.setup();
     render(<AttachPublicIpModal vm={vm} onClose={mockOnClose} onSuccess={mockOnSuccess} />);
 
-    await user.click(screen.getByRole('button', { name: /Attach/i }));
+    await user.click(screen.getByRole('button', { name: ATTACH_BUTTON_NAME }));
 
     expect(screen.getByText('no IPv4 addresses available')).toBeInTheDocument();
     expect(mockOnSuccess).not.toHaveBeenCalled();

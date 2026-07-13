@@ -60,17 +60,14 @@ const AttachPublicIpModal = ({ vm, onClose, onSuccess }: AttachPublicIpModalProp
           onClose={isSubmitting ? undefined : onClose}
           aria-labelledby="attach-public-ip-modal-title"
         >
-          <ModalHeader
-            title={t('vm.details.actions.attachPublicIpModalTitle')}
-            labelId="attach-public-ip-modal-title"
-          />
+          <ModalHeader title={t('Attach public IP')} labelId="attach-public-ip-modal-title" />
           <ModalBody>
             <Stack hasGutter>
               <StackItem>
                 <OsacForm>
                   <RadioButtonField
                     name="ipFamily"
-                    label={t('vm.details.actions.ipFamily')}
+                    label={t('IP family')}
                     fieldId="attach-public-ip-family"
                     options={IP_FAMILY_OPTIONS}
                     isRequired
@@ -80,11 +77,7 @@ const AttachPublicIpModal = ({ vm, onClose, onSuccess }: AttachPublicIpModalProp
               </StackItem>
               {attachPublicIp.error && (
                 <StackItem>
-                  <Alert
-                    variant="danger"
-                    title={t('vm.details.actions.attachPublicIpError')}
-                    isInline
-                  >
+                  <Alert variant="danger" title={t('Failed to attach public IP')} isInline>
                     {getErrorMessage(attachPublicIp.error)}
                   </Alert>
                 </StackItem>
@@ -101,7 +94,7 @@ const AttachPublicIpModal = ({ vm, onClose, onSuccess }: AttachPublicIpModalProp
               isDisabled={isSubmitting}
               isLoading={isSubmitting}
             >
-              {t('vm.details.actions.attach')}
+              {t('Attach')}
             </Button>
           </ModalFooter>
         </Modal>
