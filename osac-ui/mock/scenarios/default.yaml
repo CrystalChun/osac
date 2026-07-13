@@ -110,6 +110,26 @@ resources:
     template: "tpl-ocp-417-small"
     published: true
 
+  - type: baremetal_instance_templates
+    id: "tpl-bm-rhel9"
+    metadata:
+      name: "rhel9-standard"
+    title: "RHEL 9 Standard Host"
+    description: "Standard bare metal host with RHEL 9 on the standard hardware profile."
+    spec_defaults:
+      image:
+        source_type: "registry"
+        source_ref: "registry.example.com/rhel9:latest"
+
+  - type: baremetal_instance_catalog_items
+    id: "cat-bm-rhel9"
+    metadata:
+      name: "rhel9-bare-metal"
+    title: "RHEL 9 Bare Metal Server"
+    description: "Provision a standard bare metal server with RHEL 9."
+    template: "tpl-bm-rhel9"
+    published: true
+
   - type: public_ip_pools
     id: "pool-public-001"
     metadata:
@@ -215,18 +235,16 @@ resources:
     spec:
       virtual_network: "vn-eng-prod"
       ingress:
-        - protocol: "TCP"
-          port_range_min: 80
-          port_range_max: 80
+        - protocol: "PROTOCOL_TCP"
+          port_from: 80
+          port_to: 80
           ipv4_cidr: "0.0.0.0/0"
-        - protocol: "TCP"
-          port_range_min: 443
-          port_range_max: 443
+        - protocol: "PROTOCOL_TCP"
+          port_from: 443
+          port_to: 443
           ipv4_cidr: "0.0.0.0/0"
       egress:
-        - protocol: "TCP"
-          port_range_min: 0
-          port_range_max: 65535
+        - protocol: "PROTOCOL_ALL"
           ipv4_cidr: "0.0.0.0/0"
     status:
       state: "SECURITY_GROUP_STATE_READY"
@@ -241,9 +259,9 @@ resources:
     spec:
       virtual_network: "vn-eng-prod"
       ingress:
-        - protocol: "TCP"
-          port_range_min: 22
-          port_range_max: 22
+        - protocol: "PROTOCOL_TCP"
+          port_from: 22
+          port_to: 22
           ipv4_cidr: "10.0.0.0/8"
     status:
       state: "SECURITY_GROUP_STATE_READY"

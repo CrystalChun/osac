@@ -67,7 +67,7 @@ async def handle_get(
         return JSONResponse(
             {"code": 5, "message": "Not found", "details": []}, status_code=404
         )
-    return JSONResponse({"object": obj})
+    return JSONResponse(obj)
 
 
 async def handle_create(
@@ -113,7 +113,7 @@ async def handle_create(
         return JSONResponse(
             {"code": 3, "message": e.message, "details": []}, status_code=400
         )
-    return JSONResponse({"object": created})
+    return JSONResponse(created)
 
 
 async def handle_update(
@@ -140,7 +140,9 @@ async def handle_update(
         return JSONResponse(
             {"code": 9, "message": "Version conflict", "details": []}, status_code=409
         )
-    return JSONResponse({"object": updated})
+    if resource_type == "identity_providers":
+        return JSONResponse({"object": updated})
+    return JSONResponse(updated)
 
 
 async def handle_delete(

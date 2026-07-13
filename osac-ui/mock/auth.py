@@ -8,9 +8,11 @@ import html
 import secrets
 import time
 from dataclasses import dataclass
+from pathlib import Path
 from urllib.parse import urlencode
 
 import jwt
+from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from fastapi import FastAPI, Request
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
@@ -19,6 +21,7 @@ from starlette.responses import HTMLResponse, JSONResponse, RedirectResponse, Re
 ALGORITHM = "RS256"
 TOKEN_LIFETIME = 3600
 AUTH_CODE_LIFETIME = 300
+DEFAULT_KEY_PATH = Path(__file__).parent / ".dev-keys" / "jwt.pem"
 
 
 @dataclass
@@ -303,13 +306,11 @@ def register_auth_routes(app: FastAPI, auth_provider: AuthProvider) -> None:
 
 
 class AuthProvider:
-    def __init__(self, issuer: str) -> None:
+    def __init__(self, issuer: str, key_path: Path | None = None) -> None:
         self.issuer = issuer
-        self._private_key = rsa.generate_private_key(
-            public_exponent=65537, key_size=2048
-        )
-        self._public_key = self._private_key.public_key()
         self._kid = "mock-key-1"
+        self._private_key = _load_or_generate_key(key_path or DEFAULT_KEY_PATH)
+        self._public_key = self._private_key.public_key()
 
     def create_token(
         self,
@@ -463,3 +464,19 @@ class AuthMiddleware(BaseHTTPMiddleware):
             request.state.tenant = "*"
 
         return await call_next(request)
+
+
+def _load_or_generate_key(key_path: Path):
+    if key_path.is_file():
+        return serialization.load_pem_private_key(key_path.read_bytes(), password=None)
+
+    key_path.parent.mkdir(parents=True, exist_ok=True)
+    private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+    key_path.write_bytes(
+        private_key.private_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PrivateFormat.PKCS8,
+            encryption_algorithm=serialization.NoEncryption(),
+        )
+    )
+    return private_key
