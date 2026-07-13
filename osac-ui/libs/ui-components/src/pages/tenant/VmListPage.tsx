@@ -19,7 +19,6 @@ import ListPage from '@osac/ui-components/components/Page/ListPage';
 import ListPageBody from '@osac/ui-components/components/Page/ListPageBody';
 import { SubtleContent } from '@osac/ui-components/components/SubtleContent/SubtleContent';
 import { VmTable } from '@osac/ui-components/components/vm/VmTable';
-import { useSession } from '@osac/ui-components/hooks/use-session';
 import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
 import { getErrorMessage } from '@osac/ui-components/utils/error';
 
@@ -42,7 +41,6 @@ const normalizePowerFilter = (value: string | null): VmPowerFilter => {
 
 export const VmListPage = () => {
   const navigate = useNavigate();
-  const { role } = useSession();
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
 
@@ -77,11 +75,9 @@ export const VmListPage = () => {
       description="View and filter your virtual machines."
       error={error}
       actions={
-        role === 'tenantUser' ? (
-          <Button variant="primary" onClick={() => navigate('/vms/create')}>
-            Create virtual machine
-          </Button>
-        ) : undefined
+        <Button variant="primary" onClick={() => navigate('/vms/create')}>
+          Create virtual machine
+        </Button>
       }
     >
       <ListPageBody isLoading={isLoading} error={error}>
