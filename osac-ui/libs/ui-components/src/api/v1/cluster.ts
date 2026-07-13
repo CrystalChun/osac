@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 
 import {
@@ -84,12 +84,12 @@ const triggerDownload = (content: string, filename: string) => {
 export const useDownloadKubeconfig = () => {
   const apiFetch = useApiFetch();
   const [isPending, setIsPending] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
+  const [error, setError] = useState<unknown>();
 
   const download = useCallback(
     async (id: string, clusterName: string) => {
       setIsPending(true);
-      setError(null);
+      setError(undefined);
       try {
         const kubeconfig = await apiFetch<string>('v1/clusters', {
           pathParams: [id, 'kubeconfig'],
@@ -97,8 +97,7 @@ export const useDownloadKubeconfig = () => {
         });
         triggerDownload(kubeconfig, `${clusterName}-kubeconfig.yaml`);
       } catch (e) {
-        setError(e instanceof Error ? e : new Error(String(e)));
-        throw e;
+        setError(e);
       } finally {
         setIsPending(false);
       }
@@ -106,41 +105,45 @@ export const useDownloadKubeconfig = () => {
     [apiFetch],
   );
 
-  return { download, isPending, error };
+  return { download, isPending, error, setError };
 };
 
-export const useFetchClusterPassword = () => {
+export const useFetchClusterPassword = (clusterId: string) => {
   const apiFetch = useApiFetch();
   const [isPending, setIsPending] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
-  const [password, setPassword] = useState<string | null>(null);
+  const [error, setError] = useState<unknown>();
+  const [password, setPassword] = useState<string>();
+  const [resetId, setResetId] = useState<number>(0);
 
-  const fetchPassword = useCallback(
-    async (id: string) => {
+  useEffect(() => {
+    const controller = new AbortController();
+    (async () => {
       setIsPending(true);
-      setError(null);
+      setError(undefined);
       try {
         const result = await apiFetch<string>('v1/clusters', {
-          pathParams: [id, 'password'],
+          pathParams: [clusterId, 'password'],
           rawText: true,
+          signal: controller.signal,
         });
         setPassword(result);
-        return result;
       } catch (e) {
-        const err = e instanceof Error ? e : new Error(String(e));
-        setError(err);
-        throw err;
+        if (!controller.signal.aborted) {
+          setError(e);
+        }
       } finally {
-        setIsPending(false);
+        if (!controller.signal.aborted) {
+          setIsPending(false);
+        }
       }
-    },
-    [apiFetch],
-  );
+    })();
+    return () => controller.abort();
+  }, [apiFetch, clusterId, resetId]);
 
-  const reset = useCallback(() => {
-    setPassword(null);
-    setError(null);
+  const retry = useCallback(() => {
+    setPassword(undefined);
+    setResetId((id) => id + 1);
   }, []);
 
-  return { fetchPassword, isPending, error, password, reset };
+  return { password, isPending, error, retry };
 };

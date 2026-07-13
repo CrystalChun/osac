@@ -1,6 +1,6 @@
-import { useEffect, useRef } from 'react';
 import {
   Alert,
+  AlertActionLink,
   Button,
   ClipboardCopy,
   Modal,
@@ -18,8 +18,6 @@ import { useFetchClusterPassword } from '../../../api/v1/cluster';
 import { useTranslation } from '../../../hooks/useTranslation';
 import { getErrorMessage } from '../../../utils/error';
 
-const AUTO_CLOSE_SECONDS = 60;
-
 interface ClusterPasswordModalProps {
   cluster: Cluster;
   onClose: () => void;
@@ -27,27 +25,7 @@ interface ClusterPasswordModalProps {
 
 const ClusterPasswordModal = ({ cluster, onClose }: ClusterPasswordModalProps) => {
   const { t } = useTranslation();
-  const { fetchPassword, isPending, error, password, reset } = useFetchClusterPassword();
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    void fetchPassword(cluster.id);
-    return () => {
-      reset();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cluster.id]);
-
-  useEffect(() => {
-    if (password) {
-      timerRef.current = setTimeout(onClose, AUTO_CLOSE_SECONDS * 1000);
-    }
-    return () => {
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-      }
-    };
-  }, [password, onClose]);
+  const { password, isPending, error, retry } = useFetchClusterPassword(cluster.id);
 
   return (
     <Modal variant="small" isOpen onClose={onClose} aria-labelledby="cluster-password-title">
@@ -59,9 +37,14 @@ const ClusterPasswordModal = ({ cluster, onClose }: ClusterPasswordModalProps) =
               <Spinner size="lg" aria-label={t('Loading cluster password')} />
             </StackItem>
           )}
-          {error && (
+          {!!error && (
             <StackItem>
-              <Alert variant="danger" title={t('Failed to load cluster password')} isInline>
+              <Alert
+                variant="danger"
+                title={t('Failed to load cluster password')}
+                isInline
+                actionLinks={<AlertActionLink onClick={retry}>{t('Retry')}</AlertActionLink>}
+              >
                 {getErrorMessage(error)}
               </Alert>
             </StackItem>

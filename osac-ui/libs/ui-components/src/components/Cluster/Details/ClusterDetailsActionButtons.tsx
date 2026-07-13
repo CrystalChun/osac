@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Flex } from '@patternfly/react-core';
+import { Alert, AlertActionLink, Button, Flex, Modal } from '@patternfly/react-core';
 import DownloadIcon from '@patternfly/react-icons/dist/esm/icons/download-icon';
 import DumpsterIcon from '@patternfly/react-icons/dist/esm/icons/dumpster-icon';
 import KeyIcon from '@patternfly/react-icons/dist/esm/icons/key-icon';
 
 import { type Cluster, ClusterState } from '@osac/types';
+import { getErrorMessage } from '@osac/ui-components/utils/error';
 
 import { useDownloadKubeconfig } from '../../../api/v1/cluster';
 import { useTranslation } from '../../../hooks/useTranslation';
@@ -21,7 +22,7 @@ const ClusterDetailsActionButtons = ({ cluster }: ClusterDetailsActionButtonsPro
   const navigate = useNavigate();
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [passwordOpen, setPasswordOpen] = useState(false);
-  const { download, isPending: isDownloading } = useDownloadKubeconfig();
+  const { download, isPending, error, setError } = useDownloadKubeconfig();
 
   const isReady = cluster.status?.state === ClusterState.READY;
   const clusterName = cluster.metadata?.name ?? cluster.id;
@@ -38,6 +39,27 @@ const ClusterDetailsActionButtons = ({ cluster }: ClusterDetailsActionButtonsPro
       {passwordOpen && (
         <ClusterPasswordModal cluster={cluster} onClose={() => setPasswordOpen(false)} />
       )}
+      {error && (
+        <Modal
+          variant="small"
+          isOpen
+          onClose={() => setError(undefined)}
+          title={t('Failed to download kubeconfig')}
+        >
+          <Alert
+            variant="danger"
+            title={t('Failed to download kubeconfig')}
+            isInline
+            actionLinks={
+              <AlertActionLink onClick={() => download(cluster.id, clusterName)}>
+                {t('Retry')}
+              </AlertActionLink>
+            }
+          >
+            {getErrorMessage(error)}
+          </Alert>
+        </Modal>
+      )}
       <Flex
         justifyContent={{ default: 'justifyContentFlexEnd' }}
         spaceItems={{ default: 'spaceItemsSm' }}
@@ -46,8 +68,8 @@ const ClusterDetailsActionButtons = ({ cluster }: ClusterDetailsActionButtonsPro
         <Button
           variant="secondary"
           icon={<DownloadIcon />}
-          isDisabled={!isReady || isDownloading}
-          isLoading={isDownloading}
+          isDisabled={!isReady || isPending}
+          isLoading={isPending}
           onClick={() => void download(cluster.id, clusterName)}
         >
           {t('Download kubeconfig')}
