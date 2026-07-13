@@ -8,8 +8,6 @@ import {
   Grid,
   GridItem,
   Icon,
-  Stack,
-  StackItem,
 } from '@patternfly/react-core';
 import CubeIcon from '@patternfly/react-icons/dist/esm/icons/cube-icon';
 import NetworkWiredIcon from '@patternfly/react-icons/dist/esm/icons/network-wired-icon';
@@ -48,63 +46,31 @@ interface ClusterDetailsSummaryProps {
   cluster: Cluster;
 }
 
+const sumNodeSetSizes = (nodeSets?: Record<string, { size?: number }>) =>
+  Object.values(nodeSets ?? {}).reduce((sum, nodeSet) => sum + (nodeSet?.size ?? 0), 0);
+
 const ClusterDetailsSummary = ({ cluster }: ClusterDetailsSummaryProps) => {
   const { t } = useTranslation();
 
-  // Calculate total worker nodes across all node sets
-  const nodeSetsSpec = cluster.spec?.nodeSets ?? {};
-  const nodeSetsStatus = cluster.status?.nodeSets ?? {};
-  const totalWorkers = Object.values(nodeSetsStatus).reduce(
-    (sum, nodeSet) => sum + (nodeSet?.size ?? 0),
-    0,
-  );
-  const desiredWorkers = Object.values(nodeSetsSpec).reduce(
-    (sum, nodeSet) => sum + (nodeSet?.size ?? 0),
-    0,
-  );
-
-  const podCidr = displayValue(cluster.spec?.network?.podCidr);
-  const serviceCidr = displayValue(cluster.spec?.network?.serviceCidr);
+  const workerCount = sumNodeSetSizes(cluster.spec?.nodeSets);
   const apiUrl = displayValue(cluster.status?.apiUrl);
   const consoleUrl = displayValue(cluster.status?.consoleUrl);
 
   return (
     <Grid hasGutter role="group" aria-label={t('Cluster summary')}>
-      <GridItem sm={6} md={3}>
+      <GridItem sm={6} md={4}>
         <SummaryCard icon={ServerIcon} title={t('Worker nodes')}>
-          {totalWorkers === desiredWorkers ? totalWorkers : `${totalWorkers}/${desiredWorkers}`}
+          {workerCount}
         </SummaryCard>
       </GridItem>
-      <GridItem sm={6} md={3}>
-        <SummaryCard icon={NetworkWiredIcon} title={t('Networking')}>
-          <Stack hasGutter>
-            <StackItem>
-              <div>
-                {t('Pod CIDR')}: {podCidr}
-              </div>
-            </StackItem>
-            <StackItem>
-              <div>
-                {t('Service CIDR')}: {serviceCidr}
-              </div>
-            </StackItem>
-          </Stack>
+      <GridItem sm={6} md={4}>
+        <SummaryCard icon={NetworkWiredIcon} title={t('API URL')}>
+          {apiUrl}
         </SummaryCard>
       </GridItem>
-      <GridItem sm={6} md={3}>
-        <SummaryCard icon={CubeIcon} title={t('Access')}>
-          <Stack hasGutter>
-            <StackItem>
-              <div>
-                {t('API URL')}: {apiUrl}
-              </div>
-            </StackItem>
-            <StackItem>
-              <div>
-                {t('Console URL')}: {consoleUrl}
-              </div>
-            </StackItem>
-          </Stack>
+      <GridItem sm={6} md={4}>
+        <SummaryCard icon={CubeIcon} title={t('Console URL')}>
+          {consoleUrl}
         </SummaryCard>
       </GridItem>
     </Grid>

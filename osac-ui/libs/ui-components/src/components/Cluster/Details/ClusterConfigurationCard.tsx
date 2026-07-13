@@ -23,7 +23,6 @@ export const ClusterConfigurationCard = ({ cluster }: ClusterConfigurationCardPr
   const catalogItemId = cluster.spec?.catalogItem;
   const { data: catalogItem, isLoading: isCatalogItemLoading } =
     useClusterCatalogItem(catalogItemId);
-
   return (
     <Card isFullHeight>
       <CardTitle>Cluster configuration</CardTitle>
@@ -35,7 +34,7 @@ export const ClusterConfigurationCard = ({ cluster }: ClusterConfigurationCardPr
               {isCatalogItemLoading ? (
                 <Skeleton width="150px" />
               ) : (
-                displayValue(catalogItem?.metadata?.name ?? catalogItemId)
+                displayValue(catalogItem?.metadata?.name || catalogItemId)
               )}
             </DescriptionListDescription>
           </DescriptionListGroup>
