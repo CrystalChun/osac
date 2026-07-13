@@ -5,14 +5,25 @@ from __future__ import annotations
 from fastapi import Request, Response
 from fastapi.responses import JSONResponse
 
-from filter_parser import parse_filter
+from filter_parser import FilterParseError, parse_filter
 from store import BadRequestError, ConflictError, NotFoundError, ResourceStore
 
 MOCK_LABEL_PREFIX = "mock.osac.dev/"
 
 
+class ForbiddenError(Exception):
+    def __init__(self, message: str = "Forbidden"):
+        self.message = message
+        super().__init__(message)
+
+
 def get_tenant(request: Request) -> str:
-    return getattr(request.state, "tenant", "") or ""
+    if is_admin(request):
+        return "*"
+    tenant = getattr(request.state, "tenant", "") or ""
+    if not tenant:
+        raise ForbiddenError("Tenant required")
+    return tenant
 
 
 def get_user(request: Request) -> str:
@@ -33,7 +44,12 @@ async def handle_list(
     request: Request,
     initial_state: str | None = None,
 ) -> JSONResponse:
-    tenant = None if is_admin(request) else get_tenant(request)
+    try:
+        tenant = None if is_admin(request) else get_tenant(request)
+    except ForbiddenError as exc:
+        return JSONResponse(
+            {"code": 7, "message": exc.message, "details": []}, status_code=403
+        )
 
     def _to_int(value: str | None) -> int | None:
         try:
@@ -44,7 +60,13 @@ async def handle_list(
     offset = _to_int(request.query_params.get("offset")) or 0
     limit = _to_int(request.query_params.get("limit"))
     filter_expr = request.query_params.get("filter", "")
-    filter_fn = parse_filter(filter_expr)
+    try:
+        filter_fn = parse_filter(filter_expr)
+    except FilterParseError as exc:
+        return JSONResponse(
+            {"code": 3, "message": f"Invalid filter: {exc}", "details": []},
+            status_code=400,
+        )
 
     items, total = await store.list(
         resource_type, tenant=tenant, filter_fn=filter_fn, offset=offset, limit=limit
@@ -60,7 +82,12 @@ async def handle_get(
     store: ResourceStore,
     request: Request,
 ) -> JSONResponse:
-    tenant = None if is_admin(request) else get_tenant(request)
+    try:
+        tenant = None if is_admin(request) else get_tenant(request)
+    except ForbiddenError as exc:
+        return JSONResponse(
+            {"code": 7, "message": exc.message, "details": []}, status_code=403
+        )
     try:
         obj = await store.get(resource_type, resource_id, tenant=tenant)
     except NotFoundError:
@@ -93,7 +120,12 @@ async def handle_create(
             {"code": 3, "message": msg, "details": []}, status_code=400
         )
 
-    tenant = get_tenant(request)
+    try:
+        tenant = "" if is_admin(request) else get_tenant(request)
+    except ForbiddenError as exc:
+        return JSONResponse(
+            {"code": 7, "message": exc.message, "details": []}, status_code=403
+        )
     creator = get_user(request)
 
     try:
@@ -127,7 +159,12 @@ async def handle_update(
 
     updates = body.get("object", body)
 
-    tenant = None if is_admin(request) else get_tenant(request)
+    try:
+        tenant = None if is_admin(request) else get_tenant(request)
+    except ForbiddenError as exc:
+        return JSONResponse(
+            {"code": 7, "message": exc.message, "details": []}, status_code=403
+        )
     try:
         updated = await store.update(
             resource_type, resource_id, updates, lock=lock, tenant=tenant
@@ -151,7 +188,12 @@ async def handle_delete(
     store: ResourceStore,
     request: Request,
 ) -> Response:
-    tenant = None if is_admin(request) else get_tenant(request)
+    try:
+        tenant = None if is_admin(request) else get_tenant(request)
+    except ForbiddenError as exc:
+        return JSONResponse(
+            {"code": 7, "message": exc.message, "details": []}, status_code=403
+        )
 
     try:
         obj = await store.get(resource_type, resource_id, tenant=tenant)

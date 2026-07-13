@@ -7,6 +7,7 @@ import random
 from datetime import datetime, timezone
 from typing import Any
 
+from dict_utils import deep_merge, get_nested, set_nested
 from store import ResourceStore
 
 MOCK_LABEL_PREFIX = "mock.osac.dev/"
@@ -188,32 +189,6 @@ STATE_MACHINES: dict[str, StateMachineConfig] = {
 }
 
 
-def _get_nested(obj: dict, path: str) -> Any:
-    parts = path.split(".")
-    node = obj
-    for part in parts:
-        if not isinstance(node, dict):
-            return None
-        node = node.get(part)
-    return node
-
-
-def _set_nested(obj: dict, path: str, value: Any) -> None:
-    parts = path.split(".")
-    node = obj
-    for part in parts[:-1]:
-        node = node.setdefault(part, {})
-    node[parts[-1]] = value
-
-
-def _deep_merge(base: dict, override: dict) -> None:
-    for key, value in override.items():
-        if isinstance(value, dict) and isinstance(base.get(key), dict):
-            _deep_merge(base[key], value)
-        else:
-            base[key] = value
-
-
 async def run_ticker(
     store: ResourceStore,
     interval: float = 0.5,
@@ -228,7 +203,7 @@ async def run_ticker(
         for resource_type, config in STATE_MACHINES.items():
             resources = await store.all_resources(resource_type)
             for resource_id, obj in resources:
-                current_state = _get_nested(obj, config.state_field)
+                current_state = get_nested(obj, config.state_field)
                 if current_state is None:
                     continue
 
@@ -274,30 +249,30 @@ async def run_ticker(
                     updates: dict[str, Any] = {
                         "_mock_entered_state_at": now.isoformat(),
                     }
-                    _set_nested(updates, config.state_field, transition.fail_state)
+                    set_nested(updates, config.state_field, transition.fail_state)
                     if resource_type in status_message_types:
-                        _set_nested(updates, "status.message", error_msg)
+                        set_nested(updates, "status.message", error_msg)
                     result = await store.update_internal(resource_type, resource_id, updates)
                     if result:
-                        store._emit("OBJECT_UPDATED", resource_type, result)
+                        store.emit("OBJECT_UPDATED", resource_type, result)
                 else:
                     updates = {
                         "_mock_entered_state_at": now.isoformat(),
                     }
-                    _set_nested(updates, config.state_field, transition.next_state)
+                    set_nested(updates, config.state_field, transition.next_state)
                     if resource_type in status_message_types:
-                        _set_nested(updates, "status.message", "")
+                        set_nested(updates, "status.message", "")
 
                     if transition.on_ready:
                         extra = transition.on_ready(obj)
                         if extra:
-                            _deep_merge(updates, extra)
+                            deep_merge(updates, extra)
 
                     result = await store.update_internal(
                         resource_type, resource_id, updates
                     )
                     if result:
-                        store._emit("OBJECT_UPDATED", resource_type, result)
+                        store.emit("OBJECT_UPDATED", resource_type, result)
 
 
 async def _check_fail_after(
@@ -330,7 +305,7 @@ async def _check_fail_after(
     if elapsed < fail_after:
         return
 
-    current_state = _get_nested(obj, config.state_field) or ""
+    current_state = get_nested(obj, config.state_field) or ""
     for transition in config.transitions.values():
         if transition.fail_state and current_state == transition.next_state:
             error_msg = labels.get(
@@ -340,15 +315,15 @@ async def _check_fail_after(
             updates: dict[str, Any] = {
                 "_mock_entered_state_at": now.isoformat(),
             }
-            _set_nested(updates, config.state_field, transition.fail_state)
+            set_nested(updates, config.state_field, transition.fail_state)
             if resource_type in status_message_types:
-                _set_nested(updates, "status.message", error_msg)
+                set_nested(updates, "status.message", error_msg)
             new_labels = dict(labels)
             del new_labels[f"{MOCK_LABEL_PREFIX}fail-after"]
             updates.setdefault("metadata", {})["labels"] = new_labels
             result = await store.update_internal(resource_type, resource_id, updates)
             if result:
-                store._emit("OBJECT_UPDATED", resource_type, result)
+                store.emit("OBJECT_UPDATED", resource_type, result)
             return
 
 

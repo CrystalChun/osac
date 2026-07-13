@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import base64
 import hashlib
+import hmac
 import html
+import os
 import secrets
 import time
 from dataclasses import dataclass
@@ -12,6 +14,7 @@ from pathlib import Path
 from urllib.parse import urlencode
 
 import jwt
+import yaml
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from fastapi import FastAPI, Request
@@ -22,6 +25,7 @@ ALGORITHM = "RS256"
 TOKEN_LIFETIME = 3600
 AUTH_CODE_LIFETIME = 300
 DEFAULT_KEY_PATH = Path(__file__).parent / ".dev-keys" / "jwt.pem"
+DEFAULT_USERS_PATH = Path(__file__).parent / "users.yaml"
 
 
 @dataclass
@@ -40,32 +44,22 @@ class _AuthCode:
     expires_at: float
 
 
-USERS: dict[str, UserConfig] = {
-    "admin": UserConfig(
-        password="admin",
-        tenants=["*"],
-        roles=["cloud-provider-admin"],
-        groups=["admins"],
-    ),
-    "adam": UserConfig(
-        password="adam",
-        tenants=["engineering"],
-        roles=["tenant-admin"],
-        groups=["engineering"],
-    ),
-    "ben": UserConfig(
-        password="ben",
-        tenants=["engineering", "sales"],
-        roles=["tenant-user"],
-        groups=["engineering", "sales"],
-    ),
-    "charles": UserConfig(
-        password="charles",
-        tenants=["sales"],
-        roles=["tenant-user"],
-        groups=["sales"],
-    ),
-}
+def _load_users(path: Path | None = None) -> dict[str, UserConfig]:
+    users_path = path or Path(os.environ.get("MOCK_USERS_FILE", DEFAULT_USERS_PATH))
+    with open(users_path) as f:
+        data = yaml.safe_load(f)
+    return {
+        username: UserConfig(
+            password=str(entry["password"]),
+            tenants=[str(t) for t in entry.get("tenants", [])],
+            roles=[str(r) for r in entry.get("roles", [])],
+            groups=[str(g) for g in entry.get("groups", [])],
+        )
+        for username, entry in (data.get("users") or {}).items()
+    }
+
+
+USERS: dict[str, UserConfig] = _load_users()
 
 _NO_AUTH_PATHS = {
     "/.well-known/openid-configuration",
@@ -83,7 +77,7 @@ _refresh_tokens: dict[str, str] = {}
 def _verify_pkce(verifier: str, challenge: str) -> bool:
     digest = hashlib.sha256(verifier.encode()).digest()
     computed = base64.urlsafe_b64encode(digest).rstrip(b"=").decode()
-    return computed == challenge
+    return hmac.compare_digest(computed, challenge)
 
 
 def _issue_token_response(auth_provider: AuthProvider, username: str) -> dict:
@@ -135,7 +129,7 @@ def _authorize_login_page(
 </head>
 <body>
   <h1>OSAC Mock Sign In</h1>
-  <p>Use a mock user such as <code>adam</code> / <code>adam</code>.</p>
+  <p>Use a mock user from <code>users.yaml</code> (default fixture: <code>adam</code>).</p>
   {error_html}
   <form method="post" action="/auth/authorize">
     {hidden_inputs}
@@ -200,7 +194,7 @@ def register_auth_routes(app: FastAPI, auth_provider: AuthProvider) -> None:
             )
 
         user = USERS.get(username)
-        if not user or user.password != password:
+        if not user or not hmac.compare_digest(user.password, password):
             return _authorize_login_page(
                 client_id=str(form.get("client_id", "")),
                 redirect_uri=redirect_uri,
@@ -267,7 +261,7 @@ def register_auth_routes(app: FastAPI, auth_provider: AuthProvider) -> None:
         organization = body.get("organization")
 
         user = USERS.get(username)
-        if not user or user.password != password:
+        if not user or not hmac.compare_digest(user.password, password):
             return JSONResponse(
                 {"error": "invalid_grant", "error_description": "Invalid credentials"},
                 status_code=401,

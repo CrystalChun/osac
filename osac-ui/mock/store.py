@@ -6,7 +6,9 @@ import asyncio
 import copy
 import uuid
 from datetime import datetime, timezone
-from typing import Any, Callable
+from typing import Callable
+
+from dict_utils import deep_merge, set_nested
 
 
 class ConflictError(Exception):
@@ -39,6 +41,10 @@ class ResourceStore:
         if self._event_callback:
             self._event_callback(event_type, resource_type, obj.get("id", ""), obj)
 
+    def emit(self, event_type: str, resource_type: str, obj: dict) -> None:
+        """Publish an event for internal callers such as the state-machine ticker."""
+        self._emit(event_type, resource_type, obj)
+
     async def list(
         self,
         resource_type: str,
@@ -51,12 +57,15 @@ class ResourceStore:
             bucket = self._data.get(resource_type, {})
             items = list(bucket.values())
 
-        if tenant and tenant != "*":
-            items = [
-                i
-                for i in items
-                if i.get("metadata", {}).get("tenant", "") in (tenant, "", None)
-            ]
+        if tenant is not None and tenant != "*":
+            if not tenant:
+                items = []
+            else:
+                items = [
+                    i
+                    for i in items
+                    if i.get("metadata", {}).get("tenant", "") in (tenant, "", None)
+                ]
 
         if filter_fn:
             items = [i for i in items if filter_fn(i)]
@@ -79,7 +88,9 @@ class ResourceStore:
         if obj is None:
             raise NotFoundError()
 
-        if tenant and tenant != "*":
+        if tenant is not None and tenant != "*":
+            if not tenant:
+                raise NotFoundError()
             obj_tenant = obj.get("metadata", {}).get("tenant", "")
             if obj_tenant and obj_tenant != tenant:
                 raise NotFoundError()
@@ -111,7 +122,7 @@ class ResourceStore:
         obj["id"] = resource_id
 
         if initial_state:
-            _set_nested(obj, state_field, initial_state)
+            set_nested(obj, state_field, initial_state)
             obj["_mock_entered_state_at"] = now
 
         async with self._lock:
@@ -137,7 +148,9 @@ class ResourceStore:
             if obj is None:
                 raise NotFoundError()
 
-            if tenant and tenant != "*":
+            if tenant is not None and tenant != "*":
+                if not tenant:
+                    raise NotFoundError()
                 obj_tenant = obj.get("metadata", {}).get("tenant", "")
                 if obj_tenant and obj_tenant != tenant:
                     raise NotFoundError()
@@ -157,7 +170,7 @@ class ResourceStore:
             elif "metadata" in updates:
                 del updates["metadata"]
 
-            _deep_merge(obj, updates)
+            deep_merge(obj, updates)
             obj["metadata"]["version"] = current_version + 1
             bucket[resource_id] = obj
             result = copy.deepcopy(obj)
@@ -177,7 +190,9 @@ class ResourceStore:
             if obj is None:
                 raise NotFoundError()
 
-            if tenant and tenant != "*":
+            if tenant is not None and tenant != "*":
+                if not tenant:
+                    raise NotFoundError()
                 obj_tenant = obj.get("metadata", {}).get("tenant", "")
                 if obj_tenant and obj_tenant != tenant:
                     raise NotFoundError()
@@ -197,7 +212,7 @@ class ResourceStore:
             obj = bucket.get(resource_id)
             if obj is None:
                 return None
-            _deep_merge(obj, updates)
+            deep_merge(obj, updates)
             return copy.deepcopy(obj)
 
     async def get_internal(self, resource_type: str, resource_id: str) -> dict | None:
@@ -232,34 +247,3 @@ def _strip_internal(obj: dict) -> dict:
     return result
 
 
-def _deep_merge(base: dict, override: dict) -> None:
-    for key, value in override.items():
-        if key == "id":
-            continue
-        if (
-            isinstance(value, dict)
-            and isinstance(base.get(key), dict)
-            and key != "labels"
-            and key != "annotations"
-        ):
-            _deep_merge(base[key], value)
-        else:
-            base[key] = copy.deepcopy(value)
-
-
-def _set_nested(obj: dict, path: str, value: Any) -> None:
-    parts = path.split(".")
-    node = obj
-    for part in parts[:-1]:
-        node = node.setdefault(part, {})
-    node[parts[-1]] = value
-
-
-def _get_nested(obj: dict, path: str) -> Any:
-    parts = path.split(".")
-    node = obj
-    for part in parts:
-        if not isinstance(node, dict):
-            return None
-        node = node.get(part)
-    return node

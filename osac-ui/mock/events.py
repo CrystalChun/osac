@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 
 from sse_starlette.sse import EventSourceResponse
 from starlette.requests import Request
+from starlette.responses import JSONResponse
 
 
 class EventBus:
@@ -90,8 +91,14 @@ def _build_event(
 
 
 async def events_endpoint(request: Request, event_bus: EventBus) -> EventSourceResponse:
+    roles = getattr(request.state, "roles", None) or []
+    is_admin = "cloud-provider-admin" in roles
     tenant = getattr(request.state, "tenant", "") or ""
-    is_admin = "cloud-provider-admin" in (getattr(request.state, "roles", None) or [])
+    if not is_admin and not tenant:
+        return JSONResponse(
+            {"code": 7, "message": "Tenant required", "details": []},
+            status_code=403,
+        )
     queue = await event_bus.subscribe()
 
     async def event_generator():

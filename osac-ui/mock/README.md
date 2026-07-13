@@ -7,7 +7,7 @@ in-memory state, JWT authentication, state machine progression, and SSE events.
 ## Quick start
 
 ```bash
-cd fulfillment-service/mock
+cd mock
 
 # Create a virtual environment and install dependencies
 python3 -m venv .venv
@@ -20,6 +20,9 @@ python3 -m venv .venv
 .venv/bin/python mock_server.py --no-auth --scenario scenarios/default.yaml
 ```
 
+From the repository root you can also use `pnpm dev:mock` or `pnpm dev:mock-ui`
+after creating the virtual environment above.
+
 The server starts on `http://localhost:8000`.
 
 ## Authentication
@@ -28,10 +31,12 @@ The mock includes a complete OIDC-compatible auth flow.
 
 ### Get a token
 
+Use credentials from `users.yaml` (override with `MOCK_USERS_FILE`):
+
 ```bash
 curl -X POST http://localhost:8000/auth/token \
   -H "Content-Type: application/json" \
-  -d '{"username": "adam", "password": "adam"}'
+  -d '{"username": "adam", "password": "<password from users.yaml>"}'
 ```
 
 ### Use the token
@@ -44,12 +49,15 @@ curl -H "Authorization: Bearer $TOKEN" \
 
 ### Pre-configured users
 
-| Username  | Password  | Tenants              | Role                 |
-|-----------|-----------|----------------------|----------------------|
-| `admin`   | `admin`   | all                  | cloud-provider-admin |
-| `adam`     | `adam`    | engineering          | tenant-admin         |
-| `ben`     | `ben`     | engineering, sales   | tenant-user          |
-| `charles` | `charles` | sales                | tenant-user          |
+Default mock users are defined in `users.yaml`. Override the fixture with
+`MOCK_USERS_FILE` when starting the server.
+
+| Username  | Tenants              | Role                 |
+|-----------|----------------------|----------------------|
+| `admin`   | all                  | cloud-provider-admin |
+| `adam`    | engineering          | tenant-admin         |
+| `ben`     | engineering, sales   | tenant-user          |
+| `charles` | sales                | tenant-user          |
 
 ### OIDC discovery
 
@@ -164,18 +172,10 @@ See `scenarios/default.yaml` for the format.
 
 ```text
 --port PORT        Port to listen on (default: 8000)
---spec PATH        Path to OpenAPI v3 spec (default: ../pages/openapi/v3/public.yaml)
+--host HOST        Host to bind (default: 127.0.0.1; use 0.0.0.0 for containers)
+--spec PATH        Path to OpenAPI v3 spec (default: openapi/v3/public.yaml)
 --scenario PATH    Scenario YAML file to preload (repeatable)
 --no-auth          Disable JWT authentication
-```
-
-## Container image
-
-Build from the `fulfillment-service/` root:
-
-```bash
-podman build -f mock/Containerfile -t fulfillment-mock .
-podman run -p 8000:8000 fulfillment-mock
 ```
 
 ## Updating for API changes

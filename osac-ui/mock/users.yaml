@@ -1,0 +1,23 @@
+# Mock user credentials for local development only.
+# Override with MOCK_USERS_FILE to point at a different fixture.
+users:
+  admin:
+    password: admin
+    tenants: ["*"]
+    roles: [cloud-provider-admin]
+    groups: [admins]
+  adam:
+    password: adam
+    tenants: [engineering]
+    roles: [tenant-admin]
+    groups: [engineering]
+  ben:
+    password: ben
+    tenants: [engineering, sales]
+    roles: [tenant-user]
+    groups: [engineering, sales]
+  charles:
+    password: charles
+    tenants: [sales]
+    roles: [tenant-user]
+    groups: [sales]

@@ -259,3 +259,16 @@ def discover_resources(spec: dict) -> list[ResourceConfig]:
 def load_spec(spec_path: str | Path) -> dict:
     with open(spec_path) as f:
         return yaml.safe_load(f)
+
+
+def build_enum_ordinals(spec: dict) -> dict[str, int]:
+    """Map OpenAPI enum names to integer ordinals for filter comparisons."""
+    ordinals: dict[str, int] = {}
+    schemas = spec.get("components", {}).get("schemas", {})
+    for schema in schemas.values():
+        enum_values = schema.get("enum")
+        if not enum_values:
+            continue
+        for index, name in enumerate(enum_values):
+            ordinals[name] = index
+    return ordinals

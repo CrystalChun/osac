@@ -3,6 +3,10 @@
 Supports:
   this.field.path == "value"
   this.field.path != "value"
+  this.field.path == 1
+  this.field.path != 2
+  this.field.path == true
+  this.field.path == ENUM_NAME
   this.field.path.startsWith("prefix")
   this.field.path.endsWith("suffix")
   this.field.path.contains("substr")
@@ -16,19 +20,31 @@ from __future__ import annotations
 import re
 from typing import Any, Callable
 
+_ENUM_ORDINALS: dict[str, int] = {}
+
+
+def configure_enum_ordinals(ordinals: dict[str, int]) -> None:
+    """Set enum-name-to-ordinal mappings used for integer enum comparisons."""
+    global _ENUM_ORDINALS
+    _ENUM_ORDINALS = dict(ordinals)
+
+
+class FilterParseError(Exception):
+    """Raised when a filter expression cannot be parsed."""
+
 
 def parse_filter(expr: str) -> Callable[[dict], bool] | None:
     """Parse a CEL-like filter expression into a predicate function.
 
-    Returns None if the expression is empty or unparseable (matches all).
+    Returns None for an empty expression. Raises FilterParseError when unparseable.
     """
     expr = expr.strip()
     if not expr:
         return None
     try:
         return _parse_or(expr)
-    except _ParseError:
-        return None
+    except _ParseError as exc:
+        raise FilterParseError(str(exc)) from exc
 
 
 class _ParseError(Exception):
@@ -91,6 +107,9 @@ def _split_top_level(expr: str, op: str) -> list[str]:
 
 _HAS_RE = re.compile(r'^has\(this\.(.+)\)$')
 _COMPARE_RE = re.compile(r'^this\.(.+?)\s*(==|!=)\s*"(.*)"$')
+_COMPARE_NUM_RE = re.compile(r'^this\.(.+?)\s*(==|!=)\s*(-?\d+)$')
+_COMPARE_BOOL_RE = re.compile(r'^this\.(.+?)\s*(==|!=)\s*(true|false)$', re.IGNORECASE)
+_COMPARE_IDENT_RE = re.compile(r'^this\.(.+?)\s*(==|!=)\s*([A-Z][A-Z0-9_]*)$')
 _METHOD_RE = re.compile(r'^this\.(.+?)\.(startsWith|endsWith|contains)\("(.*)"\)$')
 _NEGATION_RE = re.compile(r'^!\s*(.+)$')
 
@@ -121,12 +140,55 @@ def _parse_atom(expr: str) -> Callable[[dict], bool]:
     m = _COMPARE_RE.match(expr)
     if m:
         path, op, value = m.group(1), m.group(2), m.group(3)
-        if op == "==":
-            return lambda obj, _p=path, _v=value: _stringify(_get_path(obj, _p)) == _v
-        else:
-            return lambda obj, _p=path, _v=value: _stringify(_get_path(obj, _p)) != _v
+        return _make_compare_fn(path, op, value)
+
+    m = _COMPARE_NUM_RE.match(expr)
+    if m:
+        path, op, value = m.group(1), m.group(2), int(m.group(3))
+        return _make_compare_fn(path, op, value)
+
+    m = _COMPARE_BOOL_RE.match(expr)
+    if m:
+        path, op, value = m.group(1), m.group(2), m.group(3).lower() == "true"
+        return _make_compare_fn(path, op, value)
+
+    m = _COMPARE_IDENT_RE.match(expr)
+    if m:
+        path, op, value = m.group(1), m.group(2), m.group(3)
+        return _make_compare_fn(path, op, value)
 
     raise _ParseError(f"Unsupported expression: {expr}")
+
+
+def _make_compare_fn(path: str, op: str, expected: Any) -> Callable[[dict], bool]:
+    if op == "==":
+        return lambda obj, _p=path, _e=expected: _values_equal(_get_path(obj, _p), _e)
+    return lambda obj, _p=path, _e=expected: not _values_equal(_get_path(obj, _p), _e)
+
+
+def _enum_ordinal(value: Any) -> int | None:
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return value
+    if isinstance(value, str):
+        return _ENUM_ORDINALS.get(value)
+    return None
+
+
+def _values_equal(actual: Any, expected: Any) -> bool:
+    if actual == expected:
+        return True
+
+    actual_ord = _enum_ordinal(actual)
+    expected_ord = _enum_ordinal(expected)
+    if actual_ord is not None and expected_ord is not None:
+        return actual_ord == expected_ord
+
+    if isinstance(expected, str) and not isinstance(actual, str):
+        return _stringify(actual) == expected
+
+    return _stringify(actual) == _stringify(expected)
 
 
 def _stringify(v: Any) -> str:

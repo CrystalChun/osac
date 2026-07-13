@@ -409,6 +409,19 @@ components:
           description: Human friendly long description of the host type, using Markdown
             format.
           type: string
+        interfaces:
+          description: |-
+            Physical network interfaces available on hosts of this type.
+
+            This is only meaningful for bare metal host types. Virtual machine host types have an empty list because VMs
+            receive virtual NICs from the overlay network, not physical interfaces. This also serves as the bare metal vs
+            virtual machine discriminator: if a host type has interfaces it is bare metal, if empty it is virtual.
+
+            Interfaces are ordered. When multiple interfaces share the same role, the first one in the list is the default
+            for that role.
+          items:
+            $ref: '#/components/schemas/v1NetworkInterface'
+          type: array
         metadata:
           $ref: '#/components/schemas/v1Metadata'
         title:
@@ -3205,6 +3218,19 @@ components:
         id:
           description: Unique identifier of the type.
           type: string
+        interfaces:
+          description: |-
+            Physical network interfaces available on hosts of this type.
+
+            This is only meaningful for bare metal host types. Virtual machine host types have an empty list because VMs
+            receive virtual NICs from the overlay network, not physical interfaces. This also serves as the bare metal vs
+            virtual machine discriminator: if a host type has interfaces it is bare metal, if empty it is virtual.
+
+            Interfaces are ordered. When multiple interfaces share the same role, the first one in the list is the default
+            for that role.
+          items:
+            $ref: '#/components/schemas/v1NetworkInterface'
+          type: array
         metadata:
           $ref: '#/components/schemas/v1Metadata'
         title:
@@ -3915,6 +3941,28 @@ components:
       properties:
         object:
           $ref: '#/components/schemas/v1NetworkClass'
+      type: object
+    v1NetworkInterface:
+      description: |-
+        Describes a physical network interface available on hosts of a given type.
+
+        For example, a bare metal host type may have two data interfaces (`data-0`, `data-1`) for fabric traffic and a
+        management interface (`mgmt-0`) for control plane traffic.
+      properties:
+        description:
+          description: Human-friendly description of the interface. For example `100GbE
+            data interface`.
+          type: string
+        name:
+          description: Interface identifier, unique within the host type. For example
+            `data-0`, `data-1`, `mgmt-0`.
+          type: string
+        role:
+          description: |-
+            Role of the interface. Convention values are `fabric` (east-west tenant traffic), `management` (control plane
+            traffic), `storage` (storage fabric traffic), and `lifecycle` (out-of-band PXE/BMC). Roles are conventions, not
+            enforced enums.
+          type: string
       type: object
     v1OidcConfig:
       description: OidcConfig contains configuration for OpenID Connect identity providers.
@@ -8686,7 +8734,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: The updated identity provider object.
+              $ref: '#/components/schemas/The updated identity provider object.'
         description: The updated identity provider object.
         required: true
       responses:
@@ -9526,7 +9574,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: The project membership object with updated fields.
+              $ref: '#/components/schemas/The project membership object with updated fields.'
         description: The project membership object with updated fields.
         required: true
       responses:
@@ -10432,7 +10480,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: The role binding object with updated fields.
+              $ref: '#/components/schemas/The role binding object with updated fields.'
         description: The role binding object with updated fields.
         required: true
       responses:
@@ -10642,7 +10690,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: The role object with updated fields.
+              $ref: '#/components/schemas/The role object with updated fields.'
         description: The role object with updated fields.
         required: true
       responses:

@@ -10,10 +10,18 @@ const specUrl =
 
 const response = await fetch(specUrl);
 if (!response.ok) {
-  console.error(`Failed to download OpenAPI spec: HTTP ${response.status} for ${specUrl}`);
+  console.error(`Failed to download OpenAPI spec: HTTP ${response.status}`);
   process.exit(1);
 }
 
+let specText = await response.text();
+
+// Upstream spec omits the components/schemas prefix on a few update request bodies.
+specText = specText.replace(
+  /(\$ref: )(?=#\/components\/schemas\/)?((?:The (?:updated )?[^.\n]+|The [^.\n]+ with updated fields)\.)/g,
+  "$1'#/components/schemas/$2'",
+);
+
 await mkdir(path.dirname(outPath), { recursive: true });
-await writeFile(outPath, await response.text());
-console.log(`Updated ${path.relative(repoRoot, outPath)} from ${specUrl}`);
+await writeFile(outPath, specText);
+console.log(`Updated ${path.relative(repoRoot, outPath)}`);

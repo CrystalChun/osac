@@ -20,7 +20,9 @@ from fastapi.responses import JSONResponse
 
 from auth import AuthMiddleware, AuthProvider, register_auth_routes
 from events import EventBus, events_endpoint
+from filter_parser import configure_enum_ordinals
 from handlers import (
+    ForbiddenError,
     get_tenant,
     handle_create,
     handle_delete,
@@ -31,6 +33,7 @@ from handlers import (
 )
 from openapi_loader import (
     ResourceConfig,
+    build_enum_ordinals,
     build_resource_allowlists,
     discover_resources,
     load_spec,
@@ -100,6 +103,7 @@ def create_app(
     )
 
     spec = load_spec(spec_path)
+    configure_enum_ordinals(build_enum_ordinals(spec))
     resource_configs = discover_resources(spec)
     resource_allowlists = build_resource_allowlists(spec)
     status_message_types = status_message_resource_types(spec)
@@ -165,7 +169,10 @@ def create_app(
 
     @app.get("/api/fulfillment/v1/clusters/{cluster_id}/kubeconfig")
     async def cluster_kubeconfig(cluster_id: str, request: Request):
-        tenant = None if is_admin(request) else get_tenant(request)
+        try:
+            tenant = None if is_admin(request) else get_tenant(request)
+        except ForbiddenError as exc:
+            return JSONResponse({"code": 7, "message": exc.message}, status_code=403)
         try:
             obj = await store.get("clusters", cluster_id, tenant=tenant)
         except NotFoundError:
@@ -194,7 +201,10 @@ users:
 
     @app.get("/api/fulfillment/v1/clusters/{cluster_id}/password")
     async def cluster_password(cluster_id: str, request: Request):
-        tenant = None if is_admin(request) else get_tenant(request)
+        try:
+            tenant = None if is_admin(request) else get_tenant(request)
+        except ForbiddenError as exc:
+            return JSONResponse({"code": 7, "message": exc.message}, status_code=403)
         try:
             await store.get("clusters", cluster_id, tenant=tenant)
         except NotFoundError:
@@ -302,10 +312,15 @@ def main():
         "--port", type=int, default=8000, help="Port to listen on (default: 8000)"
     )
     parser.add_argument(
+        "--host",
+        default="127.0.0.1",
+        help="Host to bind (default: 127.0.0.1; use 0.0.0.0 for containers)",
+    )
+    parser.add_argument(
         "--spec",
         type=Path,
         default=DEFAULT_SPEC,
-        help="Path to OpenAPI v3 spec (default: ../pages/openapi/v3/public.yaml)",
+        help="Path to OpenAPI v3 spec (default: openapi/v3/public.yaml relative to mock/)",
     )
     parser.add_argument(
         "--scenario",
@@ -327,7 +342,7 @@ def main():
         no_auth=args.no_auth,
         port=args.port,
     )
-    uvicorn.run(app, host="0.0.0.0", port=args.port)
+    uvicorn.run(app, host=args.host, port=args.port)
 
 
 if __name__ == "__main__":
