@@ -37,7 +37,7 @@ const AttachPublicIpModal = ({ vm, onClose, onSuccess }: AttachPublicIpModalProp
   return (
     <Formik
       initialValues={{ ipFamily: 'IPv4' }}
-      onSubmit={async (values, { setSubmitting }) => {
+      onSubmit={async (values) => {
         attachPublicIp.reset();
         try {
           await attachPublicIp.mutateAsync({
@@ -48,8 +48,6 @@ const AttachPublicIpModal = ({ vm, onClose, onSuccess }: AttachPublicIpModalProp
           onSuccess();
         } catch {
           // surfaced via attachPublicIp.error below
-        } finally {
-          setSubmitting(false);
         }
       }}
     >

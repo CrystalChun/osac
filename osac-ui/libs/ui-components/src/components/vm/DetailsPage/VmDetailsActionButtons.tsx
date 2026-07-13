@@ -13,12 +13,14 @@ import { ComputeInstanceState } from '@osac/types';
 import AttachPublicIpModal from './AttachPublicIpModal';
 import VmDeleteConfirmModal from './VmDeleteConfirmModal';
 import { usePatchComputeInstance } from '../../../api/v1/compute-instance';
+import { useTranslation } from '../../../hooks/useTranslation';
 
 interface VmDetailsActionButtonsProps {
   vm: ComputeInstance;
 }
 
 const VmDetailsActionButtons = ({ vm }: VmDetailsActionButtonsProps) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [attachPublicIpOpen, setAttachPublicIpOpen] = useState(false);
@@ -100,7 +102,7 @@ const VmDetailsActionButtons = ({ vm }: VmDetailsActionButtonsProps) => {
             }
           }}
         >
-          Attach public IP
+          {t('Attach public IP')}
         </Button>
         <Button
           variant="danger"
