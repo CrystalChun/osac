@@ -7,7 +7,6 @@ import { Alert, Button } from '@patternfly/react-core';
 
 import { ClustersTable } from './ClustersTable';
 import { useClusters } from '../../api/v1/cluster';
-import { useSession } from '../../hooks/use-session';
 import { useTranslation } from '../../hooks/useTranslation';
 import ListPage from '../Page/ListPage';
 import ListPageBody from '../Page/ListPageBody';
