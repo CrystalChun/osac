@@ -17,7 +17,7 @@ def _random_ip(base: str = "10.0.1") -> str:
     return f"{base}.{random.randint(2, 254)}"
 
 
-def _populate_cluster_ready(obj: dict) -> dict:
+def _populate_cluster_ready(obj: dict, **_: Any) -> dict:
     name = obj.get("metadata", {}).get("name", "cluster")
     return {
         "status": {
@@ -27,7 +27,7 @@ def _populate_cluster_ready(obj: dict) -> dict:
     }
 
 
-def _populate_compute_instance_running(obj: dict) -> dict:
+def _populate_compute_instance_running(obj: dict, **_: Any) -> dict:
     return {
         "status": {
             "internal_ip_address": _random_ip(),
@@ -35,7 +35,7 @@ def _populate_compute_instance_running(obj: dict) -> dict:
     }
 
 
-def _populate_public_ip_allocated(obj: dict) -> dict:
+def _populate_public_ip_allocated(obj: dict, **_: Any) -> dict:
     pool = obj.get("spec", {}).get("pool", "")
     return {
         "status": {
@@ -45,7 +45,29 @@ def _populate_public_ip_allocated(obj: dict) -> dict:
     }
 
 
-def _populate_external_ip_allocated(obj: dict) -> dict:
+
+async def _populate_public_ip_attachment_ready(
+    obj: dict, *, store: ResourceStore | None = None
+) -> dict:
+    if store is None:
+        return {}
+    spec = obj.get("spec", {})
+    public_ip_id = spec.get("publicIp") or spec.get("public_ip", "")
+    compute_instance_id = spec.get("computeInstance") or spec.get("compute_instance", "")
+    if not public_ip_id or not compute_instance_id:
+        return {}
+    pip = await store.get_internal("public_ips", public_ip_id)
+    if not pip:
+        return {}
+    address = pip.get("status", {}).get("address", "")
+    if not address:
+        return {}
+    await store.update_internal("compute_instances", compute_instance_id, {
+        "status": {"public_ip_address": address},
+    })
+    return {}
+
+def _populate_external_ip_allocated(obj: dict, **_: Any) -> dict:
     pool = obj.get("spec", {}).get("pool", "")
     return {
         "status": {
@@ -162,6 +184,7 @@ STATE_MACHINES: dict[str, StateMachineConfig] = {
                 next_state="PUBLIC_IP_ATTACHMENT_STATE_READY",
                 delay=0.5,
                 fail_state="PUBLIC_IP_ATTACHMENT_STATE_FAILED",
+                on_ready=_populate_public_ip_attachment_ready,
             ),
         },
     ),
@@ -264,7 +287,9 @@ async def run_ticker(
                         set_nested(updates, "status.message", "")
 
                     if transition.on_ready:
-                        extra = transition.on_ready(obj)
+                        extra = transition.on_ready(obj, store=store)
+                        if asyncio.iscoroutine(extra):
+                            extra = await extra
                         if extra:
                             deep_merge(updates, extra)
 
