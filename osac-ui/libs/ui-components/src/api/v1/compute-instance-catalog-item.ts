@@ -19,7 +19,7 @@ export const useComputeInstanceCatalogItems = (
 ) =>
   useApiQuery<ComputeInstanceCatalogItemsListResponse, ComputeInstanceCatalogItem[]>({
     queryKey: ['v1/compute_instance_catalog_items', null, params],
-    select: (data) => data.items.filter((item) => item.published),
+    select: (data) => data.items,
     meta: { decode: ComputeInstanceCatalogItemsListResponseSchema },
     enabled,
   });
