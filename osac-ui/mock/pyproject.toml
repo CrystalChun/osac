@@ -1,0 +1,30 @@
+[project]
+name = "fulfillment-mock"
+version = "0.1.0"
+description = "Lightweight mock server for the OSAC fulfillment-service REST API"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi==0.139.0",
+    "uvicorn[standard]==0.51.0",
+    "pyyaml==6.0.3",
+    "pyjwt[crypto]==2.13.0",
+    "cryptography==49.0.0",
+    "sse-starlette==3.4.5",
+    "python-multipart==0.0.32",
+]
+
+[project.scripts]
+fulfillment-mock = "mock_server:main"
+
+[tool.setuptools]
+py-modules = [
+  "auth",
+  "dict_utils",
+  "events",
+  "filter_parser",
+  "handlers",
+  "mock_server",
+  "openapi_loader",
+  "state_machines",
+  "store",
+]

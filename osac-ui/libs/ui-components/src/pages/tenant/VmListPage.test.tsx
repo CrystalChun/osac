@@ -35,10 +35,6 @@ vi.mock('../../components/vm/VmInstanceTypeLabel', () => ({
   }) => <span>{instanceType?.metadata?.name ?? instanceTypeId ?? '—'}</span>,
 }));
 
-vi.mock('@osac/ui-components/hooks/use-session', () => ({
-  useSession: vi.fn(() => ({ role: 'tenantUser' })),
-}));
-
 const { useComputeInstances } = await import('@osac/ui-components/api/v1/compute-instance');
 const { useInstanceTypes } = await import('@osac/ui-components/api/v1/instance-types');
 
