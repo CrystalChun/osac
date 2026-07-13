@@ -19,7 +19,7 @@ export const useClusterCatalogItems = (
 ) =>
   useApiQuery<ClusterCatalogItemsListResponse, ClusterCatalogItem[]>({
     queryKey: ['v1/cluster_catalog_items', null, params],
-    select: (data) => data.items.filter((item) => item.published),
+    select: (data) => data.items,
     meta: { decode: ClusterCatalogItemsListResponseSchema },
     enabled,
   });

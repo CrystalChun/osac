@@ -41,12 +41,6 @@ export const CatalogItemDetailContent = ({ item }: CatalogItemDetailContentProps
             <DescriptionListTerm>Catalog name</DescriptionListTerm>
             <DescriptionListDescription>{item.metadata?.name ?? '—'}</DescriptionListDescription>
           </DescriptionListGroup>
-          <DescriptionListGroup>
-            <DescriptionListTerm>Status</DescriptionListTerm>
-            <DescriptionListDescription>
-              {item.published ? 'Published' : 'Unpublished'}
-            </DescriptionListDescription>
-          </DescriptionListGroup>
         </DescriptionList>
       </StackItem>
 
