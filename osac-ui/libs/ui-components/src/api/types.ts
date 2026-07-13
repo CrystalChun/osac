@@ -82,6 +82,8 @@ export type ApiFetchOptions = {
   body?: unknown;
   /** Parse the response with protobuf `fromJson` using the given message schema. */
   decode?: FulfillmentDecodeSchema;
+  /** Return the response as raw text instead of parsing as JSON. */
+  rawText?: boolean;
 };
 
 /**

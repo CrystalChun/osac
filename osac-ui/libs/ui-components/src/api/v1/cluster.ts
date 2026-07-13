@@ -1,3 +1,4 @@
+import { useCallback, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 
 import {
@@ -66,4 +67,80 @@ export const useProvisionCluster = () => {
     },
     retry: false,
   });
+};
+
+const triggerDownload = (content: string, filename: string) => {
+  const blob = new Blob([content], { type: 'application/octet-stream' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+};
+
+export const useDownloadKubeconfig = () => {
+  const apiFetch = useApiFetch();
+  const [isPending, setIsPending] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const download = useCallback(
+    async (id: string, clusterName: string) => {
+      setIsPending(true);
+      setError(null);
+      try {
+        const kubeconfig = await apiFetch<string>('v1/clusters', {
+          pathParams: [id, 'kubeconfig'],
+          rawText: true,
+        });
+        triggerDownload(kubeconfig, `${clusterName}-kubeconfig.yaml`);
+      } catch (e) {
+        setError(e instanceof Error ? e : new Error(String(e)));
+        throw e;
+      } finally {
+        setIsPending(false);
+      }
+    },
+    [apiFetch],
+  );
+
+  return { download, isPending, error };
+};
+
+export const useFetchClusterPassword = () => {
+  const apiFetch = useApiFetch();
+  const [isPending, setIsPending] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+  const [password, setPassword] = useState<string | null>(null);
+
+  const fetchPassword = useCallback(
+    async (id: string) => {
+      setIsPending(true);
+      setError(null);
+      try {
+        const result = await apiFetch<string>('v1/clusters', {
+          pathParams: [id, 'password'],
+          rawText: true,
+        });
+        setPassword(result);
+        return result;
+      } catch (e) {
+        const err = e instanceof Error ? e : new Error(String(e));
+        setError(err);
+        throw err;
+      } finally {
+        setIsPending(false);
+      }
+    },
+    [apiFetch],
+  );
+
+  const reset = useCallback(() => {
+    setPassword(null);
+    setError(null);
+  }, []);
+
+  return { fetchPassword, isPending, error, password, reset };
 };
