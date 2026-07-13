@@ -13,7 +13,7 @@ export const fulfillmentFetch: ApiFetch = async <T = unknown>(
   route: ApiRoute,
   options: ApiFetchOptions = {},
 ): Promise<T> => {
-  const { pathParams, queryParams, method = 'GET', body, decode } = options;
+  const { pathParams, queryParams, method = 'GET', body, decode, rawText } = options;
   let path: string = route;
 
   if (Array.isArray(pathParams)) {
@@ -59,6 +59,10 @@ export const fulfillmentFetch: ApiFetch = async <T = unknown>(
   const text = await res.text();
   if (!text.trim()) {
     return undefined as T;
+  }
+
+  if (rawText) {
+    return text as T;
   }
 
   const data: unknown = JSON.parse(text);
