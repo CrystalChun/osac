@@ -80,10 +80,10 @@ export const useSecurityGroups = (
   });
 
 export const virtualNetworkFilterForSubnetList = (virtualNetworkId: string): string =>
-  virtualNetworkScopeFilter(virtualNetworkId);
+  combineListFilters(virtualNetworkScopeFilter(virtualNetworkId), SUBNET_READY_LIST_FILTER);
 
 export const securityGroupFilterForVirtualNetworkList = (virtualNetworkId: string): string =>
-  virtualNetworkScopeFilter(virtualNetworkId);
+  combineListFilters(virtualNetworkScopeFilter(virtualNetworkId), SECURITY_GROUP_READY_LIST_FILTER);
 
 /** CEL list filters compare enum fields to integer literals (see fulfillment-service docs/FILTER.md). */
 const readyStateFilter = (readyState: number): string => `this.status.state == ${readyState}`;
@@ -93,6 +93,13 @@ export const VIRTUAL_NETWORK_READY_LIST_FILTER = readyStateFilter(VirtualNetwork
 export const SUBNET_READY_LIST_FILTER = readyStateFilter(SubnetState.READY);
 
 export const SECURITY_GROUP_READY_LIST_FILTER = readyStateFilter(SecurityGroupState.READY);
+
+const combineListFilters = (...parts: string[]): string => {
+  if (parts.length === 1) {
+    return parts[0];
+  }
+  return parts.map((part) => `(${part})`).join(' && ');
+};
 
 /** Escape a value for interpolation inside a CEL double-quoted string literal. */
 export const escapeCelStringLiteral = (value: string): string =>

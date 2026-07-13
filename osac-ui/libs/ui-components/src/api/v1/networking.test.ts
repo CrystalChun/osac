@@ -1,7 +1,13 @@
 import { QueryClient } from '@tanstack/react-query';
 import { describe, expect, it } from 'vitest';
 
-import { SubnetSchema, VirtualNetworkSchema, VirtualNetworkState } from '@osac/types';
+import {
+  SecurityGroupState,
+  SubnetSchema,
+  SubnetState,
+  VirtualNetworkSchema,
+  VirtualNetworkState,
+} from '@osac/types';
 
 import { decodeFulfillmentResponse } from '../fulfillment-decode';
 import {
@@ -30,25 +36,27 @@ describe('networking list filters', () => {
     expect(escapeCelStringLiteral('path\\to\\thing')).toBe('path\\\\to\\\\thing');
   });
 
-  it('filters subnets by virtual network scope only (shows all states)', () => {
-    expect(virtualNetworkFilterForSubnetList('vn-1')).toBe('this.spec.virtual_network == "vn-1"');
+  it('combines virtual network scope and ready state for subnets', () => {
+    expect(virtualNetworkFilterForSubnetList('vn-1')).toBe(
+      `(this.spec.virtual_network == "vn-1") && (this.status.state == ${SubnetState.READY})`,
+    );
   });
 
   it('escapes quotes in virtual network id when building subnet filter', () => {
     expect(virtualNetworkFilterForSubnetList('vn-"evil')).toBe(
-      'this.spec.virtual_network == "vn-\\"evil"',
+      `(this.spec.virtual_network == "vn-\\"evil") && (this.status.state == ${SubnetState.READY})`,
     );
   });
 
   it('escapes CEL injection characters in virtual network id when building subnet filter', () => {
     expect(virtualNetworkFilterForSubnetList(`"'] || true || this.id in ['`)).toBe(
-      `this.spec.virtual_network == "\\"'] || true || this.id in ['"`,
+      `(this.spec.virtual_network == "\\"'] || true || this.id in ['") && (this.status.state == ${SubnetState.READY})`,
     );
   });
 
-  it('filters security groups by virtual network scope only (shows all states)', () => {
+  it('combines virtual network scope and ready state for security groups', () => {
     expect(securityGroupFilterForVirtualNetworkList('vn-1')).toBe(
-      'this.spec.virtual_network == "vn-1"',
+      `(this.spec.virtual_network == "vn-1") && (this.status.state == ${SecurityGroupState.READY})`,
     );
   });
 
