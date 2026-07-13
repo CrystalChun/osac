@@ -1,6 +1,6 @@
+import { create } from '@bufbuild/protobuf';
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { create } from '@bufbuild/protobuf';
 
 import { type Cluster, ClusterSchema } from '@osac/types';
 
