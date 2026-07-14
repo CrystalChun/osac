@@ -25,7 +25,11 @@ import {
 import OsacForm from '../../components/Form/OsacForm';
 import { useTranslation } from '../../hooks/useTranslation';
 import { getErrorMessage } from '../../utils/error';
-import { buildCidrSchema, hasSubnetOverlap, isSubnetWithinVN } from '../../validation/cidr-validation';
+import {
+  buildCidrSchema,
+  hasSubnetOverlap,
+  isSubnetWithinVN,
+} from '../../validation/cidr-validation';
 
 interface SubnetCreateModalProps {
   onClose: () => void;

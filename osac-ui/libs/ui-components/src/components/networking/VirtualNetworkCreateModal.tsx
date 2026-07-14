@@ -41,10 +41,8 @@ export const VirtualNetworkCreateModal = ({
         name: Yup.string().required(t('Name is required')),
         ipv4Cidr: buildCidrSchema(t, 'ipv4'),
         ipv6Cidr: buildCidrSchema(t, 'ipv6'),
-      }).test(
-        'at-least-one-cidr',
-        t('At least one CIDR (IPv4 or IPv6) is required'),
-        (values) => Boolean(values.ipv4Cidr || values.ipv6Cidr),
+      }).test('at-least-one-cidr', t('At least one CIDR (IPv4 or IPv6) is required'), (values) =>
+        Boolean(values.ipv4Cidr || values.ipv6Cidr),
       ),
     [t],
   );
