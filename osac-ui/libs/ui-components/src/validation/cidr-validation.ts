@@ -1,5 +1,24 @@
+import type { TFunction } from 'i18next';
 import { Address4, Address6 } from 'ip-address';
 import * as Yup from 'yup';
+
+/**
+ * Returns true when value is empty or a valid IPv4 CIDR.
+ */
+export const isValidIpv4Cidr = (value: string): boolean => {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return true;
+  }
+  if (!trimmed.includes('/')) {
+    return false;
+  }
+  try {
+    return new Address4(trimmed).isCorrect();
+  } catch {
+    return false;
+  }
+};
 
 /**
  * Returns true when value is empty or a valid IPv4/IPv6 CIDR.
@@ -34,6 +53,17 @@ export const cidrsOverlap = (left: string, right: string): boolean => {
   }
   return hasSubnetOverlap(a, [b]);
 };
+
+/**
+ * Yup schema for validating IPv4 CIDR notation only.
+ */
+export const buildIpv4CidrSchema = (t: TFunction) =>
+  Yup.string().test('valid-ipv4-cidr', t('Invalid IPv4 CIDR notation'), (value) => {
+    if (!value) {
+      return true;
+    }
+    return isValidIpv4Cidr(value);
+  });
 
 /**
  * Yup schema for validating IPv4 or IPv6 CIDR notation.

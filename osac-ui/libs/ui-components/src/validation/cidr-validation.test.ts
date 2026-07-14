@@ -1,12 +1,46 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  buildIpv4CidrSchema,
   cidrSchema,
   cidrsOverlap,
   hasSubnetOverlap,
   isSubnetWithinVN,
   isValidCidr,
+  isValidIpv4Cidr,
 } from './cidr-validation';
+
+describe('isValidIpv4Cidr', () => {
+  it.each([
+    ['', true],
+    ['   ', true],
+    ['10.128.0.0/14', true],
+    ['172.30.0.0/16', true],
+    ['not-a-cidr', false],
+    ['10.0.0.0', false],
+    ['fd01::/48', false],
+    ['fd02::/112', false],
+  ])('validates %j as %s', (value, expected) => {
+    expect(isValidIpv4Cidr(value)).toBe(expected);
+  });
+});
+
+describe('buildIpv4CidrSchema', () => {
+  const t = (key: string) => key;
+  const schema = buildIpv4CidrSchema(t);
+
+  it('validates valid IPv4 CIDR', async () => {
+    await expect(schema.validate('10.128.0.0/14')).resolves.toBe('10.128.0.0/14');
+  });
+
+  it('rejects IPv6 CIDR', async () => {
+    await expect(schema.validate('fd01::/48')).rejects.toThrow('Invalid IPv4 CIDR notation');
+  });
+
+  it('allows empty string for optional fields', async () => {
+    await expect(schema.validate('')).resolves.toBe('');
+  });
+});
 
 describe('isValidCidr', () => {
   it.each([
