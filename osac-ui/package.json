@@ -17,8 +17,7 @@
     "format": "eslint --fix \"{apps,libs}/*/src/**/*.{ts,tsx}\" && prettier --write \"{apps,libs}/*/src/**/*.{js,jsx,ts,tsx}\"",
     "check:pf-primitives": "node scripts/check-pf-primitives.mjs",
     "test": "pnpm -r run test",
-    "e2e:ci": "pnpm --filter @osac/e2e run e2e:ci",
-    "graph:statecharts": "node scripts/statechart-graph.mjs --all --format both --out-dir docs/specs/graphs"
+    "e2e:ci": "pnpm --filter @osac/e2e run e2e:ci"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
