@@ -84,6 +84,8 @@ export type ApiFetchOptions = {
   decode?: FulfillmentDecodeSchema;
   /** Return the response as raw text instead of parsing as JSON. */
   rawText?: boolean;
+  /** AbortSignal for request cancellation. */
+  signal?: AbortSignal;
 };
 
 /**

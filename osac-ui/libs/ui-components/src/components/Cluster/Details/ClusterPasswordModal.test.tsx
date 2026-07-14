@@ -21,8 +21,7 @@ const mockCluster = {
 };
 
 describe('ClusterPasswordModal', () => {
-  const fetchPassword = vi.fn();
-  const reset = vi.fn();
+  const retry = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -33,11 +32,10 @@ describe('ClusterPasswordModal', () => {
     onClose = vi.fn(),
   ) => {
     vi.mocked(clusterApi.useFetchClusterPassword).mockReturnValue({
-      fetchPassword,
       isPending: false,
-      error: null,
-      password: null,
-      reset,
+      error: undefined,
+      password: undefined,
+      retry,
       ...overrides,
     });
 
@@ -47,7 +45,7 @@ describe('ClusterPasswordModal', () => {
   it('fetches password on mount', () => {
     renderModal();
 
-    expect(fetchPassword).toHaveBeenCalledWith('cluster-456');
+    expect(clusterApi.useFetchClusterPassword).toHaveBeenCalledWith('cluster-456');
   });
 
   it('shows spinner while loading', () => {
@@ -67,6 +65,15 @@ describe('ClusterPasswordModal', () => {
 
     expect(screen.getByText(/Failed to load cluster password/i)).toBeInTheDocument();
     expect(screen.getByText(/Permission denied/i)).toBeInTheDocument();
+  });
+
+  it('calls retry when Retry action link is clicked', async () => {
+    const user = userEvent.setup();
+    renderModal({ error: new Error('Permission denied') });
+
+    await user.click(screen.getByRole('button', { name: /Retry/i }));
+
+    expect(retry).toHaveBeenCalled();
   });
 
   it('calls onClose when close button is clicked', async () => {

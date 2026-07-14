@@ -26,20 +26,21 @@ const mockCluster = (state: ClusterState) => ({
 
 describe('ClusterDetailsActionButtons', () => {
   const download = vi.fn();
+  const setError = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(clusterApi.useDownloadKubeconfig).mockReturnValue({
       download,
       isPending: false,
-      error: null,
+      error: undefined,
+      setError,
     });
     vi.mocked(clusterApi.useFetchClusterPassword).mockReturnValue({
-      fetchPassword: vi.fn(),
       isPending: false,
-      error: null,
-      password: null,
-      reset: vi.fn(),
+      error: undefined,
+      password: undefined,
+      retry: vi.fn(),
     });
   });
 
@@ -87,6 +88,24 @@ describe('ClusterDetailsActionButtons', () => {
     renderButtons();
 
     await user.click(screen.getByRole('button', { name: /Download kubeconfig/i }));
+
+    expect(download).toHaveBeenCalledWith('cluster-123', 'my-cluster');
+  });
+
+  it('shows error modal with retry on failed kubeconfig download', async () => {
+    const user = userEvent.setup();
+    vi.mocked(clusterApi.useDownloadKubeconfig).mockReturnValue({
+      download,
+      isPending: false,
+      error: new Error('Network error'),
+      setError,
+    });
+    renderButtons();
+
+    expect(screen.getByText(/Failed to download kubeconfig/i)).toBeInTheDocument();
+    expect(screen.getByText(/Network error/i)).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /Retry/i }));
 
     expect(download).toHaveBeenCalledWith('cluster-123', 'my-cluster');
   });
