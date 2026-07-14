@@ -7,7 +7,6 @@ OSAC UI is the web console for the [Open Sovereign AI Cloud (OSAC)](https://gith
 | Path | Purpose |
 |------|---------|
 | `apps/app-frontend/` | React SPA (Vite, React 19, TanStack Query, react-router-dom 7) |
-| `apps/e2e/` | Cypress end-to-end tests |
 | `libs/api-contracts/` | Shared TypeScript types and wire normalizers |
 | `libs/types/` | Generated protobuf types (do not edit) |
 | `libs/ui-components/` | Shared PatternFly 6 component library |

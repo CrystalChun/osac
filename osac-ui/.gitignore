@@ -39,11 +39,6 @@ Thumbs.db
 # Storybook
 storybook-static/
 
-# Cypress
-apps/e2e/cypress/screenshots/
-apps/e2e/cypress/videos/
-apps/e2e/cypress/downloads/
-
 # Coverage
 coverage/
 

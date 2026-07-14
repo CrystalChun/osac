@@ -16,8 +16,7 @@
     "lint": "eslint \"{apps,libs}/*/src/**\" && prettier --check \"{apps,libs}/*/src/**/*.{js,jsx,ts,tsx}\" && pnpm run i18n",
     "format": "eslint --fix \"{apps,libs}/*/src/**/*.{ts,tsx}\" && prettier --write \"{apps,libs}/*/src/**/*.{js,jsx,ts,tsx}\"",
     "check:pf-primitives": "node scripts/check-pf-primitives.mjs",
-    "test": "pnpm -r run test",
-    "e2e:ci": "pnpm --filter @osac/e2e run e2e:ci"
+    "test": "pnpm -r run test"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",

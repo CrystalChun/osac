@@ -15,7 +15,6 @@ COPY libs/i18n/package.json ./libs/i18n/
 COPY libs/types/package.json ./libs/types/
 COPY libs/ui-components/package.json ./libs/ui-components/
 COPY apps/app-frontend/package.json ./apps/app-frontend/
-COPY apps/e2e/package.json ./apps/e2e/
 
 RUN pnpm install --frozen-lockfile
 
