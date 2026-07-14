@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   Alert,
   Button,
@@ -18,21 +18,13 @@ import { InputField } from '../../components/Form/InputField';
 import OsacForm from '../../components/Form/OsacForm';
 import { useTranslation } from '../../hooks/useTranslation';
 import { getErrorMessage } from '../../utils/error';
-import { cidrSchema } from '../../validation/cidr-validation';
+import { buildCidrSchema } from '../../validation/cidr-validation';
 
 interface VirtualNetworkCreateModalProps {
   onClose: () => void;
   onCreate: (input: VirtualNetworkInput) => Promise<{ id: string }>;
   onNavigate: (id: string) => void;
 }
-
-const validationSchema = Yup.object({
-  name: Yup.string().required('Name is required'),
-  ipv4Cidr: cidrSchema,
-  ipv6Cidr: cidrSchema,
-}).test('at-least-one-cidr', 'At least one CIDR (IPv4 or IPv6) is required', (values) => {
-  return Boolean(values.ipv4Cidr || values.ipv6Cidr);
-});
 
 export const VirtualNetworkCreateModal = ({
   onClose,
@@ -42,6 +34,18 @@ export const VirtualNetworkCreateModal = ({
   const { t } = useTranslation();
   const [error, setError] = React.useState<Error | null>(null);
   const { data: networkClasses = [], isLoading: isLoadingNetworkClasses } = useNetworkClasses();
+
+  const validationSchema = useMemo(
+    () =>
+      Yup.object({
+        name: Yup.string().required(t('Name is required')),
+        ipv4Cidr: buildCidrSchema(t, 'ipv4'),
+        ipv6Cidr: buildCidrSchema(t, 'ipv6'),
+      }).test('at-least-one-cidr', t('At least one CIDR (IPv4 or IPv6) is required'), (values) =>
+        Boolean(values.ipv4Cidr || values.ipv6Cidr),
+      ),
+    [t],
+  );
 
   const defaultNetworkClass =
     networkClasses.find((nc) => nc.title === 'CUDN Network Implementation')?.id ??

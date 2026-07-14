@@ -38,14 +38,14 @@ export const ClusterNetworkingStep = ({ catalogItem }: Props) => {
             label={podCidrOverlay.label}
             fieldId="cluster-pod-cidr"
             isDisabled={!podCidrOverlay.editable}
-            helperText={t('Use CIDR notation (for example 10.128.0.0/14 or fd01::/48).')}
+            helperText={t('Use IPv4 CIDR notation (for example 10.128.0.0/14).')}
           />
           <InputField
             name="spec.network.serviceCidr"
             label={serviceCidrOverlay.label}
             fieldId="cluster-service-cidr"
             isDisabled={!serviceCidrOverlay.editable}
-            helperText={t('Use CIDR notation (for example 172.30.0.0/16 or fd02::/112).')}
+            helperText={t('Use IPv4 CIDR notation (for example 172.30.0.0/16).')}
           />
         </OsacForm>
       </StackItem>

@@ -1,92 +1,123 @@
 import { describe, expect, it } from 'vitest';
 
 import {
-  cidrSchema,
+  buildCidrSchema,
   cidrsOverlap,
   hasSubnetOverlap,
   isSubnetWithinVN,
   isValidCidr,
 } from './cidr-validation';
 
-describe('isValidCidr', () => {
+describe('isValidCidr (ipv4)', () => {
   it.each([
     ['', true],
     ['   ', true],
     ['10.128.0.0/14', true],
     ['172.30.0.0/16', true],
-    ['fd01::/48', true],
     ['not-a-cidr', false],
     ['10.0.0.0', false],
     ['10.0.0.0/', false],
     ['/24', false],
     ['10.0.0.0/33', false],
     ['256.0.0.0/8', false],
+    ['fd01::/48', false],
+    ['fd02::/112', false],
   ])('validates %j as %s', (value, expected) => {
-    expect(isValidCidr(value)).toBe(expected);
+    expect(isValidCidr(value, 'ipv4')).toBe(expected);
+  });
+});
+
+describe('buildCidrSchema (ipv4)', () => {
+  const t = (key: string) => key;
+  const schema = buildCidrSchema(t, 'ipv4');
+
+  it('validates valid IPv4 CIDR', async () => {
+    await expect(schema.validate('10.128.0.0/14')).resolves.toBe('10.128.0.0/14');
+  });
+
+  it('rejects IPv6 CIDR', async () => {
+    await expect(schema.validate('fd01::/48')).rejects.toThrow('Invalid IPv4 CIDR notation');
+  });
+
+  it('allows empty string for optional fields', async () => {
+    await expect(schema.validate('')).resolves.toBe('');
+  });
+
+  it('rejects invalid CIDR without prefix', async () => {
+    await expect(schema.validate('192.168.1.0')).rejects.toThrow();
+  });
+
+  it('rejects invalid CIDR with invalid IP', async () => {
+    await expect(schema.validate('999.999.999.999/24')).rejects.toThrow();
+  });
+
+  it('rejects invalid CIDR with invalid prefix', async () => {
+    await expect(schema.validate('192.168.1.0/99')).rejects.toThrow();
+  });
+
+  it('rejects non-CIDR string', async () => {
+    await expect(schema.validate('not-a-cidr')).rejects.toThrow();
+  });
+
+  it('rejects empty string when required', async () => {
+    await expect(schema.required('CIDR is required').validate('')).rejects.toThrow();
+  });
+});
+
+describe('isValidCidr (ipv6)', () => {
+  it.each([
+    ['', true],
+    ['   ', true],
+    ['2001:db8::/32', true],
+    ['fd01::/48', true],
+    ['not-a-cidr', false],
+    ['10.128.0.0/14', false],
+    ['2001:db8::/199', false],
+  ])('validates %j as %s', (value, expected) => {
+    expect(isValidCidr(value, 'ipv6')).toBe(expected);
+  });
+});
+
+describe('buildCidrSchema (ipv6)', () => {
+  const t = (key: string) => key;
+  const schema = buildCidrSchema(t, 'ipv6');
+
+  it('validates valid IPv6 CIDR', async () => {
+    await expect(schema.validate('2001:db8::/32')).resolves.toBe('2001:db8::/32');
+  });
+
+  it('rejects IPv4 CIDR', async () => {
+    await expect(schema.validate('10.128.0.0/14')).rejects.toThrow('Invalid IPv6 CIDR notation');
+  });
+
+  it('allows empty string for optional fields', async () => {
+    await expect(schema.validate('')).resolves.toBe('');
+  });
+
+  it('rejects invalid IPv6 CIDR with invalid prefix', async () => {
+    await expect(schema.validate('2001:db8::/199')).rejects.toThrow();
+  });
+
+  it('rejects non-CIDR string', async () => {
+    await expect(schema.validate('not-a-cidr')).rejects.toThrow();
   });
 });
 
 describe('cidrsOverlap', () => {
   it('detects identical overlapping CIDRs', () => {
-    expect(cidrsOverlap('10.128.0.0/14', '10.128.0.0/14')).toBe(true);
+    expect(cidrsOverlap('10.128.0.0/14', '10.128.0.0/14', 'ipv4')).toBe(true);
   });
 
   it('allows non-overlapping CIDRs', () => {
-    expect(cidrsOverlap('10.128.0.0/14', '172.30.0.0/16')).toBe(false);
+    expect(cidrsOverlap('10.128.0.0/14', '172.30.0.0/16', 'ipv4')).toBe(false);
   });
 
   it('ignores empty values', () => {
-    expect(cidrsOverlap('', '172.30.0.0/16')).toBe(false);
+    expect(cidrsOverlap('', '172.30.0.0/16', 'ipv4')).toBe(false);
   });
 
   it('detects containment overlap when one CIDR is within another', () => {
-    expect(cidrsOverlap('10.0.0.0/8', '10.128.0.0/14')).toBe(true);
-  });
-});
-
-describe('cidrSchema', () => {
-  it('validates valid IPv4 CIDR with prefix', async () => {
-    await expect(cidrSchema.validate('192.168.1.0/24')).resolves.toBe('192.168.1.0/24');
-  });
-
-  it('validates valid IPv4 CIDR with /16 prefix', async () => {
-    await expect(cidrSchema.validate('10.0.0.0/16')).resolves.toBe('10.0.0.0/16');
-  });
-
-  it('validates valid IPv4 CIDR with /32 prefix', async () => {
-    await expect(cidrSchema.validate('172.16.0.1/32')).resolves.toBe('172.16.0.1/32');
-  });
-
-  it('rejects invalid CIDR without prefix', async () => {
-    await expect(cidrSchema.validate('192.168.1.0')).rejects.toThrow();
-  });
-
-  it('rejects invalid CIDR with invalid IP', async () => {
-    await expect(cidrSchema.validate('999.999.999.999/24')).rejects.toThrow();
-  });
-
-  it('rejects invalid CIDR with invalid prefix', async () => {
-    await expect(cidrSchema.validate('192.168.1.0/99')).rejects.toThrow();
-  });
-
-  it('validates valid IPv6 CIDR with compressed prefix', async () => {
-    await expect(cidrSchema.validate('2001:db8::/32')).resolves.toBe('2001:db8::/32');
-  });
-
-  it('rejects invalid IPv6 CIDR with invalid prefix', async () => {
-    await expect(cidrSchema.validate('2001:db8::/199')).rejects.toThrow();
-  });
-
-  it('rejects non-CIDR string', async () => {
-    await expect(cidrSchema.validate('not-a-cidr')).rejects.toThrow();
-  });
-
-  it('allows empty string for optional fields', async () => {
-    await expect(cidrSchema.validate('')).resolves.toBe('');
-  });
-
-  it('rejects empty string when required', async () => {
-    await expect(cidrSchema.required('CIDR is required').validate('')).rejects.toThrow();
+    expect(cidrsOverlap('10.0.0.0/8', '10.128.0.0/14', 'ipv4')).toBe(true);
   });
 });
 

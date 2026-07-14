@@ -25,7 +25,11 @@ import {
 import OsacForm from '../../components/Form/OsacForm';
 import { useTranslation } from '../../hooks/useTranslation';
 import { getErrorMessage } from '../../utils/error';
-import { cidrSchema, hasSubnetOverlap, isSubnetWithinVN } from '../../validation/cidr-validation';
+import {
+  buildCidrSchema,
+  hasSubnetOverlap,
+  isSubnetWithinVN,
+} from '../../validation/cidr-validation';
 
 interface SubnetCreateModalProps {
   onClose: () => void;
@@ -53,7 +57,7 @@ export const SubnetCreateModal = ({
       Yup.object({
         name: Yup.string().required(t('Name is required')),
         ipv4Cidr: hasIPv4
-          ? cidrSchema
+          ? buildCidrSchema(t, 'ipv4')
               .required(t('IPv4 CIDR is required'))
               .test('within-vn', t('CIDR must be within parent virtual network range'), (value) => {
                 if (!value || !parentIPv4CIDR) {
@@ -83,7 +87,7 @@ export const SubnetCreateModal = ({
               })
           : Yup.string(),
         ipv6Cidr: hasIPv6
-          ? cidrSchema
+          ? buildCidrSchema(t, 'ipv6')
               .required(t('IPv6 CIDR is required'))
               .test('within-vn', t('CIDR must be within parent virtual network range'), (value) => {
                 if (!value || !parentIPv6CIDR) {

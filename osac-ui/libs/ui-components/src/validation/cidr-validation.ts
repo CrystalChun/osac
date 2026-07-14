@@ -1,10 +1,13 @@
+import type { TFunction } from 'i18next';
 import { Address4, Address6 } from 'ip-address';
 import * as Yup from 'yup';
 
+export type CidrIpFamily = 'ipv4' | 'ipv6';
+
 /**
- * Returns true when value is empty or a valid IPv4/IPv6 CIDR.
+ * Returns true when value is empty or a valid CIDR for the requested IP family.
  */
-export const isValidCidr = (value: string): boolean => {
+export const isValidCidr = (value: string, ipFamily: CidrIpFamily): boolean => {
   const trimmed = value.trim();
   if (!trimmed) {
     return true;
@@ -12,39 +15,50 @@ export const isValidCidr = (value: string): boolean => {
   if (!trimmed.includes('/')) {
     return false;
   }
-  try {
-    return new Address4(trimmed).isCorrect();
-  } catch {
+
+  if (ipFamily === 'ipv4') {
     try {
-      return new Address6(trimmed).isCorrect();
+      return new Address4(trimmed).isCorrect();
     } catch {
       return false;
     }
+  }
+
+  try {
+    return new Address6(trimmed).isCorrect();
+  } catch {
+    return false;
   }
 };
 
 /**
  * Returns true when two CIDRs overlap. Empty or invalid values do not overlap.
  */
-export const cidrsOverlap = (left: string, right: string): boolean => {
+export const cidrsOverlap = (left: string, right: string, ipFamily: CidrIpFamily): boolean => {
   const a = left.trim();
   const b = right.trim();
-  if (!a || !b || !isValidCidr(a) || !isValidCidr(b)) {
+  if (!a || !b || !isValidCidr(a, ipFamily) || !isValidCidr(b, ipFamily)) {
     return false;
   }
   return hasSubnetOverlap(a, [b]);
 };
 
 /**
- * Yup schema for validating IPv4 or IPv6 CIDR notation.
+ * Yup schema for validating CIDR notation for the requested IP family.
  * Use .required() when the field is mandatory.
  */
-export const cidrSchema = Yup.string().test('valid-cidr', 'Invalid CIDR notation', (value) => {
-  if (!value) {
-    return true; // Allow empty for optional fields
-  }
-  return isValidCidr(value);
-});
+export const buildCidrSchema = (t: TFunction, ipFamily: CidrIpFamily) => {
+  const testName = ipFamily === 'ipv4' ? 'valid-ipv4-cidr' : 'valid-ipv6-cidr';
+  const message =
+    ipFamily === 'ipv4' ? t('Invalid IPv4 CIDR notation') : t('Invalid IPv6 CIDR notation');
+
+  return Yup.string().test(testName, message, (value) => {
+    if (!value) {
+      return true;
+    }
+    return isValidCidr(value, ipFamily);
+  });
+};
 
 /**
  * Check if a subnet CIDR is within a parent VirtualNetwork CIDR.

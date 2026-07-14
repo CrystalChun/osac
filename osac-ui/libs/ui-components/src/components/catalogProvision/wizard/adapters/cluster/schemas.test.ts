@@ -235,13 +235,13 @@ describe('buildClusterStepSchema', () => {
     expect(errors).toEqual({
       spec: {
         network: {
-          podCidr: 'Invalid CIDR notation',
+          podCidr: 'Invalid IPv4 CIDR notation',
         },
       },
     });
   });
 
-  it('accepts IPv6 pod and service CIDRs on networking step', async () => {
+  it('rejects IPv6 pod and service CIDRs on networking step', async () => {
     const errors = await validateStep(
       'networking',
       {
@@ -257,7 +257,14 @@ describe('buildClusterStepSchema', () => {
       },
       clusterCatalogItem,
     );
-    expect(errors).toEqual({});
+    expect(errors).toEqual({
+      spec: {
+        network: {
+          podCidr: 'Invalid IPv4 CIDR notation',
+          serviceCidr: 'Invalid IPv4 CIDR notation',
+        },
+      },
+    });
   });
 
   it('rejects overlapping pod and service CIDRs on networking step', async () => {
