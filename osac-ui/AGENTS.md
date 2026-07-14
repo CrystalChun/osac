@@ -28,7 +28,6 @@ FULFILLMENT_API_URL=https://... pnpm dev  # Go proxy + Vite on :5173
 **Key commands**:
 - `pnpm build` — TypeScript check + Vite build + Go binary
 - `pnpm test` — Vitest unit tests across all packages
-- `pnpm e2e:ci` — Cypress E2E tests
 - `pnpm lint` — ESLint + Prettier + i18n sync check (CI fails if out of sync)
 - `pnpm format` — Auto-fix linting and formatting issues
 - `pnpm gen-types` — Regenerate TypeScript from protobuf (libs/types)
@@ -164,12 +163,6 @@ export const getLabels = (t: TFunction) => ({
   - `libs/ui-components/src/VmStatusLabel.test.tsx`
   - `libs/ui-components/src/api/fulfillment-decode.test.ts`
   - `libs/ui-components/src/components/Form/fieldError.test.ts`
-
-**E2E tests** (Cypress):
-- Package: `@osac/e2e` (apps/e2e/)
-- Run: `pnpm e2e:ci` (headless) or `pnpm --filter @osac/e2e run e2e` (interactive)
-- Config: apps/e2e/cypress.config.ts
-- Base URL: http://localhost:5173 (dev server must be running)
 
 **Test guidelines**:
 - Assert what the user sees and does — prefer accessible queries (labels, roles, names)
