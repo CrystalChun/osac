@@ -153,6 +153,7 @@
   "Invalid IPv4 CIDR format (e.g., 192.168.1.0/24)": "Invalid IPv4 CIDR format (e.g., 192.168.1.0/24)",
   "Invalid IPv4 CIDR notation": "Invalid IPv4 CIDR notation",
   "Invalid IPv6 CIDR format (e.g., 2001:db8::/32)": "Invalid IPv6 CIDR format (e.g., 2001:db8::/32)",
+  "Invalid IPv6 CIDR notation": "Invalid IPv6 CIDR notation",
   "Invalid pull secret format. Paste the complete JSON from your Red Hat account pull secret.": "Invalid pull secret format. Paste the complete JSON from your Red Hat account pull secret.",
   "IP family": "IP family",
   "IPv4 CIDR": "IPv4 CIDR",

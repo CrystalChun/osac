@@ -12,9 +12,9 @@ import {
   CLUSTER_SSH_KEY_WIRE_PATH,
 } from './fields';
 import {
-  buildIpv4CidrSchema,
+  buildCidrSchema,
   cidrsOverlap,
-  isValidIpv4Cidr,
+  isValidCidr,
 } from '../../../../../validation/cidr-validation';
 import { labeledResourceRefSchema } from '../../../../Form/labeledResourceRefSchema';
 import {
@@ -122,13 +122,13 @@ const buildClusterFieldDefinitions = (catalogItem: unknown, t: TFunction) => {
       }),
     specNetwork: yup.object({
       podCidr: mergeCatalogValidation(
-        buildIpv4CidrSchema(t),
+        buildCidrSchema(t, 'ipv4'),
         podCidrOverlay,
         false,
         t('This field is required'),
       ),
       serviceCidr: mergeCatalogValidation(
-        buildIpv4CidrSchema(t).test(
+        buildCidrSchema(t, 'ipv4').test(
           'service-cidr-no-overlap',
           t('Service CIDR must not overlap the pod CIDR.'),
           function (value) {
@@ -137,10 +137,10 @@ const buildClusterFieldDefinitions = (catalogItem: unknown, t: TFunction) => {
             if (!value?.trim() || !podCidr.trim()) {
               return true;
             }
-            if (!isValidIpv4Cidr(value) || !isValidIpv4Cidr(podCidr)) {
+            if (!isValidCidr(value, 'ipv4') || !isValidCidr(podCidr, 'ipv4')) {
               return true;
             }
-            return !cidrsOverlap(podCidr, value);
+            return !cidrsOverlap(podCidr, value, 'ipv4');
           },
         ),
         serviceCidrOverlay,
