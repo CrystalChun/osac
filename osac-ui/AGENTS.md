@@ -14,10 +14,11 @@
 
 ## Dev Environment
 
-**Stack**: pnpm 9+ monorepo, Node.js 20+, React 19, TypeScript 5.9, PatternFly 6, Go 1.25+ (proxy)
+**Stack**: pnpm 9+ monorepo, Node.js 20+, React 19, TypeScript 5.9, PatternFly 6, Connect/gRPC-Web (`@connectrpc/connect-web`), Go 1.25+ (proxy)
 
 **Prerequisites**:
 - pnpm must be installed globally (`npm install -g pnpm@9`) — not included by default
+- A running [fulfillment-service](https://github.com/osac-project/fulfillment-service) gRPC endpoint (there is no local mock server)
 
 **Setup**:
 ```bash
@@ -27,13 +28,11 @@ FULFILLMENT_API_URL=https://... pnpm dev  # Go proxy + Vite on :5173
 
 **Key commands**:
 - `pnpm build` — TypeScript check + Vite build + Go binary
-- `pnpm test` — Vitest unit tests across all packages
+- `pnpm test` — app-frontend Vitest tests, including ui-components tests via include globs
 - `pnpm lint` — ESLint + Prettier + i18n sync check (CI fails if out of sync)
 - `pnpm format` — Auto-fix linting and formatting issues
 - `pnpm gen-types` — Regenerate TypeScript from protobuf (libs/types)
 - `pnpm i18n` — Extract t() keys to libs/i18n/locales/en/translation.json
-- `pnpm check:pf-primitives` — Validate PatternFly usage (custom linter)
-- `pnpm graph:statecharts` — Generate statechart graphs (XState) to docs/specs/graphs/
 
 **Container**:
 ```bash
@@ -43,19 +42,19 @@ podman run -p 8080:8080 -e FULFILLMENT_API_URL=https://... osac:latest
 Multi-stage build images: `nodejs-22-minimal:9.8`, `go-toolset:1.25`, `ubi-minimal:9.5` (see Containerfile)
 
 **Go proxy** (proxy/):
-- chi router with OIDC auth + API forwarding
-- Required env: `FULFILLMENT_API_URL`
+- chi router with OIDC auth + Connect JSON → gRPC bridge
+- Required env: `FULFILLMENT_API_URL` (HTTP URL; proxy derives the gRPC target from it)
 - Optional: `OIDC_CLIENT_ID`, `BASE_UI_URL`, TLS CA files, insecure flags (dev only)
-- Proxied paths: `/api/fulfillment/v1/*`, `/api/events/v1/*`, `/api/osac/public/v1/*`
+- API path: `/api/fulfillment/*` — Connect protocol (JSON) from the browser, translated to native gRPC upstream via `proxy/bridge/connectjson.go`
 - Development: `cd proxy && nodemon --watch 'proxy/**/*' --exec 'go run' main.go`
 
 ## Key Workspace Packages
 
 | Package | Agent-Relevant Notes |
 |---------|---------------------|
-| `@osac/app-frontend` | React SPA — all user-facing pages and routing logic |
-| `@osac/ui-components` | Shared components consumed at source (no build) — most feature work happens here |
-| `@osac/types` | Generated protobuf types — **never edit**, regenerate with `pnpm gen-types` |
+| `@osac/app-frontend` | React SPA — Connect transport, `ApiProvider`, routing |
+| `@osac/ui-components` | Shared components consumed at source (no build) — typed gRPC hooks live here |
+| `@osac/types` | Generated protobuf types and service descriptors — **never edit**, regenerate with `pnpm gen-types` |
 | `@osac/i18n` | Translation extraction — `locales/en/translation.json` is generated, not hand-edited |
 
 ## Code Style
@@ -76,11 +75,12 @@ Multi-stage build images: `nodejs-22-minimal:9.8`, `go-toolset:1.25`, `ubi-minim
 - **Default exports** for React components; **named exports** for everything else (utilities, hooks, types, constants)
 - **One component per file**: split each meaningful component into its own file in the same feature area (e.g., `feature-name/SubView.tsx`); keep page files focused on composition, data wiring, and layout. Exception: a tiny non-exported helper may stay if the file remains short
 - **Restricted imports** (ESLint enforces):
-  - Use `OsacForm` wrapper, not PF `Form` directly
-  - Deep imports for PF icons/tokens (ESM): `@patternfly/react-icons/dist/esm/icons/<name>`
+  - Use `OsacForm` wrapper (`libs/ui-components/src/components/Form/OsacForm.tsx`), not PF `Form` directly
+  - Deep imports for PF icons/tokens (ESM): `@patternfly/react-icons/dist/esm/icons/<name>`, `@patternfly/react-tokens/dist/esm/<token-name>`
   - Deep imports for lodash-es: `lodash-es/<function>`
   - Use `@osac/ui-components/hooks/useTranslation`, never `react-i18next` directly
-  - ui-components: use `useApiQuery`, never `@tanstack/react-query` `useQuery` directly
+  - ui-components consumers: use `useApiQuery`, never `@tanstack/react-query` `useQuery` directly
+  - ui-components consumers: use `useApiQueryClient` from `@osac/ui-components/api/use-api-query`, never `useQueryClient` directly
 - Do not add dependencies without aligning with existing stack and license policy; prefer patterns already present in the target package
 
 ### Styling
@@ -94,7 +94,7 @@ Multi-stage build images: `nodejs-22-minimal:9.8`, `go-toolset:1.25`, `ubi-minim
 
 - Base UI on [PatternFly 6](https://www.patternfly.org/) — layout, components, tokens, and patterns. For OpenShift-aligned UIs, also follow [OpenShift Console STYLEGUIDE.md](https://github.com/openshift/console/blob/main/STYLEGUIDE.md)
 - Prefer accessible queries in tests and implementations: labels, roles, names — avoid `data-testid` unless the team standard requires it
-- Meet keyboard and screen-reader expectations implied by the spec (focus order, labels, live regions for async errors)
+- Meet keyboard and screen-reader expectations (focus order, labels, live regions for async errors)
 
 ### React Performance and `memo`
 
@@ -157,12 +157,17 @@ export const getLabels = (t: TFunction) => ({
 
 **Unit tests** (Vitest + React Testing Library):
 - Framework: Vitest 4.x with jsdom
-- Run: `pnpm test` (all packages) or per-package `pnpm --filter <pkg> run test`
-- Location: `*.test.tsx` files alongside source
+- Run: `pnpm test` — executes `@osac/app-frontend` vitest, which also runs ui-components tests via include globs
+- Per-package: `pnpm --filter @osac/app-frontend run test`
+- Location: `*.{test,spec}.{ts,tsx}` alongside source in `apps/app-frontend/src/` and `libs/ui-components/src/`
 - Example paths:
   - `libs/ui-components/src/VmStatusLabel.test.tsx`
-  - `libs/ui-components/src/api/fulfillment-decode.test.ts`
+  - `libs/ui-components/src/api/types.test.ts`
   - `libs/ui-components/src/components/Form/fieldError.test.ts`
+
+**Mocking API calls in tests**:
+- Use `createMockConnectTransport` from `libs/ui-components/src/components/catalogProvision/test/createMockConnectTransport.ts` — in-memory Connect router transport for protobuf services
+- Pass the mock transport to `ApiProvider`; do not mock fetch or REST endpoints (the REST layer was removed)
 
 **Test guidelines**:
 - Assert what the user sees and does — prefer accessible queries (labels, roles, names)
@@ -171,15 +176,11 @@ export const getLabels = (t: TFunction) => ({
 - No `data-testid` unless team standard requires it
 
 **Test configuration**:
-- apps/app-frontend/vitest.config.ts — SPA unit tests
+- `apps/app-frontend/vitest.config.ts` — single runner for app-frontend and ui-components tests (`include` spans both packages)
 - ESLint relaxes type safety rules for test files (no-unsafe-* off)
 - Testing libraries: @testing-library/react 16.x, @testing-library/jest-dom 6.x
-
-## Specs and Traceability
-
-- Implement and test only what documented acceptance criteria require; use stable IDs (`AC-1`, `AC-2`, …) in PR text and tie tests to ACs
-- If the spec is ambiguous, do not invent product behavior — document assumptions in the PR or spec under _Open questions_
-- Out-of-scope items from the spec must not appear as drive-by features
+- No E2E tests in this repo — E2E coverage lives in `osac-test-infra`
+- CI runs lint, test, and container build; run `pnpm test` locally before submitting
 
 ## Build
 
@@ -206,7 +207,7 @@ pnpm build  # Builds frontend + proxy binary
 ```
 
 **Type generation**:
-- libs/types uses @bufbuild/buf to generate TS types from protobuf
+- libs/types uses @bufbuild/buf to generate TS types and Connect service descriptors from protobuf
 - Run `pnpm gen-types` after proto changes
 - Never edit libs/types/src/*.ts manually
 
@@ -217,10 +218,27 @@ pnpm build  # Builds frontend + proxy binary
 
 ## Architecture (Agent Key Points)
 
-**API layer split** (enforced by ESLint):
-- `ui-components`: `useApiQuery` wrapper (no queryFn, just options) — never imports `useQuery` directly
-- `app-frontend`: supplies queryFn per route
-- See [docs/api-query-arch.md](docs/api-query-arch.md) for details
+**Stack** (from package manifests):
+- UI: PatternFly 6, React 19, react-router-dom 7, TanStack Query 5
+- API: Connect/gRPC-Web (`@connectrpc/connect`, `@connectrpc/connect-web`), protobuf types from `@osac/types`
+- Forms: Formik + Yup in `libs/ui-components`
+
+**Connect transport and API layer** — see [docs/api-query-arch.md](docs/api-query-arch.md):
+- Browser sends Connect JSON to `/api/fulfillment` via `createConnectTransport` in `apps/app-frontend/src/main.tsx`
+- Go proxy (`proxy/bridge/connectjson.go`) translates Connect JSON → native gRPC to fulfillment-service
+- `ApiProvider` stores the Connect `Transport`; hooks get typed clients via `useApiFetch(ServiceDescriptor)` from `libs/ui-components/src/api/api-context.tsx`
+- `connectErrorInterceptor` converts `ConnectError(Unauthenticated)` to `UnauthorizedError` for login redirect
+
+**Resource hooks** (`libs/ui-components/src/api/v1/*`):
+- Reads: `useApiQuery` with a `queryFn` that calls the Connect client (`client.list`, `client.get`, …)
+- Writes: `useMutation` calling Connect client RPCs (`client.create`, `client.delete`, …)
+- Cache keys: `apiQueryKey('v1/<resource>', …)` — register new routes in `ApiRoute` (`libs/ui-components/src/api/types.ts`) first
+- List pagination: shared `ListParams` (`filter`, `limit`, `offset`, `order`) — not cursor-based
+- Unwrap responses in hook `select` (`.items` / `.object`), not in components
+
+**ESLint restrictions** (ui-components consumers):
+- Use `useApiQuery` / `useApiQueryClient`, not TanStack hooks directly (exception: `libs/ui-components/src/api/use-api-query.ts` implements the wrappers)
+- Mutation hooks may import `useMutation` from `@tanstack/react-query` directly
 
 **i18n flow**:
 - English text is the key (e.g., `t('Save changes')`)
@@ -229,22 +247,19 @@ pnpm build  # Builds frontend + proxy binary
 - CI enforces sync: `pnpm run i18n --ci` (fails if out of date)
 
 **Type generation**:
-- Protobuf → TypeScript via @bufbuild/buf + @bufbuild/protobuf
+- Protobuf → TypeScript + service descriptors via @bufbuild/buf
 - Never edit libs/types/src/*.ts manually — regenerate with `pnpm gen-types`
 
 **Component organization** (libs/ui-components/src):
 - `components/`: catalog, catalogProvision, Cluster, dashboard, Form, Page, Primitives, Resource, vm, shared
 - `pages/`: admin, provider, tenant
-- `api/`: fulfillment-decode, types, use-api-query
-  - `api/v1/`: compute-instance, instance-types (domain models)
-
-**Custom tooling**:
-- `scripts/check-pf-primitives.mjs`: validates PatternFly usage (run via `pnpm check:pf-primitives`)
+- `api/`: api-context, types, use-api-query
+  - `api/v1/`: domain hooks (compute-instance, cluster, networking, …)
 
 ## Quality Bar
 
 - Match existing formatting, import order, file layout, and naming in the touched package
-- No broad refactors unrelated to the current spec; smallest diff that satisfies ACs
+- No broad refactors unrelated to the current task; smallest diff that satisfies requirements
 - Run linters and tests before considering work done; fix new violations you introduce
 
 ## Security
@@ -254,7 +269,7 @@ pnpm build  # Builds frontend + proxy binary
 - Use existing env/config patterns for sensitive data (see proxy/ env vars)
 - Sanitize or escape user-controlled content per framework norms
 - Validate inputs at trust boundaries
-- Follow authz semantics from architecture/specs — do not bypass checks
+- Follow authz semantics from architecture docs — do not bypass checks
 - gitleaks config: `.gitleaks.toml` (pre-commit hook integration via rh-pre-commit)
 
 ## PR Conventions
@@ -266,23 +281,24 @@ pnpm build  # Builds frontend + proxy binary
 - Prefix with ticket if applicable (e.g., "OSAC-1886: add VM details page")
 - Conventional commits style observed in git log (feat, fix, refactor)
 
-**AI attribution**:
+**AI attribution** — use one trailer matching the tool that assisted (never `Co-Authored-By` for AI tools — Red Hat standard):
+```
+Assisted-by: Cursor <cursoragent@cursor.com>
+```
 ```
 Assisted-by: Claude Code <noreply@anthropic.com>
 ```
-(Never use Co-Authored-By for AI tools — Red Hat standard)
 
 **PR review**:
-- CI must pass: lint (TS + Go), container build
+- CI must pass: lint (TS + Go), test, container build
 - On main merge or tag: publish container image to ghcr.io
 - On `v*` tags: publish Helm chart to GHCR
 
 **Scope discipline**:
-- Implement and test only what documented acceptance criteria require
-- Use stable IDs (AC-1, AC-2) in PR text and tie tests to ACs
-- No drive-by features unrelated to the spec
-- No broad refactors unrelated to current spec
-- Smallest diff that satisfies ACs
+- Implement and test only what the task requires
+- No drive-by features unrelated to the task
+- No broad refactors unrelated to current work
+- Smallest diff that satisfies requirements
 
 **Code review expectations**:
 - Match existing formatting, import order, file layout, naming
@@ -290,9 +306,14 @@ Assisted-by: Claude Code <noreply@anthropic.com>
 - Fix new violations you introduce
 - No secrets, tokens, or credentials in source
 - Sanitize user-controlled content
-- Follow authz semantics from architecture/specs
+- Follow authz semantics from architecture docs
 
 ## Go Proxy (Agent Notes)
+
+**Connect JSON bridge** (`proxy/bridge/connectjson.go`):
+- Accepts Connect protocol (JSON) from the browser at `/api/fulfillment/*`
+- Uses gRPC server reflection to translate to native gRPC — no proto stubs in the proxy
+- gRPC target derived from `FULFILLMENT_API_URL` via `config.FulfillmentGrpcTarget()`
 
 **Code style** (golangci-lint config v2):
 - Linters: errcheck, staticcheck, govet, ineffassign, unused, misspell, revive, exhaustive, noctx, bodyclose
@@ -306,9 +327,9 @@ cd proxy && nodemon --watch 'proxy/**/*' --exec 'go run' main.go
 
 See README.md for env vars and deployment details.
 
-## Specs and Traceability Reference
+## Documentation Reference
 
-| Spec Type | Location |
-|-----------|----------|
-| Feature acceptance criteria | Per-feature documentation |
-| Statechart graphs (XState) | `docs/specs/graphs/` (generated by `pnpm graph:statecharts`) |
+| Document | Location |
+|----------|----------|
+| API query architecture (Connect/gRPC) | [docs/api-query-arch.md](docs/api-query-arch.md) |
+| OpenShift deployment | [docs/deployment-openshift-guide.md](docs/deployment-openshift-guide.md) |

@@ -1,7 +1,3 @@
-/**
- * flow: manage-virtual-machines
- * step: mvm_detail_view
- */
 import { useParams } from 'react-router-dom';
 
 import { useComputeInstance } from '../../api/v1/compute-instance';
