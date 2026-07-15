@@ -25,7 +25,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/public/v1/host_type_type.proto.
  */
 export const file_osac_public_v1_host_type_type: GenFile = /*@__PURE__*/
-  fileDesc("CiNvc2FjL3B1YmxpYy92MS9ob3N0X3R5cGVfdHlwZS5wcm90bxIOb3NhYy5wdWJsaWMudjEiZgoISG9zdFR5cGUSCgoCaWQYASABKAkSKgoIbWV0YWRhdGEYAiABKAsyGC5vc2FjLnB1YmxpYy52MS5NZXRhZGF0YRINCgV0aXRsZRgDIAEoCRITCgtkZXNjcmlwdGlvbhgEIAEoCWIGcHJvdG8z", [file_osac_public_v1_metadata_type]);
+  fileDesc("CiNvc2FjL3B1YmxpYy92MS9ob3N0X3R5cGVfdHlwZS5wcm90bxIOb3NhYy5wdWJsaWMudjEinAEKCEhvc3RUeXBlEgoKAmlkGAEgASgJEioKCG1ldGFkYXRhGAIgASgLMhgub3NhYy5wdWJsaWMudjEuTWV0YWRhdGESDQoFdGl0bGUYAyABKAkSEwoLZGVzY3JpcHRpb24YBCABKAkSNAoKaW50ZXJmYWNlcxgFIAMoCzIgLm9zYWMucHVibGljLnYxLk5ldHdvcmtJbnRlcmZhY2UiQwoQTmV0d29ya0ludGVyZmFjZRIMCgRuYW1lGAEgASgJEgwKBHJvbGUYAiABKAkSEwoLZGVzY3JpcHRpb24YAyABKAliBnByb3RvMw", [file_osac_public_v1_metadata_type]);
 
 /**
  * Describes a set of hosts that share characteristics.
@@ -68,6 +68,20 @@ export type HostType = Message<"osac.public.v1.HostType"> & {
    * @generated from field: string description = 4;
    */
   description: string;
+
+  /**
+   * Physical network interfaces available on hosts of this type.
+   *
+   * This is only meaningful for bare metal host types. Virtual machine host types have an empty list because VMs
+   * receive virtual NICs from the overlay network, not physical interfaces. This also serves as the bare metal vs
+   * virtual machine discriminator: if a host type has interfaces it is bare metal, if empty it is virtual.
+   *
+   * Interfaces are ordered. When multiple interfaces share the same role, the first one in the list is the default
+   * for that role.
+   *
+   * @generated from field: repeated osac.public.v1.NetworkInterface interfaces = 5;
+   */
+  interfaces: NetworkInterface[];
 };
 
 /**
@@ -76,4 +90,44 @@ export type HostType = Message<"osac.public.v1.HostType"> & {
  */
 export const HostTypeSchema: GenMessage<HostType> = /*@__PURE__*/
   messageDesc(file_osac_public_v1_host_type_type, 0);
+
+/**
+ * Describes a physical network interface available on hosts of a given type.
+ *
+ * For example, a bare metal host type may have two data interfaces (`data-0`, `data-1`) for fabric traffic and a
+ * management interface (`mgmt-0`) for control plane traffic.
+ *
+ * @generated from message osac.public.v1.NetworkInterface
+ */
+export type NetworkInterface = Message<"osac.public.v1.NetworkInterface"> & {
+  /**
+   * Interface identifier, unique within the host type. For example `data-0`, `data-1`, `mgmt-0`.
+   *
+   * @generated from field: string name = 1;
+   */
+  name: string;
+
+  /**
+   * Role of the interface. Convention values are `fabric` (east-west tenant traffic), `management` (control plane
+   * traffic), `storage` (storage fabric traffic), and `lifecycle` (out-of-band PXE/BMC). Roles are conventions, not
+   * enforced enums.
+   *
+   * @generated from field: string role = 2;
+   */
+  role: string;
+
+  /**
+   * Human-friendly description of the interface. For example `100GbE data interface`.
+   *
+   * @generated from field: string description = 3;
+   */
+  description: string;
+};
+
+/**
+ * Describes the message osac.public.v1.NetworkInterface.
+ * Use `create(NetworkInterfaceSchema)` to create a new message.
+ */
+export const NetworkInterfaceSchema: GenMessage<NetworkInterface> = /*@__PURE__*/
+  messageDesc(file_osac_public_v1_host_type_type, 1);
 

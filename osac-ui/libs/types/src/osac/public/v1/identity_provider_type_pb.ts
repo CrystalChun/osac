@@ -27,7 +27,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/public/v1/identity_provider_type.proto.
  */
 export const file_osac_public_v1_identity_provider_type: GenFile = /*@__PURE__*/
-  fileDesc("Citvc2FjL3B1YmxpYy92MS9pZGVudGl0eV9wcm92aWRlcl90eXBlLnByb3RvEg5vc2FjLnB1YmxpYy52MSK2AQoQSWRlbnRpdHlQcm92aWRlchIKCgJpZBgBIAEoCRIqCghtZXRhZGF0YRgCIAEoCzIYLm9zYWMucHVibGljLnYxLk1ldGFkYXRhEjIKBHNwZWMYAyABKAsyJC5vc2FjLnB1YmxpYy52MS5JZGVudGl0eVByb3ZpZGVyU3BlYxI2CgZzdGF0dXMYBCABKAsyJi5vc2FjLnB1YmxpYy52MS5JZGVudGl0eVByb3ZpZGVyU3RhdHVzIv4BChRJZGVudGl0eVByb3ZpZGVyU3BlYxINCgV0aXRsZRgBIAEoCRIYCgtkZXNjcmlwdGlvbhgCIAEoCUgBiAEBEg8KB2VuYWJsZWQYAyABKAgSKgoEb2lkYxgEIAEoCzIaLm9zYWMucHVibGljLnYxLk9pZGNDb25maWdIABIqCgRsZGFwGAUgASgLMhoub3NhYy5wdWJsaWMudjEuTGRhcENvbmZpZ0gAEiEKFGhlYWx0aF9jaGVja190cmlnZ2VyGAYgASgJSAKIAQFCCAoGY29uZmlnQg4KDF9kZXNjcmlwdGlvbkIXChVfaGVhbHRoX2NoZWNrX3RyaWdnZXIi1gIKCk9pZGNDb25maWcSGQoRYXV0aG9yaXphdGlvbl91cmwYASABKAkSEQoJdG9rZW5fdXJsGAIgASgJEhEKCWNsaWVudF9pZBgDIAEoCRIVCg1jbGllbnRfc2VjcmV0GAQgASgJEg4KBmlzc3VlchgFIAEoCRIbCg5kZWZhdWx0X3Njb3BlcxgGIAEoCUgAiAEBEhoKDXVzZXJfaW5mb191cmwYByABKAlIAYgBARIVCghqd2tzX3VybBgIIAEoCUgCiAEBEh8KEnZhbGlkYXRlX3NpZ25hdHVyZRgJIAEoCEgDiAEBEhcKCmxvZ291dF91cmwYCiABKAlIBIgBAUIRCg9fZGVmYXVsdF9zY29wZXNCEAoOX3VzZXJfaW5mb191cmxCCwoJX2p3a3NfdXJsQhUKE192YWxpZGF0ZV9zaWduYXR1cmVCDQoLX2xvZ291dF91cmwi9AMKCkxkYXBDb25maWcSFgoOY29ubmVjdGlvbl91cmwYASABKAkSDwoHYmluZF9kbhgCIAEoCRIXCg9iaW5kX2NyZWRlbnRpYWwYAyABKAkSEAoIdXNlcnNfZG4YBCABKAkSJAoXdXNlcm5hbWVfbGRhcF9hdHRyaWJ1dGUYBSABKAlIAIgBARIfChJyZG5fbGRhcF9hdHRyaWJ1dGUYBiABKAlIAYgBARIgChN1dWlkX2xkYXBfYXR0cmlidXRlGAcgASgJSAKIAQESIAoTdXNlcl9vYmplY3RfY2xhc3NlcxgIIAEoCUgDiAEBEhYKCWF1dGhfdHlwZRgJIAEoCUgEiAEBEhMKBnZlbmRvchgKIAEoCUgFiAEBEh8KEnVzZV90cnVzdHN0b3JlX3NwaRgLIAEoCEgGiAEBEhcKCnBhZ2luYXRpb24YDCABKAhIB4gBAUIaChhfdXNlcm5hbWVfbGRhcF9hdHRyaWJ1dGVCFQoTX3Jkbl9sZGFwX2F0dHJpYnV0ZUIWChRfdXVpZF9sZGFwX2F0dHJpYnV0ZUIWChRfdXNlcl9vYmplY3RfY2xhc3Nlc0IMCgpfYXV0aF90eXBlQgkKB192ZW5kb3JCFQoTX3VzZV90cnVzdHN0b3JlX3NwaUINCgtfcGFnaW5hdGlvbiLjAQoWSWRlbnRpdHlQcm92aWRlclN0YXR1cxI0CgVwaGFzZRgBIAEoDjIlLm9zYWMucHVibGljLnYxLklkZW50aXR5UHJvdmlkZXJQaGFzZRIPCgdtZXNzYWdlGAIgASgJEiEKFGhlYWx0aF9jaGVja190cmlnZ2VyGAMgASgJSACIAQESOwoGaGVhbHRoGAQgASgLMiYub3NhYy5wdWJsaWMudjEuSWRlbnRpdHlQcm92aWRlckhlYWx0aEgBiAEBQhcKFV9oZWFsdGhfY2hlY2tfdHJpZ2dlckIJCgdfaGVhbHRoIqoBChZJZGVudGl0eVByb3ZpZGVySGVhbHRoEjwKBnN0YXR1cxgBIAEoDjIsLm9zYWMucHVibGljLnYxLklkZW50aXR5UHJvdmlkZXJIZWFsdGhTdGF0dXMSFAoHbWVzc2FnZRgCIAEoCUgAiAEBEjAKDGxhc3RfY2hlY2tlZBgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCCgoIX21lc3NhZ2UqqwEKFUlkZW50aXR5UHJvdmlkZXJQaGFzZRInCiNJREVOVElUWV9QUk9WSURFUl9QSEFTRV9VTlNQRUNJRklFRBAAEiEKHUlERU5USVRZX1BST1ZJREVSX1BIQVNFX1JFQURZEAESIQodSURFTlRJVFlfUFJPVklERVJfUEhBU0VfRVJST1IQAhIjCh9JREVOVElUWV9QUk9WSURFUl9QSEFTRV9VTktOT1dOEAMq2AEKHElkZW50aXR5UHJvdmlkZXJIZWFsdGhTdGF0dXMSLworSURFTlRJVFlfUFJPVklERVJfSEVBTFRIX1NUQVRVU19VTlNQRUNJRklFRBAAEisKJ0lERU5USVRZX1BST1ZJREVSX0hFQUxUSF9TVEFUVVNfSEVBTFRIWRABEi0KKUlERU5USVRZX1BST1ZJREVSX0hFQUxUSF9TVEFUVVNfVU5IRUFMVEhZEAISKwonSURFTlRJVFlfUFJPVklERVJfSEVBTFRIX1NUQVRVU19VTktOT1dOEANiBnByb3RvMw", [file_google_protobuf_timestamp, file_osac_public_v1_metadata_type]);
+  fileDesc("Citvc2FjL3B1YmxpYy92MS9pZGVudGl0eV9wcm92aWRlcl90eXBlLnByb3RvEg5vc2FjLnB1YmxpYy52MSK2AQoQSWRlbnRpdHlQcm92aWRlchIKCgJpZBgBIAEoCRIqCghtZXRhZGF0YRgCIAEoCzIYLm9zYWMucHVibGljLnYxLk1ldGFkYXRhEjIKBHNwZWMYAyABKAsyJC5vc2FjLnB1YmxpYy52MS5JZGVudGl0eVByb3ZpZGVyU3BlYxI2CgZzdGF0dXMYBCABKAsyJi5vc2FjLnB1YmxpYy52MS5JZGVudGl0eVByb3ZpZGVyU3RhdHVzItIBChRJZGVudGl0eVByb3ZpZGVyU3BlYxINCgV0aXRsZRgBIAEoCRIYCgtkZXNjcmlwdGlvbhgCIAEoCUgBiAEBEg8KB2VuYWJsZWQYAyABKAgSKgoEb2lkYxgEIAEoCzIaLm9zYWMucHVibGljLnYxLk9pZGNDb25maWdIABIhChRoZWFsdGhfY2hlY2tfdHJpZ2dlchgGIAEoCUgCiAEBQggKBmNvbmZpZ0IOCgxfZGVzY3JpcHRpb25CFwoVX2hlYWx0aF9jaGVja190cmlnZ2VyItYCCgpPaWRjQ29uZmlnEhkKEWF1dGhvcml6YXRpb25fdXJsGAEgASgJEhEKCXRva2VuX3VybBgCIAEoCRIRCgljbGllbnRfaWQYAyABKAkSFQoNY2xpZW50X3NlY3JldBgEIAEoCRIOCgZpc3N1ZXIYBSABKAkSGwoOZGVmYXVsdF9zY29wZXMYBiABKAlIAIgBARIaCg11c2VyX2luZm9fdXJsGAcgASgJSAGIAQESFQoIandrc191cmwYCCABKAlIAogBARIfChJ2YWxpZGF0ZV9zaWduYXR1cmUYCSABKAhIA4gBARIXCgpsb2dvdXRfdXJsGAogASgJSASIAQFCEQoPX2RlZmF1bHRfc2NvcGVzQhAKDl91c2VyX2luZm9fdXJsQgsKCV9qd2tzX3VybEIVChNfdmFsaWRhdGVfc2lnbmF0dXJlQg0KC19sb2dvdXRfdXJsIuMBChZJZGVudGl0eVByb3ZpZGVyU3RhdHVzEjQKBXBoYXNlGAEgASgOMiUub3NhYy5wdWJsaWMudjEuSWRlbnRpdHlQcm92aWRlclBoYXNlEg8KB21lc3NhZ2UYAiABKAkSIQoUaGVhbHRoX2NoZWNrX3RyaWdnZXIYAyABKAlIAIgBARI7CgZoZWFsdGgYBCABKAsyJi5vc2FjLnB1YmxpYy52MS5JZGVudGl0eVByb3ZpZGVySGVhbHRoSAGIAQFCFwoVX2hlYWx0aF9jaGVja190cmlnZ2VyQgkKB19oZWFsdGgiqgEKFklkZW50aXR5UHJvdmlkZXJIZWFsdGgSPAoGc3RhdHVzGAEgASgOMiwub3NhYy5wdWJsaWMudjEuSWRlbnRpdHlQcm92aWRlckhlYWx0aFN0YXR1cxIUCgdtZXNzYWdlGAIgASgJSACIAQESMAoMbGFzdF9jaGVja2VkGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIKCghfbWVzc2FnZSqrAQoVSWRlbnRpdHlQcm92aWRlclBoYXNlEicKI0lERU5USVRZX1BST1ZJREVSX1BIQVNFX1VOU1BFQ0lGSUVEEAASIQodSURFTlRJVFlfUFJPVklERVJfUEhBU0VfUkVBRFkQARIhCh1JREVOVElUWV9QUk9WSURFUl9QSEFTRV9FUlJPUhACEiMKH0lERU5USVRZX1BST1ZJREVSX1BIQVNFX1VOS05PV04QAyrYAQocSWRlbnRpdHlQcm92aWRlckhlYWx0aFN0YXR1cxIvCitJREVOVElUWV9QUk9WSURFUl9IRUFMVEhfU1RBVFVTX1VOU1BFQ0lGSUVEEAASKwonSURFTlRJVFlfUFJPVklERVJfSEVBTFRIX1NUQVRVU19IRUFMVEhZEAESLQopSURFTlRJVFlfUFJPVklERVJfSEVBTFRIX1NUQVRVU19VTkhFQUxUSFkQAhIrCidJREVOVElUWV9QUk9WSURFUl9IRUFMVEhfU1RBVFVTX1VOS05PV04QA2IGcHJvdG8z", [file_google_protobuf_timestamp, file_osac_public_v1_metadata_type]);
 
 /**
  * IdentityProvider represents an external identity provider configuration.
@@ -116,14 +116,6 @@ export type IdentityProviderSpec = Message<"osac.public.v1.IdentityProviderSpec"
      */
     value: OidcConfig;
     case: "oidc";
-  } | {
-    /**
-     * Configuration for LDAP providers.
-     *
-     * @generated from field: osac.public.v1.LdapConfig ldap = 5;
-     */
-    value: LdapConfig;
-    case: "ldap";
   } | { case: undefined; value?: undefined };
 
   /**
@@ -245,130 +237,6 @@ export const OidcConfigSchema: GenMessage<OidcConfig> = /*@__PURE__*/
   messageDesc(file_osac_public_v1_identity_provider_type, 2);
 
 /**
- * LdapConfig contains configuration for LDAP identity providers.
- *
- * @generated from message osac.public.v1.LdapConfig
- */
-export type LdapConfig = Message<"osac.public.v1.LdapConfig"> & {
-  /**
-   * Connection URL for the LDAP server.
-   * Supports ldap:// and ldaps:// (SSL/TLS) protocols.
-   * Example: "ldap://ldap.example.com:389" or "ldaps://ldap.example.com:636"
-   *
-   * @generated from field: string connection_url = 1;
-   */
-  connectionUrl: string;
-
-  /**
-   * Distinguished Name (DN) of the user to bind as for authenticating to the LDAP server.
-   * This user must have permissions to search for users in the directory.
-   * Example: "cn=admin,dc=example,dc=com"
-   *
-   * @generated from field: string bind_dn = 2;
-   */
-  bindDn: string;
-
-  /**
-   * Password for the bind DN user.
-   * This field is write-only and will never be returned in API responses.
-   *
-   * @generated from field: string bind_credential = 3;
-   */
-  bindCredential: string;
-
-  /**
-   * Base Distinguished Name where user entries are located in the LDAP directory.
-   * All user searches will be performed under this DN.
-   * Example: "ou=users,dc=example,dc=com"
-   *
-   * @generated from field: string users_dn = 4;
-   */
-  usersDn: string;
-
-  /**
-   * LDAP attribute to use as the username for authentication.
-   * Common values: "uid", "cn", "sAMAccountName" (Active Directory)
-   * Default: "uid"
-   *
-   * @generated from field: optional string username_ldap_attribute = 5;
-   */
-  usernameLdapAttribute?: string | undefined;
-
-  /**
-   * LDAP attribute containing the user's RDN (Relative Distinguished Name).
-   * Used to construct the full DN when authenticating users.
-   * Common values: "uid", "cn"
-   * Default: "uid"
-   *
-   * @generated from field: optional string rdn_ldap_attribute = 6;
-   */
-  rdnLdapAttribute?: string | undefined;
-
-  /**
-   * LDAP attribute containing the user's unique identifier.
-   * Maps to the user ID in the application.
-   * Common values: "uid", "entryUUID", "objectGUID" (Active Directory)
-   * Default: "uid"
-   *
-   * @generated from field: optional string uuid_ldap_attribute = 7;
-   */
-  uuidLdapAttribute?: string | undefined;
-
-  /**
-   * LDAP filter to apply when searching for users.
-   * Must return users to be allowed to authenticate.
-   * Example: "(objectClass=person)"
-   *
-   * @generated from field: optional string user_object_classes = 8;
-   */
-  userObjectClasses?: string | undefined;
-
-  /**
-   * Authentication type to use when binding.
-   * Valid values: "simple" (username/password), "none" (anonymous)
-   * Default: "simple"
-   *
-   * @generated from field: optional string auth_type = 9;
-   */
-  authType?: string | undefined;
-
-  /**
-   * LDAP server vendor for vendor-specific optimizations.
-   * Valid values: "ad" (Active Directory), "rhds" (Red Hat Directory Server),
-   * "tivoli" (IBM Tivoli), "edirectory" (Novell eDirectory), "other"
-   * Default: "other"
-   *
-   * @generated from field: optional string vendor = 10;
-   */
-  vendor?: string | undefined;
-
-  /**
-   * Whether to use STARTTLS to upgrade the connection to TLS.
-   * Only applicable for ldap:// URLs (not ldaps://).
-   * Default: false
-   *
-   * @generated from field: optional bool use_truststore_spi = 11;
-   */
-  useTruststoreSpi?: boolean | undefined;
-
-  /**
-   * Whether to enable pagination when searching for users.
-   * Useful for large directories to avoid timeouts.
-   * Default: true
-   *
-   * @generated from field: optional bool pagination = 12;
-   */
-  pagination?: boolean | undefined;
-};
-
-/**
- * Describes the message osac.public.v1.LdapConfig.
- * Use `create(LdapConfigSchema)` to create a new message.
- */
-export const LdapConfigSchema: GenMessage<LdapConfig> = /*@__PURE__*/
-  messageDesc(file_osac_public_v1_identity_provider_type, 3);
-
-/**
  * IdentityProviderStatus represents the operational status of an identity provider.
  *
  * @generated from message osac.public.v1.IdentityProviderStatus
@@ -412,7 +280,7 @@ export type IdentityProviderStatus = Message<"osac.public.v1.IdentityProviderSta
  * Use `create(IdentityProviderStatusSchema)` to create a new message.
  */
 export const IdentityProviderStatusSchema: GenMessage<IdentityProviderStatus> = /*@__PURE__*/
-  messageDesc(file_osac_public_v1_identity_provider_type, 4);
+  messageDesc(file_osac_public_v1_identity_provider_type, 3);
 
 /**
  * IdentityProviderHealth represents the health status of an identity provider.
@@ -447,7 +315,7 @@ export type IdentityProviderHealth = Message<"osac.public.v1.IdentityProviderHea
  * Use `create(IdentityProviderHealthSchema)` to create a new message.
  */
 export const IdentityProviderHealthSchema: GenMessage<IdentityProviderHealth> = /*@__PURE__*/
-  messageDesc(file_osac_public_v1_identity_provider_type, 5);
+  messageDesc(file_osac_public_v1_identity_provider_type, 4);
 
 /**
  * IdentityProviderPhase represents the current phase of an identity provider.

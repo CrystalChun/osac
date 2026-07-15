@@ -31,7 +31,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/public/v1/cluster_type.proto.
  */
 export const file_osac_public_v1_cluster_type: GenFile = /*@__PURE__*/
-  fileDesc("CiFvc2FjL3B1YmxpYy92MS9jbHVzdGVyX3R5cGUucHJvdG8SDm9zYWMucHVibGljLnYxIpsBCgdDbHVzdGVyEgoKAmlkGAEgASgJEioKCG1ldGFkYXRhGAIgASgLMhgub3NhYy5wdWJsaWMudjEuTWV0YWRhdGESKQoEc3BlYxgDIAEoCzIbLm9zYWMucHVibGljLnYxLkNsdXN0ZXJTcGVjEi0KBnN0YXR1cxgEIAEoCzIdLm9zYWMucHVibGljLnYxLkNsdXN0ZXJTdGF0dXMisQQKC0NsdXN0ZXJTcGVjEhAKCHRlbXBsYXRlGAEgASgJElAKE3RlbXBsYXRlX3BhcmFtZXRlcnMYAiADKAsyMy5vc2FjLnB1YmxpYy52MS5DbHVzdGVyU3BlYy5UZW1wbGF0ZVBhcmFtZXRlcnNFbnRyeRI8Cglub2RlX3NldHMYAyADKAsyKS5vc2FjLnB1YmxpYy52MS5DbHVzdGVyU3BlYy5Ob2RlU2V0c0VudHJ5EhgKC3B1bGxfc2VjcmV0GAQgASgJSACIAQESGwoOc3NoX3B1YmxpY19rZXkYBSABKAlIAYgBARIaCg1yZWxlYXNlX2ltYWdlGAYgASgJSAKIAQESNAoHbmV0d29yaxgHIAEoCzIeLm9zYWMucHVibGljLnYxLkNsdXN0ZXJOZXR3b3JrSAOIAQESFAoMY2F0YWxvZ19pdGVtGAggASgJGk8KF1RlbXBsYXRlUGFyYW1ldGVyc0VudHJ5EgsKA2tleRgBIAEoCRIjCgV2YWx1ZRgCIAEoCzIULmdvb2dsZS5wcm90b2J1Zi5Bbnk6AjgBGk8KDU5vZGVTZXRzRW50cnkSCwoDa2V5GAEgASgJEi0KBXZhbHVlGAIgASgLMh4ub3NhYy5wdWJsaWMudjEuQ2x1c3Rlck5vZGVTZXQ6AjgBQg4KDF9wdWxsX3NlY3JldEIRCg9fc3NoX3B1YmxpY19rZXlCEAoOX3JlbGVhc2VfaW1hZ2VCCgoIX25ldHdvcmsiYAoOQ2x1c3Rlck5ldHdvcmsSFQoIcG9kX2NpZHIYASABKAlIAIgBARIZCgxzZXJ2aWNlX2NpZHIYAiABKAlIAYgBAUILCglfcG9kX2NpZHJCDwoNX3NlcnZpY2VfY2lkciKpAgoNQ2x1c3RlclN0YXR1cxIrCgVzdGF0ZRgBIAEoDjIcLm9zYWMucHVibGljLnYxLkNsdXN0ZXJTdGF0ZRI0Cgpjb25kaXRpb25zGAIgAygLMiAub3NhYy5wdWJsaWMudjEuQ2x1c3RlckNvbmRpdGlvbhIPCgdhcGlfdXJsGAMgASgJEhMKC2NvbnNvbGVfdXJsGAQgASgJEj4KCW5vZGVfc2V0cxgFIAMoCzIrLm9zYWMucHVibGljLnYxLkNsdXN0ZXJTdGF0dXMuTm9kZVNldHNFbnRyeRpPCg1Ob2RlU2V0c0VudHJ5EgsKA2tleRgBIAEoCRItCgV2YWx1ZRgCIAEoCzIeLm9zYWMucHVibGljLnYxLkNsdXN0ZXJOb2RlU2V0OgI4ASLzAQoQQ2x1c3RlckNvbmRpdGlvbhIyCgR0eXBlGAEgASgOMiQub3NhYy5wdWJsaWMudjEuQ2x1c3RlckNvbmRpdGlvblR5cGUSLwoGc3RhdHVzGAIgASgOMh8ub3NhYy5wdWJsaWMudjEuQ29uZGl0aW9uU3RhdHVzEjgKFGxhc3RfdHJhbnNpdGlvbl90aW1lGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBITCgZyZWFzb24YBCABKAlIAIgBARIUCgdtZXNzYWdlGAUgASgJSAGIAQFCCQoHX3JlYXNvbkIKCghfbWVzc2FnZSIxCg5DbHVzdGVyTm9kZVNldBIRCglob3N0X3R5cGUYASABKAkSDAoEc2l6ZRgCIAEoBSp/CgxDbHVzdGVyU3RhdGUSHQoZQ0xVU1RFUl9TVEFURV9VTlNQRUNJRklFRBAAEh0KGUNMVVNURVJfU1RBVEVfUFJPR1JFU1NJTkcQARIXChNDTFVTVEVSX1NUQVRFX1JFQURZEAISGAoUQ0xVU1RFUl9TVEFURV9GQUlMRUQQAyrQAQoUQ2x1c3RlckNvbmRpdGlvblR5cGUSJgoiQ0xVU1RFUl9DT05ESVRJT05fVFlQRV9VTlNQRUNJRklFRBAAEiYKIkNMVVNURVJfQ09ORElUSU9OX1RZUEVfUFJPR1JFU1NJTkcQARIgChxDTFVTVEVSX0NPTkRJVElPTl9UWVBFX1JFQURZEAISIQodQ0xVU1RFUl9DT05ESVRJT05fVFlQRV9GQUlMRUQQAxIjCh9DTFVTVEVSX0NPTkRJVElPTl9UWVBFX0RFR1JBREVEEARiBnByb3RvMw", [file_google_protobuf_any, file_google_protobuf_timestamp, file_osac_public_v1_condition_status_type, file_osac_public_v1_metadata_type]);
+  fileDesc("CiFvc2FjL3B1YmxpYy92MS9jbHVzdGVyX3R5cGUucHJvdG8SDm9zYWMucHVibGljLnYxIpsBCgdDbHVzdGVyEgoKAmlkGAEgASgJEioKCG1ldGFkYXRhGAIgASgLMhgub3NhYy5wdWJsaWMudjEuTWV0YWRhdGESKQoEc3BlYxgDIAEoCzIbLm9zYWMucHVibGljLnYxLkNsdXN0ZXJTcGVjEi0KBnN0YXR1cxgEIAEoCzIdLm9zYWMucHVibGljLnYxLkNsdXN0ZXJTdGF0dXMi9wQKC0NsdXN0ZXJTcGVjEhAKCHRlbXBsYXRlGAEgASgJElAKE3RlbXBsYXRlX3BhcmFtZXRlcnMYAiADKAsyMy5vc2FjLnB1YmxpYy52MS5DbHVzdGVyU3BlYy5UZW1wbGF0ZVBhcmFtZXRlcnNFbnRyeRI8Cglub2RlX3NldHMYAyADKAsyKS5vc2FjLnB1YmxpYy52MS5DbHVzdGVyU3BlYy5Ob2RlU2V0c0VudHJ5EhgKC3B1bGxfc2VjcmV0GAQgASgJSACIAQESGwoOc3NoX3B1YmxpY19rZXkYBSABKAlIAYgBARIaCg1yZWxlYXNlX2ltYWdlGAYgASgJSAKIAQESNAoHbmV0d29yaxgHIAEoCzIeLm9zYWMucHVibGljLnYxLkNsdXN0ZXJOZXR3b3JrSAOIAQESFAoMY2F0YWxvZ19pdGVtGAggASgJEkQKEm5ldHdvcmtfYXR0YWNobWVudBgJIAEoCzIoLm9zYWMucHVibGljLnYxLkNsdXN0ZXJOZXR3b3JrQXR0YWNobWVudBpPChdUZW1wbGF0ZVBhcmFtZXRlcnNFbnRyeRILCgNrZXkYASABKAkSIwoFdmFsdWUYAiABKAsyFC5nb29nbGUucHJvdG9idWYuQW55OgI4ARpPCg1Ob2RlU2V0c0VudHJ5EgsKA2tleRgBIAEoCRItCgV2YWx1ZRgCIAEoCzIeLm9zYWMucHVibGljLnYxLkNsdXN0ZXJOb2RlU2V0OgI4AUIOCgxfcHVsbF9zZWNyZXRCEQoPX3NzaF9wdWJsaWNfa2V5QhAKDl9yZWxlYXNlX2ltYWdlQgoKCF9uZXR3b3JrImAKDkNsdXN0ZXJOZXR3b3JrEhUKCHBvZF9jaWRyGAEgASgJSACIAQESGQoMc2VydmljZV9jaWRyGAIgASgJSAGIAQFCCwoJX3BvZF9jaWRyQg8KDV9zZXJ2aWNlX2NpZHIi2QIKDUNsdXN0ZXJTdGF0dXMSKwoFc3RhdGUYASABKA4yHC5vc2FjLnB1YmxpYy52MS5DbHVzdGVyU3RhdGUSNAoKY29uZGl0aW9ucxgCIAMoCzIgLm9zYWMucHVibGljLnYxLkNsdXN0ZXJDb25kaXRpb24SDwoHYXBpX3VybBgDIAEoCRITCgtjb25zb2xlX3VybBgEIAEoCRI+Cglub2RlX3NldHMYBSADKAsyKy5vc2FjLnB1YmxpYy52MS5DbHVzdGVyU3RhdHVzLk5vZGVTZXRzRW50cnkSFAoMYXBpX2VuZHBvaW50GAYgASgJEhgKEGluZ3Jlc3NfZW5kcG9pbnQYByABKAkaTwoNTm9kZVNldHNFbnRyeRILCgNrZXkYASABKAkSLQoFdmFsdWUYAiABKAsyHi5vc2FjLnB1YmxpYy52MS5DbHVzdGVyTm9kZVNldDoCOAEi8wEKEENsdXN0ZXJDb25kaXRpb24SMgoEdHlwZRgBIAEoDjIkLm9zYWMucHVibGljLnYxLkNsdXN0ZXJDb25kaXRpb25UeXBlEi8KBnN0YXR1cxgCIAEoDjIfLm9zYWMucHVibGljLnYxLkNvbmRpdGlvblN0YXR1cxI4ChRsYXN0X3RyYW5zaXRpb25fdGltZRgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEwoGcmVhc29uGAQgASgJSACIAQESFAoHbWVzc2FnZRgFIAEoCUgBiAEBQgkKB19yZWFzb25CCgoIX21lc3NhZ2UiQwoYQ2x1c3Rlck5ldHdvcmtBdHRhY2htZW50Eg4KBnN1Ym5ldBgBIAEoCRIXCg9zZWN1cml0eV9ncm91cHMYAiADKAkiMQoOQ2x1c3Rlck5vZGVTZXQSEQoJaG9zdF90eXBlGAEgASgJEgwKBHNpemUYAiABKAUqfwoMQ2x1c3RlclN0YXRlEh0KGUNMVVNURVJfU1RBVEVfVU5TUEVDSUZJRUQQABIdChlDTFVTVEVSX1NUQVRFX1BST0dSRVNTSU5HEAESFwoTQ0xVU1RFUl9TVEFURV9SRUFEWRACEhgKFENMVVNURVJfU1RBVEVfRkFJTEVEEAMq0AEKFENsdXN0ZXJDb25kaXRpb25UeXBlEiYKIkNMVVNURVJfQ09ORElUSU9OX1RZUEVfVU5TUEVDSUZJRUQQABImCiJDTFVTVEVSX0NPTkRJVElPTl9UWVBFX1BST0dSRVNTSU5HEAESIAocQ0xVU1RFUl9DT05ESVRJT05fVFlQRV9SRUFEWRACEiEKHUNMVVNURVJfQ09ORElUSU9OX1RZUEVfRkFJTEVEEAMSIwofQ0xVU1RFUl9DT05ESVRJT05fVFlQRV9ERUdSQURFRBAEYgZwcm90bzM", [file_google_protobuf_any, file_google_protobuf_timestamp, file_osac_public_v1_condition_status_type, file_osac_public_v1_metadata_type]);
 
 /**
  * Contains the details of the cluster.
@@ -233,6 +233,21 @@ export type ClusterSpec = Message<"osac.public.v1.ClusterSpec"> & {
    * @generated from field: string catalog_item = 8;
    */
   catalogItem: string;
+
+  /**
+   * Network attachment connecting this cluster to a tenant subnet.
+   *
+   * When provided, all node sets of the cluster will be connected to the specified subnet. Only one network attachment
+   * is supported per cluster.
+   *
+   * When not provided, the system will populate this field with the tenant's default subnet and security groups during
+   * cluster creation.
+   *
+   * The `subnet` field is immutable after creation. The `security_groups` field can be updated.
+   *
+   * @generated from field: osac.public.v1.ClusterNetworkAttachment network_attachment = 9;
+   */
+  networkAttachment?: ClusterNetworkAttachment | undefined;
 };
 
 /**
@@ -358,6 +373,30 @@ export type ClusterStatus = Message<"osac.public.v1.ClusterStatus"> & {
    * @generated from field: map<string, osac.public.v1.ClusterNodeSet> node_sets = 5;
    */
   nodeSets: { [key: string]: ClusterNodeSet };
+
+  /**
+   * Internal API server VIP allocated by MetalLB for the cluster.
+   *
+   * This is the cluster-internal address used as the DNAT target for external access. It differs from `api_url`, which
+   * is the external URL used by clients to reach the API server.
+   *
+   * This will be empty until the CaaS template discovers the MetalLB-allocated VIP during cluster provisioning.
+   *
+   * @generated from field: string api_endpoint = 6;
+   */
+  apiEndpoint: string;
+
+  /**
+   * Internal ingress VIP allocated by MetalLB for the cluster.
+   *
+   * This is the cluster-internal address used as the DNAT target for external access. It differs from `console_url`,
+   * which is the external URL for the cluster console.
+   *
+   * This will be empty until the CaaS template discovers the MetalLB-allocated VIP during cluster provisioning.
+   *
+   * @generated from field: string ingress_endpoint = 7;
+   */
+  ingressEndpoint: string;
 };
 
 /**
@@ -421,6 +460,45 @@ export const ClusterConditionSchema: GenMessage<ClusterCondition> = /*@__PURE__*
   messageDesc(file_osac_public_v1_cluster_type, 4);
 
 /**
+ * Defines the network attachment for a cluster, connecting it to a tenant subnet with optional security groups.
+ *
+ * Unlike compute instances, which support multiple network attachments (one per virtual NIC), a cluster has a single
+ * network attachment shared by all node sets. The fabric interface for each node set is resolved automatically by the
+ * system from the node set's host type.
+ *
+ * @generated from message osac.public.v1.ClusterNetworkAttachment
+ */
+export type ClusterNetworkAttachment = Message<"osac.public.v1.ClusterNetworkAttachment"> & {
+  /**
+   * Identifier of the subnet to connect the cluster to.
+   *
+   * Must be the value of the `id` field of an existing subnet. The subnet must be in `READY` state at creation time.
+   *
+   * This can't be modified after the cluster is created.
+   *
+   * @generated from field: string subnet = 1;
+   */
+  subnet: string;
+
+  /**
+   * Identifiers of the security groups to apply to the cluster's network attachment.
+   *
+   * Each value must be the `id` field of an existing security group. All security groups must belong to the same
+   * virtual network as the subnet.
+   *
+   * @generated from field: repeated string security_groups = 2;
+   */
+  securityGroups: string[];
+};
+
+/**
+ * Describes the message osac.public.v1.ClusterNetworkAttachment.
+ * Use `create(ClusterNetworkAttachmentSchema)` to create a new message.
+ */
+export const ClusterNetworkAttachmentSchema: GenMessage<ClusterNetworkAttachment> = /*@__PURE__*/
+  messageDesc(file_osac_public_v1_cluster_type, 5);
+
+/**
  * Defines a set of nodes that are part of the cluster, all of them of the same type of host.
  *
  * @generated from message osac.public.v1.ClusterNodeSet
@@ -468,7 +546,7 @@ export type ClusterNodeSet = Message<"osac.public.v1.ClusterNodeSet"> & {
  * Use `create(ClusterNodeSetSchema)` to create a new message.
  */
 export const ClusterNodeSetSchema: GenMessage<ClusterNodeSet> = /*@__PURE__*/
-  messageDesc(file_osac_public_v1_cluster_type, 5);
+  messageDesc(file_osac_public_v1_cluster_type, 6);
 
 /**
  * Represents the overall state of a cluster.

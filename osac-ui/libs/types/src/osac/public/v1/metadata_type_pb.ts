@@ -17,6 +17,7 @@
 
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
 import type { Timestamp } from "../../../google/protobuf/timestamp_pb";
 import { file_google_protobuf_timestamp } from "../../../google/protobuf/timestamp_pb";
 import type { Message } from "@bufbuild/protobuf";
@@ -25,7 +26,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/public/v1/metadata_type.proto.
  */
 export const file_osac_public_v1_metadata_type: GenFile = /*@__PURE__*/
-  fileDesc("CiJvc2FjL3B1YmxpYy92MS9tZXRhZGF0YV90eXBlLnByb3RvEg5vc2FjLnB1YmxpYy52MSKkAwoITWV0YWRhdGESNgoSY3JlYXRpb25fdGltZXN0YW1wGAEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBI2ChJkZWxldGlvbl90aW1lc3RhbXAYAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEg8KB2NyZWF0b3IYAyABKAkSDAoEbmFtZRgEIAEoCRIOCgZ0ZW5hbnQYBSABKAkSNAoGbGFiZWxzGAcgAygLMiQub3NhYy5wdWJsaWMudjEuTWV0YWRhdGEuTGFiZWxzRW50cnkSPgoLYW5ub3RhdGlvbnMYCCADKAsyKS5vc2FjLnB1YmxpYy52MS5NZXRhZGF0YS5Bbm5vdGF0aW9uc0VudHJ5Eg8KB3ZlcnNpb24YCSABKAUSDwoHcHJvamVjdBgKIAEoCRotCgtMYWJlbHNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBGjIKEEFubm90YXRpb25zRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4AWIGcHJvdG8z", [file_google_protobuf_timestamp]);
+  fileDesc("CiJvc2FjL3B1YmxpYy92MS9tZXRhZGF0YV90eXBlLnByb3RvEg5vc2FjLnB1YmxpYy52MSL+AwoITWV0YWRhdGESNgoSY3JlYXRpb25fdGltZXN0YW1wGAEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBI2ChJkZWxldGlvbl90aW1lc3RhbXAYAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEg8KB2NyZWF0b3IYAyABKAkSPgoEbmFtZRgEIAEoCUIwukgtcisYPzInXihbYS16MC05XShbYS16MC05LV17MCw2MX1bYS16MC05XSk/KT8kEg4KBnRlbmFudBgFIAEoCRJLCgZsYWJlbHMYByADKAsyJC5vc2FjLnB1YmxpYy52MS5NZXRhZGF0YS5MYWJlbHNFbnRyeUIVukgSmgEPIgdyBRABGLwCKgRyAhg/Ek8KC2Fubm90YXRpb25zGAggAygLMikub3NhYy5wdWJsaWMudjEuTWV0YWRhdGEuQW5ub3RhdGlvbnNFbnRyeUIPukgMmgEJIgdyBRABGLwCEg8KB3ZlcnNpb24YCSABKAUSDwoHcHJvamVjdBgKIAEoCRotCgtMYWJlbHNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBGjIKEEFubm90YXRpb25zRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4AWIGcHJvdG8z", [file_buf_validate_validate, file_google_protobuf_timestamp]);
 
 /**
  * Metadata common to all kinds of objects.
