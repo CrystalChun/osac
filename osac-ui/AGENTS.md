@@ -281,11 +281,13 @@ pnpm build  # Builds frontend + proxy binary
 - Prefix with ticket if applicable (e.g., "OSAC-1886: add VM details page")
 - Conventional commits style observed in git log (feat, fix, refactor)
 
-**AI attribution**:
+**AI attribution** — use one trailer matching the tool that assisted (never `Co-Authored-By` for AI tools — Red Hat standard):
 ```
 Assisted-by: Cursor <cursoragent@cursor.com>
 ```
-(Never use Co-Authored-By for AI tools — Red Hat standard)
+```
+Assisted-by: Claude Code <noreply@anthropic.com>
+```
 
 **PR review**:
 - CI must pass: lint (TS + Go), test, container build
