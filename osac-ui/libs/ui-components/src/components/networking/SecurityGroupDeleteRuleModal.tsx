@@ -1,3 +1,4 @@
+import { MessageInitShape } from '@bufbuild/protobuf';
 import {
   Alert,
   Button,
@@ -10,7 +11,7 @@ import {
   StackItem,
 } from '@patternfly/react-core';
 
-import type { SecurityGroup } from '@osac/types';
+import type { SecurityGroup, SecurityGroupSchema } from '@osac/types';
 
 import { toPlainRule } from './securityGroupRuleUtils';
 import { useUpdateSecurityGroup } from '../../api/v1/networking';
@@ -40,16 +41,18 @@ export const SecurityGroupDeleteRuleModal = ({
       const targetList = direction === 'ingress' ? newIngress : newEgress;
       targetList.splice(ruleIndex, 1);
 
-      await updateSecurityGroup.mutateAsync({
+      const object: MessageInitShape<typeof SecurityGroupSchema> = {
         id: securityGroup.id,
-        input: {
-          metadata: { name: securityGroup.metadata?.name ?? '' },
-          spec: {
-            virtualNetwork: securityGroup.spec?.virtualNetwork ?? '',
-            ingress: newIngress,
-            egress: newEgress,
-          },
-        } as unknown as Partial<SecurityGroup>,
+        metadata: { name: securityGroup.metadata?.name ?? '' },
+        spec: {
+          virtualNetwork: securityGroup.spec?.virtualNetwork ?? '',
+          ingress: newIngress,
+          egress: newEgress,
+        },
+      };
+
+      await updateSecurityGroup.mutateAsync({
+        object,
       });
       onClose();
     } catch {

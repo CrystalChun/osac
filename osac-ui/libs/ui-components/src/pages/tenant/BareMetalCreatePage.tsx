@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import type { MessageInitShape } from '@bufbuild/protobuf';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -10,9 +11,10 @@ import {
   Title,
 } from '@patternfly/react-core';
 
+import { BareMetalInstanceSchema } from '@osac/types';
 import { useCreateBareMetalInstance } from '@osac/ui-components/api/v1/baremetal-instance';
 import {
-  type CatalogProvisionPayload,
+  CatalogProvisionPayload,
   CatalogProvisionWizard,
   type CatalogProvisionWizardCloseHandler,
 } from '@osac/ui-components/components/catalogProvision/CatalogProvisionWizard';
@@ -35,7 +37,12 @@ export const BareMetalCreatePage = () => {
 
   const handleWizardProvision = useCallback(
     async (payload: CatalogProvisionPayload) => {
-      const instance = await createBareMetalInstance.mutateAsync(payload);
+      const instance = await createBareMetalInstance.mutateAsync(
+        payload as MessageInitShape<typeof BareMetalInstanceSchema>,
+      );
+      if (!instance) {
+        throw new Error('Create response missing instance');
+      }
       navigate(`/bare-metal/${instance.id}`);
     },
     [createBareMetalInstance, navigate],

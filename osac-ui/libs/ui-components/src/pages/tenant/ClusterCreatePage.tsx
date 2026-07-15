@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { type MessageInitShape } from '@bufbuild/protobuf';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -10,15 +11,12 @@ import {
   Title,
 } from '@patternfly/react-core';
 
-import { type Cluster } from '@osac/types';
+import { ClusterSchema } from '@osac/types';
 import { apiQueryKey } from '@osac/ui-components/api/types';
 import { useApiQueryClient } from '@osac/ui-components/api/use-api-query';
 import { useProvisionCluster } from '@osac/ui-components/api/v1/cluster';
 import {
-  type BuildClusterCreateBodyInput,
-  buildClusterCreateBody,
-} from '@osac/ui-components/api/v1/cluster-wire';
-import {
+  type CatalogProvisionPayload,
   CatalogProvisionWizard,
   type CatalogProvisionWizardCloseHandler,
 } from '@osac/ui-components/components/catalogProvision/CatalogProvisionWizard';
@@ -41,11 +39,11 @@ export const ClusterCreatePage = () => {
   }, [navigate]);
 
   const handleWizardProvision = useCallback(
-    async (cluster: BuildClusterCreateBodyInput) => {
+    async (payload: CatalogProvisionPayload) => {
       const created = await provisionCluster.mutateAsync(
-        buildClusterCreateBody(cluster) as Cluster,
+        payload as MessageInitShape<typeof ClusterSchema>,
       );
-      if (!created.id) {
+      if (!created?.id) {
         throw new Error('Create response missing id');
       }
       qc.setQueryData(apiQueryKey('v1/clusters', [created.id]), created);

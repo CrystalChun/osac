@@ -1,16 +1,14 @@
-import type { Organization, OrganizationsListResponse } from '@osac/types';
+import { Organizations } from '@osac/types';
 
+import { useApiFetch } from '../api-context';
+import { type ListParams, apiQueryKey } from '../types';
 import { useApiQuery } from '../use-api-query';
 
-export type ListOrganizationsParams = {
-  filter?: string;
-  limit?: number;
-  offset?: number;
-};
-
-export const useOrganizations = (params: ListOrganizationsParams = {}) => {
-  return useApiQuery<OrganizationsListResponse, Organization[]>({
-    queryKey: ['v1/organizations', null, params],
+export const useOrganizations = (params: ListParams = {}) => {
+  const client = useApiFetch(Organizations);
+  return useApiQuery({
+    queryKey: apiQueryKey('v1/organizations', undefined, params),
+    queryFn: () => client.list(params),
     select: (data) => data.items,
   });
 };

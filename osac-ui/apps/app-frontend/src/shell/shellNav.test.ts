@@ -26,6 +26,7 @@ describe('navRowsForRole', () => {
         { id: 'catalog', label: 'Catalog', path: '/catalog' },
         { id: 'compute-vms', label: 'Virtual Machines', path: '/vms' },
         { id: 'clusters', label: 'Clusters', path: '/clusters' },
+        { id: 'bare-metal', label: 'Bare Metal', path: '/bare-metal' },
       ]);
     }
   });

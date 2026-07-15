@@ -1,14 +1,18 @@
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
+import { createConnectTransport } from '@connectrpc/connect-web';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createRoot } from 'react-dom/client';
 
-import { ApiProvider } from '@osac/ui-components/api/api-context';
-import type { ApiQueryKey, ApiQueryMeta } from '@osac/ui-components/api/types';
+import { ApiProvider, connectErrorInterceptor } from '@osac/ui-components/api/api-context';
 
-import { fulfillmentFetch } from './api/fulfillmentFetch';
 import App from './App';
 import './i18n';
+
+const connectTransport = createConnectTransport({
+  baseUrl: '/api/fulfillment',
+  interceptors: [connectErrorInterceptor],
+});
 
 // CSS load order is intentional: base → addons → local overrides
 /* eslint-disable import/order */
@@ -26,11 +30,6 @@ const queryClient = new QueryClient({
       staleTime: 5_000,
       refetchOnMount: true,
       refetchInterval: 30_000,
-      queryFn: (ctx) => {
-        const [route, pathParams, queryParams] = ctx.queryKey as ApiQueryKey;
-        const { decode } = (ctx.meta ?? {}) as ApiQueryMeta;
-        return fulfillmentFetch(route, { pathParams, queryParams, decode });
-      },
     },
   },
 });
@@ -40,7 +39,7 @@ const rootElement = document.getElementById('root');
 if (rootElement) {
   createRoot(rootElement).render(
     <React.StrictMode>
-      <ApiProvider fetch={fulfillmentFetch}>
+      <ApiProvider transport={connectTransport}>
         <QueryClientProvider client={queryClient}>
           <BrowserRouter>
             <App />

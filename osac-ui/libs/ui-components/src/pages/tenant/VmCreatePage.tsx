@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { type MessageInitShape } from '@bufbuild/protobuf';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -10,11 +11,12 @@ import {
   Title,
 } from '@patternfly/react-core';
 
+import { ComputeInstanceSchema } from '@osac/types';
 import { apiQueryKey } from '@osac/ui-components/api/types';
 import { useApiQueryClient } from '@osac/ui-components/api/use-api-query';
 import { useProvisionComputeInstance } from '@osac/ui-components/api/v1/compute-instance';
-import type { BuildComputeInstanceCreateBodyInput } from '@osac/ui-components/api/v1/compute-instance-wire';
 import {
+  type CatalogProvisionPayload,
   CatalogProvisionWizard,
   type CatalogProvisionWizardCloseHandler,
 } from '@osac/ui-components/components/catalogProvision/CatalogProvisionWizard';
@@ -37,12 +39,11 @@ export const VmCreatePage = () => {
   }, [navigate]);
 
   const handleWizardProvision = useCallback(
-    async (vm: BuildComputeInstanceCreateBodyInput) => {
-      const { instance } = await provisionVm.mutateAsync({
-        vm,
-        specCatalogItemOnly: true,
-      });
-      if (!instance.id) {
+    async (payload: CatalogProvisionPayload) => {
+      const instance = await provisionVm.mutateAsync(
+        payload as MessageInitShape<typeof ComputeInstanceSchema>,
+      );
+      if (!instance?.id) {
         throw new Error('Create response missing id');
       }
       qc.setQueryData(apiQueryKey('v1/compute_instances', [instance.id]), instance);

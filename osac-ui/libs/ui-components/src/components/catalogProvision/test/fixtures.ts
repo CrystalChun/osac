@@ -18,7 +18,7 @@ export const vmCatalogItem = {
       path: 'spec.image.source_ref',
       displayName: 'VM image',
       editable: true,
-      default: 'quay.io/example/rhel9',
+      default: { kind: { case: 'stringValue', value: 'quay.io/example/rhel9' } },
     },
   ],
 } as unknown as ComputeInstanceCatalogItem;
@@ -35,7 +35,7 @@ export const clusterCatalogItem = {
       path: 'release_image',
       displayName: 'Release image',
       editable: true,
-      default: '4.17.0',
+      default: { kind: { case: 'stringValue', value: '4.17.0' } },
     },
   ],
 } as unknown as ClusterCatalogItem;
@@ -92,7 +92,7 @@ export const mockInstanceType = {
   metadata: { name: 'standard-4-8' },
   spec: {
     cores: 4,
-    memory_gib: 8,
+    memoryGib: 8,
     state: InstanceTypeState.ACTIVE,
   },
 };

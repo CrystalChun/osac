@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
+import { type MessageInitShape } from '@bufbuild/protobuf';
 import type { TFunction } from 'i18next';
 
-import type { ComputeInstanceCatalogItem } from '@osac/types';
+import { type ComputeInstanceCatalogItem, ComputeInstanceSchema } from '@osac/types';
 
 import {
   type ReviewSection,
@@ -24,7 +25,6 @@ import VmGeneralStep from './computeInstance/VmGeneralStep';
 import { VmNetworkingStep } from './computeInstance/VmNetworkingStep';
 import type { CatalogProvisionAdapter } from './types';
 import { useComputeInstanceCatalogItems } from '../../../../api/v1/compute-instance-catalog-item';
-import type { BuildComputeInstanceCreateBodyInput } from '../../../../api/v1/compute-instance-wire';
 import { useTranslation } from '../../../../hooks/useTranslation';
 import {
   formatLabeledResourceRefForReview,
@@ -106,7 +106,7 @@ const buildReviewSections = (
 export const useComputeInstanceAdapter = (): CatalogProvisionAdapter<
   ComputeInstanceCatalogItem,
   ComputeInstanceWizardValues,
-  BuildComputeInstanceCreateBodyInput
+  MessageInitShape<typeof ComputeInstanceSchema>
 > => {
   const { t } = useTranslation();
 

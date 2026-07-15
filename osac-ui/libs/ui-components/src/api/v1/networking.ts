@@ -1,83 +1,73 @@
+import { MessageInitShape } from '@bufbuild/protobuf';
 import { useMutation } from '@tanstack/react-query';
 
 import {
-  type NetworkClass,
-  type NetworkClassesListResponse,
-  NetworkClassesListResponseSchema,
-  type SecurityGroup,
+  NetworkClasses,
   SecurityGroupSchema,
   SecurityGroupState,
-  type SecurityGroupsListResponse,
-  SecurityGroupsListResponseSchema,
-  type Subnet,
-  SubnetSchema,
+  SecurityGroups,
   SubnetState,
-  type SubnetsListResponse,
-  SubnetsListResponseSchema,
-  type VirtualNetwork,
-  VirtualNetworkSchema,
+  Subnets,
   VirtualNetworkState,
-  type VirtualNetworksListResponse,
-  VirtualNetworksListResponseSchema,
+  VirtualNetworks,
 } from '@osac/types';
 
 import { useApiFetch } from '../api-context';
-import { useApiQuery, useApiQueryClient } from '../use-api-query';
-
-export type ListNetworkingParams = {
-  filter?: string;
-  limit?: number;
-  offset?: number;
-  order?: string;
-};
+import { type ListParams, apiQueryKey } from '../types';
+import { type ApiQueryClient, useApiQuery, useApiQueryClient } from '../use-api-query';
 
 type NetworkingQueryOptions = {
   enabled?: boolean;
 };
 
 export const useNetworkClasses = (
-  params: ListNetworkingParams = {},
+  params: ListParams = {},
   options: NetworkingQueryOptions = {},
-) =>
-  useApiQuery<NetworkClassesListResponse, NetworkClass[]>({
-    queryKey: ['v1/network_classes', null, params],
+) => {
+  const client = useApiFetch(NetworkClasses);
+  return useApiQuery({
+    queryKey: apiQueryKey('v1/network_classes', undefined, params),
+    queryFn: () => client.list(params),
     select: (data) => data.items,
-    meta: { decode: NetworkClassesListResponseSchema },
     enabled: options.enabled ?? true,
   });
+};
 
 export const useVirtualNetworks = (
-  params: ListNetworkingParams = {},
+  params: ListParams = {},
   options: NetworkingQueryOptions = {},
-) =>
-  useApiQuery<VirtualNetworksListResponse, VirtualNetwork[]>({
-    queryKey: ['v1/virtual_networks', null, params],
+) => {
+  const client = useApiFetch(VirtualNetworks);
+  return useApiQuery({
+    queryKey: apiQueryKey('v1/virtual_networks', undefined, params),
+    queryFn: () => client.list(params),
     select: (data) => data.items,
-    meta: { decode: VirtualNetworksListResponseSchema },
     enabled: options.enabled ?? true,
   });
+};
 
-export const useSubnets = (
-  params: ListNetworkingParams = {},
-  options: NetworkingQueryOptions = {},
-) =>
-  useApiQuery<SubnetsListResponse, Subnet[]>({
-    queryKey: ['v1/subnets', null, params],
+export const useSubnets = (params: ListParams = {}, options: NetworkingQueryOptions = {}) => {
+  const client = useApiFetch(Subnets);
+  return useApiQuery({
+    queryKey: apiQueryKey('v1/subnets', undefined, params),
+    queryFn: () => client.list(params),
     select: (data) => data.items,
-    meta: { decode: SubnetsListResponseSchema },
     enabled: options.enabled ?? true,
   });
+};
 
 export const useSecurityGroups = (
-  params: ListNetworkingParams = {},
+  params: ListParams = {},
   options: NetworkingQueryOptions = {},
-) =>
-  useApiQuery<SecurityGroupsListResponse, SecurityGroup[]>({
-    queryKey: ['v1/security_groups', null, params],
+) => {
+  const client = useApiFetch(SecurityGroups);
+  return useApiQuery({
+    queryKey: apiQueryKey('v1/security_groups', undefined, params),
+    queryFn: () => client.list(params),
     select: (data) => data.items,
-    meta: { decode: SecurityGroupsListResponseSchema },
     enabled: options.enabled ?? true,
   });
+};
 
 export const virtualNetworkFilterForSubnetList = (virtualNetworkId: string): string =>
   combineListFilters(virtualNetworkScopeFilter(virtualNetworkId), SUBNET_READY_LIST_FILTER);
@@ -85,7 +75,6 @@ export const virtualNetworkFilterForSubnetList = (virtualNetworkId: string): str
 export const securityGroupFilterForVirtualNetworkList = (virtualNetworkId: string): string =>
   combineListFilters(virtualNetworkScopeFilter(virtualNetworkId), SECURITY_GROUP_READY_LIST_FILTER);
 
-/** CEL list filters compare enum fields to integer literals (see fulfillment-service docs/FILTER.md). */
 const readyStateFilter = (readyState: number): string => `this.status.state == ${readyState}`;
 
 export const VIRTUAL_NETWORK_READY_LIST_FILTER = readyStateFilter(VirtualNetworkState.READY);
@@ -101,7 +90,6 @@ const combineListFilters = (...parts: string[]): string => {
   return parts.map((part) => `(${part})`).join(' && ');
 };
 
-/** Escape a value for interpolation inside a CEL double-quoted string literal. */
 export const escapeCelStringLiteral = (value: string): string =>
   value.replaceAll('\\', '\\\\').replaceAll('"', '\\"');
 
@@ -132,42 +120,44 @@ export const formatResourceIdForReview = (
   resources: Array<{ id: string; metadata?: { name?: string } }>,
 ): string => formatResourceIdsForReview(id ? [id] : [], resources);
 
-export const useVirtualNetwork = (id: string) =>
-  useApiQuery<VirtualNetwork>({
-    queryKey: ['v1/virtual_networks', [id]],
-    meta: { decode: VirtualNetworkSchema },
+export const useVirtualNetwork = (id: string) => {
+  const client = useApiFetch(VirtualNetworks);
+  return useApiQuery({
+    queryKey: apiQueryKey('v1/virtual_networks', [id]),
+    queryFn: () => client.get({ id }),
+    select: (data) => data.object,
     enabled: Boolean(id),
   });
+};
 
-export const useSubnet = (id: string) =>
-  useApiQuery<Subnet>({
-    queryKey: ['v1/subnets', [id]],
-    meta: { decode: SubnetSchema },
+export const useSubnet = (id: string) => {
+  const client = useApiFetch(Subnets);
+  return useApiQuery({
+    queryKey: apiQueryKey('v1/subnets', [id]),
+    queryFn: () => client.get({ id }),
+    select: (data) => data.object,
     enabled: Boolean(id),
   });
+};
 
-export const useSecurityGroup = (id: string) =>
-  useApiQuery<SecurityGroup>({
-    queryKey: ['v1/security_groups', [id]],
-    meta: { decode: SecurityGroupSchema },
+export const useSecurityGroup = (id: string) => {
+  const client = useApiFetch(SecurityGroups);
+  return useApiQuery({
+    queryKey: apiQueryKey('v1/security_groups', [id]),
+    queryFn: () => client.get({ id }),
+    select: (data) => data.object,
     enabled: Boolean(id),
   });
+};
 
-/**
- * Invalidate by route prefix only (no pathParams/queryParams). Passing those
- * through apiQueryKey would pad the tuple with explicit `undefined` entries,
- * which fail partial key matching against list keys (whose 2nd element is
- * `null`, not `undefined`) and by-id keys (whose 2nd element is an array) —
- * see TanStack Query's partialMatchKey. A bare route-only key matches both.
- */
-export const invalidateVirtualNetworksQueries = (qc: ReturnType<typeof useApiQueryClient>) =>
-  qc.invalidateQueries({ queryKey: ['v1/virtual_networks'] });
+export const invalidateVirtualNetworksQueries = (qc: ApiQueryClient) =>
+  qc.invalidateQueries({ queryKey: apiQueryKey('v1/virtual_networks') });
 
-export const invalidateSubnetsQueries = (qc: ReturnType<typeof useApiQueryClient>) =>
-  qc.invalidateQueries({ queryKey: ['v1/subnets'] });
+export const invalidateSubnetsQueries = (qc: ApiQueryClient) =>
+  qc.invalidateQueries({ queryKey: apiQueryKey('v1/subnets') });
 
-export const invalidateSecurityGroupsQueries = (qc: ReturnType<typeof useApiQueryClient>) =>
-  qc.invalidateQueries({ queryKey: ['v1/security_groups'] });
+export const invalidateSecurityGroupsQueries = (qc: ApiQueryClient) =>
+  qc.invalidateQueries({ queryKey: apiQueryKey('v1/security_groups') });
 
 export interface VirtualNetworkInput {
   name: string;
@@ -184,13 +174,12 @@ export interface SubnetInput {
 }
 
 export const useCreateVirtualNetwork = () => {
-  const apiFetch = useApiFetch();
+  const client = useApiFetch(VirtualNetworks);
   const qc = useApiQueryClient();
   return useMutation({
-    mutationFn: async (input: VirtualNetworkInput): Promise<VirtualNetwork> => {
-      const vn = await apiFetch<VirtualNetwork>('v1/virtual_networks', {
-        method: 'POST',
-        body: {
+    mutationFn: async (input: VirtualNetworkInput) => {
+      const resp = await client.create({
+        object: {
           metadata: { name: input.name },
           spec: {
             networkClass: input.network_class,
@@ -203,9 +192,9 @@ export const useCreateVirtualNetwork = () => {
             },
           },
         },
-        decode: VirtualNetworkSchema,
       });
-      if (!vn.id) {
+      const vn = resp.object;
+      if (!vn?.id) {
         throw new Error('Create response missing id');
       }
       return vn;
@@ -215,26 +204,21 @@ export const useCreateVirtualNetwork = () => {
 };
 
 export const useDeleteVirtualNetwork = () => {
-  const apiFetch = useApiFetch();
+  const client = useApiFetch(VirtualNetworks);
   const qc = useApiQueryClient();
   return useMutation({
-    mutationFn: (id: string) =>
-      apiFetch<void>('v1/virtual_networks', {
-        pathParams: [id],
-        method: 'DELETE',
-      }),
+    mutationFn: (id: string) => client.delete({ id }),
     onSuccess: () => invalidateVirtualNetworksQueries(qc),
   });
 };
 
 export const useCreateSubnet = () => {
-  const apiFetch = useApiFetch();
+  const client = useApiFetch(Subnets);
   const qc = useApiQueryClient();
   return useMutation({
-    mutationFn: async (input: SubnetInput): Promise<Subnet> => {
-      const subnet = await apiFetch<Subnet>('v1/subnets', {
-        method: 'POST',
-        body: {
+    mutationFn: async (input: SubnetInput) => {
+      const resp = await client.create({
+        object: {
           metadata: { name: input.name },
           spec: {
             virtualNetwork: input.virtual_network,
@@ -242,9 +226,9 @@ export const useCreateSubnet = () => {
             ...(input.ipv6_cidr && { ipv6Cidr: input.ipv6_cidr }),
           },
         },
-        decode: SubnetSchema,
       });
-      if (!subnet.id) {
+      const subnet = resp.object;
+      if (!subnet?.id) {
         throw new Error('Create response missing id');
       }
       return subnet;
@@ -254,14 +238,10 @@ export const useCreateSubnet = () => {
 };
 
 export const useDeleteSubnet = () => {
-  const apiFetch = useApiFetch();
+  const client = useApiFetch(Subnets);
   const qc = useApiQueryClient();
   return useMutation({
-    mutationFn: (id: string) =>
-      apiFetch<void>('v1/subnets', {
-        pathParams: [id],
-        method: 'DELETE',
-      }),
+    mutationFn: (id: string) => client.delete({ id }),
     onSuccess: () => invalidateSubnetsQueries(qc),
   });
 };
@@ -270,16 +250,13 @@ export const securityGroupFilterForVirtualNetwork = (virtualNetworkId: string): 
   `this.spec.virtual_network == "${escapeCelStringLiteral(virtualNetworkId)}"`;
 
 export const useCreateSecurityGroup = () => {
-  const apiFetch = useApiFetch();
+  const client = useApiFetch(SecurityGroups);
   const qc = useApiQueryClient();
   return useMutation({
-    mutationFn: async (body: SecurityGroup): Promise<SecurityGroup> => {
-      const sg = await apiFetch<SecurityGroup>('v1/security_groups', {
-        method: 'POST',
-        body,
-        decode: SecurityGroupSchema,
-      });
-      if (!sg.id) {
+    mutationFn: async (body: MessageInitShape<typeof SecurityGroupSchema>) => {
+      const resp = await client.create({ object: body });
+      const sg = resp.object;
+      if (!sg?.id) {
         throw new Error('Create response missing id');
       }
       return sg;
@@ -289,37 +266,22 @@ export const useCreateSecurityGroup = () => {
 };
 
 export const useUpdateSecurityGroup = () => {
-  const apiFetch = useApiFetch();
+  const client = useApiFetch(SecurityGroups);
   const qc = useApiQueryClient();
   return useMutation({
-    mutationFn: async ({
-      id,
-      input,
-    }: {
-      id: string;
-      input: Partial<SecurityGroup>;
-    }): Promise<SecurityGroup> => {
-      const sg = await apiFetch<SecurityGroup>('v1/security_groups', {
-        pathParams: [id],
-        method: 'PATCH',
-        body: input,
-        decode: SecurityGroupSchema,
-      });
-      return sg;
+    mutationFn: async ({ object }: { object: MessageInitShape<typeof SecurityGroupSchema> }) => {
+      const resp = await client.update({ object });
+      return resp.object;
     },
     onSuccess: () => invalidateSecurityGroupsQueries(qc),
   });
 };
 
 export const useDeleteSecurityGroup = () => {
-  const apiFetch = useApiFetch();
+  const client = useApiFetch(SecurityGroups);
   const qc = useApiQueryClient();
   return useMutation({
-    mutationFn: (id: string) =>
-      apiFetch<void>('v1/security_groups', {
-        pathParams: [id],
-        method: 'DELETE',
-      }),
+    mutationFn: (id: string) => client.delete({ id }),
     onSuccess: () => invalidateSecurityGroupsQueries(qc),
   });
 };

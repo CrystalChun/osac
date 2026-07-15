@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { MessageInitShape } from '@bufbuild/protobuf';
 import {
   Alert,
   Button,
@@ -13,7 +14,7 @@ import { Formik } from 'formik';
 import type { TFunction } from 'i18next';
 import * as Yup from 'yup';
 
-import type { SecurityGroup } from '@osac/types';
+import type { SecurityGroupSchema } from '@osac/types';
 
 import { useCreateSecurityGroup, useVirtualNetworks } from '../../api/v1/networking';
 import { InputField } from '../../components/Form/InputField';
@@ -71,10 +72,10 @@ export const SecurityGroupCreateModal = ({
       validationSchema={validationSchema(t)}
       onSubmit={async (values) => {
         try {
-          const body = {
+          const body: MessageInitShape<typeof SecurityGroupSchema> = {
             metadata: { name: values.name },
             spec: { virtualNetwork: values.virtualNetwork.value, ingress: [], egress: [] },
-          } as unknown as SecurityGroup;
+          };
           const sg = await createSecurityGroup.mutateAsync(body);
           navigate(`/networking/security-groups/${sg.id}`);
         } catch {

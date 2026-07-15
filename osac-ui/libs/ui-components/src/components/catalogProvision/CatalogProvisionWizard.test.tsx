@@ -9,7 +9,7 @@ import {
   VirtualNetworkState,
 } from '@osac/types';
 
-import { createMockApiFetch } from './test/createMockApiFetch';
+import { createMockConnectTransport } from './test/createMockConnectTransport';
 import { clusterCatalogItem, vmCatalogItem } from './test/fixtures';
 import { renderWizard } from './test/renderWizard';
 import {
@@ -33,7 +33,6 @@ import {
   selectNetworkingPickers,
   waitForConfigurationReady,
 } from './test/wizardFlow.helpers';
-import type { ApiFetch } from '../../api/types';
 
 const catalogItemWithDistinctDefaults = {
   ...vmCatalogItem,
@@ -42,31 +41,30 @@ const catalogItemWithDistinctDefaults = {
       path: 'spec.image.source_ref',
       displayName: 'VM image',
       editable: true,
-      default: 'quay.io/example/rhel9',
+      default: { kind: { case: 'stringValue', value: 'quay.io/example/rhel9' } },
     },
   ],
 } as unknown as ComputeInstanceCatalogItem;
 
-/** REST list response shape from fulfillment API (spec-relative paths, no `spec.` prefix). */
-const wireFormatCatalogItem = {
+const multiFieldCatalogItem = {
   id: 'catalog-rhel-9',
   metadata: { name: 'catalog-rhel-9' },
   title: 'RHEL 9 catalog',
   description: 'RHEL 9 base image',
   template: 'tpl-rhel-9',
   published: true,
-  field_definitions: [
+  fieldDefinitions: [
     {
-      path: 'image.source_ref',
-      display_name: 'VM image',
+      path: 'spec.image.source_ref',
+      displayName: 'VM image',
       editable: true,
-      default: { string_value: 'quay.io/example/rhel9' },
+      default: { kind: { case: 'stringValue', value: 'quay.io/example/rhel9' } },
     },
     {
-      path: 'boot_disk.size_gib',
-      display_name: 'Boot disk',
+      path: 'spec.boot_disk.size_gib',
+      displayName: 'Boot disk',
       editable: true,
-      default: { number_value: 40 },
+      default: { kind: { case: 'numberValue', value: 40 } },
     },
   ],
 };
@@ -77,7 +75,7 @@ const expectConfigurationDefaults = async () => {
   });
 };
 
-const expectWireFormatConfigurationDefaults = async () => {
+const expectMultiFieldConfigurationDefaults = async () => {
   await expectConfigurationDefaults();
   await waitFor(() => {
     const bootDisk = screen.getByLabelText(/Boot disk/) as HTMLInputElement;
@@ -124,11 +122,11 @@ describe('CatalogProvisionWizard', () => {
     await expectConfigurationDefaults();
   });
 
-  it('applies wire-format catalog field_definitions defaults through configuration and create', async () => {
+  it('applies multi-field catalog defaults through configuration and create', async () => {
     const onProvision = vi.fn().mockResolvedValue(undefined);
     const { user } = await renderWizard({
       apiFixtures: {
-        catalogItems: [wireFormatCatalogItem as unknown as ComputeInstanceCatalogItem],
+        catalogItems: [multiFieldCatalogItem as unknown as ComputeInstanceCatalogItem],
       },
       onProvision,
     });
@@ -138,7 +136,7 @@ describe('CatalogProvisionWizard', () => {
     await fillGeneralStep(user, 'web-01');
     await clickWizardNext(user);
 
-    await expectWireFormatConfigurationDefaults();
+    await expectMultiFieldConfigurationDefaults();
     await waitForConfigurationReady(user);
 
     await clickWizardNext(user);
@@ -165,20 +163,25 @@ describe('CatalogProvisionWizard', () => {
     });
 
     const catalogApiFixtures = { catalogItems: [catalogItemWithDistinctDefaults] };
-    const baseFetch = createMockApiFetch(catalogApiFixtures);
-    const gatedFetch: ApiFetch = async (route, options) => {
-      if (route === 'v1/compute_instance_catalog_items') {
-        await catalogFetchGate;
-      }
-      return baseFetch(route, options);
+    const baseTransport = createMockConnectTransport(catalogApiFixtures);
+
+    const originalUnary = baseTransport.unary.bind(baseTransport);
+    const gatedTransport = {
+      ...baseTransport,
+      unary: async (...args: Parameters<typeof baseTransport.unary>) => {
+        const method = args[0];
+        if (method.parent.typeName.endsWith('ComputeInstanceCatalogItems')) {
+          await catalogFetchGate;
+        }
+        return originalUnary(...args);
+      },
     };
 
     const { user } = await renderWizard({
       initialCatalogItemId: vmCatalogItem.id,
-      fetch: gatedFetch,
+      transport: gatedTransport,
     });
 
-    // catalogItemId is pre-set from the URL, so Next is allowed before the catalog list loads.
     await clickWizardNext(user);
     await fillGeneralStep(user, 'web-01');
     await clickWizardNext(user);
@@ -299,12 +302,12 @@ describe('CatalogProvisionWizard', () => {
           {
             id: 'standard-deprecated',
             metadata: { name: 'standard-4-8' },
-            spec: { cores: 4, memory_gib: 8, state: InstanceTypeState.DEPRECATED },
+            spec: { cores: 4, memoryGib: 8, state: InstanceTypeState.DEPRECATED },
           },
           {
             id: 'standard-active',
             metadata: { name: 'standard-4-8' },
-            spec: { cores: 4, memory_gib: 8, state: InstanceTypeState.ACTIVE },
+            spec: { cores: 4, memoryGib: 8, state: InstanceTypeState.ACTIVE },
           },
         ],
       },
