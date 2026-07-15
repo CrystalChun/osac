@@ -27,7 +27,7 @@ FULFILLMENT_API_URL=https://... pnpm dev  # Go proxy + Vite on :5173
 
 **Key commands**:
 - `pnpm build` — TypeScript check + Vite build + Go binary
-- `pnpm test` — Vitest unit tests across all packages
+- `pnpm test` — app-frontend Vitest tests, including ui-components tests via include globs
 - `pnpm lint` — ESLint + Prettier + i18n sync check (CI fails if out of sync)
 - `pnpm format` — Auto-fix linting and formatting issues
 - `pnpm gen-types` — Regenerate TypeScript from protobuf (libs/types)
@@ -220,7 +220,7 @@ pnpm build  # Builds frontend + proxy binary
 - Data fetching: layered `useApiQuery` / `useApiFetch` hooks — see [docs/api-query-arch.md](docs/api-query-arch.md)
 
 **API layer split** (enforced by ESLint):
-- `ui-components`: `useApiQuery` / `useApiQueryClient` wrappers — never import TanStack hooks directly
+- `ui-components` consumers: use `useApiQuery` / `useApiQueryClient` — never import TanStack hooks directly (exception: `libs/ui-components/src/api/use-api-query.ts` implements the wrappers)
 - `app-frontend`: owns `QueryClient`, `ApiProvider`, and default `queryFn`
 - List APIs use cursor pagination (`limit` + `continue` token), not offset pages — see `libs/ui-components/src/api/v1/*`
 

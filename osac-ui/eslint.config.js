@@ -173,7 +173,7 @@ export default defineConfig(
             {
               name: '@tanstack/react-query',
               importNames: ['useQueryClient'],
-              message: "Use useApiQueryClient from '@osac/ui-components/api/use-api-query-client' instead. It constrains all cache operations to known ApiRoute values.",
+              message: "Use useApiQueryClient from '@osac/ui-components/api/use-api-query' instead. It constrains all cache operations to known ApiRoute values.",
             },
             {
               name: 'react-i18next',
