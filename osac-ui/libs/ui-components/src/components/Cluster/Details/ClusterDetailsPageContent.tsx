@@ -1,7 +1,3 @@
-/**
- * flow: cluster-service-catalog
- * step: csc_cluster_detail
- */
 import { useState } from 'react';
 import {
   Card,

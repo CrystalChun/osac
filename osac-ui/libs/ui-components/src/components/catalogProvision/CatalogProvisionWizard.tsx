@@ -1,7 +1,3 @@
-/**
- * flow: catalog-provision-wizard
- * steps: catalog → general → configuration → networking → review
- */
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
   Alert,

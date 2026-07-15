@@ -1,7 +1,3 @@
-/**
- * flow: cluster-service-catalog
- * step: csc_cluster_detail
- */
 import { useParams } from 'react-router-dom';
 
 import { useCluster } from '../../api/v1/cluster';

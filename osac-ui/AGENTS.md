@@ -32,8 +32,7 @@ FULFILLMENT_API_URL=https://... pnpm dev  # Go proxy + Vite on :5173
 - `pnpm format` — Auto-fix linting and formatting issues
 - `pnpm gen-types` — Regenerate TypeScript from protobuf (libs/types)
 - `pnpm i18n` — Extract t() keys to libs/i18n/locales/en/translation.json
-- `pnpm check:pf-primitives` — Validate PatternFly usage (custom linter)
-- `pnpm graph:statecharts` — Generate statechart graphs (XState) to docs/specs/graphs/
+- `pnpm dev:mock-ui` — Python mock fulfillment API + Go proxy + Vite (no real cluster required)
 
 **Container**:
 ```bash
@@ -76,11 +75,12 @@ Multi-stage build images: `nodejs-22-minimal:9.8`, `go-toolset:1.25`, `ubi-minim
 - **Default exports** for React components; **named exports** for everything else (utilities, hooks, types, constants)
 - **One component per file**: split each meaningful component into its own file in the same feature area (e.g., `feature-name/SubView.tsx`); keep page files focused on composition, data wiring, and layout. Exception: a tiny non-exported helper may stay if the file remains short
 - **Restricted imports** (ESLint enforces):
-  - Use `OsacForm` wrapper, not PF `Form` directly
-  - Deep imports for PF icons/tokens (ESM): `@patternfly/react-icons/dist/esm/icons/<name>`
+  - Use `OsacForm` wrapper (`libs/ui-components/src/components/Form/OsacForm.tsx`), not PF `Form` directly
+  - Deep imports for PF icons/tokens (ESM): `@patternfly/react-icons/dist/esm/icons/<name>`, `@patternfly/react-tokens/dist/esm/<token-name>`
   - Deep imports for lodash-es: `lodash-es/<function>`
   - Use `@osac/ui-components/hooks/useTranslation`, never `react-i18next` directly
   - ui-components: use `useApiQuery`, never `@tanstack/react-query` `useQuery` directly
+  - ui-components: use `useApiQueryClient` from `@osac/ui-components/api/use-api-query`, never `useQueryClient` directly
 - Do not add dependencies without aligning with existing stack and license policy; prefer patterns already present in the target package
 
 ### Styling
@@ -94,7 +94,7 @@ Multi-stage build images: `nodejs-22-minimal:9.8`, `go-toolset:1.25`, `ubi-minim
 
 - Base UI on [PatternFly 6](https://www.patternfly.org/) — layout, components, tokens, and patterns. For OpenShift-aligned UIs, also follow [OpenShift Console STYLEGUIDE.md](https://github.com/openshift/console/blob/main/STYLEGUIDE.md)
 - Prefer accessible queries in tests and implementations: labels, roles, names — avoid `data-testid` unless the team standard requires it
-- Meet keyboard and screen-reader expectations implied by the spec (focus order, labels, live regions for async errors)
+- Meet keyboard and screen-reader expectations (focus order, labels, live regions for async errors)
 
 ### React Performance and `memo`
 
@@ -157,8 +157,9 @@ export const getLabels = (t: TFunction) => ({
 
 **Unit tests** (Vitest + React Testing Library):
 - Framework: Vitest 4.x with jsdom
-- Run: `pnpm test` (all packages) or per-package `pnpm --filter <pkg> run test`
-- Location: `*.test.tsx` files alongside source
+- Run: `pnpm test` — executes `@osac/app-frontend` vitest, which also runs ui-components tests via include globs
+- Per-package: `pnpm --filter @osac/app-frontend run test`
+- Location: `*.{test,spec}.{ts,tsx}` alongside source in `apps/app-frontend/src/` and `libs/ui-components/src/`
 - Example paths:
   - `libs/ui-components/src/VmStatusLabel.test.tsx`
   - `libs/ui-components/src/api/fulfillment-decode.test.ts`
@@ -171,15 +172,11 @@ export const getLabels = (t: TFunction) => ({
 - No `data-testid` unless team standard requires it
 
 **Test configuration**:
-- apps/app-frontend/vitest.config.ts — SPA unit tests
+- `apps/app-frontend/vitest.config.ts` — single runner for app-frontend and ui-components tests (`include` spans both packages)
 - ESLint relaxes type safety rules for test files (no-unsafe-* off)
 - Testing libraries: @testing-library/react 16.x, @testing-library/jest-dom 6.x
-
-## Specs and Traceability
-
-- Implement and test only what documented acceptance criteria require; use stable IDs (`AC-1`, `AC-2`, …) in PR text and tie tests to ACs
-- If the spec is ambiguous, do not invent product behavior — document assumptions in the PR or spec under _Open questions_
-- Out-of-scope items from the spec must not appear as drive-by features
+- No E2E tests in this repo
+- CI runs lint and container build only; run `pnpm test` locally before submitting
 
 ## Build
 
@@ -217,10 +214,15 @@ pnpm build  # Builds frontend + proxy binary
 
 ## Architecture (Agent Key Points)
 
+**Stack** (from package manifests):
+- UI: PatternFly 6, React 19, react-router-dom 7, TanStack Query 5
+- Forms: Formik + Yup in `libs/ui-components`
+- Data fetching: layered `useApiQuery` / `useApiFetch` hooks — see [docs/api-query-arch.md](docs/api-query-arch.md)
+
 **API layer split** (enforced by ESLint):
-- `ui-components`: `useApiQuery` wrapper (no queryFn, just options) — never imports `useQuery` directly
-- `app-frontend`: supplies queryFn per route
-- See [docs/api-query-arch.md](docs/api-query-arch.md) for details
+- `ui-components`: `useApiQuery` / `useApiQueryClient` wrappers — never import TanStack hooks directly
+- `app-frontend`: owns `QueryClient`, `ApiProvider`, and default `queryFn`
+- List APIs use cursor pagination (`limit` + `continue` token), not offset pages — see `libs/ui-components/src/api/v1/*`
 
 **i18n flow**:
 - English text is the key (e.g., `t('Save changes')`)
@@ -238,13 +240,10 @@ pnpm build  # Builds frontend + proxy binary
 - `api/`: fulfillment-decode, types, use-api-query
   - `api/v1/`: compute-instance, instance-types (domain models)
 
-**Custom tooling**:
-- `scripts/check-pf-primitives.mjs`: validates PatternFly usage (run via `pnpm check:pf-primitives`)
-
 ## Quality Bar
 
 - Match existing formatting, import order, file layout, and naming in the touched package
-- No broad refactors unrelated to the current spec; smallest diff that satisfies ACs
+- No broad refactors unrelated to the current task; smallest diff that satisfies requirements
 - Run linters and tests before considering work done; fix new violations you introduce
 
 ## Security
@@ -254,7 +253,7 @@ pnpm build  # Builds frontend + proxy binary
 - Use existing env/config patterns for sensitive data (see proxy/ env vars)
 - Sanitize or escape user-controlled content per framework norms
 - Validate inputs at trust boundaries
-- Follow authz semantics from architecture/specs — do not bypass checks
+- Follow authz semantics from architecture docs — do not bypass checks
 - gitleaks config: `.gitleaks.toml` (pre-commit hook integration via rh-pre-commit)
 
 ## PR Conventions
@@ -278,11 +277,10 @@ Assisted-by: Claude Code <noreply@anthropic.com>
 - On `v*` tags: publish Helm chart to GHCR
 
 **Scope discipline**:
-- Implement and test only what documented acceptance criteria require
-- Use stable IDs (AC-1, AC-2) in PR text and tie tests to ACs
-- No drive-by features unrelated to the spec
-- No broad refactors unrelated to current spec
-- Smallest diff that satisfies ACs
+- Implement and test only what the task requires
+- No drive-by features unrelated to the task
+- No broad refactors unrelated to current work
+- Smallest diff that satisfies requirements
 
 **Code review expectations**:
 - Match existing formatting, import order, file layout, naming
@@ -290,7 +288,7 @@ Assisted-by: Claude Code <noreply@anthropic.com>
 - Fix new violations you introduce
 - No secrets, tokens, or credentials in source
 - Sanitize user-controlled content
-- Follow authz semantics from architecture/specs
+- Follow authz semantics from architecture docs
 
 ## Go Proxy (Agent Notes)
 
@@ -306,9 +304,9 @@ cd proxy && nodemon --watch 'proxy/**/*' --exec 'go run' main.go
 
 See README.md for env vars and deployment details.
 
-## Specs and Traceability Reference
+## Documentation Reference
 
-| Spec Type | Location |
-|-----------|----------|
-| Feature acceptance criteria | Per-feature documentation |
-| Statechart graphs (XState) | `docs/specs/graphs/` (generated by `pnpm graph:statecharts`) |
+| Document | Location |
+|----------|----------|
+| API query architecture | [docs/api-query-arch.md](docs/api-query-arch.md) |
+| OpenShift deployment | [docs/deployment-openshift-guide.md](docs/deployment-openshift-guide.md) |

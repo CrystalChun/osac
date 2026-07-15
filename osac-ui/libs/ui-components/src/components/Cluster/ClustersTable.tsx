@@ -1,7 +1,3 @@
-/**
- * flow: cluster-service-catalog
- * step: csc_clusters_list
- */
 import { Link } from 'react-router-dom';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 

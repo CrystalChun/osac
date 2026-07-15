@@ -13,7 +13,6 @@
     "build": "pnpm --filter @osac/app-frontend run build && cd proxy && go build -o osac-proxy .",
     "lint": "eslint \"{apps,libs}/*/src/**\" && prettier --check \"{apps,libs}/*/src/**/*.{js,jsx,ts,tsx}\" && pnpm run i18n",
     "format": "eslint --fix \"{apps,libs}/*/src/**/*.{ts,tsx}\" && prettier --write \"{apps,libs}/*/src/**/*.{js,jsx,ts,tsx}\"",
-    "check:pf-primitives": "node scripts/check-pf-primitives.mjs",
     "test": "pnpm -r run test"
   },
   "devDependencies": {

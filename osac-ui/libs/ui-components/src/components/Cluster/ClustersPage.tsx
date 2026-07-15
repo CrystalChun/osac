@@ -1,7 +1,3 @@
-/**
- * flow: cluster-service-catalog
- * step: csc_clusters_list
- */
 import { useNavigate } from 'react-router-dom';
 import { Alert, Button } from '@patternfly/react-core';
 
