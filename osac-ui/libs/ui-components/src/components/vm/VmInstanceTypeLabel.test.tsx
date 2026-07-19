@@ -65,5 +65,4 @@ describe('VmInstanceTypeLabel', () => {
     expect(container.querySelector('.pf-v6-c-skeleton')).not.toBeInTheDocument();
     expect(screen.getByText('—')).toBeInTheDocument();
   });
-
 });

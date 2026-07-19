@@ -50,5 +50,4 @@ describe('VmDetailsSummary', () => {
     await renderSummary();
     expect(screen.getByText('standard-4-8')).toBeInTheDocument();
   });
-
 });
