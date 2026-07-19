@@ -27,26 +27,26 @@ export const resolveVmStatus = (
 ): ResolvedVmStatus => {
   switch (state) {
     case ComputeInstanceState.RUNNING:
-      return { status: 'ready', text: t('vm.details.status.running') };
+      return { status: 'ready', text: t('Running') };
     case ComputeInstanceState.FAILED:
-      return { status: 'failed', text: t('vm.details.status.failed') };
+      return { status: 'failed', text: t('Failed') };
     case ComputeInstanceState.STARTING:
-      return { status: 'progressing', text: t('vm.details.status.starting') };
+      return { status: 'progressing', text: t('Starting') };
     case ComputeInstanceState.STOPPING:
-      return { status: 'progressing', text: t('vm.details.status.stopping') };
+      return { status: 'progressing', text: t('Stopping') };
     case ComputeInstanceState.DELETING:
-      return { status: 'progressing', text: t('vm.details.status.deleting') };
+      return { status: 'progressing', text: t('Deleting') };
     case ComputeInstanceState.STOPPED:
-      return { status: 'failed', text: t('vm.details.status.stopped') };
+      return { status: 'failed', text: t('Stopped') };
     case ComputeInstanceState.PAUSED:
       return {
         status: 'unspecified',
-        text: t('vm.details.status.paused'),
+        text: t('Paused'),
         color: 'grey',
         icon: PauseIcon,
       };
     default:
-      return { status: 'unspecified', text: t('vm.details.status.unknown') };
+      return { status: 'unspecified', text: t('Unknown') };
   }
 };
 

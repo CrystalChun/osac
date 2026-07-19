@@ -38,17 +38,17 @@ const VmDetailsCard = ({ vm }: Props) => {
 
   return (
     <Card isFullHeight>
-      <CardTitle>{t('vm.details.card.details')}</CardTitle>
+      <CardTitle>{t('Details')}</CardTitle>
       <CardBody>
         {!hasCatalogItem ? (
           <SubtleContent component="p">
-            {t('vm.details.configuration.catalogUnavailable')}
+            {t('Catalog configuration is unavailable for this virtual machine.')}
           </SubtleContent>
         ) : null}
         <DescriptionList isCompact>
           {hasCatalogItem ? (
             <DescriptionListGroup>
-              <DescriptionListTerm>{t('vm.details.fields.catalogItem')}</DescriptionListTerm>
+              <DescriptionListTerm>{t('Catalog item')}</DescriptionListTerm>
               <DescriptionListDescription>
                 {isCatalogItemLoading ? (
                   <Skeleton width="150px" />
@@ -109,7 +109,7 @@ const VmDetailsCard = ({ vm }: Props) => {
             </DescriptionListDescription>
           </DescriptionListGroup>
           <DescriptionListGroup>
-            <DescriptionListTerm>{t('vm.details.fields.creator')}</DescriptionListTerm>
+            <DescriptionListTerm>{t('Creator')}</DescriptionListTerm>
             <DescriptionListDescription>
               {displayValue(vm.metadata?.creator)}
             </DescriptionListDescription>

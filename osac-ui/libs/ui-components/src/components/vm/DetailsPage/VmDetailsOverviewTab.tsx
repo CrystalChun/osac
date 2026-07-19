@@ -25,7 +25,7 @@ const VmDetailsOverviewTab = ({ vm }: Props) => {
           <CardTitle>{t('Conditions')}</CardTitle>
           <CardBody>
             <ResourceConditionsTable
-              ariaLabel={t('vm.details.conditions.ariaLabel')}
+              ariaLabel={t('Virtual machine conditions')}
               conditions={conditions}
               conditionResourceKind="compute_instance"
             />

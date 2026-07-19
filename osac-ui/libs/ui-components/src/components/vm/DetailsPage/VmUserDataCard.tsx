@@ -36,14 +36,12 @@ const VmUserDataCard = ({ vm }: VmUserDataCardProps) => {
         onExpand={() => setIsExpanded((current) => !current)}
         toggleButtonProps={{
           id: toggleId,
-          'aria-label': isExpanded
-            ? t('vm.details.userData.collapse')
-            : t('vm.details.userData.expand'),
+          'aria-label': isExpanded ? t('Collapse user data') : t('Expand user data'),
           'aria-labelledby': `${titleId} ${toggleId}`,
           'aria-expanded': isExpanded,
         }}
       >
-        <CardTitle id={titleId}>{t('vm.details.userData.title')}</CardTitle>
+        <CardTitle id={titleId}>{t('Cloud Init User Data')}</CardTitle>
       </CardHeader>
       <CardExpandableContent>
         <CardBody>

@@ -20,7 +20,6 @@ export const VmInstanceTypeLabel = ({
   const { t } = useTranslation();
   const trimmedId = instanceTypeId?.trim() ?? '';
 
-  // Skeleton only when there is an id to resolve; otherwise show em dash immediately.
   if (isLoading && trimmedId) {
     return <Skeleton width="150px" />;
   }
