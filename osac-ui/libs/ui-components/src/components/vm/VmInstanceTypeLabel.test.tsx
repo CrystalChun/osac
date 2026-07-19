@@ -66,22 +66,4 @@ describe('VmInstanceTypeLabel', () => {
     expect(screen.getByText('—')).toBeInTheDocument();
   });
 
-  it('shows sizing fallback when instance type id is unset', async () => {
-    await renderLabel({ sizingFallback: '1 vCPU, 2 GiB' });
-
-    expect(screen.getByText('1 vCPU, 2 GiB')).toBeInTheDocument();
-  });
-
-  it('prefers instance type id over sizing fallback', async () => {
-    await renderLabel({ instanceTypeId: 'standard-4-8', sizingFallback: '4 vCPU, 8 GiB' });
-
-    expect(screen.getByText('standard-4-8')).toBeInTheDocument();
-    expect(screen.queryByText('4 vCPU, 8 GiB')).not.toBeInTheDocument();
-  });
-
-  it('shows em dash when neither instance type id nor sizing fallback is set', async () => {
-    await renderLabel({});
-
-    expect(screen.getByText('—')).toBeInTheDocument();
-  });
 });

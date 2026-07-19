@@ -48,13 +48,6 @@ interface VmDetailsSummaryProps {
   isInstanceTypeLoading?: boolean;
 }
 
-const formatSizingFallback = (cores?: number, memoryGib?: number): string | undefined => {
-  if (cores == null || memoryGib == null) {
-    return undefined;
-  }
-  return `${cores} vCPU, ${memoryGib} GiB`;
-};
-
 const VmDetailsSummary = ({
   vm,
   instanceType,
@@ -62,7 +55,6 @@ const VmDetailsSummary = ({
 }: VmDetailsSummaryProps) => {
   const { t } = useTranslation();
   const instanceTypeId = vm.spec?.instanceType?.trim();
-  const sizingFallback = formatSizingFallback(vm.spec?.cores, vm.spec?.memoryGib);
   const publicIp = vm.status?.publicIpAddress;
   const internalIp = vm.status?.internalIpAddress;
 
@@ -74,7 +66,6 @@ const VmDetailsSummary = ({
             instanceTypeId={instanceTypeId}
             instanceType={instanceType}
             isLoading={isInstanceTypeLoading}
-            sizingFallback={sizingFallback}
           />
         </SummaryCard>
       </GridItem>
