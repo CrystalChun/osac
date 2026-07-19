@@ -24,6 +24,8 @@ export type ApiQueryClient = {
   cancelQueries: (filters: { queryKey: ApiQueryKey }) => Promise<void>;
   /** Read a single cached entry. */
   getQueryData: <T>(queryKey: ApiQueryKey) => T | undefined;
+  /** Read all cached entries whose key matches the filter. */
+  getQueriesData: <T>(filters: { queryKey: ApiQueryKey }) => [ApiQueryKey, T | undefined][];
   /** Write a single cached entry. */
   setQueryData: <T>(queryKey: ApiQueryKey, updater: Updater<T>) => T | undefined;
   /** Write all cached entries whose key matches the filter. */
@@ -38,6 +40,8 @@ export const useApiQueryClient = (): ApiQueryClient => {
     refetchQueries: (filters) => qc.refetchQueries(filters),
     cancelQueries: (filters) => qc.cancelQueries(filters),
     getQueryData: <T>(queryKey: ApiQueryKey) => qc.getQueryData<T>(queryKey),
+    getQueriesData: <T>(filters: { queryKey: ApiQueryKey }) =>
+      qc.getQueriesData<T>(filters) as [ApiQueryKey, T | undefined][],
     setQueryData: <T>(queryKey: ApiQueryKey, updater: Updater<T>) =>
       qc.setQueryData<T>(queryKey, updater),
     setQueriesData: <T>(filters: { queryKey: ApiQueryKey }, updater: Updater<T>) => {

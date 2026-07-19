@@ -149,6 +149,11 @@ export const usePatchComputeInstance = () => {
       const transitionalState = powerActionToTransitionalState(powerAction);
 
       const detailKey = apiQueryKey('v1/compute_instances', [id]);
+      const previousDetail = qc.getQueryData<ComputeInstancesGetResponse>(detailKey);
+      const previousList = qc.getQueriesData<ComputeInstancesListResponse>({
+        queryKey: apiQueryKey('v1/compute_instances'),
+      });
+
       qc.setQueryData<ComputeInstancesGetResponse>(detailKey, (old) => {
         if (!old?.object) {
           return old;
@@ -170,6 +175,18 @@ export const usePatchComputeInstance = () => {
           };
         },
       );
+
+      return { previousDetail, previousList, detailKey };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previousDetail) {
+        qc.setQueryData(context.detailKey, context.previousDetail);
+      }
+      if (context?.previousList) {
+        for (const [key, data] of context.previousList) {
+          qc.setQueryData(key, data);
+        }
+      }
     },
     onSettled: () => invalidateComputeInstancesQueries(qc),
   });

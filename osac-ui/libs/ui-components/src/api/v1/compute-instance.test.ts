@@ -135,4 +135,34 @@ describe('usePatchComputeInstance', () => {
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
   });
+
+  it('rolls back optimistic update on API error', async () => {
+    const failingTransport = createRouterTransport((router) => {
+      router.service(ComputeInstances, {
+        list: () => ({
+          items: [makeVm('vm-1', ComputeInstanceState.RUNNING)],
+        }),
+        get: () => ({
+          object: makeVm('vm-1', ComputeInstanceState.RUNNING),
+        }),
+        update: () => {
+          throw new Error('API failure');
+        },
+      });
+    });
+
+    const { result, queryClient } = renderUsePatchComputeInstance(failingTransport);
+
+    const detailKey = ['v1/compute_instances', ['vm-1']];
+    queryClient.setQueryData(detailKey, { object: makeVm('vm-1', ComputeInstanceState.RUNNING) });
+
+    act(() => {
+      result.current.mutate({ id: 'vm-1', powerAction: 'stop' });
+    });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+
+    const restored = queryClient.getQueryData<{ object: { status: { state: number } } }>(detailKey);
+    expect(restored?.object?.status?.state).toBe(ComputeInstanceState.RUNNING);
+  });
 });
