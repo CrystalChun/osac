@@ -23,7 +23,6 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "globals": "^17.4.0",
     "nodemon": "^3.1.14",
-    "pnpm": "^9.15.9",
     "prettier": "^3.0.0",
     "typescript-eslint": "^8.57.0",
     "yaml": "^2.7.0"
