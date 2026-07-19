@@ -9,6 +9,7 @@ i18n
   .use(initReactI18next)
   .init({
     fallbackLng: 'en',
+    keySeparator: false,
     interpolation: {
       escapeValue: false,
     },

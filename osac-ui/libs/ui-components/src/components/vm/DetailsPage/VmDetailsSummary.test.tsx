@@ -11,10 +11,12 @@ vi.mock('../VmInstanceTypeLabel', () => ({
   VmInstanceTypeLabel: ({
     instanceTypeId,
     instanceType,
+    sizingFallback,
   }: {
     instanceTypeId?: string;
     instanceType?: { metadata?: { name?: string } };
-  }) => <span>{instanceType?.metadata?.name ?? instanceTypeId ?? '—'}</span>,
+    sizingFallback?: string;
+  }) => <span>{instanceType?.metadata?.name ?? instanceTypeId ?? sizingFallback ?? '—'}</span>,
 }));
 
 const vm = {
@@ -49,5 +51,26 @@ describe('VmDetailsSummary', () => {
   it('falls back to raw instance type id when lookup has no data', async () => {
     await renderSummary();
     expect(screen.getByText('standard-4-8')).toBeInTheDocument();
+  });
+
+  it('shows cores/memory sizing when instance type is unset', async () => {
+    const cliVm = {
+      id: 'vm-cli',
+      spec: { cores: 1, memoryGib: 2 },
+      status: { internalIpAddress: '10.100.1.11' },
+    } as ComputeInstance;
+    await renderSummary(cliVm);
+    expect(screen.getByText('1 vCPU, 2 GiB')).toBeInTheDocument();
+  });
+
+  it('shows em dash when neither instance type nor cores/memory is set', async () => {
+    const bareVm = {
+      id: 'vm-bare',
+      spec: {},
+      status: {},
+    } as ComputeInstance;
+    await renderSummary(bareVm);
+    const dashes = screen.getAllByText('—');
+    expect(dashes.length).toBeGreaterThanOrEqual(3);
   });
 });

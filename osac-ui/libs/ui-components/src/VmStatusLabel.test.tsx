@@ -8,6 +8,14 @@ import { initTestI18n } from './components/catalogProvision/test/i18n';
 import { VmStatusLabel, resolveVmStatus } from './VmStatusLabel';
 
 describe('resolveVmStatus', () => {
+  it('resolves dotted i18n keys to translated text', async () => {
+    const i18n = await initTestI18n();
+    const t = i18n.t.bind(i18n);
+    expect(t('vm.details.status.running')).toBe('Running');
+    expect(t('vm.details.card.details')).toBe('Details');
+    expect(t('vm.details.fields.catalogItem')).toBe('Catalog item');
+  });
+
   it('maps running to ready', async () => {
     const i18n = await initTestI18n();
     const t = i18n.t.bind(i18n);

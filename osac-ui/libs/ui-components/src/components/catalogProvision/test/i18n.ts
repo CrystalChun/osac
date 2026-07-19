@@ -8,6 +8,7 @@ export const initTestI18n = async () => {
   await instance.use(initReactI18next).init({
     lng: 'en',
     fallbackLng: 'en',
+    keySeparator: false,
     resources: { en: { translation: en } },
     interpolation: { escapeValue: false },
   });
