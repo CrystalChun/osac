@@ -15,7 +15,7 @@ export const VmDetailsPage = () => {
     return (
       <ResourceDetailsPageLoading
         parentTo="/vms"
-        parentLabel={t('vm.details.breadcrumb')}
+        parentLabel={t('Virtual machines')}
         tabLabels={[t('Overview'), t('Networking')]}
         tabsId="vm-detail-tabs"
         cardCount={2}
@@ -27,7 +27,7 @@ export const VmDetailsPage = () => {
     return (
       <ResourceDetailsPageError
         parentTo="/vms"
-        parentLabel={t('vm.details.breadcrumb')}
+        parentLabel={t('Virtual machines')}
         resourceLabel="virtual machine"
         error={error}
         onRetry={() => void refetch()}
@@ -39,7 +39,7 @@ export const VmDetailsPage = () => {
     return (
       <ResourceDetailsPageError
         parentTo="/vms"
-        parentLabel={t('vm.details.breadcrumb')}
+        parentLabel={t('Virtual machines')}
         resourceLabel="virtual machine"
         variant="not-found"
       />

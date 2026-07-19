@@ -18,33 +18,29 @@ const VmNetworkingTab = ({ vm }: VmNetworkingTabProps) => {
 
   return (
     <Card isFullHeight>
-      <CardTitle>{t('vm.details.networking.title')}</CardTitle>
+      <CardTitle>{t('Networking')}</CardTitle>
       <CardBody>
         {networkAttachments.length > 0 ? (
-          <Table aria-label={t('vm.details.networking.title')} variant="compact" borders>
+          <Table aria-label={t('Networking')} variant="compact" borders>
             <Thead>
               <Tr>
-                <Th>{t('vm.details.networking.virtualNetwork')}</Th>
-                <Th>{t('vm.details.networking.subnet')}</Th>
-                <Th>{t('vm.details.networking.securityGroups')}</Th>
+                <Th>{t('Virtual network')}</Th>
+                <Th>{t('Subnet')}</Th>
+                <Th>{t('Security groups')}</Th>
               </Tr>
             </Thead>
             <Tbody>
               {networkingRows.map((row, index) => (
                 <Tr key={`network-attachment-${index}`}>
-                  <Td dataLabel={t('vm.details.networking.virtualNetwork')}>
-                    {row.virtualNetwork}
-                  </Td>
-                  <Td dataLabel={t('vm.details.networking.subnet')}>{row.subnet}</Td>
-                  <Td dataLabel={t('vm.details.networking.securityGroups')}>
-                    {row.securityGroups}
-                  </Td>
+                  <Td dataLabel={t('Virtual network')}>{row.virtualNetwork}</Td>
+                  <Td dataLabel={t('Subnet')}>{row.subnet}</Td>
+                  <Td dataLabel={t('Security groups')}>{row.securityGroups}</Td>
                 </Tr>
               ))}
             </Tbody>
           </Table>
         ) : (
-          <SubtleContent component="p">{t('vm.details.networking.empty')}</SubtleContent>
+          <SubtleContent component="p">{t('No virtual networks configured.')}</SubtleContent>
         )}
       </CardBody>
     </Card>
