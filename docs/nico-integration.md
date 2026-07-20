@@ -317,6 +317,9 @@ NICo agents are **ephemeral** — they are created when instances boot and delet
 - **Detachment**: NodePool scaled down -> HyperShift removes `clusterdeployment-namespace`
 - **Deletion**: Agent CR is deleted after detachment to prevent stale agent conflicts
 
+See [CaaS Agent Binding Labels](agent-labels.md) for the full label
+reference and common mistakes to avoid.
+
 ### Scale-Down Protection
 
 During scale-down, agents without `clusterdeployment-namespace` could be either:
