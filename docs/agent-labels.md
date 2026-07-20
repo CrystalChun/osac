@@ -6,15 +6,14 @@ reference for those labels.
 
 ## Required Labels
 
-These labels must be present on every Agent CR before a CaaS cluster can be
-provisioned. Missing any of them causes provisioning to fail silently or
-stall indefinitely.
+These labels must be present on every Agent CR for CaaS cluster provisioning
+and scale-out. Missing any applicable label causes provisioning to fail
+silently or stall indefinitely.
 
-| Label Key | Set By | Required For |
-|-----------|--------|--------------|
-| `osac.openshift.io/resource_class` | Import playbook (BMH, BCM, or NICo) | Agent selection and NodePool matching |
-| `osac.openshift.io/clusterorder` | Provisioning automation (automatic) | HyperShift agent-to-NodePool binding |
-| `netris.server/name` | Import playbook (Netris backend only) | Netris server cluster creation |
+| Label Key | Operator Action | Required For |
+|-----------|-----------------|--------------|
+| `osac.openshift.io/resource_class` | Set via inventory | Agent selection and NodePool matching |
+| `osac.openshift.io/clusterorder` | Automatic (do not set manually) | HyperShift agent-to-NodePool binding |
 
 ### `osac.openshift.io/resource_class`
 
@@ -48,10 +47,18 @@ Operators do **not** need to set this label manually.
 **If missing:** HyperShift CAPI never selects the agent. The NodePool stays
 at `NoSuitableAgents` indefinitely.
 
+## Backend-Specific Required Labels
+
+These labels are required only when using a specific network backend.
+
+| Label Key | Operator Action | Backend | Required For |
+|-----------|-----------------|---------|--------------|
+| `netris.server/name` | Set via inventory | Netris | Netris server cluster creation |
+
 ### `netris.server/name`
 
 Maps the agent to its corresponding Netris server entry. Only required when
-using the Netris network backend.
+using the Netris network backend. Not needed for NICo, ESI, or other backends.
 
 **Set by:** The BMH import playbook (`playbook_osac_import_agents.yml`) from
 `server.netris_server_name` in the inventory file.
@@ -90,8 +97,9 @@ Keys like these are invalid Kubernetes label keys:
 inventory.agent-install.openshift.io/extra-labels/osac.openshift.io/resource_class=fc430
 ```
 
-The Kubernetes API server rejects the Agent CR mutation entirely because the
-label key `inventory.agent-install.openshift.io/extra-labels/osac.openshift.io/resource_class`
+The Kubernetes API server rejects the resource update (on the BMH, InfraEnv,
+or Agent CR - whichever carries the invalid key) because the label key
+`inventory.agent-install.openshift.io/extra-labels/osac.openshift.io/resource_class`
 contains more than one slash. A valid label key has at most one slash
 separating a DNS prefix from the name segment (e.g., `osac.openshift.io/resource_class`).
 
