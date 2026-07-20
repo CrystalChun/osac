@@ -307,7 +307,9 @@ func (r *StorageReconciler) handleUpdate(ctx context.Context, instance *v1alpha1
 	// Resolved once here, before Stage 1 (which can return early via
 	// handleBackendReadiness) so both Stage 2's tier-coverage validation and
 	// every downstream AAP call in this reconcile see the same result without
-	// re-fetching.
+	// re-fetching. Injected into ctx here too, so handleBackendProvisioning,
+	// handleClusterStorageProvisioning, and handleCaaSUpdate all pick it up via
+	// the ctx they receive from this function.
 	var tierDefinitions []provisioning.TierDefinition
 	if r.TiersClient != nil {
 		var err error
@@ -316,6 +318,7 @@ func (r *StorageReconciler) handleUpdate(ctx context.Context, instance *v1alpha1
 			return ctrl.Result{}, err
 		}
 	}
+	ctx = provisioning.WithStorageTierDefinitions(ctx, tierDefinitions)
 
 	// Stage 1: check hub Secret and route provisioning based on backend registration.
 	// stop is always true when err is non-nil (handleBackendReadiness invariant).
@@ -676,6 +679,20 @@ func (r *StorageReconciler) handleDelete(ctx context.Context, instance *v1alpha1
 	if !controllerutil.ContainsFinalizer(instance, storageFinalizer) {
 		return ctrl.Result{}, nil
 	}
+
+	// Resolved independently from handleUpdate's resolution (no caching between create
+	// and delete paths) and injected into ctx here, before handleCaaSDelete — the first
+	// AAP-triggering call in this function — so it, handleClusterStorageDeprovisioning,
+	// and handleBackendDeprovisioning all pick it up via the ctx they receive.
+	var tierDefinitions []provisioning.TierDefinition
+	if r.TiersClient != nil {
+		var err error
+		tierDefinitions, err = resolveTierDefinitions(ctx, r.TiersClient, r.BackendsGetter)
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+	}
+	ctx = provisioning.WithStorageTierDefinitions(ctx, tierDefinitions)
 
 	// CaaS cleanup: remove cluster-side storage (StorageClasses, CSI) from
 	// all CaaS clusters and remove our finalizer from their ClusterOrders.
