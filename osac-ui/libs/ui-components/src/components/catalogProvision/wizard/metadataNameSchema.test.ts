@@ -2,8 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { ValidationError } from 'yup';
 
 import { buildMetadataNameSchema } from './metadataNameSchema';
-
-const t = (key: string) => key;
+import { tIdentity as t } from '../../../test-utils/i18n';
 
 const validateName = async (name: string) => {
   const schema = buildMetadataNameSchema(t);

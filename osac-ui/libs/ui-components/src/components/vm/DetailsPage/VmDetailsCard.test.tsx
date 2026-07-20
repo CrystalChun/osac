@@ -1,11 +1,10 @@
-import { I18nextProvider } from 'react-i18next';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 import type { ComputeInstance } from '@osac/types';
 
 import VmDetailsCard from './VmDetailsCard';
-import { initTestI18n } from '../../catalogProvision/test/i18n';
+import { renderWithProviders } from '../../../test-utils/TestProviders';
 
 vi.mock('./useVmDetailsDisplay', () => ({
   useVmDetailsDisplay: vi.fn(),
@@ -30,17 +29,11 @@ const catalogVm = {
   },
 } as ComputeInstance;
 
-const renderCard = async (vm: ComputeInstance = catalogVm) => {
-  const i18n = await initTestI18n();
-  return render(
-    <I18nextProvider i18n={i18n}>
-      <VmDetailsCard vm={vm} />
-    </I18nextProvider>,
-  );
-};
+const renderCard = (vm: ComputeInstance = catalogVm) =>
+  renderWithProviders(<VmDetailsCard vm={vm} />);
 
 describe('VmDetailsCard', () => {
-  it('shows catalog fields with full SSH key', async () => {
+  it('shows catalog fields with full SSH key', () => {
     vi.mocked(useVmDetailsDisplay).mockReturnValue({
       catalogItemId: 'catalog-rhel-9',
       hasCatalogItem: true,
@@ -62,7 +55,7 @@ describe('VmDetailsCard', () => {
       catalogItem: undefined,
     });
 
-    await renderCard();
+    renderCard();
 
     expect(screen.getByText('Details')).toBeInTheDocument();
     expect(screen.getByText('web-01')).toBeInTheDocument();
@@ -77,7 +70,7 @@ describe('VmDetailsCard', () => {
     expect(screen.getByText('Creator')).toBeInTheDocument();
   });
 
-  it('shows degraded message when catalog item is missing', async () => {
+  it('shows degraded message when catalog item is missing', () => {
     vi.mocked(useVmDetailsDisplay).mockReturnValue({
       catalogItemId: undefined,
       hasCatalogItem: false,
@@ -95,7 +88,7 @@ describe('VmDetailsCard', () => {
       catalogItem: undefined,
     });
 
-    await renderCard({ id: 'vm-2', metadata: { name: 'legacy-vm' } } as ComputeInstance);
+    renderCard({ id: 'vm-2', metadata: { name: 'legacy-vm' } } as ComputeInstance);
     expect(
       screen.getByText('Catalog configuration is unavailable for this virtual machine.'),
     ).toBeInTheDocument();

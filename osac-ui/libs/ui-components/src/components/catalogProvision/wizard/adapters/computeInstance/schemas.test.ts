@@ -1,12 +1,44 @@
 import { describe, expect, it } from 'vitest';
 import { ValidationError } from 'yup';
 
+import type { ComputeInstanceCatalogItem } from '@osac/types';
+import { tIdentity } from '@osac/ui-components/test-utils/i18n';
+
 import type { ComputeInstanceWizardValues } from './fields';
 import { EMPTY_LABELED_RESOURCE_REF } from './fields';
 import { buildComputeInstanceStepSchema } from './schemas';
-import { vmCatalogItem } from '../../../test/fixtures';
 
-const t = (key: string) => key;
+const vmCatalogItem: ComputeInstanceCatalogItem = {
+  $typeName: 'osac.public.v1.ComputeInstanceCatalogItem',
+  id: 'catalog-rhel-9',
+  metadata: {
+    $typeName: 'osac.public.v1.Metadata',
+    name: 'catalog-rhel-9',
+    annotations: {},
+    creator: 'foo',
+    labels: {},
+    project: 'foo',
+    tenant: 'foo',
+    version: 1,
+  },
+  title: 'RHEL 9 catalog',
+  description: 'RHEL 9 base image',
+  template: 'tpl-rhel-9',
+  published: true,
+  fieldDefinitions: [
+    {
+      $typeName: 'osac.public.v1.FieldDefinition',
+      path: 'spec.image.source_ref',
+      displayName: 'VM image',
+      editable: true,
+      validationSchema: '',
+      default: {
+        $typeName: 'google.protobuf.Value',
+        kind: { case: 'stringValue', value: 'quay.io/example/rhel9' },
+      },
+    },
+  ],
+};
 
 const emptyValues: ComputeInstanceWizardValues = {
   catalogItemId: '',
@@ -30,7 +62,7 @@ const validateStep = async (
   values: ComputeInstanceWizardValues,
   catalogItem: unknown = null,
 ) => {
-  const schema = buildComputeInstanceStepSchema(catalogItem, stepId, t);
+  const schema = buildComputeInstanceStepSchema(catalogItem, stepId, tIdentity);
   if (!schema) {
     return {};
   }
@@ -193,6 +225,6 @@ describe('buildComputeInstanceStepSchema', () => {
   });
 
   it('returns undefined for review step', () => {
-    expect(buildComputeInstanceStepSchema(vmCatalogItem, 'review', t)).toBeUndefined();
+    expect(buildComputeInstanceStepSchema(vmCatalogItem, 'review', tIdentity)).toBeUndefined();
   });
 });

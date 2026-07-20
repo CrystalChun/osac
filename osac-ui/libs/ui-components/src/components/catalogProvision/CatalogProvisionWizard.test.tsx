@@ -1,7 +1,10 @@
-import { screen, waitFor } from '@testing-library/react';
+import type { Transport } from '@connectrpc/connect';
+import type { RenderOptions } from '@testing-library/react';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
+import { UserEvent } from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 
-import type { ComputeInstanceCatalogItem } from '@osac/types';
+import type { ClusterCatalogItem, ComputeInstanceCatalogItem } from '@osac/types';
 import {
   InstanceTypeState,
   SecurityGroupState,
@@ -9,64 +12,510 @@ import {
   VirtualNetworkState,
 } from '@osac/types';
 
-import { createMockConnectTransport } from './test/createMockConnectTransport';
-import { clusterCatalogItem, vmCatalogItem } from './test/fixtures';
-import { renderWizard } from './test/renderWizard';
-import {
-  advanceToClusterConfigurationStep,
-  advanceToClusterReviewStep,
-  advanceToConfigurationStep,
-  advanceToNetworkingStep,
-  advanceToReviewStep,
-  clickWizardBack,
-  clickWizardCancel,
-  clickWizardNext,
-  expectCatalogItemSelected,
-  expectCatalogItemVisible,
-  expectValidationAlert,
-  fillClusterGeneralStep,
-  fillClusterNodeSetRow,
-  fillGeneralStep,
-  getCancelModal,
-  selectCatalogItem,
-  selectClusterCatalogItem,
-  selectNetworkingPickers,
-  waitForConfigurationReady,
-} from './test/wizardFlow.helpers';
+import type { CatalogProvisionKind } from './catalogFieldDefinition';
+import type { CatalogProvisionPayload } from './catalogProvisionTypes';
+import { CatalogProvisionWizard } from './CatalogProvisionWizard';
+import type {
+  MockApiFixtures,
+  MockTransportOverrides,
+} from '../../test-utils/createMockConnectTransport';
+import { createMockConnectTransport } from '../../test-utils/createMockConnectTransport';
+import { renderWithProviders } from '../../test-utils/TestProviders';
 
-const catalogItemWithDistinctDefaults = {
-  ...vmCatalogItem,
-  fieldDefinitions: [
-    {
-      path: 'spec.image.source_ref',
-      displayName: 'VM image',
-      editable: true,
-      default: { kind: { case: 'stringValue', value: 'quay.io/example/rhel9' } },
-    },
-  ],
-} as unknown as ComputeInstanceCatalogItem;
+const fillClusterGeneralStep = async (
+  user: UserEvent,
+  name: string,
+  pullSecret = '{"auths":{}}',
+) => {
+  const nameInput = screen.getByLabelText(/^Name/);
+  await user.clear(nameInput);
+  await user.type(nameInput, name);
+  const pullSecretInput = screen.getByLabelText(/Pull secret/);
+  fireEvent.change(pullSecretInput, { target: { value: pullSecret } });
+};
 
-const multiFieldCatalogItem = {
+const fillGeneralStep = async (user: UserEvent, name: string) => {
+  const nameInput = screen.getByLabelText(/^Name/);
+  await user.clear(nameInput);
+  await user.type(nameInput, name);
+};
+
+const fillClusterNodeSetRow = async (user: UserEvent, hostTypeLabel = 'ACME 1TB', size = '3') => {
+  await waitFor(() => {
+    expect(screen.getByText('Node set 1')).toBeInTheDocument();
+  });
+  await user.click(screen.getByLabelText(/^Host type/));
+  await user.click(screen.getByRole('option', { name: hostTypeLabel }));
+  const sizeInput = screen.getByRole('spinbutton', { name: /^Nodes/ });
+  await user.clear(sizeInput);
+  await user.type(sizeInput, size);
+};
+
+export const clickWizardNext = async (user: UserEvent) => {
+  const [nextButton] = screen.getAllByRole('button', { name: 'Next' });
+  await user.click(nextButton);
+};
+
+const catalogItemGroup = () => screen.getByRole('radiogroup', { name: 'Catalog item' });
+
+const expectCatalogItemVisible = async (title: string) => {
+  await waitFor(() => {
+    expect(within(catalogItemGroup()).getByText(title)).toBeInTheDocument();
+  });
+};
+
+const expectCatalogItemSelected = (title: string) => {
+  const titleNode = within(catalogItemGroup()).getByText(title);
+  const card = titleNode.closest('.pf-v6-c-card');
+  if (!card) {
+    throw new Error(`Catalog card not found for ${title}`);
+  }
+  expect(within(card).getByRole('radio')).toBeChecked();
+};
+
+const selectCatalogItem = async (user: UserEvent, title: string) => {
+  await expectCatalogItemVisible(title);
+  const titleNode = within(catalogItemGroup()).getByText(title);
+  const card = titleNode.closest('.pf-v6-c-card');
+  if (!card) {
+    throw new Error(`Catalog card not found for ${title}`);
+  }
+  await user.click(within(card).getByRole('radio'));
+};
+
+const clickWizardBack = async (user: UserEvent) => {
+  const [backButton] = screen.getAllByRole('button', { name: 'Back' });
+  await user.click(backButton);
+};
+
+const clickWizardCancel = async (user: UserEvent) => {
+  const [cancelButton] = screen.getAllByRole('button', { name: 'Cancel' });
+  await user.click(cancelButton);
+};
+
+const advanceToConfigurationStep = async (
+  user: UserEvent,
+  vmName: string,
+  catalogItemTitle: string,
+) => {
+  await selectCatalogItem(user, catalogItemTitle);
+  await clickWizardNext(user);
+  await waitFor(() => {
+    expect(screen.getByLabelText(/^Name/)).toBeInTheDocument();
+  });
+  await fillGeneralStep(user, vmName);
+  await clickWizardNext(user);
+  await waitFor(() => {
+    expect(screen.getByLabelText(/VM image/)).toBeInTheDocument();
+  });
+};
+
+const waitForConfigurationReady = async (user?: UserEvent) => {
+  await waitFor(() => {
+    expect(screen.getByLabelText(/^Instance type/)).not.toBeDisabled();
+    expect(screen.getByLabelText(/^Instance type/)).toHaveTextContent('standard-4-8');
+  });
+
+  const bootDisk = screen.queryByLabelText(/Boot disk/);
+  if (bootDisk && !bootDisk.value) {
+    if (!user) {
+      throw new Error('Boot disk must be filled before leaving configuration');
+    }
+    await user.clear(bootDisk);
+    await user.type(bootDisk, '40');
+  }
+};
+
+const advanceToNetworkingStep = async (user: UserEvent, catalogItemTitle: string) => {
+  await advanceToConfigurationStep(user, 'web-01', catalogItemTitle);
+  await waitForConfigurationReady(user);
+  await clickWizardNext(user);
+  await waitFor(() => {
+    expect(screen.getByLabelText(/^Virtual network/)).toBeInTheDocument();
+  });
+};
+
+const selectNetworkingPickers = async (user: UserEvent) => {
+  await waitFor(() => {
+    expect(screen.getByLabelText(/^Virtual network/)).not.toBeDisabled();
+    expect(screen.getByLabelText(/^Virtual network/)).toHaveTextContent('tenant-vn');
+    expect(screen.getByLabelText(/^Subnet/)).toHaveTextContent('tenant-subnet');
+    expect(screen.getByText('default-sg')).toBeInTheDocument();
+  });
+
+  const sgToggle = screen.getByLabelText(/^Security groups/);
+  if (sgToggle.textContent === 'Select security groups') {
+    await user.click(sgToggle);
+    await user.click(screen.getByRole('menuitemcheckbox', { name: /default-sg/ }));
+  }
+
+  await waitFor(() => {
+    expect(screen.getByLabelText(/^Security groups/)).not.toHaveTextContent(
+      'Select security groups',
+    );
+  });
+};
+
+const advanceToReviewStep = async (user: UserEvent, catalogItemTitle: string) => {
+  await advanceToNetworkingStep(user, catalogItemTitle);
+  await selectNetworkingPickers(user);
+  await clickWizardNext(user);
+  await waitFor(() => {
+    expect(screen.getByRole('button', { name: 'Create' })).toBeInTheDocument();
+  });
+};
+
+const expectValidationAlert = async () => {
+  await waitFor(() => {
+    expect(screen.getByText('Fix the highlighted errors before continuing.')).toBeInTheDocument();
+  });
+};
+
+const getCancelModal = () => {
+  const dialog = screen.getByRole('dialog');
+  return within(dialog);
+};
+
+const advanceToClusterConfigurationStep = async (
+  user: UserEvent,
+  catalogItemTitle: string,
+  name = 'my-cluster',
+) => {
+  await selectCatalogItem(user, catalogItemTitle);
+  await clickWizardNext(user);
+  await fillClusterGeneralStep(user, name);
+  await clickWizardNext(user);
+  await waitFor(() => {
+    expect(screen.getByLabelText(/Release image/)).toBeInTheDocument();
+  });
+  await waitFor(() => {
+    expect(screen.getByRole('button', { name: 'Add node set' })).toBeInTheDocument();
+  });
+};
+
+const advanceToClusterReviewStep = async (user: UserEvent, catalogItemTitle: string) => {
+  await advanceToClusterConfigurationStep(user, catalogItemTitle);
+  await fillClusterNodeSetRow(user);
+  await clickWizardNext(user);
+  await waitFor(() => {
+    expect(screen.getByLabelText(/Pod CIDR/)).toBeInTheDocument();
+  });
+  await clickWizardNext(user);
+  await waitFor(() => {
+    expect(screen.getByRole('button', { name: 'Create' })).toBeInTheDocument();
+  });
+};
+
+const vmCatalogItem: ComputeInstanceCatalogItem = {
+  $typeName: 'osac.public.v1.ComputeInstanceCatalogItem',
   id: 'catalog-rhel-9',
-  metadata: { name: 'catalog-rhel-9' },
+  metadata: {
+    $typeName: 'osac.public.v1.Metadata',
+    name: 'catalog-rhel-9',
+    annotations: {},
+    creator: 'foo',
+    labels: {},
+    project: 'foo',
+    tenant: 'foo',
+    version: 1,
+  },
   title: 'RHEL 9 catalog',
   description: 'RHEL 9 base image',
   template: 'tpl-rhel-9',
   published: true,
   fieldDefinitions: [
     {
+      $typeName: 'osac.public.v1.FieldDefinition',
       path: 'spec.image.source_ref',
       displayName: 'VM image',
       editable: true,
-      default: { kind: { case: 'stringValue', value: 'quay.io/example/rhel9' } },
+      validationSchema: '',
+      default: {
+        $typeName: 'google.protobuf.Value',
+        kind: { case: 'stringValue', value: 'quay.io/example/rhel9' },
+      },
+    },
+  ],
+};
+
+const clusterCatalogItem: ClusterCatalogItem = {
+  $typeName: 'osac.public.v1.ClusterCatalogItem',
+  id: 'catalog-openshift-4',
+  metadata: {
+    $typeName: 'osac.public.v1.Metadata',
+    name: 'catalog-openshift-4',
+    annotations: {},
+    creator: 'foo',
+    labels: {},
+    project: 'foo',
+    tenant: 'foo',
+    version: 1,
+  },
+  title: 'OpenShift 4 cluster',
+  description: 'Standard OpenShift cluster offering',
+  template: 'tpl-openshift-4',
+  published: true,
+  fieldDefinitions: [
+    {
+      $typeName: 'osac.public.v1.FieldDefinition',
+      path: 'release_image',
+      displayName: 'Release image',
+      editable: true,
+      validationSchema: '',
+      default: {
+        $typeName: 'google.protobuf.Value',
+        kind: { case: 'stringValue', value: '4.17.0' },
+      },
+    },
+  ],
+};
+
+const catalogItemWithDistinctDefaults: ComputeInstanceCatalogItem = {
+  ...vmCatalogItem,
+  fieldDefinitions: [
+    {
+      $typeName: 'osac.public.v1.FieldDefinition',
+      path: 'spec.image.source_ref',
+      displayName: 'VM image',
+      editable: true,
+      validationSchema: '',
+      default: {
+        $typeName: 'google.protobuf.Value',
+        kind: { case: 'stringValue', value: 'quay.io/example/rhel9' },
+      },
+    },
+  ],
+};
+
+const multiFieldCatalogItem: ComputeInstanceCatalogItem = {
+  $typeName: 'osac.public.v1.ComputeInstanceCatalogItem',
+  id: 'catalog-rhel-9',
+  metadata: {
+    $typeName: 'osac.public.v1.Metadata',
+    name: 'catalog-rhel-9',
+    annotations: {},
+    creator: 'foo',
+    labels: {},
+    project: 'foo',
+    tenant: 'foo',
+    version: 1,
+  },
+  title: 'RHEL 9 catalog',
+  description: 'RHEL 9 base image',
+  template: 'tpl-rhel-9',
+  published: true,
+  fieldDefinitions: [
+    {
+      $typeName: 'osac.public.v1.FieldDefinition',
+      path: 'spec.image.source_ref',
+      displayName: 'VM image',
+      editable: true,
+      validationSchema: '',
+      default: {
+        $typeName: 'google.protobuf.Value',
+        kind: { case: 'stringValue', value: 'quay.io/example/rhel9' },
+      },
     },
     {
+      $typeName: 'osac.public.v1.FieldDefinition',
       path: 'spec.boot_disk.size_gib',
       displayName: 'Boot disk',
       editable: true,
-      default: { kind: { case: 'numberValue', value: 40 } },
+      validationSchema: '',
+      default: { $typeName: 'google.protobuf.Value', kind: { case: 'numberValue', value: 40 } },
     },
   ],
+};
+
+const apiFixtures: MockApiFixtures = {
+  catalogItems: [vmCatalogItem],
+  clusterCatalogItems: [clusterCatalogItem],
+  clusterTemplates: [
+    {
+      $typeName: 'osac.public.v1.ClusterTemplate',
+      id: 'tpl-openshift-4',
+      metadata: {
+        $typeName: 'osac.public.v1.Metadata',
+        name: 'tpl-openshift-4',
+        annotations: {},
+        creator: 'foo',
+        labels: {},
+        project: 'foo',
+        tenant: 'foo',
+        version: 1,
+      },
+      nodeSets: {
+        compute: {
+          $typeName: 'osac.public.v1.ClusterTemplateNodeSet',
+          hostType: 'acme_1tb',
+          size: 3,
+        },
+      },
+      description: '',
+      parameters: [],
+      title: '',
+    },
+  ],
+  hostTypes: [
+    {
+      $typeName: 'osac.public.v1.HostType',
+      id: 'acme_1tb',
+      metadata: {
+        $typeName: 'osac.public.v1.Metadata',
+        name: 'acme_1tb',
+        annotations: {},
+        creator: 'foo',
+        labels: {},
+        project: 'foo',
+        tenant: 'foo',
+        version: 1,
+      },
+      title: 'ACME 1TB',
+      description: '',
+      interfaces: [],
+    },
+    {
+      $typeName: 'osac.public.v1.HostType',
+      id: 'acme_1tb_h100',
+      metadata: {
+        $typeName: 'osac.public.v1.Metadata',
+        name: 'acme_1tb_h100',
+        annotations: {},
+        creator: 'foo',
+        labels: {},
+        project: 'foo',
+        tenant: 'foo',
+        version: 1,
+      },
+      title: 'ACME 1TB H100',
+      description: '',
+      interfaces: [],
+    },
+  ],
+  virtualNetworks: [
+    {
+      $typeName: 'osac.public.v1.VirtualNetwork',
+      id: 'vn-1',
+      metadata: {
+        $typeName: 'osac.public.v1.Metadata',
+        name: 'tenant-vn',
+        annotations: {},
+        creator: 'foo',
+        labels: {},
+        project: 'foo',
+        tenant: 'foo',
+        version: 1,
+      },
+      status: {
+        $typeName: 'osac.public.v1.VirtualNetworkStatus',
+        state: VirtualNetworkState.READY,
+      },
+    },
+  ],
+  subnets: [
+    {
+      $typeName: 'osac.public.v1.Subnet',
+      id: 'subnet-1',
+      metadata: {
+        $typeName: 'osac.public.v1.Metadata',
+        name: 'tenant-subnet',
+        annotations: {},
+        creator: 'foo',
+        labels: {},
+        project: 'foo',
+        tenant: 'foo',
+        version: 1,
+      },
+      spec: {
+        $typeName: 'osac.public.v1.SubnetSpec',
+        virtualNetwork: 'vn-1',
+      },
+      status: {
+        $typeName: 'osac.public.v1.SubnetStatus',
+        state: SubnetState.READY,
+      },
+    },
+  ],
+  securityGroups: [
+    {
+      $typeName: 'osac.public.v1.SecurityGroup',
+      id: 'sg-1',
+      metadata: {
+        $typeName: 'osac.public.v1.Metadata',
+        name: 'default-sg',
+        annotations: {},
+        creator: 'foo',
+        labels: {},
+        project: 'foo',
+        tenant: 'foo',
+        version: 1,
+      },
+      spec: {
+        $typeName: 'osac.public.v1.SecurityGroupSpec',
+        virtualNetwork: 'vn-1',
+        egress: [],
+        ingress: [],
+      },
+      status: {
+        $typeName: 'osac.public.v1.SecurityGroupStatus',
+        state: SecurityGroupState.READY,
+      },
+    },
+  ],
+  instanceTypes: [
+    {
+      $typeName: 'osac.public.v1.InstanceType',
+      id: 'standard-4-8',
+      metadata: {
+        $typeName: 'osac.public.v1.Metadata',
+        name: 'standard-4-8',
+        annotations: {},
+        creator: 'foo',
+        labels: {},
+        project: 'foo',
+        tenant: 'foo',
+        version: 1,
+      },
+      spec: {
+        $typeName: 'osac.public.v1.InstanceTypeSpec',
+        cores: 4,
+        memoryGib: 8,
+        state: InstanceTypeState.ACTIVE,
+        description: '',
+      },
+    },
+  ],
+};
+
+type RenderWizardOptions = {
+  kind?: CatalogProvisionKind;
+  initialCatalogItemId?: string;
+  apiFixtures?: MockApiFixtures;
+  transport?: Transport;
+  transportOverrides?: MockTransportOverrides;
+  onProvision?: (payload: CatalogProvisionPayload) => void | Promise<void>;
+  onClosed?: () => void;
+} & Omit<RenderOptions, 'wrapper'>;
+
+const renderWizard = (options: RenderWizardOptions = {}) => {
+  const onProvision = options.onProvision ?? vi.fn();
+  const onClosed = options.onClosed ?? vi.fn();
+
+  const result = renderWithProviders(
+    <CatalogProvisionWizard
+      kind={options.kind || 'compute_instance'}
+      initialCatalogItemId={options.initialCatalogItemId}
+      onProvision={onProvision}
+      onClosed={onClosed}
+    />,
+    {
+      apiFixtures: options.apiFixtures ?? apiFixtures,
+      transport: options.transport,
+      transportOverrides: options.transportOverrides,
+    },
+  );
+
+  return { ...result, onProvision, onClosed };
 };
 
 const expectConfigurationDefaults = async () => {
@@ -78,14 +527,14 @@ const expectConfigurationDefaults = async () => {
 const expectMultiFieldConfigurationDefaults = async () => {
   await expectConfigurationDefaults();
   await waitFor(() => {
-    const bootDisk = screen.getByLabelText(/Boot disk/) as HTMLInputElement;
+    const bootDisk = screen.getByLabelText(/Boot disk/);
     expect(bootDisk.value).toBe('40');
   });
 };
 
 describe('CatalogProvisionWizard', () => {
   it('blocks Next on catalog step when no catalog item is selected', async () => {
-    const { user } = await renderWizard();
+    const { user } = renderWizard();
 
     await expectCatalogItemVisible('RHEL 9 catalog');
 
@@ -96,9 +545,9 @@ describe('CatalogProvisionWizard', () => {
   });
 
   it('blocks Next on general step when name is empty', async () => {
-    const { user } = await renderWizard();
+    const { user } = renderWizard();
 
-    await selectCatalogItem(user);
+    await selectCatalogItem(user, vmCatalogItem.title);
     await clickWizardNext(user);
     await waitFor(() => {
       expect(screen.getByLabelText(/^Name/)).toBeInTheDocument();
@@ -110,11 +559,11 @@ describe('CatalogProvisionWizard', () => {
   });
 
   it('prefills configuration fields from catalog item defaults after selection', async () => {
-    const { user } = await renderWizard({
-      apiFixtures: { catalogItems: [catalogItemWithDistinctDefaults] },
+    const { user } = renderWizard({
+      apiFixtures: { ...apiFixtures, catalogItems: [catalogItemWithDistinctDefaults] },
     });
 
-    await selectCatalogItem(user);
+    await selectCatalogItem(user, vmCatalogItem.title);
     await clickWizardNext(user);
     await fillGeneralStep(user, 'web-01');
     await clickWizardNext(user);
@@ -124,14 +573,15 @@ describe('CatalogProvisionWizard', () => {
 
   it('applies multi-field catalog defaults through configuration and create', async () => {
     const onProvision = vi.fn().mockResolvedValue(undefined);
-    const { user } = await renderWizard({
+    const { user } = renderWizard({
       apiFixtures: {
-        catalogItems: [multiFieldCatalogItem as unknown as ComputeInstanceCatalogItem],
+        ...apiFixtures,
+        catalogItems: [multiFieldCatalogItem],
       },
       onProvision,
     });
 
-    await selectCatalogItem(user);
+    await selectCatalogItem(user, vmCatalogItem.title);
     await clickWizardNext(user);
     await fillGeneralStep(user, 'web-01');
     await clickWizardNext(user);
@@ -149,11 +599,14 @@ describe('CatalogProvisionWizard', () => {
       expect(onProvision).toHaveBeenCalledTimes(1);
     });
 
-    const payload = onProvision.mock.calls[0][0];
-    expect(payload.spec?.image?.sourceRef).toBe('quay.io/example/rhel9');
-    expect(payload.spec?.runStrategy).toBe('Always');
-    expect(payload.spec?.instanceType).toBe('standard-4-8');
-    expect(payload.spec?.bootDisk).toEqual({ sizeGib: 40 });
+    expect(onProvision.mock.calls[0][0]).toMatchObject({
+      spec: {
+        image: { sourceRef: 'quay.io/example/rhel9' },
+        runStrategy: 'Always',
+        instanceType: 'standard-4-8',
+        bootDisk: { sizeGib: 40 },
+      },
+    });
   });
 
   it('prefills configuration fields when deep-linked before catalog items finish loading', async () => {
@@ -162,7 +615,10 @@ describe('CatalogProvisionWizard', () => {
       releaseCatalogFetch = resolve;
     });
 
-    const catalogApiFixtures = { catalogItems: [catalogItemWithDistinctDefaults] };
+    const catalogApiFixtures = {
+      ...apiFixtures,
+      catalogItems: [catalogItemWithDistinctDefaults],
+    };
     const baseTransport = createMockConnectTransport(catalogApiFixtures);
 
     const originalUnary = baseTransport.unary.bind(baseTransport);
@@ -177,7 +633,7 @@ describe('CatalogProvisionWizard', () => {
       },
     };
 
-    const { user } = await renderWizard({
+    const { user } = renderWizard({
       initialCatalogItemId: vmCatalogItem.id,
       transport: gatedTransport,
     });
@@ -195,9 +651,9 @@ describe('CatalogProvisionWizard', () => {
   });
 
   it('highlights the Name field with a required error when Next is clicked without entering a name', async () => {
-    const { user } = await renderWizard();
+    const { user } = renderWizard();
 
-    await selectCatalogItem(user);
+    await selectCatalogItem(user, vmCatalogItem.title);
     await clickWizardNext(user);
 
     const nameInput = await screen.findByLabelText(/^Name/);
@@ -220,7 +676,7 @@ describe('CatalogProvisionWizard', () => {
 
   it('closes immediately on Cancel when the wizard is pristine', async () => {
     const onClosed = vi.fn();
-    const { user } = await renderWizard({ onClosed });
+    const { user } = renderWizard({ onClosed });
 
     await waitFor(() => {
       expect(screen.getAllByRole('button', { name: 'Cancel' }).length).toBeGreaterThan(0);
@@ -233,9 +689,9 @@ describe('CatalogProvisionWizard', () => {
 
   it('shows discard confirmation on Cancel after selecting a catalog item', async () => {
     const onClosed = vi.fn();
-    const { user } = await renderWizard({ onClosed });
+    const { user } = renderWizard({ onClosed });
 
-    await selectCatalogItem(user);
+    await selectCatalogItem(user, vmCatalogItem.title);
     await clickWizardCancel(user);
 
     const modal = getCancelModal();
@@ -245,9 +701,9 @@ describe('CatalogProvisionWizard', () => {
 
   it('keeps wizard open when Stay editing is chosen on the discard modal', async () => {
     const onClosed = vi.fn();
-    const { user } = await renderWizard({ onClosed });
+    const { user } = renderWizard({ onClosed });
 
-    await selectCatalogItem(user);
+    await selectCatalogItem(user, vmCatalogItem.title);
     await clickWizardCancel(user);
 
     const modal = getCancelModal();
@@ -262,9 +718,9 @@ describe('CatalogProvisionWizard', () => {
 
   it('discards and closes when Discard is confirmed', async () => {
     const onClosed = vi.fn();
-    const { user } = await renderWizard({ onClosed });
+    const { user } = renderWizard({ onClosed });
 
-    await selectCatalogItem(user);
+    await selectCatalogItem(user, vmCatalogItem.title);
     await clickWizardCancel(user);
 
     const modal = getCancelModal();
@@ -274,9 +730,9 @@ describe('CatalogProvisionWizard', () => {
   });
 
   it('preserves general step values after navigating back from configuration', async () => {
-    const { user } = await renderWizard();
+    const { user } = renderWizard();
 
-    await advanceToConfigurationStep(user, 'persisted-vm');
+    await advanceToConfigurationStep(user, 'persisted-vm', vmCatalogItem.title);
     await clickWizardBack(user);
 
     await waitFor(() => {
@@ -285,9 +741,9 @@ describe('CatalogProvisionWizard', () => {
   });
 
   it('preserves configuration values after navigating back from networking', async () => {
-    const { user } = await renderWizard();
+    const { user } = renderWizard();
 
-    await advanceToNetworkingStep(user);
+    await advanceToNetworkingStep(user, vmCatalogItem.title);
     await clickWizardBack(user);
 
     await waitFor(() => {
@@ -296,23 +752,56 @@ describe('CatalogProvisionWizard', () => {
   });
 
   it('shows only active instance types when deprecated and active share a name', async () => {
-    const { user } = await renderWizard({
+    const { user } = renderWizard({
       apiFixtures: {
+        ...apiFixtures,
         instanceTypes: [
           {
+            $typeName: 'osac.public.v1.InstanceType',
             id: 'standard-deprecated',
-            metadata: { name: 'standard-4-8' },
-            spec: { cores: 4, memoryGib: 8, state: InstanceTypeState.DEPRECATED },
+            metadata: {
+              $typeName: 'osac.public.v1.Metadata',
+              name: 'standard-4-8',
+              annotations: {},
+              creator: 'foo',
+              labels: {},
+              project: 'foo',
+              tenant: 'foo',
+              version: 1,
+            },
+            spec: {
+              $typeName: 'osac.public.v1.InstanceTypeSpec',
+              cores: 4,
+              memoryGib: 8,
+              state: InstanceTypeState.DEPRECATED,
+              description: '',
+            },
           },
           {
+            $typeName: 'osac.public.v1.InstanceType',
             id: 'standard-active',
-            metadata: { name: 'standard-4-8' },
-            spec: { cores: 4, memoryGib: 8, state: InstanceTypeState.ACTIVE },
+            metadata: {
+              $typeName: 'osac.public.v1.Metadata',
+              name: 'standard-4-8',
+              annotations: {},
+              creator: 'foo',
+              labels: {},
+              project: 'foo',
+              tenant: 'foo',
+              version: 1,
+            },
+            spec: {
+              $typeName: 'osac.public.v1.InstanceTypeSpec',
+              cores: 4,
+              memoryGib: 8,
+              state: InstanceTypeState.ACTIVE,
+              description: '',
+            },
           },
         ],
       },
     });
-    await advanceToConfigurationStep(user);
+    await advanceToConfigurationStep(user, 'web-01', vmCatalogItem.title);
 
     await waitFor(() => {
       expect(screen.getByLabelText(/^Instance type/)).not.toBeDisabled();
@@ -328,39 +817,100 @@ describe('CatalogProvisionWizard', () => {
   });
 
   it('shows only ready virtual networks when pending and ready share a name', async () => {
-    const { user } = await renderWizard({
+    const { user } = renderWizard({
       apiFixtures: {
+        ...apiFixtures,
         virtualNetworks: [
           {
+            $typeName: 'osac.public.v1.VirtualNetwork',
             id: 'vn-pending',
-            metadata: { name: 'tenant-vn' },
-            status: { state: VirtualNetworkState.PENDING },
+            metadata: {
+              $typeName: 'osac.public.v1.Metadata',
+              name: 'tenant-vn',
+              annotations: {},
+              creator: 'foo',
+              labels: {},
+              project: 'foo',
+              tenant: 'foo',
+              version: 1,
+            },
+            status: {
+              $typeName: 'osac.public.v1.VirtualNetworkStatus',
+              state: VirtualNetworkState.PENDING,
+            },
           },
           {
+            $typeName: 'osac.public.v1.VirtualNetwork',
             id: 'vn-ready',
-            metadata: { name: 'tenant-vn' },
-            status: { state: VirtualNetworkState.READY },
+            metadata: {
+              $typeName: 'osac.public.v1.Metadata',
+              name: 'tenant-vn',
+              annotations: {},
+              creator: 'foo',
+              labels: {},
+              project: 'foo',
+              tenant: 'foo',
+              version: 1,
+            },
+            status: {
+              $typeName: 'osac.public.v1.VirtualNetworkStatus',
+              state: VirtualNetworkState.READY,
+            },
           },
         ],
         subnets: [
           {
+            $typeName: 'osac.public.v1.Subnet',
             id: 'subnet-1',
-            metadata: { name: 'tenant-subnet' },
-            spec: { virtualNetwork: 'vn-ready' },
-            status: { state: SubnetState.READY },
+            metadata: {
+              $typeName: 'osac.public.v1.Metadata',
+              name: 'tenant-subnet',
+              annotations: {},
+              creator: 'foo',
+              labels: {},
+              project: 'foo',
+              tenant: 'foo',
+              version: 1,
+            },
+            spec: {
+              $typeName: 'osac.public.v1.SubnetSpec',
+              virtualNetwork: 'vn-ready',
+            },
+            status: {
+              $typeName: 'osac.public.v1.SubnetStatus',
+              state: SubnetState.READY,
+            },
           },
         ],
         securityGroups: [
           {
+            $typeName: 'osac.public.v1.SecurityGroup',
             id: 'sg-1',
-            metadata: { name: 'default-sg' },
-            spec: { virtualNetwork: 'vn-ready' },
-            status: { state: SecurityGroupState.READY },
+            metadata: {
+              $typeName: 'osac.public.v1.Metadata',
+              name: 'default-sg',
+              annotations: {},
+              creator: 'foo',
+              labels: {},
+              project: 'foo',
+              tenant: 'foo',
+              version: 1,
+            },
+            spec: {
+              $typeName: 'osac.public.v1.SecurityGroupSpec',
+              virtualNetwork: 'vn-ready',
+              egress: [],
+              ingress: [],
+            },
+            status: {
+              $typeName: 'osac.public.v1.SecurityGroupStatus',
+              state: SecurityGroupState.READY,
+            },
           },
         ],
       },
     });
-    await advanceToNetworkingStep(user);
+    await advanceToNetworkingStep(user, vmCatalogItem.title);
 
     await waitFor(() => {
       expect(screen.getByLabelText(/^Virtual network/)).toHaveTextContent('tenant-vn');
@@ -376,9 +926,9 @@ describe('CatalogProvisionWizard', () => {
   });
 
   it('shows virtual network and subnet names on the review step', async () => {
-    const { user } = await renderWizard();
+    const { user } = renderWizard();
 
-    await advanceToReviewStep(user);
+    await advanceToReviewStep(user, vmCatalogItem.title);
 
     await waitFor(() => {
       expect(screen.getByText('tenant-vn')).toBeInTheDocument();
@@ -387,9 +937,9 @@ describe('CatalogProvisionWizard', () => {
   });
 
   it('shows security group names on the review step', async () => {
-    const { user } = await renderWizard();
+    const { user } = renderWizard();
 
-    await advanceToReviewStep(user);
+    await advanceToReviewStep(user, vmCatalogItem.title);
 
     await waitFor(() => {
       expect(screen.getByText('default-sg')).toBeInTheDocument();
@@ -397,9 +947,9 @@ describe('CatalogProvisionWizard', () => {
   });
 
   it('shows instance type on the review step', async () => {
-    const { user } = await renderWizard();
+    const { user } = renderWizard();
 
-    await advanceToReviewStep(user);
+    await advanceToReviewStep(user, vmCatalogItem.title);
 
     await waitFor(() => {
       expect(screen.getByText('standard-4-8 — 4 vCPU, 8 GiB')).toBeInTheDocument();
@@ -408,9 +958,9 @@ describe('CatalogProvisionWizard', () => {
 
   it('submits create payload from review and calls onProvision', async () => {
     const onProvision = vi.fn().mockResolvedValue(undefined);
-    const { user } = await renderWizard({ onProvision });
+    const { user } = renderWizard({ onProvision });
 
-    await advanceToReviewStep(user);
+    await advanceToReviewStep(user, vmCatalogItem.title);
 
     await user.click(screen.getByRole('button', { name: 'Create' }));
 
@@ -418,22 +968,25 @@ describe('CatalogProvisionWizard', () => {
       expect(onProvision).toHaveBeenCalledTimes(1);
     });
 
-    const payload = onProvision.mock.calls[0][0];
-    expect(payload.metadata?.name).toBe('web-01');
-    expect(payload.spec?.image?.sourceRef).toBe('quay.io/example/rhel9');
-    expect(payload.spec?.instanceType).toBe('standard-4-8');
-    expect(payload.spec?.cores).toBeUndefined();
-    expect(payload.spec?.memoryGib).toBeUndefined();
-    expect(payload.spec?.networkAttachments).toEqual([
+    expect(onProvision.mock.calls[0][0]).toMatchObject({
+      metadata: { name: 'web-01' },
+      spec: {
+        image: { sourceRef: 'quay.io/example/rhel9' },
+        instanceType: 'standard-4-8',
+      },
+    });
+    expect(onProvision.mock.calls[0][0]).not.toHaveProperty('spec.cores');
+    expect(onProvision.mock.calls[0][0]).not.toHaveProperty('spec.memoryGib');
+    expect(onProvision.mock.calls[0][0]).toHaveProperty('spec.networkAttachments', [
       { subnet: 'subnet-1', securityGroups: ['sg-1'] },
     ]);
   });
 
   it('surfaces provision errors on review without clearing form values', async () => {
     const onProvision = vi.fn().mockRejectedValue(new Error('provision failed'));
-    const { user } = await renderWizard({ onProvision });
+    const { user } = renderWizard({ onProvision });
 
-    await advanceToReviewStep(user);
+    await advanceToReviewStep(user, vmCatalogItem.title);
 
     await user.click(screen.getByRole('button', { name: 'Create' }));
 
@@ -444,9 +997,9 @@ describe('CatalogProvisionWizard', () => {
   });
 
   it('blocks Next on cluster general step when name is invalid', async () => {
-    const { user } = await renderWizard({ kind: 'cluster' });
+    const { user } = renderWizard({ kind: 'cluster' });
 
-    await selectClusterCatalogItem(user);
+    await selectCatalogItem(user, clusterCatalogItem.title);
     await clickWizardNext(user);
     await fillClusterGeneralStep(user, 'MyCluster');
     await clickWizardNext(user);
@@ -460,9 +1013,9 @@ describe('CatalogProvisionWizard', () => {
   });
 
   it('shows host type display name on the cluster review step', async () => {
-    const { user } = await renderWizard({ kind: 'cluster' });
+    const { user } = renderWizard({ kind: 'cluster' });
 
-    await advanceToClusterReviewStep(user);
+    await advanceToClusterReviewStep(user, clusterCatalogItem.title);
 
     await waitFor(() => {
       expect(screen.getByText('ACME 1TB: 3')).toBeInTheDocument();
@@ -471,12 +1024,12 @@ describe('CatalogProvisionWizard', () => {
 
   it('starts with one node set and submits cluster create payload after filling it', async () => {
     const onProvision = vi.fn().mockResolvedValue(undefined);
-    const { user } = await renderWizard({
+    const { user } = renderWizard({
       kind: 'cluster',
       onProvision,
     });
 
-    await advanceToClusterConfigurationStep(user);
+    await advanceToClusterConfigurationStep(user, clusterCatalogItem.title);
     expect(screen.getByText('Node set 1')).toBeInTheDocument();
 
     await fillClusterNodeSetRow(user);
@@ -488,11 +1041,14 @@ describe('CatalogProvisionWizard', () => {
       expect(onProvision).toHaveBeenCalledTimes(1);
     });
 
-    const payload = onProvision.mock.calls[0][0];
-    expect(payload.metadata?.name).toBe('my-cluster');
-    expect(payload.spec?.catalogItem).toBe(clusterCatalogItem.id);
-    expect(payload.spec?.releaseImage).toBe('4.17.0');
-    expect(payload.spec?.nodeSets).toEqual({
+    expect(onProvision.mock.calls[0][0]).toMatchObject({
+      metadata: { name: 'my-cluster' },
+      spec: {
+        catalogItem: clusterCatalogItem.id,
+        releaseImage: '4.17.0',
+      },
+    });
+    expect(onProvision.mock.calls[0][0]).toHaveProperty('spec.nodeSets', {
       acme_1tb: { hostType: 'acme_1tb', size: 3 },
     });
   });

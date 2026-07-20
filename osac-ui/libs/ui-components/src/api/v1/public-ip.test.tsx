@@ -4,7 +4,15 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { ComputeInstances, PublicIPAttachments, PublicIPState, PublicIPs } from '@osac/types';
+import {
+  ComputeInstances,
+  PublicIPAttachment,
+  PublicIPAttachments,
+  PublicIPAttachmentsCreateRequest,
+  PublicIPAttachmentsCreateResponse,
+  PublicIPState,
+  PublicIPs,
+} from '@osac/types';
 
 import {
   PUBLIC_IP_ALLOCATION_POLL_MAX_ATTEMPTS,
@@ -113,7 +121,7 @@ const createAttachPublicIpTransport = ({
   onAttachmentCreate,
 }: {
   onPublicIpDelete?: (req: { id: string }) => void;
-  onAttachmentCreate?: (req: { object?: unknown }) => unknown;
+  onAttachmentCreate?: (req: PublicIPAttachmentsCreateRequest) => PublicIPAttachment;
 } = {}) =>
   createRouterTransport((router) => {
     router.service(PublicIPs, {
@@ -128,17 +136,23 @@ const createAttachPublicIpTransport = ({
     router.service(PublicIPAttachments, {
       create: (req) => {
         if (onAttachmentCreate) {
-          return { object: onAttachmentCreate(req) };
+          return {
+            $typeName: 'osac.public.v1.PublicIPAttachmentsCreateResponse',
+            object: onAttachmentCreate(req),
+          };
         }
         return {
+          $typeName: 'osac.public.v1.PublicIPAttachmentsCreateResponse',
           object: {
+            $typeName: 'osac.public.v1.PublicIPAttachment',
             id: 'attachment-1',
             spec: {
+              $typeName: 'osac.public.v1.PublicIPAttachmentSpec',
               publicIp: 'pip-1',
               target: req.object?.spec?.target,
             },
           },
-        };
+        } as PublicIPAttachmentsCreateResponse;
       },
     });
 

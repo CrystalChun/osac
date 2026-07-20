@@ -1,11 +1,10 @@
-import { I18nextProvider } from 'react-i18next';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 import type { ComputeInstance } from '@osac/types';
 
 import VmNetworkingTab from './VmNetworkingTab';
-import { initTestI18n } from '../../catalogProvision/test/i18n';
+import { renderWithProviders } from '../../../test-utils/TestProviders';
 
 vi.mock('./useVmDetailsDisplay', () => ({
   useVmDetailsDisplay: vi.fn(),
@@ -13,17 +12,10 @@ vi.mock('./useVmDetailsDisplay', () => ({
 
 const { useVmDetailsDisplay } = await import('./useVmDetailsDisplay');
 
-const renderTab = async (vm: ComputeInstance) => {
-  const i18n = await initTestI18n();
-  return render(
-    <I18nextProvider i18n={i18n}>
-      <VmNetworkingTab vm={vm} />
-    </I18nextProvider>,
-  );
-};
+const renderTab = (vm: ComputeInstance) => renderWithProviders(<VmNetworkingTab vm={vm} />);
 
 describe('VmNetworkingTab', () => {
-  it('renders resolved networking names', async () => {
+  it('renders resolved networking names', () => {
     vi.mocked(useVmDetailsDisplay).mockReturnValue({
       networkingRows: [
         {
@@ -54,14 +46,14 @@ describe('VmNetworkingTab', () => {
       },
     } as ComputeInstance;
 
-    await renderTab(vm);
+    renderTab(vm);
 
     expect(screen.getByText('prod-vn')).toBeInTheDocument();
     expect(screen.getByText('prod-subnet')).toBeInTheDocument();
     expect(screen.getByText('web-sg, default-sg')).toBeInTheDocument();
   });
 
-  it('shows empty state when there are no attachments', async () => {
+  it('shows empty state when there are no attachments', () => {
     vi.mocked(useVmDetailsDisplay).mockReturnValue({
       networkingRows: [],
       catalogItemId: undefined,
@@ -79,7 +71,7 @@ describe('VmNetworkingTab', () => {
       catalogItem: undefined,
     });
 
-    await renderTab({ id: 'vm-1', spec: {} } as ComputeInstance);
+    renderTab({ id: 'vm-1', spec: {} } as ComputeInstance);
     expect(screen.getByText('No virtual networks configured.')).toBeInTheDocument();
   });
 });

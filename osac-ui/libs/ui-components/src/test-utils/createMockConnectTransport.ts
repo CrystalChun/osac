@@ -1,11 +1,21 @@
 import { Code, ConnectError, type Transport, createRouterTransport } from '@connectrpc/connect';
 
-import {
+import type {
   ClusterCatalogItem,
+  ClusterTemplate,
+  ClustersCreateRequest,
+  ClustersCreateResponse,
+  ComputeInstanceCatalogItem,
+  HostType,
+  InstanceType,
+  SecurityGroup,
+  Subnet,
+  VirtualNetwork,
+} from '@osac/types';
+import {
   ClusterCatalogItems,
   ClusterTemplates,
   Clusters,
-  ComputeInstanceCatalogItem,
   ComputeInstanceCatalogItems,
   HostTypes,
   InstanceTypeState,
@@ -16,43 +26,35 @@ import {
   VirtualNetworks,
 } from '@osac/types';
 
-import {
-  clusterCatalogItem,
-  mockClusterTemplate,
-  mockHostType,
-  mockHostTypeH100,
-  mockInstanceType,
-  mockSecurityGroup,
-  mockSubnet,
-  mockVirtualNetwork,
-  vmCatalogItem,
-} from './fixtures';
-import { UnauthorizedError } from '../../../utils/unauthorizedError';
+import { UnauthorizedError } from '../utils/unauthorizedError';
 
-export type WizardApiFixtures = {
+export type MockApiFixtures = {
   catalogItems?: ComputeInstanceCatalogItem[];
   clusterCatalogItems?: ClusterCatalogItem[];
-  clusterTemplates?: Record<string, typeof mockClusterTemplate>;
-  hostTypes?: Record<string, typeof mockHostType>;
-  virtualNetworks?: (typeof mockVirtualNetwork)[];
-  subnets?: (typeof mockSubnet)[];
-  securityGroups?: (typeof mockSecurityGroup)[];
-  instanceTypes?: (typeof mockInstanceType)[];
+  clusterTemplates?: ClusterTemplate[];
+  hostTypes?: HostType[];
+  virtualNetworks?: VirtualNetwork[];
+  subnets?: Subnet[];
+  securityGroups?: SecurityGroup[];
+  instanceTypes?: InstanceType[];
 };
 
-export const wrapWithAuthInterceptor = (transport: Transport): Transport => ({
-  ...transport,
-  unary: async (...args: Parameters<Transport['unary']>) => {
-    try {
-      return await transport.unary(...args);
-    } catch (err) {
-      if (err instanceof ConnectError && err.code === Code.Unauthenticated) {
-        throw new UnauthorizedError();
+export const wrapWithAuthInterceptor = (transport: Transport): Transport => {
+  const wrapped: Transport = {
+    ...transport,
+    unary: async (...args) => {
+      try {
+        return await transport.unary(...args);
+      } catch (err) {
+        if (err instanceof ConnectError && err.code === Code.Unauthenticated) {
+          throw new UnauthorizedError();
+        }
+        throw err;
       }
-      throw err;
-    }
-  },
-});
+    },
+  };
+  return wrapped;
+};
 
 const matchesReadyStateFilter = (
   filter: string | undefined,
@@ -89,26 +91,21 @@ const matchesInstanceTypeActiveFilter = (
 };
 
 export type MockTransportOverrides = {
-  onClusterCreate?: (req: { object?: unknown }) => unknown;
+  onClusterCreate?: (req: ClustersCreateRequest) => ClustersCreateResponse;
 };
 
 export const createMockConnectTransport = (
-  fixtures: WizardApiFixtures = {},
+  fixtures: MockApiFixtures = {},
   overrides: MockTransportOverrides = {},
 ) => {
-  const catalogItems = fixtures.catalogItems ?? [vmCatalogItem];
-  const clusterCatalogItems = fixtures.clusterCatalogItems ?? [clusterCatalogItem];
-  const clusterTemplates = fixtures.clusterTemplates ?? {
-    [clusterCatalogItem.template]: mockClusterTemplate,
-  };
-  const hostTypesMap = fixtures.hostTypes ?? {
-    [mockHostType.id]: mockHostType,
-    [mockHostTypeH100.id]: mockHostTypeH100,
-  };
-  const virtualNetworks = fixtures.virtualNetworks ?? [mockVirtualNetwork];
-  const subnets = fixtures.subnets ?? [mockSubnet];
-  const securityGroups = fixtures.securityGroups ?? [mockSecurityGroup];
-  const instanceTypes = fixtures.instanceTypes ?? [mockInstanceType];
+  const catalogItems = fixtures.catalogItems ?? [];
+  const clusterCatalogItems = fixtures.clusterCatalogItems ?? [];
+  const clusterTemplates = fixtures.clusterTemplates ?? [];
+  const hostTypes = fixtures.hostTypes ?? [];
+  const virtualNetworks = fixtures.virtualNetworks ?? [];
+  const subnets = fixtures.subnets ?? [];
+  const securityGroups = fixtures.securityGroups ?? [];
+  const instanceTypes = fixtures.instanceTypes ?? [];
 
   return wrapWithAuthInterceptor(
     createRouterTransport((router) => {
@@ -128,26 +125,30 @@ export const createMockConnectTransport = (
 
       router.service(ClusterTemplates, {
         get: (req) => {
-          const template = clusterTemplates[req.id];
+          const template = clusterTemplates.find((i) => i.id === req.id);
           if (!template) {
             throw new ConnectError(`Cluster template not found in test: ${req.id}`, Code.NotFound);
           }
-          return template;
+          return {
+            object: template,
+          };
         },
       });
 
       router.service(HostTypes, {
         list: () => ({
-          items: Object.values(hostTypesMap),
-          size: Object.keys(hostTypesMap).length,
-          total: Object.keys(hostTypesMap).length,
+          items: hostTypes,
+          size: hostTypes.length,
+          total: hostTypes.length,
         }),
         get: (req) => {
-          const hostType = hostTypesMap[req.id];
+          const hostType = hostTypes.find((i) => i.id === req.id);
           if (!hostType) {
             throw new ConnectError(`Host type not found in test: ${req.id}`, Code.NotFound);
           }
-          return hostType;
+          return {
+            object: hostType,
+          };
         },
       });
 
@@ -192,7 +193,7 @@ export const createMockConnectTransport = (
       router.service(Clusters, {
         create: (req) => {
           if (overrides.onClusterCreate) {
-            return { object: overrides.onClusterCreate(req) };
+            return overrides.onClusterCreate(req);
           }
           return { object: { id: 'cluster-1', ...req.object } };
         },

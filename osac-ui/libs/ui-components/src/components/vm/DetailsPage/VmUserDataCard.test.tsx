@@ -1,12 +1,10 @@
-import { I18nextProvider } from 'react-i18next';
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { ComputeInstance } from '@osac/types';
 
 import VmUserDataCard from './VmUserDataCard';
-import { initTestI18n } from '../../catalogProvision/test/i18n';
+import { renderWithProviders } from '../../../test-utils/TestProviders';
 
 vi.mock('./useVmDetailsDisplay', () => ({
   useVmDetailsDisplay: vi.fn(),
@@ -22,15 +20,8 @@ const catalogVm = {
   },
 } as ComputeInstance;
 
-const renderCard = async (vm: ComputeInstance = catalogVm) => {
-  const i18n = await initTestI18n();
-  const view = render(
-    <I18nextProvider i18n={i18n}>
-      <VmUserDataCard vm={vm} />
-    </I18nextProvider>,
-  );
-  return { ...view, user: userEvent.setup() };
-};
+const renderCard = (vm: ComputeInstance = catalogVm) =>
+  renderWithProviders(<VmUserDataCard vm={vm} />);
 
 describe('VmUserDataCard', () => {
   beforeEach(() => {
@@ -47,15 +38,15 @@ describe('VmUserDataCard', () => {
     });
   });
 
-  it('renders nothing when user data is empty', async () => {
-    const { container } = await renderCard({
+  it('renders nothing when user data is empty', () => {
+    const { container } = renderCard({
       id: 'vm-1',
       spec: { catalogItem: 'catalog-rhel-9', userData: '   ' },
     } as ComputeInstance);
     expect(container).toBeEmptyDOMElement();
   });
 
-  it('renders nothing when catalog item is missing', async () => {
+  it('renders nothing when catalog item is missing', () => {
     vi.mocked(useVmDetailsDisplay).mockReturnValue({
       hasCatalogItem: false,
       fieldLabels: { userData: 'User Data', sshKey: '', image: '', bootDisk: '' },
@@ -67,7 +58,7 @@ describe('VmUserDataCard', () => {
       networkingRows: [],
       catalogItem: undefined,
     });
-    const { container } = await renderCard({
+    const { container } = renderCard({
       id: 'vm-1',
       spec: { userData: '#cloud-config' },
     } as ComputeInstance);
@@ -75,7 +66,7 @@ describe('VmUserDataCard', () => {
   });
 
   it('is collapsed by default and reveals content on expand', async () => {
-    const { user } = await renderCard();
+    const { user } = renderCard();
 
     expect(screen.getByText('Cloud Init User Data')).toBeInTheDocument();
     expect(screen.queryByText(/#cloud-config/)).not.toBeInTheDocument();

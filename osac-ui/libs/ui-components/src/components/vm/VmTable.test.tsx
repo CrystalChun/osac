@@ -1,14 +1,12 @@
 import type { ComponentProps } from 'react';
-import { I18nextProvider } from 'react-i18next';
-import { MemoryRouter } from 'react-router-dom';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 import type { ComputeInstance, InstanceType } from '@osac/types';
 import { ComputeInstanceState } from '@osac/types';
 
 import { VmTable } from './VmTable';
-import { initTestI18n } from '../catalogProvision/test/i18n';
+import { renderWithProviders } from '../../test-utils/TestProviders';
 
 vi.mock('./VmActionsMenu', () => ({
   VmActionsMenu: () => <button type="button">Actions</button>,
@@ -40,20 +38,14 @@ const runningVm = {
   },
 } as ComputeInstance;
 
-const renderTable = async (props: Partial<ComponentProps<typeof VmTable>> = {}) => {
-  const i18n = await initTestI18n();
-  return render(
-    <MemoryRouter>
-      <I18nextProvider i18n={i18n}>
-        <VmTable vms={[runningVm]} instanceTypes={[standardInstanceType]} {...props} />
-      </I18nextProvider>
-    </MemoryRouter>,
+const renderTable = (props: Partial<ComponentProps<typeof VmTable>> = {}) =>
+  renderWithProviders(
+    <VmTable vms={[runningVm]} instanceTypes={[standardInstanceType]} {...props} />,
   );
-};
 
 describe('VmTable', () => {
-  it('renders updated column headers', async () => {
-    await renderTable();
+  it('renders updated column headers', () => {
+    renderTable();
 
     expect(screen.getByRole('columnheader', { name: 'Name' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: 'Status' })).toBeInTheDocument();
@@ -66,8 +58,8 @@ describe('VmTable', () => {
     expect(screen.queryByRole('columnheader', { name: 'IP' })).not.toBeInTheDocument();
   });
 
-  it('shows friendly instance type name, split IP addresses, and created timestamp', async () => {
-    await renderTable();
+  it('shows friendly instance type name, split IP addresses, and created timestamp', () => {
+    renderTable();
 
     expect(screen.getByText('Standard 4 vCPU / 8 GiB')).toBeInTheDocument();
     expect(screen.getByText('10.0.0.5')).toBeInTheDocument();
@@ -75,19 +67,19 @@ describe('VmTable', () => {
     expect(screen.getByRole('time')).toHaveAttribute('dateTime', '2024-01-01T00:00:00.000Z');
   });
 
-  it('falls back to raw instance type id when lookup data is missing', async () => {
-    await renderTable({ instanceTypes: [], isInstanceTypesLoading: false });
+  it('falls back to raw instance type id when lookup data is missing', () => {
+    renderTable({ instanceTypes: [], isInstanceTypesLoading: false });
 
     expect(screen.getByText('standard-4-8')).toBeInTheDocument();
   });
 
-  it('links the VM name to its details page', async () => {
-    await renderTable();
+  it('links the VM name to its details page', () => {
+    renderTable();
 
     expect(screen.getByRole('link', { name: 'web-01' })).toHaveAttribute('href', '/vms/vm-1');
   });
 
-  it('masks IPs and disables the name link while deleting', async () => {
+  it('masks IPs and disables the name link while deleting', () => {
     const deletingVm = {
       ...runningVm,
       status: {
@@ -96,14 +88,7 @@ describe('VmTable', () => {
       },
     } as ComputeInstance;
 
-    const i18n = await initTestI18n();
-    render(
-      <MemoryRouter>
-        <I18nextProvider i18n={i18n}>
-          <VmTable vms={[deletingVm]} instanceTypes={[standardInstanceType]} />
-        </I18nextProvider>
-      </MemoryRouter>,
-    );
+    renderWithProviders(<VmTable vms={[deletingVm]} instanceTypes={[standardInstanceType]} />);
 
     expect(screen.queryByRole('link', { name: 'web-01' })).not.toBeInTheDocument();
     expect(screen.getAllByText('—')).toHaveLength(2);

@@ -1,22 +1,22 @@
 import { describe, expect, it } from 'vitest';
 
 import type { DemoShellRole } from '@osac/ui-components/shellTypes';
+import { tIdentity } from '@osac/ui-components/test-utils/i18n';
 
 import { navRowsForRole } from './shellNav';
-
-const t = (key: string) => key;
 
 const roles: DemoShellRole[] = ['tenantUser', 'tenantAdmin', 'providerAdmin'];
 
 const servicesChildren = (role: DemoShellRole) =>
-  navRowsForRole(role, t).find((row) => row.sectionId === 'nav-tenant-services')?.children ?? [];
+  navRowsForRole(role, tIdentity).find((row) => row.sectionId === 'nav-tenant-services')
+    ?.children ?? [];
 
 describe('navRowsForRole', () => {
   it('returns the same tenant user nav for every role', () => {
-    const tenantUserNav = navRowsForRole('tenantUser', t);
+    const tenantUserNav = navRowsForRole('tenantUser', tIdentity);
 
     for (const role of roles) {
-      expect(navRowsForRole(role, t)).toEqual(tenantUserNav);
+      expect(navRowsForRole(role, tIdentity)).toEqual(tenantUserNav);
     }
   });
 
