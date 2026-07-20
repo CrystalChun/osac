@@ -66,6 +66,19 @@ type StorageBackendsClient interface {
 	List(ctx context.Context, in *privatev1.StorageBackendsListRequest, opts ...grpc.CallOption) (*privatev1.StorageBackendsListResponse, error)
 }
 
+// StorageTiersClient is a narrow subset of the generated privatev1.StorageTiersClient
+// used to list tier definitions. The generated client satisfies this interface
+// automatically; it is defined here to allow test mocking (mirrors StorageBackendsGetter).
+type StorageTiersClient interface {
+	List(ctx context.Context, in *privatev1.StorageTiersListRequest, opts ...grpc.CallOption) (*privatev1.StorageTiersListResponse, error)
+}
+
+// StorageBackendsGetter is a narrow subset of the generated privatev1.StorageBackendsClient
+// used to resolve a single backend's provider and connection details by ID.
+type StorageBackendsGetter interface {
+	Get(ctx context.Context, in *privatev1.StorageBackendsGetRequest, opts ...grpc.CallOption) (*privatev1.StorageBackendsGetResponse, error)
+}
+
 // StorageReconciler reconciles storage lifecycle on Tenant CRs.
 // It owns StorageBackendReady, ClusterStorageReady conditions,
 // status.storageClasses, status.storageBackendJobs, and status.clusterStorageJobs on the Tenant CR.
@@ -86,6 +99,11 @@ type StorageReconciler struct {
 	// backendRegistered() returns false — backward compatible with environments that
 	// run without a fulfillment service connection (e.g. prepare-tenant.sh).
 	BackendsClient StorageBackendsClient
+	// TiersClient queries the fulfillment service Tier API. When nil, tier
+	// validation and extra_vars injection are both skipped — backward compatible
+	// with environments without a fulfillment service connection.
+	TiersClient    StorageTiersClient
+	BackendsGetter StorageBackendsGetter
 }
 
 // +kubebuilder:rbac:groups=osac.openshift.io,resources=tenants,verbs=get;list;watch;update;patch
