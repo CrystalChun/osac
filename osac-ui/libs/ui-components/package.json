@@ -21,6 +21,9 @@
     "react-dom": "^19.2.4",
     "yup": "^1.7.1"
   },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.6.0",
     "@testing-library/react": "^16.0.0",

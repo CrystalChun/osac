@@ -27,16 +27,41 @@ const standardInstanceType = {
   metadata: { name: 'Standard 4 vCPU / 8 GiB' },
 } as InstanceType;
 
-const runningVm = {
+const runningVm: ComputeInstance = {
+  $typeName: 'osac.public.v1.ComputeInstance',
   id: 'vm-1',
-  metadata: { name: 'web-01', creationTimestamp: '2024-01-01T00:00:00.000Z' },
-  spec: { instanceType: 'standard-4-8' },
+  metadata: {
+    name: 'web-01',
+    $typeName: 'osac.public.v1.Metadata',
+    annotations: {},
+    creator: 'foo',
+    labels: {},
+    project: 'foo',
+    tenant: 'foo',
+    version: 1,
+    creationTimestamp: {
+      $typeName: 'google.protobuf.Timestamp',
+      seconds: 1767225600n,
+      nanos: 0,
+    },
+  },
+  spec: {
+    $typeName: 'osac.public.v1.ComputeInstanceSpec',
+    additionalDisks: [],
+    catalogItem: '',
+    networkAttachments: [],
+    template: '',
+    templateParameters: {},
+    instanceType: 'standard-4-8',
+  },
   status: {
+    $typeName: 'osac.public.v1.ComputeInstanceStatus',
+    conditions: [],
     state: ComputeInstanceState.RUNNING,
     internalIpAddress: '10.0.0.5',
     publicIpAddress: '203.0.113.1',
   },
-} as ComputeInstance;
+};
 
 const renderTable = (props: Partial<ComponentProps<typeof VmTable>> = {}) =>
   renderWithProviders(
@@ -64,7 +89,7 @@ describe('VmTable', () => {
     expect(screen.getByText('Standard 4 vCPU / 8 GiB')).toBeInTheDocument();
     expect(screen.getByText('10.0.0.5')).toBeInTheDocument();
     expect(screen.getByText('203.0.113.1')).toBeInTheDocument();
-    expect(screen.getByRole('time')).toHaveAttribute('dateTime', '2024-01-01T00:00:00.000Z');
+    expect(screen.getByRole('time')).toHaveAttribute('dateTime', '2026-01-01T00:00:00.000Z');
   });
 
   it('falls back to raw instance type id when lookup data is missing', () => {

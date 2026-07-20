@@ -2,8 +2,11 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import type { NetworkClass } from '@osac/types';
+
 import { VirtualNetworkCreateModal } from './VirtualNetworkCreateModal';
 import * as networkingApi from '../../api/v1/networking';
+import { mockQueryResult } from '../../test-utils/query';
 
 vi.mock('../../api/v1/networking', async (importOriginal) => {
   const actual = await importOriginal<typeof networkingApi>();
@@ -20,11 +23,11 @@ describe('VirtualNetworkCreateModal', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(networkingApi.useNetworkClasses).mockReturnValue({
-      data: [{ id: 'test-network-class', title: 'Test Network Class' }],
-      isLoading: false,
-      error: null,
-    } as ReturnType<typeof networkingApi.useNetworkClasses>);
+    vi.mocked(networkingApi.useNetworkClasses).mockReturnValue(
+      mockQueryResult<NetworkClass[]>({
+        data: [{ id: 'test-network-class', title: 'Test Network Class' }] as NetworkClass[],
+      }),
+    );
   });
 
   it('renders with Name and IPv4 CIDR fields', () => {
@@ -133,11 +136,9 @@ describe('VirtualNetworkCreateModal', () => {
   });
 
   it('disables Create button while network classes are loading', () => {
-    vi.mocked(networkingApi.useNetworkClasses).mockReturnValue({
-      data: [],
-      isLoading: true,
-      error: null,
-    } as ReturnType<typeof networkingApi.useNetworkClasses>);
+    vi.mocked(networkingApi.useNetworkClasses).mockReturnValue(
+      mockQueryResult<NetworkClass[]>({ isLoading: true }),
+    );
 
     render(
       <VirtualNetworkCreateModal
@@ -151,11 +152,7 @@ describe('VirtualNetworkCreateModal', () => {
   });
 
   it('disables Create button when no network classes are available', () => {
-    vi.mocked(networkingApi.useNetworkClasses).mockReturnValue({
-      data: [],
-      isLoading: false,
-      error: null,
-    } as ReturnType<typeof networkingApi.useNetworkClasses>);
+    vi.mocked(networkingApi.useNetworkClasses).mockReturnValue(mockQueryResult<NetworkClass[]>());
 
     render(
       <VirtualNetworkCreateModal

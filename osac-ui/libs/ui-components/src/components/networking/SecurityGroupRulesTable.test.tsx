@@ -2,25 +2,28 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 
-import { Protocol } from '@osac/types';
+import { Protocol, SecurityRule } from '@osac/types';
 
 import { SecurityGroupRulesTable } from './SecurityGroupRulesTable';
 
 describe('SecurityGroupRulesTable', () => {
-  const mockRules = [
+  const mockRules: SecurityRule[] = [
     {
+      $typeName: 'osac.public.v1.SecurityRule',
       protocol: Protocol.TCP,
       portFrom: 80,
       portTo: 80,
       ipv4Cidr: '0.0.0.0/0',
     },
     {
+      $typeName: 'osac.public.v1.SecurityRule',
       protocol: Protocol.UDP,
       portFrom: 53,
       portTo: 53,
       ipv6Cidr: '::/0',
     },
     {
+      $typeName: 'osac.public.v1.SecurityRule',
       protocol: Protocol.ICMP,
       ipv4Cidr: '10.0.0.0/8',
     },

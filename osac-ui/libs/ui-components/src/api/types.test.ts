@@ -7,8 +7,8 @@ describe('apiQueryKey normalization', () => {
     expect(apiQueryKey('v1/compute_instances')).toEqual(['v1/compute_instances']);
   });
 
-  it('strips null pathParams', () => {
-    expect(apiQueryKey('v1/compute_instances', null)).toEqual(['v1/compute_instances']);
+  it('strips undefined pathParams', () => {
+    expect(apiQueryKey('v1/compute_instances', undefined)).toEqual(['v1/compute_instances']);
   });
 
   it('strips empty array pathParams', () => {
@@ -16,11 +16,13 @@ describe('apiQueryKey normalization', () => {
   });
 
   it('strips empty object queryParams', () => {
-    expect(apiQueryKey('v1/compute_instances', null, {})).toEqual(['v1/compute_instances']);
+    expect(apiQueryKey('v1/compute_instances', undefined, {})).toEqual(['v1/compute_instances']);
   });
 
   it('strips undefined queryParams', () => {
-    expect(apiQueryKey('v1/compute_instances', null, undefined)).toEqual(['v1/compute_instances']);
+    expect(apiQueryKey('v1/compute_instances', undefined, undefined)).toEqual([
+      'v1/compute_instances',
+    ]);
   });
 
   it('preserves non-empty pathParams', () => {
@@ -28,7 +30,7 @@ describe('apiQueryKey normalization', () => {
   });
 
   it('preserves non-empty queryParams', () => {
-    expect(apiQueryKey('v1/compute_instances', null, { filter: 'active' })).toEqual([
+    expect(apiQueryKey('v1/compute_instances', undefined, { filter: 'active' })).toEqual([
       'v1/compute_instances',
       undefined,
       { filter: 'active' },
@@ -50,14 +52,9 @@ describe('apiQueryKey normalization', () => {
     ]);
   });
 
-  it('produces the same key for null and undefined pathParams', () => {
-    expect(apiQueryKey('v1/clusters', null)).toEqual(apiQueryKey('v1/clusters', undefined));
-    expect(apiQueryKey('v1/clusters', null)).toEqual(apiQueryKey('v1/clusters'));
-  });
-
   it('produces the same key for empty and undefined queryParams', () => {
-    expect(apiQueryKey('v1/clusters', null, {})).toEqual(
-      apiQueryKey('v1/clusters', null, undefined),
+    expect(apiQueryKey('v1/clusters', undefined, {})).toEqual(
+      apiQueryKey('v1/clusters', undefined, undefined),
     );
   });
 });

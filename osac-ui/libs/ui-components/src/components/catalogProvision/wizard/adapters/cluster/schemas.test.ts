@@ -58,7 +58,7 @@ const emptyValues: ClusterWizardValues = {
 const validateStep = async (
   stepId: Parameters<typeof buildClusterStepSchema>[1],
   values: ClusterWizardValues,
-  catalogItem: unknown = null,
+  catalogItem: ClusterCatalogItem | null = null,
 ) => {
   const schema = buildClusterStepSchema(catalogItem, stepId, t);
   if (!schema) {

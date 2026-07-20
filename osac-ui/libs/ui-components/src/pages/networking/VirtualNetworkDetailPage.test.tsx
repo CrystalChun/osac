@@ -3,10 +3,12 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import type { SecurityGroup, VirtualNetwork } from '@osac/types';
 import { Protocol, SecurityGroupState, SubnetState, VirtualNetworkState } from '@osac/types';
 
 import { VirtualNetworkDetailPage } from './VirtualNetworkDetailPage';
 import * as networkingApi from '../../api/v1/networking';
+import { mockMutationResult, mockQueryResult } from '../../test-utils/query';
 
 vi.mock('../../api/v1/networking', async (importOriginal) => {
   const actual = await importOriginal<typeof networkingApi>();
@@ -22,67 +24,114 @@ vi.mock('../../api/v1/networking', async (importOriginal) => {
 });
 
 describe('VirtualNetworkDetailPage', () => {
-  const mockVN = {
+  const mockVN: VirtualNetwork = {
+    $typeName: 'osac.public.v1.VirtualNetwork',
     id: 'vn-1',
-    metadata: { name: 'vn-prod' },
-    spec: { ipv4Cidr: '10.0.0.0/16' },
-    status: { state: VirtualNetworkState.READY },
+    metadata: {
+      $typeName: 'osac.public.v1.Metadata',
+      name: 'vn-prod',
+      annotations: {},
+      creator: 'foo',
+      labels: {},
+      project: 'foo',
+      tenant: 'foo',
+      version: 1,
+    },
+    spec: {
+      $typeName: 'osac.public.v1.VirtualNetworkSpec',
+      ipv4Cidr: '10.0.0.0/16',
+      networkClass: '',
+    },
+    status: {
+      $typeName: 'osac.public.v1.VirtualNetworkStatus',
+      state: VirtualNetworkState.READY,
+    },
   };
 
-  const mockSecurityGroups = [
+  const mockSecurityGroups: SecurityGroup[] = [
     {
+      $typeName: 'osac.public.v1.SecurityGroup',
       id: 'sg-1',
-      metadata: { name: 'sg-web' },
+      metadata: {
+        $typeName: 'osac.public.v1.Metadata',
+        name: 'sg-web',
+        annotations: {},
+        creator: 'foo',
+        labels: {},
+        project: 'foo',
+        tenant: 'foo',
+        version: 1,
+      },
+
       spec: {
+        $typeName: 'osac.public.v1.SecurityGroupSpec',
         virtualNetwork: 'vn-1',
-        ingress: [{ protocol: Protocol.TCP, portFrom: 80, portTo: 80 }],
+        ingress: [
+          {
+            $typeName: 'osac.public.v1.SecurityRule',
+            protocol: Protocol.TCP,
+            portFrom: 80,
+            portTo: 80,
+          },
+        ],
         egress: [],
       },
-      status: { state: SecurityGroupState.READY },
+      status: {
+        $typeName: 'osac.public.v1.SecurityGroupStatus',
+        state: SecurityGroupState.READY,
+      },
     },
   ];
 
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(networkingApi.useVirtualNetwork).mockReturnValue({
-      data: mockVN,
-      isLoading: false,
-      error: null,
-    } as ReturnType<typeof networkingApi.useVirtualNetwork>);
+    vi.mocked(networkingApi.useVirtualNetwork).mockReturnValue(mockQueryResult({ data: mockVN }));
 
-    vi.mocked(networkingApi.useVirtualNetworks).mockReturnValue({
-      data: [mockVN],
-      isLoading: false,
-      error: null,
-    } as ReturnType<typeof networkingApi.useVirtualNetworks>);
+    vi.mocked(networkingApi.useVirtualNetworks).mockReturnValue(
+      mockQueryResult({ data: [mockVN] }),
+    );
 
-    vi.mocked(networkingApi.useSubnets).mockReturnValue({
-      data: [
-        {
-          id: 'subnet-1',
-          metadata: { name: 'subnet-a' },
-          spec: { ipv4Cidr: '10.0.1.0/24' },
-          status: { state: SubnetState.READY },
-        },
-      ],
-      isLoading: false,
-      error: null,
-    } as ReturnType<typeof networkingApi.useSubnets>);
+    vi.mocked(networkingApi.useSubnets).mockReturnValue(
+      mockQueryResult({
+        data: [
+          {
+            $typeName: 'osac.public.v1.Subnet',
+            id: 'subnet-1',
+            metadata: {
+              $typeName: 'osac.public.v1.Metadata',
+              name: 'subnet-a',
+              annotations: {},
+              creator: 'foo',
+              labels: {},
+              project: 'foo',
+              tenant: 'foo',
+              version: 1,
+            },
+            spec: {
+              $typeName: 'osac.public.v1.SubnetSpec',
+              ipv4Cidr: '10.0.1.0/24',
+              virtualNetwork: '',
+            },
+            status: {
+              $typeName: 'osac.public.v1.SubnetStatus',
+              state: SubnetState.READY,
+            },
+          },
+        ],
+      }),
+    );
 
-    vi.mocked(networkingApi.useSecurityGroups).mockReturnValue({
-      data: mockSecurityGroups,
-      isLoading: false,
-      error: null,
-    } as ReturnType<typeof networkingApi.useSecurityGroups>);
+    vi.mocked(networkingApi.useSecurityGroups).mockReturnValue(
+      mockQueryResult({ data: mockSecurityGroups }),
+    );
 
-    vi.mocked(networkingApi.useCreateSubnet).mockReturnValue({
-      mutateAsync: vi.fn(),
-    } as unknown as ReturnType<typeof networkingApi.useCreateSubnet>);
+    vi.mocked(networkingApi.useCreateSubnet).mockReturnValue(
+      mockMutationResult({ mutateAsync: vi.fn() }),
+    );
 
-    vi.mocked(networkingApi.useCreateSecurityGroup).mockReturnValue({
-      mutateAsync: vi.fn(),
-      error: null,
-    } as unknown as ReturnType<typeof networkingApi.useCreateSecurityGroup>);
+    vi.mocked(networkingApi.useCreateSecurityGroup).mockReturnValue(
+      mockMutationResult({ mutateAsync: vi.fn(), error: null }),
+    );
   });
 
   const renderPage = () =>
@@ -102,11 +151,7 @@ describe('VirtualNetworkDetailPage', () => {
   });
 
   it('shows an empty state when there are no security groups', () => {
-    vi.mocked(networkingApi.useSecurityGroups).mockReturnValue({
-      data: [],
-      isLoading: false,
-      error: null,
-    } as ReturnType<typeof networkingApi.useSecurityGroups>);
+    vi.mocked(networkingApi.useSecurityGroups).mockReturnValue(mockQueryResult({ data: [] }));
 
     renderPage();
 

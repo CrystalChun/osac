@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { ClusterState } from '@osac/types';
+import { Cluster, ClusterState } from '@osac/types';
 
 import ClusterDetailsActionButtons from './ClusterDetailsActionButtons';
 import * as clusterApi from '../../../api/v1/cluster';
@@ -17,11 +17,36 @@ vi.mock('../../../api/v1/cluster', async (importOriginal) => {
   };
 });
 
-const mockCluster = (state: ClusterState) => ({
+const mockCluster = (state: ClusterState): Cluster => ({
+  $typeName: 'osac.public.v1.Cluster',
   id: 'cluster-123',
-  metadata: { name: 'my-cluster' },
-  status: { state, conditions: [], apiUrl: '', consoleUrl: '', nodeSets: {} },
-  spec: { template: '', templateParameters: {}, nodeSets: {}, catalogItem: '' },
+  metadata: {
+    $typeName: 'osac.public.v1.Metadata',
+    name: 'my-cluster',
+    annotations: {},
+    creator: 'foo',
+    labels: {},
+    project: 'foo',
+    tenant: 'foo',
+    version: 1,
+  },
+  status: {
+    $typeName: 'osac.public.v1.ClusterStatus',
+    state,
+    conditions: [],
+    apiUrl: '',
+    consoleUrl: '',
+    nodeSets: {},
+    apiEndpoint: '',
+    ingressEndpoint: '',
+  },
+  spec: {
+    $typeName: 'osac.public.v1.ClusterSpec',
+    template: '',
+    templateParameters: {},
+    nodeSets: {},
+    catalogItem: '',
+  },
 });
 
 describe('ClusterDetailsActionButtons', () => {

@@ -39,7 +39,7 @@ const selectCatalogItem = async (user: UserEvent, title: string) => {
     expect(within(catalogItemGroup()).getByText(title)).toBeInTheDocument();
   });
   const titleNode = within(catalogItemGroup()).getByText(title);
-  const card = titleNode.closest('.pf-v6-c-card');
+  const card = titleNode.closest<HTMLElement>('.pf-v6-c-card');
   if (!card) {
     throw new Error(`Catalog card not found for ${title}`);
   }

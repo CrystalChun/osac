@@ -42,8 +42,9 @@ const vmCatalogItem: ComputeInstanceCatalogItem = {
   ],
 };
 
-const unpublishedCatalogItem: ComputeInstanceCatalogItem = {
+const unpublishedCatalogItem: ClusterCatalogItem = {
   ...vmCatalogItem,
+  $typeName: 'osac.public.v1.ClusterCatalogItem',
   id: 'catalog-unpublished',
   title: 'Unpublished catalog',
   published: false,
