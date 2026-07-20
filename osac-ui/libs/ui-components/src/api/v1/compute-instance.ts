@@ -3,11 +3,9 @@ import { timestampNow } from '@bufbuild/protobuf/wkt';
 import { useMutation } from '@tanstack/react-query';
 
 import {
-  type ComputeInstance,
   ComputeInstanceSchema,
   ComputeInstanceState,
   ComputeInstances,
-  type ComputeInstancesGetResponse,
   type ComputeInstancesListResponse,
 } from '@osac/types';
 
@@ -15,26 +13,12 @@ import { useApiFetch } from '../api-context';
 import { type ListParams, apiQueryKey } from '../types';
 import { type ApiQueryClient, useApiQuery, useApiQueryClient } from '../use-api-query';
 
-export const POWER_ACTION_POLL_MS = 2000;
-
-export const isTransitionalComputeInstanceState = (state?: ComputeInstanceState): boolean =>
-  state === ComputeInstanceState.STARTING ||
-  state === ComputeInstanceState.STOPPING ||
-  state === ComputeInstanceState.DELETING;
-
 export const useComputeInstances = (params: ListParams = {}) => {
   const client = useApiFetch(ComputeInstances);
   return useApiQuery({
     queryKey: apiQueryKey('v1/compute_instances', undefined, params),
     queryFn: () => client.list(params),
     select: (data) => data.items,
-    refetchInterval: (query) => {
-      const items = query.state.data?.items;
-      if (items?.some((item) => isTransitionalComputeInstanceState(item.status?.state))) {
-        return POWER_ACTION_POLL_MS;
-      }
-      return false;
-    },
   });
 };
 
@@ -46,13 +30,6 @@ export const useComputeInstance = (id: string) => {
     queryFn: () => client.get({ id: trimmedId }),
     select: (data) => data.object,
     enabled: Boolean(trimmedId),
-    refetchInterval: (query) => {
-      const instance = query.state.data?.object;
-      if (instance && isTransitionalComputeInstanceState(instance.status?.state)) {
-        return POWER_ACTION_POLL_MS;
-      }
-      return false;
-    },
   });
 };
 
@@ -119,76 +96,13 @@ const buildPowerPatchBody = (
   }
 };
 
-export const powerActionToTransitionalState = (
-  powerAction: ComputeInstancePowerAction,
-): ComputeInstanceState => {
-  switch (powerAction) {
-    case 'start':
-    case 'restart':
-      return ComputeInstanceState.STARTING;
-    case 'stop':
-      return ComputeInstanceState.STOPPING;
-  }
-};
-
-const applyTransitionalState = (vm: ComputeInstance, state: ComputeInstanceState) => {
-  if (!vm.status) {
-    return vm;
-  }
-  return { ...vm, status: { ...vm.status, state } } as ComputeInstance;
-};
-
 export const usePatchComputeInstance = () => {
   const client = useApiFetch(ComputeInstances);
   const qc = useApiQueryClient();
   return useMutation({
     mutationFn: ({ id, powerAction }: PatchComputeInstanceInput) =>
       client.update({ object: { id, ...buildPowerPatchBody(powerAction) } }).then((r) => r.object),
-    onMutate: async ({ id, powerAction }) => {
-      await qc.cancelQueries({ queryKey: apiQueryKey('v1/compute_instances') });
-      const transitionalState = powerActionToTransitionalState(powerAction);
-
-      const detailKey = apiQueryKey('v1/compute_instances', [id]);
-      const previousDetail = qc.getQueryData<ComputeInstancesGetResponse>(detailKey);
-      const previousList = qc.getQueriesData<ComputeInstancesListResponse>({
-        queryKey: apiQueryKey('v1/compute_instances'),
-      });
-
-      qc.setQueryData<ComputeInstancesGetResponse>(detailKey, (old) => {
-        if (!old?.object) {
-          return old;
-        }
-        return { ...old, object: applyTransitionalState(old.object, transitionalState) };
-      });
-
-      qc.setQueriesData<ComputeInstancesListResponse>(
-        { queryKey: apiQueryKey('v1/compute_instances') },
-        (old) => {
-          if (!old?.items) {
-            return old;
-          }
-          return {
-            ...old,
-            items: old.items.map((item) =>
-              item.id === id ? applyTransitionalState(item, transitionalState) : item,
-            ),
-          };
-        },
-      );
-
-      return { previousDetail, previousList, detailKey };
-    },
-    onError: (_err, _vars, context) => {
-      if (context?.previousDetail) {
-        qc.setQueryData(context.detailKey, context.previousDetail);
-      }
-      if (context?.previousList) {
-        for (const [key, data] of context.previousList) {
-          qc.setQueryData(key, data);
-        }
-      }
-    },
-    onSettled: () => invalidateComputeInstancesQueries(qc),
+    onSuccess: () => invalidateComputeInstancesQueries(qc),
   });
 };
 

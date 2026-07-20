@@ -6,59 +6,8 @@ import { describe, expect, it } from 'vitest';
 
 import { ComputeInstanceState, ComputeInstances } from '@osac/types';
 
-import {
-  POWER_ACTION_POLL_MS,
-  isTransitionalComputeInstanceState,
-  powerActionToTransitionalState,
-  usePatchComputeInstance,
-} from './compute-instance';
+import { usePatchComputeInstance } from './compute-instance';
 import { ApiProvider } from '../api-context';
-
-describe('isTransitionalComputeInstanceState', () => {
-  it('returns true for STARTING', () => {
-    expect(isTransitionalComputeInstanceState(ComputeInstanceState.STARTING)).toBe(true);
-  });
-
-  it('returns true for STOPPING', () => {
-    expect(isTransitionalComputeInstanceState(ComputeInstanceState.STOPPING)).toBe(true);
-  });
-
-  it('returns true for DELETING', () => {
-    expect(isTransitionalComputeInstanceState(ComputeInstanceState.DELETING)).toBe(true);
-  });
-
-  it('returns false for RUNNING', () => {
-    expect(isTransitionalComputeInstanceState(ComputeInstanceState.RUNNING)).toBe(false);
-  });
-
-  it('returns false for STOPPED', () => {
-    expect(isTransitionalComputeInstanceState(ComputeInstanceState.STOPPED)).toBe(false);
-  });
-
-  it('returns false for undefined', () => {
-    expect(isTransitionalComputeInstanceState(undefined)).toBe(false);
-  });
-});
-
-describe('powerActionToTransitionalState', () => {
-  it('maps start to STARTING', () => {
-    expect(powerActionToTransitionalState('start')).toBe(ComputeInstanceState.STARTING);
-  });
-
-  it('maps restart to STARTING', () => {
-    expect(powerActionToTransitionalState('restart')).toBe(ComputeInstanceState.STARTING);
-  });
-
-  it('maps stop to STOPPING', () => {
-    expect(powerActionToTransitionalState('stop')).toBe(ComputeInstanceState.STOPPING);
-  });
-});
-
-describe('POWER_ACTION_POLL_MS', () => {
-  it('is a positive number', () => {
-    expect(POWER_ACTION_POLL_MS).toBeGreaterThan(0);
-  });
-});
 
 const makeVm = (id: string, state: ComputeInstanceState) => ({
   id,
@@ -134,35 +83,5 @@ describe('usePatchComputeInstance', () => {
     });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-  });
-
-  it('rolls back optimistic update on API error', async () => {
-    const failingTransport = createRouterTransport((router) => {
-      router.service(ComputeInstances, {
-        list: () => ({
-          items: [makeVm('vm-1', ComputeInstanceState.RUNNING)],
-        }),
-        get: () => ({
-          object: makeVm('vm-1', ComputeInstanceState.RUNNING),
-        }),
-        update: () => {
-          throw new Error('API failure');
-        },
-      });
-    });
-
-    const { result, queryClient } = renderUsePatchComputeInstance(failingTransport);
-
-    const detailKey = ['v1/compute_instances', ['vm-1']];
-    queryClient.setQueryData(detailKey, { object: makeVm('vm-1', ComputeInstanceState.RUNNING) });
-
-    act(() => {
-      result.current.mutate({ id: 'vm-1', powerAction: 'stop' });
-    });
-
-    await waitFor(() => expect(result.current.isError).toBe(true));
-
-    const restored = queryClient.getQueryData<{ object: { status: { state: number } } }>(detailKey);
-    expect(restored?.object?.status?.state).toBe(ComputeInstanceState.RUNNING);
   });
 });
