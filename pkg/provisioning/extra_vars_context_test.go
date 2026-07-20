@@ -9,6 +9,14 @@ import (
 	"github.com/osac-project/osac-operator/pkg/provisioning"
 )
 
+// testBackendUsername and testBackendPassword are fixture values, not real
+// credentials — used to verify connection details round-trip through the
+// context helpers and AAP extra_vars conversion unmodified.
+const (
+	testBackendUsername = "test-backend-user"
+	testBackendPassword = "test-backend-password"
+)
+
 var _ = Describe("ExtraVarsContext", func() {
 	Describe("AdminKubeconfig", func() {
 		It("should round-trip a kubeconfig value", func() {
@@ -54,6 +62,28 @@ var _ = Describe("ExtraVarsContext", func() {
 			ctx := context.Background()
 
 			result := provisioning.StorageTierDefinitionsFromContext(ctx)
+
+			Expect(result).To(BeNil())
+		})
+	})
+
+	Describe("StorageBackendConnections", func() {
+		It("should round-trip backend connections", func() {
+			ctx := context.Background()
+			conns := map[string]provisioning.BackendConnection{
+				"backend-1": {Endpoint: "https://vast.example.com", Username: testBackendUsername, Password: testBackendPassword},
+			}
+
+			ctx = provisioning.WithStorageBackendConnections(ctx, conns)
+			result := provisioning.StorageBackendConnectionsFromContext(ctx)
+
+			Expect(result).To(Equal(conns))
+		})
+
+		It("should return nil from a context without backend connections", func() {
+			ctx := context.Background()
+
+			result := provisioning.StorageBackendConnectionsFromContext(ctx)
 
 			Expect(result).To(BeNil())
 		})
