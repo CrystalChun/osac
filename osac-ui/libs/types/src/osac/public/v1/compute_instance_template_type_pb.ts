@@ -29,7 +29,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/public/v1/compute_instance_template_type.proto.
  */
 export const file_osac_public_v1_compute_instance_template_type: GenFile = /*@__PURE__*/
-  fileDesc("CjNvc2FjL3B1YmxpYy92MS9jb21wdXRlX2luc3RhbmNlX3RlbXBsYXRlX3R5cGUucHJvdG8SDm9zYWMucHVibGljLnYxIpECChdDb21wdXRlSW5zdGFuY2VUZW1wbGF0ZRIKCgJpZBgBIAEoCRIqCghtZXRhZGF0YRgCIAEoCzIYLm9zYWMucHVibGljLnYxLk1ldGFkYXRhEg0KBXRpdGxlGAMgASgJEhMKC2Rlc2NyaXB0aW9uGAQgASgJEk4KCnBhcmFtZXRlcnMYBSADKAsyOi5vc2FjLnB1YmxpYy52MS5Db21wdXRlSW5zdGFuY2VUZW1wbGF0ZVBhcmFtZXRlckRlZmluaXRpb24SSgoNc3BlY19kZWZhdWx0cxgGIAEoCzIzLm9zYWMucHVibGljLnYxLkNvbXB1dGVJbnN0YW5jZVRlbXBsYXRlU3BlY0RlZmF1bHRzIqUBCipDb21wdXRlSW5zdGFuY2VUZW1wbGF0ZVBhcmFtZXRlckRlZmluaXRpb24SDAoEbmFtZRgBIAEoCRINCgV0aXRsZRgCIAEoCRITCgtkZXNjcmlwdGlvbhgDIAEoCRIQCghyZXF1aXJlZBgEIAEoCBIMCgR0eXBlGAUgASgJEiUKB2RlZmF1bHQYBiABKAsyFC5nb29nbGUucHJvdG9idWYuQW55IvwCCiNDb21wdXRlSW5zdGFuY2VUZW1wbGF0ZVNwZWNEZWZhdWx0cxISCgVjb3JlcxgBIAEoBUgAiAEBEhcKCm1lbW9yeV9naWIYAiABKAVIAYgBARI4CgVpbWFnZRgDIAEoCzIkLm9zYWMucHVibGljLnYxLkNvbXB1dGVJbnN0YW5jZUltYWdlSAKIAQESOwoJYm9vdF9kaXNrGAQgASgLMiMub3NhYy5wdWJsaWMudjEuQ29tcHV0ZUluc3RhbmNlRGlza0gDiAEBEhkKDHJ1bl9zdHJhdGVneRgFIAEoCUgEiAEBEhoKDWluc3RhbmNlX3R5cGUYBiABKAlIBYgBARIXCgppc193aW5kb3dzGAcgASgISAaIAQFCCAoGX2NvcmVzQg0KC19tZW1vcnlfZ2liQggKBl9pbWFnZUIMCgpfYm9vdF9kaXNrQg8KDV9ydW5fc3RyYXRlZ3lCEAoOX2luc3RhbmNlX3R5cGVCDQoLX2lzX3dpbmRvd3NiBnByb3RvMw", [file_google_protobuf_any, file_osac_public_v1_compute_instance_type, file_osac_public_v1_metadata_type]);
+  fileDesc("CjNvc2FjL3B1YmxpYy92MS9jb21wdXRlX2luc3RhbmNlX3RlbXBsYXRlX3R5cGUucHJvdG8SDm9zYWMucHVibGljLnYxIpECChdDb21wdXRlSW5zdGFuY2VUZW1wbGF0ZRIKCgJpZBgBIAEoCRIqCghtZXRhZGF0YRgCIAEoCzIYLm9zYWMucHVibGljLnYxLk1ldGFkYXRhEg0KBXRpdGxlGAMgASgJEhMKC2Rlc2NyaXB0aW9uGAQgASgJEk4KCnBhcmFtZXRlcnMYBSADKAsyOi5vc2FjLnB1YmxpYy52MS5Db21wdXRlSW5zdGFuY2VUZW1wbGF0ZVBhcmFtZXRlckRlZmluaXRpb24SSgoNc3BlY19kZWZhdWx0cxgGIAEoCzIzLm9zYWMucHVibGljLnYxLkNvbXB1dGVJbnN0YW5jZVRlbXBsYXRlU3BlY0RlZmF1bHRzIqUBCipDb21wdXRlSW5zdGFuY2VUZW1wbGF0ZVBhcmFtZXRlckRlZmluaXRpb24SDAoEbmFtZRgBIAEoCRINCgV0aXRsZRgCIAEoCRITCgtkZXNjcmlwdGlvbhgDIAEoCRIQCghyZXF1aXJlZBgEIAEoCBIMCgR0eXBlGAUgASgJEiUKB2RlZmF1bHQYBiABKAsyFC5nb29nbGUucHJvdG9idWYuQW55ItUCCiNDb21wdXRlSW5zdGFuY2VUZW1wbGF0ZVNwZWNEZWZhdWx0cxI4CgVpbWFnZRgDIAEoCzIkLm9zYWMucHVibGljLnYxLkNvbXB1dGVJbnN0YW5jZUltYWdlSACIAQESOwoJYm9vdF9kaXNrGAQgASgLMiMub3NhYy5wdWJsaWMudjEuQ29tcHV0ZUluc3RhbmNlRGlza0gBiAEBEhkKDHJ1bl9zdHJhdGVneRgFIAEoCUgCiAEBEhoKDWluc3RhbmNlX3R5cGUYBiABKAlIA4gBARIXCgppc193aW5kb3dzGAcgASgISASIAQFCCAoGX2ltYWdlQgwKCl9ib290X2Rpc2tCDwoNX3J1bl9zdHJhdGVneUIQCg5faW5zdGFuY2VfdHlwZUINCgtfaXNfd2luZG93c0oECAEQAkoECAIQA1IFY29yZXNSCm1lbW9yeV9naWJiBnByb3RvMw", [file_google_protobuf_any, file_osac_public_v1_compute_instance_type, file_osac_public_v1_metadata_type]);
 
 /**
  * A compute instance template defines a type of compute instance that can be created by the user. Note that the user doesn't create these
@@ -184,20 +184,6 @@ export const ComputeInstanceTemplateParameterDefinitionSchema: GenMessage<Comput
  */
 export type ComputeInstanceTemplateSpecDefaults = Message<"osac.public.v1.ComputeInstanceTemplateSpecDefaults"> & {
   /**
-   * Default number of CPU cores.
-   *
-   * @generated from field: optional int32 cores = 1;
-   */
-  cores?: number | undefined;
-
-  /**
-   * Default memory size in GiB.
-   *
-   * @generated from field: optional int32 memory_gib = 2;
-   */
-  memoryGib?: number | undefined;
-
-  /**
    * Default image configuration.
    *
    * @generated from field: optional osac.public.v1.ComputeInstanceImage image = 3;
@@ -219,7 +205,8 @@ export type ComputeInstanceTemplateSpecDefaults = Message<"osac.public.v1.Comput
   runStrategy?: string | undefined;
 
   /**
-   * Default instance type name. Mutually exclusive with cores/memory_gib defaults.
+   * Default instance type name. Specifies the default compute configuration for instances
+   * created from this template.
    *
    * @generated from field: optional string instance_type = 6;
    */

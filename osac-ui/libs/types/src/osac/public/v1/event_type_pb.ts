@@ -21,6 +21,8 @@ import type { ClusterTemplate } from "./cluster_template_type_pb";
 import { file_osac_public_v1_cluster_template_type } from "./cluster_template_type_pb";
 import type { Cluster } from "./cluster_type_pb";
 import { file_osac_public_v1_cluster_type } from "./cluster_type_pb";
+import type { ClusterVersion } from "./cluster_version_type_pb";
+import { file_osac_public_v1_cluster_version_type } from "./cluster_version_type_pb";
 import type { ComputeInstanceTemplate } from "./compute_instance_template_type_pb";
 import { file_osac_public_v1_compute_instance_template_type } from "./compute_instance_template_type_pb";
 import type { ComputeInstance } from "./compute_instance_type_pb";
@@ -43,7 +45,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/public/v1/event_type.proto.
  */
 export const file_osac_public_v1_event_type: GenFile = /*@__PURE__*/
-  fileDesc("Ch9vc2FjL3B1YmxpYy92MS9ldmVudF90eXBlLnByb3RvEg5vc2FjLnB1YmxpYy52MSLSBAoFRXZlbnQSCgoCaWQYASABKAkSJwoEdHlwZRgCIAEoDjIZLm9zYWMucHVibGljLnYxLkV2ZW50VHlwZRIqCgdjbHVzdGVyGAMgASgLMhcub3NhYy5wdWJsaWMudjEuQ2x1c3RlckgAEjsKEGNsdXN0ZXJfdGVtcGxhdGUYBCABKAsyHy5vc2FjLnB1YmxpYy52MS5DbHVzdGVyVGVtcGxhdGVIABItCglob3N0X3R5cGUYBSABKAsyGC5vc2FjLnB1YmxpYy52MS5Ib3N0VHlwZUgAEkwKGWNvbXB1dGVfaW5zdGFuY2VfdGVtcGxhdGUYByABKAsyJy5vc2FjLnB1YmxpYy52MS5Db21wdXRlSW5zdGFuY2VUZW1wbGF0ZUgAEjsKEGNvbXB1dGVfaW5zdGFuY2UYCCABKAsyHy5vc2FjLnB1YmxpYy52MS5Db21wdXRlSW5zdGFuY2VIABIkCgRyb2xlGAkgASgLMhQub3NhYy5wdWJsaWMudjEuUm9sZUgAEjMKDHJvbGVfYmluZGluZxgKIAEoCzIbLm9zYWMucHVibGljLnYxLlJvbGVCaW5kaW5nSAASKgoHcHJvamVjdBgLIAEoCzIXLm9zYWMucHVibGljLnYxLlByb2plY3RIABI1Cg1pbnN0YW5jZV90eXBlGAwgASgLMhwub3NhYy5wdWJsaWMudjEuSW5zdGFuY2VUeXBlSAASKAoGdGVuYW50GA0gASgLMhYub3NhYy5wdWJsaWMudjEuVGVuYW50SABCCQoHcGF5bG9hZCqEAQoJRXZlbnRUeXBlEhoKFkVWRU5UX1RZUEVfVU5TUEVDSUZJRUQQABIdChlFVkVOVF9UWVBFX09CSkVDVF9DUkVBVEVEEAESHQoZRVZFTlRfVFlQRV9PQkpFQ1RfVVBEQVRFRBACEh0KGUVWRU5UX1RZUEVfT0JKRUNUX0RFTEVURUQQA2IGcHJvdG8z", [file_osac_public_v1_cluster_template_type, file_osac_public_v1_cluster_type, file_osac_public_v1_compute_instance_template_type, file_osac_public_v1_compute_instance_type, file_osac_public_v1_host_type_type, file_osac_public_v1_instance_type_type, file_osac_public_v1_role_binding_type, file_osac_public_v1_project_type, file_osac_public_v1_role_type, file_osac_public_v1_tenant_type]);
+  fileDesc("Ch9vc2FjL3B1YmxpYy92MS9ldmVudF90eXBlLnByb3RvEg5vc2FjLnB1YmxpYy52MSKNBQoFRXZlbnQSCgoCaWQYASABKAkSJwoEdHlwZRgCIAEoDjIZLm9zYWMucHVibGljLnYxLkV2ZW50VHlwZRIqCgdjbHVzdGVyGAMgASgLMhcub3NhYy5wdWJsaWMudjEuQ2x1c3RlckgAEjsKEGNsdXN0ZXJfdGVtcGxhdGUYBCABKAsyHy5vc2FjLnB1YmxpYy52MS5DbHVzdGVyVGVtcGxhdGVIABItCglob3N0X3R5cGUYBSABKAsyGC5vc2FjLnB1YmxpYy52MS5Ib3N0VHlwZUgAEkwKGWNvbXB1dGVfaW5zdGFuY2VfdGVtcGxhdGUYByABKAsyJy5vc2FjLnB1YmxpYy52MS5Db21wdXRlSW5zdGFuY2VUZW1wbGF0ZUgAEjsKEGNvbXB1dGVfaW5zdGFuY2UYCCABKAsyHy5vc2FjLnB1YmxpYy52MS5Db21wdXRlSW5zdGFuY2VIABIkCgRyb2xlGAkgASgLMhQub3NhYy5wdWJsaWMudjEuUm9sZUgAEjMKDHJvbGVfYmluZGluZxgKIAEoCzIbLm9zYWMucHVibGljLnYxLlJvbGVCaW5kaW5nSAASKgoHcHJvamVjdBgLIAEoCzIXLm9zYWMucHVibGljLnYxLlByb2plY3RIABI1Cg1pbnN0YW5jZV90eXBlGAwgASgLMhwub3NhYy5wdWJsaWMudjEuSW5zdGFuY2VUeXBlSAASKAoGdGVuYW50GA0gASgLMhYub3NhYy5wdWJsaWMudjEuVGVuYW50SAASOQoPY2x1c3Rlcl92ZXJzaW9uGA4gASgLMh4ub3NhYy5wdWJsaWMudjEuQ2x1c3RlclZlcnNpb25IAEIJCgdwYXlsb2FkKoQBCglFdmVudFR5cGUSGgoWRVZFTlRfVFlQRV9VTlNQRUNJRklFRBAAEh0KGUVWRU5UX1RZUEVfT0JKRUNUX0NSRUFURUQQARIdChlFVkVOVF9UWVBFX09CSkVDVF9VUERBVEVEEAISHQoZRVZFTlRfVFlQRV9PQkpFQ1RfREVMRVRFRBADYgZwcm90bzM", [file_osac_public_v1_cluster_template_type, file_osac_public_v1_cluster_type, file_osac_public_v1_cluster_version_type, file_osac_public_v1_compute_instance_template_type, file_osac_public_v1_compute_instance_type, file_osac_public_v1_host_type_type, file_osac_public_v1_instance_type_type, file_osac_public_v1_role_binding_type, file_osac_public_v1_project_type, file_osac_public_v1_role_type, file_osac_public_v1_tenant_type]);
 
 /**
  * Represents events delivered by the server.
@@ -130,6 +132,12 @@ export type Event = Message<"osac.public.v1.Event"> & {
      */
     value: Tenant;
     case: "tenant";
+  } | {
+    /**
+     * @generated from field: osac.public.v1.ClusterVersion cluster_version = 14;
+     */
+    value: ClusterVersion;
+    case: "clusterVersion";
   } | { case: undefined; value?: undefined };
 };
 

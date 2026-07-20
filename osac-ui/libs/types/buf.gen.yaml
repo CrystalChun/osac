@@ -10,3 +10,6 @@ inputs:
   - git_repo: https://github.com/osac-project/fulfillment-service.git
     branch: main
     subdir: proto/public
+  - git_repo: https://github.com/osac-project/fulfillment-service.git
+    branch: main
+    subdir: proto/private

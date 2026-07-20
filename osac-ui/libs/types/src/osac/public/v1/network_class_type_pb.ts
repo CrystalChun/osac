@@ -17,16 +17,19 @@
 
 import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
 import { file_google_api_field_behavior } from "../../../google/api/field_behavior_pb";
 import type { Metadata } from "./metadata_type_pb";
 import { file_osac_public_v1_metadata_type } from "./metadata_type_pb";
+import type { SecurityRule } from "./security_group_type_pb";
+import { file_osac_public_v1_security_group_type } from "./security_group_type_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file osac/public/v1/network_class_type.proto.
  */
 export const file_osac_public_v1_network_class_type: GenFile = /*@__PURE__*/
-  fileDesc("Cidvc2FjL3B1YmxpYy92MS9uZXR3b3JrX2NsYXNzX3R5cGUucHJvdG8SDm9zYWMucHVibGljLnYxIosCCgxOZXR3b3JrQ2xhc3MSCgoCaWQYASABKAkSKgoIbWV0YWRhdGEYAiABKAsyGC5vc2FjLnB1YmxpYy52MS5NZXRhZGF0YRINCgV0aXRsZRgDIAEoCRITCgtkZXNjcmlwdGlvbhgEIAEoCRI+CgxjYXBhYmlsaXRpZXMYByABKAsyKC5vc2FjLnB1YmxpYy52MS5OZXR3b3JrQ2xhc3NDYXBhYmlsaXRpZXMSMgoGc3RhdHVzGAggASgLMiIub3NhYy5wdWJsaWMudjEuTmV0d29ya0NsYXNzU3RhdHVzEhwKCmlzX2RlZmF1bHQYCSABKAhCA+BBA0gAiAEBQg0KC19pc19kZWZhdWx0InoKGE5ldHdvcmtDbGFzc0NhcGFiaWxpdGllcxIVCg1zdXBwb3J0c19pcHY0GAEgASgIEhUKDXN1cHBvcnRzX2lwdjYYAiABKAgSGwoTc3VwcG9ydHNfZHVhbF9zdGFjaxgDIAEoCBITCgtkcHVfc3VwcG9ydBgEIAEoCCJoChJOZXR3b3JrQ2xhc3NTdGF0dXMSMAoFc3RhdGUYASABKA4yIS5vc2FjLnB1YmxpYy52MS5OZXR3b3JrQ2xhc3NTdGF0ZRIUCgdtZXNzYWdlGAIgASgJSACIAQFCCgoIX21lc3NhZ2UqmAEKEU5ldHdvcmtDbGFzc1N0YXRlEiMKH05FVFdPUktfQ0xBU1NfU1RBVEVfVU5TUEVDSUZJRUQQABIfChtORVRXT1JLX0NMQVNTX1NUQVRFX1BFTkRJTkcQARIdChlORVRXT1JLX0NMQVNTX1NUQVRFX1JFQURZEAISHgoaTkVUV09SS19DTEFTU19TVEFURV9GQUlMRUQQA2IGcHJvdG8z", [file_google_api_field_behavior, file_osac_public_v1_metadata_type]);
+  fileDesc("Cidvc2FjL3B1YmxpYy92MS9uZXR3b3JrX2NsYXNzX3R5cGUucHJvdG8SDm9zYWMucHVibGljLnYxIsACCgxOZXR3b3JrQ2xhc3MSCgoCaWQYASABKAkSKgoIbWV0YWRhdGEYAiABKAsyGC5vc2FjLnB1YmxpYy52MS5NZXRhZGF0YRINCgV0aXRsZRgDIAEoCRITCgtkZXNjcmlwdGlvbhgEIAEoCRI+CgxjYXBhYmlsaXRpZXMYByABKAsyKC5vc2FjLnB1YmxpYy52MS5OZXR3b3JrQ2xhc3NDYXBhYmlsaXRpZXMSMgoGc3RhdHVzGAggASgLMiIub3NhYy5wdWJsaWMudjEuTmV0d29ya0NsYXNzU3RhdHVzEhwKCmlzX2RlZmF1bHQYCSABKAhCA+BBA0gAiAEBEjMKBHNwZWMYDCABKAsyIC5vc2FjLnB1YmxpYy52MS5OZXR3b3JrQ2xhc3NTcGVjQgPgQQNCDQoLX2lzX2RlZmF1bHQiRQoQTmV0d29ya0NsYXNzU3BlYxIxCghkZWZhdWx0cxgBIAEoCzIfLm9zYWMucHVibGljLnYxLk5ldHdvcmtEZWZhdWx0cyLlCAoPTmV0d29ya0RlZmF1bHRzEpoBChl2aXJ0dWFsX25ldHdvcmtfaXB2NF9jaWRyGAEgASgJQne6SHS6AXEKD3ZhbGlkX2lwdjRfY2lkchI2bXVzdCBiZSB2YWxpZCBJUHY0IENJRFIgbm90YXRpb24gKGUuZy4sICcxMC4wLjAuMC8xNicpGiZ0aGlzID09ICcnIHx8IHRoaXMuaXNJcFByZWZpeCg0LCB0cnVlKRKYAQoZdmlydHVhbF9uZXR3b3JrX2lwdjZfY2lkchgFIAEoCUJ1ukhyugFvCg92YWxpZF9pcHY2X2NpZHISNG11c3QgYmUgdmFsaWQgSVB2NiBDSURSIG5vdGF0aW9uIChlLmcuLCAnZmQwMDo6LzQ4JykaJnRoaXMgPT0gJycgfHwgdGhpcy5pc0lwUHJlZml4KDYsIHRydWUpEpEBChBzdWJuZXRfaXB2NF9jaWRyGAIgASgJQne6SHS6AXEKD3ZhbGlkX2lwdjRfY2lkchI2bXVzdCBiZSB2YWxpZCBJUHY0IENJRFIgbm90YXRpb24gKGUuZy4sICcxMC4wLjEuMC8yNCcpGiZ0aGlzID09ICcnIHx8IHRoaXMuaXNJcFByZWZpeCg0LCB0cnVlKRKVAQoQc3VibmV0X2lwdjZfY2lkchgGIAEoCUJ7ukh4ugF1Cg92YWxpZF9pcHY2X2NpZHISOm11c3QgYmUgdmFsaWQgSVB2NiBDSURSIG5vdGF0aW9uIChlLmcuLCAnZmQwMDowOjA6MTo6LzY0JykaJnRoaXMgPT0gJycgfHwgdGhpcy5pc0lwUHJlZml4KDYsIHRydWUpEjMKDWluZ3Jlc3NfcnVsZXMYAyADKAsyHC5vc2FjLnB1YmxpYy52MS5TZWN1cml0eVJ1bGUSMgoMZWdyZXNzX3J1bGVzGAQgAygLMhwub3NhYy5wdWJsaWMudjEuU2VjdXJpdHlSdWxlEhoKEmVuYWJsZV9uYXRfZ2F0ZXdheRgHIAEoCDroArpI5AIarwEKKXN1Ym5ldF9pcHY0X3JlcXVpcmVzX3ZpcnR1YWxfbmV0d29ya19pcHY0Ej1zdWJuZXRfaXB2NF9jaWRyIHJlcXVpcmVzIHZpcnR1YWxfbmV0d29ya19pcHY0X2NpZHIgdG8gYmUgc2V0GkN0aGlzLnN1Ym5ldF9pcHY0X2NpZHIgPT0gJycgfHwgdGhpcy52aXJ0dWFsX25ldHdvcmtfaXB2NF9jaWRyICE9ICcnGq8BCilzdWJuZXRfaXB2Nl9yZXF1aXJlc192aXJ0dWFsX25ldHdvcmtfaXB2NhI9c3VibmV0X2lwdjZfY2lkciByZXF1aXJlcyB2aXJ0dWFsX25ldHdvcmtfaXB2Nl9jaWRyIHRvIGJlIHNldBpDdGhpcy5zdWJuZXRfaXB2Nl9jaWRyID09ICcnIHx8IHRoaXMudmlydHVhbF9uZXR3b3JrX2lwdjZfY2lkciAhPSAnJyJ6ChhOZXR3b3JrQ2xhc3NDYXBhYmlsaXRpZXMSFQoNc3VwcG9ydHNfaXB2NBgBIAEoCBIVCg1zdXBwb3J0c19pcHY2GAIgASgIEhsKE3N1cHBvcnRzX2R1YWxfc3RhY2sYAyABKAgSEwoLZHB1X3N1cHBvcnQYBCABKAgiaAoSTmV0d29ya0NsYXNzU3RhdHVzEjAKBXN0YXRlGAEgASgOMiEub3NhYy5wdWJsaWMudjEuTmV0d29ya0NsYXNzU3RhdGUSFAoHbWVzc2FnZRgCIAEoCUgAiAEBQgoKCF9tZXNzYWdlKpgBChFOZXR3b3JrQ2xhc3NTdGF0ZRIjCh9ORVRXT1JLX0NMQVNTX1NUQVRFX1VOU1BFQ0lGSUVEEAASHwobTkVUV09SS19DTEFTU19TVEFURV9QRU5ESU5HEAESHQoZTkVUV09SS19DTEFTU19TVEFURV9SRUFEWRACEh4KGk5FVFdPUktfQ0xBU1NfU1RBVEVfRkFJTEVEEANiBnByb3RvMw", [file_buf_validate_validate, file_google_api_field_behavior, file_osac_public_v1_metadata_type, file_osac_public_v1_security_group_type]);
 
 /**
  * Describes a network implementation strategy available for creating virtual networks.
@@ -97,6 +100,13 @@ export type NetworkClass = Message<"osac.public.v1.NetworkClass"> & {
    * @generated from field: optional bool is_default = 9;
    */
   isDefault?: boolean | undefined;
+
+  /**
+   * Desired configuration for this network class.
+   *
+   * @generated from field: osac.public.v1.NetworkClassSpec spec = 12;
+   */
+  spec?: NetworkClassSpec | undefined;
 };
 
 /**
@@ -105,6 +115,101 @@ export type NetworkClass = Message<"osac.public.v1.NetworkClass"> & {
  */
 export const NetworkClassSchema: GenMessage<NetworkClass> = /*@__PURE__*/
   messageDesc(file_osac_public_v1_network_class_type, 0);
+
+/**
+ * Desired configuration for a NetworkClass.
+ *
+ * @generated from message osac.public.v1.NetworkClassSpec
+ */
+export type NetworkClassSpec = Message<"osac.public.v1.NetworkClassSpec"> & {
+  /**
+   * Default networking configuration for tenant onboarding. When a tenant is created, the system uses these
+   * defaults to auto-create a VirtualNetwork, Subnet, and SecurityGroup for the tenant.
+   *
+   * @generated from field: osac.public.v1.NetworkDefaults defaults = 1;
+   */
+  defaults?: NetworkDefaults | undefined;
+};
+
+/**
+ * Describes the message osac.public.v1.NetworkClassSpec.
+ * Use `create(NetworkClassSpecSchema)` to create a new message.
+ */
+export const NetworkClassSpecSchema: GenMessage<NetworkClassSpec> = /*@__PURE__*/
+  messageDesc(file_osac_public_v1_network_class_type, 1);
+
+/**
+ * Default networking configuration used during tenant onboarding.
+ *
+ * When a tenant is created, the system reads these defaults from the NetworkClass and auto-creates
+ * a default VirtualNetwork, IPv4 Subnet, IPv6 Subnet, SecurityGroup, and optionally a NATGateway
+ * for the tenant. All fields are optional — defaults can be partially populated.
+ *
+ * @generated from message osac.public.v1.NetworkDefaults
+ */
+export type NetworkDefaults = Message<"osac.public.v1.NetworkDefaults"> & {
+  /**
+   * Default IPv4 CIDR for auto-created tenant VirtualNetwork.
+   * Example: "10.0.0.0/16"
+   *
+   * @generated from field: string virtual_network_ipv4_cidr = 1;
+   */
+  virtualNetworkIpv4Cidr: string;
+
+  /**
+   * Default IPv6 CIDR for auto-created tenant VirtualNetwork.
+   * Example: "fd00::/48"
+   *
+   * @generated from field: string virtual_network_ipv6_cidr = 5;
+   */
+  virtualNetworkIpv6Cidr: string;
+
+  /**
+   * Default IPv4 CIDR for auto-created tenant Subnet. Must fall within the virtual_network_ipv4_cidr range.
+   * Example: "10.0.1.0/24"
+   *
+   * @generated from field: string subnet_ipv4_cidr = 2;
+   */
+  subnetIpv4Cidr: string;
+
+  /**
+   * Default IPv6 CIDR for auto-created tenant Subnet. Must fall within the virtual_network_ipv6_cidr range.
+   * Example: "fd00:0:0:1::/64"
+   *
+   * @generated from field: string subnet_ipv6_cidr = 6;
+   */
+  subnetIpv6Cidr: string;
+
+  /**
+   * Default ingress rules for auto-created tenant SecurityGroup.
+   *
+   * @generated from field: repeated osac.public.v1.SecurityRule ingress_rules = 3;
+   */
+  ingressRules: SecurityRule[];
+
+  /**
+   * Default egress rules for auto-created tenant SecurityGroup.
+   *
+   * @generated from field: repeated osac.public.v1.SecurityRule egress_rules = 4;
+   */
+  egressRules: SecurityRule[];
+
+  /**
+   * Whether to create a default NATGateway on the tenant's default VirtualNetwork.
+   * When true, tenant onboarding auto-allocates an ExternalIP and creates a NATGateway
+   * to provide SNAT for outbound connectivity.
+   *
+   * @generated from field: bool enable_nat_gateway = 7;
+   */
+  enableNatGateway: boolean;
+};
+
+/**
+ * Describes the message osac.public.v1.NetworkDefaults.
+ * Use `create(NetworkDefaultsSchema)` to create a new message.
+ */
+export const NetworkDefaultsSchema: GenMessage<NetworkDefaults> = /*@__PURE__*/
+  messageDesc(file_osac_public_v1_network_class_type, 2);
 
 /**
  * Describes the capabilities supported by a NetworkClass.
@@ -148,7 +253,7 @@ export type NetworkClassCapabilities = Message<"osac.public.v1.NetworkClassCapab
  * Use `create(NetworkClassCapabilitiesSchema)` to create a new message.
  */
 export const NetworkClassCapabilitiesSchema: GenMessage<NetworkClassCapabilities> = /*@__PURE__*/
-  messageDesc(file_osac_public_v1_network_class_type, 1);
+  messageDesc(file_osac_public_v1_network_class_type, 3);
 
 /**
  * Represents the current operational state of a NetworkClass.
@@ -177,7 +282,7 @@ export type NetworkClassStatus = Message<"osac.public.v1.NetworkClassStatus"> & 
  * Use `create(NetworkClassStatusSchema)` to create a new message.
  */
 export const NetworkClassStatusSchema: GenMessage<NetworkClassStatus> = /*@__PURE__*/
-  messageDesc(file_osac_public_v1_network_class_type, 2);
+  messageDesc(file_osac_public_v1_network_class_type, 4);
 
 /**
  * Lifecycle states for NetworkClass resources.
