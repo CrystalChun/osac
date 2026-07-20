@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
+import { ClusterCatalogItem } from '@osac/types';
+
 import {
   catalogItemResourceLine,
   catalogItemResourceParts,
@@ -66,27 +68,55 @@ describe('readCatalogItemFieldDefinitions', () => {
 
 describe('catalog display with wire field_definitions', () => {
   it('renders resource summary from wire catalog item JSON', () => {
-    const wireItem = {
+    const wireItem: ClusterCatalogItem = {
+      $typeName: 'osac.public.v1.ClusterCatalogItem',
       id: 'catalog-1',
       title: 'Workload VM',
-      field_definitions: [
+      description: '',
+      published: true,
+      template: '',
+      fieldDefinitions: [
         {
+          $typeName: 'osac.public.v1.FieldDefinition',
           path: 'cores',
-          display_name: 'vCPUs',
+          displayName: 'vCPUs',
           editable: true,
-          default: { number_value: 4 },
+          default: {
+            $typeName: 'google.protobuf.Value',
+            kind: {
+              case: 'numberValue',
+              value: 4,
+            },
+          },
+          validationSchema: '',
         },
         {
+          $typeName: 'osac.public.v1.FieldDefinition',
           path: 'memory_gib',
-          display_name: 'RAM (GiB)',
+          displayName: 'RAM (GiB)',
           editable: true,
-          default: { number_value: 8 },
+          default: {
+            $typeName: 'google.protobuf.Value',
+            kind: {
+              case: 'numberValue',
+              value: 8,
+            },
+          },
+          validationSchema: '',
         },
         {
+          $typeName: 'osac.public.v1.FieldDefinition',
           path: 'boot_disk.size_gib',
-          display_name: 'Boot disk (GiB)',
+          displayName: 'Boot disk (GiB)',
           editable: true,
-          default: { number_value: 40 },
+          default: {
+            $typeName: 'google.protobuf.Value',
+            kind: {
+              case: 'numberValue',
+              value: 40,
+            },
+          },
+          validationSchema: '',
         },
       ],
     };
@@ -100,24 +130,55 @@ describe('catalog display with wire field_definitions', () => {
   });
 
   it('renders node set resource summary from cluster catalog item JSON', () => {
-    const wireItem = {
+    const wireItem: ClusterCatalogItem = {
+      $typeName: 'osac.public.v1.ClusterCatalogItem',
       id: '019ecb6a-6cad-7905-b086-a043c388fa60',
       title: 'Development Cluster',
-      field_definitions: [
+      description: '',
+      published: true,
+      template: '',
+      fieldDefinitions: [
         {
+          $typeName: 'osac.public.v1.FieldDefinition',
           path: 'node_sets.fc430.host_type',
-          display_name: 'Host Type',
-          default: 'fc430',
+          displayName: 'Host Type',
+          editable: true,
+          default: {
+            $typeName: 'google.protobuf.Value',
+            kind: {
+              case: 'stringValue',
+              value: 'fc430',
+            },
+          },
+          validationSchema: '',
         },
         {
+          $typeName: 'osac.public.v1.FieldDefinition',
           path: 'node_sets.fc430.size',
-          display_name: 'Worker Count',
-          default: 2,
+          displayName: 'Worker Count',
+          editable: true,
+          default: {
+            $typeName: 'google.protobuf.Value',
+            kind: {
+              case: 'numberValue',
+              value: 2,
+            },
+          },
+          validationSchema: '',
         },
         {
+          $typeName: 'osac.public.v1.FieldDefinition',
           path: 'release_image',
-          display_name: 'Release Image',
-          default: 'quay.io/openshift-release-dev/ocp-release:4.17.0-multi',
+          displayName: 'Release Image',
+          editable: true,
+          default: {
+            $typeName: 'google.protobuf.Value',
+            kind: {
+              case: 'stringValue',
+              value: 'quay.io/openshift-release-dev/ocp-release:4.17.0-multi',
+            },
+          },
+          validationSchema: '',
         },
       ],
     };
@@ -128,9 +189,25 @@ describe('catalog display with wire field_definitions', () => {
 });
 
 describe('filterCatalogItemsBySearch', () => {
-  const items: CatalogItemForDisplay[] = [
-    { id: '1', title: 'Alpha VM', description: 'For testing' },
-    { id: '2', title: 'Beta Cluster', description: 'Production workload' },
+  const items: ClusterCatalogItem[] = [
+    {
+      $typeName: 'osac.public.v1.ClusterCatalogItem',
+      id: '1',
+      title: 'Alpha VM',
+      description: 'For testing',
+      fieldDefinitions: [],
+      published: true,
+      template: '',
+    },
+    {
+      $typeName: 'osac.public.v1.ClusterCatalogItem',
+      id: '2',
+      title: 'Beta Cluster',
+      description: 'Production workload',
+      fieldDefinitions: [],
+      published: true,
+      template: '',
+    },
   ];
 
   it('returns all items when search is empty or whitespace', () => {

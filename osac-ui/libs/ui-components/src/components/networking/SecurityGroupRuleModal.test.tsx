@@ -80,16 +80,17 @@ describe('SecurityGroupRuleModal', () => {
     await user.click(screen.getByRole('button', { name: /Add/i }));
 
     await waitFor(() => {
-      expect(mutateAsync).toHaveBeenCalledWith({
-        object: expect.objectContaining({
-          id: 'sg-1',
-          spec: expect.objectContaining({
-            egress: [expect.objectContaining({ protocol: Protocol.ALL, ipv4Cidr: '10.0.0.0/24' })],
-          }),
-        }),
-      });
-      expect(onClose).toHaveBeenCalled();
+      expect(mutateAsync).toHaveBeenCalledTimes(1);
     });
+    expect(mutateAsync.mock.calls[0][0]).toMatchObject({
+      object: {
+        id: 'sg-1',
+        spec: {
+          egress: [{ protocol: Protocol.ALL, ipv4Cidr: '10.0.0.0/24' }],
+        },
+      },
+    });
+    expect(onClose).toHaveBeenCalled();
   });
 
   it('edits a rule by replacing it at ruleIndex', async () => {
@@ -115,16 +116,17 @@ describe('SecurityGroupRuleModal', () => {
     await user.click(screen.getByRole('button', { name: /Save/i }));
 
     await waitFor(() => {
-      expect(mutateAsync).toHaveBeenCalledWith({
-        object: expect.objectContaining({
-          id: 'sg-1',
-          spec: expect.objectContaining({
-            ingress: [expect.objectContaining({ portFrom: 443, portTo: 443 })],
-          }),
-        }),
-      });
-      expect(onClose).toHaveBeenCalled();
+      expect(mutateAsync).toHaveBeenCalledTimes(1);
     });
+    expect(mutateAsync.mock.calls[0][0]).toMatchObject({
+      object: {
+        id: 'sg-1',
+        spec: {
+          ingress: [{ portFrom: 443, portTo: 443 }],
+        },
+      },
+    });
+    expect(onClose).toHaveBeenCalled();
   });
 
   it('shows error and keeps modal open when the mutation fails', async () => {

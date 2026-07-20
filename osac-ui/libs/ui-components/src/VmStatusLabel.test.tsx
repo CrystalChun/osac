@@ -1,10 +1,10 @@
-import { I18nextProvider } from 'react-i18next';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
 import { ComputeInstanceState } from '@osac/types';
 
-import { initTestI18n } from './components/catalogProvision/test/i18n';
+import { initTestI18n } from './test-utils/i18n';
+import { renderWithProviders } from './test-utils/TestProviders';
 import { VmStatusLabel, resolveVmStatus } from './VmStatusLabel';
 
 describe('resolveVmStatus', () => {
@@ -46,13 +46,8 @@ describe('resolveVmStatus', () => {
 });
 
 describe('VmStatusLabel', () => {
-  it('renders without spinner for starting state', async () => {
-    const i18n = await initTestI18n();
-    render(
-      <I18nextProvider i18n={i18n}>
-        <VmStatusLabel state={ComputeInstanceState.STARTING} />
-      </I18nextProvider>,
-    );
+  it('renders without spinner for starting state', () => {
+    renderWithProviders(<VmStatusLabel state={ComputeInstanceState.STARTING} />);
     expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
     expect(screen.getByText('Starting')).toBeInTheDocument();
   });

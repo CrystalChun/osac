@@ -7,6 +7,7 @@ import {
   isSubnetWithinVN,
   isValidCidr,
 } from './cidr-validation';
+import { tIdentity } from '../test-utils/i18n';
 
 describe('isValidCidr (ipv4)', () => {
   it.each([
@@ -28,8 +29,7 @@ describe('isValidCidr (ipv4)', () => {
 });
 
 describe('buildCidrSchema (ipv4)', () => {
-  const t = (key: string) => key;
-  const schema = buildCidrSchema(t, 'ipv4');
+  const schema = buildCidrSchema(tIdentity, 'ipv4');
 
   it('validates valid IPv4 CIDR', async () => {
     await expect(schema.validate('10.128.0.0/14')).resolves.toBe('10.128.0.0/14');
@@ -79,8 +79,7 @@ describe('isValidCidr (ipv6)', () => {
 });
 
 describe('buildCidrSchema (ipv6)', () => {
-  const t = (key: string) => key;
-  const schema = buildCidrSchema(t, 'ipv6');
+  const schema = buildCidrSchema(tIdentity, 'ipv6');
 
   it('validates valid IPv6 CIDR', async () => {
     await expect(schema.validate('2001:db8::/32')).resolves.toBe('2001:db8::/32');

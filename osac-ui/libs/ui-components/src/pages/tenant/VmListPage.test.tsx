@@ -1,13 +1,11 @@
-import { I18nextProvider } from 'react-i18next';
-import { MemoryRouter } from 'react-router-dom';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { ComputeInstance } from '@osac/types';
 import { ComputeInstanceState } from '@osac/types';
 
 import { VmListPage } from './VmListPage';
-import { initTestI18n } from '../../components/catalogProvision/test/i18n';
+import { renderWithProviders } from '../../test-utils/TestProviders';
 
 vi.mock('@osac/ui-components/api/v1/compute-instance', () => ({
   useComputeInstances: vi.fn(),
@@ -49,16 +47,7 @@ const vm = {
   },
 } as ComputeInstance;
 
-const renderPage = async () => {
-  const i18n = await initTestI18n();
-  return render(
-    <MemoryRouter>
-      <I18nextProvider i18n={i18n}>
-        <VmListPage />
-      </I18nextProvider>
-    </MemoryRouter>,
-  );
-};
+const renderPage = () => renderWithProviders(<VmListPage />);
 
 describe('VmListPage', () => {
   beforeEach(() => {
@@ -75,14 +64,14 @@ describe('VmListPage', () => {
     } as ReturnType<typeof useInstanceTypes>);
   });
 
-  it('shows an alert and still renders the table when instance types fail to load', async () => {
+  it('shows an alert and still renders the table when instance types fail to load', () => {
     vi.mocked(useInstanceTypes).mockReturnValue({
       data: [],
       isLoading: false,
       error: new Error('Instance types unavailable'),
     } as ReturnType<typeof useInstanceTypes>);
 
-    await renderPage();
+    renderPage();
 
     expect(screen.getByText('Could not load instance types')).toBeInTheDocument();
     expect(screen.getByText('Instance types unavailable')).toBeInTheDocument();
@@ -90,14 +79,14 @@ describe('VmListPage', () => {
     expect(screen.getByText('standard-4-8')).toBeInTheDocument();
   });
 
-  it('keeps compute instance failures on the page-level error path', async () => {
+  it('keeps compute instance failures on the page-level error path', () => {
     vi.mocked(useComputeInstances).mockReturnValue({
       data: [],
       isLoading: false,
       error: new Error('VMs unavailable'),
     } as ReturnType<typeof useComputeInstances>);
 
-    await renderPage();
+    renderPage();
 
     expect(screen.getByText('An error occurred')).toBeInTheDocument();
     expect(screen.getByText('VMs unavailable')).toBeInTheDocument();

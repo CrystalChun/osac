@@ -57,16 +57,17 @@ describe('SecurityGroupDeleteRuleModal', () => {
     await user.click(screen.getByRole('button', { name: /Delete/i }));
 
     await waitFor(() => {
-      expect(mutateAsync).toHaveBeenCalledWith({
-        object: expect.objectContaining({
-          id: 'sg-1',
-          spec: expect.objectContaining({
-            ingress: [expect.objectContaining({ portFrom: 443, portTo: 443 })],
-          }),
-        }),
-      });
-      expect(onClose).toHaveBeenCalled();
+      expect(mutateAsync).toHaveBeenCalledTimes(1);
     });
+    expect(mutateAsync.mock.calls[0][0]).toMatchObject({
+      object: {
+        id: 'sg-1',
+        spec: {
+          ingress: [{ portFrom: 443, portTo: 443 }],
+        },
+      },
+    });
+    expect(onClose).toHaveBeenCalled();
   });
 
   it('shows error and keeps modal open when the mutation fails', async () => {

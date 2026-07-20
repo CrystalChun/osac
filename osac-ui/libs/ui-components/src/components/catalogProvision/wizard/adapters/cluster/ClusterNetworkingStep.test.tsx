@@ -3,14 +3,47 @@ import userEvent from '@testing-library/user-event';
 import { Formik } from 'formik';
 import { describe, expect, it } from 'vitest';
 
+import type { ClusterCatalogItem } from '@osac/types';
+
 import { ClusterNetworkingStep } from './ClusterNetworkingStep';
 import { createEmptyClusterValues } from './payload';
-import { clusterCatalogItem } from '../../../test/fixtures';
-import { renderWizardElement } from '../../../test/renderWizard';
+import { renderWithProviders } from '../../../../../test-utils/TestProviders';
+
+const clusterCatalogItem: ClusterCatalogItem = {
+  $typeName: 'osac.public.v1.ClusterCatalogItem',
+  id: 'catalog-openshift-4',
+  metadata: {
+    $typeName: 'osac.public.v1.Metadata',
+    name: 'catalog-openshift-4',
+    annotations: {},
+    creator: 'foo',
+    labels: {},
+    project: 'foo',
+    tenant: 'foo',
+    version: 1,
+  },
+  title: 'OpenShift 4 cluster',
+  description: 'Standard OpenShift cluster offering',
+  template: 'tpl-openshift-4',
+  published: true,
+  fieldDefinitions: [
+    {
+      $typeName: 'osac.public.v1.FieldDefinition',
+      path: 'release_image',
+      displayName: 'Release image',
+      editable: true,
+      validationSchema: '',
+      default: {
+        $typeName: 'google.protobuf.Value',
+        kind: { case: 'stringValue', value: '4.17.0' },
+      },
+    },
+  ],
+};
 
 describe('ClusterNetworkingStep', () => {
-  it('renders optional pod and service CIDR fields', async () => {
-    await renderWizardElement(
+  it('renders optional pod and service CIDR fields', () => {
+    renderWithProviders(
       <Formik initialValues={createEmptyClusterValues()} onSubmit={() => undefined}>
         <ClusterNetworkingStep catalogItem={clusterCatalogItem} />
       </Formik>,
@@ -22,7 +55,7 @@ describe('ClusterNetworkingStep', () => {
 
   it('accepts CIDR input values', async () => {
     const user = userEvent.setup();
-    await renderWizardElement(
+    renderWithProviders(
       <Formik initialValues={createEmptyClusterValues()} onSubmit={() => undefined}>
         <ClusterNetworkingStep catalogItem={clusterCatalogItem} />
       </Formik>,

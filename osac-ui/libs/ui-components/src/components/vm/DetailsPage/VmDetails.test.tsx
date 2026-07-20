@@ -1,13 +1,11 @@
-import { I18nextProvider } from 'react-i18next';
-import { MemoryRouter } from 'react-router-dom';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { ComputeInstance } from '@osac/types';
 import { ComputeInstanceState } from '@osac/types';
 
 import VmDetails from './VmDetails';
-import { initTestI18n } from '../../catalogProvision/test/i18n';
+import { renderWithProviders } from '../../../test-utils/TestProviders';
 
 vi.mock('../../../api/v1/instance-types', () => ({
   useInstanceType: vi.fn(),
@@ -46,16 +44,7 @@ const vm = {
   status: { state: ComputeInstanceState.RUNNING },
 } as ComputeInstance;
 
-const renderDetails = async () => {
-  const i18n = await initTestI18n();
-  return render(
-    <MemoryRouter>
-      <I18nextProvider i18n={i18n}>
-        <VmDetails vm={vm} />
-      </I18nextProvider>
-    </MemoryRouter>,
-  );
-};
+const renderDetails = () => renderWithProviders(<VmDetails vm={vm} />);
 
 describe('VmDetails', () => {
   beforeEach(() => {
@@ -66,14 +55,14 @@ describe('VmDetails', () => {
     } as ReturnType<typeof useInstanceType>);
   });
 
-  it('shows an alert and still renders the page when instance type lookup fails', async () => {
+  it('shows an alert and still renders the page when instance type lookup fails', () => {
     vi.mocked(useInstanceType).mockReturnValue({
       data: undefined,
       isLoading: false,
       error: new Error('Instance type unavailable'),
     } as ReturnType<typeof useInstanceType>);
 
-    await renderDetails();
+    renderDetails();
 
     expect(screen.getByText('Could not load instance types')).toBeInTheDocument();
     expect(screen.getByText('Instance type unavailable')).toBeInTheDocument();

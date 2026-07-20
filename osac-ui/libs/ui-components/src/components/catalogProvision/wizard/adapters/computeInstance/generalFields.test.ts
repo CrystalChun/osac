@@ -1,11 +1,10 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import type { ComputeInstanceCatalogItem } from '@osac/types';
+import { tIdentity } from '@osac/ui-components/test-utils/i18n';
 
 import { applyVmCatalogGeneralDefaults } from './applyCatalogGeneralDefaults';
 import { buildComputeInstanceCreatePayload, createEmptyComputeInstanceValues } from './payload';
-
-const t = (key: string) => key;
 
 describe('applyVmCatalogGeneralDefaults', () => {
   it('prefills ssh default from catalog when defined', () => {
@@ -24,7 +23,7 @@ describe('applyVmCatalogGeneralDefaults', () => {
         ],
       } as unknown as ComputeInstanceCatalogItem,
       helpers,
-      t,
+      tIdentity,
     );
     expect(setFieldValue).toHaveBeenCalledWith('spec.sshKey', 'ssh-ed25519 locked');
 
@@ -41,7 +40,7 @@ describe('applyVmCatalogGeneralDefaults', () => {
         ],
       } as unknown as ComputeInstanceCatalogItem,
       helpers,
-      t,
+      tIdentity,
     );
     expect(setFieldValue).toHaveBeenCalledWith('spec.sshKey', 'ssh-ed25519 default');
   });

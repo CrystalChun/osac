@@ -1,8 +1,41 @@
 import { describe, expect, it } from 'vitest';
 
+import type { ClusterCatalogItem } from '@osac/types';
+
 import { createEmptyNodeSetRow } from './fields';
 import { buildClusterCreatePayload, createEmptyClusterValues } from './payload';
-import { clusterCatalogItem } from '../../../test/fixtures';
+
+const clusterCatalogItem: ClusterCatalogItem = {
+  $typeName: 'osac.public.v1.ClusterCatalogItem',
+  id: 'catalog-openshift-4',
+  metadata: {
+    $typeName: 'osac.public.v1.Metadata',
+    name: 'catalog-openshift-4',
+    annotations: {},
+    creator: 'foo',
+    labels: {},
+    project: 'foo',
+    tenant: 'foo',
+    version: 1,
+  },
+  title: 'OpenShift 4 cluster',
+  description: 'Standard OpenShift cluster offering',
+  template: 'tpl-openshift-4',
+  published: true,
+  fieldDefinitions: [
+    {
+      $typeName: 'osac.public.v1.FieldDefinition',
+      path: 'release_image',
+      displayName: 'Release image',
+      editable: true,
+      validationSchema: '',
+      default: {
+        $typeName: 'google.protobuf.Value',
+        kind: { case: 'stringValue', value: '4.17.0' },
+      },
+    },
+  ],
+};
 
 describe('buildClusterCreatePayload', () => {
   it('builds catalog-item create payload with node sets keyed by host type id', () => {
