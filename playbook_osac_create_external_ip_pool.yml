@@ -6,7 +6,9 @@
   vars:
     external_ip_pool: "{{ ansible_eda.event.payload }}"
     external_ip_pool_name: "{{ ansible_eda.event.payload.metadata.name }}"
-    implementation_strategy: "{{ ansible_eda.event.payload.spec.implementationStrategy }}"
+    implementation_strategy: >-
+      {{ ansible_eda.event.payload.metadata.annotations
+         ['osac.openshift.io/implementation-strategy'] }}
     template_parameters: {}
 
   pre_tasks:
