@@ -9,7 +9,7 @@ import (
 func TestLookupSessionCookiesRequiresAccess(t *testing.T) {
 	t.Parallel()
 
-	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/", nil)
 	req.AddCookie(&http.Cookie{Name: refreshTokenCookieName, Value: "refresh-only"})
 	if got := LookupSessionCookies(req); got != nil {
 		t.Fatalf("expected nil without access cookie, got %+v", got)
@@ -25,7 +25,7 @@ func TestLookupSessionCookiesRequiresAccess(t *testing.T) {
 func TestLookupRefreshCookiesAllowsRefreshOnly(t *testing.T) {
 	t.Parallel()
 
-	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/", nil)
 	req.AddCookie(&http.Cookie{Name: refreshTokenCookieName, Value: "refresh-only"})
 	got := LookupRefreshCookies(req)
 	if got == nil || got.RefreshToken != "refresh-only" {

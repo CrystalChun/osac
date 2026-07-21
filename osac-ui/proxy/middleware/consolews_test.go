@@ -15,7 +15,7 @@ func TestConsoleWebSocketAuth_promotesCookieAndClearsOrigin(t *testing.T) {
 		captured = &copied
 	}))
 
-	req := httptest.NewRequest(http.MethodGet, "/api/fulfillment/v1/console_sessions/connect", nil)
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/api/fulfillment/v1/console_sessions/connect", nil)
 	req.AddCookie(&http.Cookie{Name: consoleTicketCookieName, Value: "console-jwt"})
 	req.Header.Set("Authorization", "Bearer oidc-access-token")
 	req.Header.Set("Origin", "http://localhost:5173")
@@ -46,7 +46,7 @@ func TestConsoleWebSocketAuth_leavesAuthorizationEmptyWithoutCookie(t *testing.T
 		captured = &copied
 	}))
 
-	req := httptest.NewRequest(http.MethodGet, "/api/fulfillment/v1/console_sessions/connect", nil)
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/api/fulfillment/v1/console_sessions/connect", nil)
 	req.Header.Set("Authorization", "Bearer oidc-access-token")
 
 	handler.ServeHTTP(httptest.NewRecorder(), req)

@@ -26,7 +26,7 @@ func TestNewConsoleWebSocketProxy_rewritesToConsoleConnectPath(t *testing.T) {
 		t.Fatalf("NewConsoleWebSocketProxy: %v", err)
 	}
 
-	req := httptest.NewRequest(http.MethodGet, "/api/fulfillment/v1/console_sessions/connect", nil)
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/api/fulfillment/v1/console_sessions/connect", nil)
 	req.AddCookie(&http.Cookie{Name: "console-ticket", Value: "ticket-value"})
 	rec := httptest.NewRecorder()
 
