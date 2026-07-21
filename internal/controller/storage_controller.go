@@ -66,10 +66,10 @@ type StorageBackendsClient interface {
 	List(ctx context.Context, in *privatev1.StorageBackendsListRequest, opts ...grpc.CallOption) (*privatev1.StorageBackendsListResponse, error)
 }
 
-// StorageTiersClient is a narrow subset of the generated privatev1.StorageTiersClient
+// StorageTiersLister is a narrow subset of the generated privatev1.StorageTiersClient
 // used to list tier definitions. The generated client satisfies this interface
 // automatically; it is defined here to allow test mocking (mirrors StorageBackendsGetter).
-type StorageTiersClient interface {
+type StorageTiersLister interface {
 	List(ctx context.Context, in *privatev1.StorageTiersListRequest, opts ...grpc.CallOption) (*privatev1.StorageTiersListResponse, error)
 }
 
@@ -104,7 +104,7 @@ type StorageReconciler struct {
 	// with environments without a fulfillment service connection. BackendsGetter
 	// must be non-nil whenever TiersClient is non-nil — resolveTierDefinitions
 	// always uses both together.
-	TiersClient    StorageTiersClient
+	TiersClient    StorageTiersLister
 	BackendsGetter StorageBackendsGetter
 }
 

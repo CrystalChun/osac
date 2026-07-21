@@ -130,12 +130,12 @@ func createLabeledStorageClass(ctx context.Context, name, tenant, tier string) {
 	})
 }
 
-type mockStorageTiersClient struct {
+type mockStorageTiersLister struct {
 	listFunc      func(ctx context.Context, in *privatev1.StorageTiersListRequest, opts ...grpc.CallOption) (*privatev1.StorageTiersListResponse, error)
 	listCallCount int
 }
 
-func (m *mockStorageTiersClient) List(ctx context.Context, in *privatev1.StorageTiersListRequest, opts ...grpc.CallOption) (*privatev1.StorageTiersListResponse, error) {
+func (m *mockStorageTiersLister) List(ctx context.Context, in *privatev1.StorageTiersListRequest, opts ...grpc.CallOption) (*privatev1.StorageTiersListResponse, error) {
 	m.listCallCount++
 	return m.listFunc(ctx, in, opts...)
 }
@@ -686,7 +686,7 @@ var _ = Describe("Storage Controller", func() {
 
 	Context("Tier definition validation", func() {
 		It("should resolve provider and tier fields from the Tier and Backend APIs", func() {
-			tiersClient := &mockStorageTiersClient{
+			tiersClient := &mockStorageTiersLister{
 				listFunc: func(context.Context, *privatev1.StorageTiersListRequest, ...grpc.CallOption) (*privatev1.StorageTiersListResponse, error) {
 					return privatev1.StorageTiersListResponse_builder{
 						Items: []*privatev1.StorageTier{newTestStorageTier("fast", "backend-1")},
@@ -718,7 +718,7 @@ var _ = Describe("Storage Controller", func() {
 		})
 
 		It("should skip a tier with no backend association without failing", func() {
-			tiersClient := &mockStorageTiersClient{
+			tiersClient := &mockStorageTiersLister{
 				listFunc: func(context.Context, *privatev1.StorageTiersListRequest, ...grpc.CallOption) (*privatev1.StorageTiersListResponse, error) {
 					return privatev1.StorageTiersListResponse_builder{
 						Items: []*privatev1.StorageTier{
@@ -742,7 +742,7 @@ var _ = Describe("Storage Controller", func() {
 		})
 
 		It("should call the backend getter once per unique backend_id, not once per tier", func() {
-			tiersClient := &mockStorageTiersClient{
+			tiersClient := &mockStorageTiersLister{
 				listFunc: func(context.Context, *privatev1.StorageTiersListRequest, ...grpc.CallOption) (*privatev1.StorageTiersListResponse, error) {
 					return privatev1.StorageTiersListResponse_builder{
 						Items: []*privatev1.StorageTier{
@@ -767,7 +767,7 @@ var _ = Describe("Storage Controller", func() {
 		})
 
 		It("should skip only tiers referencing a NotFound backend, not the whole resolution", func() {
-			tiersClient := &mockStorageTiersClient{
+			tiersClient := &mockStorageTiersLister{
 				listFunc: func(context.Context, *privatev1.StorageTiersListRequest, ...grpc.CallOption) (*privatev1.StorageTiersListResponse, error) {
 					return privatev1.StorageTiersListResponse_builder{
 						Items: []*privatev1.StorageTier{
@@ -797,7 +797,7 @@ var _ = Describe("Storage Controller", func() {
 		})
 
 		It("should propagate a List error without swallowing it", func() {
-			tiersClient := &mockStorageTiersClient{
+			tiersClient := &mockStorageTiersLister{
 				listFunc: func(context.Context, *privatev1.StorageTiersListRequest, ...grpc.CallOption) (*privatev1.StorageTiersListResponse, error) {
 					return nil, errors.New("list rpc failed")
 				},
@@ -813,7 +813,7 @@ var _ = Describe("Storage Controller", func() {
 		})
 
 		It("should propagate a non-NotFound Get error without swallowing it", func() {
-			tiersClient := &mockStorageTiersClient{
+			tiersClient := &mockStorageTiersLister{
 				listFunc: func(context.Context, *privatev1.StorageTiersListRequest, ...grpc.CallOption) (*privatev1.StorageTiersListResponse, error) {
 					return privatev1.StorageTiersListResponse_builder{
 						Items: []*privatev1.StorageTier{newTestStorageTier("fast", "backend-1")},
@@ -842,7 +842,7 @@ var _ = Describe("Storage Controller", func() {
 				provisioning.DefaultMaxJobHistory,
 			)
 			r.Recorder = fakeRecorder
-			r.TiersClient = &mockStorageTiersClient{
+			r.TiersClient = &mockStorageTiersLister{
 				listFunc: func(context.Context, *privatev1.StorageTiersListRequest, ...grpc.CallOption) (*privatev1.StorageTiersListResponse, error) {
 					return privatev1.StorageTiersListResponse_builder{
 						Items: []*privatev1.StorageTier{
@@ -887,7 +887,7 @@ var _ = Describe("Storage Controller", func() {
 				provisioning.DefaultMaxJobHistory,
 			)
 			r.Recorder = fakeRecorder
-			r.TiersClient = &mockStorageTiersClient{
+			r.TiersClient = &mockStorageTiersLister{
 				listFunc: func(context.Context, *privatev1.StorageTiersListRequest, ...grpc.CallOption) (*privatev1.StorageTiersListResponse, error) {
 					return privatev1.StorageTiersListResponse_builder{
 						Items: []*privatev1.StorageTier{newTestStorageTier("default", "backend-1")},
@@ -942,7 +942,7 @@ var _ = Describe("Storage Controller", func() {
 			createReadyTenantForStorage(ctx, name, testNamespace)
 			createLabeledStorageClass(ctx, name+"-default-sc", name, "default")
 
-			tiersClient := &mockStorageTiersClient{
+			tiersClient := &mockStorageTiersLister{
 				listFunc: func(context.Context, *privatev1.StorageTiersListRequest, ...grpc.CallOption) (*privatev1.StorageTiersListResponse, error) {
 					return privatev1.StorageTiersListResponse_builder{
 						Items: []*privatev1.StorageTier{newTestStorageTier("default", "backend-1")},
@@ -983,7 +983,7 @@ var _ = Describe("Storage Controller", func() {
 				provisioning.DefaultMaxJobHistory,
 			)
 			r.Recorder = fakeRecorder
-			r.TiersClient = &mockStorageTiersClient{
+			r.TiersClient = &mockStorageTiersLister{
 				listFunc: func(context.Context, *privatev1.StorageTiersListRequest, ...grpc.CallOption) (*privatev1.StorageTiersListResponse, error) {
 					return privatev1.StorageTiersListResponse_builder{
 						Items: []*privatev1.StorageTier{
@@ -1046,8 +1046,8 @@ var _ = Describe("Storage Controller", func() {
 	})
 
 	Context("Tier definitions in AAP extra_vars context", func() {
-		tierDefsTiersClient := func() *mockStorageTiersClient {
-			return &mockStorageTiersClient{
+		tierDefsTiersClient := func() *mockStorageTiersLister {
+			return &mockStorageTiersLister{
 				listFunc: func(context.Context, *privatev1.StorageTiersListRequest, ...grpc.CallOption) (*privatev1.StorageTiersListResponse, error) {
 					return privatev1.StorageTiersListResponse_builder{
 						Items: []*privatev1.StorageTier{newTestStorageTier("fast", "backend-1")},
