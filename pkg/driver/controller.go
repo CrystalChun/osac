@@ -2,7 +2,6 @@ package driver
 
 import (
 	"context"
-	"sort"
 
 	csi "github.com/container-storage-interface/spec/lib/go/csi"
 	"github.com/osac-project/osac-csi-driver/pkg/fulfillment"
@@ -17,19 +16,17 @@ import (
 // service and proxying CSI calls to the appropriate vendor CSI driver.
 type ControllerServer struct {
 	csi.UnimplementedControllerServer
-	fulfillment         fulfillment.Client
-	proxyMgr            *proxy.Manager
-	vendorSockets       map[string]string
-	defaultVendorSocket string
+	fulfillment   fulfillment.Client
+	proxyMgr      *proxy.Manager
+	vendorSockets map[string]string
 }
 
 // NewControllerServer creates a new CSI controller server.
 func NewControllerServer(fc fulfillment.Client, proxyMgr *proxy.Manager, vendorSockets map[string]string) *ControllerServer {
 	return &ControllerServer{
-		fulfillment:         fc,
-		proxyMgr:            proxyMgr,
-		vendorSockets:       vendorSockets,
-		defaultVendorSocket: firstSortedSocket(vendorSockets),
+		fulfillment:   fc,
+		proxyMgr:      proxyMgr,
+		vendorSockets: vendorSockets,
 	}
 }
 
@@ -82,18 +79,20 @@ func (c *ControllerServer) CreateVolume(ctx context.Context, req *csi.CreateVolu
 }
 
 // DeleteVolume proxies the DeleteVolume call to the vendor CSI driver.
-// TODO: look up the volume's backend from inventory instead of using the default vendor socket.
+// The backend is resolved from the volume's secrets map (key "osac.backend"),
+// which is populated by the external-provisioner from the StorageClass parameters.
 func (c *ControllerServer) DeleteVolume(ctx context.Context, req *csi.DeleteVolumeRequest) (*csi.DeleteVolumeResponse, error) {
 	klog.Infof("DeleteVolume called: volumeId=%s", req.GetVolumeId())
 
-	socketPath := c.defaultVendorSocket
-	if socketPath == "" {
-		return nil, status.Error(codes.FailedPrecondition, "no vendor sockets configured")
+	socketPath, err := c.resolveVendorSocketFromSecrets(req.GetSecrets())
+	if err != nil {
+		return nil, err
 	}
 
 	vendorConn, err := c.proxyMgr.GetConnection(socketPath)
 	if err != nil {
-		return nil, status.Errorf(codes.Unavailable, "failed to connect to vendor CSI driver: %v", err)
+		return nil, status.Errorf(codes.Unavailable,
+			"failed to connect to vendor CSI driver: %v", err)
 	}
 
 	vendorClient := csi.NewControllerClient(vendorConn)
@@ -122,55 +121,44 @@ func (c *ControllerServer) ControllerPublishVolume(ctx context.Context, req *csi
 	return vendorClient.ControllerPublishVolume(ctx, req)
 }
 
-// ControllerUnpublishVolume routes to the default vendor.
+// ControllerUnpublishVolume routes to the vendor based on volume_context.
 func (c *ControllerServer) ControllerUnpublishVolume(ctx context.Context, req *csi.ControllerUnpublishVolumeRequest) (*csi.ControllerUnpublishVolumeResponse, error) {
-	klog.Infof("ControllerUnpublishVolume called: volumeId=%s nodeId=%s", req.GetVolumeId(), req.GetNodeId())
+	klog.Infof("ControllerUnpublishVolume called: volumeId=%s nodeId=%s",
+		req.GetVolumeId(), req.GetNodeId())
 
-	if c.defaultVendorSocket == "" {
-		return nil, status.Error(codes.FailedPrecondition, "no vendor sockets configured")
+	socketPath, err := c.resolveVendorSocketFromSecrets(req.GetSecrets())
+	if err != nil {
+		return nil, err
 	}
 
-	vendorConn, err := c.proxyMgr.GetConnection(c.defaultVendorSocket)
+	vendorConn, err := c.proxyMgr.GetConnection(socketPath)
 	if err != nil {
-		return nil, status.Errorf(codes.Unavailable, "failed to connect to vendor CSI driver: %v", err)
+		return nil, status.Errorf(codes.Unavailable,
+			"failed to connect to vendor CSI driver: %v", err)
 	}
 
 	vendorClient := csi.NewControllerClient(vendorConn)
 	return vendorClient.ControllerUnpublishVolume(ctx, req)
 }
 
-// ValidateVolumeCapabilities proxies the call to the default vendor CSI driver.
+// ValidateVolumeCapabilities proxies the call to the vendor CSI driver.
 func (c *ControllerServer) ValidateVolumeCapabilities(ctx context.Context, req *csi.ValidateVolumeCapabilitiesRequest) (*csi.ValidateVolumeCapabilitiesResponse, error) {
 	klog.Infof("ValidateVolumeCapabilities called: volumeId=%s", req.GetVolumeId())
 
-	if c.defaultVendorSocket == "" {
-		return nil, status.Error(codes.FailedPrecondition, "no vendor sockets configured")
+	socketPath := c.resolveVendorSocket(req.GetVolumeContext())
+	if socketPath == "" {
+		return nil, status.Error(codes.InvalidArgument,
+			"volume context missing required key \"osac.backend\"")
 	}
 
-	vendorConn, err := c.proxyMgr.GetConnection(c.defaultVendorSocket)
+	vendorConn, err := c.proxyMgr.GetConnection(socketPath)
 	if err != nil {
-		return nil, status.Errorf(codes.Unavailable, "failed to connect to vendor CSI driver: %v", err)
+		return nil, status.Errorf(codes.Unavailable,
+			"failed to connect to vendor CSI driver: %v", err)
 	}
 
 	vendorClient := csi.NewControllerClient(vendorConn)
 	return vendorClient.ValidateVolumeCapabilities(ctx, req)
-}
-
-// ListVolumes proxies the call to the default vendor CSI driver.
-func (c *ControllerServer) ListVolumes(ctx context.Context, req *csi.ListVolumesRequest) (*csi.ListVolumesResponse, error) {
-	klog.Infof("ListVolumes called")
-
-	if c.defaultVendorSocket == "" {
-		return nil, status.Error(codes.FailedPrecondition, "no vendor sockets configured")
-	}
-
-	vendorConn, err := c.proxyMgr.GetConnection(c.defaultVendorSocket)
-	if err != nil {
-		return nil, status.Errorf(codes.Unavailable, "failed to connect to vendor CSI driver: %v", err)
-	}
-
-	vendorClient := csi.NewControllerClient(vendorConn)
-	return vendorClient.ListVolumes(ctx, req)
 }
 
 // ControllerGetCapabilities returns the capabilities supported by this controller.
@@ -204,19 +192,22 @@ func (c *ControllerServer) resolveVendorSocket(volumeContext map[string]string) 
 			}
 		}
 	}
-	return c.defaultVendorSocket
+	return ""
 }
 
-// firstSortedSocket returns the socket path for the alphabetically first
-// backend key. This provides deterministic default vendor selection.
-func firstSortedSocket(vendorSockets map[string]string) string {
-	if len(vendorSockets) == 0 {
-		return ""
+func (c *ControllerServer) resolveVendorSocketFromSecrets(secrets map[string]string) (string, error) {
+	backend := ""
+	if secrets != nil {
+		backend = secrets["osac.backend"]
 	}
-	keys := make([]string, 0, len(vendorSockets))
-	for k := range vendorSockets {
-		keys = append(keys, k)
+	if backend == "" {
+		return "", status.Error(codes.InvalidArgument,
+			"secrets missing required key \"osac.backend\"")
 	}
-	sort.Strings(keys)
-	return vendorSockets[keys[0]]
+	socketPath, ok := c.vendorSockets[backend]
+	if !ok {
+		return "", status.Errorf(codes.NotFound,
+			"no vendor socket found for backend %q", backend)
+	}
+	return socketPath, nil
 }

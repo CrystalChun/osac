@@ -17,10 +17,9 @@ import (
 // backend information stored in the volume context.
 type NodeServer struct {
 	csi.UnimplementedNodeServer
-	nodeID              string
-	proxyMgr            *proxy.Manager
-	vendorSockets       map[string]string
-	defaultVendorSocket string
+	nodeID        string
+	proxyMgr      *proxy.Manager
+	vendorSockets map[string]string
 
 	mu             sync.Mutex
 	volumeBackends map[string]string // volumeID -> backend name
@@ -29,11 +28,10 @@ type NodeServer struct {
 // NewNodeServer creates a new CSI node server.
 func NewNodeServer(nodeID string, proxyMgr *proxy.Manager, vendorSockets map[string]string) *NodeServer {
 	return &NodeServer{
-		nodeID:              nodeID,
-		proxyMgr:            proxyMgr,
-		vendorSockets:       vendorSockets,
-		defaultVendorSocket: firstSortedSocket(vendorSockets),
-		volumeBackends:      make(map[string]string),
+		nodeID:         nodeID,
+		proxyMgr:       proxyMgr,
+		vendorSockets:  vendorSockets,
+		volumeBackends: make(map[string]string),
 	}
 }
 
@@ -59,6 +57,7 @@ func (n *NodeServer) NodeStageVolume(ctx context.Context, req *csi.NodeStageVolu
 		if isUnimplemented(err) {
 			klog.Infof("Vendor does not implement NodeStageVolume, treating as no-op: volumeId=%s",
 				req.GetVolumeId())
+			n.recordBackend(req.GetVolumeId(), req.GetVolumeContext())
 			return &csi.NodeStageVolumeResponse{}, nil
 		}
 		klog.Errorf("Vendor NodeStageVolume failed: %v", err)
@@ -75,9 +74,9 @@ func (n *NodeServer) NodeUnstageVolume(ctx context.Context, req *csi.NodeUnstage
 	klog.Infof("NodeUnstageVolume called: volumeId=%s stagingPath=%s",
 		req.GetVolumeId(), req.GetStagingTargetPath())
 
-	socketPath := n.lookupBackendSocket(req.GetVolumeId())
-	if socketPath == "" {
-		return nil, status.Error(codes.FailedPrecondition, "no vendor sockets configured")
+	socketPath, err := n.lookupBackendSocket(req.GetVolumeId())
+	if err != nil {
+		return nil, err
 	}
 
 	vendorConn, err := n.proxyMgr.GetConnection(socketPath)
@@ -137,9 +136,9 @@ func (n *NodeServer) NodeUnpublishVolume(ctx context.Context, req *csi.NodeUnpub
 	klog.Infof("NodeUnpublishVolume called: volumeId=%s targetPath=%s",
 		req.GetVolumeId(), req.GetTargetPath())
 
-	socketPath := n.lookupBackendSocket(req.GetVolumeId())
-	if socketPath == "" {
-		return nil, status.Error(codes.FailedPrecondition, "no vendor sockets configured")
+	socketPath, err := n.lookupBackendSocket(req.GetVolumeId())
+	if err != nil {
+		return nil, err
 	}
 
 	vendorConn, err := n.proxyMgr.GetConnection(socketPath)
@@ -183,16 +182,17 @@ func (n *NodeServer) NodeGetInfo(_ context.Context, _ *csi.NodeGetInfoRequest) (
 	}, nil
 }
 
-// NodeGetVolumeStats proxies the call to the default vendor CSI driver.
+// NodeGetVolumeStats proxies the call to the vendor CSI driver for the given volume.
 func (n *NodeServer) NodeGetVolumeStats(ctx context.Context, req *csi.NodeGetVolumeStatsRequest) (*csi.NodeGetVolumeStatsResponse, error) {
 	klog.Infof("NodeGetVolumeStats called: volumeId=%s volumePath=%s",
 		req.GetVolumeId(), req.GetVolumePath())
 
-	if n.defaultVendorSocket == "" {
-		return nil, status.Error(codes.FailedPrecondition, "no vendor sockets configured")
+	socketPath, err := n.lookupBackendSocket(req.GetVolumeId())
+	if err != nil {
+		return nil, err
 	}
 
-	vendorConn, err := n.proxyMgr.GetConnection(n.defaultVendorSocket)
+	vendorConn, err := n.proxyMgr.GetConnection(socketPath)
 	if err != nil {
 		return nil, status.Errorf(codes.Unavailable,
 			"failed to connect to vendor CSI driver: %v", err)
@@ -209,11 +209,8 @@ func (n *NodeServer) resolveVendorSocket(volumeContext map[string]string) (strin
 	}
 
 	if backend == "" {
-		klog.Infof("No osac.backend in volume context, using default vendor socket")
-		if n.defaultVendorSocket == "" {
-			return "", status.Error(codes.FailedPrecondition, "no vendor sockets configured")
-		}
-		return n.defaultVendorSocket, nil
+		return "", status.Error(codes.InvalidArgument,
+			"volume context missing required key \"osac.backend\"")
 	}
 
 	socketPath, ok := n.vendorSockets[backend]
@@ -245,19 +242,23 @@ func (n *NodeServer) forgetBackend(volumeID string) {
 	n.mu.Unlock()
 }
 
-// lookupBackendSocket returns the vendor socket for a previously recorded volume,
-// falling back to the default vendor socket.
-func (n *NodeServer) lookupBackendSocket(volumeID string) string {
+// lookupBackendSocket returns the vendor socket for a previously recorded volume.
+func (n *NodeServer) lookupBackendSocket(volumeID string) (string, error) {
 	n.mu.Lock()
 	backend := n.volumeBackends[volumeID]
 	n.mu.Unlock()
 
-	if backend != "" {
-		if socketPath, ok := n.vendorSockets[backend]; ok {
-			return socketPath
-		}
+	if backend == "" {
+		return "", status.Errorf(codes.FailedPrecondition,
+			"no backend recorded for volume %q", volumeID)
 	}
-	return n.defaultVendorSocket
+
+	socketPath, ok := n.vendorSockets[backend]
+	if !ok {
+		return "", status.Errorf(codes.NotFound,
+			"no vendor socket found for backend %q", backend)
+	}
+	return socketPath, nil
 }
 
 func isUnimplemented(err error) bool {
