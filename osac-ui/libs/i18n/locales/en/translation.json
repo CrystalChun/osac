@@ -175,7 +175,6 @@
   "IPv6 CIDR (Optional)": "IPv6 CIDR (Optional)",
   "IPv6 CIDR is required": "IPv6 CIDR is required",
   "Loading cluster password": "Loading cluster password",
-  "Loading console viewer": "Loading console viewer",
   "Loading security groups...": "Loading security groups...",
   "Loading subnets...": "Loading subnets...",
   "Manage firewall rules for your virtual networks.": "Manage firewall rules for your virtual networks.",

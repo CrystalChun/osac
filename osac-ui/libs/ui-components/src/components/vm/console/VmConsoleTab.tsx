@@ -1,5 +1,5 @@
 // @refresh reload — depends on useConsoleSession hook signature
-import { Suspense, lazy, useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import { type ReactNode, Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react';
 import {
   Bullseye,
   EmptyState,
@@ -82,9 +82,7 @@ const VmConsoleTab = ({ vm }: Props) => {
 
   let viewport: ReactNode;
   if (connectionState === 'error') {
-    viewport = (
-      <QueryErrorState error={errorMessage} title={t('Console connection failed')} />
-    );
+    viewport = <QueryErrorState error={errorMessage} title={t('Console connection failed')} />;
   } else if (!webSocket || connectionState !== 'connected') {
     viewport = connecting;
   } else {

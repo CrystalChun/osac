@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import {
   Button,
   EmptyState,
@@ -11,7 +12,6 @@ import ExclamationTriangleIcon from '@patternfly/react-icons/dist/esm/icons/excl
 import UnauthorizedErrorState from './UnauthorizedErrorState';
 import { getErrorMessage } from '../../utils/error';
 import { isUnauthorizedError } from '../../utils/unauthorizedError';
-import React from 'react';
 
 export interface QueryErrorAction {
   label: string;
@@ -42,15 +42,14 @@ const QueryErrorState = ({
   onRetry,
   secondaryAction,
 }: QueryErrorStateProps) => {
-
-  React.useEffect(() => {
+  useEffect(() => {
     // eslint-disable-next-line no-console
     console.error(error);
   }, [error]);
 
   if (error && isUnauthorizedError(error)) {
     return <UnauthorizedErrorState headingLevel={headingLevel} />;
-  }  
+  }
 
   const message = body ?? (error ? getErrorMessage(error) : '');
 

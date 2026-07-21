@@ -149,9 +149,10 @@ export const useConsoleSession = (
       return;
     }
 
-    void sessionRef.current.connect?.();
+    const { connect, disconnect } = sessionRef.current;
+    void connect?.();
     return () => {
-      sessionRef.current.disconnect?.();
+      disconnect?.();
     };
   }, [consoleType, isVmRunning, vm.id]);
 
