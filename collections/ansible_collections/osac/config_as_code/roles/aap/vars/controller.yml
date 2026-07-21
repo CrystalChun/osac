@@ -721,6 +721,9 @@ controller_instance_groups: # noqa: var-naming[no-role-prefix]
               - name: import-agents-inventory
                 mountPath: /var/config/import-agents
                 readOnly: true
+              - name: agentless-net-inventory
+                mountPath: /var/config/agentless-net
+                readOnly: true
               - name: bcm-certs
                 mountPath: /var/secrets/bcm-certs
                 readOnly: true
@@ -774,6 +777,10 @@ controller_instance_groups: # noqa: var-naming[no-role-prefix]
         - name: import-agents-inventory
           configMap:
             name: import-agents-inventory
+            optional: true
+        - name: agentless-net-inventory
+          configMap:
+            name: agentless-net-inventory
             optional: true
   # For config-as-code job template, we expect the configuration and the
   # credentials to be passed in (prefix)-config-as-code-ig secret
