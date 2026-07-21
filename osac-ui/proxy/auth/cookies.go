@@ -73,6 +73,23 @@ func LookupSessionCookies(r *http.Request) *TokenData {
 	return data
 }
 
+// LookupRefreshCookies reads the refresh token cookie (and any remaining session cookies).
+// Used by /api/login/refresh after the short-lived access cookie has expired.
+func LookupRefreshCookies(r *http.Request) *TokenData {
+	refresh, err := r.Cookie(refreshTokenCookieName)
+	if err != nil || refresh.Value == "" {
+		return nil
+	}
+	data := &TokenData{RefreshToken: refresh.Value}
+	if c, err := r.Cookie(accessTokenCookieName); err == nil {
+		data.AccessToken = c.Value
+	}
+	if c, err := r.Cookie(idTokenCookieName); err == nil {
+		data.IDToken = c.Value
+	}
+	return data
+}
+
 // ClearSessionCookies expires all three token cookies and the session cookie (if present).
 func ClearSessionCookies(w http.ResponseWriter, r *http.Request) {
 	secure := isSecure(r)

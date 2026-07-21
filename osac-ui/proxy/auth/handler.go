@@ -187,7 +187,7 @@ func (h *Handler) GetLoginInfo(w http.ResponseWriter, r *http.Request) {
 
 // GetLoginRefresh handles GET /api/login/refresh — refreshes the session using the refresh token.
 func (h *Handler) GetLoginRefresh(w http.ResponseWriter, r *http.Request) {
-	tokenData := LookupSessionCookies(r)
+	tokenData := LookupRefreshCookies(r)
 	if tokenData == nil {
 		http.Error(w, "not authenticated", http.StatusUnauthorized)
 		return

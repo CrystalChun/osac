@@ -24,7 +24,8 @@ export type ApiRoute =
   | 'v1/baremetal_instance_catalog_items'
   | 'v1/baremetal_instances'
   | 'v1/public_ips'
-  | 'v1/public_ip_attachments';
+  | 'v1/public_ip_attachments'
+  | 'v1/console_sessions';
 
 /**
  * Strict 3-part tuple that encodes an API address.

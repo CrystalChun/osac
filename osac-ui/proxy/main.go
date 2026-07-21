@@ -82,12 +82,26 @@ func main() {
 		router.Post("/api/logout", authHandler.PostLogout)
 	}
 
-	// Connect JSON proxy — accepts Connect protocol (JSON) from the browser,
-	// translates to native gRPC via server reflection. No proto stubs needed.
 	grpcTarget, err := config.FulfillmentGrpcTarget()
 	if err != nil {
 		log.WithError(err).Fatal("Failed to resolve gRPC target from FULFILLMENT_API_URL")
 	}
+
+	// Console WebSocket uses the console-ticket cookie (browser cannot set Authorization).
+	// Do not run Auth middleware here: it injects the OIDC access token as Bearer, and
+	// console-proxy prefers Authorization over the cookie, causing 401 invalid ticket.
+	if config.FulfillmentApiUrl != "" {
+		consoleWSHandler, err := bridge.NewConsoleWebSocketProxy(config.FulfillmentApiUrl, tlsConfig)
+		if err != nil {
+			log.WithError(err).Fatal("Failed to create console WebSocket proxy")
+		}
+		router.Handle(
+			"/api/fulfillment/v1/console_sessions/connect",
+			proxymiddleware.ConsoleWebSocketAuth(consoleWSHandler),
+		)
+		log.Info("Console WebSocket proxy enabled")
+	}
+
 	if grpcTarget != "" {
 		connectHandler, err := bridge.NewConnectJSONProxy(grpcTarget, tlsConfig)
 		if err != nil {

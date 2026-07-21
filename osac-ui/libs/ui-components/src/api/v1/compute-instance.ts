@@ -3,6 +3,7 @@ import { timestampNow } from '@bufbuild/protobuf/wkt';
 import { useMutation } from '@tanstack/react-query';
 
 import {
+  type ComputeInstance,
   ComputeInstanceSchema,
   ComputeInstanceState,
   ComputeInstances,
@@ -22,6 +23,19 @@ export const useComputeInstances = (params: ListParams = {}) => {
   });
 };
 
+/** VM details settle once provisioning succeeds or fails; skip periodic refetch afterward. */
+export const isComputeInstanceDetailsSettled = (vm: ComputeInstance | undefined): boolean => {
+  switch (vm?.status?.state) {
+    case ComputeInstanceState.RUNNING:
+    case ComputeInstanceState.STOPPED:
+    case ComputeInstanceState.PAUSED:
+    case ComputeInstanceState.FAILED:
+      return true;
+    default:
+      return false;
+  }
+};
+
 export const useComputeInstance = (id: string) => {
   const client = useApiFetch(ComputeInstances);
   const trimmedId = id?.trim() ?? '';
@@ -30,6 +44,8 @@ export const useComputeInstance = (id: string) => {
     queryFn: () => client.get({ id: trimmedId }),
     select: (data) => data.object,
     enabled: Boolean(trimmedId),
+    refetchInterval: (query) =>
+      isComputeInstanceDetailsSettled(query.state.data?.object) ? undefined : 30_000,
   });
 };
 

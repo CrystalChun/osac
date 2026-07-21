@@ -1,4 +1,5 @@
 {
   "extends": "./tsconfig.json",
+  "include": ["src", "../../libs/ui-components/src/components/vm/console/novnc.d.ts"],
   "exclude": ["src/**/*.test.ts", "src/**/*.test.tsx"]
 }

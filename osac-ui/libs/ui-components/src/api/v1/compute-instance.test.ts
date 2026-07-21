@@ -4,9 +4,9 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import { ComputeInstanceState, ComputeInstances } from '@osac/types';
+import { type ComputeInstance, ComputeInstanceState, ComputeInstances } from '@osac/types';
 
-import { usePatchComputeInstance } from './compute-instance';
+import { isComputeInstanceDetailsSettled, usePatchComputeInstance } from './compute-instance';
 import { ApiProvider } from '../api-context';
 
 const makeVm = (id: string, state: ComputeInstanceState) => ({
@@ -79,5 +79,27 @@ describe('usePatchComputeInstance', () => {
     });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
+  });
+});
+
+describe('isComputeInstanceDetailsSettled', () => {
+  const vmWithState = (state: ComputeInstanceState): ComputeInstance =>
+    ({ status: { state } }) as ComputeInstance;
+
+  it('returns false while the VM is still transitioning', () => {
+    expect(isComputeInstanceDetailsSettled(undefined)).toBe(false);
+    expect(isComputeInstanceDetailsSettled(vmWithState(ComputeInstanceState.UNSPECIFIED))).toBe(
+      false,
+    );
+    expect(isComputeInstanceDetailsSettled(vmWithState(ComputeInstanceState.STARTING))).toBe(false);
+    expect(isComputeInstanceDetailsSettled(vmWithState(ComputeInstanceState.STOPPING))).toBe(false);
+    expect(isComputeInstanceDetailsSettled(vmWithState(ComputeInstanceState.DELETING))).toBe(false);
+  });
+
+  it('returns true once the VM is ready or failed', () => {
+    expect(isComputeInstanceDetailsSettled(vmWithState(ComputeInstanceState.RUNNING))).toBe(true);
+    expect(isComputeInstanceDetailsSettled(vmWithState(ComputeInstanceState.STOPPED))).toBe(true);
+    expect(isComputeInstanceDetailsSettled(vmWithState(ComputeInstanceState.PAUSED))).toBe(true);
+    expect(isComputeInstanceDetailsSettled(vmWithState(ComputeInstanceState.FAILED))).toBe(true);
   });
 });
