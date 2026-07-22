@@ -93,7 +93,7 @@ containing multiple slashes are rejected by the Kubernetes API server.
 
 Keys like these are invalid Kubernetes label keys:
 
-```
+```text
 inventory.agent-install.openshift.io/extra-labels/osac.openshift.io/resource_class=fc430
 ```
 
@@ -120,8 +120,8 @@ inventory file (recommended) or by patching the Agent CR after registration.
 servers:
   - name: node001
     bmc_url: "redfish-virtualmedia+https://192.168.1.21:8000/redfish/v1/Systems/<uuid>"
-    bmc_username: "admin"
-    bmc_password: "password"
+    bmc_username: "<BMC_USERNAME>"
+    bmc_password: "<BMC_PASSWORD>"
     boot_mac: "AA:BB:CC:DD:EE:01"
     netris_server_name: "server-01"
     resource_class: "fc430"
@@ -160,7 +160,7 @@ oc get agent -n hardware-inventory \
 
 ## Label Lifecycle
 
-```
+```text
 1. Server imported (BMH/BCM/NICo playbook)
    -> Agent CR created with: resource_class, netris.server/name (if Netris)
 
