@@ -46,7 +46,12 @@ export const useConsoleFullscreen = () => {
     const doc = document as FullscreenDocument;
     const exit =
       document.exitFullscreen?.bind(document) ?? doc.webkitExitFullscreen?.bind(document);
-    await exit?.();
+    try {
+      await exit?.();
+    } catch {
+      // Browsers can reject exitFullscreen (e.g. already left, or not user-initiated).
+      // Ignore — fullscreenchange listener keeps isFullscreen in sync regardless.
+    }
   }, []);
 
   const toggleFullscreen = useCallback(async () => {

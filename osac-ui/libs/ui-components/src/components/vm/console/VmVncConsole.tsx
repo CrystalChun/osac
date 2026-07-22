@@ -33,8 +33,9 @@ const VmVncConsole = forwardRef<VmVncConsoleHandle, Props>(
         rfbRef.current?.focus();
       },
       pasteFromClipboard: async () => {
-        if (rfbRef.current) {
-          await pasteFromClipboard(rfbRef.current);
+        const rfb = rfbRef.current;
+        if (rfb) {
+          await pasteFromClipboard(rfb, () => rfbRef.current === rfb);
         }
       },
     }));

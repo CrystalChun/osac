@@ -99,7 +99,10 @@ const resolveKeyMapping = (char: string): KeyMapping | null => {
   return null;
 };
 
-export const pasteFromClipboard = async (rfb: VncRfbInstance): Promise<void> => {
+export const pasteFromClipboard = async (
+  rfb: VncRfbInstance,
+  isActive: () => boolean = () => true,
+): Promise<void> => {
   let text: string;
   try {
     text = await navigator.clipboard.readText();
@@ -112,6 +115,10 @@ export const pasteFromClipboard = async (rfb: VncRfbInstance): Promise<void> => 
   }
 
   for (const char of text) {
+    if (!isActive()) {
+      return;
+    }
+
     const mapping = resolveKeyMapping(char);
     if (!mapping) {
       continue;
@@ -129,5 +136,7 @@ export const pasteFromClipboard = async (rfb: VncRfbInstance): Promise<void> => 
     await sleep(KEYSTROKE_DELAY_MS);
   }
 
-  rfb.focus();
+  if (isActive()) {
+    rfb.focus();
+  }
 };

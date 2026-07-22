@@ -97,7 +97,7 @@ func main() {
 		}
 		router.Handle(
 			"/api/fulfillment/v1/console_sessions/connect",
-			proxymiddleware.ConsoleWebSocketAuth(consoleWSHandler),
+			proxymiddleware.ConsoleWebSocketAuth(config.BaseUIURL)(consoleWSHandler),
 		)
 		log.Info("Console WebSocket proxy enabled")
 	}

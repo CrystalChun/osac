@@ -10,7 +10,7 @@ func TestConsoleWebSocketAuth_promotesCookieAndClearsOrigin(t *testing.T) {
 	t.Parallel()
 
 	var captured *http.Request
-	handler := ConsoleWebSocketAuth(http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
+	handler := ConsoleWebSocketAuth("http://localhost:5173")(http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
 		copied := *r
 		captured = &copied
 	}))
@@ -41,13 +41,14 @@ func TestConsoleWebSocketAuth_leavesAuthorizationEmptyWithoutCookie(t *testing.T
 	t.Parallel()
 
 	var captured *http.Request
-	handler := ConsoleWebSocketAuth(http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
+	handler := ConsoleWebSocketAuth("http://localhost:5173")(http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
 		copied := *r
 		captured = &copied
 	}))
 
 	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/api/fulfillment/v1/console_sessions/connect", nil)
 	req.Header.Set("Authorization", "Bearer oidc-access-token")
+	req.Header.Set("Origin", "http://localhost:5173")
 
 	handler.ServeHTTP(httptest.NewRecorder(), req)
 
@@ -56,5 +57,70 @@ func TestConsoleWebSocketAuth_leavesAuthorizationEmptyWithoutCookie(t *testing.T
 	}
 	if captured.Header.Get("Authorization") != "" {
 		t.Fatalf("Authorization = %q, want empty", captured.Header.Get("Authorization"))
+	}
+}
+
+func TestConsoleWebSocketAuth_rejectsMissingOrigin(t *testing.T) {
+	t.Parallel()
+
+	var captured bool
+	handler := ConsoleWebSocketAuth("http://localhost:5173")(http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {
+		captured = true
+	}))
+
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/api/fulfillment/v1/console_sessions/connect", nil)
+	req.AddCookie(&http.Cookie{Name: consoleTicketCookieName, Value: "console-jwt"})
+
+	rec := httptest.NewRecorder()
+	handler.ServeHTTP(rec, req)
+
+	if captured {
+		t.Fatal("expected downstream handler not to run without an Origin header")
+	}
+	if rec.Code != http.StatusForbidden {
+		t.Fatalf("status = %d, want %d", rec.Code, http.StatusForbidden)
+	}
+}
+
+func TestConsoleWebSocketAuth_rejectsMismatchedOrigin(t *testing.T) {
+	t.Parallel()
+
+	var captured bool
+	handler := ConsoleWebSocketAuth("http://localhost:5173")(http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {
+		captured = true
+	}))
+
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/api/fulfillment/v1/console_sessions/connect", nil)
+	req.AddCookie(&http.Cookie{Name: consoleTicketCookieName, Value: "console-jwt"})
+	req.Header.Set("Origin", "http://hostile.example.com")
+
+	rec := httptest.NewRecorder()
+	handler.ServeHTTP(rec, req)
+
+	if captured {
+		t.Fatal("expected downstream handler not to run with a mismatched Origin header")
+	}
+	if rec.Code != http.StatusForbidden {
+		t.Fatalf("status = %d, want %d", rec.Code, http.StatusForbidden)
+	}
+}
+
+func TestConsoleWebSocketAuth_fallsBackToRequestHostWhenBaseUIURLUnset(t *testing.T) {
+	t.Parallel()
+
+	var captured *http.Request
+	handler := ConsoleWebSocketAuth("")(http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
+		copied := *r
+		captured = &copied
+	}))
+
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/api/fulfillment/v1/console_sessions/connect", nil)
+	req.Host = "osac.example.com"
+	req.Header.Set("Origin", "https://osac.example.com")
+
+	handler.ServeHTTP(httptest.NewRecorder(), req)
+
+	if captured == nil {
+		t.Fatal("expected downstream handler to run when Origin matches the request Host")
 	}
 }

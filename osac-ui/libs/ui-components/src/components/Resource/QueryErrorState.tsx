@@ -43,8 +43,11 @@ const QueryErrorState = ({
   secondaryAction,
 }: QueryErrorStateProps) => {
   useEffect(() => {
+    if (!error) {
+      return;
+    }
     // eslint-disable-next-line no-console
-    console.error(error);
+    console.error(getErrorMessage(error));
   }, [error]);
 
   if (error && isUnauthorizedError(error)) {

@@ -18,14 +18,23 @@ export class BlobOnlyAttachAddon implements ITerminalAddon {
   private terminal?: Terminal;
   private dataDisposable?: { dispose: () => void };
   private readonly messageListener: (event: MessageEvent) => void;
+  // Serializes writeSocketData calls so Blob conversion resolving out of arrival
+  // order can't interleave terminal.write() output.
+  private writeQueue: Promise<void> = Promise.resolve();
 
   constructor(private readonly socket: WebSocket) {
     this.messageListener = (event: MessageEvent) => {
-      if (!this.terminal) {
+      const terminal = this.terminal;
+      if (!terminal) {
         return;
       }
 
-      void writeSocketData(this.terminal, event.data as Blob | ArrayBuffer | string);
+      // Swallow per-write failures on the queue itself: once a chained promise
+      // rejects, every later .then() on it skips silently, so one bad frame
+      // would otherwise stop all future terminal output for the session.
+      this.writeQueue = this.writeQueue.then(() =>
+        writeSocketData(terminal, event.data as Blob | ArrayBuffer | string).catch(() => {}),
+      );
     };
   }
 
