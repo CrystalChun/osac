@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
 import type { DemoShellRole } from '../shellTypes';
-
 import { isAdminRole } from './isAdminRole';
 
 describe('isAdminRole', () => {
