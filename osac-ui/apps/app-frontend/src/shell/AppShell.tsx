@@ -15,6 +15,7 @@ import { ClusterRoutes } from '@osac/ui-components/pages/tenant/ClusterRoutes';
 import { VmCreatePage } from '@osac/ui-components/pages/tenant/VmCreatePage';
 import { VmListPage } from '@osac/ui-components/pages/tenant/VmListPage';
 
+import { AdminRoute } from './AdminRoute';
 import { ShellMasthead } from './ShellMasthead';
 import { defaultRouteForRole } from './shellRoutes';
 import { ShellSidebar } from './ShellSidebar';
@@ -114,6 +115,15 @@ export const AppShell = ({ logout }: { logout: () => Promise<void> }) => {
           element={
             <ShellRoute>
               <SecurityGroupDetailPage />
+            </ShellRoute>
+          }
+        />
+
+        <Route
+          path="/admin/catalog/*"
+          element={
+            <ShellRoute>
+              <AdminRoute />
             </ShellRoute>
           }
         />
