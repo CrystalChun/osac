@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
 )
 
 const consoleTicketCookieName = "console-ticket"
@@ -28,6 +30,11 @@ func ConsoleWebSocketAuth(baseUIURL string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if !isTrustedOrigin(r, baseUIURL) {
+				log.WithFields(log.Fields{
+					"origin":    r.Header.Get("Origin"),
+					"host":      r.Host,
+					"baseUIURL": baseUIURL,
+				}).Warn("console WebSocket request rejected: origin not allowed")
 				http.Error(w, "origin not allowed", http.StatusForbidden)
 				return
 			}

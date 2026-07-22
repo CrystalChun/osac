@@ -57,6 +57,7 @@ type loginInfoResponse struct {
 func (h *Handler) GetLogin(w http.ResponseWriter, r *http.Request) {
 	redirectBase := r.URL.Query().Get("redirect_base")
 	if redirectBase == "" {
+		log.Warn("login request missing required redirect_base query param")
 		http.Error(w, "redirect_base is required", http.StatusBadRequest)
 		return
 	}
@@ -116,12 +117,14 @@ func (h *Handler) GetLogin(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) PostLogin(w http.ResponseWriter, r *http.Request) {
 	state := r.URL.Query().Get("state")
 	if state == "" {
+		log.Warn("login callback missing required state query param")
 		http.Error(w, "state is required", http.StatusBadRequest)
 		return
 	}
 
 	var body loginCallbackRequest
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil || body.Code == "" {
+		log.WithError(err).Warn("login callback body missing or invalid (expected {\"code\": \"...\"})")
 		http.Error(w, "request body must be {\"code\": \"...\"}", http.StatusBadRequest)
 		return
 	}
@@ -162,6 +165,7 @@ func (h *Handler) PostLogin(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) GetLoginInfo(w http.ResponseWriter, r *http.Request) {
 	tokenData := LookupSessionCookies(r)
 	if tokenData == nil {
+		log.Warn("login info requested with no active session (missing or expired access cookie)")
 		http.Error(w, "not authenticated", http.StatusUnauthorized)
 		return
 	}
@@ -189,10 +193,12 @@ func (h *Handler) GetLoginInfo(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) GetLoginRefresh(w http.ResponseWriter, r *http.Request) {
 	tokenData := LookupRefreshCookies(r)
 	if tokenData == nil {
+		log.Warn("login refresh requested with no active session (missing refresh cookie)")
 		http.Error(w, "not authenticated", http.StatusUnauthorized)
 		return
 	}
 	if tokenData.RefreshToken == "" {
+		log.Warn("login refresh requested but refresh cookie was empty")
 		http.Error(w, "no refresh token available", http.StatusBadRequest)
 		return
 	}

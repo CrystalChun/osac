@@ -27,6 +27,10 @@ export default defineConfig({
   },
   server: {
     port: 5173,
+    // Fail fast instead of silently moving to another port: the proxy's dev
+    // config (BASE_UI_URL in package.json's dev:proxy script) hardcodes this
+    // port for console WebSocket Origin validation.
+    strictPort: true,
     proxy: {
       '/api': {
         target: 'http://localhost:8080',
