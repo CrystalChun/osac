@@ -1,23 +1,59 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
+import { Subnet, SubnetState, VirtualNetwork, VirtualNetworkState } from '@osac/types';
+
 import { SubnetCreateModal } from './SubnetCreateModal';
 
 describe('SubnetCreateModal', () => {
   const mockOnClose = vi.fn();
   const mockOnCreate = vi.fn();
-  const mockParentVN = {
+  const mockParentVN: VirtualNetwork = {
+    $typeName: 'osac.public.v1.VirtualNetwork',
     id: 'vn-123',
-    metadata: { name: 'prod-vn' },
-    spec: { ipv4Cidr: '10.0.0.0/16' },
-    status: { state: 'VIRTUAL_NETWORK_STATE_READY' as const },
+    metadata: {
+      $typeName: 'osac.public.v1.Metadata',
+      name: 'prod-vn',
+      annotations: {},
+      creator: 'foo',
+      labels: {},
+      project: 'foo',
+      tenant: 'foo',
+      version: 1,
+    },
+    spec: {
+      $typeName: 'osac.public.v1.VirtualNetworkSpec',
+      ipv4Cidr: '10.0.0.0/16',
+      networkClass: '',
+    },
+    status: {
+      $typeName: 'osac.public.v1.VirtualNetworkStatus',
+      state: VirtualNetworkState.READY,
+    },
   };
-  const mockExistingSubnets = [
+  const mockExistingSubnets: Subnet[] = [
     {
+      $typeName: 'osac.public.v1.Subnet',
       id: 'subnet-1',
-      metadata: { name: 'subnet-web' },
-      spec: { virtualNetwork: 'vn-123', ipv4Cidr: '10.0.1.0/24' },
-      status: { state: 'SUBNET_STATE_READY' as const },
+      metadata: {
+        $typeName: 'osac.public.v1.Metadata',
+        name: 'subnet-web',
+        annotations: {},
+        creator: 'foo',
+        labels: {},
+        project: 'foo',
+        tenant: 'foo',
+        version: 1,
+      },
+      spec: {
+        $typeName: 'osac.public.v1.SubnetSpec',
+        virtualNetwork: 'vn-123',
+        ipv4Cidr: '10.0.1.0/24',
+      },
+      status: {
+        $typeName: 'osac.public.v1.SubnetStatus',
+        state: SubnetState.READY,
+      },
     },
   ];
 

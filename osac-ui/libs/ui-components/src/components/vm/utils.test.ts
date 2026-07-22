@@ -33,7 +33,13 @@ describe('formatInstanceTypeDisplayName', () => {
 
   it('appends deprecated suffix when instance type is deprecated', () => {
     const instanceType = makeInstanceType({
-      spec: { cores: 4, memoryGib: 8, state: InstanceTypeState.DEPRECATED },
+      spec: {
+        $typeName: 'osac.public.v1.InstanceTypeSpec',
+        cores: 4,
+        memoryGib: 8,
+        state: InstanceTypeState.DEPRECATED,
+        description: '',
+      },
     });
     expect(formatInstanceTypeDisplayName(instanceType, ' (deprecated)')).toBe(
       'Standard 4 vCPU / 8 GiB (deprecated)',

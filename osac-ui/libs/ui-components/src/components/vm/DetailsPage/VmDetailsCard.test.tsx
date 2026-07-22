@@ -1,7 +1,7 @@
 import { screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
-import type { ComputeInstance } from '@osac/types';
+import { ComputeInstance, InstanceTypeState } from '@osac/types';
 
 import VmDetailsCard from './VmDetailsCard';
 import { renderWithProviders } from '../../../test-utils/TestProviders';
@@ -16,18 +16,45 @@ vi.mock('./VmDetailsCatalogValue', () => ({
 
 const { useVmDetailsDisplay } = await import('./useVmDetailsDisplay');
 
-const catalogVm = {
+const catalogVm: ComputeInstance = {
+  $typeName: 'osac.public.v1.ComputeInstance',
   id: 'vm-1',
-  metadata: { name: 'web-01', creator: 'alice', creationTimestamp: '2026-01-01T00:00:00Z' },
+  metadata: {
+    $typeName: 'osac.public.v1.Metadata',
+    name: 'web-01',
+    creator: 'alice',
+    creationTimestamp: {
+      $typeName: 'google.protobuf.Timestamp',
+      seconds: 1767225600n,
+      nanos: 0,
+    },
+    annotations: {},
+    labels: {},
+    project: 'foo',
+    tenant: 'foo',
+    version: 1,
+  },
   spec: {
+    $typeName: 'osac.public.v1.ComputeInstanceSpec',
     catalogItem: 'catalog-rhel-9',
     sshKey: 'ssh-rsa AAAA...',
-    image: { sourceRef: 'quay.io/example/rhel9' },
+    image: {
+      $typeName: 'osac.public.v1.ComputeInstanceImage',
+      sourceRef: 'quay.io/example/rhel9',
+      sourceType: '',
+    },
     instanceType: 'standard-4-8',
-    bootDisk: { sizeGib: 40 },
+    bootDisk: {
+      $typeName: 'osac.public.v1.ComputeInstanceDisk',
+      sizeGib: 40,
+    },
     userData: '#cloud-config',
+    additionalDisks: [],
+    networkAttachments: [],
+    template: '',
+    templateParameters: {},
   },
-} as ComputeInstance;
+};
 
 const renderCard = (vm: ComputeInstance = catalogVm) =>
   renderWithProviders(<VmDetailsCard vm={vm} />);
@@ -39,9 +66,25 @@ describe('VmDetailsCard', () => {
       hasCatalogItem: true,
       isCatalogItemLoading: false,
       instanceType: {
+        $typeName: 'osac.public.v1.InstanceType',
         id: 'standard-4-8',
-        metadata: { name: 'Standard 4 vCPU / 8 GiB' },
-        spec: { cores: 4, memoryGib: 8 },
+        metadata: {
+          $typeName: 'osac.public.v1.Metadata',
+          name: 'Standard 4 vCPU / 8 GiB',
+          annotations: {},
+          creator: 'foo',
+          labels: {},
+          project: 'foo',
+          tenant: 'foo',
+          version: 1,
+        },
+        spec: {
+          $typeName: 'osac.public.v1.InstanceTypeSpec',
+          description: '',
+          state: InstanceTypeState.ACTIVE,
+          cores: 4,
+          memoryGib: 8,
+        },
       },
       instanceTypeId: 'standard-4-8',
       isInstanceTypeLoading: false,

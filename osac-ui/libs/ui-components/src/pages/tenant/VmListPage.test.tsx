@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { ComputeInstance } from '@osac/types';
 import { ComputeInstanceState } from '@osac/types';
+import { mockQueryResult } from '@osac/ui-components/test-utils/query';
 
 import { VmListPage } from './VmListPage';
 import { renderWithProviders } from '../../test-utils/TestProviders';
@@ -65,11 +66,13 @@ describe('VmListPage', () => {
   });
 
   it('shows an alert and still renders the table when instance types fail to load', () => {
-    vi.mocked(useInstanceTypes).mockReturnValue({
-      data: [],
-      isLoading: false,
-      error: new Error('Instance types unavailable'),
-    } as ReturnType<typeof useInstanceTypes>);
+    vi.mocked(useInstanceTypes).mockReturnValue(
+      mockQueryResult({
+        data: [],
+        isLoading: false,
+        error: new Error('Instance types unavailable'),
+      }),
+    );
 
     renderPage();
 
@@ -80,11 +83,13 @@ describe('VmListPage', () => {
   });
 
   it('keeps compute instance failures on the page-level error path', () => {
-    vi.mocked(useComputeInstances).mockReturnValue({
-      data: [],
-      isLoading: false,
-      error: new Error('VMs unavailable'),
-    } as ReturnType<typeof useComputeInstances>);
+    vi.mocked(useComputeInstances).mockReturnValue(
+      mockQueryResult({
+        data: [],
+        isLoading: false,
+        error: new Error('VMs unavailable'),
+      }),
+    );
 
     renderPage();
 

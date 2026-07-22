@@ -3,10 +3,12 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import type { SecurityGroup, VirtualNetwork } from '@osac/types';
 import { Protocol, SecurityGroupState, VirtualNetworkState } from '@osac/types';
 
 import { SecurityGroupsListPage } from './SecurityGroupsListPage';
 import * as networkingApi from '../../api/v1/networking';
+import { mockMutationResult, mockQueryResult } from '../../test-utils/query';
 
 vi.mock('../../api/v1/networking', async (importOriginal) => {
   const actual = await importOriginal<typeof networkingApi>();
@@ -52,21 +54,17 @@ describe('SecurityGroupsListPage', () => {
   ];
 
   beforeEach(() => {
-    vi.mocked(networkingApi.useVirtualNetworks).mockReturnValue({
-      data: mockVirtualNetworks,
-      isLoading: false,
-      error: null,
-    } as ReturnType<typeof networkingApi.useVirtualNetworks>);
+    vi.mocked(networkingApi.useVirtualNetworks).mockReturnValue(
+      mockQueryResult<VirtualNetwork[]>({ data: mockVirtualNetworks as VirtualNetwork[] }),
+    );
 
-    vi.mocked(networkingApi.useSecurityGroups).mockReturnValue({
-      data: mockSecurityGroups,
-      isLoading: false,
-      error: null,
-    } as ReturnType<typeof networkingApi.useSecurityGroups>);
+    vi.mocked(networkingApi.useSecurityGroups).mockReturnValue(
+      mockQueryResult<SecurityGroup[]>({ data: mockSecurityGroups as SecurityGroup[] }),
+    );
 
-    vi.mocked(networkingApi.useCreateSecurityGroup).mockReturnValue({
-      mutateAsync: vi.fn(),
-    } as unknown as ReturnType<typeof networkingApi.useCreateSecurityGroup>);
+    vi.mocked(networkingApi.useCreateSecurityGroup).mockReturnValue(
+      mockMutationResult({ mutateAsync: vi.fn() }),
+    );
   });
 
   it('renders page title and create button', () => {
@@ -109,11 +107,7 @@ describe('SecurityGroupsListPage', () => {
   });
 
   it('shows empty state when no security groups exist', () => {
-    vi.mocked(networkingApi.useSecurityGroups).mockReturnValue({
-      data: [],
-      isLoading: false,
-      error: null,
-    } as ReturnType<typeof networkingApi.useSecurityGroups>);
+    vi.mocked(networkingApi.useSecurityGroups).mockReturnValue(mockQueryResult<SecurityGroup[]>());
 
     render(
       <MemoryRouter>

@@ -66,7 +66,7 @@ const expectCatalogItemVisible = async (title: string) => {
 
 const expectCatalogItemSelected = (title: string) => {
   const titleNode = within(catalogItemGroup()).getByText(title);
-  const card = titleNode.closest('.pf-v6-c-card');
+  const card = titleNode.closest<HTMLElement>('.pf-v6-c-card');
   if (!card) {
     throw new Error(`Catalog card not found for ${title}`);
   }
@@ -76,7 +76,7 @@ const expectCatalogItemSelected = (title: string) => {
 const selectCatalogItem = async (user: UserEvent, title: string) => {
   await expectCatalogItemVisible(title);
   const titleNode = within(catalogItemGroup()).getByText(title);
-  const card = titleNode.closest('.pf-v6-c-card');
+  const card = titleNode.closest<HTMLElement>('.pf-v6-c-card');
   if (!card) {
     throw new Error(`Catalog card not found for ${title}`);
   }
@@ -116,7 +116,7 @@ const waitForConfigurationReady = async (user?: UserEvent) => {
     expect(screen.getByLabelText(/^Instance type/)).toHaveTextContent('standard-4-8');
   });
 
-  const bootDisk = screen.queryByLabelText(/Boot disk/);
+  const bootDisk = screen.queryByLabelText<HTMLInputElement>(/Boot disk/);
   if (bootDisk && !bootDisk.value) {
     if (!user) {
       throw new Error('Boot disk must be filled before leaving configuration');
@@ -527,7 +527,7 @@ const expectConfigurationDefaults = async () => {
 const expectMultiFieldConfigurationDefaults = async () => {
   await expectConfigurationDefaults();
   await waitFor(() => {
-    const bootDisk = screen.getByLabelText(/Boot disk/);
+    const bootDisk = screen.getByLabelText<HTMLInputElement>(/Boot disk/);
     expect(bootDisk.value).toBe('40');
   });
 };
@@ -622,16 +622,14 @@ describe('CatalogProvisionWizard', () => {
     const baseTransport = createMockConnectTransport(catalogApiFixtures);
 
     const originalUnary = baseTransport.unary.bind(baseTransport);
-    const gatedTransport = {
-      ...baseTransport,
-      unary: async (...args: Parameters<typeof baseTransport.unary>) => {
-        const method = args[0];
-        if (method.parent.typeName.endsWith('ComputeInstanceCatalogItems')) {
-          await catalogFetchGate;
-        }
-        return originalUnary(...args);
-      },
+    const unary: Transport['unary'] = async (...args) => {
+      const method = args[0];
+      if (method.parent.typeName.endsWith('ComputeInstanceCatalogItems')) {
+        await catalogFetchGate;
+      }
+      return originalUnary(...args);
     };
+    const gatedTransport: Transport = { ...baseTransport, unary };
 
     const { user } = renderWizard({
       initialCatalogItemId: vmCatalogItem.id,
