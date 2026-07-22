@@ -116,11 +116,40 @@ func TestConsoleWebSocketAuth_fallsBackToRequestHostWhenBaseUIURLUnset(t *testin
 
 	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/api/fulfillment/v1/console_sessions/connect", nil)
 	req.Host = "osac.example.com"
+	// Scheme deliberately not checked in fallback mode: this proxy always
+	// terminates plain HTTP (TLS ends upstream at the ingress), so r.TLS can't
+	// tell us the scheme the browser actually used. An HTTPS Origin must still
+	// be accepted when it matches the request Host.
 	req.Header.Set("Origin", "https://osac.example.com")
 
 	handler.ServeHTTP(httptest.NewRecorder(), req)
 
 	if captured == nil {
 		t.Fatal("expected downstream handler to run when Origin matches the request Host")
+	}
+}
+
+func TestConsoleWebSocketAuth_rejectsSchemeMismatch(t *testing.T) {
+	t.Parallel()
+
+	var captured bool
+	handler := ConsoleWebSocketAuth("https://localhost:5173")(http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {
+		captured = true
+	}))
+
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/api/fulfillment/v1/console_sessions/connect", nil)
+	req.AddCookie(&http.Cookie{Name: consoleTicketCookieName, Value: "console-jwt"})
+	// Same host as baseUIURL, but plain HTTP instead of HTTPS — must not be trusted
+	// as if it were the public HTTPS origin.
+	req.Header.Set("Origin", "http://localhost:5173")
+
+	rec := httptest.NewRecorder()
+	handler.ServeHTTP(rec, req)
+
+	if captured {
+		t.Fatal("expected downstream handler not to run when Origin scheme does not match")
+	}
+	if rec.Code != http.StatusForbidden {
+		t.Fatalf("status = %d, want %d", rec.Code, http.StatusForbidden)
 	}
 }

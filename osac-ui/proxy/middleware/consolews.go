@@ -51,6 +51,14 @@ func ConsoleWebSocketAuth(baseUIURL string) func(http.Handler) http.Handler {
 // isTrustedOrigin reports whether the request's Origin header matches the public UI
 // origin. Browsers always send Origin on WebSocket upgrades, so an absent or
 // mismatched Origin is rejected rather than silently proxied.
+//
+// When baseUIURL is configured, both scheme and host must match it — otherwise a
+// plain-HTTP same-host page could pass as the configured HTTPS public origin.
+// When baseUIURL is empty, only the request's own Host is compared: this proxy
+// always terminates plain HTTP (TLS is terminated upstream by the ingress/Route,
+// see docs/deployment-openshift-guide.md), so r.TLS is never a reliable signal of
+// the scheme the browser actually used — comparing against it would reject every
+// real HTTPS deployment that leaves BASE_UI_URL unset.
 func isTrustedOrigin(r *http.Request, baseUIURL string) bool {
 	origin := r.Header.Get("Origin")
 	if origin == "" {
@@ -61,12 +69,14 @@ func isTrustedOrigin(r *http.Request, baseUIURL string) bool {
 		return false
 	}
 
-	expectedHost := r.Host
-	if baseUIURL != "" {
-		if base, err := url.Parse(baseUIURL); err == nil && base.Host != "" {
-			expectedHost = base.Host
-		}
+	if baseUIURL == "" {
+		return strings.EqualFold(originURL.Host, r.Host)
 	}
 
-	return strings.EqualFold(originURL.Host, expectedHost)
+	base, err := url.Parse(baseUIURL)
+	if err != nil || base.Scheme == "" || base.Host == "" {
+		return strings.EqualFold(originURL.Host, r.Host)
+	}
+
+	return strings.EqualFold(originURL.Scheme, base.Scheme) && strings.EqualFold(originURL.Host, base.Host)
 }
