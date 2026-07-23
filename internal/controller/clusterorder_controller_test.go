@@ -561,7 +561,7 @@ var _ = Describe("ClusterOrder Controller", func() {
 			Expect(cond.Message).To(ContainSubstring("Ansible traceback"))
 		})
 
-		It("should set Progressing=True condition when OnSuccess is called", func() {
+		It("should set Progressing=False condition when OnSuccess is called", func() {
 			instance := &v1alpha1.ClusterOrder{
 				Status: v1alpha1.ClusterOrderStatus{
 					Phase: v1alpha1.ClusterOrderPhaseProgressing,
@@ -574,8 +574,8 @@ var _ = Describe("ClusterOrder Controller", func() {
 
 			cond := apimeta.FindStatusCondition(instance.Status.Conditions, v1alpha1.ConditionProgressing)
 			Expect(cond).NotTo(BeNil())
-			Expect(cond.Status).To(Equal(metav1.ConditionTrue))
-			Expect(cond.Reason).To(Equal(v1alpha1.ReasonProgressing))
+			Expect(cond.Status).To(Equal(metav1.ConditionFalse))
+			Expect(cond.Reason).To(Equal(v1alpha1.ReasonAsExpected))
 		})
 
 		It("should clear stale Progressing=False condition on provisioning recovery", func() {
@@ -601,8 +601,8 @@ var _ = Describe("ClusterOrder Controller", func() {
 			Expect(instance.Status.Phase).To(Equal(v1alpha1.ClusterOrderPhaseReady))
 			cond := apimeta.FindStatusCondition(instance.Status.Conditions, v1alpha1.ConditionProgressing)
 			Expect(cond).NotTo(BeNil())
-			Expect(cond.Status).To(Equal(metav1.ConditionTrue))
-			Expect(cond.Reason).To(Equal(v1alpha1.ReasonProgressing))
+			Expect(cond.Status).To(Equal(metav1.ConditionFalse))
+			Expect(cond.Reason).To(Equal(v1alpha1.ReasonAsExpected))
 			Expect(cond.Message).To(BeEmpty())
 		})
 	})
