@@ -232,8 +232,8 @@ var _ = Describe("BareMetalInstance Metal3 Integration", func() {
 			updatedBMH.Status.PoweredOn = true
 			Expect(k8sClient.Status().Update(ctx, updatedBMH)).To(Succeed())
 
-			// Reconcile: power converged → Ready
-			reconcileN(reconciler, bmiName, 1)
+			// Reconcile twice: first verifies convergence (stale-read guard), second reaches Ready
+			reconcileN(reconciler, bmiName, 2)
 			bmi = getBMI(bmiName)
 			Expect(bmi.Status.Phase).To(Equal(v1alpha1.BareMetalInstancePhaseReady))
 			Expect(bmi.Status.RunStrategy).To(Equal(v1alpha1.RunStrategyAlways))

@@ -568,6 +568,87 @@ var _ = Describe("BareMetalInstance Controller", func() {
 				Expect(bareMetalInstance.Status.Phase).To(Equal(v1alpha1.BareMetalInstancePhaseProgressing))
 			})
 		})
+
+		Context("when power state appears converged but was recently transitioning (OSAC-2467)", func() {
+			It("should requeue to verify stale read after rapid stop/start", func() {
+				bareMetalInstance.Spec.RunStrategy = v1alpha1.RunStrategyAlways
+
+				// Simulate state from previous reconciliation: PowerSynced was False/Progressing
+				// (set during the Halted reconciliation that initiated a power-off)
+				bareMetalInstance.SetStatusCondition(
+					v1alpha1.HostConditionPowerSynced,
+					metav1.ConditionFalse,
+					v1alpha1.HostConditionReasonProgressing,
+					"node power state is transitioning",
+				)
+
+				// Management backend returns stale state: reports PowerOn even though
+				// a power-off was just initiated by a previous reconciliation
+				mockMgmtClient.getPowerStateFunc = func(ctx context.Context, hostID string) (*management.PowerStatus, error) {
+					return &management.PowerStatus{State: management.PowerOn}, nil
+				}
+
+				setPowerStateCalled := false
+				mockMgmtClient.setPowerStateFunc = func(ctx context.Context, hostID string, target management.PowerState) error {
+					setPowerStateCalled = true
+					return nil
+				}
+
+				result, err := reconciler.reconcileManagement(ctx, bareMetalInstance)
+
+				Expect(err).NotTo(HaveOccurred())
+				// Should NOT call SetPowerState (stale read says already on, matches Always)
+				Expect(setPowerStateCalled).To(BeFalse())
+				// Must requeue to verify the stale read
+				Expect(result.RequeueAfter).To(Equal(DefaultManagementRecheckIntervalDuration))
+				Expect(bareMetalInstance.Status.Phase).To(Equal(v1alpha1.BareMetalInstancePhaseProgressing))
+			})
+
+			It("should reach Ready when PowerSynced was previously True", func() {
+				bareMetalInstance.Spec.RunStrategy = v1alpha1.RunStrategyAlways
+
+				// Simulate verified convergence from previous reconciliation
+				bareMetalInstance.SetStatusCondition(
+					v1alpha1.HostConditionPowerSynced,
+					metav1.ConditionTrue,
+					v1alpha1.HostConditionReasonPowerOn,
+					"",
+				)
+
+				mockMgmtClient.getPowerStateFunc = func(ctx context.Context, hostID string) (*management.PowerStatus, error) {
+					return &management.PowerStatus{State: management.PowerOn}, nil
+				}
+
+				result, err := reconciler.reconcileManagement(ctx, bareMetalInstance)
+
+				Expect(err).NotTo(HaveOccurred())
+				Expect(result).To(Equal(ctrl.Result{}))
+				Expect(bareMetalInstance.Status.Phase).To(Equal(v1alpha1.BareMetalInstancePhaseReady))
+			})
+		})
+
+		Context("when reconcilePower detects transitioning", func() {
+			It("should requeue even if second power read appears converged", func() {
+				bareMetalInstance.Spec.RunStrategy = v1alpha1.RunStrategyAlways
+
+				callCount := 0
+				mockMgmtClient.getPowerStateFunc = func(ctx context.Context, hostID string) (*management.PowerStatus, error) {
+					callCount++
+					if callCount == 1 {
+						// First read: transitioning (spec.Online=false, status.PoweredOn=true)
+						return &management.PowerStatus{State: management.PowerOn, IsTransitioning: true}, nil
+					}
+					// Second read: Metal3 caught up fast, now shows converged
+					return &management.PowerStatus{State: management.PowerOn}, nil
+				}
+
+				result, err := reconciler.reconcileManagement(ctx, bareMetalInstance)
+
+				Expect(err).NotTo(HaveOccurred())
+				Expect(result.RequeueAfter).To(Equal(DefaultManagementRecheckIntervalDuration))
+				Expect(bareMetalInstance.Status.Phase).To(Equal(v1alpha1.BareMetalInstancePhaseProgressing))
+			})
+		})
 	})
 
 	Describe("reconcileProvisioning", func() {
@@ -745,16 +826,17 @@ var _ = Describe("BareMetalInstance Controller", func() {
 				bareMetalInstance.Spec.RunStrategy = v1alpha1.RunStrategyAlways
 			})
 
-			It("should power on", func() {
+			It("should power on and signal requeue", func() {
 				var calledTarget management.PowerState
 				mockMgmtClient.setPowerStateFunc = func(_ context.Context, _ string, target management.PowerState) error {
 					calledTarget = target
 					return nil
 				}
 
-				err := reconciler.reconcilePower(ctx, bareMetalInstance, powerStatus, log)
+				needsRequeue, err := reconciler.reconcilePower(ctx, bareMetalInstance, powerStatus, log)
 				Expect(err).NotTo(HaveOccurred())
 				Expect(calledTarget).To(Equal(management.PowerOn))
+				Expect(needsRequeue).To(BeTrue())
 			})
 		})
 
@@ -764,16 +846,17 @@ var _ = Describe("BareMetalInstance Controller", func() {
 				bareMetalInstance.Spec.RunStrategy = v1alpha1.RunStrategyHalted
 			})
 
-			It("should power off", func() {
+			It("should power off and signal requeue", func() {
 				var calledTarget management.PowerState
 				mockMgmtClient.setPowerStateFunc = func(_ context.Context, _ string, target management.PowerState) error {
 					calledTarget = target
 					return nil
 				}
 
-				err := reconciler.reconcilePower(ctx, bareMetalInstance, powerStatus, log)
+				needsRequeue, err := reconciler.reconcilePower(ctx, bareMetalInstance, powerStatus, log)
 				Expect(err).NotTo(HaveOccurred())
 				Expect(calledTarget).To(Equal(management.PowerOff))
+				Expect(needsRequeue).To(BeTrue())
 			})
 		})
 
@@ -783,16 +866,17 @@ var _ = Describe("BareMetalInstance Controller", func() {
 				bareMetalInstance.Spec.RunStrategy = v1alpha1.RunStrategyAlways
 			})
 
-			It("should not call SetPowerState", func() {
+			It("should not call SetPowerState and not signal requeue", func() {
 				called := false
 				mockMgmtClient.setPowerStateFunc = func(_ context.Context, _ string, _ management.PowerState) error {
 					called = true
 					return nil
 				}
 
-				err := reconciler.reconcilePower(ctx, bareMetalInstance, powerStatus, log)
+				needsRequeue, err := reconciler.reconcilePower(ctx, bareMetalInstance, powerStatus, log)
 				Expect(err).NotTo(HaveOccurred())
 				Expect(called).To(BeFalse())
+				Expect(needsRequeue).To(BeFalse())
 			})
 		})
 
@@ -802,16 +886,17 @@ var _ = Describe("BareMetalInstance Controller", func() {
 				bareMetalInstance.Spec.RunStrategy = v1alpha1.RunStrategyHalted
 			})
 
-			It("should not call SetPowerState", func() {
+			It("should not call SetPowerState and not signal requeue", func() {
 				called := false
 				mockMgmtClient.setPowerStateFunc = func(_ context.Context, _ string, _ management.PowerState) error {
 					called = true
 					return nil
 				}
 
-				err := reconciler.reconcilePower(ctx, bareMetalInstance, powerStatus, log)
+				needsRequeue, err := reconciler.reconcilePower(ctx, bareMetalInstance, powerStatus, log)
 				Expect(err).NotTo(HaveOccurred())
 				Expect(called).To(BeFalse())
+				Expect(needsRequeue).To(BeFalse())
 			})
 		})
 
@@ -821,16 +906,17 @@ var _ = Describe("BareMetalInstance Controller", func() {
 				bareMetalInstance.Spec.RunStrategy = v1alpha1.RunStrategyAlways
 			})
 
-			It("should skip SetPowerState", func() {
+			It("should skip SetPowerState and signal requeue", func() {
 				called := false
 				mockMgmtClient.setPowerStateFunc = func(_ context.Context, _ string, _ management.PowerState) error {
 					called = true
 					return nil
 				}
 
-				err := reconciler.reconcilePower(ctx, bareMetalInstance, powerStatus, log)
+				needsRequeue, err := reconciler.reconcilePower(ctx, bareMetalInstance, powerStatus, log)
 				Expect(err).NotTo(HaveOccurred())
 				Expect(called).To(BeFalse())
+				Expect(needsRequeue).To(BeTrue())
 			})
 		})
 
@@ -840,13 +926,14 @@ var _ = Describe("BareMetalInstance Controller", func() {
 				bareMetalInstance.Spec.RunStrategy = v1alpha1.RunStrategyAlways
 			})
 
-			It("should not return error", func() {
+			It("should not return error and signal requeue", func() {
 				mockMgmtClient.setPowerStateFunc = func(_ context.Context, _ string, _ management.PowerState) error {
 					return management.ErrTransitioning
 				}
 
-				err := reconciler.reconcilePower(ctx, bareMetalInstance, powerStatus, log)
+				needsRequeue, err := reconciler.reconcilePower(ctx, bareMetalInstance, powerStatus, log)
 				Expect(err).NotTo(HaveOccurred())
+				Expect(needsRequeue).To(BeTrue())
 			})
 		})
 
@@ -861,7 +948,7 @@ var _ = Describe("BareMetalInstance Controller", func() {
 					return errors.New("ironic API error")
 				}
 
-				err := reconciler.reconcilePower(ctx, bareMetalInstance, powerStatus, log)
+				_, err := reconciler.reconcilePower(ctx, bareMetalInstance, powerStatus, log)
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(ContainSubstring("ironic API error"))
 			})
@@ -878,7 +965,7 @@ var _ = Describe("BareMetalInstance Controller", func() {
 					return errors.New("ironic API error")
 				}
 
-				err := reconciler.reconcilePower(ctx, bareMetalInstance, powerStatus, log)
+				_, err := reconciler.reconcilePower(ctx, bareMetalInstance, powerStatus, log)
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(ContainSubstring("ironic API error"))
 			})
@@ -1072,16 +1159,25 @@ var _ = Describe("BareMetalInstance Controller", func() {
 				bareMetalInstance.Status.RestartTrigger = 1 // Same as spec
 			})
 
-			It("should set condition to completed and not trigger restart", func() {
+			It("should not trigger restart and preserve existing PowerSynced condition", func() {
+				// Pre-set a PowerSynced condition to verify it's not overwritten
+				bareMetalInstance.SetStatusCondition(
+					v1alpha1.HostConditionPowerSynced,
+					metav1.ConditionFalse,
+					v1alpha1.HostConditionReasonProgressing,
+					"node power state is transitioning",
+				)
+
 				result, err := reconciler.reconcileRestartTrigger(ctx, bareMetalInstance)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result).To(Equal(ctrl.Result{}))
 
+				// PowerSynced condition must NOT be overwritten — preserves transition signal
 				condition := bareMetalInstance.GetStatusCondition(v1alpha1.HostConditionPowerSynced)
 				Expect(condition).NotTo(BeNil())
-				Expect(condition.Status).To(Equal(metav1.ConditionTrue))
-				Expect(condition.Reason).To(Equal("Completed"))
+				Expect(condition.Status).To(Equal(metav1.ConditionFalse))
+				Expect(condition.Reason).To(Equal(v1alpha1.HostConditionReasonProgressing))
 			})
 		})
 
