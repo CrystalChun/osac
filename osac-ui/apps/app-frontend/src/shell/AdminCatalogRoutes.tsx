@@ -3,7 +3,7 @@ import { Route, Routes } from 'react-router-dom';
 import ListPage from '@osac/ui-components/components/Page/ListPage';
 import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
 
-export const TenantAdminCatalogRoutes = () => {
+export const AdminCatalogRoutes = () => {
   const { t } = useTranslation();
 
   return (

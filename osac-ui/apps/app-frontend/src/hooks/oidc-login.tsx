@@ -3,17 +3,12 @@ import * as React from 'react';
 import { DemoShellRole } from '@osac/ui-components/shellTypes';
 import { getErrorMessage } from '@osac/ui-components/utils/error';
 
-const ADMIN_GROUP = 'admins';
-
-const isInAdminGroup = (groups: string[]): boolean =>
-  groups.some((g) => g === ADMIN_GROUP || g === `/${ADMIN_GROUP}`);
-
 const roleFromRoles = (roles: string[], groups: string[]): DemoShellRole => {
+  if (groups.includes('admins')) {
+    return 'providerAdmin';
+  }
   if (roles.includes('tenant-admin')) {
     return 'tenantAdmin';
-  }
-  if (isInAdminGroup(groups)) {
-    return 'providerAdmin';
   }
   return 'tenantUser';
 };

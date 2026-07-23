@@ -14,13 +14,11 @@ import CatalogPage from '@osac/ui-components/pages/tenant/CatalogPage';
 import { ClusterRoutes } from '@osac/ui-components/pages/tenant/ClusterRoutes';
 import { VmCreatePage } from '@osac/ui-components/pages/tenant/VmCreatePage';
 import { VmListPage } from '@osac/ui-components/pages/tenant/VmListPage';
-import { isAdminRole } from '@osac/ui-components/shellTypes';
 
-import { ProviderCatalogRoutes } from './ProviderCatalogRoutes';
+import { AdminCatalogRoutes } from './AdminCatalogRoutes';
 import { ShellMasthead } from './ShellMasthead';
 import { defaultRouteForRole } from './shellRoutes';
 import { ShellSidebar } from './ShellSidebar';
-import { TenantAdminCatalogRoutes } from './TenantAdminCatalogRoutes';
 
 const ShellRoute = ({ children }: { children: ReactNode }) => {
   const { pathname } = useLocation();
@@ -121,16 +119,12 @@ export const AppShell = ({ logout }: { logout: () => Promise<void> }) => {
           }
         />
 
-        {isAdminRole(role) && (
+        {(role === 'providerAdmin' || role === 'tenantAdmin') && (
           <Route
             path="/admin/catalog/*"
             element={
               <ShellRoute>
-                {role === 'providerAdmin' ? (
-                  <ProviderCatalogRoutes />
-                ) : (
-                  <TenantAdminCatalogRoutes />
-                )}
+                <AdminCatalogRoutes />
               </ShellRoute>
             }
           />

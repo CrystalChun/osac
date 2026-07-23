@@ -48,11 +48,11 @@ func UsernameFromToken(token string) string {
 func GroupsFromToken(token string) []string {
 	claims, err := jwtClaims(token)
 	if err != nil {
-		return nil
+		return []string{}
 	}
 	rawGroups, ok := claims["groups"].([]interface{})
 	if !ok {
-		return nil
+		return []string{}
 	}
 	groups := make([]string, 0, len(rawGroups))
 	for _, g := range rawGroups {

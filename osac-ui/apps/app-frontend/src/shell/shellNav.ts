@@ -1,7 +1,7 @@
 /** Role-based sidebar navigation (sectioned NavGroup layout). Nav icons: shellNavIcon in @osac/ui-components/icons */
 import type { TFunction } from 'i18next';
 
-import { type DemoShellRole, isAdminRole } from '@osac/ui-components/shellTypes';
+import type { DemoShellRole } from '@osac/ui-components/shellTypes';
 
 export type NavLink = { id: string; label: string; path: string };
 
@@ -48,7 +48,7 @@ const getBaseNav = (t: TFunction): NavRow[] => [
 export const navRowsForRole = (role: DemoShellRole, t: TFunction): NavRow[] => {
   const rows = getBaseNav(t);
 
-  if (isAdminRole(role)) {
+  if (role === 'providerAdmin' || role === 'tenantAdmin') {
     rows.push({
       kind: 'section',
       sectionId: 'nav-administration',
