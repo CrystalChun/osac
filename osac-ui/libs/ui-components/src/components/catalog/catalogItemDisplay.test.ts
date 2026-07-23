@@ -225,22 +225,24 @@ describe('filterCatalogItemsBySearch', () => {
   });
 });
 
+const basePrivateMetadata = (): NonNullable<PrivateClusterCatalogItem['metadata']> => ({
+  $typeName: 'osac.private.v1.Metadata',
+  finalizers: [],
+  creator: 'admin',
+  tenant: '',
+  name: 'catalog-item',
+  labels: {},
+  annotations: {},
+  version: 1,
+  project: '',
+});
+
 const privateClusterItem = (
   overrides: Partial<PrivateClusterCatalogItem> = {},
 ): PrivateClusterCatalogItem => ({
   $typeName: 'osac.private.v1.ClusterCatalogItem',
   id: 'catalog-cluster-1',
-  metadata: {
-    $typeName: 'osac.private.v1.Metadata',
-    finalizers: [],
-    creator: 'admin',
-    tenant: '',
-    name: 'catalog-item',
-    labels: {},
-    annotations: {},
-    version: 1,
-    project: '',
-  },
+  metadata: basePrivateMetadata(),
   title: 'OpenShift 4 cluster',
   description: 'Standard OpenShift cluster offering',
   template: 'tpl-openshift-4',
@@ -290,8 +292,10 @@ describe('catalogItemScope', () => {
   });
 
   it('returns project for a CSP Admin item even when the private tenant is also set', () => {
-    const base = privateClusterItem({ tenant: 'acme-corp' });
-    const item = { ...base, metadata: { ...base.metadata, project: 'frontend' } };
+    const item = privateClusterItem({
+      tenant: 'acme-corp',
+      metadata: { ...basePrivateMetadata(), project: 'frontend' },
+    });
     expect(catalogItemScope(item, 'providerAdmin')).toEqual({
       level: 'project',
       name: 'frontend',
