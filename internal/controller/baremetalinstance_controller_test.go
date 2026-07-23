@@ -649,6 +649,127 @@ var _ = Describe("BareMetalInstance Controller", func() {
 				Expect(bareMetalInstance.Status.Phase).To(Equal(v1alpha1.BareMetalInstancePhaseProgressing))
 			})
 		})
+
+		Context("rapid stop/start lifecycle (OSAC-2467 regression)", func() {
+			It("should not get stuck when runStrategy changes Always→Halted→Always", func() {
+				// Step 1: Start in steady state — RunStrategy=Always, power on, PowerSynced=True
+				bareMetalInstance.Spec.RunStrategy = v1alpha1.RunStrategyAlways
+				bareMetalInstance.SetStatusCondition(
+					v1alpha1.HostConditionPowerSynced,
+					metav1.ConditionTrue,
+					v1alpha1.HostConditionReasonPowerOn,
+					"",
+				)
+
+				mockMgmtClient.getPowerStateFunc = func(ctx context.Context, hostID string) (*management.PowerStatus, error) {
+					return &management.PowerStatus{State: management.PowerOn}, nil
+				}
+
+				result, err := reconciler.reconcileManagement(ctx, bareMetalInstance)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(result).To(Equal(ctrl.Result{}))
+				Expect(bareMetalInstance.Status.Phase).To(Equal(v1alpha1.BareMetalInstancePhaseReady))
+
+				// Step 2: User sets RunStrategy=Halted (stop). Power is still on.
+				// reconcilePower should call SetPowerState(off) and signal requeue.
+				bareMetalInstance.Spec.RunStrategy = v1alpha1.RunStrategyHalted
+				setPowerTarget := management.PowerState("")
+				mockMgmtClient.setPowerStateFunc = func(_ context.Context, _ string, target management.PowerState) error {
+					setPowerTarget = target
+					return nil
+				}
+				mockMgmtClient.getPowerStateFunc = func(ctx context.Context, hostID string) (*management.PowerStatus, error) {
+					return &management.PowerStatus{State: management.PowerOn}, nil
+				}
+
+				result, err = reconciler.reconcileManagement(ctx, bareMetalInstance)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(setPowerTarget).To(Equal(management.PowerOff))
+				Expect(result.RequeueAfter).To(Equal(DefaultManagementRecheckIntervalDuration))
+				Expect(bareMetalInstance.Status.Phase).To(Equal(v1alpha1.BareMetalInstancePhaseProgressing))
+
+				// After syncBareMetalInstanceStatus: spec=Halted, status=Always (power still on),
+				// so PowerSynced=False/Progressing
+				condition := bareMetalInstance.GetStatusCondition(v1alpha1.HostConditionPowerSynced)
+				Expect(condition).NotTo(BeNil())
+				Expect(condition.Status).To(Equal(metav1.ConditionFalse))
+
+				// Step 3: Before power-off completes, user switches back to Always (start).
+				// Management backend still reports PowerOn (stale — the power-off hasn't taken effect).
+				bareMetalInstance.Spec.RunStrategy = v1alpha1.RunStrategyAlways
+				mockMgmtClient.setPowerStateFunc = nil // Should NOT be called — stale read says already on
+
+				result, err = reconciler.reconcileManagement(ctx, bareMetalInstance)
+				Expect(err).NotTo(HaveOccurred())
+				// The stale-read guard detects PowerSynced was False and requeues to verify
+				Expect(result.RequeueAfter).To(Equal(DefaultManagementRecheckIntervalDuration))
+				Expect(bareMetalInstance.Status.Phase).To(Equal(v1alpha1.BareMetalInstancePhaseProgressing))
+
+				// Step 4: On the verification requeue, management backend has settled.
+				// PowerSynced is now True (set by syncBareMetalInstanceStatus in step 3
+				// because spec=Always matches status=Always), so the guard passes.
+				result, err = reconciler.reconcileManagement(ctx, bareMetalInstance)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(result).To(Equal(ctrl.Result{}))
+				Expect(bareMetalInstance.Status.Phase).To(Equal(v1alpha1.BareMetalInstancePhaseReady))
+			})
+
+			It("should recover when power-off completes before start is requested", func() {
+				// Start with Halted in progress — power-off was initiated but hasn't completed
+				bareMetalInstance.Spec.RunStrategy = v1alpha1.RunStrategyHalted
+				bareMetalInstance.SetStatusCondition(
+					v1alpha1.HostConditionPowerSynced,
+					metav1.ConditionFalse,
+					v1alpha1.HostConditionReasonProgressing,
+					"waiting for node power state to converge",
+				)
+
+				// Power-off completes: backend now reports PowerOff
+				mockMgmtClient.getPowerStateFunc = func(ctx context.Context, hostID string) (*management.PowerStatus, error) {
+					return &management.PowerStatus{State: management.PowerOff}, nil
+				}
+
+				result, err := reconciler.reconcileManagement(ctx, bareMetalInstance)
+				Expect(err).NotTo(HaveOccurred())
+				// Stale-read guard fires because PowerSynced was False
+				Expect(result.RequeueAfter).To(Equal(DefaultManagementRecheckIntervalDuration))
+
+				// Verification requeue: power is still off, matches Halted
+				result, err = reconciler.reconcileManagement(ctx, bareMetalInstance)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(result).To(Equal(ctrl.Result{}))
+				Expect(bareMetalInstance.Status.Phase).To(Equal(v1alpha1.BareMetalInstancePhaseReady))
+
+				// User changes to Always: should power on and eventually reach Ready
+				bareMetalInstance.Spec.RunStrategy = v1alpha1.RunStrategyAlways
+				setPowerTarget := management.PowerState("")
+				mockMgmtClient.setPowerStateFunc = func(_ context.Context, _ string, target management.PowerState) error {
+					setPowerTarget = target
+					return nil
+				}
+
+				result, err = reconciler.reconcileManagement(ctx, bareMetalInstance)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(setPowerTarget).To(Equal(management.PowerOn))
+				Expect(result.RequeueAfter).To(Equal(DefaultManagementRecheckIntervalDuration))
+
+				// Power on completes
+				mockMgmtClient.getPowerStateFunc = func(ctx context.Context, hostID string) (*management.PowerStatus, error) {
+					return &management.PowerStatus{State: management.PowerOn}, nil
+				}
+
+				// Stale-read guard fires (PowerSynced was False from the power-on transition)
+				result, err = reconciler.reconcileManagement(ctx, bareMetalInstance)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(result.RequeueAfter).To(Equal(DefaultManagementRecheckIntervalDuration))
+
+				// Verification requeue: reaches Ready
+				result, err = reconciler.reconcileManagement(ctx, bareMetalInstance)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(result).To(Equal(ctrl.Result{}))
+				Expect(bareMetalInstance.Status.Phase).To(Equal(v1alpha1.BareMetalInstancePhaseReady))
+			})
+		})
 	})
 
 	Describe("reconcileProvisioning", func() {
