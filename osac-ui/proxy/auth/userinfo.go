@@ -42,6 +42,27 @@ func UsernameFromToken(token string) string {
 	return ""
 }
 
+// GroupsFromToken extracts group membership from a JWT token.
+// Groups are read from the "groups" claim added by a Keycloak Group Membership mapper.
+// Returns an empty slice when the claim is absent or the token is invalid.
+func GroupsFromToken(token string) []string {
+	claims, err := jwtClaims(token)
+	if err != nil {
+		return nil
+	}
+	rawGroups, ok := claims["groups"].([]interface{})
+	if !ok {
+		return nil
+	}
+	groups := make([]string, 0, len(rawGroups))
+	for _, g := range rawGroups {
+		if s, ok := g.(string); ok && s != "" {
+			groups = append(groups, s)
+		}
+	}
+	return groups
+}
+
 // RolesFromToken extracts the raw role strings from a JWT access or ID token.
 // Roles are read from the standard Keycloak claim path realm_access.roles.
 // Returns an empty slice when the claim is absent or the token is invalid.

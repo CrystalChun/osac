@@ -4,21 +4,32 @@ import { DemoShellRole } from '@osac/ui-components/shellTypes';
 import { getErrorMessage } from '@osac/ui-components/utils/error';
 
 const ROLE_MAP: Record<string, DemoShellRole> = {
-  'cloud-provider-admin': 'providerAdmin',
   'tenant-admin': 'tenantAdmin',
 };
 
-const roleFromRoles = (roles: string[]): DemoShellRole => {
+const ADMIN_GROUP = 'admins';
+
+const isInAdminGroup = (groups: string[]): boolean =>
+  groups.some((g) => g === ADMIN_GROUP || g === `/${ADMIN_GROUP}`);
+
+const roleFromRoles = (roles: string[], groups: string[]): DemoShellRole => {
   for (const r of roles) {
     const mapped = ROLE_MAP[r];
     if (mapped) {
       return mapped;
     }
   }
+  if (isInAdminGroup(groups)) {
+    return 'providerAdmin';
+  }
   return 'tenantUser';
 };
 
-const fetchLoginInfo = async (): Promise<{ username: string; roles: string[] } | null> => {
+const fetchLoginInfo = async (): Promise<{
+  username: string;
+  roles: string[];
+  groups: string[];
+} | null> => {
   try {
     const resp = await fetch('/api/login/info', { credentials: 'include' });
     if (resp.status === 401) {
@@ -27,7 +38,7 @@ const fetchLoginInfo = async (): Promise<{ username: string; roles: string[] } |
     if (!resp.ok) {
       return null;
     }
-    return (await resp.json()) as { username: string; roles: string[] };
+    return (await resp.json()) as { username: string; roles: string[]; groups: string[] };
   } catch {
     return null;
   }
@@ -134,7 +145,7 @@ export const useOIDCLogin = (): [
         if (result) {
           setError(undefined);
           setUsername(result.username);
-          setRole(roleFromRoles(result.roles ?? []));
+          setRole(roleFromRoles(result.roles ?? [], result.groups ?? []));
           setIsLoading(false);
           scheduleRefresh();
         } else {
