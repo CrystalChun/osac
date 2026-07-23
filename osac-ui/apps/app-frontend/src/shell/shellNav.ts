@@ -1,8 +1,7 @@
 /** Role-based sidebar navigation (sectioned NavGroup layout). Nav icons: shellNavIcon in @osac/ui-components/icons */
 import type { TFunction } from 'i18next';
 
-import { isAdminRole } from '@osac/ui-components/helpers/isAdminRole';
-import type { DemoShellRole } from '@osac/ui-components/shellTypes';
+import { type DemoShellRole, isAdminRole } from '@osac/ui-components/shellTypes';
 
 export type NavLink = { id: string; label: string; path: string };
 

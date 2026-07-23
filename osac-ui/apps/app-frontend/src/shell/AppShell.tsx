@@ -4,7 +4,6 @@ import { Page } from '@patternfly/react-core';
 
 import ErrorBoundary from '@osac/ui-components/components/ErrorBoundary/ErrorBoundary';
 import { VmDetailsPage } from '@osac/ui-components/components/vm/VmDetailsPage';
-import { isAdminRole } from '@osac/ui-components/helpers/isAdminRole';
 import { useSession } from '@osac/ui-components/hooks/use-session';
 import { SecurityGroupDetailPage } from '@osac/ui-components/pages/networking/SecurityGroupDetailPage';
 import { SecurityGroupsListPage } from '@osac/ui-components/pages/networking/SecurityGroupsListPage';
@@ -15,6 +14,7 @@ import CatalogPage from '@osac/ui-components/pages/tenant/CatalogPage';
 import { ClusterRoutes } from '@osac/ui-components/pages/tenant/ClusterRoutes';
 import { VmCreatePage } from '@osac/ui-components/pages/tenant/VmCreatePage';
 import { VmListPage } from '@osac/ui-components/pages/tenant/VmListPage';
+import { isAdminRole } from '@osac/ui-components/shellTypes';
 
 import { ProviderCatalogRoutes } from './ProviderCatalogRoutes';
 import { ShellMasthead } from './ShellMasthead';
