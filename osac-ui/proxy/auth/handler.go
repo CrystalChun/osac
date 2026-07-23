@@ -42,6 +42,7 @@ type loginCallbackResponse struct {
 type loginInfoResponse struct {
 	Username string   `json:"username"`
 	Roles    []string `json:"roles"`
+	Groups   []string `json:"groups"`
 }
 
 // GetLogin handles GET /api/login — starts the OIDC Authorization Code + PKCE flow.
@@ -173,8 +174,9 @@ func (h *Handler) GetLoginInfo(w http.ResponseWriter, r *http.Request) {
 
 	username := UsernameFromToken(idToken)
 	roles := RolesFromToken(roleToken)
+	groups := GroupsFromToken(roleToken)
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(loginInfoResponse{Username: username, Roles: roles}) //nolint:errcheck
+	json.NewEncoder(w).Encode(loginInfoResponse{Username: username, Roles: roles, Groups: groups}) //nolint:errcheck
 }
 
 // GetLoginRefresh handles GET /api/login/refresh — refreshes the session using the refresh token.

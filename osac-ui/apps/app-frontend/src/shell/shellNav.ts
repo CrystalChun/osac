@@ -14,7 +14,7 @@ export type NavSection = {
 
 export type NavRow = NavSection;
 
-const getTenantUserNav = (t: TFunction): NavRow[] => [
+const getBaseNav = (t: TFunction): NavRow[] => [
   {
     kind: 'section',
     sectionId: 'nav-tenant-services',
@@ -45,4 +45,19 @@ const getTenantUserNav = (t: TFunction): NavRow[] => [
   },
 ];
 
-export const navRowsForRole = (_role: DemoShellRole, t: TFunction): NavRow[] => getTenantUserNav(t);
+export const navRowsForRole = (role: DemoShellRole, t: TFunction): NavRow[] => {
+  const rows = getBaseNav(t);
+
+  if (role === 'providerAdmin' || role === 'tenantAdmin') {
+    rows.push({
+      kind: 'section',
+      sectionId: 'nav-administration',
+      label: t('Administration'),
+      children: [
+        { id: 'catalog-management', label: t('Catalog management'), path: '/admin/catalog' },
+      ],
+    });
+  }
+
+  return rows;
+};

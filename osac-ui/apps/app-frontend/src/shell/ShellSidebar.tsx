@@ -15,7 +15,7 @@ const ShellNavItem = ({ item }: { item: NavLink }) => {
     <NavItem
       itemId={item.id}
       icon={shellNavIcon(item.id)}
-      isActive={location.pathname === item.path}
+      isActive={location.pathname === item.path || location.pathname.startsWith(item.path + '/')}
       to={item.path}
       onClick={(e) => {
         e.preventDefault();
