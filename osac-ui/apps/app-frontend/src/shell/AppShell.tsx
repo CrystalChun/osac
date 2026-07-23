@@ -4,6 +4,7 @@ import { Page } from '@patternfly/react-core';
 
 import ErrorBoundary from '@osac/ui-components/components/ErrorBoundary/ErrorBoundary';
 import { VmDetailsPage } from '@osac/ui-components/components/vm/VmDetailsPage';
+import { isAdminRole } from '@osac/ui-components/helpers/isAdminRole';
 import { useSession } from '@osac/ui-components/hooks/use-session';
 import { SecurityGroupDetailPage } from '@osac/ui-components/pages/networking/SecurityGroupDetailPage';
 import { SecurityGroupsListPage } from '@osac/ui-components/pages/networking/SecurityGroupsListPage';
@@ -15,10 +16,11 @@ import { ClusterRoutes } from '@osac/ui-components/pages/tenant/ClusterRoutes';
 import { VmCreatePage } from '@osac/ui-components/pages/tenant/VmCreatePage';
 import { VmListPage } from '@osac/ui-components/pages/tenant/VmListPage';
 
-import { AdminRoute } from './AdminRoute';
+import { ProviderCatalogRoutes } from './ProviderCatalogRoutes';
 import { ShellMasthead } from './ShellMasthead';
 import { defaultRouteForRole } from './shellRoutes';
 import { ShellSidebar } from './ShellSidebar';
+import { TenantAdminCatalogRoutes } from './TenantAdminCatalogRoutes';
 
 const ShellRoute = ({ children }: { children: ReactNode }) => {
   const { pathname } = useLocation();
@@ -119,14 +121,20 @@ export const AppShell = ({ logout }: { logout: () => Promise<void> }) => {
           }
         />
 
-        <Route
-          path="/admin/catalog/*"
-          element={
-            <ShellRoute>
-              <AdminRoute />
-            </ShellRoute>
-          }
-        />
+        {isAdminRole(role) && (
+          <Route
+            path="/admin/catalog/*"
+            element={
+              <ShellRoute>
+                {role === 'providerAdmin' ? (
+                  <ProviderCatalogRoutes />
+                ) : (
+                  <TenantAdminCatalogRoutes />
+                )}
+              </ShellRoute>
+            }
+          />
+        )}
 
         <Route path="*" element={<Navigate to={defaultRoute} replace />} />
       </Routes>

@@ -4,10 +4,12 @@ import { render, screen } from '@testing-library/react';
 import i18n from 'i18next';
 import { describe, expect, it } from 'vitest';
 
+import { isAdminRole } from '@osac/ui-components/helpers/isAdminRole';
 import { SessionProvider } from '@osac/ui-components/hooks/use-session';
 import type { DemoShellRole } from '@osac/ui-components/shellTypes';
 
-import { AdminRoute } from './AdminRoute';
+import { ProviderCatalogRoutes } from './ProviderCatalogRoutes';
+import { TenantAdminCatalogRoutes } from './TenantAdminCatalogRoutes';
 
 const createTestI18n = () => {
   const instance = i18n.createInstance();
@@ -27,15 +29,26 @@ const renderWithRole = (role: DemoShellRole, route = '/admin/catalog') =>
       <MemoryRouter initialEntries={[route]}>
         <SessionProvider role={role} username="test-user">
           <Routes>
-            <Route path="/admin/catalog/*" element={<AdminRoute />} />
-            <Route path="/catalog" element={<div>tenant catalog page</div>} />
+            {isAdminRole(role) && (
+              <Route
+                path="/admin/catalog/*"
+                element={
+                  role === 'providerAdmin' ? (
+                    <ProviderCatalogRoutes />
+                  ) : (
+                    <TenantAdminCatalogRoutes />
+                  )
+                }
+              />
+            )}
+            <Route path="*" element={<div>default page</div>} />
           </Routes>
         </SessionProvider>
       </MemoryRouter>
     </I18nextProvider>,
   );
 
-describe('AdminRoute', () => {
+describe('Admin catalog routes', () => {
   it('renders provider catalog routes for providerAdmin', () => {
     renderWithRole('providerAdmin');
     expect(screen.getByRole('heading', { name: 'Catalog management' })).toBeInTheDocument();
@@ -46,9 +59,9 @@ describe('AdminRoute', () => {
     expect(screen.getByRole('heading', { name: 'Catalog management' })).toBeInTheDocument();
   });
 
-  it('redirects tenantUser to /catalog', () => {
+  it('does not render admin routes for tenantUser', () => {
     renderWithRole('tenantUser');
     expect(screen.queryByRole('heading', { name: 'Catalog management' })).not.toBeInTheDocument();
-    expect(screen.getByText('tenant catalog page')).toBeInTheDocument();
+    expect(screen.getByText('default page')).toBeInTheDocument();
   });
 });
