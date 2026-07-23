@@ -22,8 +22,7 @@ export const VmActionsMenu = ({ vm }: VmActionsMenuProps) => {
   const canStop = state === ComputeInstanceState.RUNNING || state === ComputeInstanceState.PAUSED;
   const canRestart =
     state === ComputeInstanceState.RUNNING || state === ComputeInstanceState.PAUSED;
-  const canDelete =
-    state !== ComputeInstanceState.DELETING && state !== ComputeInstanceState.STARTING;
+  const canDelete = state !== ComputeInstanceState.DELETING;
 
   return (
     <>
