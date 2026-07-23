@@ -22,7 +22,6 @@ import (
 	"time"
 
 	"k8s.io/apimachinery/pkg/api/equality"
-	apimeta "k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/util/retry"
@@ -237,20 +236,11 @@ func (r *ExternalIPPoolReconciler) handleProvisioning(ctx context.Context, pool 
 		&provisioning.PollCallbacks{
 			OnFailed: func(message string) {
 				pool.Status.Phase = v1alpha1.ExternalIPPoolPhaseFailed
-				apimeta.SetStatusCondition(&pool.Status.Conditions, metav1.Condition{
-					Type:    v1alpha1.ConditionReady,
-					Status:  metav1.ConditionFalse,
-					Reason:  v1alpha1.ReasonProvisioningFailed,
-					Message: message,
-				})
+				setReadyConditionFailed(&pool.Status.Conditions, message)
 			},
 			OnSuccess: func(_ provisioning.ProvisionStatus) {
 				pool.Status.Phase = v1alpha1.ExternalIPPoolPhaseReady
-				apimeta.SetStatusCondition(&pool.Status.Conditions, metav1.Condition{
-					Type:   v1alpha1.ConditionReady,
-					Status: metav1.ConditionTrue,
-					Reason: v1alpha1.ReasonAsExpected,
-				})
+				setReadyConditionTrue(&pool.Status.Conditions)
 			},
 		},
 		func() bool {

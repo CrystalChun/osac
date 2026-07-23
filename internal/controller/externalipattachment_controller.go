@@ -19,7 +19,6 @@ import (
 	"time"
 
 	"k8s.io/apimachinery/pkg/api/equality"
-	apimeta "k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/util/retry"
@@ -323,21 +322,12 @@ func (r *ExternalIPAttachmentReconciler) handleProvisioning(
 		&provisioning.PollCallbacks{
 			OnFailed: func(message string) {
 				attachment.Status.Phase = v1alpha1.ExternalIPAttachmentPhaseFailed
-				apimeta.SetStatusCondition(&attachment.Status.Conditions, metav1.Condition{
-					Type:    v1alpha1.ConditionReady,
-					Status:  metav1.ConditionFalse,
-					Reason:  v1alpha1.ReasonProvisioningFailed,
-					Message: message,
-				})
+				setReadyConditionFailed(&attachment.Status.Conditions, message)
 			},
 			OnSuccess: func(_ provisioning.ProvisionStatus) {
 				attachment.Status.Phase = v1alpha1.ExternalIPAttachmentPhaseReady
 				r.onProvisionSuccess(ctx, publicIP, ci)
-				apimeta.SetStatusCondition(&attachment.Status.Conditions, metav1.Condition{
-					Type:   v1alpha1.ConditionReady,
-					Status: metav1.ConditionTrue,
-					Reason: v1alpha1.ReasonAsExpected,
-				})
+				setReadyConditionTrue(&attachment.Status.Conditions)
 			},
 		},
 		func() bool {

@@ -22,8 +22,6 @@ import (
 	"time"
 
 	"k8s.io/apimachinery/pkg/api/equality"
-	apimeta "k8s.io/apimachinery/pkg/api/meta"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/util/retry"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -203,20 +201,11 @@ func (r *VirtualNetworkReconciler) handleProvisioning(ctx context.Context, vnet 
 		&provisioning.PollCallbacks{
 			OnFailed: func(message string) {
 				vnet.Status.Phase = v1alpha1.VirtualNetworkPhaseFailed
-				apimeta.SetStatusCondition(&vnet.Status.Conditions, metav1.Condition{
-					Type:    v1alpha1.ConditionReady,
-					Status:  metav1.ConditionFalse,
-					Reason:  v1alpha1.ReasonProvisioningFailed,
-					Message: message,
-				})
+				setReadyConditionFailed(&vnet.Status.Conditions, message)
 			},
 			OnSuccess: func(_ provisioning.ProvisionStatus) {
 				vnet.Status.Phase = v1alpha1.VirtualNetworkPhaseReady
-				apimeta.SetStatusCondition(&vnet.Status.Conditions, metav1.Condition{
-					Type:   v1alpha1.ConditionReady,
-					Status: metav1.ConditionTrue,
-					Reason: v1alpha1.ReasonAsExpected,
-				})
+				setReadyConditionTrue(&vnet.Status.Conditions)
 			},
 		},
 		func() bool {
