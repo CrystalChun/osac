@@ -67,7 +67,7 @@ const createTestTransport = (options: {
     });
   });
 
-const renderWithSession = <T,>(
+const renderWithSession = <T>(
   hook: () => T,
   role: 'providerAdmin' | 'tenantAdmin',
   transport: ReturnType<typeof createRouterTransport>,
