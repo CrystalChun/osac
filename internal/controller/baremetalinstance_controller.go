@@ -366,13 +366,11 @@ func (r *BareMetalInstanceReconciler) reconcileManagement(ctx context.Context, b
 
 	powerNeedsRequeue := false
 	if bareMetalInstance.Spec.RunStrategy != v1alpha1.RunStrategyUnspecified {
-		var requeue bool
-		requeue, err = r.reconcilePower(ctx, bareMetalInstance, powerStatus, log)
+		powerNeedsRequeue, err = r.reconcilePower(ctx, bareMetalInstance, powerStatus, log)
 		if err != nil {
 			r.syncBareMetalInstanceStatus(bareMetalInstance, nil, err, log)
 			return ctrl.Result{}, err
 		}
-		powerNeedsRequeue = requeue
 
 		powerStatus, err = r.ManagementClient.GetPowerState(ctx, bareMetalInstance.Spec.ExternalHostID)
 		if err != nil {
@@ -413,6 +411,9 @@ func (r *BareMetalInstanceReconciler) reconcileManagement(ctx context.Context, b
 	return ctrl.Result{}, nil
 }
 
+// reconcilePower drives the host's power state toward the desired RunStrategy.
+// It returns (needsRequeue, error) — needsRequeue is true when a power action was
+// taken or the host is mid-transition, signaling the caller to re-check after a delay.
 func (r *BareMetalInstanceReconciler) reconcilePower(ctx context.Context, bareMetalInstance *v1alpha1.BareMetalInstance, powerStatus *management.PowerStatus, log logr.Logger) (bool, error) {
 	currentlyOn := powerStatus.State == management.PowerOn
 	desiredOn := bareMetalInstance.Spec.RunStrategy == v1alpha1.RunStrategyAlways
