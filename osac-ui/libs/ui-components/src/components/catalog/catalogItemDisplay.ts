@@ -3,7 +3,13 @@ import type {
   ClusterCatalogItem,
   ComputeInstanceCatalogItem,
 } from '@osac/types';
+import type {
+  BareMetalInstanceCatalogItem as PrivateBareMetalInstanceCatalogItem,
+  ClusterCatalogItem as PrivateClusterCatalogItem,
+  ComputeInstanceCatalogItem as PrivateComputeInstanceCatalogItem,
+} from '@osac/types/private';
 
+import type { DemoShellRole } from '../../shellTypes';
 import {
   CATALOG_ITEM_RESOURCE_FIELD_PATHS,
   type CatalogFieldDefinition,
@@ -19,7 +25,15 @@ import {
 export type CatalogItem =
   | ClusterCatalogItem
   | BareMetalInstanceCatalogItem
-  | ComputeInstanceCatalogItem;
+  | ComputeInstanceCatalogItem
+  | PrivateClusterCatalogItem
+  | PrivateBareMetalInstanceCatalogItem
+  | PrivateComputeInstanceCatalogItem;
+
+type PrivateCatalogItem =
+  | PrivateClusterCatalogItem
+  | PrivateBareMetalInstanceCatalogItem
+  | PrivateComputeInstanceCatalogItem;
 
 export type CatalogItemKind = 'vm' | 'cluster' | 'bm';
 
@@ -147,4 +161,34 @@ export const formatCatalogFieldDefault = (def: CatalogFieldDefinition): string =
     return '—';
   }
   return fieldDefinitionDefaultToInputString(defaultValue) || '—';
+};
+
+/**
+ * fulfillment-service's built-in global tenant. Every object without an explicit tenant is
+ * auto-assigned this value server-side, and it round-trips unmasked through the public API's
+ * `metadata.tenant` field even though the business `tenant` field is stripped from public catalog
+ * item responses entirely.
+ */
+export const SHARED_TENANT = 'shared';
+
+export type CatalogItemScope =
+  | { level: 'general' }
+  | { level: 'organization'; name?: string }
+  | { level: 'project'; name: string };
+
+const isPrivateCatalogItem = (item: CatalogItem): item is PrivateCatalogItem => 'tenant' in item;
+
+export const catalogItemScope = (item: CatalogItem, role: DemoShellRole): CatalogItemScope => {
+  const project = item.metadata?.project ?? '';
+  if (project) {
+    return { level: 'project', name: project };
+  }
+  if (role === 'providerAdmin') {
+    const tenant = isPrivateCatalogItem(item) ? item.tenant : '';
+    return tenant ? { level: 'organization', name: tenant } : { level: 'general' };
+  }
+  const metadataTenant = item.metadata?.tenant ?? '';
+  return metadataTenant === SHARED_TENANT || !metadataTenant
+    ? { level: 'general' }
+    : { level: 'organization' };
 };
