@@ -1,4 +1,4 @@
-import { type ReactNode, createElement } from 'react';
+import React, { type ReactNode, createElement } from 'react';
 import { createRouterTransport } from '@connectrpc/connect';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
@@ -17,7 +17,7 @@ const makeVm = (id: string, state: ComputeInstanceState) => ({
 });
 
 describe('usePatchComputeInstance', () => {
-  const createTestTransport = (updateFn: ReturnType<typeof import('vitest').vi.fn>) =>
+  const createTestTransport = (updateFn: (req: unknown) => void) =>
     createRouterTransport((router) => {
       router.service(ComputeInstances, {
         list: () => ({
@@ -40,7 +40,7 @@ describe('usePatchComputeInstance', () => {
     const wrapper = ({ children }: { children: ReactNode }) =>
       createElement(
         ApiProvider,
-        { transport },
+        { transport } as React.ComponentProps<typeof ApiProvider>,
         createElement(QueryClientProvider, { client: queryClient }, children),
       );
     return { ...renderHook(() => usePatchComputeInstance(), { wrapper }), queryClient };
@@ -59,9 +59,7 @@ describe('usePatchComputeInstance', () => {
       return fn;
     })();
 
-    const transport = createTestTransport(
-      updateFn as unknown as ReturnType<typeof import('vitest').vi.fn>,
-    );
+    const transport = createTestTransport(updateFn);
     const { result } = renderUsePatchComputeInstance(transport);
 
     act(() => {
@@ -73,9 +71,7 @@ describe('usePatchComputeInstance', () => {
   });
 
   it('resolves successfully after a stop action', async () => {
-    const transport = createTestTransport((() => {}) as unknown as ReturnType<
-      typeof import('vitest').vi.fn
-    >);
+    const transport = createTestTransport(() => {});
     const { result } = renderUsePatchComputeInstance(transport);
 
     act(() => {
