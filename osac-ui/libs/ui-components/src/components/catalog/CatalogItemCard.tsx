@@ -21,6 +21,8 @@ import {
 import { useTranslation } from '../../hooks/useTranslation';
 import { CatalogItemIcon } from '../../icons';
 
+import './CatalogItemCard.css';
+
 export interface CatalogItemCardSelection {
   selected: boolean;
   radioName: string;
@@ -33,6 +35,9 @@ interface CatalogItemCardProps {
   selection?: CatalogItemCardSelection;
   onOpenDetails?: () => void;
   isSelected?: boolean;
+  scopeBadge?: React.ReactNode;
+  statusLabel?: React.ReactNode;
+  publishToggle?: React.ReactNode;
 }
 
 const CatalogItemCard = ({
@@ -41,6 +46,9 @@ const CatalogItemCard = ({
   selection,
   onOpenDetails,
   isSelected,
+  scopeBadge,
+  statusLabel,
+  publishToggle,
 }: CatalogItemCardProps) => {
   const { t } = useTranslation();
   const resources = catalogItemResourceParts(item);
@@ -86,13 +94,24 @@ const CatalogItemCard = ({
               : undefined
         }
       >
-        <Flex alignItems={{ default: 'alignItemsFlexStart' }} gap={{ default: 'gapSm' }}>
+        <Flex
+          alignItems={{ default: 'alignItemsFlexStart' }}
+          justifyContent={{ default: 'justifyContentSpaceBetween' }}
+          gap={{ default: 'gapSm' }}
+        >
           <FlexItem>
-            <CatalogItemIcon kind={item.$typeName} />
+            <Flex alignItems={{ default: 'alignItemsFlexStart' }} gap={{ default: 'gapSm' }}>
+              <FlexItem>
+                <CatalogItemIcon kind={item.$typeName} />
+              </FlexItem>
+              <FlexItem flex={{ default: 'flex_1' }}>
+                <CardTitle id={titleId}>{item.title}</CardTitle>
+              </FlexItem>
+            </Flex>
           </FlexItem>
-          <FlexItem flex={{ default: 'flex_1' }}>
-            <CardTitle id={titleId}>{item.title}</CardTitle>
-          </FlexItem>
+          {publishToggle ? (
+            <FlexItem className="catalog-item-card__publish-toggle">{publishToggle}</FlexItem>
+          ) : null}
         </Flex>
       </CardHeader>
       <Divider />
@@ -103,6 +122,14 @@ const CatalogItemCard = ({
               {subtitle}
             </Content>
           </StackItem>
+          {scopeBadge || statusLabel ? (
+            <StackItem>
+              <Flex gap={{ default: 'gapSm' }}>
+                {scopeBadge ? <FlexItem>{scopeBadge}</FlexItem> : null}
+                {statusLabel ? <FlexItem>{statusLabel}</FlexItem> : null}
+              </Flex>
+            </StackItem>
+          ) : null}
           {resources.length > 0 ? (
             <StackItem>
               <Flex flexWrap={{ default: 'wrap' }} gap={{ default: 'gapSm' }}>
