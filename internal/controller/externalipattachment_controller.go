@@ -485,6 +485,7 @@ func (r *ExternalIPAttachmentReconciler) maybeRemoveCIDetachFinalizer(ctx contex
 		}
 		ci := &ciList.Items[0]
 
+		// RemoveFinalizer returns false if the finalizer is absent, skipping the unnecessary Update.
 		if controllerutil.RemoveFinalizer(ci, osacExternalIPDetachFinalizer) {
 			return r.Update(ctx, ci)
 		}
