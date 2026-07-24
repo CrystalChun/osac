@@ -333,6 +333,13 @@ func (r *BareMetalInstanceReconciler) reconcileManagement(ctx context.Context, b
 		}
 	}
 
+	// Capture whether power was synced before this reconciliation modifies conditions.
+	// Used to detect stale power state reads during rapid stop/start cycles.
+	// Nil (never set) is treated as synced — the guard only triggers when a prior
+	// reconciliation explicitly set PowerSynced=False (indicating an active transition).
+	prevPowerSynced := bareMetalInstance.GetStatusCondition(v1alpha1.HostConditionPowerSynced)
+	powerWasPreviouslySynced := prevPowerSynced == nil || prevPowerSynced.Status == metav1.ConditionTrue
+
 	// Handle restart trigger right after provisioning
 	if result, err := r.reconcileRestartTrigger(ctx, bareMetalInstance); err != nil || !result.IsZero() {
 		if err != nil {
@@ -357,8 +364,10 @@ func (r *BareMetalInstanceReconciler) reconcileManagement(ctx context.Context, b
 	}
 	log.V(1).Info("Host power state", "nodeID", bareMetalInstance.Spec.ExternalHostID, "power_state", powerStatus.State)
 
+	powerNeedsRequeue := false
 	if bareMetalInstance.Spec.RunStrategy != v1alpha1.RunStrategyUnspecified {
-		if err := r.reconcilePower(ctx, bareMetalInstance, powerStatus, log); err != nil {
+		powerNeedsRequeue, err = r.reconcilePower(ctx, bareMetalInstance, powerStatus, log)
+		if err != nil {
 			r.syncBareMetalInstanceStatus(bareMetalInstance, nil, err, log)
 			return ctrl.Result{}, err
 		}
@@ -381,7 +390,17 @@ func (r *BareMetalInstanceReconciler) reconcileManagement(ctx context.Context, b
 
 	if bareMetalInstance.Spec.RunStrategy != v1alpha1.RunStrategyUnspecified {
 		desiredOn := bareMetalInstance.Spec.RunStrategy == v1alpha1.RunStrategyAlways
-		if powerStatus.IsTransitioning || desiredOn != (powerStatus.State == management.PowerOn) {
+		if powerNeedsRequeue || powerStatus.IsTransitioning || desiredOn != (powerStatus.State == management.PowerOn) {
+			bareMetalInstance.Status.Phase = v1alpha1.BareMetalInstancePhaseProgressing
+			return ctrl.Result{RequeueAfter: r.ManagementRecheckIntervalDuration}, nil
+		}
+
+		// Guard against stale power state reads during rapid stop/start cycles.
+		// If the previous reconciliation had PowerSynced=False (transition in progress),
+		// requeue once more to verify the current "converged" read is accurate.
+		if !powerWasPreviouslySynced {
+			log.Info("Power appears converged but was recently transitioning, requeueing to verify",
+				"runStrategy", bareMetalInstance.Spec.RunStrategy, "powerState", powerStatus.State)
 			bareMetalInstance.Status.Phase = v1alpha1.BareMetalInstancePhaseProgressing
 			return ctrl.Result{RequeueAfter: r.ManagementRecheckIntervalDuration}, nil
 		}
@@ -392,20 +411,23 @@ func (r *BareMetalInstanceReconciler) reconcileManagement(ctx context.Context, b
 	return ctrl.Result{}, nil
 }
 
-func (r *BareMetalInstanceReconciler) reconcilePower(ctx context.Context, bareMetalInstance *v1alpha1.BareMetalInstance, powerStatus *management.PowerStatus, log logr.Logger) error {
+// reconcilePower drives the host's power state toward the desired RunStrategy.
+// It returns (needsRequeue, error) — needsRequeue is true when a power action was
+// taken or the host is mid-transition, signaling the caller to re-check after a delay.
+func (r *BareMetalInstanceReconciler) reconcilePower(ctx context.Context, bareMetalInstance *v1alpha1.BareMetalInstance, powerStatus *management.PowerStatus, log logr.Logger) (bool, error) {
 	currentlyOn := powerStatus.State == management.PowerOn
 	desiredOn := bareMetalInstance.Spec.RunStrategy == v1alpha1.RunStrategyAlways
 
 	if powerStatus.IsTransitioning {
 		log.V(1).Info("Node is transitioning, skipping power action",
 			"nodeID", bareMetalInstance.Spec.ExternalHostID)
-		return nil
+		return true, nil
 	}
 
 	needsPowerUpdate := desiredOn != currentlyOn
 	if !needsPowerUpdate {
 		log.Info("Power state already matches desired", "runStrategy", bareMetalInstance.Spec.RunStrategy, "power_state", powerStatus.State)
-		return nil
+		return false, nil
 	}
 
 	targetState := management.PowerOff
@@ -420,13 +442,13 @@ func (r *BareMetalInstanceReconciler) reconcilePower(ctx context.Context, bareMe
 		if errors.Is(err, management.ErrTransitioning) {
 			log.Info("Node is transitioning (conflict), will retry",
 				"nodeID", bareMetalInstance.Spec.ExternalHostID)
-			return nil
+			return true, nil
 		}
 		log.Error(err, "failed to power "+action+" node", "nodeID", bareMetalInstance.Spec.ExternalHostID)
-		return err
+		return false, err
 	}
 
-	return nil
+	return true, nil
 }
 
 func (r *BareMetalInstanceReconciler) reconcileProvisioning(ctx context.Context, bareMetalInstance *v1alpha1.BareMetalInstance) (ctrl.Result, error) {
@@ -567,13 +589,6 @@ func (r *BareMetalInstanceReconciler) reconcileRestartTrigger(ctx context.Contex
 
 	// Check if restart trigger has changed
 	if bareMetalInstance.Spec.RestartTrigger == bareMetalInstance.Status.RestartTrigger {
-		// No restart trigger change, nothing to do
-		bareMetalInstance.SetStatusCondition(
-			v1alpha1.HostConditionPowerSynced,
-			metav1.ConditionTrue,
-			"Completed",
-			"Restart trigger is up to date",
-		)
 		return ctrl.Result{}, nil
 	}
 
