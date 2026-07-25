@@ -22,6 +22,7 @@ import (
 	. "github.com/onsi/gomega"    //nolint:revive,staticcheck
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
@@ -200,7 +201,7 @@ var _ = Describe("Bridge", func() {
 
 			updated := &v1alpha1.Subnet{}
 			err = k8sClient.Get(ctx, types.NamespacedName{Name: testName, Namespace: testNamespace}, updated)
-			Expect(err).To(HaveOccurred())
+			Expect(apierrors.IsNotFound(err)).To(BeTrue())
 		})
 	})
 
@@ -228,7 +229,7 @@ var _ = Describe("Bridge", func() {
 
 			updated := &v1alpha1.Subnet{}
 			err = k8sClient.Get(ctx, types.NamespacedName{Name: testName, Namespace: testNamespace}, updated)
-			Expect(err).To(HaveOccurred())
+			Expect(apierrors.IsNotFound(err)).To(BeTrue())
 		})
 
 		It("should return nil even when finalizer is already absent", func() {
@@ -249,6 +250,12 @@ var _ = Describe("Bridge", func() {
 
 			_, err := bridge.Reconcile(ctx, newRequest())
 			Expect(err).NotTo(HaveOccurred())
+			Expect(trk.saveCalls).To(Equal(0))
+			Expect(trk.signalCalls).To(Equal(0))
+
+			updated := &v1alpha1.Subnet{}
+			Expect(k8sClient.Get(ctx, types.NamespacedName{Name: testName, Namespace: testNamespace}, updated)).To(Succeed())
+			Expect(updated.Finalizers).To(ConsistOf(otherFin))
 		})
 
 		It("should use custom IsNotFound when provided", func() {
@@ -395,6 +402,9 @@ var _ = Describe("Bridge", func() {
 			bridge := newBridge(k8sClient, trk)
 			bridge.PostSaveOnDelete = func(_ context.Context, _ *v1alpha1.Subnet) error {
 				Expect(trk.saveCalls).To(Equal(1))
+				inHook := &v1alpha1.Subnet{}
+				Expect(k8sClient.Get(ctx, types.NamespacedName{Name: testName, Namespace: testNamespace}, inHook)).To(Succeed())
+				Expect(controllerutil.ContainsFinalizer(inHook, testFinalizer)).To(BeTrue())
 				postSaveCalled = true
 				return nil
 			}
@@ -482,7 +492,7 @@ var _ = Describe("Bridge", func() {
 
 			updated := &v1alpha1.Subnet{}
 			err = k8sClient.Get(ctx, types.NamespacedName{Name: testName, Namespace: testNamespace}, updated)
-			Expect(err).To(HaveOccurred())
+			Expect(apierrors.IsNotFound(err)).To(BeTrue())
 		})
 
 		It("should not fail when Signal returns an error", func() {
