@@ -30,8 +30,10 @@ export const useClusterCatalogItem = (id: string | undefined) => {
 
 /**
  * Admin list hook for the catalog management pages. CSP Admin (`providerAdmin`) sees all items via
- * the private API (including unpublished); Tenant Admin sees their tenant's items via the public API,
- * which the server already scopes to the caller's tenant regardless of publication status.
+ * the private API (including unpublished). Tenant Admin sees their tenant's items via the public API —
+ * this currently returns only published items regardless of caller role; unpublished items scoped to
+ * the Tenant Admin's own tenant are not visible through this hook (tracked as a backend limitation in
+ * OSAC-3121).
  */
 export const useAdminClusterCatalogItems = (params: ListParams = {}, enabled = true) => {
   const { role } = useSession();

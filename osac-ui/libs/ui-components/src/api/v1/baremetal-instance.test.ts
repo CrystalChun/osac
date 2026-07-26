@@ -1,7 +1,5 @@
-import React, { type ReactNode, createElement } from 'react';
 import { createRouterTransport } from '@connectrpc/connect';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { act, renderHook, waitFor } from '@testing-library/react';
+import { act, waitFor } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
 import type { BareMetalInstanceCatalogItem } from '@osac/types';
@@ -13,8 +11,7 @@ import {
   useAdminBareMetalInstanceCatalogItems,
   useAdminSetBareMetalInstanceCatalogItemPublished,
 } from './baremetal-instance';
-import { SessionProvider } from '../../hooks/use-session';
-import { ApiProvider } from '../api-context';
+import { renderHookWithProviders } from '../../test-utils/TestProviders';
 
 const publicItem: BareMetalInstanceCatalogItem = {
   $typeName: 'osac.public.v1.BareMetalInstanceCatalogItem',
@@ -67,26 +64,11 @@ const createTestTransport = (options: {
     });
   });
 
-const renderWithSession = <T>(
-  hook: () => T,
+const renderWithSession = <TResult>(
+  hook: () => TResult,
   role: 'providerAdmin' | 'tenantAdmin',
   transport: ReturnType<typeof createRouterTransport>,
-) => {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
-  });
-  const wrapper = ({ children }: { children: ReactNode }) =>
-    createElement(
-      SessionProvider,
-      { role, username: 'test-user' } as React.ComponentProps<typeof SessionProvider>,
-      createElement(
-        ApiProvider,
-        { transport } as React.ComponentProps<typeof ApiProvider>,
-        createElement(QueryClientProvider, { client: queryClient }, children),
-      ),
-    );
-  return { ...renderHook(hook, { wrapper }), queryClient };
-};
+) => renderHookWithProviders(hook, { role, transport });
 
 describe('useAdminBareMetalInstanceCatalogItems', () => {
   it('calls the private List endpoint for providerAdmin', async () => {

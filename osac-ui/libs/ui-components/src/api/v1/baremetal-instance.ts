@@ -33,7 +33,7 @@ export const useBareMetalInstance = (id: string) => {
   });
 };
 
-export const useBareMetalInstanceCatalogItems = (enabled = true, params: ListParams = {}) => {
+export const useBareMetalInstanceCatalogItems = (params: ListParams = {}, enabled = true) => {
   const client = useApiFetch(BareMetalInstanceCatalogItems);
   return useApiQuery({
     queryKey: apiQueryKey('v1/baremetal_instance_catalog_items', undefined, params),
@@ -45,13 +45,15 @@ export const useBareMetalInstanceCatalogItems = (enabled = true, params: ListPar
 
 /**
  * Admin list hook for the catalog management pages. CSP Admin (`providerAdmin`) sees all items via
- * the private API (including unpublished); Tenant Admin sees their tenant's items via the public API,
- * which the server already scopes to the caller's tenant regardless of publication status.
+ * the private API (including unpublished). Tenant Admin sees their tenant's items via the public API —
+ * this currently returns only published items regardless of caller role; unpublished items scoped to
+ * the Tenant Admin's own tenant are not visible through this hook (tracked as a backend limitation in
+ * OSAC-3121).
  */
 export const useAdminBareMetalInstanceCatalogItems = (params: ListParams = {}, enabled = true) => {
   const { role } = useSession();
   const isProviderAdmin = role === 'providerAdmin';
-  const publicResult = useBareMetalInstanceCatalogItems(enabled && !isProviderAdmin, params);
+  const publicResult = useBareMetalInstanceCatalogItems(params, enabled && !isProviderAdmin);
   const privateClient = useApiFetch(PrivateBareMetalInstanceCatalogItems);
   const privateResult = useApiQuery({
     queryKey: apiQueryKey('v1/baremetal_instance_catalog_items_private', undefined, params),
