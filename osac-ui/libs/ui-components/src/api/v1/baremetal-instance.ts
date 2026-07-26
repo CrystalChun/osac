@@ -51,16 +51,25 @@ export type PatchBareMetalInstanceInput =
   | { id: string; action: 'start' | 'stop' }
   | { id: string; action: 'restart'; currentTrigger: bigint };
 
-const buildPatchBody = (
+const buildPatch = (
   input: PatchBareMetalInstanceInput,
-): MessageInitShape<typeof BareMetalInstanceSchema> => {
+): { body: MessageInitShape<typeof BareMetalInstanceSchema>; maskPaths: string[] } => {
   switch (input.action) {
     case 'start':
-      return { spec: { runStrategy: BareMetalInstanceRunStrategy.ALWAYS } };
+      return {
+        body: { spec: { runStrategy: BareMetalInstanceRunStrategy.ALWAYS } },
+        maskPaths: ['spec.run_strategy'],
+      };
     case 'stop':
-      return { spec: { runStrategy: BareMetalInstanceRunStrategy.HALTED } };
+      return {
+        body: { spec: { runStrategy: BareMetalInstanceRunStrategy.HALTED } },
+        maskPaths: ['spec.run_strategy'],
+      };
     case 'restart':
-      return { spec: { restartTrigger: input.currentTrigger + 1n } };
+      return {
+        body: { spec: { restartTrigger: input.currentTrigger + 1n } },
+        maskPaths: ['spec.restart_trigger'],
+      };
   }
 };
 
@@ -68,8 +77,12 @@ export const usePatchBareMetalInstance = () => {
   const client = useApiFetch(BareMetalInstances);
   const qc = useApiQueryClient();
   return useMutation({
-    mutationFn: (input: PatchBareMetalInstanceInput) =>
-      client.update({ object: { id: input.id, ...buildPatchBody(input) } }).then((r) => r.object),
+    mutationFn: (input: PatchBareMetalInstanceInput) => {
+      const { body, maskPaths } = buildPatch(input);
+      return client
+        .update({ object: { id: input.id, ...body }, updateMask: { paths: maskPaths } })
+        .then((r) => r.object);
+    },
     onSuccess: () => invalidateBareMetalInstancesQueries(qc),
   });
 };
