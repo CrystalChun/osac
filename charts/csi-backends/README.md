@@ -5,11 +5,13 @@ runs as a separate Deployment + Service exposing gRPC on port 50051.
 
 ## Prerequisites
 
-Each vendor requires secrets created **before** installing the chart.
+Each vendor requires secrets and may require CRDs created **before** installing
+the chart.
 
 ### Trident (NetApp ONTAP)
 
-Trident requires a TLS certificate secret for its internal REST API:
+Trident requires its CRDs (normally installed by the Trident operator) and a
+TLS certificate secret for its internal REST API:
 
 ```bash
 TMPDIR=$(mktemp -d)
@@ -67,7 +69,8 @@ vast:
 
 ### Pure Storage
 
-Pure requires a JSON config secret with FlashArray endpoints and API tokens:
+Pure requires its CRDs (`PureVolume`, `PureSnapshot`, `StorageNodeInitiator`)
+and a JSON config secret with FlashArray endpoints and API tokens:
 
 ```bash
 kubectl -n osac-csi-backends create secret generic px-pure-secret \
