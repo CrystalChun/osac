@@ -33,11 +33,11 @@ export const useBareMetalInstance = (id: string) => {
   });
 };
 
-export const useBareMetalInstanceCatalogItems = (enabled = true) => {
+export const useBareMetalInstanceCatalogItems = (enabled = true, params: ListParams = {}) => {
   const client = useApiFetch(BareMetalInstanceCatalogItems);
   return useApiQuery({
-    queryKey: apiQueryKey('v1/baremetal_instance_catalog_items'),
-    queryFn: () => client.list({}),
+    queryKey: apiQueryKey('v1/baremetal_instance_catalog_items', undefined, params),
+    queryFn: () => client.list(params),
     select: (data) => data.items,
     enabled,
   });
@@ -51,13 +51,7 @@ export const useBareMetalInstanceCatalogItems = (enabled = true) => {
 export const useAdminBareMetalInstanceCatalogItems = (params: ListParams = {}, enabled = true) => {
   const { role } = useSession();
   const isProviderAdmin = role === 'providerAdmin';
-  const publicClient = useApiFetch(BareMetalInstanceCatalogItems);
-  const publicResult = useApiQuery({
-    queryKey: apiQueryKey('v1/baremetal_instance_catalog_items', undefined, params),
-    queryFn: () => publicClient.list(params),
-    select: (data) => data.items,
-    enabled: enabled && !isProviderAdmin,
-  });
+  const publicResult = useBareMetalInstanceCatalogItems(enabled && !isProviderAdmin, params);
   const privateClient = useApiFetch(PrivateBareMetalInstanceCatalogItems);
   const privateResult = useApiQuery({
     queryKey: apiQueryKey('v1/baremetal_instance_catalog_items_private', undefined, params),
