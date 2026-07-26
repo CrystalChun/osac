@@ -1,3 +1,4 @@
+import { type TFunction } from 'i18next';
 import { describe, expect, it } from 'vitest';
 
 import {
@@ -15,7 +16,7 @@ describe('vm-detail-tabs', () => {
   });
 
   it('returns Overview, Networking, and Console tab labels', () => {
-    const t = (key: string) => key;
+    const t = ((key: string) => key) as TFunction;
 
     expect(getVmDetailTabLabels(t)).toEqual(['Overview', 'Networking', 'Console']);
   });

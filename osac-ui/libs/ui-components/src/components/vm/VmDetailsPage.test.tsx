@@ -37,7 +37,7 @@ describe('VmDetailsPage', () => {
       isError: false,
       error: null,
       refetch: vi.fn(),
-    } as ReturnType<typeof useComputeInstance>);
+    } as unknown as ReturnType<typeof useComputeInstance>);
 
     renderPage();
 
