@@ -1,10 +1,12 @@
 namespace: osac-csi-backends
 
+imagePullSecrets: []
+
 trident:
   enabled: false
   image:
     repository: registry.connect.redhat.com/netapp/trident
-    tag: 25.02.0
+    tag: 25.10.0
   service:
     port: 50051
   config:

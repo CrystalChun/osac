@@ -29,6 +29,10 @@ spec:
     spec:
       serviceAccountName: pure-vendor-sa
       automountServiceAccountToken: false
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: pure-csi
           image: "{{ .Values.pure.image.repository }}:{{ .Values.pure.image.tag }}"

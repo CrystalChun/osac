@@ -28,6 +28,10 @@ spec:
         app.kubernetes.io/name: trident-csi-controller
     spec:
       serviceAccountName: trident-vendor-sa
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: trident-main
           image: "{{ .Values.trident.image.repository }}:{{ .Values.trident.image.tag }}"

@@ -28,6 +28,10 @@ spec:
         app.kubernetes.io/name: vast-csi-controller
     spec:
       serviceAccountName: vast-vendor-sa
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: vast-csi
           image: "{{ .Values.vast.image.repository }}:{{ .Values.vast.image.tag }}"
