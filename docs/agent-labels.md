@@ -14,7 +14,7 @@ provisioning to fail silently or stall indefinitely.
 
 | Label Key | Operator Action | Required For |
 |-----------|-----------------|--------------|
-| `osac.openshift.io/resource_class` | Set via inventory | Agent selection and NodePool matching |
+| `osac.openshift.io/resource_class` | Set by import path | Agent selection and NodePool matching |
 
 ### Controller-Managed Labels
 
@@ -32,7 +32,7 @@ Classifies the server's hardware type (e.g., `fc430`, `gpu-large`). Used by
 ClusterOrder's `nodeRequests[].resourceClass`, and by NodePool
 `agentLabelSelector` to bind agents to the correct pool.
 
-**Set by:** All import paths write this label from the inventory:
+**Set by:** Each import path derives this label from its backend-specific source:
 - BMH import (`playbook_osac_import_agents.yml`) - from `server.resource_class`
 - BCM import (`playbook_osac_import_bcm_agents.yml`) - from BCM notes field
 - NICo - from NICo instance type
@@ -145,7 +145,7 @@ servers:
 ```
 
 The import playbook reads `resource_class` and `netris_server_name` from the
-inventory and applies them as properly formatted Kubernetes labels. See
+inventory and applies them as properly-formatted Kubernetes labels. See
 [Bare Metal Agent Import](import-agents.md) for the full inventory format.
 
 **Manual patching (import-time labels only, for debugging or one-off):**
