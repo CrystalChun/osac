@@ -8,17 +8,17 @@ import {
   ConsoleType,
 } from '@osac/types';
 
-import type { VmConsoleType } from '../../components/vm/console/console.types';
 import { useApiFetch } from '../api-context';
 
+// Only VNC is supported for now; serial console support is handled later.
 export const buildConsoleSessionRequest = (
-  vmId: string,
-  consoleType: VmConsoleType,
-  clientId: string,
+  resourceType: ConsoleResourceType,
+  resourceId: string,
+  clientId = '',
 ): MessageInitShape<typeof ConsoleSessionSchema> => ({
-  resourceType: ConsoleResourceType.COMPUTE_INSTANCE,
-  resourceId: vmId,
-  type: consoleType === 'serial' ? ConsoleType.SERIAL : ConsoleType.VNC,
+  resourceType,
+  resourceId,
+  type: ConsoleType.VNC,
   clientId,
 });
 

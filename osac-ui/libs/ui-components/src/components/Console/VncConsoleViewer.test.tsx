@@ -37,12 +37,12 @@ vi.mock('./novnc-rfb', () => ({
 }));
 
 const {
-  default: VmVncConsole,
+  default: VncConsoleViewer,
   RFB_CONNECT_TIMEOUT_MS,
   RFB_INIT_TIMEOUT_MS,
-} = await import('./VmVncConsole');
+} = await import('./VncConsoleViewer');
 
-describe('VmVncConsole', () => {
+describe('VncConsoleViewer', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     Object.defineProperty(HTMLElement.prototype, 'clientWidth', {
@@ -62,22 +62,22 @@ describe('VmVncConsole', () => {
   it('renders the VNC container when a WebSocket is provided', async () => {
     const webSocket = { close: vi.fn() } as unknown as WebSocket;
 
-    render(<VmVncConsole webSocket={webSocket} />);
+    render(<VncConsoleViewer webSocket={webSocket} />);
 
-    expect(screen.getByTestId('vm-vnc-console')).toBeInTheDocument();
+    expect(screen.getByTestId('vnc-console-viewer')).toBeInTheDocument();
     await waitFor(() => expect(RFBMock).toHaveBeenCalled());
   });
 
   it('applies the viewport class that gives the container a real height', () => {
-    render(<VmVncConsole webSocket={{ close: vi.fn() } as unknown as WebSocket} />);
+    render(<VncConsoleViewer webSocket={{ close: vi.fn() } as unknown as WebSocket} />);
 
-    expect(screen.getByTestId('vm-vnc-console')).toHaveClass('vm-console-viewport');
+    expect(screen.getByTestId('vnc-console-viewer')).toHaveClass('vm-console-viewport');
   });
 
   it('disconnects the RFB session on unmount', async () => {
     const webSocket = { close: vi.fn() } as unknown as WebSocket;
 
-    const { unmount } = render(<VmVncConsole webSocket={webSocket} />);
+    const { unmount } = render(<VncConsoleViewer webSocket={webSocket} />);
     await waitFor(() => expect(RFBMock).toHaveBeenCalled());
     unmount();
 
@@ -88,7 +88,7 @@ describe('VmVncConsole', () => {
     const onConnected = vi.fn();
     const webSocket = { close: vi.fn() } as unknown as WebSocket;
 
-    render(<VmVncConsole onConnected={onConnected} webSocket={webSocket} />);
+    render(<VncConsoleViewer onConnected={onConnected} webSocket={webSocket} />);
     await waitFor(() => expect(RFBMock).toHaveBeenCalled());
 
     const rfbInstance = RFBMock.mock.results[0].value as RFB;
@@ -106,7 +106,7 @@ describe('VmVncConsole', () => {
       current: null as null | { focus: () => void; pasteFromClipboard: () => Promise<void> },
     };
 
-    render(<VmVncConsole ref={ref} webSocket={webSocket} />);
+    render(<VncConsoleViewer ref={ref} webSocket={webSocket} />);
     await waitFor(() => expect(RFBMock).toHaveBeenCalled());
 
     act(() => {
@@ -122,7 +122,7 @@ describe('VmVncConsole', () => {
     vi.mocked(loadVncRfbConstructor).mockRejectedValueOnce(new Error('noVNC import failed'));
 
     render(
-      <VmVncConsole onError={onError} webSocket={{ close: vi.fn() } as unknown as WebSocket} />,
+      <VncConsoleViewer onError={onError} webSocket={{ close: vi.fn() } as unknown as WebSocket} />,
     );
 
     await waitFor(() => expect(onError).toHaveBeenCalledWith('noVNC import failed'));
@@ -141,7 +141,7 @@ describe('VmVncConsole', () => {
     const onError = vi.fn();
 
     render(
-      <VmVncConsole onError={onError} webSocket={{ close: vi.fn() } as unknown as WebSocket} />,
+      <VncConsoleViewer onError={onError} webSocket={{ close: vi.fn() } as unknown as WebSocket} />,
     );
 
     await act(async () => {
@@ -159,7 +159,7 @@ describe('VmVncConsole', () => {
     const onError = vi.fn();
 
     render(
-      <VmVncConsole onError={onError} webSocket={{ close: vi.fn() } as unknown as WebSocket} />,
+      <VncConsoleViewer onError={onError} webSocket={{ close: vi.fn() } as unknown as WebSocket} />,
     );
 
     await act(async () => {
@@ -180,7 +180,7 @@ describe('VmVncConsole', () => {
     const onError = vi.fn();
 
     render(
-      <VmVncConsole onError={onError} webSocket={{ close: vi.fn() } as unknown as WebSocket} />,
+      <VncConsoleViewer onError={onError} webSocket={{ close: vi.fn() } as unknown as WebSocket} />,
     );
     await waitFor(() => expect(RFBMock).toHaveBeenCalled());
 

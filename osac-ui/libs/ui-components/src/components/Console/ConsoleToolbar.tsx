@@ -4,7 +4,7 @@ import ExpandIcon from '@patternfly/react-icons/dist/esm/icons/expand-icon';
 import PasteIcon from '@patternfly/react-icons/dist/esm/icons/paste-icon';
 
 import type { ConsoleUiConnectionState } from './console.types';
-import { useTranslation } from '../../../hooks/useTranslation';
+import { useTranslation } from '../../hooks/useTranslation';
 
 interface Props {
   connectionState: ConsoleUiConnectionState;
@@ -13,12 +13,7 @@ interface Props {
   onToggleFullscreen: () => void;
 }
 
-const VmConsoleToolbar = ({
-  connectionState,
-  isFullscreen,
-  onPaste,
-  onToggleFullscreen,
-}: Props) => {
+const ConsoleToolbar = ({ connectionState, isFullscreen, onPaste, onToggleFullscreen }: Props) => {
   const { t } = useTranslation();
   const isConnected = connectionState === 'connected';
   const fullscreenDisabled = !isConnected;
@@ -52,4 +47,4 @@ const VmConsoleToolbar = ({
   );
 };
 
-export default VmConsoleToolbar;
+export default ConsoleToolbar;

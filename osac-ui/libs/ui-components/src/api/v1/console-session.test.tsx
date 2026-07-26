@@ -16,21 +16,32 @@ vi.mock('../api-context', () => ({
 }));
 
 describe('buildConsoleSessionRequest', () => {
-  it('maps serial console type to protobuf enum', () => {
-    expect(buildConsoleSessionRequest('vm-1', 'serial', 'client-uuid')).toEqual({
+  it('builds a VNC console session request with no client id by default', () => {
+    expect(buildConsoleSessionRequest(ConsoleResourceType.COMPUTE_INSTANCE, 'vm-1')).toEqual({
       resourceType: ConsoleResourceType.COMPUTE_INSTANCE,
       resourceId: 'vm-1',
-      type: ConsoleType.SERIAL,
-      clientId: 'client-uuid',
+      type: ConsoleType.VNC,
+      clientId: '',
     });
   });
 
-  it('maps vnc console type to protobuf enum', () => {
-    expect(buildConsoleSessionRequest('vm-2', 'vnc', 'client-uuid')).toEqual({
+  it('includes the given client id', () => {
+    expect(
+      buildConsoleSessionRequest(ConsoleResourceType.COMPUTE_INSTANCE, 'vm-1', 'client-a'),
+    ).toEqual({
       resourceType: ConsoleResourceType.COMPUTE_INSTANCE,
-      resourceId: 'vm-2',
+      resourceId: 'vm-1',
       type: ConsoleType.VNC,
-      clientId: 'client-uuid',
+      clientId: 'client-a',
+    });
+  });
+
+  it('supports other resource types', () => {
+    expect(buildConsoleSessionRequest(ConsoleResourceType.HOST, 'host-1')).toEqual({
+      resourceType: ConsoleResourceType.HOST,
+      resourceId: 'host-1',
+      type: ConsoleType.VNC,
+      clientId: '',
     });
   });
 });
@@ -50,13 +61,12 @@ describe('useCreateConsoleSession', () => {
         resourceType: ConsoleResourceType.COMPUTE_INSTANCE,
         resourceId: 'vm-1',
         type: ConsoleType.VNC,
-        clientId: 'client-uuid',
         ticket: 'encrypted-ticket',
       },
     });
 
     const { result } = renderHook(() => useCreateConsoleSession(), { wrapper });
-    result.current.mutate(buildConsoleSessionRequest('vm-1', 'vnc', 'client-uuid'));
+    result.current.mutate(buildConsoleSessionRequest(ConsoleResourceType.COMPUTE_INSTANCE, 'vm-1'));
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
@@ -65,7 +75,7 @@ describe('useCreateConsoleSession', () => {
         resourceType: ConsoleResourceType.COMPUTE_INSTANCE,
         resourceId: 'vm-1',
         type: ConsoleType.VNC,
-        clientId: 'client-uuid',
+        clientId: '',
       },
     });
     expect(result.current.data?.ticket).toBe('encrypted-ticket');

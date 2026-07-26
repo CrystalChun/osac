@@ -100,6 +100,8 @@ func main() {
 			proxymiddleware.ConsoleWebSocketAuth(config.BaseUIURL)(consoleWSHandler),
 		)
 		log.Info("Console WebSocket proxy enabled")
+
+		router.Post("/api/console-ticket/clear", bridge.NewClearConsoleTicketCookieHandler(config.BaseUIURL))
 	}
 
 	if grpcTarget != "" {
@@ -109,7 +111,16 @@ func main() {
 		}
 		router.Group(func(r chi.Router) {
 			r.Use(proxymiddleware.Auth)
-			r.Handle("/api/fulfillment/*", http.StripPrefix("/api/fulfillment", connectHandler))
+			strippedConnect := http.StripPrefix("/api/fulfillment", connectHandler)
+			// The console-ticket must never reach the browser as a JS-readable
+			// value (see bridge.WrapConsoleSessionCreate) — chi matches this
+			// literal path ahead of the /* wildcard below regardless of
+			// registration order.
+			r.Handle(
+				"/api/fulfillment/osac.public.v1.ConsoleSessions/Create",
+				bridge.WrapConsoleSessionCreate(strippedConnect, config.BaseUIURL),
+			)
+			r.Handle("/api/fulfillment/*", strippedConnect)
 		})
 		log.Info("Connect JSON proxy enabled")
 	}

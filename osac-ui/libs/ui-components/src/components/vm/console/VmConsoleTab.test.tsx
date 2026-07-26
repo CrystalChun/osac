@@ -1,39 +1,50 @@
-import { type Ref, forwardRef, useImperativeHandle } from 'react';
-import { act, screen } from '@testing-library/react';
+import { forwardRef, useImperativeHandle } from 'react';
+import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { ComputeInstance } from '@osac/types';
 import { ComputeInstanceState } from '@osac/types';
 
-import { CONSOLE_FULLSCREEN_CONTAINER_CLASS_NAME } from './console-viewport';
 import VmConsoleTab from './VmConsoleTab';
-import type { VmVncConsoleHandle } from './VmVncConsole';
 import { renderWithProviders } from '../../../test-utils/TestProviders';
+import { CONSOLE_FULLSCREEN_CONTAINER_CLASS_NAME } from '../../Console/console-viewport';
 
-vi.mock('./useConsoleSession', () => ({
+vi.mock('../../Console/useConsoleSession', () => ({
   useConsoleSession: vi.fn(),
 }));
 
-const focusViewer = vi.fn();
-let latestOnConnected: (() => void) | undefined;
-const MockVmVncConsole = forwardRef(
-  (props: { onConnected?: () => void }, ref: Ref<VmVncConsoleHandle>) => {
-    latestOnConnected = props.onConnected;
+vi.mock('../../Console/novnc-rfb', () => ({
+  loadVncRfbConstructor: vi.fn().mockResolvedValue(undefined),
+}));
+
+// VncConsoleViewer is a static import in VmConsoleTab.tsx (no longer lazy), so vi.mock's
+// hoisting runs this factory before any of the test file's own top-level consts — anything
+// it needs (the vi.fn() and the mutable ref for the captured onConnected prop) must come
+// from vi.hoisted() rather than a plain const declared below.
+const { focusViewer, latestOnConnectedRef } = vi.hoisted(() => ({
+  focusViewer: vi.fn(),
+  latestOnConnectedRef: { current: undefined as (() => void) | undefined },
+}));
+
+vi.mock('../../Console/VncConsoleViewer', () => {
+  const MockVncConsoleViewer = forwardRef<
+    { focus: () => void; pasteFromClipboard: () => Promise<void> },
+    { onConnected?: () => void }
+  >((props, ref) => {
+    latestOnConnectedRef.current = props.onConnected;
     useImperativeHandle(ref, () => ({
       focus: focusViewer,
       pasteFromClipboard: () => Promise.resolve(),
     }));
     return <div>VNC viewer</div>;
-  },
-);
-MockVmVncConsole.displayName = 'MockVmVncConsole';
+  });
+  MockVncConsoleViewer.displayName = 'MockVncConsoleViewer';
+  return { default: MockVncConsoleViewer };
+});
 
-vi.mock('./VmVncConsole', () => ({
-  default: MockVmVncConsole,
-}));
-
-const { useConsoleSession } = await import('./useConsoleSession');
+const { useConsoleSession } = await import('../../Console/useConsoleSession');
+const { loadVncRfbConstructor } = await import('../../Console/novnc-rfb');
 
 const runningVm = {
   id: 'vm-1',
@@ -49,13 +60,16 @@ const renderTab = (vm: ComputeInstance) => renderWithProviders(<VmConsoleTab vm=
 
 describe('VmConsoleTab', () => {
   beforeEach(() => {
-    latestOnConnected = undefined;
+    latestOnConnectedRef.current = undefined;
     focusViewer.mockClear();
+    vi.mocked(loadVncRfbConstructor).mockClear();
     vi.mocked(useConsoleSession).mockReturnValue({
       connectionState: 'idle',
+      connect: vi.fn(),
       errorMessage: null,
-      isVmRunning: true,
+      errorKind: 'generic',
       reportViewerError: vi.fn(),
+      takeOver: vi.fn(),
       webSocket: null,
     });
   });
@@ -63,9 +77,11 @@ describe('VmConsoleTab', () => {
   it('shows an empty state when the VM is not running', () => {
     vi.mocked(useConsoleSession).mockReturnValue({
       connectionState: 'idle',
+      connect: vi.fn(),
       errorMessage: null,
-      isVmRunning: false,
+      errorKind: 'generic',
       reportViewerError: vi.fn(),
+      takeOver: vi.fn(),
       webSocket: null,
     });
 
@@ -79,12 +95,77 @@ describe('VmConsoleTab', () => {
     expect(screen.queryByRole('button', { name: 'Full screen' })).not.toBeInTheDocument();
   });
 
-  it('shows connection error details', () => {
+  it('loads the noVNC viewer code before calling connect', async () => {
+    // Regression guard: the socket must not be created until the viewer code is ready to
+    // attach to it (see novnc-rfb.ts's loadVncRfbConstructor for the race this prevents).
+    const connect = vi.fn();
+    vi.mocked(useConsoleSession).mockReturnValue({
+      connectionState: 'idle',
+      connect,
+      errorMessage: null,
+      errorKind: 'generic',
+      reportViewerError: vi.fn(),
+      takeOver: vi.fn(),
+      webSocket: null,
+    });
+
+    renderTab(runningVm);
+
+    expect(loadVncRfbConstructor).toHaveBeenCalled();
+    expect(connect).not.toHaveBeenCalled();
+
+    await waitFor(() => expect(connect).toHaveBeenCalledTimes(1));
+  });
+
+  it('does not load the noVNC code or connect when the VM is not running', () => {
+    vi.mocked(useConsoleSession).mockReturnValue({
+      connectionState: 'idle',
+      connect: vi.fn(),
+      errorMessage: null,
+      errorKind: 'generic',
+      reportViewerError: vi.fn(),
+      takeOver: vi.fn(),
+      webSocket: null,
+    });
+
+    renderTab(stoppedVm);
+
+    expect(loadVncRfbConstructor).not.toHaveBeenCalled();
+  });
+
+  it('reports a viewer error instead of hanging when the noVNC code fails to load', async () => {
+    // Regression guard: without a .catch() here, connect() is never called, webSocket
+    // stays null, and the UI is stuck on the "Connecting" spinner forever — the same
+    // failure mode this effect exists to prevent, just triggered a step earlier.
+    vi.mocked(loadVncRfbConstructor).mockRejectedValueOnce(new Error('chunk load failed'));
+    const connect = vi.fn();
+    const reportViewerError = vi.fn();
+    vi.mocked(useConsoleSession).mockReturnValue({
+      connectionState: 'idle',
+      connect,
+      errorMessage: null,
+      errorKind: 'generic',
+      reportViewerError,
+      takeOver: vi.fn(),
+      webSocket: null,
+    });
+
+    renderTab(runningVm);
+
+    await waitFor(() => expect(reportViewerError).toHaveBeenCalledWith('chunk load failed'));
+    expect(connect).not.toHaveBeenCalled();
+  });
+
+  it('shows connection error details with no action for an unrelated failure', () => {
+    // A dropped connection or ticket-creation failure gives no reason to suspect another
+    // session, and there is no generic "retry" — nothing actionable to offer.
     vi.mocked(useConsoleSession).mockReturnValue({
       connectionState: 'error',
+      connect: vi.fn(),
       errorMessage: 'WebSocket closed before the console connected (code 1006)',
-      isVmRunning: true,
+      errorKind: 'generic',
       reportViewerError: vi.fn(),
+      takeOver: vi.fn(),
       webSocket: null,
     });
 
@@ -94,14 +175,70 @@ describe('VmConsoleTab', () => {
     expect(
       screen.getByText('WebSocket closed before the console connected (code 1006)'),
     ).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Retry' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Take over' })).not.toBeInTheDocument();
+  });
+
+  it('offers no action when a handshake failure might be a conflict', () => {
+    // takeOver would resend the identical request an automatic connect already sent, so
+    // it cannot do anything a retry wouldn't — see useConsoleSession.ts's ConsoleErrorKind
+    // doc comment for why only 'siblingTabConflict' offers takeOver.
+    vi.mocked(useConsoleSession).mockReturnValue({
+      connectionState: 'error',
+      connect: vi.fn(),
+      errorMessage: 'This might be because the console is already open in another session.',
+      errorKind: 'possibleConflict',
+      reportViewerError: vi.fn(),
+      takeOver: vi.fn(),
+      webSocket: null,
+    });
+
+    renderTab(runningVm);
+
+    expect(screen.queryByRole('button', { name: 'Take over' })).not.toBeInTheDocument();
+  });
+
+  it('offers Take over when a sibling tab already holds the console lock', () => {
+    vi.mocked(useConsoleSession).mockReturnValue({
+      connectionState: 'error',
+      connect: vi.fn(),
+      errorMessage: 'This console is already open in another tab in this browser.',
+      errorKind: 'siblingTabConflict',
+      reportViewerError: vi.fn(),
+      takeOver: vi.fn(),
+      webSocket: null,
+    });
+
+    renderTab(runningVm);
+
+    expect(screen.getByRole('button', { name: 'Take over' })).toBeInTheDocument();
+  });
+
+  it('offers no action for viewer errors (the session itself is fine)', () => {
+    vi.mocked(useConsoleSession).mockReturnValue({
+      connectionState: 'error',
+      connect: vi.fn(),
+      errorMessage: 'Timed out waiting for the graphical console to finish connecting',
+      errorKind: 'viewer',
+      reportViewerError: vi.fn(),
+      takeOver: vi.fn(),
+      webSocket: null,
+    });
+
+    renderTab(runningVm);
+
+    expect(screen.queryByRole('button', { name: 'Retry' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Take over' })).not.toBeInTheDocument();
   });
 
   it('enables full screen only when the console is connected', () => {
     vi.mocked(useConsoleSession).mockReturnValue({
       connectionState: 'connected',
+      connect: vi.fn(),
       errorMessage: null,
-      isVmRunning: true,
+      errorKind: 'generic',
       reportViewerError: vi.fn(),
+      takeOver: vi.fn(),
       webSocket: {} as WebSocket,
     });
 
@@ -114,9 +251,11 @@ describe('VmConsoleTab', () => {
     const user = userEvent.setup();
     vi.mocked(useConsoleSession).mockReturnValue({
       connectionState: 'connected',
+      connect: vi.fn(),
       errorMessage: null,
-      isVmRunning: true,
+      errorKind: 'generic',
       reportViewerError: vi.fn(),
+      takeOver: vi.fn(),
       webSocket: {} as WebSocket,
     });
 
@@ -142,9 +281,11 @@ describe('VmConsoleTab', () => {
   it('keeps showing the connecting empty state until the viewer reports it has connected', () => {
     vi.mocked(useConsoleSession).mockReturnValue({
       connectionState: 'connected',
+      connect: vi.fn(),
       errorMessage: null,
-      isVmRunning: true,
+      errorKind: 'generic',
       reportViewerError: vi.fn(),
+      takeOver: vi.fn(),
       webSocket: {} as WebSocket,
     });
 
@@ -153,7 +294,7 @@ describe('VmConsoleTab', () => {
     expect(screen.getByText('Connecting')).toBeInTheDocument();
 
     act(() => {
-      latestOnConnected?.();
+      latestOnConnectedRef.current?.();
     });
 
     expect(screen.queryByText('Connecting')).not.toBeInTheDocument();
@@ -163,9 +304,11 @@ describe('VmConsoleTab', () => {
   it('shows the connecting empty state while disconnected (no blank viewport)', () => {
     vi.mocked(useConsoleSession).mockReturnValue({
       connectionState: 'disconnected',
+      connect: vi.fn(),
       errorMessage: null,
-      isVmRunning: true,
+      errorKind: 'generic',
       reportViewerError: vi.fn(),
+      takeOver: vi.fn(),
       webSocket: null,
     });
 
@@ -175,19 +318,41 @@ describe('VmConsoleTab', () => {
     expect(screen.queryByText('VNC viewer')).not.toBeInTheDocument();
   });
 
+  it('mounts the VNC viewer as soon as a webSocket exists, before connectionState is connected', () => {
+    // Regression guard: noVNC must attach to the WebSocket while it's still CONNECTING,
+    // not after it opens — otherwise its onopen/onmessage handlers are wired up too late
+    // and the handshake silently stalls (see novnc-rfb.ts's loadVncRfbConstructor).
+    // Gating the viewer's mount on connectionState === 'connected' reintroduces that race.
+    vi.mocked(useConsoleSession).mockReturnValue({
+      connectionState: 'connecting',
+      connect: vi.fn(),
+      errorMessage: null,
+      errorKind: 'generic',
+      reportViewerError: vi.fn(),
+      takeOver: vi.fn(),
+      webSocket: {} as WebSocket,
+    });
+
+    renderTab(runningVm);
+
+    expect(screen.getByText('VNC viewer')).toBeInTheDocument();
+  });
+
   it('refocuses the VNC viewer after entering fullscreen', async () => {
     const user = userEvent.setup();
     vi.mocked(useConsoleSession).mockReturnValue({
       connectionState: 'connected',
+      connect: vi.fn(),
       errorMessage: null,
-      isVmRunning: true,
+      errorKind: 'generic',
       reportViewerError: vi.fn(),
+      takeOver: vi.fn(),
       webSocket: {} as WebSocket,
     });
 
     renderTab(runningVm);
     act(() => {
-      latestOnConnected?.();
+      latestOnConnectedRef.current?.();
     });
     focusViewer.mockClear();
 
@@ -211,19 +376,21 @@ describe('VmConsoleTab', () => {
   it('passes a stable onConnected callback to the viewer across parent re-renders', () => {
     vi.mocked(useConsoleSession).mockReturnValue({
       connectionState: 'connected',
+      connect: vi.fn(),
       errorMessage: null,
-      isVmRunning: true,
+      errorKind: 'generic',
       reportViewerError: vi.fn(),
+      takeOver: vi.fn(),
       webSocket: {} as WebSocket,
     });
 
     const { rerender } = renderTab(runningVm);
 
-    const firstOnConnected = latestOnConnected;
+    const firstOnConnected = latestOnConnectedRef.current;
 
     // Simulates an unrelated parent re-render (e.g. VM details polling) with a new vm reference.
     rerender(<VmConsoleTab vm={{ ...runningVm }} />);
 
-    expect(latestOnConnected).toBe(firstOnConnected);
+    expect(latestOnConnectedRef.current).toBe(firstOnConnected);
   });
 });

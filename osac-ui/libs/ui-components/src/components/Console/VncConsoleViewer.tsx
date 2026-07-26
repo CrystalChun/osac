@@ -6,7 +6,7 @@ import { pasteFromClipboard } from './paste-from-clipboard';
 
 import './console-viewport.css';
 
-export interface VmVncConsoleHandle {
+export interface VncConsoleViewerHandle {
   focus: () => void;
   pasteFromClipboard: () => Promise<void>;
 }
@@ -23,7 +23,7 @@ export const RFB_INIT_TIMEOUT_MS = 30_000;
 /** How long to wait for noVNC `connect` after RFB is constructed. */
 export const RFB_CONNECT_TIMEOUT_MS = 30_000;
 
-const VmVncConsole = forwardRef<VmVncConsoleHandle, Props>(
+const VncConsoleViewer = forwardRef<VncConsoleViewerHandle, Props>(
   ({ className, onConnected, onError, webSocket }, ref) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const rfbRef = useRef<VncRfbInstance | undefined>(undefined);
@@ -146,10 +146,10 @@ const VmVncConsole = forwardRef<VmVncConsoleHandle, Props>(
 
     const rootClassName = [CONSOLE_VIEWPORT_CLASS_NAME, className].filter(Boolean).join(' ');
 
-    return <div ref={containerRef} className={rootClassName} data-testid="vm-vnc-console" />;
+    return <div ref={containerRef} className={rootClassName} data-testid="vnc-console-viewer" />;
   },
 );
 
-VmVncConsole.displayName = 'VmVncConsole';
+VncConsoleViewer.displayName = 'VncConsoleViewer';
 
-export default VmVncConsole;
+export default VncConsoleViewer;
