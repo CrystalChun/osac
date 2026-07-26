@@ -2,7 +2,7 @@
 
 ## Overview
 
-Helm-based deployment system for the OSAC platform. Component repos (fulfillment-service, osac-operator, osac-aap, bare-metal-fulfillment-operator, osac-ui) are aggregated as Git submodules under `base/` for version tracking. Deployment uses three Helm charts in sequence: `charts/osac-operators/` (Phase 1), `charts/osac-prereqs/` (Phase 2), `charts/osac/` (Phase 3).
+Helm-based deployment system for the OSAC platform. Component repos (osac-operator, osac-fulfillment-service, osac-aap, bare-metal-fulfillment-operator, osac-ui) are aggregated as Git submodules under `base/` for version tracking. Deployment uses three Helm charts in sequence: `charts/osac-operators/` (Phase 1), `charts/osac-prereqs/` (Phase 2), `charts/osac/` (Phase 3).
 
 ## Common Commands
 
@@ -54,7 +54,9 @@ Phase 2: charts/osac-prereqs/           # Cluster prerequisites
 Phase 3: charts/osac/                   # OSAC platform (umbrella chart)
   Dependencies (from submodules via file:// references):
     osac-operator-crds, osac-operator, fulfillment-service,
-    osac-aap, bare-metal-fulfillment-operator[-crds], osac-ui
+    osac-aap, bare-metal-fulfillment-operator-crds,
+    bare-metal-fulfillment-operator (conditional: bmf.enabled),
+    osac-ui (conditional: ui.enabled)
   Templates: bundled-postgres, hub-access, hooks (create-hub,
     pre-install-validate, publish-templates, seed-cluster-versions)
   values.schema.json validates all configuration
