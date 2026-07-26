@@ -6,14 +6,24 @@ reference for those labels.
 
 ## Required Labels
 
-These labels must be present on every Agent CR for CaaS cluster provisioning
-and scale-out. Missing any applicable label causes provisioning to fail
-silently or stall indefinitely.
+### Import-Time Labels
+
+These labels must be present on every Agent CR **at import time** for CaaS
+cluster provisioning and scale-out. Missing any applicable label causes
+provisioning to fail silently or stall indefinitely.
 
 | Label Key | Operator Action | Required For |
 |-----------|-----------------|--------------|
 | `osac.openshift.io/resource_class` | Set via inventory | Agent selection and NodePool matching |
-| `osac.openshift.io/clusterorder` | Automatic (do not set manually) | HyperShift agent-to-NodePool binding |
+
+### Controller-Managed Labels
+
+These labels are set automatically by provisioning automation. Operators
+should **not** set them manually.
+
+| Label Key | Set By | Required For |
+|-----------|--------|--------------|
+| `osac.openshift.io/clusterorder` | `select_and_label_new_agents` | HyperShift agent-to-NodePool binding |
 
 ### `osac.openshift.io/resource_class`
 
@@ -79,8 +89,14 @@ not required for provisioning but may be useful for operations and debugging.
 | Label Key | Set By | Purpose |
 |-----------|--------|---------|
 | `osac.openshift.io/rack` | BCM import | Rack position from BCM inventory |
-| `osac.openshift.io/host_uuid` | Various | Host identification |
 | `osac.openshift.io/managed-by` | Import playbooks | Tracks which import playbook manages the BMH/Agent lifecycle |
+
+> **Note:** `osac.openshift.io/host_uuid` is an **annotation**, not a label,
+> despite the misleading Ansible variable name `agent_host_uuid_label` in
+> `osac_common_labels.yaml`. It is set under `metadata.annotations` by the ESI
+> filter plugin and read from `metadata.annotations` by the manage_agents and
+> cluster_infra roles. To verify it, check `metadata.annotations`, not
+> `metadata.labels`.
 
 ## Invalid Label Keys (Common Mistake)
 
@@ -111,8 +127,9 @@ separating a DNS prefix from the name segment (e.g., `osac.openshift.io/resource
 
 ### Correct Approach
 
-Apply OSAC labels directly on the Agent CR, either through the server
-inventory file (recommended) or by patching the Agent CR after registration.
+Apply import-time OSAC labels directly on the Agent CR, either through the
+server inventory file (recommended) or by patching the Agent CR after
+registration. Do not manually set controller-managed labels like `clusterorder`.
 
 **Via inventory file (BMH import):**
 
@@ -131,7 +148,7 @@ The import playbook reads `resource_class` and `netris_server_name` from the
 inventory and applies them as properly formatted Kubernetes labels. See
 [Bare Metal Agent Import](import-agents.md) for the full inventory format.
 
-**Manual patching (debugging or one-off):**
+**Manual patching (import-time labels only, for debugging or one-off):**
 
 ```bash
 oc label agent/<agent-name> -n hardware-inventory \
