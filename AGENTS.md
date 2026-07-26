@@ -369,7 +369,7 @@ Note: Use `Assisted-by`, not `Co-Authored-By` (Red Hat attribution standard).
 
 ### CI Checks
 
-All PRs must pass:
+All PRs must pass (docs-only PRs — `*.md`, `docs/` — skip checks 1-3 via `paths-ignore`):
 1. `pre-commit` — All pre-commit hooks (`pre-commit.yaml`)
 2. `ansible-lint` — Playbook and role linting (`ansible-lint.yml`)
 3. `integration-tests` — Full test suite with kind cluster (`integration-tests.yml`)
