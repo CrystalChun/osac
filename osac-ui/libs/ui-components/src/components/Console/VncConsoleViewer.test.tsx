@@ -193,4 +193,23 @@ describe('VncConsoleViewer', () => {
       'Graphical console disconnected before it finished connecting',
     );
   });
+
+  it('reports a plain disconnected message when RFB disconnects after connecting', async () => {
+    const onError = vi.fn();
+
+    render(
+      <VncConsoleViewer onError={onError} webSocket={{ close: vi.fn() } as unknown as WebSocket} />,
+    );
+    await waitFor(() => expect(RFBMock).toHaveBeenCalled());
+
+    const rfbInstance = RFBMock.mock.results[0].value as RFB;
+    act(() => {
+      rfbInstance.emit('connect');
+    });
+    act(() => {
+      rfbInstance.emit('disconnect');
+    });
+
+    expect(onError).toHaveBeenCalledWith('Graphical console disconnected');
+  });
 });

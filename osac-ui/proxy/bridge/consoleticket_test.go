@@ -8,20 +8,22 @@ import (
 	"testing"
 )
 
-func jsonHandler(status int, contentType, body string) http.Handler {
+func jsonHandler(t *testing.T, status int, contentType, body string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		if contentType != "" {
 			w.Header().Set("Content-Type", contentType)
 		}
 		w.WriteHeader(status)
-		_, _ = w.Write([]byte(body))
+		if _, err := w.Write([]byte(body)); err != nil {
+			t.Fatalf("failed to write synthetic response: %v", err)
+		}
 	})
 }
 
 func TestWrapConsoleSessionCreate_setsHttpOnlyCookieAndStripsTicket(t *testing.T) {
 	t.Parallel()
 
-	inner := jsonHandler(http.StatusOK, "application/json",
+	inner := jsonHandler(t, http.StatusOK, "application/json",
 		`{"object":{"resourceType":"CONSOLE_RESOURCE_TYPE_COMPUTE_INSTANCE","ticket":"secret-ticket"}}`)
 
 	handler := WrapConsoleSessionCreate(inner, "")
@@ -76,10 +78,30 @@ func TestWrapConsoleSessionCreate_setsHttpOnlyCookieAndStripsTicket(t *testing.T
 	}
 }
 
+func TestWrapConsoleSessionCreate_stripsTicketWithMixedCaseContentType(t *testing.T) {
+	t.Parallel()
+
+	inner := jsonHandler(t, http.StatusOK, "Application/JSON; charset=UTF-8",
+		`{"object":{"ticket":"secret-ticket"}}`)
+	handler := WrapConsoleSessionCreate(inner, "")
+
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodPost, "/osac.public.v1.ConsoleSessions/Create", nil)
+	rec := httptest.NewRecorder()
+	handler.ServeHTTP(rec, req)
+
+	cookies := rec.Result().Cookies()
+	if len(cookies) != 1 || cookies[0].Value != "secret-ticket" {
+		t.Fatal("expected ticket to be stripped and cookie set for a mixed-case JSON content type")
+	}
+	if strings.Contains(rec.Body.String(), "secret-ticket") {
+		t.Fatalf("expected ticket to be stripped from response body, got %q", rec.Body.String())
+	}
+}
+
 func TestWrapConsoleSessionCreate_marksSecureOverHTTPS(t *testing.T) {
 	t.Parallel()
 
-	inner := jsonHandler(http.StatusOK, "application/json", `{"object":{"ticket":"secret-ticket"}}`)
+	inner := jsonHandler(t, http.StatusOK, "application/json", `{"object":{"ticket":"secret-ticket"}}`)
 	handler := WrapConsoleSessionCreate(inner, "https://console.example.com")
 
 	req := httptest.NewRequestWithContext(t.Context(), http.MethodPost, "/osac.public.v1.ConsoleSessions/Create", nil)
@@ -95,7 +117,7 @@ func TestWrapConsoleSessionCreate_marksSecureOverHTTPS(t *testing.T) {
 func TestWrapConsoleSessionCreate_passesThroughOnError(t *testing.T) {
 	t.Parallel()
 
-	inner := jsonHandler(http.StatusUnauthorized, "application/json", `{"code":"unauthenticated"}`)
+	inner := jsonHandler(t, http.StatusUnauthorized, "application/json", `{"code":"unauthenticated"}`)
 	handler := WrapConsoleSessionCreate(inner, "")
 
 	req := httptest.NewRequestWithContext(t.Context(), http.MethodPost, "/osac.public.v1.ConsoleSessions/Create", nil)
@@ -117,7 +139,7 @@ func TestWrapConsoleSessionCreate_passesThroughWhenNoTicket(t *testing.T) {
 	t.Parallel()
 
 	body := `{"object":{"resourceType":"CONSOLE_RESOURCE_TYPE_COMPUTE_INSTANCE"}}`
-	inner := jsonHandler(http.StatusOK, "application/json", body)
+	inner := jsonHandler(t, http.StatusOK, "application/json", body)
 	handler := WrapConsoleSessionCreate(inner, "")
 
 	req := httptest.NewRequestWithContext(t.Context(), http.MethodPost, "/osac.public.v1.ConsoleSessions/Create", nil)

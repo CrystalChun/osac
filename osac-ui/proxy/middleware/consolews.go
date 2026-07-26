@@ -30,11 +30,7 @@ func ConsoleWebSocketAuth(baseUIURL string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if !isTrustedOrigin(r, baseUIURL) {
-				log.WithFields(log.Fields{
-					"origin":    r.Header.Get("Origin"),
-					"host":      r.Host,
-					"baseUIURL": baseUIURL,
-				}).Warn("console WebSocket request rejected: origin not allowed")
+				log.Warn("console WebSocket request rejected: origin not allowed")
 				http.Error(w, "origin not allowed", http.StatusForbidden)
 				return
 			}
@@ -60,7 +56,10 @@ func ConsoleWebSocketAuth(baseUIURL string) func(http.Handler) http.Handler {
 // mismatched Origin is rejected rather than silently proxied.
 //
 // When baseUIURL is configured, both scheme and host must match it — otherwise a
-// plain-HTTP same-host page could pass as the configured HTTPS public origin.
+// plain-HTTP same-host page could pass as the configured HTTPS public origin. A
+// non-empty baseUIURL that fails to parse is a startup misconfiguration, not an
+// unset value, so it is rejected outright rather than silently falling back to the
+// weaker host-only check.
 // When baseUIURL is empty, only the request's own Host is compared: this proxy
 // always terminates plain HTTP (TLS is terminated upstream by the ingress/Route,
 // see docs/deployment-openshift-guide.md), so r.TLS is never a reliable signal of
@@ -82,7 +81,7 @@ func isTrustedOrigin(r *http.Request, baseUIURL string) bool {
 
 	base, err := url.Parse(baseUIURL)
 	if err != nil || base.Scheme == "" || base.Host == "" {
-		return strings.EqualFold(originURL.Host, r.Host)
+		return false
 	}
 
 	return strings.EqualFold(originURL.Scheme, base.Scheme) && strings.EqualFold(originURL.Host, base.Host)

@@ -2,9 +2,12 @@ package bridge
 
 import (
 	"encoding/json"
+	"mime"
 	"net/http"
 	"net/http/httptest"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // ConsoleTicketCookieName is the cookie carrying the console session ticket.
@@ -48,7 +51,9 @@ func WrapConsoleSessionCreate(next http.Handler, baseUIURL string) http.Handler 
 		}
 		header.Del("Content-Length")
 		w.WriteHeader(rec.Code)
-		_, _ = w.Write(rewrittenBody)
+		if _, err := w.Write(rewrittenBody); err != nil {
+			log.WithError(err).Warn("failed to write console session ticket response")
+		}
 	})
 }
 
@@ -61,7 +66,8 @@ func extractAndStripTicket(rec *httptest.ResponseRecorder) (ticket string, body 
 	if rec.Code != http.StatusOK {
 		return "", nil, false
 	}
-	if !strings.HasPrefix(rec.Header().Get("Content-Type"), "application/json") {
+	mediaType, _, err := mime.ParseMediaType(rec.Header().Get("Content-Type"))
+	if err != nil || mediaType != "application/json" {
 		return "", nil, false
 	}
 
@@ -92,7 +98,9 @@ func copyRecordedResponse(w http.ResponseWriter, rec *httptest.ResponseRecorder)
 		header[k] = v
 	}
 	w.WriteHeader(rec.Code)
-	_, _ = w.Write(rec.Body.Bytes())
+	if _, err := w.Write(rec.Body.Bytes()); err != nil {
+		log.WithError(err).Warn("failed to write console session response")
+	}
 }
 
 // isHTTPSRequest reports whether the browser's request to the UI arrived over

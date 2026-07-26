@@ -8,5 +8,5 @@
       "@osac/ui-components/*": ["../../libs/ui-components/src/*"]
     }
   },
-  "include": ["src", "../../libs/ui-components/src/components/Console/novnc.d.ts"]
+  "include": ["src"]
 }

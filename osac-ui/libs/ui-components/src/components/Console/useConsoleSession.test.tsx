@@ -281,6 +281,44 @@ describe('useConsoleSession', () => {
     expect(result.current.errorKind).toBe('viewer');
   });
 
+  it('tears down the socket and ticket cookie when the viewer fails after connecting', async () => {
+    const webSocket = createMockWebSocket();
+    mutateAsync.mockResolvedValue({ ticket: 'ticket-value' });
+    vi.mocked(openConsoleWebSocket).mockReturnValue(webSocket as unknown as WebSocket);
+
+    const { result } = renderHook(() => useConsoleSession(runningParams));
+
+    act(() => {
+      result.current.connect();
+    });
+    await waitFor(() => expect(result.current.connectionState).toBe('connected'));
+
+    act(() => {
+      result.current.reportViewerError('noVNC protocol error');
+    });
+
+    // Otherwise the socket and Web Lock would stay alive despite the UI reporting a
+    // failed console, leaving a stale server-side session that causes spurious
+    // sibling-tab conflicts on retry.
+    expect(webSocket.close).toHaveBeenCalled();
+    expect(clearConsoleTicketCookie).toHaveBeenCalled();
+    expect(result.current.webSocket).toBeNull();
+    expect(result.current.connectionState).toBe('error');
+    expect(result.current.errorMessage).toBe('noVNC protocol error');
+    expect(result.current.errorKind).toBe('viewer');
+
+    // socket.close() is async in a real browser: the 'close' listener registered by
+    // connect() is still attached and fires later. Without invalidating the session
+    // first, that listener's own cleanup would overwrite the viewer error above with
+    // its generic close message.
+    act(() => {
+      webSocket.dispatchEvent('close', { code: 1000, reason: '' } as CloseEvent);
+    });
+
+    expect(result.current.errorMessage).toBe('noVNC protocol error');
+    expect(result.current.errorKind).toBe('viewer');
+  });
+
   it("sends this browser's shared client id when no other tab holds the lock", async () => {
     const webSocket = createMockWebSocket();
     mutateAsync.mockResolvedValue({ ticket: 'ticket-value' });

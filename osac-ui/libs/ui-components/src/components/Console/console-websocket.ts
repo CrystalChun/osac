@@ -54,10 +54,8 @@ export const acquireConsoleClientLock = (
   }
 
   return new Promise((resolve) => {
-    void navigator.locks.request(
-      clientId,
-      steal ? { steal: true } : { ifAvailable: true },
-      (lock) => {
+    navigator.locks
+      .request(clientId, steal ? { steal: true } : { ifAvailable: true }, (lock) => {
         if (!lock) {
           resolve(null);
           return undefined;
@@ -65,8 +63,8 @@ export const acquireConsoleClientLock = (
         return new Promise<void>((release) => {
           resolve({ release });
         });
-      },
-    );
+      })
+      .catch(() => resolve(null));
   });
 };
 
@@ -77,7 +75,7 @@ export const acquireConsoleClientLock = (
  * server-side instead; fire-and-forget since there is nothing to await.
  */
 export const clearConsoleTicketCookie = (): void => {
-  void fetch('/api/console-ticket/clear', { method: 'POST' });
+  fetch('/api/console-ticket/clear', { method: 'POST' }).catch(() => {});
 };
 
 export const openConsoleWebSocket = (): WebSocket =>

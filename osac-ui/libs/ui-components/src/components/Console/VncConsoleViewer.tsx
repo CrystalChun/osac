@@ -49,11 +49,16 @@ const VncConsoleViewer = forwardRef<VncConsoleViewerHandle, Props>(
       let mounted = true;
       let initInFlight = false;
       let connectTimeoutId: number | undefined;
+      // This listener stays registered for the RFB instance's whole lifetime, not just
+      // during the initial handshake, so a later disconnect (guest shutdown, dropped
+      // network mid-session) must not report the handshake-specific message below.
+      let hasConnectedOnce = false;
       const onConnect = () => {
         if (!mounted) {
           return;
         }
         window.clearTimeout(connectTimeoutId);
+        hasConnectedOnce = true;
         // Focus so keyboard input goes to the guest without an extra click.
         rfbRef.current?.focus();
         onConnected?.();
@@ -63,7 +68,11 @@ const VncConsoleViewer = forwardRef<VncConsoleViewerHandle, Props>(
           return;
         }
         window.clearTimeout(connectTimeoutId);
-        onError?.('Graphical console disconnected before it finished connecting');
+        onError?.(
+          hasConnectedOnce
+            ? 'Graphical console disconnected'
+            : 'Graphical console disconnected before it finished connecting',
+        );
       };
 
       const initRfb = async () => {

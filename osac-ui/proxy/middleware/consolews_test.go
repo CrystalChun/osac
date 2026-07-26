@@ -129,6 +129,33 @@ func TestConsoleWebSocketAuth_fallsBackToRequestHostWhenBaseUIURLUnset(t *testin
 	}
 }
 
+func TestConsoleWebSocketAuth_rejectsWhenBaseUIURLIsMalformed(t *testing.T) {
+	t.Parallel()
+
+	var captured bool
+	// A control character makes url.Parse fail outright; this is a startup
+	// misconfiguration, not an unset baseUIURL, so it must fail closed rather
+	// than fall back to the weaker host-only check.
+	handler := ConsoleWebSocketAuth("http://\x7f")(http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {
+		captured = true
+	}))
+
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/api/fulfillment/v1/console_sessions/connect", nil)
+	req.AddCookie(&http.Cookie{Name: consoleTicketCookieName, Value: "console-jwt"})
+	req.Host = "osac.example.com"
+	req.Header.Set("Origin", "http://osac.example.com")
+
+	rec := httptest.NewRecorder()
+	handler.ServeHTTP(rec, req)
+
+	if captured {
+		t.Fatal("expected downstream handler not to run when baseUIURL is malformed")
+	}
+	if rec.Code != http.StatusForbidden {
+		t.Fatalf("status = %d, want %d", rec.Code, http.StatusForbidden)
+	}
+}
+
 func TestConsoleWebSocketAuth_rejectsSchemeMismatch(t *testing.T) {
 	t.Parallel()
 

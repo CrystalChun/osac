@@ -101,16 +101,32 @@ export const useConsoleSession = ({
   const [errorKind, setErrorKind] = useState<ConsoleErrorKind>('generic');
   const [webSocket, setWebSocket] = useState<WebSocket | null>(null);
 
-  const reportViewerError = useCallback((message: string) => {
-    setConnectionState('error');
-    setErrorMessage(message);
-    setErrorKind('viewer');
-  }, []);
-
   const releaseLock = () => {
     lockRef.current?.release();
     lockRef.current = null;
   };
+
+  // The viewer can fail while the WebSocket is still open (e.g. noVNC protocol
+  // error), so this mirrors the cleanup the close listener and the connect catch
+  // block already do — otherwise the socket and Web Lock would stay alive despite
+  // the UI reporting a failed console, leaving a stale server-side session that
+  // causes spurious sibling-tab conflicts on retry.
+  const reportViewerError = useCallback((message: string) => {
+    // Invalidate the in-flight session first, same as the unmount cleanup below —
+    // otherwise the socket's own 'close' listener (still attached, still passing its
+    // isCurrentSession() check) fires once close() completes and overwrites the
+    // 'viewer' error state set here with its own generic close message.
+    sessionIdRef.current += 1;
+    releaseLock();
+    const socket = socketRef.current;
+    socketRef.current = null;
+    setWebSocket(null);
+    clearConsoleTicketCookie();
+    socket?.close();
+    setConnectionState('error');
+    setErrorMessage(message);
+    setErrorKind('viewer');
+  }, []);
 
   // force=false (plain connect): only proceeds if no other live tab currently holds this
   // resource's lock — sending the shared id while one does would let the server evict
