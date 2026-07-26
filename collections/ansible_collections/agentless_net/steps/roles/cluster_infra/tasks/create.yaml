@@ -1,38 +1,78 @@
 ---
+- name: Load agentless-net inventory hosts
+  ansible.builtin.include_vars:
+    file: "{{ agentless_net_inventory_file }}"
+    name: _agentless_net_inventory
+
+- name: Register net_nodes in play inventory
+  ansible.builtin.add_host:
+    name: "{{ item.key }}"
+    groups: net_nodes
+    ansible_host: "{{ item.value.ansible_host }}"
+    ansible_user: "{{ item.value.ansible_user }}"
+    ansible_password: "{{ item.value.ansible_password | default(omit) }}"
+    ansible_ssh_common_args: "{{ item.value.ansible_ssh_common_args | default(_agentless_net_inventory.all.vars.ansible_ssh_common_args | default(omit)) }}"
+  loop: "{{ _agentless_net_inventory.all.children.net_nodes.hosts | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+
+- name: Register switches in play inventory
+  ansible.builtin.add_host:
+    name: "{{ item.key }}"
+    groups: switches
+    ansible_host: "{{ item.value.ansible_host }}"
+    ansible_user: "{{ item.value.ansible_user }}"
+    ansible_password: "{{ item.value.ansible_password | default(omit) }}"
+    ansible_become_password: "{{ item.value.ansible_become_password | default(omit) }}"
+    ansible_network_os: "{{ item.value.ansible_network_os | default(omit) }}"
+    ansible_ssh_common_args: "{{ item.value.ansible_ssh_common_args | default(_agentless_net_inventory.all.vars.ansible_ssh_common_args | default(omit)) }}"
+    access_ports: "{{ item.value.access_ports | default({}) }}"
+  loop: "{{ _agentless_net_inventory.all.children.switches.hosts | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+
 - name: Show node requests
   ansible.builtin.debug:
     var: cluster_infra_node_requests
 
-- name: Build BareMetalPool hostSets
-  ansible.builtin.set_fact:
-    cluster_infra_baremetalpool_host_sets: >-
-      {{ cluster_infra_baremetalpool_host_sets | default([]) + [{
-        'hostType': item.resourceClass,
-        'replicas': item.numberOfNodes | int
-      }] }}
+# --- Select agents ---
+
+- name: Select and label agents
+  ansible.builtin.include_role:
+    name: osac.service.manage_agents
+    tasks_from: select_and_label_new_agents
+  vars:
+    manage_agents_cluster_order_name: "{{ cluster_infra_name }}"
+    manage_agents_desired_count: "{{ item.numberOfNodes | int }}"
+    manage_agents_resource_class: "{{ item.resourceClass }}"
   loop: "{{ cluster_infra_node_requests }}"
 
-# For now, we create the BareMetalPool in the POD_NAMESPACE, but
-# in the future, we hope to have it created in the cluster_working_namespace.
-# This requires updates to the bare-metal-fulfillment-operator
+- name: Get agents allocated to this cluster
+  kubernetes.core.k8s_info:
+    kind: Agent
+    api_version: agent-install.openshift.io/v1beta1
+    namespace: "{{ default_agent_namespace }}"
+    label_selectors:
+      - "{{ cluster_order_label }}={{ cluster_infra_name }}"
+  register: cluster_infra_selected_agents
 
-- name: Step - Create BareMetalPool
-  kubernetes.core.k8s:
-    state: present
-    definition:
-      apiVersion: osac.openshift.io/v1alpha1
-      kind: BareMetalPool
-      metadata:
-        name: "{{ cluster_infra_name }}"
-        namespace: "{{ lookup('env', 'POD_NAMESPACE') }}"
-        labels: "{{ {cluster_order_label: cluster_infra_name} }}"
-      spec:
-        hostSets: "{{ cluster_infra_baremetalpool_host_sets }}"
-  register: cluster_infra_baremetalpool_response
-
-- name: Set BareMetalPool UID
+- name: Build allocated host IDs from selected agents
   ansible.builtin.set_fact:
-    cluster_infra_baremetalpool_uid: "{{ cluster_infra_baremetalpool_response.result.metadata.uid }}"
+    cluster_infra_allocated_host_ids: >-
+      {{ cluster_infra_selected_agents.resources
+         | json_query('[].metadata.annotations."' + agent_host_uuid_label + '"') }}
+
+- name: Fail if any selected agent is missing a host UUID annotation
+  ansible.builtin.fail:
+    msg: >-
+      Expected {{ cluster_infra_selected_agents.resources | length }} host IDs
+      but got {{ cluster_infra_allocated_host_ids | length }}.
+      Some agents are missing the osac.openshift.io/host_uuid annotation.
+  when: cluster_infra_allocated_host_ids | length != cluster_infra_selected_agents.resources | length
+
+- name: Display allocated host IDs
+  ansible.builtin.debug:
+    msg: "Allocated host IDs: {{ cluster_infra_allocated_host_ids }}"
 
 # --- agentless_net: allocate VLAN and configure switches ---
 
@@ -74,52 +114,6 @@
       -i {{ agentless_net_inventory_file }}
       -e vlan_id={{ cluster_infra_vlan_id }}
       {{ role_path }}/playbooks/l2_create_vlan.yaml
-
-# --- Wait for bare-metal hosts ---
-
-- name: Calculate total desired nodes
-  ansible.builtin.set_fact:
-    cluster_infra_total_desired_nodes: "{{ cluster_infra_node_requests | map(attribute='numberOfNodes') | map('int') | sum }}"
-
-- name: Wait for BareMetalInstances to be allocated with host IDs
-  kubernetes.core.k8s_info:
-    api_version: osac.openshift.io/v1alpha1
-    kind: BareMetalInstance
-    namespace: "{{ lookup('env', 'POD_NAMESPACE') }}"
-  register: cluster_infra_baremetalinstances_result
-  until: >
-    (
-      cluster_infra_baremetalinstances_result.resources |
-      selectattr('metadata.ownerReferences', 'defined') |
-      selectattr('spec.externalHostID', 'defined') |
-      rejectattr('spec.externalHostID', 'equalto', '') |
-      map(attribute='metadata.ownerReferences') |
-      flatten |
-      selectattr('controller', 'defined') |
-      selectattr('controller', 'equalto', true) |
-      selectattr('uid', 'equalto', cluster_infra_baremetalpool_uid) |
-      list | length
-    ) == (cluster_infra_total_desired_nodes | int)
-  retries: 60
-  delay: 10
-
-- name: Initialize allocated host IDs
-  ansible.builtin.set_fact:
-    cluster_infra_allocated_host_ids: []
-
-- name: Build allocated host IDs from BareMetalInstances
-  ansible.builtin.set_fact:
-    cluster_infra_allocated_host_ids: "{{ cluster_infra_allocated_host_ids + [item.spec.externalHostID] }}"
-  loop: "{{ cluster_infra_baremetalinstances_result.resources }}"
-  when:
-    - item.metadata.ownerReferences is defined
-    - item.metadata.ownerReferences | selectattr('controller', 'defined') | selectattr('controller', 'equalto', true) | selectattr('uid', 'equalto', cluster_infra_baremetalpool_uid) | list | length > 0
-    - item.spec.externalHostID is defined
-    - item.spec.externalHostID != ''
-
-- name: Display allocated host IDs
-  ansible.builtin.debug:
-    msg: "Allocated host IDs: {{ cluster_infra_allocated_host_ids }}"
 
 - name: Store allocated host IDs in network state  # noqa: no-changed-when
   ansible.builtin.raw: |
@@ -270,78 +264,16 @@
       -e snat_external_interface={{ agentless_net_external_interface }}
       {{ role_path }}/playbooks/l3_create_snat.yaml
 
-# --- Agent management (same as ESI) ---
+# --- Approve agents and attach to cluster ---
 
-# Handle scale down **before** scale up: detach agents not in the
-# BareMetalInstance allocation before attaching new ones.
-
-- name: Wait for the Agents to be removed from the cluster
+- name: Approve agents and attach to cluster
   ansible.builtin.include_role:
     name: osac.service.manage_agents
-    tasks_from: wait_for_agents_to_be_removed
+    tasks_from: attach_and_approve_all_new_agents
   vars:
     manage_agents_cluster_order_name: "{{ cluster_infra_name }}"
-    manage_agents_desired_count: "{{ item.replicas }}"
-    manage_agents_resource_class: "{{ item.hostType }}"
-  loop: "{{ cluster_infra_baremetalpool_host_sets }}"
-
-- name: Detach agents from cluster
-  ansible.builtin.include_role:
-    name: osac.service.manage_agents
-    tasks_from: detach_and_unlabel_all_removed_agents
-  vars:
-    manage_agents_cluster_order_name: "{{ cluster_infra_name }}"
-
-- name: Get all agents in the namespace
-  kubernetes.core.k8s_info:
-    kind: Agent
-    api_version: agent-install.openshift.io/v1beta1
-    namespace: "{{ default_agent_namespace }}"
-  register: cluster_infra_all_agents_result
-
-- name: Initialize agents to attach list
-  ansible.builtin.set_fact:
-    cluster_infra_agents_to_attach: []
-
-- name: Select agents matching allocated host IDs
-  ansible.builtin.set_fact:
-    cluster_infra_agents_to_attach: "{{ cluster_infra_agents_to_attach + [item] }}"
-  loop: "{{ cluster_infra_all_agents_result.resources }}"
-  when:
-    - item.metadata.annotations is defined
-    - item.metadata.annotations['osac.openshift.io/host_uuid'] is defined
-    - item.metadata.annotations['osac.openshift.io/host_uuid'] in cluster_infra_allocated_host_ids
-  loop_control:
-    label: "Selected agent {{ item.metadata.name }}"
-
-- name: Fail if not all leased hosts resolved to agents
-  ansible.builtin.fail:
-    msg: >-
-      Resolved {{ cluster_infra_agents_to_attach | length }} Agents for
-      {{ cluster_infra_allocated_host_ids | length }} leased hosts.
-  when: (cluster_infra_agents_to_attach | length) != (cluster_infra_allocated_host_ids | length)
-
-- name: Display hosts to attach to cluster network
-  ansible.builtin.debug:
-    msg: "Hosts to attach: {{ cluster_infra_allocated_host_ids }}"
-
-- name: Display agents to label
-  ansible.builtin.debug:
-    msg: "Agents to label: {{ cluster_infra_agents_to_attach | map(attribute='metadata.name') | list }}"
-
-- name: Label selected agents with cluster order
-  kubernetes.core.k8s:
-    api_version: agent-install.openshift.io/v1beta1
-    kind: Agent
-    name: "{{ agent.metadata.name }}"
-    namespace: "{{ agent.metadata.namespace }}"
-    state: present
-    definition:
-      metadata:
-        labels: "{{ {cluster_order_label: cluster_infra_name} }}"
-      spec:
-        approved: true
-  loop: "{{ cluster_infra_agents_to_attach }}"
-  loop_control:
-    loop_var: agent
-    label: "Labeling agent {{ agent.metadata.name }}"
+    # agentless_net handles L2 config directly — skip the ESI network attach.
+    # "unused" is a dummy value; the role requires this param but never reads
+    # it when skip_network_attach is true.
+    manage_agents_cluster_network: "unused"
+    manage_agents_skip_network_attach: true
