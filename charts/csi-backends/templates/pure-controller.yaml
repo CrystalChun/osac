@@ -28,7 +28,7 @@ spec:
         app.kubernetes.io/name: pure-csi-controller
     spec:
       serviceAccountName: pure-vendor-sa
-      automountServiceAccountToken: false
+      automountServiceAccountToken: true
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
