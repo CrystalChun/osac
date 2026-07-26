@@ -11,7 +11,7 @@ COPY . ./
 ARG VERSION=0.1.0
 ARG GIT_COMMIT=unknown
 RUN CGO_ENABLED=0 GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH} \
-    go build -a -ldflags "-X main.version=${VERSION} -X main.gitCommit=${GIT_COMMIT}" \
+    go build -a -buildvcs=false -ldflags "-X main.version=${VERSION} -X main.gitCommit=${GIT_COMMIT}" \
     -o osac-csi-driver ./cmd/osac-csi-driver
 
 FROM registry.access.redhat.com/ubi10-minimal:10.2
