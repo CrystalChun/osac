@@ -1,0 +1,51 @@
+driverName: csi.osac.openshift.io
+
+image:
+  repository: ghcr.io/osac-project/osac-csi-driver
+  tag: latest
+  pullPolicy: IfNotPresent
+
+controller:
+  replicas: 1
+  fulfillmentEndpoint: ""
+  vendorSockets: ""
+  resources:
+    limits:
+      cpu: 500m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  leaderElection: true
+
+node:
+  vendorSockets: ""
+  resources:
+    limits:
+      cpu: 500m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+sidecars:
+  provisioner:
+    image:
+      repository: registry.k8s.io/sig-storage/csi-provisioner
+      tag: v5.1.0
+  attacher:
+    image:
+      repository: registry.k8s.io/sig-storage/csi-attacher
+      tag: v4.7.0
+  registrar:
+    image:
+      repository: registry.k8s.io/sig-storage/csi-node-driver-registrar
+      tag: v2.12.0
+
+serviceAccount:
+  controller:
+    create: true
+    name: ""
+  node:
+    create: true
+    name: ""
