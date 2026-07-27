@@ -11,6 +11,7 @@ import {
 import { useApiFetch } from '../api-context';
 import { type ListParams, apiQueryKey } from '../types';
 import { type ApiQueryClient, useApiQuery, useApiQueryClient } from '../use-api-query';
+import { buildUpdateMaskPaths } from './update-mask';
 
 export const useBareMetalInstances = () => {
   const client = useApiFetch(BareMetalInstances);
@@ -68,8 +69,15 @@ export const usePatchBareMetalInstance = () => {
   const client = useApiFetch(BareMetalInstances);
   const qc = useApiQueryClient();
   return useMutation({
-    mutationFn: (input: PatchBareMetalInstanceInput) =>
-      client.update({ object: { id: input.id, ...buildPatchBody(input) } }).then((r) => r.object),
+    mutationFn: (input: PatchBareMetalInstanceInput) => {
+      const body = buildPatchBody(input);
+      return client
+        .update({
+          object: { id: input.id, ...body },
+          updateMask: { paths: buildUpdateMaskPaths(body as Record<string, unknown>) },
+        })
+        .then((r) => r.object);
+    },
     onSuccess: () => invalidateBareMetalInstancesQueries(qc),
   });
 };

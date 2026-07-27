@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"sync"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -25,6 +27,10 @@ type Handler struct {
 	// If nil, http.DefaultClient is used. Set to a client with InsecureSkipVerify for dev
 	// environments where the IdP uses a self-signed certificate.
 	OIDCHTTPClient *http.Client
+
+	issuerMu      sync.RWMutex
+	cachedIssuer  string
+	issuerExpires time.Time
 }
 
 type loginStartResponse struct {
@@ -257,9 +263,30 @@ func (h *Handler) PostLogout(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-// issuerURL returns the configured OIDC issuer URL, fetching it from capabilities if needed.
+const issuerCacheTTL = 5 * time.Minute
+
+// issuerURL returns the OIDC issuer URL, using a 5-minute cache to avoid
+// hitting the capabilities endpoint on every auth request.
 func (h *Handler) issuerURL() (string, error) {
-	return FetchIssuerURL(h.FulfillmentAPIURL, h.FulfillmentHTTPClient)
+	h.issuerMu.RLock()
+	if h.cachedIssuer != "" && time.Now().Before(h.issuerExpires) {
+		issuer := h.cachedIssuer
+		h.issuerMu.RUnlock()
+		return issuer, nil
+	}
+	h.issuerMu.RUnlock()
+
+	issuer, err := FetchIssuerURL(h.FulfillmentAPIURL, h.FulfillmentHTTPClient)
+	if err != nil {
+		return "", err
+	}
+
+	h.issuerMu.Lock()
+	h.cachedIssuer = issuer
+	h.issuerExpires = time.Now().Add(issuerCacheTTL)
+	h.issuerMu.Unlock()
+
+	return issuer, nil
 }
 
 // resolveCallbackURI computes the /callback redirect URI from the SPA's redirect_base.

@@ -3,7 +3,10 @@ package auth
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"io"
+	"net"
 	"net/http"
 	"strings"
 	"time"
@@ -17,13 +20,33 @@ type capabilitiesResponse struct {
 	} `json:"authn"`
 }
 
-// FetchIssuerURL fetches the fulfillment capabilities and returns the first trusted OIDC issuer URL.
+// FetchIssuerURL fetches the fulfillment capabilities and returns the first
+// trusted OIDC issuer URL. It retries once on transient connection errors
+// (EOF, connection reset) that indicate a stale keep-alive connection.
 func FetchIssuerURL(fulfillmentAPIURL string, httpClient *http.Client) (string, error) {
 	if httpClient == nil {
 		httpClient = http.DefaultClient
 	}
 
 	capabilitiesURL := strings.TrimSuffix(fulfillmentAPIURL, "/") + "/api/fulfillment/v1/capabilities"
+
+	var lastErr error
+	for attempt := 0; attempt < 2; attempt++ {
+		issuer, err := fetchIssuerOnce(capabilitiesURL, httpClient)
+		if err == nil {
+			return issuer, nil
+		}
+		lastErr = err
+		if attempt == 0 && isTransientConnError(err) {
+			log.WithError(err).Warn("transient connection error fetching capabilities, retrying")
+			continue
+		}
+		break
+	}
+	return "", lastErr
+}
+
+func fetchIssuerOnce(capabilitiesURL string, httpClient *http.Client) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -52,4 +75,23 @@ func FetchIssuerURL(fulfillmentAPIURL string, httpClient *http.Client) (string, 
 		return "", fmt.Errorf("no trusted token issuers in capabilities response")
 	}
 	return caps.Authn.TrustedTokenIssuers[0], nil
+}
+
+// isTransientConnError returns true for errors caused by stale pooled
+// connections: EOF, connection reset, or broken pipe.
+func isTransientConnError(err error) bool {
+	if err == nil {
+		return false
+	}
+	if errors.Is(err, io.EOF) {
+		return true
+	}
+	var netErr *net.OpError
+	if errors.As(err, &netErr) {
+		return true
+	}
+	msg := err.Error()
+	return strings.Contains(msg, "EOF") ||
+		strings.Contains(msg, "connection reset") ||
+		strings.Contains(msg, "broken pipe")
 }
