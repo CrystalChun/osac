@@ -5,15 +5,19 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
 import type { BareMetalInstanceCatalogItem } from '@osac/types';
-import { BareMetalInstanceCatalogItems, BareMetalInstanceRunStrategy, BareMetalInstances } from '@osac/types';
+import {
+  BareMetalInstanceCatalogItems,
+  BareMetalInstanceRunStrategy,
+  BareMetalInstances,
+} from '@osac/types';
 
 import {
   type PatchBareMetalInstanceInput,
   useBareMetalInstanceCatalogItems,
   usePatchBareMetalInstance,
 } from './baremetal-instance';
-import { ApiProvider } from '../api-context';
 import { renderHookWithProviders } from '../../test-utils/TestProviders';
+import { ApiProvider } from '../api-context';
 
 const item: BareMetalInstanceCatalogItem = {
   $typeName: 'osac.public.v1.BareMetalInstanceCatalogItem',
