@@ -72,6 +72,15 @@ func WrapConsoleSessionCreate(next http.Handler) http.Handler {
 			return
 		}
 
+		// Copy upstream headers before setting the ticket cookie: http.SetCookie
+		// appends to Set-Cookie, but this loop's header[k] = v overwrites — if it
+		// ran after and upstream ever sent its own Set-Cookie, it would silently
+		// replace the ticket cookie and the browser would never receive it.
+		header := w.Header()
+		for k, v := range rec.Header() {
+			header[k] = v
+		}
+		header.Del("Content-Length")
 		http.SetCookie(w, &http.Cookie{
 			Name:     ConsoleTicketCookieName,
 			Value:    ticket,
@@ -80,12 +89,6 @@ func WrapConsoleSessionCreate(next http.Handler) http.Handler {
 			Secure:   auth.IsSecure(r, config.BaseUIURL),
 			SameSite: http.SameSiteStrictMode,
 		})
-
-		header := w.Header()
-		for k, v := range rec.Header() {
-			header[k] = v
-		}
-		header.Del("Content-Length")
 		w.WriteHeader(rec.statusCode)
 		if _, err := w.Write(rewrittenBody); err != nil {
 			log.WithError(err).Warn("failed to write console session ticket response")

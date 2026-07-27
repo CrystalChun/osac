@@ -100,6 +100,42 @@ func TestWrapConsoleSessionCreate_stripsTicketWithMixedCaseContentType(t *testin
 	}
 }
 
+func TestWrapConsoleSessionCreate_preservesTicketCookieAlongsideUpstreamSetCookie(t *testing.T) {
+	t.Parallel()
+
+	inner := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		http.SetCookie(w, &http.Cookie{Name: "upstream-cookie", Value: "upstream-value"})
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`{"object":{"ticket":"secret-ticket"}}`))
+	})
+	handler := WrapConsoleSessionCreate(inner)
+
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodPost, "/osac.public.v1.ConsoleSessions/Create", nil)
+	rec := httptest.NewRecorder()
+	handler.ServeHTTP(rec, req)
+
+	cookies := rec.Result().Cookies()
+	if len(cookies) != 2 {
+		t.Fatalf("expected both the upstream cookie and the ticket cookie, got %d: %v", len(cookies), cookies)
+	}
+	var sawUpstream, sawTicket bool
+	for _, c := range cookies {
+		switch c.Name {
+		case "upstream-cookie":
+			sawUpstream = c.Value == "upstream-value"
+		case ConsoleTicketCookieName:
+			sawTicket = c.Value == "secret-ticket"
+		}
+	}
+	if !sawUpstream {
+		t.Fatal("expected the upstream Set-Cookie to pass through unchanged")
+	}
+	if !sawTicket {
+		t.Fatal("expected the ticket cookie to still be set, not clobbered by the upstream Set-Cookie")
+	}
+}
+
 func TestWrapConsoleSessionCreate_marksSecureOverHTTPS(t *testing.T) {
 	// Not t.Parallel(): mutates the package-level config.BaseUIURL that
 	// auth.IsSecure reads, which the other (parallel) tests in this file also
