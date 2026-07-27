@@ -10,6 +10,7 @@ import {
 
 import { useApiFetch } from '../api-context';
 import { apiQueryKey } from '../types';
+import { buildUpdateMaskPaths } from './update-mask';
 import { type ApiQueryClient, useApiQuery, useApiQueryClient } from '../use-api-query';
 
 export const useBareMetalInstances = () => {
@@ -51,25 +52,16 @@ export type PatchBareMetalInstanceInput =
   | { id: string; action: 'start' | 'stop' }
   | { id: string; action: 'restart'; currentTrigger: bigint };
 
-const buildPatch = (
+const buildPatchBody = (
   input: PatchBareMetalInstanceInput,
-): { body: MessageInitShape<typeof BareMetalInstanceSchema>; maskPaths: string[] } => {
+): MessageInitShape<typeof BareMetalInstanceSchema> => {
   switch (input.action) {
     case 'start':
-      return {
-        body: { spec: { runStrategy: BareMetalInstanceRunStrategy.ALWAYS } },
-        maskPaths: ['spec.run_strategy'],
-      };
+      return { spec: { runStrategy: BareMetalInstanceRunStrategy.ALWAYS } };
     case 'stop':
-      return {
-        body: { spec: { runStrategy: BareMetalInstanceRunStrategy.HALTED } },
-        maskPaths: ['spec.run_strategy'],
-      };
+      return { spec: { runStrategy: BareMetalInstanceRunStrategy.HALTED } };
     case 'restart':
-      return {
-        body: { spec: { restartTrigger: input.currentTrigger + 1n } },
-        maskPaths: ['spec.restart_trigger'],
-      };
+      return { spec: { restartTrigger: input.currentTrigger + 1n } };
   }
 };
 
@@ -78,9 +70,12 @@ export const usePatchBareMetalInstance = () => {
   const qc = useApiQueryClient();
   return useMutation({
     mutationFn: (input: PatchBareMetalInstanceInput) => {
-      const { body, maskPaths } = buildPatch(input);
+      const body = buildPatchBody(input);
       return client
-        .update({ object: { id: input.id, ...body }, updateMask: { paths: maskPaths } })
+        .update({
+          object: { id: input.id, ...body },
+          updateMask: { paths: buildUpdateMaskPaths(body as Record<string, unknown>) },
+        })
         .then((r) => r.object);
     },
     onSuccess: () => invalidateBareMetalInstancesQueries(qc),

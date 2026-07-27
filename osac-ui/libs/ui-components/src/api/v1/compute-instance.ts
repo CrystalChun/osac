@@ -11,6 +11,7 @@ import {
 
 import { useApiFetch } from '../api-context';
 import { type ListParams, apiQueryKey } from '../types';
+import { buildUpdateMaskPaths } from './update-mask';
 import { type ApiQueryClient, useApiQuery, useApiQueryClient } from '../use-api-query';
 
 export const useComputeInstances = (params: ListParams = {}) => {
@@ -100,8 +101,15 @@ export const usePatchComputeInstance = () => {
   const client = useApiFetch(ComputeInstances);
   const qc = useApiQueryClient();
   return useMutation({
-    mutationFn: ({ id, powerAction }: PatchComputeInstanceInput) =>
-      client.update({ object: { id, ...buildPowerPatchBody(powerAction) } }).then((r) => r.object),
+    mutationFn: ({ id, powerAction }: PatchComputeInstanceInput) => {
+      const body = buildPowerPatchBody(powerAction);
+      return client
+        .update({
+          object: { id, ...body },
+          updateMask: { paths: buildUpdateMaskPaths(body as Record<string, unknown>) },
+        })
+        .then((r) => r.object);
+    },
     onSuccess: () => invalidateComputeInstancesQueries(qc),
   });
 };
