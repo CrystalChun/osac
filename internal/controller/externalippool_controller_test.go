@@ -147,7 +147,9 @@ var _ = Describe("ExternalIPPoolReconciler", func() {
 			// Simulate feedback controller: during TriggerProvision, modify
 			// the resource's metadata (add feedback finalizer) so the
 			// resourceVersion changes before the status flush runs.
+			provisionCalled := false
 			mockProvider.triggerProvisionFunc = func(ctx context.Context, resource client.Object) (*provisioning.ProvisionResult, error) {
+				provisionCalled = true
 				fresh := &osacv1alpha1.ExternalIPPool{}
 				Expect(fakeClient.Get(ctx, key, fresh)).To(Succeed())
 				fresh.Finalizers = append(fresh.Finalizers, "osac.openshift.io/externalippool-feedback")
@@ -164,12 +166,14 @@ var _ = Describe("ExternalIPPoolReconciler", func() {
 			// returns early before triggering provisioning.
 			_, err := reconciler.Reconcile(testCtx, mcreconcile.Request{Request: ctrl.Request{NamespacedName: key}})
 			Expect(err).NotTo(HaveOccurred())
+			Expect(provisionCalled).To(BeFalse(), "AAP provisioning must not be triggered before annotation is stamped")
 
 			// Pass 2: annotation already set, triggers provisioning.
 			// The concurrent modification must not prevent the job from
 			// being recorded in status.
 			_, err = reconciler.Reconcile(testCtx, mcreconcile.Request{Request: ctrl.Request{NamespacedName: key}})
 			Expect(err).NotTo(HaveOccurred())
+			Expect(provisionCalled).To(BeTrue(), "AAP provisioning must be triggered after annotation is stamped")
 
 			// Verify the job was persisted
 			updated := &osacv1alpha1.ExternalIPPool{}
@@ -182,17 +186,6 @@ var _ = Describe("ExternalIPPoolReconciler", func() {
 		It("should stamp implementation-strategy annotation before triggering AAP provisioning", func() {
 			key := types.NamespacedName{Name: pool.Name, Namespace: pool.Namespace}
 
-			// Pass 1: adds finalizer and stamps the annotation, returns early.
-			_, err := reconciler.Reconcile(testCtx, mcreconcile.Request{Request: ctrl.Request{NamespacedName: key}})
-			Expect(err).NotTo(HaveOccurred())
-
-			annotated := &osacv1alpha1.ExternalIPPool{}
-			Expect(fakeClient.Get(testCtx, key, annotated)).To(Succeed())
-			Expect(annotated.Annotations).To(HaveKeyWithValue(
-				osacImplementationStrategyAnnotation, "metallb-l2",
-			))
-
-			// Pass 2: annotation is already set, provisioning is triggered.
 			provisionCalled := false
 			mockProvider.triggerProvisionFunc = func(_ context.Context, _ client.Object) (*provisioning.ProvisionResult, error) {
 				provisionCalled = true
@@ -202,6 +195,19 @@ var _ = Describe("ExternalIPPoolReconciler", func() {
 					Message:      "Provisioning triggered",
 				}, nil
 			}
+
+			// Pass 1: adds finalizer and stamps the annotation, returns early.
+			_, err := reconciler.Reconcile(testCtx, mcreconcile.Request{Request: ctrl.Request{NamespacedName: key}})
+			Expect(err).NotTo(HaveOccurred())
+			Expect(provisionCalled).To(BeFalse(), "AAP provisioning must not be triggered before annotation is stamped")
+
+			annotated := &osacv1alpha1.ExternalIPPool{}
+			Expect(fakeClient.Get(testCtx, key, annotated)).To(Succeed())
+			Expect(annotated.Annotations).To(HaveKeyWithValue(
+				osacImplementationStrategyAnnotation, "metallb-l2",
+			))
+
+			// Pass 2: annotation is already set, provisioning is triggered.
 			_, err = reconciler.Reconcile(testCtx, mcreconcile.Request{Request: ctrl.Request{NamespacedName: key}})
 			Expect(err).NotTo(HaveOccurred())
 			Expect(provisionCalled).To(BeTrue(), "AAP provisioning must be triggered after annotation is stamped")
