@@ -153,6 +153,9 @@ You need `KUBECONFIG` pointing to the hub OpenShift cluster where:
   - `osac.openshift.io/resource_class` — the server's resource class
   - `netris.server/name` — the corresponding Netris server name
 
+  See [CaaS Agent Binding Labels](agent-labels.md) for the full label
+  reference, including common mistakes to avoid.
+
 ### Netris Infrastructure
 
 The following must be in place in your Netris environment before running the

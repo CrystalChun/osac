@@ -53,6 +53,9 @@ coordination between BareMetalHost and Agent CRs:
 - BMAC links the Agent to the BMH via the `agent-install.openshift.io/bmh` label
 - The playbook then labels the Agent with resource class and Netris metadata
 
+For the full list of required and optional Agent CR labels, see
+[CaaS Agent Binding Labels](agent-labels.md).
+
 ## Prerequisites
 
 ### Baremetal Operator with watchAllNamespaces
