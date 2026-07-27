@@ -51,12 +51,14 @@ const VmConsoleTab = ({ vm }: Props) => {
     isRunning: isVmRunning,
   });
   const vncRef = useRef<VncConsoleViewerHandle>(null);
-  // Read via ref inside the effect below instead of listing t as a dependency: t's
-  // identity can change mid-connection while i18next-http-backend is still loading
-  // translations, and that must not re-trigger loadThenConnect() (which would call
+  // Computed here (where the i18next-cli extractor's static scan can see the translation
+  // call) and read via ref inside the effect below instead of listing t itself as a
+  // dependency: t's identity can change mid-connection while i18next-http-backend is still
+  // loading translations, and that must not re-trigger loadThenConnect() (which would call
   // connect() a second time, leaking the first WebSocket/session).
-  const tRef = useRef(t);
-  tRef.current = t;
+  const failedToLoadViewerMessage = t('Failed to load graphical console viewer');
+  const failedToLoadViewerMessageRef = useRef(failedToLoadViewerMessage);
+  failedToLoadViewerMessageRef.current = failedToLoadViewerMessage;
   // Compare by socket identity: leaving the tab unmounts and resets state, but while
   // mounted the session hook can replace webSocket (e.g. VM stop→start) without
   // remounting — keep "Connecting" until noVNC reports ready for that new socket.
@@ -94,9 +96,7 @@ const VmConsoleTab = ({ vm }: Props) => {
       } catch (error) {
         if (!cancelled) {
           reportViewerError(
-            error instanceof Error
-              ? error.message
-              : tRef.current('Failed to load graphical console viewer'),
+            error instanceof Error ? error.message : failedToLoadViewerMessageRef.current,
           );
         }
       }

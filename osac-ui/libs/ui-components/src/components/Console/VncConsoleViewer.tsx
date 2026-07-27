@@ -29,12 +29,22 @@ const VncConsoleViewer = forwardRef<VncConsoleViewerHandle, Props>(
     const { t } = useTranslation();
     const containerRef = useRef<HTMLDivElement>(null);
     const rfbRef = useRef<VncRfbInstance | undefined>(undefined);
-    // Read via ref inside the effect below instead of listing t as a dependency: t's
-    // identity can change mid-session while i18next-http-backend is still loading
-    // translations, and that must not re-trigger this effect — the cleanup calls
+    // Computed here (where the i18next-cli extractor's static scan can see the translation
+    // calls) and read via ref inside the effect below instead of listing t itself as a
+    // dependency: t's identity can change mid-session while i18next-http-backend is still
+    // loading translations, and that must not re-trigger this effect — the cleanup calls
     // rfb.disconnect(), which would visibly drop an already-connected console.
-    const tRef = useRef(t);
-    tRef.current = t;
+    const messages = {
+      disconnected: t('Graphical console disconnected'),
+      disconnectedBeforeConnecting: t(
+        'Graphical console disconnected before it finished connecting',
+      ),
+      connectTimedOut: t('Timed out waiting for the graphical console to finish connecting'),
+      loadFailed: t('Failed to load graphical console viewer'),
+      noSize: t('Graphical console viewer could not start because the display area has no size'),
+    };
+    const messagesRef = useRef(messages);
+    messagesRef.current = messages;
 
     useImperativeHandle(ref, () => ({
       focus: () => {
@@ -78,8 +88,8 @@ const VncConsoleViewer = forwardRef<VncConsoleViewerHandle, Props>(
         window.clearTimeout(connectTimeoutId);
         onError?.(
           hasConnectedOnce
-            ? tRef.current('Graphical console disconnected')
-            : tRef.current('Graphical console disconnected before it finished connecting'),
+            ? messagesRef.current.disconnected
+            : messagesRef.current.disconnectedBeforeConnecting,
         );
       };
 
@@ -117,9 +127,7 @@ const VncConsoleViewer = forwardRef<VncConsoleViewerHandle, Props>(
             if (!mounted || rfbRef.current !== rfb) {
               return;
             }
-            onError?.(
-              tRef.current('Timed out waiting for the graphical console to finish connecting'),
-            );
+            onError?.(messagesRef.current.connectTimedOut);
           }, RFB_CONNECT_TIMEOUT_MS);
         } catch (error: unknown) {
           if (!mounted) {
@@ -127,10 +135,7 @@ const VncConsoleViewer = forwardRef<VncConsoleViewerHandle, Props>(
           }
 
           window.clearTimeout(initTimeoutId);
-          const message =
-            error instanceof Error
-              ? error.message
-              : tRef.current('Failed to load graphical console viewer');
+          const message = error instanceof Error ? error.message : messagesRef.current.loadFailed;
           onError?.(message);
         } finally {
           initInFlight = false;
@@ -141,11 +146,7 @@ const VncConsoleViewer = forwardRef<VncConsoleViewerHandle, Props>(
         if (!mounted || rfbRef.current) {
           return;
         }
-        onError?.(
-          tRef.current(
-            'Graphical console viewer could not start because the display area has no size',
-          ),
-        );
+        onError?.(messagesRef.current.noSize);
       }, RFB_INIT_TIMEOUT_MS);
 
       void initRfb();
