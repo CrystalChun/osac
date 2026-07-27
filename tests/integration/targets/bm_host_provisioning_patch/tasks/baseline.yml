@@ -23,26 +23,17 @@
                               'checksumType': bm_host_metal3_default_checksum_type}
                             | combine(template_params) }}"
 
-    - name: Build base BMH patch
+    - name: Set variables expected by build_bmh_patch
       ansible.builtin.set_fact:
-        bmh_patch:
-          spec:
-            image:
-              url: "{{ template_params.imageURL }}"
-            online: true
+        ssh_key: ""
+        user_data_secret_ref: ""
+        bmh_name: "test-bmh"
+        bmh_namespace: "test-ns"
 
-    - name: Add checksum to BMH patch for non-OCI images
-      when: not template_params.imageURL.startswith('oci://')
-      ansible.builtin.set_fact:
-        bmh_patch: >-
-          {{ bmh_patch | combine({
-               'spec': bmh_patch.spec | combine({
-                 'image': bmh_patch.spec.image | combine({
-                   'checksum': template_params.imageChecksum,
-                   'checksumType': template_params.checksumType
-                 })
-               })
-             }, recursive=True) }}
+    - name: Build BMH patch using actual role code
+      ansible.builtin.include_role:
+        name: osac.templates.bm_host_provisioning
+        tasks_from: build_bmh_patch.yaml
 
     - name: Assert OCI image patch has no checksum fields
       ansible.builtin.assert:
@@ -77,26 +68,17 @@
                               'checksumType': bm_host_metal3_default_checksum_type}
                             | combine(template_params) }}"
 
-    - name: Build base BMH patch
+    - name: Set variables expected by build_bmh_patch
       ansible.builtin.set_fact:
-        bmh_patch:
-          spec:
-            image:
-              url: "{{ template_params.imageURL }}"
-            online: true
+        ssh_key: ""
+        user_data_secret_ref: ""
+        bmh_name: "test-bmh"
+        bmh_namespace: "test-ns"
 
-    - name: Add checksum to BMH patch for non-OCI images
-      when: not template_params.imageURL.startswith('oci://')
-      ansible.builtin.set_fact:
-        bmh_patch: >-
-          {{ bmh_patch | combine({
-               'spec': bmh_patch.spec | combine({
-                 'image': bmh_patch.spec.image | combine({
-                   'checksum': template_params.imageChecksum,
-                   'checksumType': template_params.checksumType
-                 })
-               })
-             }, recursive=True) }}
+    - name: Build BMH patch using actual role code
+      ansible.builtin.include_role:
+        name: osac.templates.bm_host_provisioning
+        tasks_from: build_bmh_patch.yaml
 
     - name: Assert non-OCI image patch includes checksum fields
       ansible.builtin.assert:
@@ -128,26 +110,17 @@
                               'checksumType': bm_host_metal3_default_checksum_type}
                             | combine(template_params) }}"
 
-    - name: Build base BMH patch
+    - name: Set variables expected by build_bmh_patch
       ansible.builtin.set_fact:
-        bmh_patch:
-          spec:
-            image:
-              url: "{{ template_params.imageURL }}"
-            online: true
+        ssh_key: ""
+        user_data_secret_ref: ""
+        bmh_name: "test-bmh"
+        bmh_namespace: "test-ns"
 
-    - name: Add checksum to BMH patch for non-OCI images
-      when: not template_params.imageURL.startswith('oci://')
-      ansible.builtin.set_fact:
-        bmh_patch: >-
-          {{ bmh_patch | combine({
-               'spec': bmh_patch.spec | combine({
-                 'image': bmh_patch.spec.image | combine({
-                   'checksum': template_params.imageChecksum,
-                   'checksumType': template_params.checksumType
-                 })
-               })
-             }, recursive=True) }}
+    - name: Build BMH patch using actual role code
+      ansible.builtin.include_role:
+        name: osac.templates.bm_host_provisioning
+        tasks_from: build_bmh_patch.yaml
 
     - name: Assert default image patch includes checksum fields
       ansible.builtin.assert:
