@@ -19,6 +19,10 @@ export default defineConfig({
   use: {
     baseURL,
     trace: 'on-first-retry',
+    // Dev/lab cluster routes commonly present a self-signed or cluster-internal
+    // CA cert that Chromium doesn't trust by default (the same reason manual
+    // testing against these environments always needs curl -k).
+    ignoreHTTPSErrors: true,
   },
   projects: [
     {
