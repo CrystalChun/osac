@@ -80,8 +80,29 @@ jobs:
       run: echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
 
     - name: Update image tag in values.yaml
+      env:
+        VERSION: ${{ steps.version.outputs.version }}
       run: |
-        sed -i "s|image: ghcr.io/osac-project/osac-aap:latest|image: ghcr.io/osac-project/osac-aap:v${{ steps.version.outputs.version }}|" charts/aap/values.yaml
+        if [[ ! "$VERSION" =~ ^[0-9A-Za-z._-]+$ ]]; then
+          echo "Invalid release version: $VERSION" >&2
+          exit 1
+        fi
+
+        # sed exits 0 even when a pattern matches zero lines, so a future values.yaml
+        # format change could silently leave a placeholder unpinned. Verify the expected
+        # replacement actually landed and fail the release instead of packaging stale values.
+        replace_and_verify() {
+          local old="$1" new="$2"
+          sed -i "s|${old}|${new}|" charts/aap/values.yaml
+          if ! grep -qF -- "${new}" charts/aap/values.yaml; then
+            echo "::error::Expected '${new}' not found in charts/aap/values.yaml after substitution (placeholder '${old}' may be missing or already changed)" >&2
+            exit 1
+          fi
+        }
+
+        replace_and_verify "image: ghcr.io/osac-project/osac-aap:latest" "image: ghcr.io/osac-project/osac-aap:v${VERSION}"
+        replace_and_verify "eeImage: \"\"" "eeImage: \"ghcr.io/osac-project/osac-aap:v${VERSION}\""
+        replace_and_verify "projectGitBranch: \"\"" "projectGitBranch: \"v${VERSION}\""
 
     - name: Package chart
       run: |
