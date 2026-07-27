@@ -414,10 +414,14 @@ func (r *ExternalIPAttachmentReconciler) handleProvisioning(
 		&provisioning.State{Jobs: &attachment.Status.ProvisioningJobs, DesiredConfigVersion: attachment.Status.DesiredConfigVersion},
 		r.MaxJobHistory, r.StatusPollInterval,
 		&provisioning.PollCallbacks{
-			OnFailed: func(_ string) { attachment.Status.Phase = v1alpha1.ExternalIPAttachmentPhaseFailed },
+			OnFailed: func(message string) {
+				attachment.Status.Phase = v1alpha1.ExternalIPAttachmentPhaseFailed
+				setReadyConditionFailed(&attachment.Status.Conditions, message)
+			},
 			OnSuccess: func(_ provisioning.ProvisionStatus) {
 				attachment.Status.Phase = v1alpha1.ExternalIPAttachmentPhaseReady
 				r.onProvisionSuccess(ctx, publicIP, ci)
+				setReadyConditionTrue(&attachment.Status.Conditions)
 			},
 		},
 		func() bool {

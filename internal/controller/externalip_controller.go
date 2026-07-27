@@ -340,9 +340,10 @@ func (r *ExternalIPReconciler) handleProvisioning(ctx context.Context, publicIP 
 		&provisioning.State{Jobs: &publicIP.Status.ProvisioningJobs, DesiredConfigVersion: publicIP.Status.DesiredConfigVersion},
 		r.MaxJobHistory, r.StatusPollInterval,
 		&provisioning.PollCallbacks{
-			OnFailed: func(_ string) {
+			OnFailed: func(message string) {
 				publicIP.Status.Phase = v1alpha1.ExternalIPPhaseFailed
 				publicIP.Status.State = v1alpha1.ExternalIPStateFailed
+				setReadyConditionFailed(&publicIP.Status.Conditions, message)
 			},
 			OnSuccess: func(_ provisioning.ProvisionStatus) {
 				publicIP.Status.State = v1alpha1.ExternalIPStateAllocated
@@ -356,6 +357,7 @@ func (r *ExternalIPReconciler) handleProvisioning(ctx context.Context, publicIP 
 				if publicIP.Status.Address != "" {
 					publicIP.Status.Phase = v1alpha1.ExternalIPPhaseReady
 				}
+				setReadyConditionTrue(&publicIP.Status.Conditions)
 			},
 		},
 		func() bool {
