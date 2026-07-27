@@ -19,8 +19,10 @@ setup('authenticate', async ({ page }) => {
   await page.getByLabel('Username or email').fill(username);
   await page.getByRole('button', { name: 'Sign In' }).click();
   // getByLabel('Password') is ambiguous — it also matches the theme's "Show
-  // password" toggle button, which shares the same label association.
-  await page.getByRole('textbox', { name: 'Password' }).fill(password);
+  // password" toggle button, which shares the same label association. A
+  // native input[type=password] has no ARIA role, so getByRole('textbox')
+  // won't match it either.
+  await page.locator('input[type="password"]').fill(password);
   await page.getByRole('button', { name: 'Sign In' }).click();
 
   await expect(page.getByRole('button', { name: 'Account menu' })).toBeVisible();

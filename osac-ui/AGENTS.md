@@ -185,19 +185,21 @@ export const getLabels = (t: TFunction) => ({
 
 ### Manual verification against a live cluster
 
-`apps/e2e` (`@osac/e2e`) is a Playwright harness for manually confirming a change
+`apps/e2e` (`@osac/e2e`) is a Playwright harness for manually confirming that a change
 works end-to-end against a **live, already-deployed** cluster — not a CI suite,
 not a replacement for `osac-test-infra`'s gRPC-level coverage, and not something
 that adds to this repo's persisted test count. See [apps/e2e/README.md](apps/e2e/README.md).
 
-- **Test specs are throwaway, not committed**: `apps/e2e/src/*.spec.ts` is
-  gitignored on purpose. Write a spec file to verify a specific change, run it,
-  then discard it (or leave it — it's ignored either way). Only the harness
-  itself (`playwright.config.ts`, `auth.setup.ts`) is committed.
+- **Test specs are throwaway and never live in this package**: `E2E_SPEC_FILE`
+  points Playwright at a single spec file anywhere on disk (e.g. `/tmp/check.spec.ts`).
+  The config copies it into a gitignored scratch dir it controls (`apps/e2e/.e2e-run/`)
+  before each run, so there's nothing under `apps/e2e` to ever commit or manually
+  clean up — only the harness itself (`playwright.config.ts`, `auth.setup.ts`)
+  is committed.
 - Use this when asked to verify a UI change actually works in a browser against
-  a real deployment — requires `E2E_BASE_URL`, `E2E_USERNAME`, `E2E_PASSWORD`
-  (or `pnpm e2e:dev` against a local `pnpm dev` instance). There is no mock
-  `fulfillment-service`, so this cannot run hermetically or in CI.
+  a real deployment — requires `E2E_BASE_URL`, `E2E_USERNAME`, `E2E_PASSWORD`,
+  `E2E_SPEC_FILE` (or `pnpm e2e:dev` against a local `pnpm dev` instance). There
+  is no mock `fulfillment-service`, so this cannot run hermetically or in CI.
 
 ## Build
 

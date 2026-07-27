@@ -5,7 +5,7 @@ already-deployed** cluster — the running proxy, SPA, Keycloak realm, and
 `fulfillment-service` backend all in one real environment.
 
 This is not a CI suite. There is no mock server for `fulfillment-service`
-and no way to run this hermetically — it exists for AI agents to manually confirming a
+and no way to run this hermetically — it exists for AI agents to manually confirm a
 change actually works end-to-end against a real deployment, the way you'd
 otherwise do by hand in a browser.
 
@@ -28,25 +28,32 @@ pnpm --filter @osac/e2e exec playwright install chromium
 
 Required environment variables:
 
-| Variable       | Description                                                                                       |
-| -------------- | ------------------------------------------------------------------------------------------------- |
-| `E2E_BASE_URL` | Full URL of the `osac-ui` deployment to test, e.g. `https://osac-ui-<namespace>.<cluster-domain>` |
-| `E2E_USERNAME` | Username of a Keycloak test user on that deployment's realm                                       |
-| `E2E_PASSWORD` | Password for that user                                                                            |
+| Variable        | Description                                                                                        |
+| --------------- | --------------------------------------------------------------------------------------------------- |
+| `E2E_BASE_URL`  | Full URL of the `osac-ui` deployment to test, e.g. `https://osac-ui-<namespace>.<cluster-domain>` |
+| `E2E_USERNAME`  | Username of a Keycloak test user on that deployment's realm                                       |
+| `E2E_PASSWORD`  | Password for that user                                                                             |
+| `E2E_SPEC_FILE` | Path to the single spec file to run — see [Writing a test](#writing-a-test)                        |
 
 ```bash
-E2E_BASE_URL=https://... E2E_USERNAME=... E2E_PASSWORD=... pnpm e2e
+E2E_BASE_URL=https://... E2E_USERNAME=... E2E_PASSWORD=... E2E_SPEC_FILE=/tmp/check.spec.ts pnpm e2e
 ```
 
 (`pnpm e2e` is a root-level shortcut for `pnpm --filter @osac/e2e run
-test:e2e`.) There's no default for `E2E_BASE_URL` — it's required, so a
-missing value fails immediately with a clear error instead of silently
-pointing at the wrong environment.
+test:e2e`.) None of these have defaults — each is required, so a missing value
+fails immediately with a clear error instead of silently pointing at the wrong
+environment or running the wrong spec.
+
+Optional:
+
+| Variable                  | Description                                                                                          |
+| -------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `E2E_IGNORE_HTTPS_ERRORS` | Set to `true` to trust self-signed/cluster-internal CA certs, common on dev and lab clusters. Off by default because this flow submits a real Keycloak password — only enable it against clusters you trust. |
 
 Testing against a local `pnpm dev` instance instead of a remote deployment:
 
 ```bash
-E2E_USERNAME=... E2E_PASSWORD=... pnpm e2e:dev
+E2E_USERNAME=... E2E_PASSWORD=... E2E_SPEC_FILE=/tmp/check.spec.ts pnpm e2e:dev
 ```
 
 `pnpm e2e:dev` sets `E2E_BASE_URL=http://localhost:5173` for you — still
@@ -78,15 +85,18 @@ theme) may need adjusting.
 
 ## Writing a test
 
-There's no persisted test suite here — `src/*.spec.ts` is gitignored on
-purpose. This package provides the harness (auth + config); test specs are
-throwaway files created for a specific manual-verification task (typically by
-an AI agent working through a change), run once, and discarded — not
-committed.
+There's no persisted test suite here. This package provides the harness (auth
++ config) only; test specs are throwaway, written ad hoc for a specific
+manual-verification task (typically by an AI agent working through a change)
+and run once. They don't live in this package at all — `E2E_SPEC_FILE` points
+Playwright at a single spec file anywhere on disk, and the copy the harness
+makes internally lives in a gitignored scratch dir, so there's nothing under
+`apps/e2e` to ever commit or manually clean up.
 
-To verify something, write a file under `src/`, e.g. `src/check.spec.ts`:
+Write the spec anywhere, e.g. `/tmp/check.spec.ts`:
 
-```ts
+```bash
+cat > /tmp/check.spec.ts <<'EOF'
 import { expect, test } from '@playwright/test';
 
 test('loads the authenticated dashboard', async ({ page }) => {
@@ -94,9 +104,16 @@ test('loads the authenticated dashboard', async ({ page }) => {
 
   await expect(page.getByRole('button', { name: 'Account menu' })).toBeVisible();
 });
+EOF
 ```
 
 It runs in the `chromium` project — already authenticated via `auth.setup.ts`,
-no need to handle login in the test itself. Run it with `pnpm e2e` or
-`pnpm e2e:dev`, then delete it (or just leave it — it won't be picked up by
-`git status` as anything worth committing).
+no need to handle login in the test itself. Run it with:
+
+```bash
+E2E_BASE_URL=... E2E_USERNAME=... E2E_PASSWORD=... E2E_SPEC_FILE=/tmp/check.spec.ts pnpm e2e
+```
+
+`E2E_SPEC_FILE` is always required — there's no default spec, so a wrong or
+missing path fails immediately instead of silently running nothing (or the
+wrong thing).

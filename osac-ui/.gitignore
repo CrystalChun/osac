@@ -56,8 +56,9 @@ apps/e2e/.auth/
 apps/e2e/test-results/
 apps/e2e/playwright-report/
 apps/e2e/blob-report/
+apps/e2e/.e2e-run/
 
-# Playwright e2e — test specs are created ad hoc per manual-verification session
-# (typically by an AI agent) and are not persisted in the repo; only the harness
-# itself (playwright.config.ts, auth.setup.ts) is committed.
-apps/e2e/src/*.spec.ts
+# Playwright e2e — ad hoc specs sometimes call page.screenshot() with a bare
+# filename, which lands in apps/e2e/ instead of a gitignored output dir.
+apps/e2e/*.png
+apps/e2e/*.jpg
