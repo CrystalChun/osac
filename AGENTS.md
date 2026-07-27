@@ -7,7 +7,7 @@ Guide for AI agents working on osac-aap — Ansible Automation Platform roles an
 osac-aap contains Ansible collections that provision and manage OSAC infrastructure. Backends are added over time — the lists below are examples, not exhaustive:
 - **Network backends**: e.g. CUDN, Netris, OpenStack, MetalLB
 - **Compute backends**: e.g. OpenShift Virtualization (KubeVirt)
-- **Cluster provisioning**: e.g. OpenShift 4.17, 4.20 templates
+- **Cluster provisioning**: e.g. OpenShift 4.20 templates
 - **Storage backends**: e.g. VAST
 - **Bare metal provisioning**: e.g. OpenStack Ironic (via the ESI collection), Metal3, NICo
 
@@ -37,7 +37,7 @@ source .venv/bin/activate  # or prefix commands with `uv run`
 ### Collections Management
 
 Collections live in two directories:
-- `collections/ansible_collections/osac/` — Local OSAC collections (service, templates, workflows, config_as_code, esi, steps, test_overrides)
+- `collections/ansible_collections/` — Local collections across multiple namespaces: `osac.*` (service, templates, workflows, config_as_code, esi, steps, test_overrides), `agentless_net.*`, `ci.*`, `dns.*`, `netris.*`, `nico.*`
 - `vendor/` — Vendored upstream collections
 
 Re-vendor after updating `collections/requirements.yml`:
@@ -60,6 +60,8 @@ osac-aap/
 │   ├── osac/config_as_code/        # AAP configuration as code
 │   ├── osac/esi/                   # Elastic Secure Infrastructure
 │   ├── osac/steps/                 # Workflow step definitions
+│   ├── osac/test_overrides/        # Test template overrides
+│   ├── ci/                         # CI workflow steps
 │   ├── netris/                     # Netris network backend
 │   ├── nico/                       # NVIDIA NICo bare metal backend
 │   ├── dns/                        # DNS management
@@ -158,7 +160,7 @@ allowed_resource_classes: []
 - `netris` — Netris Controller API backend
 - `openstack` — OpenStack Neutron
 - `network_policy` — Kubernetes NetworkPolicy (SecurityGroups)
-- `metallb_l2` — MetalLB-based PublicIPPool/PublicIP
+- `metallb_l2` — MetalLB-based ExternalIPPool/ExternalIP
 
 **Compute:**
 - `ocp_virt_vm` — KubeVirt VMs on OpenShift Virtualization
@@ -166,6 +168,7 @@ allowed_resource_classes: []
 **Clusters:**
 - `ocp_small` — Standard OpenShift cluster template
 - `ocp_4_20_ai_maas` — OpenShift 4.20 with AI/MaaS
+- `ocp_4_20_small_nico` — OpenShift 4.20 with NICo networking
 - `ocp_ci_small` — CI cluster template
 
 **Storage:**
@@ -173,7 +176,7 @@ allowed_resource_classes: []
 
 **Bare Metal:**
 - `bm_host_agent_provisioning` / `bm_host_agent_deprovisioning`
-- `bm_host_metal3_provisioning`
+- `bm_host_provisioning` — Dispatches to Metal3 or OpenStack Ironic
 - `bm_private_network` / `bm_host_private_network`
 
 ### Service Roles (osac.service)
@@ -193,6 +196,7 @@ Shared utilities imported by template roles:
 - `manage_agents` — Agent management utilities
 - `metallb_ingress` — MetalLB ingress setup
 - `nmstate_config` — Network configuration with nmstate
+- `openstack_bm_node` — OpenStack bare metal node preflight and preparation
 - `publish_templates` — Registers template metadata as NetworkClass/ComputeClass
 - `retrieve_kubeconfig` — Kubeconfig retrieval
 - `storage_provider` — Storage provider utilities
@@ -230,13 +234,18 @@ Test fixtures: `tests/integration/fixtures/` contains sample CRs (ClusterOrder, 
 
 ### CI Workflows
 
-**`.github/workflows/tests.yml`:**
-- `ansible-lint` — Lints all playbooks and roles
-- `integration-tests` — Full test suite with kind cluster (storage tests conditionally enabled via `STORAGE_TESTS_ENABLED=true` environment variable in CI)
+**`.github/workflows/ansible-lint.yml`:**
+- Dedicated ansible-lint validation on PRs
+
+**`.github/workflows/integration-tests.yml`:**
+- Full test suite with kind cluster (storage tests conditionally enabled via `STORAGE_TESTS_ENABLED=true` environment variable in CI)
 
 **`.github/workflows/e2e-vmaas-full-install.yml`:**
 - End-to-end VMaaS installation testing
-- Trigger: PR comment `/ok-to-test` (requires org membership for fork PRs)
+- Triggers: `pull_request`, scheduled (every 12h), `workflow_dispatch`
+
+**`.github/workflows/e2e-bmaas-full-install.yml`:**
+- End-to-end BM-as-a-Service installation testing
 
 **`.github/workflows/pre-commit.yaml`:**
 - Runs all pre-commit hooks on PRs
@@ -244,9 +253,18 @@ Test fixtures: `tests/integration/fixtures/` contains sample CRs (ClusterOrder, 
 **`.github/workflows/helm-lint.yaml`:**
 - Validates Helm chart syntax
 
-**Execution environment container build:**
-- Container images are built from `execution-environment/execution-environment.yaml`
-- CI validates the build definition and produces images for AAP deployment
+**`.github/workflows/execution-environment.yml`:**
+- Container images built from `execution-environment/execution-environment.yaml`
+- Validates the build definition and produces images for AAP deployment
+
+**`.github/workflows/publish-charts.yaml`:**
+- Publishes Helm charts on release tags
+
+**`.github/workflows/ok-to-test-label-cleanup.yml`:**
+- Removes `ok-to-test` label on new pushes to PRs
+
+**`.github/workflows/slash-command.yml`:**
+- Handles slash commands in PR comments
 
 ## Building
 
@@ -351,12 +369,12 @@ Note: Use `Assisted-by`, not `Co-Authored-By` (Red Hat attribution standard).
 
 ### CI Checks
 
-All PRs must pass:
-1. `pre-commit` — All pre-commit hooks
-2. `ansible-lint` — Playbook and role linting
-3. `integration-tests` — Full test suite with kind cluster
-4. `helm-lint` — Helm chart validation
-5. Execution environment container image build validation
+All PRs must pass (docs-only PRs — `*.md`, `docs/` — skip checks 1-3 via `paths-ignore`):
+1. `pre-commit` — All pre-commit hooks (`pre-commit.yaml`)
+2. `ansible-lint` — Playbook and role linting (`ansible-lint.yml`)
+3. `integration-tests` — Full test suite with kind cluster (`integration-tests.yml`)
+4. `helm-lint` — Helm chart validation (`helm-lint.yaml`)
+5. `execution-environment` — Container image build validation (`execution-environment.yml`)
 
 ### Review Process
 

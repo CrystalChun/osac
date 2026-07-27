@@ -171,42 +171,6 @@ controller_templates: # noqa: var-naming[no-role-prefix]
     allow_simultaneous: true
     ask_variables_on_launch: true
     verbosity: 0
-  - name: "{{ aap_prefix }}-create-public-ip"
-    project: "{{ aap_prefix }}"
-    organization: "{{ aap_organization_name }}"
-    job_type: run
-    playbook: "playbook_osac_create_public_ip.yml"
-    inventory: "{{ aap_prefix }}-networking-operations"
-    execution_environment: "{{ aap_prefix }}-ee"
-    instance_groups:
-      - "{{ aap_prefix }}-networking-operations-ig"
-    allow_simultaneous: true
-    ask_variables_on_launch: true
-    verbosity: 0
-  - name: "{{ aap_prefix }}-create-public-ip-pool"
-    project: "{{ aap_prefix }}"
-    organization: "{{ aap_organization_name }}"
-    job_type: run
-    playbook: "playbook_osac_create_public_ip_pool.yml"
-    inventory: "{{ aap_prefix }}-networking-operations"
-    execution_environment: "{{ aap_prefix }}-ee"
-    instance_groups:
-      - "{{ aap_prefix }}-networking-operations-ig"
-    allow_simultaneous: true
-    ask_variables_on_launch: true
-    verbosity: 0
-  - name: "{{ aap_prefix }}-delete-public-ip-pool"
-    project: "{{ aap_prefix }}"
-    organization: "{{ aap_organization_name }}"
-    job_type: run
-    playbook: "playbook_osac_delete_public_ip_pool.yml"
-    inventory: "{{ aap_prefix }}-networking-operations"
-    execution_environment: "{{ aap_prefix }}-ee"
-    instance_groups:
-      - "{{ aap_prefix }}-networking-operations-ig"
-    allow_simultaneous: true
-    ask_variables_on_launch: true
-    verbosity: 0
   - name: "{{ aap_prefix }}-create-external-ip-pool"
     project: "{{ aap_prefix }}"
     organization: "{{ aap_organization_name }}"
@@ -224,42 +188,6 @@ controller_templates: # noqa: var-naming[no-role-prefix]
     organization: "{{ aap_organization_name }}"
     job_type: run
     playbook: "playbook_osac_delete_external_ip_pool.yml"
-    inventory: "{{ aap_prefix }}-networking-operations"
-    execution_environment: "{{ aap_prefix }}-ee"
-    instance_groups:
-      - "{{ aap_prefix }}-networking-operations-ig"
-    allow_simultaneous: true
-    ask_variables_on_launch: true
-    verbosity: 0
-  - name: "{{ aap_prefix }}-delete-public-ip"
-    project: "{{ aap_prefix }}"
-    organization: "{{ aap_organization_name }}"
-    job_type: run
-    playbook: "playbook_osac_delete_public_ip.yml"
-    inventory: "{{ aap_prefix }}-networking-operations"
-    execution_environment: "{{ aap_prefix }}-ee"
-    instance_groups:
-      - "{{ aap_prefix }}-networking-operations-ig"
-    allow_simultaneous: true
-    ask_variables_on_launch: true
-    verbosity: 0
-  - name: "{{ aap_prefix }}-attach-public-ip"
-    project: "{{ aap_prefix }}"
-    organization: "{{ aap_organization_name }}"
-    job_type: run
-    playbook: "playbook_osac_attach_public_ip.yml"
-    inventory: "{{ aap_prefix }}-networking-operations"
-    execution_environment: "{{ aap_prefix }}-ee"
-    instance_groups:
-      - "{{ aap_prefix }}-networking-operations-ig"
-    allow_simultaneous: true
-    ask_variables_on_launch: true
-    verbosity: 0
-  - name: "{{ aap_prefix }}-detach-public-ip"
-    project: "{{ aap_prefix }}"
-    organization: "{{ aap_organization_name }}"
-    job_type: run
-    playbook: "playbook_osac_detach_public_ip.yml"
     inventory: "{{ aap_prefix }}-networking-operations"
     execution_environment: "{{ aap_prefix }}-ee"
     instance_groups:
@@ -721,6 +649,9 @@ controller_instance_groups: # noqa: var-naming[no-role-prefix]
               - name: import-agents-inventory
                 mountPath: /var/config/import-agents
                 readOnly: true
+              - name: agentless-net-inventory
+                mountPath: /var/config/agentless-net
+                readOnly: true
               - name: bcm-certs
                 mountPath: /var/secrets/bcm-certs
                 readOnly: true
@@ -774,6 +705,10 @@ controller_instance_groups: # noqa: var-naming[no-role-prefix]
         - name: import-agents-inventory
           configMap:
             name: import-agents-inventory
+            optional: true
+        - name: agentless-net-inventory
+          configMap:
+            name: agentless-net-inventory
             optional: true
   # For config-as-code job template, we expect the configuration and the
   # credentials to be passed in (prefix)-config-as-code-ig secret

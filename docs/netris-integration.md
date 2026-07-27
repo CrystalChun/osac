@@ -319,8 +319,8 @@ primitives:
 | VirtualNetwork | VPC + V-Net | `POST /api/v2/vpc`, `POST /api/v2/vnet` |
 | Subnet | IPAM allocation + subnet | `POST /api/v2/ipam/allocation`, `POST /api/v2/ipam/subnet` |
 | SecurityGroup | ACL rules | `POST /api/acl` (v1 API) |
-| PublicIPPool | IPAM allocation + subnet (purpose=nat) | `POST /api/v2/ipam/allocation`, `POST /api/v2/ipam/subnet` |
-| PublicIP | IPAM IP allocation | Read from existing IPAM pool |
+| ExternalIPPool | IPAM allocation + subnet (purpose=nat) | `POST /api/v2/ipam/allocation`, `POST /api/v2/ipam/subnet` |
+| ExternalIP | IPAM IP allocation | Read from existing IPAM pool |
 
 The template role is at `collections/ansible_collections/osac/templates/roles/netris/`.
 It is auto-discovered by the `publish_templates` playbook via `meta/osac.yaml`

@@ -42,7 +42,7 @@ pluggable backends:
 | `netris` | Netris Controller API | Netris |
 | `openstack` | OpenStack Neutron | Neutron |
 
-Plus MetalLB-based PublicIPPool / PublicIP management (`metallb_l2`).
+Plus MetalLB-based ExternalIPPool / ExternalIP management (`metallb_l2`).
 
 ### Compute
 
