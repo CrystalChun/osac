@@ -1,12 +1,10 @@
-import { createRouterTransport } from '@connectrpc/connect';
-import { waitFor } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { describe } from 'vitest';
 
 import type { ClusterCatalogItem } from '@osac/types';
 import { ClusterCatalogItems } from '@osac/types';
 
 import { useClusterCatalogItems } from './cluster-catalog-item';
-import { renderHookWithProviders } from '../../test-utils/TestProviders';
+import { createCatalogHookTests } from '../../test-utils/catalogHookTestHelpers';
 
 const item: ClusterCatalogItem = {
   $typeName: 'osac.public.v1.ClusterCatalogItem',
@@ -19,37 +17,17 @@ const item: ClusterCatalogItem = {
 };
 
 describe('useClusterCatalogItems', () => {
-  it('fetches items from the public ClusterCatalogItems List endpoint', async () => {
-    const transport = createRouterTransport((router) => {
-      router.service(ClusterCatalogItems, { list: () => ({ items: [item] }) });
-    });
-
-    const { result } = renderHookWithProviders(() => useClusterCatalogItems(), {
-      role: 'tenantAdmin',
-      transport,
-    });
-
-    await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(result.current.data).toEqual([item]);
-  });
-
-  it('does not fetch when disabled', async () => {
-    let listCalled = false;
-    const transport = createRouterTransport((router) => {
+  createCatalogHookTests({
+    endpointDescription: 'public ClusterCatalogItems',
+    useHook: useClusterCatalogItems,
+    role: 'tenantAdmin',
+    item,
+    registerList: (router, onList) =>
       router.service(ClusterCatalogItems, {
         list: () => {
-          listCalled = true;
+          onList?.();
           return { items: [item] };
         },
-      });
-    });
-
-    renderHookWithProviders(() => useClusterCatalogItems({}, false), {
-      role: 'tenantAdmin',
-      transport,
-    });
-
-    await new Promise((resolve) => setTimeout(resolve, 10));
-    expect(listCalled).toBe(false);
+      }),
   });
 });

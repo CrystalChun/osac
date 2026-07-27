@@ -1,12 +1,10 @@
-import { createRouterTransport } from '@connectrpc/connect';
-import { waitFor } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { describe } from 'vitest';
 
 import type { BareMetalInstanceCatalogItem } from '@osac/types/private';
 import { BareMetalInstanceCatalogItems } from '@osac/types/private';
 
 import { usePrivateBareMetalInstanceCatalogItems } from './baremetal-instance-catalog-item';
-import { renderHookWithProviders } from '../../../test-utils/TestProviders';
+import { createCatalogHookTests } from '../../../test-utils/catalogHookTestHelpers';
 
 const item: BareMetalInstanceCatalogItem = {
   $typeName: 'osac.private.v1.BareMetalInstanceCatalogItem',
@@ -20,37 +18,17 @@ const item: BareMetalInstanceCatalogItem = {
 };
 
 describe('usePrivateBareMetalInstanceCatalogItems', () => {
-  it('fetches items from the private BareMetalInstanceCatalogItems List endpoint', async () => {
-    const transport = createRouterTransport((router) => {
-      router.service(BareMetalInstanceCatalogItems, { list: () => ({ items: [item] }) });
-    });
-
-    const { result } = renderHookWithProviders(() => usePrivateBareMetalInstanceCatalogItems(), {
-      role: 'providerAdmin',
-      transport,
-    });
-
-    await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(result.current.data).toEqual([item]);
-  });
-
-  it('does not fetch when disabled', async () => {
-    let listCalled = false;
-    const transport = createRouterTransport((router) => {
+  createCatalogHookTests({
+    endpointDescription: 'private BareMetalInstanceCatalogItems',
+    useHook: usePrivateBareMetalInstanceCatalogItems,
+    role: 'providerAdmin',
+    item,
+    registerList: (router, onList) =>
       router.service(BareMetalInstanceCatalogItems, {
         list: () => {
-          listCalled = true;
+          onList?.();
           return { items: [item] };
         },
-      });
-    });
-
-    renderHookWithProviders(() => usePrivateBareMetalInstanceCatalogItems({}, false), {
-      role: 'providerAdmin',
-      transport,
-    });
-
-    await new Promise((resolve) => setTimeout(resolve, 10));
-    expect(listCalled).toBe(false);
+      }),
   });
 });

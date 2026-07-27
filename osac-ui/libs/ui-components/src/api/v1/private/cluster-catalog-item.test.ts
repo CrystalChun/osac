@@ -1,12 +1,10 @@
-import { createRouterTransport } from '@connectrpc/connect';
-import { waitFor } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { describe } from 'vitest';
 
 import type { ClusterCatalogItem } from '@osac/types/private';
 import { ClusterCatalogItems } from '@osac/types/private';
 
 import { usePrivateClusterCatalogItems } from './cluster-catalog-item';
-import { renderHookWithProviders } from '../../../test-utils/TestProviders';
+import { createCatalogHookTests } from '../../../test-utils/catalogHookTestHelpers';
 
 const item: ClusterCatalogItem = {
   $typeName: 'osac.private.v1.ClusterCatalogItem',
@@ -20,37 +18,17 @@ const item: ClusterCatalogItem = {
 };
 
 describe('usePrivateClusterCatalogItems', () => {
-  it('fetches items from the private ClusterCatalogItems List endpoint', async () => {
-    const transport = createRouterTransport((router) => {
-      router.service(ClusterCatalogItems, { list: () => ({ items: [item] }) });
-    });
-
-    const { result } = renderHookWithProviders(() => usePrivateClusterCatalogItems(), {
-      role: 'providerAdmin',
-      transport,
-    });
-
-    await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(result.current.data).toEqual([item]);
-  });
-
-  it('does not fetch when disabled', async () => {
-    let listCalled = false;
-    const transport = createRouterTransport((router) => {
+  createCatalogHookTests({
+    endpointDescription: 'private ClusterCatalogItems',
+    useHook: usePrivateClusterCatalogItems,
+    role: 'providerAdmin',
+    item,
+    registerList: (router, onList) =>
       router.service(ClusterCatalogItems, {
         list: () => {
-          listCalled = true;
+          onList?.();
           return { items: [item] };
         },
-      });
-    });
-
-    renderHookWithProviders(() => usePrivateClusterCatalogItems({}, false), {
-      role: 'providerAdmin',
-      transport,
-    });
-
-    await new Promise((resolve) => setTimeout(resolve, 10));
-    expect(listCalled).toBe(false);
+      }),
   });
 });

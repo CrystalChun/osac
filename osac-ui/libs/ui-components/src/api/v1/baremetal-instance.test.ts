@@ -16,7 +16,7 @@ import {
   useBareMetalInstanceCatalogItems,
   usePatchBareMetalInstance,
 } from './baremetal-instance';
-import { renderHookWithProviders } from '../../test-utils/TestProviders';
+import { createCatalogHookTests } from '../../test-utils/catalogHookTestHelpers';
 import { ApiProvider } from '../api-context';
 
 const item: BareMetalInstanceCatalogItem = {
@@ -30,38 +30,18 @@ const item: BareMetalInstanceCatalogItem = {
 };
 
 describe('useBareMetalInstanceCatalogItems', () => {
-  it('fetches items from the public BareMetalInstanceCatalogItems List endpoint', async () => {
-    const transport = createRouterTransport((router) => {
-      router.service(BareMetalInstanceCatalogItems, { list: () => ({ items: [item] }) });
-    });
-
-    const { result } = renderHookWithProviders(() => useBareMetalInstanceCatalogItems(), {
-      role: 'tenantAdmin',
-      transport,
-    });
-
-    await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(result.current.data).toEqual([item]);
-  });
-
-  it('does not fetch when disabled', async () => {
-    let listCalled = false;
-    const transport = createRouterTransport((router) => {
+  createCatalogHookTests({
+    endpointDescription: 'public BareMetalInstanceCatalogItems',
+    useHook: useBareMetalInstanceCatalogItems,
+    role: 'tenantAdmin',
+    item,
+    registerList: (router, onList) =>
       router.service(BareMetalInstanceCatalogItems, {
         list: () => {
-          listCalled = true;
+          onList?.();
           return { items: [item] };
         },
-      });
-    });
-
-    renderHookWithProviders(() => useBareMetalInstanceCatalogItems({}, false), {
-      role: 'tenantAdmin',
-      transport,
-    });
-
-    await new Promise((resolve) => setTimeout(resolve, 10));
-    expect(listCalled).toBe(false);
+      }),
   });
 });
 
