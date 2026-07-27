@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
@@ -8,6 +9,11 @@ import {
   getWebSocketCloseErrorMessage,
   openConsoleWebSocket,
 } from './console-websocket';
+
+// Mimics react-i18next's {{placeholder}} interpolation for this file's one
+// interpolated message, without needing a real i18n instance in this unit test.
+const t = ((key: string, options?: { code?: number }) =>
+  options?.code !== undefined ? key.replace('{{code}}', String(options.code)) : key) as TFunction;
 
 describe('console-websocket', () => {
   beforeEach(() => {
@@ -115,14 +121,14 @@ describe('console-websocket', () => {
   });
 
   it('describes WebSocket close failures', () => {
-    expect(getWebSocketCloseErrorMessage({ code: 1006, reason: '' } as CloseEvent)).toBe(
+    expect(getWebSocketCloseErrorMessage({ code: 1006, reason: '' } as CloseEvent, t)).toBe(
       'Console connection was closed unexpectedly',
     );
-    expect(getWebSocketCloseErrorMessage({ code: 1002, reason: '' } as CloseEvent)).toBe(
+    expect(getWebSocketCloseErrorMessage({ code: 1002, reason: '' } as CloseEvent, t)).toBe(
       'Console connection closed (code 1002)',
     );
     expect(
-      getWebSocketCloseErrorMessage({ code: 1008, reason: 'origin not allowed' } as CloseEvent),
+      getWebSocketCloseErrorMessage({ code: 1008, reason: 'origin not allowed' } as CloseEvent, t),
     ).toBe('origin not allowed');
   });
 });

@@ -1,7 +1,7 @@
 // @refresh reload — hook signature changes in this module cannot be Fast-Refreshed safely
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
-import type { ConsoleResourceType } from '@osac/types';
+import { type ConsoleResourceType, ConsoleType } from '@osac/types';
 
 import {
   type ConsoleClientLock,
@@ -12,7 +12,8 @@ import {
   openConsoleWebSocket,
 } from './console-websocket';
 import type { ConsoleUiConnectionState } from './console.types';
-import { buildConsoleSessionRequest, useCreateConsoleSession } from '../../api/v1/console-session';
+import { useCreateConsoleSession } from '../../api/v1/console-session';
+import { useTranslation } from '../../hooks/useTranslation';
 
 /**
  * Distinguishes why errorMessage is set, so the UI can decide whether takeOver is a
@@ -60,34 +61,36 @@ export interface UseConsoleSessionResult {
   webSocket: WebSocket | null;
 }
 
-// The browser hides the HTTP status of a failed WebSocket handshake entirely (fires a
-// generic 'error' then 'close(1006, "")' no matter what the server actually returned), so
-// there is no reliable way to tell "another session already owns this console" apart from
-// any other connection failure — a plain fetch() probe can't reach the differentiating
-// status either, since the trusted proxy in front of console-proxy requires an Origin
-// header for this path, which browsers never send on a same-origin fetch. No action is
-// offered for this case (see ConsoleErrorKind) — this text is informational only.
-const POSSIBLE_CONFLICT_MESSAGE =
-  'This might be because the console is already open in another session.';
-
-// Shown instead of POSSIBLE_CONFLICT_MESSAGE when this browser's own per-resource lock
-// was already held at connect time — the Web Locks API only frees a lock when its
-// holding tab is genuinely gone (crash or clean close), so "unavailable" means a sibling
-// tab is actively using this exact resource's console right now. Take over is guaranteed
-// to work here (same browser, same persisted id), unlike the possible-conflict case.
-const SIBLING_TAB_CONFLICT_MESSAGE =
-  'This console is already open in another tab in this browser. Take over to continue here, or switch to that tab.';
-
-// Fallback for the rare case where connect() throws a non-Error value — real failures
-// always throw an Error (see the explicit throw below and createSession's rejection
-// shape), so this text is never about a conflict and offers no action.
-const GENERIC_CONNECT_FAILED_MESSAGE = 'Failed to connect to the console.';
-
 export const useConsoleSession = ({
   resourceType,
   resourceId,
   isRunning,
 }: UseConsoleSessionParams): UseConsoleSessionResult => {
+  const { t } = useTranslation();
+  // The browser hides the HTTP status of a failed WebSocket handshake entirely (fires a
+  // generic 'error' then 'close(1006, "")' no matter what the server actually returned),
+  // so there is no reliable way to tell "another session already owns this console" apart
+  // from any other connection failure — a plain fetch() probe can't reach the
+  // differentiating status either, since the trusted proxy in front of console-proxy
+  // requires an Origin header for this path, which browsers never send on a same-origin
+  // fetch. No action is offered for this case (see ConsoleErrorKind) — this text is
+  // informational only.
+  const possibleConflictMessage = t(
+    'This might be because the console is already open in another session.',
+  );
+  // Shown instead of possibleConflictMessage when this browser's own per-resource lock
+  // was already held at connect time — the Web Locks API only frees a lock when its
+  // holding tab is genuinely gone (crash or clean close), so "unavailable" means a
+  // sibling tab is actively using this exact resource's console right now. Take over is
+  // guaranteed to work here (same browser, same persisted id), unlike the
+  // possible-conflict case.
+  const siblingTabConflictMessage = t(
+    'This console is already open in another tab in this browser. Take over to continue here, or switch to that tab.',
+  );
+  // Fallback for the rare case where connect() throws a non-Error value — real failures
+  // always throw an Error (see the explicit throw below and createSession's rejection
+  // shape), so this text is never about a conflict and offers no action.
+  const genericConnectFailedMessage = t('Failed to connect to the console.');
   const createSession = useCreateConsoleSession();
   const socketRef = useRef<WebSocket | null>(null);
   const lockRef = useRef<ConsoleClientLock | null>(null);
@@ -165,16 +168,19 @@ export const useConsoleSession = ({
     // message that's actually true and actionable.
     if (!lock) {
       setConnectionState('error');
-      setErrorMessage(SIBLING_TAB_CONFLICT_MESSAGE);
+      setErrorMessage(siblingTabConflictMessage);
       setErrorKind('siblingTabConflict');
       return;
     }
     lockRef.current = lock;
 
     try {
-      await createSession.mutateAsync(
-        buildConsoleSessionRequest(resourceType, resourceId, persistedClientId),
-      );
+      await createSession.mutateAsync({
+        resourceType,
+        resourceId,
+        clientId: persistedClientId,
+        type: ConsoleType.VNC,
+      });
       if (!isCurrentSession()) {
         return;
       }
@@ -207,10 +213,10 @@ export const useConsoleSession = ({
         const wasConnecting = !hasOpened;
         setConnectionState('error');
         if (wasConnecting) {
-          setErrorMessage(POSSIBLE_CONFLICT_MESSAGE);
+          setErrorMessage(possibleConflictMessage);
           setErrorKind('possibleConflict');
         } else {
-          setErrorMessage(getWebSocketCloseErrorMessage(event));
+          setErrorMessage(getWebSocketCloseErrorMessage(event, t));
           setErrorKind('generic');
         }
       });
@@ -224,7 +230,7 @@ export const useConsoleSession = ({
       releaseLock();
       clearConsoleTicketCookie();
       setConnectionState('error');
-      setErrorMessage(error instanceof Error ? error.message : GENERIC_CONNECT_FAILED_MESSAGE);
+      setErrorMessage(error instanceof Error ? error.message : genericConnectFailedMessage);
       setErrorKind('generic');
     }
   };
@@ -266,16 +272,13 @@ export const useConsoleSession = ({
     // createSession are intentionally omitted.
   }, [isRunning]);
 
-  return useMemo(
-    () => ({
-      connectionState,
-      connect,
-      errorMessage,
-      errorKind,
-      reportViewerError,
-      takeOver,
-      webSocket,
-    }),
-    [connectionState, connect, errorMessage, errorKind, reportViewerError, takeOver, webSocket],
-  );
+  return {
+    connectionState,
+    connect,
+    errorMessage,
+    errorKind,
+    reportViewerError,
+    takeOver,
+    webSocket,
+  };
 };

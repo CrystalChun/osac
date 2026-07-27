@@ -1,3 +1,5 @@
+import type { TFunction } from 'i18next';
+
 export const CONSOLE_CLIENT_ID_STORAGE_KEY = 'osac-console-client-id';
 
 const CONSOLE_CONNECT_PATH = '/api/fulfillment/v1/console_sessions/connect';
@@ -81,14 +83,14 @@ export const clearConsoleTicketCookie = (): void => {
 export const openConsoleWebSocket = (): WebSocket =>
   new WebSocket(getConsoleWebSocketUrl(), ['binary']);
 
-export const getWebSocketCloseErrorMessage = (event: CloseEvent): string => {
+export const getWebSocketCloseErrorMessage = (event: CloseEvent, t: TFunction): string => {
   if (event.reason) {
     return event.reason;
   }
 
   if (event.code === 1006) {
-    return 'Console connection was closed unexpectedly';
+    return t('Console connection was closed unexpectedly');
   }
 
-  return `Console connection closed (code ${event.code})`;
+  return t('Console connection closed (code {{code}})', { code: event.code });
 };

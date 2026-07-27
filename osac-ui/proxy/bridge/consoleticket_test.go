@@ -6,6 +6,8 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"github.com/osac/proxy/config"
 )
 
 func jsonHandler(t *testing.T, status int, contentType, body string) http.Handler {
@@ -26,7 +28,7 @@ func TestWrapConsoleSessionCreate_setsHttpOnlyCookieAndStripsTicket(t *testing.T
 	inner := jsonHandler(t, http.StatusOK, "application/json",
 		`{"object":{"resourceType":"CONSOLE_RESOURCE_TYPE_COMPUTE_INSTANCE","ticket":"secret-ticket"}}`)
 
-	handler := WrapConsoleSessionCreate(inner, "")
+	handler := WrapConsoleSessionCreate(inner)
 
 	req := httptest.NewRequestWithContext(t.Context(), http.MethodPost, "/osac.public.v1.ConsoleSessions/Create", nil)
 	rec := httptest.NewRecorder()
@@ -83,7 +85,7 @@ func TestWrapConsoleSessionCreate_stripsTicketWithMixedCaseContentType(t *testin
 
 	inner := jsonHandler(t, http.StatusOK, "Application/JSON; charset=UTF-8",
 		`{"object":{"ticket":"secret-ticket"}}`)
-	handler := WrapConsoleSessionCreate(inner, "")
+	handler := WrapConsoleSessionCreate(inner)
 
 	req := httptest.NewRequestWithContext(t.Context(), http.MethodPost, "/osac.public.v1.ConsoleSessions/Create", nil)
 	rec := httptest.NewRecorder()
@@ -99,10 +101,17 @@ func TestWrapConsoleSessionCreate_stripsTicketWithMixedCaseContentType(t *testin
 }
 
 func TestWrapConsoleSessionCreate_marksSecureOverHTTPS(t *testing.T) {
-	t.Parallel()
+	// Not t.Parallel(): mutates the package-level config.BaseUIURL that
+	// auth.IsSecure reads, which the other (parallel) tests in this file also
+	// read indirectly. Non-parallel tests run to completion before any
+	// t.Parallel() test in this package starts, so this is race-free as long
+	// as it stays serial.
+	original := config.BaseUIURL
+	config.BaseUIURL = "https://console.example.com"
+	t.Cleanup(func() { config.BaseUIURL = original })
 
 	inner := jsonHandler(t, http.StatusOK, "application/json", `{"object":{"ticket":"secret-ticket"}}`)
-	handler := WrapConsoleSessionCreate(inner, "https://console.example.com")
+	handler := WrapConsoleSessionCreate(inner)
 
 	req := httptest.NewRequestWithContext(t.Context(), http.MethodPost, "/osac.public.v1.ConsoleSessions/Create", nil)
 	rec := httptest.NewRecorder()
@@ -118,7 +127,7 @@ func TestWrapConsoleSessionCreate_passesThroughOnError(t *testing.T) {
 	t.Parallel()
 
 	inner := jsonHandler(t, http.StatusUnauthorized, "application/json", `{"code":"unauthenticated"}`)
-	handler := WrapConsoleSessionCreate(inner, "")
+	handler := WrapConsoleSessionCreate(inner)
 
 	req := httptest.NewRequestWithContext(t.Context(), http.MethodPost, "/osac.public.v1.ConsoleSessions/Create", nil)
 	rec := httptest.NewRecorder()
@@ -140,7 +149,7 @@ func TestWrapConsoleSessionCreate_passesThroughWhenNoTicket(t *testing.T) {
 
 	body := `{"object":{"resourceType":"CONSOLE_RESOURCE_TYPE_COMPUTE_INSTANCE"}}`
 	inner := jsonHandler(t, http.StatusOK, "application/json", body)
-	handler := WrapConsoleSessionCreate(inner, "")
+	handler := WrapConsoleSessionCreate(inner)
 
 	req := httptest.NewRequestWithContext(t.Context(), http.MethodPost, "/osac.public.v1.ConsoleSessions/Create", nil)
 	rec := httptest.NewRecorder()
@@ -157,7 +166,7 @@ func TestWrapConsoleSessionCreate_passesThroughWhenNoTicket(t *testing.T) {
 func TestNewClearConsoleTicketCookieHandler(t *testing.T) {
 	t.Parallel()
 
-	handler := NewClearConsoleTicketCookieHandler("")
+	handler := NewClearConsoleTicketCookieHandler()
 
 	req := httptest.NewRequestWithContext(t.Context(), http.MethodPost, "/api/console-ticket/clear", nil)
 	rec := httptest.NewRecorder()

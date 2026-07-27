@@ -1,34 +1,19 @@
 import { type MessageInitShape } from '@bufbuild/protobuf';
 import { useMutation } from '@tanstack/react-query';
 
-import {
-  ConsoleResourceType,
-  ConsoleSessionSchema,
-  ConsoleSessions,
-  ConsoleType,
-} from '@osac/types';
+import { ConsoleSessionSchema, ConsoleSessions } from '@osac/types';
 
+import { useTranslation } from '../../hooks/useTranslation';
 import { useApiFetch } from '../api-context';
 
-// Only VNC is supported for now; serial console support is handled later.
-export const buildConsoleSessionRequest = (
-  resourceType: ConsoleResourceType,
-  resourceId: string,
-  clientId = '',
-): MessageInitShape<typeof ConsoleSessionSchema> => ({
-  resourceType,
-  resourceId,
-  type: ConsoleType.VNC,
-  clientId,
-});
-
 export const useCreateConsoleSession = () => {
+  const { t } = useTranslation();
   const client = useApiFetch(ConsoleSessions);
   return useMutation({
     mutationFn: async (session: MessageInitShape<typeof ConsoleSessionSchema>) => {
       const response = await client.create({ object: session });
       if (!response.object) {
-        throw new Error('Console session was not returned');
+        throw new Error(t('Console session was not returned'));
       }
       return response.object;
     },

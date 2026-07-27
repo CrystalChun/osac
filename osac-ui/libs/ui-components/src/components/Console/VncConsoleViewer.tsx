@@ -3,8 +3,9 @@ import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
 import { CONSOLE_VIEWPORT_CLASS_NAME } from './console-viewport';
 import { type VncRfbInstance, loadVncRfbConstructor } from './novnc-rfb';
 import { pasteFromClipboard } from './paste-from-clipboard';
+import { useTranslation } from '../../hooks/useTranslation';
 
-import './console-viewport.css';
+import './VncConsoleViewer.css';
 
 export interface VncConsoleViewerHandle {
   focus: () => void;
@@ -25,8 +26,15 @@ export const RFB_CONNECT_TIMEOUT_MS = 30_000;
 
 const VncConsoleViewer = forwardRef<VncConsoleViewerHandle, Props>(
   ({ className, onConnected, onError, webSocket }, ref) => {
+    const { t } = useTranslation();
     const containerRef = useRef<HTMLDivElement>(null);
     const rfbRef = useRef<VncRfbInstance | undefined>(undefined);
+    // Read via ref inside the effect below instead of listing t as a dependency: t's
+    // identity can change mid-session while i18next-http-backend is still loading
+    // translations, and that must not re-trigger this effect — the cleanup calls
+    // rfb.disconnect(), which would visibly drop an already-connected console.
+    const tRef = useRef(t);
+    tRef.current = t;
 
     useImperativeHandle(ref, () => ({
       focus: () => {
@@ -70,8 +78,8 @@ const VncConsoleViewer = forwardRef<VncConsoleViewerHandle, Props>(
         window.clearTimeout(connectTimeoutId);
         onError?.(
           hasConnectedOnce
-            ? 'Graphical console disconnected'
-            : 'Graphical console disconnected before it finished connecting',
+            ? tRef.current('Graphical console disconnected')
+            : tRef.current('Graphical console disconnected before it finished connecting'),
         );
       };
 
@@ -109,7 +117,9 @@ const VncConsoleViewer = forwardRef<VncConsoleViewerHandle, Props>(
             if (!mounted || rfbRef.current !== rfb) {
               return;
             }
-            onError?.('Timed out waiting for the graphical console to finish connecting');
+            onError?.(
+              tRef.current('Timed out waiting for the graphical console to finish connecting'),
+            );
           }, RFB_CONNECT_TIMEOUT_MS);
         } catch (error: unknown) {
           if (!mounted) {
@@ -118,7 +128,9 @@ const VncConsoleViewer = forwardRef<VncConsoleViewerHandle, Props>(
 
           window.clearTimeout(initTimeoutId);
           const message =
-            error instanceof Error ? error.message : 'Failed to load graphical console viewer';
+            error instanceof Error
+              ? error.message
+              : tRef.current('Failed to load graphical console viewer');
           onError?.(message);
         } finally {
           initInFlight = false;
@@ -129,7 +141,11 @@ const VncConsoleViewer = forwardRef<VncConsoleViewerHandle, Props>(
         if (!mounted || rfbRef.current) {
           return;
         }
-        onError?.('Graphical console viewer could not start because the display area has no size');
+        onError?.(
+          tRef.current(
+            'Graphical console viewer could not start because the display area has no size',
+          ),
+        );
       }, RFB_INIT_TIMEOUT_MS);
 
       void initRfb();

@@ -101,7 +101,7 @@ func main() {
 		)
 		log.Info("Console WebSocket proxy enabled")
 
-		router.Post("/api/console-ticket/clear", bridge.NewClearConsoleTicketCookieHandler(config.BaseUIURL))
+		router.Post("/api/console-ticket/clear", bridge.NewClearConsoleTicketCookieHandler())
 	}
 
 	if grpcTarget != "" {
@@ -118,7 +118,7 @@ func main() {
 			// registration order.
 			r.Handle(
 				"/api/fulfillment/osac.public.v1.ConsoleSessions/Create",
-				bridge.WrapConsoleSessionCreate(strippedConnect, config.BaseUIURL),
+				bridge.WrapConsoleSessionCreate(strippedConnect),
 			)
 			r.Handle("/api/fulfillment/*", strippedConnect)
 		})

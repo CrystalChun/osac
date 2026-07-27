@@ -100,7 +100,7 @@ func (h *Handler) GetLogin(w http.ResponseWriter, r *http.Request) {
 		Verifier:    verifier,
 		RedirectURI: redirectURI,
 		IssuerURL:   issuerURL,
-	}); err != nil {
+	}, h.BaseUIURL); err != nil {
 		log.WithError(err).Error("failed to set auth flow cookie")
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -155,7 +155,7 @@ func (h *Handler) PostLogin(w http.ResponseWriter, r *http.Request) {
 		RefreshToken: tr.RefreshToken,
 		IDToken:      tr.IDToken,
 	}
-	SetSessionCookies(w, r, tokenData, tr.ExpiresIn)
+	SetSessionCookies(w, r, tokenData, tr.ExpiresIn, h.BaseUIURL)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(loginCallbackResponse{ExpiresIn: tr.ExpiresIn}) //nolint:errcheck
@@ -220,7 +220,7 @@ func (h *Handler) GetLoginRefresh(w http.ResponseWriter, r *http.Request) {
 	tr, err := RefreshTokens(oidcCfg, h.ClientID, tokenData.RefreshToken, h.OIDCHTTPClient)
 	if err != nil {
 		log.WithError(err).Warn("token refresh failed, clearing session")
-		ClearSessionCookies(w, r)
+		ClearSessionCookies(w, r, h.BaseUIURL)
 		http.Error(w, "token refresh failed", http.StatusUnauthorized)
 		return
 	}
@@ -233,7 +233,7 @@ func (h *Handler) GetLoginRefresh(w http.ResponseWriter, r *http.Request) {
 	if newData.RefreshToken == "" {
 		newData.RefreshToken = tokenData.RefreshToken
 	}
-	SetSessionCookies(w, r, newData, tr.ExpiresIn)
+	SetSessionCookies(w, r, newData, tr.ExpiresIn, h.BaseUIURL)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(loginCallbackResponse{ExpiresIn: tr.ExpiresIn}) //nolint:errcheck
@@ -265,7 +265,7 @@ func (h *Handler) PostLogout(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	ClearSessionCookies(w, r)
+	ClearSessionCookies(w, r, h.BaseUIURL)
 	w.WriteHeader(http.StatusNoContent)
 }
 

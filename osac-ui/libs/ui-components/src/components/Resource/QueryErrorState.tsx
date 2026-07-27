@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import {
   Button,
   EmptyState,
@@ -42,14 +41,6 @@ const QueryErrorState = ({
   onRetry,
   secondaryAction,
 }: QueryErrorStateProps) => {
-  useEffect(() => {
-    if (!error) {
-      return;
-    }
-    // eslint-disable-next-line no-console
-    console.error(getErrorMessage(error));
-  }, [error]);
-
   if (error && isUnauthorizedError(error)) {
     return <UnauthorizedErrorState headingLevel={headingLevel} />;
   }

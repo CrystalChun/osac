@@ -1,28 +1,18 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { ConsoleResourceType } from '@osac/types';
+import { ConsoleResourceType, ConsoleType } from '@osac/types';
 
 import { type UseConsoleSessionParams, useConsoleSession } from './useConsoleSession';
 
 const mutateAsync = vi.fn();
 
 vi.mock('../../api/v1/console-session', () => ({
-  buildConsoleSessionRequest: vi.fn(
-    (_resourceType: number, resourceId: string, clientId: string = '') => ({
-      resourceType: 1,
-      resourceId,
-      type: 2,
-      clientId,
-    }),
-  ),
   useCreateConsoleSession: () => ({
     mutateAsync,
     isPending: false,
   }),
 }));
-
-const { buildConsoleSessionRequest } = await import('../../api/v1/console-session');
 
 vi.mock('./console-websocket', async (importOriginal) => {
   const actual = await importOriginal<typeof import('./console-websocket')>();
@@ -334,11 +324,12 @@ describe('useConsoleSession', () => {
 
     const clientId = localStorage.getItem('osac-console-client-id');
     expect(clientId).toBeTruthy();
-    expect(vi.mocked(buildConsoleSessionRequest)).toHaveBeenCalledWith(
-      ConsoleResourceType.COMPUTE_INSTANCE,
-      'vm-1',
+    expect(mutateAsync).toHaveBeenCalledWith({
+      resourceType: ConsoleResourceType.COMPUTE_INSTANCE,
+      resourceId: 'vm-1',
       clientId,
-    );
+      type: ConsoleType.VNC,
+    });
     // Locked per resource, not just per browser, so a sibling tab on a different
     // resource never blocks this one.
     expect(requestMock).toHaveBeenCalledWith(
@@ -378,10 +369,11 @@ describe('useConsoleSession', () => {
     expect(result.current.webSocket).toBe(socket);
 
     const clientId = localStorage.getItem('osac-console-client-id');
-    expect(vi.mocked(buildConsoleSessionRequest)).toHaveBeenLastCalledWith(
-      ConsoleResourceType.COMPUTE_INSTANCE,
-      'vm-1',
+    expect(mutateAsync).toHaveBeenLastCalledWith({
+      resourceType: ConsoleResourceType.COMPUTE_INSTANCE,
+      resourceId: 'vm-1',
       clientId,
-    );
+      type: ConsoleType.VNC,
+    });
   });
 });

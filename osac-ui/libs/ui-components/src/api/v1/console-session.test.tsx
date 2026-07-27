@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ConsoleResourceType, ConsoleType } from '@osac/types';
 
-import { buildConsoleSessionRequest, useCreateConsoleSession } from './console-session';
+import { useCreateConsoleSession } from './console-session';
 
 const createMock = vi.fn();
 
@@ -14,37 +14,6 @@ vi.mock('../api-context', () => ({
     create: createMock,
   }),
 }));
-
-describe('buildConsoleSessionRequest', () => {
-  it('builds a VNC console session request with no client id by default', () => {
-    expect(buildConsoleSessionRequest(ConsoleResourceType.COMPUTE_INSTANCE, 'vm-1')).toEqual({
-      resourceType: ConsoleResourceType.COMPUTE_INSTANCE,
-      resourceId: 'vm-1',
-      type: ConsoleType.VNC,
-      clientId: '',
-    });
-  });
-
-  it('includes the given client id', () => {
-    expect(
-      buildConsoleSessionRequest(ConsoleResourceType.COMPUTE_INSTANCE, 'vm-1', 'client-a'),
-    ).toEqual({
-      resourceType: ConsoleResourceType.COMPUTE_INSTANCE,
-      resourceId: 'vm-1',
-      type: ConsoleType.VNC,
-      clientId: 'client-a',
-    });
-  });
-
-  it('supports other resource types', () => {
-    expect(buildConsoleSessionRequest(ConsoleResourceType.HOST, 'host-1')).toEqual({
-      resourceType: ConsoleResourceType.HOST,
-      resourceId: 'host-1',
-      type: ConsoleType.VNC,
-      clientId: '',
-    });
-  });
-});
 
 describe('useCreateConsoleSession', () => {
   beforeEach(() => {
@@ -66,7 +35,12 @@ describe('useCreateConsoleSession', () => {
     });
 
     const { result } = renderHook(() => useCreateConsoleSession(), { wrapper });
-    result.current.mutate(buildConsoleSessionRequest(ConsoleResourceType.COMPUTE_INSTANCE, 'vm-1'));
+    result.current.mutate({
+      resourceType: ConsoleResourceType.COMPUTE_INSTANCE,
+      resourceId: 'vm-1',
+      type: ConsoleType.VNC,
+      clientId: '',
+    });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
