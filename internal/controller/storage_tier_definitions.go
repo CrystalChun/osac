@@ -112,9 +112,15 @@ func resolveTierDefinitions(
 			continue
 		}
 
+		protocol := storageProtocolToString(assoc.GetProtocol())
+		if protocol == "" {
+			log.Info("storage tier has unrecognized protocol, emitting empty protocol",
+				"tier", tierName, "protocol", assoc.GetProtocol())
+		}
+
 		definitions = append(definitions, provisioning.TierDefinition{
 			Name:      tierName,
-			Protocol:  storageProtocolToString(assoc.GetProtocol()),
+			Protocol:  protocol,
 			Provider:  resolution.provider,
 			BackendID: backendID,
 			QosLimits: provisioning.TierQosLimits{
