@@ -45,6 +45,15 @@ const VncConsoleViewer = forwardRef<VncConsoleViewerHandle, Props>(
     };
     const messagesRef = useRef(messages);
     messagesRef.current = messages;
+    // Read via refs inside the effect below instead of listing onConnected/onError as
+    // dependencies: a parent re-render can hand down a new function identity for these
+    // (e.g. an inline callback) without meaning to restart the console session, and the
+    // effect's cleanup calls rfb.disconnect(), which would visibly drop an
+    // already-connected console.
+    const onConnectedRef = useRef(onConnected);
+    onConnectedRef.current = onConnected;
+    const onErrorRef = useRef(onError);
+    onErrorRef.current = onError;
 
     useImperativeHandle(ref, () => ({
       focus: () => {
@@ -79,14 +88,14 @@ const VncConsoleViewer = forwardRef<VncConsoleViewerHandle, Props>(
         hasConnectedOnce = true;
         // Focus so keyboard input goes to the guest without an extra click.
         rfbRef.current?.focus();
-        onConnected?.();
+        onConnectedRef.current?.();
       };
       const onDisconnect = () => {
         if (!mounted) {
           return;
         }
         window.clearTimeout(connectTimeoutId);
-        onError?.(
+        onErrorRef.current?.(
           hasConnectedOnce
             ? messagesRef.current.disconnected
             : messagesRef.current.disconnectedBeforeConnecting,
@@ -127,7 +136,7 @@ const VncConsoleViewer = forwardRef<VncConsoleViewerHandle, Props>(
             if (!mounted || rfbRef.current !== rfb) {
               return;
             }
-            onError?.(messagesRef.current.connectTimedOut);
+            onErrorRef.current?.(messagesRef.current.connectTimedOut);
           }, RFB_CONNECT_TIMEOUT_MS);
         } catch (error: unknown) {
           if (!mounted) {
@@ -136,7 +145,7 @@ const VncConsoleViewer = forwardRef<VncConsoleViewerHandle, Props>(
 
           window.clearTimeout(initTimeoutId);
           const message = error instanceof Error ? error.message : messagesRef.current.loadFailed;
-          onError?.(message);
+          onErrorRef.current?.(message);
         } finally {
           initInFlight = false;
         }
@@ -146,7 +155,7 @@ const VncConsoleViewer = forwardRef<VncConsoleViewerHandle, Props>(
         if (!mounted || rfbRef.current) {
           return;
         }
-        onError?.(messagesRef.current.noSize);
+        onErrorRef.current?.(messagesRef.current.noSize);
       }, RFB_INIT_TIMEOUT_MS);
 
       void initRfb();
@@ -168,7 +177,9 @@ const VncConsoleViewer = forwardRef<VncConsoleViewerHandle, Props>(
         rfbRef.current?.disconnect();
         rfbRef.current = undefined;
       };
-    }, [onConnected, onError, webSocket]);
+      // onConnected/onError are read via refs above and intentionally omitted — see the
+      // comment where those refs are declared.
+    }, [webSocket]);
 
     const rootClassName = [CONSOLE_VIEWPORT_CLASS_NAME, className].filter(Boolean).join(' ');
 

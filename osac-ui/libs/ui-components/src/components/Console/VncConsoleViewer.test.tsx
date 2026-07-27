@@ -212,4 +212,18 @@ describe('VncConsoleViewer', () => {
 
     expect(onError).toHaveBeenCalledWith('Graphical console disconnected');
   });
+
+  it('keeps the RFB session alive across a re-render with new onConnected/onError references', async () => {
+    const webSocket = { close: vi.fn() } as unknown as WebSocket;
+
+    const { rerender } = render(
+      <VncConsoleViewer onConnected={() => {}} onError={() => {}} webSocket={webSocket} />,
+    );
+    await waitFor(() => expect(RFBMock).toHaveBeenCalledTimes(1));
+
+    rerender(<VncConsoleViewer onConnected={() => {}} onError={() => {}} webSocket={webSocket} />);
+
+    expect(RFBMock).toHaveBeenCalledTimes(1);
+    expect(disconnect).not.toHaveBeenCalled();
+  });
 });

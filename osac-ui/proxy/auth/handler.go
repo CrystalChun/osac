@@ -109,7 +109,9 @@ func (h *Handler) GetLogin(w http.ResponseWriter, r *http.Request) {
 	authorizeURL := BuildAuthorizeURL(oidcCfg, h.ClientID, redirectURI, state, codeChallenge(verifier))
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(loginStartResponse{URL: authorizeURL}) //nolint:errcheck
+	if err := json.NewEncoder(w).Encode(loginStartResponse{URL: authorizeURL}); err != nil {
+		log.WithError(err).Warn("failed to encode login start response")
+	}
 }
 
 // PostLogin handles POST /api/login?state=<state> — exchanges the authorization code for tokens.
@@ -158,7 +160,9 @@ func (h *Handler) PostLogin(w http.ResponseWriter, r *http.Request) {
 	SetSessionCookies(w, r, tokenData, tr.ExpiresIn, h.BaseUIURL)
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(loginCallbackResponse{ExpiresIn: tr.ExpiresIn}) //nolint:errcheck
+	if err := json.NewEncoder(w).Encode(loginCallbackResponse{ExpiresIn: tr.ExpiresIn}); err != nil {
+		log.WithError(err).Warn("failed to encode login callback response")
+	}
 }
 
 // GetLoginInfo handles GET /api/login/info — returns the username if there is an active session.
@@ -186,7 +190,9 @@ func (h *Handler) GetLoginInfo(w http.ResponseWriter, r *http.Request) {
 	roles := RolesFromToken(roleToken)
 	groups := GroupsFromToken(roleToken)
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(loginInfoResponse{Username: username, Roles: roles, Groups: groups}) //nolint:errcheck
+	if err := json.NewEncoder(w).Encode(loginInfoResponse{Username: username, Roles: roles, Groups: groups}); err != nil {
+		log.WithError(err).Warn("failed to encode login info response")
+	}
 }
 
 // GetLoginRefresh handles GET /api/login/refresh — refreshes the session using the refresh token.
@@ -236,7 +242,9 @@ func (h *Handler) GetLoginRefresh(w http.ResponseWriter, r *http.Request) {
 	SetSessionCookies(w, r, newData, tr.ExpiresIn, h.BaseUIURL)
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(loginCallbackResponse{ExpiresIn: tr.ExpiresIn}) //nolint:errcheck
+	if err := json.NewEncoder(w).Encode(loginCallbackResponse{ExpiresIn: tr.ExpiresIn}); err != nil {
+		log.WithError(err).Warn("failed to encode login refresh response")
+	}
 }
 
 // PostLogout handles POST /api/logout — logs out from Keycloak and expires all session cookies.

@@ -20,6 +20,11 @@ describe('useConsoleFullscreen', () => {
   afterEach(() => {
     vi.unstubAllGlobals();
     vi.restoreAllMocks();
+    // vi.restoreAllMocks() only restores spies — it doesn't undo the own-property
+    // overrides tests below install directly on `document`, which would otherwise
+    // leak into later tests in this file.
+    delete (document as { fullscreenElement?: Element | null }).fullscreenElement;
+    delete (document as { exitFullscreen?: () => Promise<void> }).exitFullscreen;
   });
 
   it('enters and exits fullscreen on the container element', async () => {

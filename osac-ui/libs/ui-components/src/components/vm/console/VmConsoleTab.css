@@ -1,4 +1,7 @@
-.vm-console-fullscreen-container:fullscreen {
+/* :-webkit-full-screen mirrors :fullscreen for browsers where useConsoleFullscreen
+   falls back to webkitRequestFullscreen (see useConsoleFullscreen.ts). */
+.vm-console-fullscreen-container:fullscreen,
+.vm-console-fullscreen-container:-webkit-full-screen {
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -10,12 +13,14 @@
   background-color: var(--pf-t--global--background--color--primary--default);
 }
 
-.vm-console-fullscreen-container:fullscreen .vm-console-fullscreen-stack {
+.vm-console-fullscreen-container:fullscreen .vm-console-fullscreen-stack,
+.vm-console-fullscreen-container:-webkit-full-screen .vm-console-fullscreen-stack {
   flex: 1 1 auto;
   min-height: 0;
 }
 
-.vm-console-fullscreen-container:fullscreen .vm-console-stack {
+.vm-console-fullscreen-container:fullscreen .vm-console-stack,
+.vm-console-fullscreen-container:-webkit-full-screen .vm-console-stack {
   flex: 1 1 auto;
   min-height: 0;
   display: flex;
@@ -24,7 +29,8 @@
 
 /* Overrides the viewer's own fixed height (see VncConsoleViewer.css) so it fills the
    fullscreen container instead. */
-.vm-console-fullscreen-container:fullscreen .vm-console-viewport {
+.vm-console-fullscreen-container:fullscreen .vm-console-viewport,
+.vm-console-fullscreen-container:-webkit-full-screen .vm-console-viewport {
   flex: 1 1 auto;
   width: 100%;
   height: auto;
