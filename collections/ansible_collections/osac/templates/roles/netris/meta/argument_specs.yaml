@@ -57,44 +57,6 @@ argument_specs:
         required: true
         description: SecurityGroup CR from fulfillment-api via EDA payload
 
-  create_public_ip_pool:
-    options:
-      public_ip_pool:
-        type: dict
-        required: true
-        description: PublicIPPool CR from fulfillment-api via EDA payload
-      template_parameters:
-        type: dict
-        description: Template-specific parameters (reserved for future use)
-        options: {}
-        default: {}
-
-  delete_public_ip_pool:
-    options:
-      public_ip_pool:
-        type: dict
-        required: true
-        description: PublicIPPool CR from fulfillment-api via EDA payload
-
-  create_public_ip:
-    options:
-      public_ip:
-        type: dict
-        required: true
-        description: PublicIP CR from fulfillment-api via EDA payload
-      template_parameters:
-        type: dict
-        description: Template-specific parameters (reserved for future use)
-        options: {}
-        default: {}
-
-  delete_public_ip:
-    options:
-      public_ip:
-        type: dict
-        required: true
-        description: PublicIP CR from fulfillment-api via EDA payload
-
   create_external_ip:
     options:
       external_ip:

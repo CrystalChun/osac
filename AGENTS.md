@@ -160,7 +160,7 @@ allowed_resource_classes: []
 - `netris` — Netris Controller API backend
 - `openstack` — OpenStack Neutron
 - `network_policy` — Kubernetes NetworkPolicy (SecurityGroups)
-- `metallb_l2` — MetalLB-based PublicIPPool/PublicIP
+- `metallb_l2` — MetalLB-based ExternalIPPool/ExternalIP
 
 **Compute:**
 - `ocp_virt_vm` — KubeVirt VMs on OpenShift Virtualization
