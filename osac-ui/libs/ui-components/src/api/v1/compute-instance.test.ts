@@ -46,38 +46,47 @@ describe('usePatchComputeInstance', () => {
     return { ...renderHook(() => usePatchComputeInstance(), { wrapper }), queryClient };
   };
 
-  it('calls the update API with the correct power action', async () => {
-    const updateFn = (() => {
-      let called = false;
-      let lastReq: unknown;
-      const fn = (req: unknown) => {
-        called = true;
-        lastReq = req;
-      };
-      fn.getCalled = () => called;
-      fn.getLastReq = () => lastReq;
-      return fn;
-    })();
-
-    const transport = createTestTransport(updateFn);
+  const mutateAndCapture = async (powerAction: 'start' | 'stop' | 'restart') => {
+    let captured: Record<string, unknown> | undefined;
+    const transport = createTestTransport((req) => {
+      captured = req as Record<string, unknown>;
+    });
     const { result } = renderUsePatchComputeInstance(transport);
 
     act(() => {
-      result.current.mutate({ id: 'vm-1', powerAction: 'stop' });
+      result.current.mutate({ id: 'vm-1', powerAction });
     });
 
     await waitFor(() => expect(result.current.isSuccess || result.current.isError).toBe(true));
-    expect(updateFn.getCalled()).toBe(true);
+    expect(result.current.isSuccess).toBe(true);
+    return captured;
+  };
+
+  it('sends updateMask with spec and status paths for stop action', async () => {
+    const req = await mutateAndCapture('stop');
+    expect(req).toBeDefined();
+    const paths = (req as { updateMask?: { paths: string[] } }).updateMask?.paths;
+    expect(paths).toContain('spec.run_strategy');
+    expect(paths).toContain('status.state');
+  });
+
+  it('sends updateMask with spec and status paths for start action', async () => {
+    const req = await mutateAndCapture('start');
+    expect(req).toBeDefined();
+    const paths = (req as { updateMask?: { paths: string[] } }).updateMask?.paths;
+    expect(paths).toContain('spec.run_strategy');
+    expect(paths).toContain('status.state');
+  });
+
+  it('sends updateMask with spec.restart_requested_at for restart action', async () => {
+    const req = await mutateAndCapture('restart');
+    expect(req).toBeDefined();
+    const paths = (req as { updateMask?: { paths: string[] } }).updateMask?.paths;
+    expect(paths).toContain('spec.restart_requested_at');
   });
 
   it('resolves successfully after a stop action', async () => {
-    const transport = createTestTransport(() => {});
-    const { result } = renderUsePatchComputeInstance(transport);
-
-    act(() => {
-      result.current.mutate({ id: 'vm-1', powerAction: 'stop' });
-    });
-
-    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    const req = await mutateAndCapture('stop');
+    expect(req).toBeDefined();
   });
 });
