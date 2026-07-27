@@ -65,6 +65,10 @@ func resolveTierDefinitions(
 	if err != nil {
 		return nil, nil, fmt.Errorf("list storage tiers: %w", err)
 	}
+	if len(resp.GetItems()) >= tierListLimit {
+		log.Info("storage tier list hit the unpaginated fetch limit; some tiers may be missing",
+			"limit", tierListLimit)
+	}
 
 	type backendResolution struct {
 		provider string

@@ -313,6 +313,9 @@ func (r *StorageReconciler) resolveAndInjectTierContext(ctx context.Context, ten
 			tierDefinitions = nil
 			backendConnections = nil
 		}
+	} else if r.TiersClient != nil || r.BackendsGetter != nil {
+		log.Info("storage tier resolution skipped: TiersClient and BackendsGetter must both be set",
+			"tiersClientSet", r.TiersClient != nil, "backendsGetterSet", r.BackendsGetter != nil)
 	}
 
 	ctx = provisioning.WithStorageTierDefinitions(ctx, tierDefinitions)
@@ -363,18 +366,18 @@ func (r *StorageReconciler) handleUpdate(ctx context.Context, instance *v1alpha1
 		// tenant-specific SC. Once the tenant-specific SC appears (via the
 		// StorageClass watch), the next reconcile picks it up and replaces
 		// the Default.
-		result, duplicateMessages, ambiguousTiers, err := r.resolveTenantSpecificStorageClasses(ctx, targetClient, tenantName)
+		scResult, err := r.resolveTenantSpecificStorageClasses(ctx, targetClient, tenantName)
 		if err != nil {
 			return ctrl.Result{}, err
 		}
 
-		for _, msg := range duplicateMessages {
+		for _, msg := range scResult.duplicateMessages {
 			r.Recorder.Eventf(instance, nil, corev1.EventTypeWarning, eventReasonDuplicateStorageClass, eventActionDetectDuplicate, "%s", msg)
 		}
 
-		if len(result) == 0 {
-			if len(duplicateMessages) > 0 {
-				condMsg := r.appendMissingTierWarnings(instance, tierDefinitions, nil, ambiguousTiers, strings.Join(duplicateMessages, "; "))
+		if len(scResult.resolved) == 0 {
+			if len(scResult.duplicateMessages) > 0 {
+				condMsg := r.appendMissingTierWarnings(instance, tierDefinitions, nil, scResult.ambiguousTiers, strings.Join(scResult.duplicateMessages, "; "))
 				instance.SetStatusCondition(v1alpha1.TenantConditionClusterStorageReady,
 					metav1.ConditionFalse,
 					v1alpha1.TenantReasonMultipleFound,
@@ -424,16 +427,16 @@ func (r *StorageReconciler) handleUpdate(ctx context.Context, instance *v1alpha1
 			return r.handleClusterStorageProvisioning(ctx, instance, hubSecretReady)
 		}
 
-		condMsg := formatResolvedStorageClasses(result)
-		if len(duplicateMessages) > 0 {
-			condMsg = condMsg + "; " + strings.Join(duplicateMessages, "; ")
+		condMsg := formatResolvedStorageClasses(scResult.resolved)
+		if len(scResult.duplicateMessages) > 0 {
+			condMsg = condMsg + "; " + strings.Join(scResult.duplicateMessages, "; ")
 		}
-		condMsg = r.appendMissingTierWarnings(instance, tierDefinitions, result, ambiguousTiers, condMsg)
+		condMsg = r.appendMissingTierWarnings(instance, tierDefinitions, scResult.resolved, scResult.ambiguousTiers, condMsg)
 		instance.SetStatusCondition(v1alpha1.TenantConditionClusterStorageReady,
 			metav1.ConditionTrue,
 			v1alpha1.TenantReasonFound,
 			condMsg)
-		instance.Status.StorageClasses = result
+		instance.Status.StorageClasses = scResult.resolved
 		instance.Status.ClusterStorage = []v1alpha1.ClusterStorageStatus{
 			{ClusterName: clusterName, Ready: true, Reason: v1alpha1.TenantReasonFound},
 		}
@@ -1063,19 +1066,26 @@ func (r *StorageReconciler) allTenantReconcileRequests(ctx context.Context) []re
 	return requests
 }
 
+// tenantSpecificStorageClasses is the result of resolveTenantSpecificStorageClasses:
+// resolved StorageClasses per tier, plus the duplicate-SC messages and ambiguous
+// tier names for tiers excluded from resolved because multiple StorageClasses
+// matched (distinct from a tier having no StorageClass at all).
+type tenantSpecificStorageClasses struct {
+	resolved          []v1alpha1.ResolvedStorageClass
+	duplicateMessages []string
+	ambiguousTiers    []string
+}
+
 // resolveTenantSpecificStorageClasses lists only StorageClasses labeled with the
 // given tenant name, ignoring shared defaults (labeled tenant=Default). Used when
 // AAP is configured and the controller should not fall back to shared defaults.
-// Returns resolved classes, any duplicate messages for tiers with multiple SCs, and
-// the names of those ambiguous tiers (excluded from resolved, but distinct from a
-// tier having no StorageClass at all).
 func (r *StorageReconciler) resolveTenantSpecificStorageClasses(
 	ctx context.Context, targetClient client.Client, tenantName string,
-) ([]v1alpha1.ResolvedStorageClass, []string, []string, error) {
+) (tenantSpecificStorageClasses, error) {
 	log := ctrllog.FromContext(ctx)
 	scList := &storagev1.StorageClassList{}
 	if err := targetClient.List(ctx, scList, client.MatchingLabels{osacTenantKey: tenantName}); err != nil {
-		return nil, nil, nil, err
+		return tenantSpecificStorageClasses{}, err
 	}
 	byTier := groupByTier(scList.Items)
 	sortedTiers := make([]string, 0, len(byTier))
@@ -1084,14 +1094,12 @@ func (r *StorageReconciler) resolveTenantSpecificStorageClasses(
 	}
 	sort.Strings(sortedTiers)
 
-	var resolved []v1alpha1.ResolvedStorageClass
-	var duplicateMessages []string
-	var ambiguousTiers []string
+	var result tenantSpecificStorageClasses
 	for _, tier := range sortedTiers {
 		scs := byTier[tier]
 		switch len(scs) {
 		case 1:
-			resolved = append(resolved, v1alpha1.ResolvedStorageClass{
+			result.resolved = append(result.resolved, v1alpha1.ResolvedStorageClass{
 				Name: scs[0].GetName(),
 				Tier: tier,
 			})
@@ -1099,11 +1107,11 @@ func (r *StorageReconciler) resolveTenantSpecificStorageClasses(
 			joined, names := joinStorageClassNames(scs)
 			msg := fmt.Sprintf("tier %q: multiple tenant StorageClasses [%s]", tier, joined)
 			log.Info(msg, "tenant", tenantName, "tier", tier, "storageClasses", names)
-			duplicateMessages = append(duplicateMessages, msg)
-			ambiguousTiers = append(ambiguousTiers, tier)
+			result.duplicateMessages = append(result.duplicateMessages, msg)
+			result.ambiguousTiers = append(result.ambiguousTiers, tier)
 		}
 	}
-	return resolved, duplicateMessages, ambiguousTiers, nil
+	return result, nil
 }
 
 // formatResolvedStorageClasses builds a human-readable condition message
