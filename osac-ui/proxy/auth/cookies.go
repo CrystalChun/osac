@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 )
 
 const (
@@ -32,7 +33,18 @@ type authFlowCookie struct {
 	IssuerURL   string `json:"issuerURL"`
 }
 
-func isSecure(r *http.Request) bool {
+// IsSecure reports whether the browser's request to the UI arrived over HTTPS, so
+// session/ticket cookies can be marked Secure accordingly. This proxy always
+// terminates plain HTTP behind a TLS-terminating ingress/Route, so r.TLS alone is
+// not a reliable signal — prefer the configured public base URL, then the proxy's
+// X-Forwarded-Proto header.
+func IsSecure(r *http.Request, baseUIURL string) bool {
+	if baseUIURL != "" && strings.HasPrefix(strings.ToLower(baseUIURL), "https://") {
+		return true
+	}
+	if strings.EqualFold(r.Header.Get("X-Forwarded-Proto"), "https") {
+		return true
+	}
 	return r.TLS != nil
 }
 
@@ -42,8 +54,8 @@ func isSecure(r *http.Request) bool {
 //   - osac-id      — ID token;      MaxAge = expiresIn  (used only for /login/info)
 //
 // Splitting avoids the 4096-byte per-cookie limit and keeps sessions alive across proxy restarts.
-func SetSessionCookies(w http.ResponseWriter, r *http.Request, data TokenData, expiresIn int) {
-	secure := isSecure(r)
+func SetSessionCookies(w http.ResponseWriter, r *http.Request, data TokenData, expiresIn int, baseUIURL string) {
+	secure := IsSecure(r, baseUIURL)
 	setTokenCookie(w, accessTokenCookieName, data.AccessToken, expiresIn, secure)
 	if data.RefreshToken != "" {
 		refreshMaxAge := expiresIn * 12
@@ -73,9 +85,26 @@ func LookupSessionCookies(r *http.Request) *TokenData {
 	return data
 }
 
+// LookupRefreshCookies reads the refresh token cookie (and any remaining session cookies).
+// Used by /api/login/refresh after the short-lived access cookie has expired.
+func LookupRefreshCookies(r *http.Request) *TokenData {
+	refresh, err := r.Cookie(refreshTokenCookieName)
+	if err != nil || refresh.Value == "" {
+		return nil
+	}
+	data := &TokenData{RefreshToken: refresh.Value}
+	if c, err := r.Cookie(accessTokenCookieName); err == nil {
+		data.AccessToken = c.Value
+	}
+	if c, err := r.Cookie(idTokenCookieName); err == nil {
+		data.IDToken = c.Value
+	}
+	return data
+}
+
 // ClearSessionCookies expires all three token cookies and the session cookie (if present).
-func ClearSessionCookies(w http.ResponseWriter, r *http.Request) {
-	secure := isSecure(r)
+func ClearSessionCookies(w http.ResponseWriter, r *http.Request, baseUIURL string) {
+	secure := IsSecure(r, baseUIURL)
 	for _, name := range []string{accessTokenCookieName, refreshTokenCookieName, idTokenCookieName} {
 		http.SetCookie(w, &http.Cookie{Name: name, Value: "", Path: "/", HttpOnly: true, MaxAge: -1, Secure: secure, SameSite: http.SameSiteStrictMode})
 	}
@@ -98,7 +127,7 @@ func setTokenCookie(w http.ResponseWriter, name, value string, maxAge int, secur
 
 // setAuthFlowCookie stores the PKCE verifier + redirect URI + issuer in a short-lived HttpOnly
 // cookie keyed by the OAuth state value.
-func setAuthFlowCookie(w http.ResponseWriter, r *http.Request, state string, flow authFlowCookie) error {
+func setAuthFlowCookie(w http.ResponseWriter, r *http.Request, state string, flow authFlowCookie, baseUIURL string) error {
 	b, err := json.Marshal(flow)
 	if err != nil {
 		return err
@@ -109,7 +138,7 @@ func setAuthFlowCookie(w http.ResponseWriter, r *http.Request, state string, flo
 		Path:     "/",
 		HttpOnly: true,
 		SameSite: http.SameSiteLaxMode,
-		Secure:   isSecure(r),
+		Secure:   IsSecure(r, baseUIURL),
 		MaxAge:   authCookieMaxAge,
 	})
 	return nil

@@ -27,7 +27,8 @@ export type ApiRoute =
   | 'v1/public_ip_attachments'
   | 'v1/private/compute_instance_catalog_items'
   | 'v1/private/cluster_catalog_items'
-  | 'v1/private/baremetal_instance_catalog_items';
+  | 'v1/private/baremetal_instance_catalog_items'
+  | 'v1/console_sessions';
 
 /**
  * Strict 3-part tuple that encodes an API address.

@@ -27,6 +27,10 @@ vi.mock('./VmNetworkingTab', () => ({
   default: () => <div>Networking tab</div>,
 }));
 
+vi.mock('../console/VmConsoleTab', () => ({
+  default: () => <div>Console tab</div>,
+}));
+
 vi.mock('../../Resource/ResourceDetailHeader', () => ({
   ResourceDetailHeader: ({ resourceName }: { resourceName: string }) => <h1>{resourceName}</h1>,
 }));
@@ -53,6 +57,14 @@ describe('VmDetails', () => {
       isLoading: false,
       error: null,
     } as ReturnType<typeof useInstanceType>);
+  });
+
+  it('renders the Console tab alongside Overview and Networking', () => {
+    renderDetails();
+
+    expect(screen.getByRole('tab', { name: 'Overview' })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'Networking' })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'Console' })).toBeInTheDocument();
   });
 
   it('shows an alert and still renders the page when instance type lookup fails', () => {

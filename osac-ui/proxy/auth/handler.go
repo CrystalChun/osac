@@ -57,6 +57,7 @@ type loginInfoResponse struct {
 func (h *Handler) GetLogin(w http.ResponseWriter, r *http.Request) {
 	redirectBase := r.URL.Query().Get("redirect_base")
 	if redirectBase == "" {
+		log.Warn("login request missing required redirect_base query param")
 		http.Error(w, "redirect_base is required", http.StatusBadRequest)
 		return
 	}
@@ -99,7 +100,7 @@ func (h *Handler) GetLogin(w http.ResponseWriter, r *http.Request) {
 		Verifier:    verifier,
 		RedirectURI: redirectURI,
 		IssuerURL:   issuerURL,
-	}); err != nil {
+	}, h.BaseUIURL); err != nil {
 		log.WithError(err).Error("failed to set auth flow cookie")
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -108,7 +109,9 @@ func (h *Handler) GetLogin(w http.ResponseWriter, r *http.Request) {
 	authorizeURL := BuildAuthorizeURL(oidcCfg, h.ClientID, redirectURI, state, codeChallenge(verifier))
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(loginStartResponse{URL: authorizeURL}) //nolint:errcheck
+	if err := json.NewEncoder(w).Encode(loginStartResponse{URL: authorizeURL}); err != nil {
+		log.WithError(err).Warn("failed to encode login start response")
+	}
 }
 
 // PostLogin handles POST /api/login?state=<state> — exchanges the authorization code for tokens.
@@ -116,12 +119,14 @@ func (h *Handler) GetLogin(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) PostLogin(w http.ResponseWriter, r *http.Request) {
 	state := r.URL.Query().Get("state")
 	if state == "" {
+		log.Warn("login callback missing required state query param")
 		http.Error(w, "state is required", http.StatusBadRequest)
 		return
 	}
 
 	var body loginCallbackRequest
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil || body.Code == "" {
+		log.WithError(err).Warn("login callback body missing or invalid (expected {\"code\": \"...\"})")
 		http.Error(w, "request body must be {\"code\": \"...\"}", http.StatusBadRequest)
 		return
 	}
@@ -152,16 +157,19 @@ func (h *Handler) PostLogin(w http.ResponseWriter, r *http.Request) {
 		RefreshToken: tr.RefreshToken,
 		IDToken:      tr.IDToken,
 	}
-	SetSessionCookies(w, r, tokenData, tr.ExpiresIn)
+	SetSessionCookies(w, r, tokenData, tr.ExpiresIn, h.BaseUIURL)
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(loginCallbackResponse{ExpiresIn: tr.ExpiresIn}) //nolint:errcheck
+	if err := json.NewEncoder(w).Encode(loginCallbackResponse{ExpiresIn: tr.ExpiresIn}); err != nil {
+		log.WithError(err).Warn("failed to encode login callback response")
+	}
 }
 
 // GetLoginInfo handles GET /api/login/info — returns the username if there is an active session.
 func (h *Handler) GetLoginInfo(w http.ResponseWriter, r *http.Request) {
 	tokenData := LookupSessionCookies(r)
 	if tokenData == nil {
+		log.Warn("login info requested with no active session (missing or expired access cookie)")
 		http.Error(w, "not authenticated", http.StatusUnauthorized)
 		return
 	}
@@ -182,17 +190,21 @@ func (h *Handler) GetLoginInfo(w http.ResponseWriter, r *http.Request) {
 	roles := RolesFromToken(roleToken)
 	groups := GroupsFromToken(roleToken)
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(loginInfoResponse{Username: username, Roles: roles, Groups: groups}) //nolint:errcheck
+	if err := json.NewEncoder(w).Encode(loginInfoResponse{Username: username, Roles: roles, Groups: groups}); err != nil {
+		log.WithError(err).Warn("failed to encode login info response")
+	}
 }
 
 // GetLoginRefresh handles GET /api/login/refresh — refreshes the session using the refresh token.
 func (h *Handler) GetLoginRefresh(w http.ResponseWriter, r *http.Request) {
-	tokenData := LookupSessionCookies(r)
+	tokenData := LookupRefreshCookies(r)
 	if tokenData == nil {
+		log.Warn("login refresh requested with no active session (missing refresh cookie)")
 		http.Error(w, "not authenticated", http.StatusUnauthorized)
 		return
 	}
 	if tokenData.RefreshToken == "" {
+		log.Warn("login refresh requested but refresh cookie was empty")
 		http.Error(w, "no refresh token available", http.StatusBadRequest)
 		return
 	}
@@ -214,7 +226,7 @@ func (h *Handler) GetLoginRefresh(w http.ResponseWriter, r *http.Request) {
 	tr, err := RefreshTokens(oidcCfg, h.ClientID, tokenData.RefreshToken, h.OIDCHTTPClient)
 	if err != nil {
 		log.WithError(err).Warn("token refresh failed, clearing session")
-		ClearSessionCookies(w, r)
+		ClearSessionCookies(w, r, h.BaseUIURL)
 		http.Error(w, "token refresh failed", http.StatusUnauthorized)
 		return
 	}
@@ -227,10 +239,12 @@ func (h *Handler) GetLoginRefresh(w http.ResponseWriter, r *http.Request) {
 	if newData.RefreshToken == "" {
 		newData.RefreshToken = tokenData.RefreshToken
 	}
-	SetSessionCookies(w, r, newData, tr.ExpiresIn)
+	SetSessionCookies(w, r, newData, tr.ExpiresIn, h.BaseUIURL)
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(loginCallbackResponse{ExpiresIn: tr.ExpiresIn}) //nolint:errcheck
+	if err := json.NewEncoder(w).Encode(loginCallbackResponse{ExpiresIn: tr.ExpiresIn}); err != nil {
+		log.WithError(err).Warn("failed to encode login refresh response")
+	}
 }
 
 // PostLogout handles POST /api/logout — logs out from Keycloak and expires all session cookies.
@@ -259,7 +273,7 @@ func (h *Handler) PostLogout(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	ClearSessionCookies(w, r)
+	ClearSessionCookies(w, r, h.BaseUIURL)
 	w.WriteHeader(http.StatusNoContent)
 }
 
