@@ -22,8 +22,11 @@ const CatalogItemScopeBadge = ({ scope }: CatalogItemScopeBadgeProps) => {
     case 'project':
       return <Label color="teal">{t('Project: {{name}}', { name: scope.name })}</Label>;
     default: {
+      // Guards against a future scope level being added without updating this switch — TS flags the
+      // assignment below at compile time, while runtime still renders a safe fallback instead of crashing.
       const exhaustiveCheck: never = scope;
-      return exhaustiveCheck;
+      void exhaustiveCheck;
+      return <Label color="grey">{t('Unknown')}</Label>;
     }
   }
 };

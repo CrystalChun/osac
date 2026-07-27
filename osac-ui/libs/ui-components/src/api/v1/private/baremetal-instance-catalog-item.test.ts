@@ -2,30 +2,31 @@ import { createRouterTransport } from '@connectrpc/connect';
 import { waitFor } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import type { BareMetalInstanceCatalogItem } from '@osac/types';
-import { BareMetalInstanceCatalogItems } from '@osac/types';
+import type { BareMetalInstanceCatalogItem } from '@osac/types/private';
+import { BareMetalInstanceCatalogItems } from '@osac/types/private';
 
-import { useBareMetalInstanceCatalogItems } from './baremetal-instance';
-import { renderHookWithProviders } from '../../test-utils/TestProviders';
+import { usePrivateBareMetalInstanceCatalogItems } from './baremetal-instance-catalog-item';
+import { renderHookWithProviders } from '../../../test-utils/TestProviders';
 
 const item: BareMetalInstanceCatalogItem = {
-  $typeName: 'osac.public.v1.BareMetalInstanceCatalogItem',
-  id: 'public-1',
-  title: 'Public bare metal item',
+  $typeName: 'osac.private.v1.BareMetalInstanceCatalogItem',
+  id: 'private-1',
+  title: 'Private bare metal item',
   description: '',
   template: '',
   published: true,
+  tenant: 'acme-corp',
   fieldDefinitions: [],
 };
 
-describe('useBareMetalInstanceCatalogItems', () => {
-  it('fetches items from the public BareMetalInstanceCatalogItems List endpoint', async () => {
+describe('usePrivateBareMetalInstanceCatalogItems', () => {
+  it('fetches items from the private BareMetalInstanceCatalogItems List endpoint', async () => {
     const transport = createRouterTransport((router) => {
       router.service(BareMetalInstanceCatalogItems, { list: () => ({ items: [item] }) });
     });
 
-    const { result } = renderHookWithProviders(() => useBareMetalInstanceCatalogItems(), {
-      role: 'tenantAdmin',
+    const { result } = renderHookWithProviders(() => usePrivateBareMetalInstanceCatalogItems(), {
+      role: 'providerAdmin',
       transport,
     });
 
@@ -44,8 +45,8 @@ describe('useBareMetalInstanceCatalogItems', () => {
       });
     });
 
-    renderHookWithProviders(() => useBareMetalInstanceCatalogItems({}, false), {
-      role: 'tenantAdmin',
+    renderHookWithProviders(() => usePrivateBareMetalInstanceCatalogItems({}, false), {
+      role: 'providerAdmin',
       transport,
     });
 

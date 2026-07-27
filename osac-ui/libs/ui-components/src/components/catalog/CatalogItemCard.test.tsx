@@ -5,7 +5,6 @@ import type { ClusterCatalogItem } from '@osac/types';
 
 import CatalogItemCard from './CatalogItemCard';
 import { renderWithProviders } from '../../test-utils/TestProviders';
-import CatalogItemPublishToggle from '../catalogManagement/CatalogItemPublishToggle';
 import CatalogItemScopeBadge from '../catalogManagement/CatalogItemScopeBadge';
 import CatalogItemStatusLabel from '../catalogManagement/CatalogItemStatusLabel';
 
@@ -20,37 +19,29 @@ const item: ClusterCatalogItem = {
 };
 
 describe('CatalogItemCard', () => {
-  it('omits scope badge, status label, and publish toggle by default (tenant mode)', () => {
+  it('omits scope badge and status label by default (tenant mode)', () => {
     renderWithProviders(<CatalogItemCard item={item} onOpenDetails={() => {}} />);
     expect(screen.queryByText('General')).not.toBeInTheDocument();
     expect(screen.queryByText('Published')).not.toBeInTheDocument();
-    expect(screen.queryByRole('switch')).not.toBeInTheDocument();
   });
 
-  it('renders scope badge, status label, and publish toggle when provided (admin mode)', () => {
+  it('renders scope badge and status label when provided (admin mode)', () => {
     renderWithProviders(
       <CatalogItemCard
         item={item}
         onOpenDetails={() => {}}
         scopeBadge={<CatalogItemScopeBadge scope={{ level: 'general' }} />}
         statusLabel={<CatalogItemStatusLabel published />}
-        publishToggle={<CatalogItemPublishToggle published onChange={() => {}} />}
       />,
     );
     expect(screen.getByText('General')).toBeInTheDocument();
-    // "Published" appears twice: once from the status label, once as the switch's own accessible label.
-    expect(screen.getAllByText('Published')).toHaveLength(2);
-    expect(screen.getByRole('switch')).toBeInTheDocument();
+    expect(screen.getByText('Published')).toBeInTheDocument();
   });
 
-  it('still navigates to details when the card is clicked (regression)', async () => {
+  it('navigates to details when the card is clicked', async () => {
     const onOpenDetails = vi.fn();
     const { user } = renderWithProviders(
-      <CatalogItemCard
-        item={item}
-        onOpenDetails={onOpenDetails}
-        publishToggle={<CatalogItemPublishToggle published onChange={() => {}} />}
-      />,
+      <CatalogItemCard item={item} onOpenDetails={onOpenDetails} />,
     );
 
     await user.click(
@@ -58,22 +49,5 @@ describe('CatalogItemCard', () => {
     );
 
     expect(onOpenDetails).toHaveBeenCalled();
-  });
-
-  it('does not navigate to details when the publish toggle is clicked', async () => {
-    const onOpenDetails = vi.fn();
-    const onTogglePublished = vi.fn();
-    const { user } = renderWithProviders(
-      <CatalogItemCard
-        item={item}
-        onOpenDetails={onOpenDetails}
-        publishToggle={<CatalogItemPublishToggle published onChange={onTogglePublished} />}
-      />,
-    );
-
-    await user.click(screen.getByRole('switch'));
-
-    expect(onTogglePublished).toHaveBeenCalledWith(false);
-    expect(onOpenDetails).not.toHaveBeenCalled();
   });
 });

@@ -13,12 +13,6 @@ import type { CatalogItem } from './catalogItemDisplay';
 import { getErrorMessage } from '../../utils/error';
 import QueryErrorState from '../Resource/QueryErrorState';
 
-interface CatalogItemCardAddons {
-  scopeBadge?: React.ReactNode;
-  statusLabel?: React.ReactNode;
-  publishToggle?: React.ReactNode;
-}
-
 interface CatalogItemListSectionProps {
   title: string;
   items: CatalogItem[];
@@ -26,7 +20,6 @@ interface CatalogItemListSectionProps {
   onSelectItem: (item: CatalogItem) => void;
   isLoading?: boolean;
   error?: unknown;
-  renderCardAddons?: (item: CatalogItem) => CatalogItemCardAddons;
 }
 
 export const CatalogItemListSection = ({
@@ -36,7 +29,6 @@ export const CatalogItemListSection = ({
   onSelectItem,
   isLoading = false,
   error = null,
-  renderCardAddons,
 }: CatalogItemListSectionProps) => {
   if (!isLoading && !error && items.length === 0) {
     return null;
@@ -65,21 +57,15 @@ export const CatalogItemListSection = ({
         {items.length > 0 ? (
           <StackItem>
             <Gallery hasGutter>
-              {items.map((item) => {
-                const addons = renderCardAddons?.(item);
-                return (
-                  <GalleryItem key={item.id}>
-                    <CatalogItemCard
-                      item={item}
-                      isSelected={selectedItemId === item.id}
-                      onOpenDetails={() => onSelectItem(item)}
-                      scopeBadge={addons?.scopeBadge}
-                      statusLabel={addons?.statusLabel}
-                      publishToggle={addons?.publishToggle}
-                    />
-                  </GalleryItem>
-                );
-              })}
+              {items.map((item) => (
+                <GalleryItem key={item.id}>
+                  <CatalogItemCard
+                    item={item}
+                    isSelected={selectedItemId === item.id}
+                    onOpenDetails={() => onSelectItem(item)}
+                  />
+                </GalleryItem>
+              ))}
             </Gallery>
           </StackItem>
         ) : null}

@@ -1,9 +1,0 @@
-/* PatternFly's clickable Card (.pf-m-clickable) sets isolation: isolate, scoping z-index
-   comparisons to the card. Its full-card clickable overlay is position: absolute with
-   z-index: auto, which paints above non-positioned content regardless of DOM order — so without
-   this, the toggle would be visually present but unclickable (clicks would hit the overlay and
-   navigate instead of toggling). An explicit z-index here outranks the overlay's z-index: auto. */
-.catalog-item-card__publish-toggle {
-  position: relative;
-  z-index: 1;
-}

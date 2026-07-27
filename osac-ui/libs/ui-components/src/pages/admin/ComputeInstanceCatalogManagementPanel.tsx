@@ -5,44 +5,33 @@ import {
   EmptyStateBody,
   Flex,
   FlexItem,
+  Gallery,
+  GalleryItem,
   SearchInput,
   Stack,
   StackItem,
+  Title,
   ToggleGroup,
   ToggleGroupItem,
 } from '@patternfly/react-core';
-import type { UseQueryResult } from '@tanstack/react-query';
 
-import type { CatalogItem } from '@osac/ui-components/components/catalog/catalogItemDisplay';
+import { useComputeInstanceCatalogItems } from '@osac/ui-components/api/v1/compute-instance-catalog-item';
+import { usePrivateComputeInstanceCatalogItems } from '@osac/ui-components/api/v1/private/compute-instance-catalog-item';
+import CatalogItemCard from '@osac/ui-components/components/catalog/CatalogItemCard';
 import {
+  type PublicationFilter,
   catalogItemScope,
   filterCatalogItemsBySearch,
+  matchesPublicationFilter,
 } from '@osac/ui-components/components/catalog/catalogItemDisplay';
-import { CatalogItemListSection } from '@osac/ui-components/components/catalog/CatalogItemListSection';
-import CatalogItemPublishToggle from '@osac/ui-components/components/catalogManagement/CatalogItemPublishToggle';
 import CatalogItemScopeBadge from '@osac/ui-components/components/catalogManagement/CatalogItemScopeBadge';
 import CatalogItemStatusLabel from '@osac/ui-components/components/catalogManagement/CatalogItemStatusLabel';
+import ListPageBody from '@osac/ui-components/components/Page/ListPageBody';
 import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
 import type { DemoShellRole } from '@osac/ui-components/shellTypes';
 
-export type CatalogManagementTabKey = 'cluster' | 'compute-instance' | 'baremetal-instance';
-export type PublicationFilter = 'all' | 'published' | 'unpublished';
-
-const matchesPublicationFilter = (item: CatalogItem, filter: PublicationFilter): boolean => {
-  if (filter === 'published') {
-    return item.published;
-  }
-  if (filter === 'unpublished') {
-    return !item.published;
-  }
-  return true;
-};
-
-interface CatalogManagementTabPanelProps {
-  tabKey: CatalogManagementTabKey;
-  title: string;
-  result: UseQueryResult<CatalogItem[], unknown>;
-  setPublished: (input: { id: string; published: boolean }) => void;
+interface ComputeInstanceCatalogManagementPanelProps {
+  isActive: boolean;
   search: string;
   setSearch: (value: string) => void;
   publicationFilter: PublicationFilter;
@@ -50,20 +39,23 @@ interface CatalogManagementTabPanelProps {
   role: DemoShellRole;
 }
 
-const CatalogManagementTabPanel = ({
-  tabKey,
-  title,
-  result,
-  setPublished,
+const ComputeInstanceCatalogManagementPanel = ({
+  isActive,
   search,
   setSearch,
   publicationFilter,
   setPublicationFilter,
   role,
-}: CatalogManagementTabPanelProps) => {
+}: ComputeInstanceCatalogManagementPanelProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { data = [], isLoading, error } = result;
+  const isProviderAdmin = role === 'providerAdmin';
+  const publicResult = useComputeInstanceCatalogItems(undefined, isActive && !isProviderAdmin);
+  const privateResult = usePrivateComputeInstanceCatalogItems(
+    undefined,
+    isActive && isProviderAdmin,
+  );
+  const { data = [], isLoading, error, isSuccess } = isProviderAdmin ? privateResult : publicResult;
 
   const filteredItems = filterCatalogItemsBySearch(data, search).filter((item) =>
     matchesPublicationFilter(item, publicationFilter),
@@ -76,10 +68,7 @@ const CatalogManagementTabPanel = ({
   ];
 
   const isFiltered = search.trim().length > 0 || publicationFilter !== 'all';
-  // `result.isSuccess` (not just `!isLoading`) guards against a disabled, not-yet-fetched query on
-  // an inactive tab — those report `isLoading: false` with no data, which would otherwise show this
-  // tab as empty before it has ever actually fetched.
-  const showEmptyState = result.isSuccess && !error && filteredItems.length === 0;
+  const showEmptyState = isSuccess && !error && filteredItems.length === 0;
 
   return (
     <Stack hasGutter>
@@ -122,7 +111,10 @@ const CatalogManagementTabPanel = ({
             </Flex>
           </FlexItem>
           <FlexItem>
-            <Button variant="primary" onClick={() => navigate(`/admin/catalog/${tabKey}/create`)}>
+            <Button
+              variant="primary"
+              onClick={() => navigate('/admin/catalog/compute-instance/create')}
+            >
               {t('Create')}
             </Button>
           </FlexItem>
@@ -139,31 +131,32 @@ const CatalogManagementTabPanel = ({
           </EmptyState>
         </StackItem>
       ) : (
-        <CatalogItemListSection
-          title={title}
-          items={filteredItems}
-          isLoading={isLoading}
-          error={error}
-          onSelectItem={(item) => navigate(`/admin/catalog/${tabKey}/${item.id}`)}
-          renderCardAddons={(item) => {
-            const scope = catalogItemScope(item, role);
-            const isToggleDisabled = role === 'tenantAdmin' && scope.level === 'general';
-            return {
-              scopeBadge: <CatalogItemScopeBadge scope={scope} />,
-              statusLabel: <CatalogItemStatusLabel published={item.published} />,
-              publishToggle: (
-                <CatalogItemPublishToggle
-                  published={item.published}
-                  isDisabled={isToggleDisabled}
-                  onChange={(published) => setPublished({ id: item.id, published })}
-                />
-              ),
-            };
-          }}
-        />
+        <ListPageBody isLoading={isLoading} error={error}>
+          <Stack hasGutter>
+            <StackItem>
+              <Title headingLevel="h2" size="lg">
+                {t('Virtual Machines')}
+              </Title>
+            </StackItem>
+            <StackItem>
+              <Gallery hasGutter>
+                {filteredItems.map((item) => (
+                  <GalleryItem key={item.id}>
+                    <CatalogItemCard
+                      item={item}
+                      onOpenDetails={() => navigate(`/admin/catalog/compute-instance/${item.id}`)}
+                      scopeBadge={<CatalogItemScopeBadge scope={catalogItemScope(item, role)} />}
+                      statusLabel={<CatalogItemStatusLabel published={item.published} />}
+                    />
+                  </GalleryItem>
+                ))}
+              </Gallery>
+            </StackItem>
+          </Stack>
+        </ListPageBody>
       )}
     </Stack>
   );
 };
 
-export default CatalogManagementTabPanel;
+export default ComputeInstanceCatalogManagementPanel;

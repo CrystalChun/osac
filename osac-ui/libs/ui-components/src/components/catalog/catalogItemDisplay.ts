@@ -155,6 +155,18 @@ export const filterCatalogItemsBySearch = (items: CatalogItem[], search: string)
   return items.filter((item) => searchableCatalogItemText(item).includes(searchTerm));
 };
 
+export type PublicationFilter = 'all' | 'published' | 'unpublished';
+
+export const matchesPublicationFilter = (item: CatalogItem, filter: PublicationFilter): boolean => {
+  if (filter === 'published') {
+    return item.published;
+  }
+  if (filter === 'unpublished') {
+    return !item.published;
+  }
+  return true;
+};
+
 export const formatCatalogFieldDefault = (def: CatalogFieldDefinition): string => {
   const defaultValue = resolvedFieldDefault(def);
   if (defaultValue === undefined) {
@@ -176,7 +188,8 @@ export type CatalogItemScope =
   | { level: 'organization'; name?: string }
   | { level: 'project'; name: string };
 
-const isPrivateCatalogItem = (item: CatalogItem): item is PrivateCatalogItem => 'tenant' in item;
+const isPrivateCatalogItem = (item: CatalogItem): item is PrivateCatalogItem =>
+  item.$typeName.startsWith('osac.private.');
 
 export const catalogItemScope = (item: CatalogItem, role: DemoShellRole): CatalogItemScope => {
   const project = item.metadata?.project ?? '';

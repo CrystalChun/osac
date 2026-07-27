@@ -2,30 +2,31 @@ import { createRouterTransport } from '@connectrpc/connect';
 import { waitFor } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import type { ComputeInstanceCatalogItem } from '@osac/types';
-import { ComputeInstanceCatalogItems } from '@osac/types';
+import type { ComputeInstanceCatalogItem } from '@osac/types/private';
+import { ComputeInstanceCatalogItems } from '@osac/types/private';
 
-import { useComputeInstanceCatalogItems } from './compute-instance-catalog-item';
-import { renderHookWithProviders } from '../../test-utils/TestProviders';
+import { usePrivateComputeInstanceCatalogItems } from './compute-instance-catalog-item';
+import { renderHookWithProviders } from '../../../test-utils/TestProviders';
 
 const item: ComputeInstanceCatalogItem = {
-  $typeName: 'osac.public.v1.ComputeInstanceCatalogItem',
-  id: 'public-1',
-  title: 'Public VM item',
+  $typeName: 'osac.private.v1.ComputeInstanceCatalogItem',
+  id: 'private-1',
+  title: 'Private VM item',
   description: '',
   template: '',
   published: true,
+  tenant: 'acme-corp',
   fieldDefinitions: [],
 };
 
-describe('useComputeInstanceCatalogItems', () => {
-  it('fetches items from the public ComputeInstanceCatalogItems List endpoint', async () => {
+describe('usePrivateComputeInstanceCatalogItems', () => {
+  it('fetches items from the private ComputeInstanceCatalogItems List endpoint', async () => {
     const transport = createRouterTransport((router) => {
       router.service(ComputeInstanceCatalogItems, { list: () => ({ items: [item] }) });
     });
 
-    const { result } = renderHookWithProviders(() => useComputeInstanceCatalogItems(), {
-      role: 'tenantAdmin',
+    const { result } = renderHookWithProviders(() => usePrivateComputeInstanceCatalogItems(), {
+      role: 'providerAdmin',
       transport,
     });
 
@@ -44,8 +45,8 @@ describe('useComputeInstanceCatalogItems', () => {
       });
     });
 
-    renderHookWithProviders(() => useComputeInstanceCatalogItems({}, false), {
-      role: 'tenantAdmin',
+    renderHookWithProviders(() => usePrivateComputeInstanceCatalogItems({}, false), {
+      role: 'providerAdmin',
       transport,
     });
 

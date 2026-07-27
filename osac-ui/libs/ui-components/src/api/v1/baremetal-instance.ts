@@ -7,9 +7,7 @@ import {
   BareMetalInstanceSchema,
   BareMetalInstances,
 } from '@osac/types';
-import { BareMetalInstanceCatalogItems as PrivateBareMetalInstanceCatalogItems } from '@osac/types/private';
 
-import { useSession } from '../../hooks/use-session';
 import { useApiFetch } from '../api-context';
 import { type ListParams, apiQueryKey } from '../types';
 import { type ApiQueryClient, useApiQuery, useApiQueryClient } from '../use-api-query';
@@ -40,50 +38,6 @@ export const useBareMetalInstanceCatalogItems = (params: ListParams = {}, enable
     queryFn: () => client.list(params),
     select: (data) => data.items,
     enabled,
-  });
-};
-
-/**
- * Admin list hook for the catalog management pages. CSP Admin (`providerAdmin`) sees all items via
- * the private API (including unpublished). Tenant Admin sees their tenant's items via the public API —
- * this currently returns only published items regardless of caller role; unpublished items scoped to
- * the Tenant Admin's own tenant are not visible through this hook (tracked as a backend limitation in
- * OSAC-3121).
- */
-export const useAdminBareMetalInstanceCatalogItems = (params: ListParams = {}, enabled = true) => {
-  const { role } = useSession();
-  const isProviderAdmin = role === 'providerAdmin';
-  const publicResult = useBareMetalInstanceCatalogItems(params, enabled && !isProviderAdmin);
-  const privateClient = useApiFetch(PrivateBareMetalInstanceCatalogItems);
-  const privateResult = useApiQuery({
-    queryKey: apiQueryKey('v1/baremetal_instance_catalog_items_private', undefined, params),
-    queryFn: () => privateClient.list(params),
-    select: (data) => data.items,
-    enabled: enabled && isProviderAdmin,
-  });
-  return isProviderAdmin ? privateResult : publicResult;
-};
-
-export const useAdminSetBareMetalInstanceCatalogItemPublished = () => {
-  const { role } = useSession();
-  const isProviderAdmin = role === 'providerAdmin';
-  const publicClient = useApiFetch(BareMetalInstanceCatalogItems);
-  const privateClient = useApiFetch(PrivateBareMetalInstanceCatalogItems);
-  const qc = useApiQueryClient();
-  return useMutation({
-    mutationFn: ({ id, published }: { id: string; published: boolean }): Promise<void> =>
-      (isProviderAdmin
-        ? privateClient.update({ object: { id, published }, updateMask: { paths: ['published'] } })
-        : publicClient.update({ object: { id, published }, updateMask: { paths: ['published'] } })
-      ).then(() => undefined),
-    onSuccess: () =>
-      qc.invalidateQueries({
-        queryKey: apiQueryKey(
-          isProviderAdmin
-            ? 'v1/baremetal_instance_catalog_items_private'
-            : 'v1/baremetal_instance_catalog_items',
-        ),
-      }),
   });
 };
 

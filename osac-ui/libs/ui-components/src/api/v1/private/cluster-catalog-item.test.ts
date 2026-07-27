@@ -2,30 +2,31 @@ import { createRouterTransport } from '@connectrpc/connect';
 import { waitFor } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import type { ClusterCatalogItem } from '@osac/types';
-import { ClusterCatalogItems } from '@osac/types';
+import type { ClusterCatalogItem } from '@osac/types/private';
+import { ClusterCatalogItems } from '@osac/types/private';
 
-import { useClusterCatalogItems } from './cluster-catalog-item';
-import { renderHookWithProviders } from '../../test-utils/TestProviders';
+import { usePrivateClusterCatalogItems } from './cluster-catalog-item';
+import { renderHookWithProviders } from '../../../test-utils/TestProviders';
 
 const item: ClusterCatalogItem = {
-  $typeName: 'osac.public.v1.ClusterCatalogItem',
-  id: 'public-1',
-  title: 'Public cluster item',
+  $typeName: 'osac.private.v1.ClusterCatalogItem',
+  id: 'private-1',
+  title: 'Private cluster item',
   description: '',
   template: '',
   published: true,
+  tenant: 'acme-corp',
   fieldDefinitions: [],
 };
 
-describe('useClusterCatalogItems', () => {
-  it('fetches items from the public ClusterCatalogItems List endpoint', async () => {
+describe('usePrivateClusterCatalogItems', () => {
+  it('fetches items from the private ClusterCatalogItems List endpoint', async () => {
     const transport = createRouterTransport((router) => {
       router.service(ClusterCatalogItems, { list: () => ({ items: [item] }) });
     });
 
-    const { result } = renderHookWithProviders(() => useClusterCatalogItems(), {
-      role: 'tenantAdmin',
+    const { result } = renderHookWithProviders(() => usePrivateClusterCatalogItems(), {
+      role: 'providerAdmin',
       transport,
     });
 
@@ -44,8 +45,8 @@ describe('useClusterCatalogItems', () => {
       });
     });
 
-    renderHookWithProviders(() => useClusterCatalogItems({}, false), {
-      role: 'tenantAdmin',
+    renderHookWithProviders(() => usePrivateClusterCatalogItems({}, false), {
+      role: 'providerAdmin',
       transport,
     });
 

@@ -87,31 +87,15 @@ const privateVmItem: PrivateComputeInstanceCatalogItem = {
 
 const emptyList = () => ({ items: [] });
 
-const createTestTransport = (options: { onUpdate?: (req: unknown) => void } = {}) =>
+const createTestTransport = () =>
   createRouterTransport((router) => {
-    router.service(PrivateClusterCatalogItems, {
-      list: () => ({ items: [privateClusterItem] }),
-      update: (req) => {
-        options.onUpdate?.(req);
-        return { object: privateClusterItem };
-      },
-    });
-    router.service(ClusterCatalogItems, {
-      list: () => ({ items: [publicClusterItem] }),
-      update: (req) => {
-        options.onUpdate?.(req);
-        return { object: publicClusterItem };
-      },
-    });
+    router.service(PrivateClusterCatalogItems, { list: () => ({ items: [privateClusterItem] }) });
+    router.service(ClusterCatalogItems, { list: () => ({ items: [publicClusterItem] }) });
     router.service(PrivateComputeInstanceCatalogItems, {
       list: () => ({ items: [privateVmItem] }),
     });
     router.service(ComputeInstanceCatalogItems, {
       list: () => ({ items: [publicUnpublishedVmItem] }),
-      update: (req) => {
-        options.onUpdate?.(req);
-        return { object: publicUnpublishedVmItem };
-      },
     });
     router.service(PrivateBareMetalInstanceCatalogItems, { list: emptyList });
     router.service(BareMetalInstanceCatalogItems, { list: emptyList });
@@ -245,39 +229,6 @@ describe('CatalogManagementListPage', () => {
 
     await waitFor(() => {
       expect(screen.getByText('detail-page')).toBeInTheDocument();
-    });
-  });
-
-  it('disables the publish toggle for a Tenant Admin viewing a general item', async () => {
-    renderPage('tenantAdmin');
-    await waitFor(() => {
-      expect(screen.getByText(publicClusterItem.title)).toBeInTheDocument();
-    });
-    expect(screen.getByRole('switch')).toBeDisabled();
-  });
-
-  it('sends an update when the publish toggle is used by a CSP Admin', async () => {
-    let lastReq: unknown;
-    const { user } = renderPage(
-      'providerAdmin',
-      createTestTransport({
-        onUpdate: (req) => {
-          lastReq = req;
-        },
-      }),
-    );
-
-    await waitFor(() => {
-      expect(screen.getByText(privateClusterItem.title)).toBeInTheDocument();
-    });
-
-    await user.click(screen.getByRole('switch'));
-
-    await waitFor(() => {
-      expect(lastReq).toMatchObject({
-        object: { id: privateClusterItem.id, published: false },
-        updateMask: { paths: ['published'] },
-      });
     });
   });
 });
