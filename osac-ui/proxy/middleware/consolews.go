@@ -84,5 +84,23 @@ func isTrustedOrigin(r *http.Request, baseUIURL string) bool {
 		return false
 	}
 
-	return strings.EqualFold(originURL.Scheme, base.Scheme) && strings.EqualFold(originURL.Host, base.Host)
+	return strings.EqualFold(originURL.Scheme, base.Scheme) &&
+		strings.EqualFold(originURL.Hostname(), base.Hostname()) &&
+		effectivePort(originURL) == effectivePort(base)
+}
+
+// effectivePort returns u's explicit port, or the scheme's default port (so
+// "https://host" and "https://host:443" compare equal, matching browser
+// same-origin semantics instead of raw Host string comparison).
+func effectivePort(u *url.URL) string {
+	if port := u.Port(); port != "" {
+		return port
+	}
+	if strings.EqualFold(u.Scheme, "http") {
+		return "80"
+	}
+	if strings.EqualFold(u.Scheme, "https") {
+		return "443"
+	}
+	return ""
 }

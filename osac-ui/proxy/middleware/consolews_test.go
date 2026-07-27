@@ -156,6 +156,29 @@ func TestConsoleWebSocketAuth_rejectsWhenBaseUIURLIsMalformed(t *testing.T) {
 	}
 }
 
+func TestConsoleWebSocketAuth_treatsExplicitDefaultPortAsEquivalent(t *testing.T) {
+	t.Parallel()
+
+	var captured *http.Request
+	// baseUIURL spells out the default HTTPS port explicitly; browsers never send an
+	// Origin with a default port, so raw Host string comparison would reject every
+	// real request if this weren't normalized.
+	handler := ConsoleWebSocketAuth("https://osac.example.com:443")(http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
+		copied := *r
+		captured = &copied
+	}))
+
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/api/fulfillment/v1/console_sessions/connect", nil)
+	req.AddCookie(&http.Cookie{Name: consoleTicketCookieName, Value: "console-jwt"})
+	req.Header.Set("Origin", "https://osac.example.com")
+
+	handler.ServeHTTP(httptest.NewRecorder(), req)
+
+	if captured == nil {
+		t.Fatal("expected downstream handler to run when Origin omits the default port baseUIURL spells out")
+	}
+}
+
 func TestConsoleWebSocketAuth_rejectsSchemeMismatch(t *testing.T) {
 	t.Parallel()
 
