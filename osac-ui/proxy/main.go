@@ -117,7 +117,11 @@ func main() {
 
 func newHTTPClient(tlsConfig *tls.Config) *http.Client {
 	return &http.Client{
-		Transport: &http.Transport{TLSClientConfig: tlsConfig},
-		Timeout:   15 * time.Second,
+		Transport: &http.Transport{
+			TLSClientConfig:     tlsConfig,
+			IdleConnTimeout:     90 * time.Second,
+			MaxIdleConnsPerHost: 2,
+		},
+		Timeout: 15 * time.Second,
 	}
 }
