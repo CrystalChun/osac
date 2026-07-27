@@ -147,8 +147,6 @@ var _ = Describe("ExternalIPPoolReconciler", func() {
 			// Simulate feedback controller: during TriggerProvision, modify
 			// the resource's metadata (add feedback finalizer) so the
 			// resourceVersion changes before the status flush runs.
-			// Set mock before any reconcile because ExternalIPPool triggers
-			// provisioning in the same pass as adding the finalizer.
 			mockProvider.triggerProvisionFunc = func(ctx context.Context, resource client.Object) (*provisioning.ProvisionResult, error) {
 				fresh := &osacv1alpha1.ExternalIPPool{}
 				Expect(fakeClient.Get(ctx, key, fresh)).To(Succeed())
@@ -162,10 +160,15 @@ var _ = Describe("ExternalIPPoolReconciler", func() {
 				}, nil
 			}
 
-			// Reconcile adds finalizer and triggers provisioning in one pass.
+			// Pass 1: adds finalizer and stamps implementation-strategy annotation,
+			// returns early before triggering provisioning.
+			_, err := reconciler.Reconcile(testCtx, mcreconcile.Request{Request: ctrl.Request{NamespacedName: key}})
+			Expect(err).NotTo(HaveOccurred())
+
+			// Pass 2: annotation already set, triggers provisioning.
 			// The concurrent modification must not prevent the job from
 			// being recorded in status.
-			_, err := reconciler.Reconcile(testCtx, mcreconcile.Request{Request: ctrl.Request{NamespacedName: key}})
+			_, err = reconciler.Reconcile(testCtx, mcreconcile.Request{Request: ctrl.Request{NamespacedName: key}})
 			Expect(err).NotTo(HaveOccurred())
 
 			// Verify the job was persisted
@@ -174,6 +177,62 @@ var _ = Describe("ExternalIPPoolReconciler", func() {
 			latestJob := provisioning.FindLatestJobByType(updated.Status.ProvisioningJobs, osacv1alpha1.JobTypeProvision)
 			Expect(latestJob).NotTo(BeNil())
 			Expect(latestJob.JobID).To(Equal("concurrent-job-123"))
+		})
+
+		It("should stamp implementation-strategy annotation before triggering AAP provisioning", func() {
+			key := types.NamespacedName{Name: pool.Name, Namespace: pool.Namespace}
+
+			// Pass 1: adds finalizer and stamps the annotation, returns early.
+			_, err := reconciler.Reconcile(testCtx, mcreconcile.Request{Request: ctrl.Request{NamespacedName: key}})
+			Expect(err).NotTo(HaveOccurred())
+
+			annotated := &osacv1alpha1.ExternalIPPool{}
+			Expect(fakeClient.Get(testCtx, key, annotated)).To(Succeed())
+			Expect(annotated.Annotations).To(HaveKeyWithValue(
+				osacImplementationStrategyAnnotation, "metallb-l2",
+			))
+
+			// Pass 2: annotation is already set, provisioning is triggered.
+			provisionCalled := false
+			mockProvider.triggerProvisionFunc = func(_ context.Context, _ client.Object) (*provisioning.ProvisionResult, error) {
+				provisionCalled = true
+				return &provisioning.ProvisionResult{
+					JobID:        "aap-job-1",
+					InitialState: osacv1alpha1.JobStatePending,
+					Message:      "Provisioning triggered",
+				}, nil
+			}
+			_, err = reconciler.Reconcile(testCtx, mcreconcile.Request{Request: ctrl.Request{NamespacedName: key}})
+			Expect(err).NotTo(HaveOccurred())
+			Expect(provisionCalled).To(BeTrue(), "AAP provisioning must be triggered after annotation is stamped")
+		})
+
+		It("should stamp default metallb-l2 annotation when spec.implementationStrategy is empty", func() {
+			// Create a pool that omits ImplementationStrategy (relies on the default).
+			poolNoStrategy := &osacv1alpha1.ExternalIPPool{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "pool-no-strategy",
+					Namespace: "test-namespace",
+				},
+				Spec: osacv1alpha1.ExternalIPPoolSpec{
+					CIDRs:    []string{"10.10.0.0/24"},
+					IPFamily: "IPv4",
+					// ImplementationStrategy intentionally omitted
+				},
+			}
+			Expect(fakeClient.Create(testCtx, poolNoStrategy)).To(Succeed())
+
+			key := types.NamespacedName{Name: poolNoStrategy.Name, Namespace: poolNoStrategy.Namespace}
+
+			// Pass 1: finalizer + annotation with defaultExternalIPPoolImplementationStrategy.
+			_, err := reconciler.Reconcile(testCtx, mcreconcile.Request{Request: ctrl.Request{NamespacedName: key}})
+			Expect(err).NotTo(HaveOccurred())
+
+			annotated := &osacv1alpha1.ExternalIPPool{}
+			Expect(fakeClient.Get(testCtx, key, annotated)).To(Succeed())
+			Expect(annotated.Annotations).To(HaveKeyWithValue(
+				osacImplementationStrategyAnnotation, defaultExternalIPPoolImplementationStrategy,
+			))
 		})
 
 		It("should set ConfigurationApplied condition to True", func() {
