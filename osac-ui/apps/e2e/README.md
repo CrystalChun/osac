@@ -44,6 +44,16 @@ test:e2e`.) There's no default for `E2E_BASE_URL` — it's required, so a
 missing value fails immediately with a clear error instead of silently
 pointing at the wrong environment.
 
+Testing against a local `pnpm dev` instance instead of a remote deployment:
+
+```bash
+E2E_USERNAME=... E2E_PASSWORD=... pnpm e2e:dev
+```
+
+`pnpm e2e:dev` sets `E2E_BASE_URL=http://localhost:5173` for you — still
+requires `pnpm dev` running in another terminal, and still needs
+`E2E_USERNAME`/`E2E_PASSWORD`.
+
 ## How authentication works
 
 `osac-ui` has no test-mode auth bypass — every login goes through a real
