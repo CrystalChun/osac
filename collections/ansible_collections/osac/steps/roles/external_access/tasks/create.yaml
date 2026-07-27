@@ -88,6 +88,8 @@
       addr: "{{ external_access_ingress_floating_ip }}"
 
 - name: Wait for DNS records
+  when: >-
+    external_access_base_domain in external_access_supported_base_domains | default([])
   ansible.builtin.include_role:
     name: osac.service.wait_for
     tasks_from: wait_for_dns
