@@ -56,3 +56,8 @@ apps/e2e/.auth/
 apps/e2e/test-results/
 apps/e2e/playwright-report/
 apps/e2e/blob-report/
+
+# Playwright e2e — test specs are created ad hoc per manual-verification session
+# (typically by an AI agent) and are not persisted in the repo; only the harness
+# itself (playwright.config.ts, auth.setup.ts) is committed.
+apps/e2e/src/*.spec.ts

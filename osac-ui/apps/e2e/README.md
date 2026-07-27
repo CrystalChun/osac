@@ -4,9 +4,8 @@ Playwright browser tests for manually verifying `osac-ui` against a **live,
 already-deployed** cluster — the running proxy, SPA, Keycloak realm, and
 `fulfillment-service` backend all in one real environment.
 
-This is not a CI suite and not a replacement for `osac-test-infra`'s
-gRPC-level e2e coverage. There is no mock server for `fulfillment-service`
-and no way to run this hermetically — it exists for manually confirming a
+This is not a CI suite. There is no mock server for `fulfillment-service`
+and no way to run this hermetically — it exists for AI agents to manually confirming a
 change actually works end-to-end against a real deployment, the way you'd
 otherwise do by hand in a browser.
 
@@ -77,8 +76,27 @@ If the target realm's login page uses a custom Keycloak theme, the field/
 button selectors in `auth.setup.ts` (written against Keycloak's default
 theme) may need adjusting.
 
-## Adding tests
+## Writing a test
 
-New test files go in `src/*.spec.ts` and run in the `chromium` project
-(already authenticated — no need to handle login in the test itself). See
-`src/smoke.spec.ts` for the minimal example this package started with.
+There's no persisted test suite here — `src/*.spec.ts` is gitignored on
+purpose. This package provides the harness (auth + config); test specs are
+throwaway files created for a specific manual-verification task (typically by
+an AI agent working through a change), run once, and discarded — not
+committed.
+
+To verify something, write a file under `src/`, e.g. `src/check.spec.ts`:
+
+```ts
+import { expect, test } from '@playwright/test';
+
+test('loads the authenticated dashboard', async ({ page }) => {
+  await page.goto('/');
+
+  await expect(page.getByRole('button', { name: 'Account menu' })).toBeVisible();
+});
+```
+
+It runs in the `chromium` project — already authenticated via `auth.setup.ts`,
+no need to handle login in the test itself. Run it with `pnpm e2e` or
+`pnpm e2e:dev`, then delete it (or just leave it — it won't be picked up by
+`git status` as anything worth committing).

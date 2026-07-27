@@ -56,6 +56,7 @@ Multi-stage build images: `nodejs-22-minimal:9.8`, `go-toolset:1.25`, `ubi-minim
 | `@osac/ui-components` | Shared components consumed at source (no build) — typed gRPC hooks live here |
 | `@osac/types` | Generated protobuf types and service descriptors — **never edit**, regenerate with `pnpm gen-types` |
 | `@osac/i18n` | Translation extraction — `locales/en/translation.json` is generated, not hand-edited |
+| `@osac/e2e` | Playwright harness for manual verification against a **live deployed cluster** — not a CI suite, not persisted test coverage. See [Manual verification against a live cluster](#manual-verification-against-a-live-cluster) |
 
 ## Code Style
 
@@ -179,8 +180,24 @@ export const getLabels = (t: TFunction) => ({
 - `apps/app-frontend/vitest.config.ts` — single runner for app-frontend and ui-components tests (`include` spans both packages)
 - ESLint relaxes type safety rules for test files (no-unsafe-* off)
 - Testing libraries: @testing-library/react 16.x, @testing-library/jest-dom 6.x
-- No E2E tests in this repo — E2E coverage lives in `osac-test-infra`
+- No persisted E2E test suite in this repo, and no persisted UI-level E2E coverage anywhere: `osac-test-infra`'s CI-tracked E2E suites hit the fulfillment gRPC/REST API and Kubernetes CRs directly — no browser, nothing UI-related
 - CI runs lint, test, and container build; run `pnpm test` locally before submitting
+
+### Manual verification against a live cluster
+
+`apps/e2e` (`@osac/e2e`) is a Playwright harness for manually confirming a change
+works end-to-end against a **live, already-deployed** cluster — not a CI suite,
+not a replacement for `osac-test-infra`'s gRPC-level coverage, and not something
+that adds to this repo's persisted test count. See [apps/e2e/README.md](apps/e2e/README.md).
+
+- **Test specs are throwaway, not committed**: `apps/e2e/src/*.spec.ts` is
+  gitignored on purpose. Write a spec file to verify a specific change, run it,
+  then discard it (or leave it — it's ignored either way). Only the harness
+  itself (`playwright.config.ts`, `auth.setup.ts`) is committed.
+- Use this when asked to verify a UI change actually works in a browser against
+  a real deployment — requires `E2E_BASE_URL`, `E2E_USERNAME`, `E2E_PASSWORD`
+  (or `pnpm e2e:dev` against a local `pnpm dev` instance). There is no mock
+  `fulfillment-service`, so this cannot run hermetically or in CI.
 
 ## Build
 
