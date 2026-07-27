@@ -25,13 +25,16 @@ import { useTranslation } from '../../../hooks/useTranslation';
 import { getErrorMessage } from '../../../utils/error';
 import { VmStatusLabel } from '../../../VmStatusLabel';
 import { ResourceDetailHeader } from '../../Resource/ResourceDetailHeader';
+import VmConsoleTab from '../console/VmConsoleTab';
+import {
+  VM_DETAIL_CONSOLE_TAB_ID,
+  VM_DETAIL_NETWORKING_TAB_ID,
+  VM_DETAIL_OVERVIEW_TAB_ID,
+} from '../vm-detail-tabs';
 
 interface Props {
   vm: ComputeInstance;
 }
-
-const VM_DETAIL_OVERVIEW_TAB_ID = 'vm-detail-overview';
-const VM_DETAIL_NETWORKING_TAB_ID = 'vm-detail-networking';
 
 const VmDetails = ({ vm }: Props) => {
   const { t } = useTranslation();
@@ -99,6 +102,11 @@ const VmDetails = ({ vm }: Props) => {
                 title={<TabTitleText>{t('Networking')}</TabTitleText>}
                 tabContentId={VM_DETAIL_NETWORKING_TAB_ID}
               />
+              <Tab
+                eventKey={2}
+                title={<TabTitleText>{t('Console')}</TabTitleText>}
+                tabContentId={VM_DETAIL_CONSOLE_TAB_ID}
+              />
             </Tabs>
           </StackItem>
         </Stack>
@@ -125,6 +133,13 @@ const VmDetails = ({ vm }: Props) => {
             <VmNetworkingTab vm={vm} />
           </TabContentBody>
         </TabContent>
+        {activeTab === 2 ? (
+          <TabContent eventKey={2} id={VM_DETAIL_CONSOLE_TAB_ID} activeKey={activeTab}>
+            <TabContentBody>
+              <VmConsoleTab vm={vm} />
+            </TabContentBody>
+          </TabContent>
+        ) : null}
       </PageSection>
     </>
   );

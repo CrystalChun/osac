@@ -5,6 +5,7 @@ import { useTranslation } from '../../hooks/useTranslation';
 import { ResourceDetailsPageError } from '../Resource/ResourceDetailsPageError';
 import { ResourceDetailsPageLoading } from '../Resource/ResourceDetailsPageLoading';
 import VmDetails from './DetailsPage/VmDetails';
+import { getVmDetailTabLabels } from './vm-detail-tabs';
 
 export const VmDetailsPage = () => {
   const { t } = useTranslation();
@@ -16,8 +17,8 @@ export const VmDetailsPage = () => {
       <ResourceDetailsPageLoading
         parentTo="/vms"
         parentLabel={t('Virtual machines')}
-        tabLabels={[t('Overview'), t('Networking')]}
-        tabsId="vm-detail-tabs"
+        tabLabels={getVmDetailTabLabels(t)}
+        tabsId="vm-detail-tabs-loading"
         cardCount={2}
       />
     );

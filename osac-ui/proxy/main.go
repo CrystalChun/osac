@@ -82,12 +82,28 @@ func main() {
 		router.Post("/api/logout", authHandler.PostLogout)
 	}
 
-	// Connect JSON proxy — accepts Connect protocol (JSON) from the browser,
-	// translates to native gRPC via server reflection. No proto stubs needed.
 	grpcTarget, err := config.FulfillmentGrpcTarget()
 	if err != nil {
 		log.WithError(err).Fatal("Failed to resolve gRPC target from FULFILLMENT_API_URL")
 	}
+
+	// Console WebSocket uses the console-ticket cookie (browser cannot set Authorization).
+	// Do not run Auth middleware here: it injects the OIDC access token as Bearer, and
+	// console-proxy prefers Authorization over the cookie, causing 401 invalid ticket.
+	if config.FulfillmentApiUrl != "" {
+		consoleWSHandler, err := bridge.NewConsoleWebSocketProxy(config.FulfillmentApiUrl, tlsConfig)
+		if err != nil {
+			log.WithError(err).Fatal("Failed to create console WebSocket proxy")
+		}
+		router.Handle(
+			"/api/fulfillment/v1/console_sessions/connect",
+			proxymiddleware.ConsoleWebSocketAuth(config.BaseUIURL)(consoleWSHandler),
+		)
+		log.Info("Console WebSocket proxy enabled")
+
+		router.Post("/api/console-ticket/clear", bridge.NewClearConsoleTicketCookieHandler())
+	}
+
 	if grpcTarget != "" {
 		connectHandler, err := bridge.NewConnectJSONProxy(grpcTarget, tlsConfig)
 		if err != nil {
@@ -95,7 +111,16 @@ func main() {
 		}
 		router.Group(func(r chi.Router) {
 			r.Use(proxymiddleware.Auth)
-			r.Handle("/api/fulfillment/*", http.StripPrefix("/api/fulfillment", connectHandler))
+			strippedConnect := http.StripPrefix("/api/fulfillment", connectHandler)
+			// The console-ticket must never reach the browser as a JS-readable
+			// value (see bridge.WrapConsoleSessionCreate) — chi matches this
+			// literal path ahead of the /* wildcard below regardless of
+			// registration order.
+			r.Handle(
+				"/api/fulfillment/osac.public.v1.ConsoleSessions/Create",
+				bridge.WrapConsoleSessionCreate(strippedConnect),
+			)
+			r.Handle("/api/fulfillment/*", strippedConnect)
 		})
 		log.Info("Connect JSON proxy enabled")
 	}
