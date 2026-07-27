@@ -102,9 +102,36 @@ rules:
   - apiGroups: [""]
     resources: ["events"]
     verbs: ["list", "watch", "create", "update", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "csi-backends.fullname" . }}-pure-secrets
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "csi-backends.labels" . | nindent 4 }}
+    app.kubernetes.io/name: pure-csi-controller
+rules:
   - apiGroups: [""]
     resources: ["secrets"]
-    verbs: ["get", "list", "watch"]
+    verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "csi-backends.fullname" . }}-pure-secrets
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "csi-backends.labels" . | nindent 4 }}
+    app.kubernetes.io/name: pure-csi-controller
+subjects:
+  - kind: ServiceAccount
+    name: pure-vendor-sa
+    namespace: {{ .Values.namespace }}
+roleRef:
+  kind: Role
+  name: {{ include "csi-backends.fullname" . }}-pure-secrets
+  apiGroup: rbac.authorization.k8s.io
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding

@@ -24,7 +24,7 @@ vast:
     vipPoolName: ""
     nfsExport: /k8s
     viewPolicy: default
-    verifySsl: "false"
+    verifySsl: "true"
     credentialsSecret: ""
 
 pure:

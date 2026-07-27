@@ -6,6 +6,9 @@ metadata:
     {{- include "csi-driver.labels" . | nindent 4 }}
     app.kubernetes.io/component: controller
 rules:
+  - apiGroups: ["coordination.k8s.io"]
+    resources: ["leases"]
+    verbs: ["get", "list", "watch", "create", "update", "patch"]
   - apiGroups: [""]
     resources: ["persistentvolumes"]
     verbs: ["get", "list", "watch", "create", "delete", "patch"]

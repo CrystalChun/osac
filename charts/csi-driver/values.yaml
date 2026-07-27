@@ -2,8 +2,8 @@ driverName: csi.osac.openshift.io
 
 image:
   repository: ghcr.io/osac-project/osac-csi-driver
-  tag: latest
-  pullPolicy: IfNotPresent
+  tag: "0.0.0"
+  pullPolicy: Always
 
 controller:
   replicas: 1
