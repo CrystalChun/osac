@@ -49,3 +49,42 @@ serviceAccount:
   node:
     create: true
     name: ""
+
+vendors:
+  trident:
+    enabled: false
+    image:
+      repository: registry.connect.redhat.com/netapp/trident
+      tag: 25.10.0
+    config:
+      certsSecret: ""
+    node:
+      socketPath: /var/lib/kubelet/plugins/csi.trident.netapp.io
+
+  vast:
+    enabled: false
+    image:
+      repository: docker.io/vastdataorg/csi
+      tag: v2.6.5
+    config:
+      vmsHost: ""
+      vipPoolName: ""
+      nfsExport: /k8s
+      viewPolicy: default
+      verifySsl: "true"
+      credentialsSecret: ""
+    node:
+      socketPath: /var/lib/kubelet/plugins/csi.vast.vastdata.com
+
+  pure:
+    enabled: false
+    image:
+      repository: docker.io/portworx/px-pure-csi-driver
+      tag: "26.2.0"
+    config:
+      credentialsSecret: ""
+      clusterUuid: ""
+    node:
+      socketPath: /var/lib/kubelet/plugins/csi.pure.purestorage.com
+      sanType: "ISCSI"
+      clusterName: ""

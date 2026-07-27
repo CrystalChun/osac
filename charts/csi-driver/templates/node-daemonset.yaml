@@ -58,7 +58,6 @@ spec:
             - name: registration-dir
               mountPath: /registration
           securityContext:
-            runAsNonRoot: true
             readOnlyRootFilesystem: true
             allowPrivilegeEscalation: false
             capabilities:
