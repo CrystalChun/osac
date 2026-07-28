@@ -1395,8 +1395,8 @@ var _ = Describe("ComputeInstance Controller", func() {
 				},
 			}
 		}
-		tierDefsBackendsGetter := func() *mockStorageBackendsGetter {
-			return &mockStorageBackendsGetter{
+		tierDefsBackendsClient := func() *mockStorageBackendsClient {
+			return &mockStorageBackendsClient{
 				getFunc: func(context.Context, *privatev1.StorageBackendsGetRequest, ...grpc.CallOption) (*privatev1.StorageBackendsGetResponse, error) {
 					return newTestStorageBackendGetResponse("vast"), nil
 				},
@@ -1452,7 +1452,7 @@ var _ = Describe("ComputeInstance Controller", func() {
 
 			createCIAndReconcile(resourceName, tenantName, provider, func(r *ComputeInstanceReconciler) {
 				r.TiersClient = tierDefsTiersClient()
-				r.BackendsGetter = tierDefsBackendsGetter()
+				r.BackendsClient = tierDefsBackendsClient()
 			})
 
 			Expect(sawTiers).To(BeTrue())
@@ -1481,7 +1481,7 @@ var _ = Describe("ComputeInstance Controller", func() {
 
 			createCIAndReconcile(resourceName, tenantName, provider, func(r *ComputeInstanceReconciler) {
 				r.TiersClient = tierDefsTiersClient()
-				r.BackendsGetter = tierDefsBackendsGetter()
+				r.BackendsClient = tierDefsBackendsClient()
 			})
 
 			Expect(sawConns).To(BeTrue())
@@ -1492,7 +1492,7 @@ var _ = Describe("ComputeInstance Controller", func() {
 			}))
 		})
 
-		It("should skip tier/backend injection gracefully when TiersClient and BackendsGetter are not configured", func() {
+		It("should skip tier/backend injection gracefully when TiersClient and BackendsClient are not configured", func() {
 			const resourceName = "test-tier-ctx-unconfigured"
 			const tenantName = "tenant-tier-ctx-unconfigured"
 			DeferCleanup(func() {
@@ -1511,7 +1511,7 @@ var _ = Describe("ComputeInstance Controller", func() {
 				},
 			}
 
-			// No TiersClient/BackendsGetter configured — matches the default zero
+			// No TiersClient/BackendsClient configured — matches the default zero
 			// value used by every other test in this file.
 			createCIAndReconcile(resourceName, tenantName, provider, nil)
 
@@ -1544,7 +1544,7 @@ var _ = Describe("ComputeInstance Controller", func() {
 						return nil, fmt.Errorf("tier API unavailable")
 					},
 				}
-				r.BackendsGetter = tierDefsBackendsGetter()
+				r.BackendsClient = tierDefsBackendsClient()
 			})
 
 			Expect(sawTiers).To(BeTrue())

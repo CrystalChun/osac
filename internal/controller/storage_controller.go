@@ -60,23 +60,19 @@ const (
 )
 
 // StorageBackendsClient is a narrow subset of the generated privatev1.StorageBackendsClient
-// used to check whether any storage backend is registered. The generated client satisfies
+// used to check whether any storage backend is registered (List) and to resolve a single
+// backend's provider and connection details by ID (Get). The generated client satisfies
 // this interface automatically; it is defined here to allow test mocking.
 type StorageBackendsClient interface {
 	List(ctx context.Context, in *privatev1.StorageBackendsListRequest, opts ...grpc.CallOption) (*privatev1.StorageBackendsListResponse, error)
+	Get(ctx context.Context, in *privatev1.StorageBackendsGetRequest, opts ...grpc.CallOption) (*privatev1.StorageBackendsGetResponse, error)
 }
 
 // StorageTiersLister is a narrow subset of the generated privatev1.StorageTiersClient
 // used to list tier definitions. The generated client satisfies this interface
-// automatically; it is defined here to allow test mocking (mirrors StorageBackendsGetter).
+// automatically; it is defined here to allow test mocking (mirrors StorageBackendsClient).
 type StorageTiersLister interface {
 	List(ctx context.Context, in *privatev1.StorageTiersListRequest, opts ...grpc.CallOption) (*privatev1.StorageTiersListResponse, error)
-}
-
-// StorageBackendsGetter is a narrow subset of the generated privatev1.StorageBackendsClient
-// used to resolve a single backend's provider and connection details by ID.
-type StorageBackendsGetter interface {
-	Get(ctx context.Context, in *privatev1.StorageBackendsGetRequest, opts ...grpc.CallOption) (*privatev1.StorageBackendsGetResponse, error)
 }
 
 // StorageReconciler reconciles storage lifecycle on Tenant CRs.
@@ -95,17 +91,16 @@ type StorageReconciler struct {
 	StatusPollInterval     time.Duration
 	MaxJobHistory          int
 	// BackendsClient queries the fulfillment service Backend API to determine whether
-	// a storage backend is registered. When nil (no gRPC connection configured),
-	// backendRegistered() returns false — backward compatible with environments that
-	// run without a fulfillment service connection (e.g. prepare-tenant.sh).
+	// a storage backend is registered (List, via backendRegistered()) and to resolve
+	// a backend's connection details by ID (Get, via resolveTierDefinitions). When
+	// nil (no gRPC connection configured), both backward compatible with
+	// environments that run without a fulfillment service connection (e.g.
+	// prepare-tenant.sh).
 	BackendsClient StorageBackendsClient
 	// TiersClient queries the fulfillment service Tier API. When nil, tier
 	// validation and extra_vars injection are both skipped — backward compatible
-	// with environments without a fulfillment service connection. BackendsGetter
-	// must be non-nil whenever TiersClient is non-nil — resolveTierDefinitions
-	// always uses both together.
-	TiersClient    StorageTiersLister
-	BackendsGetter StorageBackendsGetter
+	// with environments without a fulfillment service connection.
+	TiersClient StorageTiersLister
 }
 
 // +kubebuilder:rbac:groups=osac.openshift.io,resources=tenants,verbs=get;list;watch;update;patch
@@ -308,7 +303,7 @@ func (r *StorageReconciler) handleUpdate(ctx context.Context, instance *v1alpha1
 	// handleBackendReadiness), so both Stage 2's tier-coverage validation and
 	// every downstream AAP call in this reconcile see the same result without
 	// re-fetching.
-	ctx, tierDefinitions := resolveAndInjectTierContext(ctx, r.TiersClient, r.BackendsGetter, "tenant", tenantName)
+	ctx, tierDefinitions := resolveAndInjectTierContext(ctx, r.TiersClient, r.BackendsClient, "tenant", tenantName)
 
 	// Stage 1: check hub Secret and route provisioning based on backend registration.
 	// stop is always true when err is non-nil (handleBackendReadiness invariant).
@@ -673,7 +668,7 @@ func (r *StorageReconciler) handleDelete(ctx context.Context, instance *v1alpha1
 	// Resolved independently from handleUpdate's resolution (no caching between
 	// create and delete paths), before the first AAP-triggering call in this
 	// function, so every downstream call in this reconcile sees the same result.
-	ctx, _ = resolveAndInjectTierContext(ctx, r.TiersClient, r.BackendsGetter, "tenant", instance.Name)
+	ctx, _ = resolveAndInjectTierContext(ctx, r.TiersClient, r.BackendsClient, "tenant", instance.Name)
 
 	// CaaS cleanup: remove cluster-side storage (StorageClasses, CSI) from
 	// all CaaS clusters and remove our finalizer from their ClusterOrders.

@@ -45,9 +45,11 @@ import (
 
 // mockStorageBackendsClient is a test double for StorageBackendsClient.
 // By default List returns an empty response (total=0, no backends registered).
-// Set listFunc to override the response for specific test scenarios.
+// Set listFunc/getFunc to override the response for specific test scenarios.
 type mockStorageBackendsClient struct {
-	listFunc func(ctx context.Context, in *privatev1.StorageBackendsListRequest, opts ...grpc.CallOption) (*privatev1.StorageBackendsListResponse, error)
+	listFunc     func(ctx context.Context, in *privatev1.StorageBackendsListRequest, opts ...grpc.CallOption) (*privatev1.StorageBackendsListResponse, error)
+	getFunc      func(ctx context.Context, in *privatev1.StorageBackendsGetRequest, opts ...grpc.CallOption) (*privatev1.StorageBackendsGetResponse, error)
+	getCallCount int
 }
 
 func (m *mockStorageBackendsClient) List(ctx context.Context, in *privatev1.StorageBackendsListRequest, opts ...grpc.CallOption) (*privatev1.StorageBackendsListResponse, error) {
@@ -55,6 +57,11 @@ func (m *mockStorageBackendsClient) List(ctx context.Context, in *privatev1.Stor
 		return m.listFunc(ctx, in, opts...)
 	}
 	return &privatev1.StorageBackendsListResponse{}, nil
+}
+
+func (m *mockStorageBackendsClient) Get(ctx context.Context, in *privatev1.StorageBackendsGetRequest, opts ...grpc.CallOption) (*privatev1.StorageBackendsGetResponse, error) {
+	m.getCallCount++
+	return m.getFunc(ctx, in, opts...)
 }
 
 // registeredBackendsClient returns a mockStorageBackendsClient whose List response
@@ -138,16 +145,6 @@ type mockStorageTiersLister struct {
 func (m *mockStorageTiersLister) List(ctx context.Context, in *privatev1.StorageTiersListRequest, opts ...grpc.CallOption) (*privatev1.StorageTiersListResponse, error) {
 	m.listCallCount++
 	return m.listFunc(ctx, in, opts...)
-}
-
-type mockStorageBackendsGetter struct {
-	getFunc      func(ctx context.Context, in *privatev1.StorageBackendsGetRequest, opts ...grpc.CallOption) (*privatev1.StorageBackendsGetResponse, error)
-	getCallCount int
-}
-
-func (m *mockStorageBackendsGetter) Get(ctx context.Context, in *privatev1.StorageBackendsGetRequest, opts ...grpc.CallOption) (*privatev1.StorageBackendsGetResponse, error) {
-	m.getCallCount++
-	return m.getFunc(ctx, in, opts...)
 }
 
 // newTestStorageTier builds a StorageTier fixture with one BackendAssociation per
@@ -693,14 +690,14 @@ var _ = Describe("Storage Controller", func() {
 					}.Build(), nil
 				},
 			}
-			backendsGetter := &mockStorageBackendsGetter{
+			backendsClient := &mockStorageBackendsClient{
 				getFunc: func(_ context.Context, in *privatev1.StorageBackendsGetRequest, _ ...grpc.CallOption) (*privatev1.StorageBackendsGetResponse, error) {
 					Expect(in.GetId()).To(Equal("backend-1"))
 					return newTestStorageBackendGetResponse("vast"), nil
 				},
 			}
 
-			defs, conns, err := resolveTierDefinitions(ctx, tiersClient, backendsGetter)
+			defs, conns, err := resolveTierDefinitions(ctx, tiersClient, backendsClient)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(defs).To(HaveLen(1))
 			Expect(defs[0].Name).To(Equal("fast"))
@@ -728,17 +725,17 @@ var _ = Describe("Storage Controller", func() {
 					}.Build(), nil
 				},
 			}
-			backendsGetter := &mockStorageBackendsGetter{
+			backendsClient := &mockStorageBackendsClient{
 				getFunc: func(context.Context, *privatev1.StorageBackendsGetRequest, ...grpc.CallOption) (*privatev1.StorageBackendsGetResponse, error) {
 					return newTestStorageBackendGetResponse("vast"), nil
 				},
 			}
 
-			defs, _, err := resolveTierDefinitions(ctx, tiersClient, backendsGetter)
+			defs, _, err := resolveTierDefinitions(ctx, tiersClient, backendsClient)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(defs).To(HaveLen(1))
 			Expect(defs[0].Name).To(Equal("fast"))
-			Expect(backendsGetter.getCallCount).To(Equal(1))
+			Expect(backendsClient.getCallCount).To(Equal(1))
 		})
 
 		It("should call the backend getter once per unique backend_id, not once per tier", func() {
@@ -752,16 +749,16 @@ var _ = Describe("Storage Controller", func() {
 					}.Build(), nil
 				},
 			}
-			backendsGetter := &mockStorageBackendsGetter{
+			backendsClient := &mockStorageBackendsClient{
 				getFunc: func(context.Context, *privatev1.StorageBackendsGetRequest, ...grpc.CallOption) (*privatev1.StorageBackendsGetResponse, error) {
 					return newTestStorageBackendGetResponse("vast"), nil
 				},
 			}
 
-			defs, conns, err := resolveTierDefinitions(ctx, tiersClient, backendsGetter)
+			defs, conns, err := resolveTierDefinitions(ctx, tiersClient, backendsClient)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(defs).To(HaveLen(2))
-			Expect(backendsGetter.getCallCount).To(Equal(1))
+			Expect(backendsClient.getCallCount).To(Equal(1))
 			Expect(conns).To(HaveLen(1))
 			Expect(conns).To(HaveKey("backend-1"))
 		})
@@ -778,7 +775,7 @@ var _ = Describe("Storage Controller", func() {
 					}.Build(), nil
 				},
 			}
-			backendsGetter := &mockStorageBackendsGetter{
+			backendsClient := &mockStorageBackendsClient{
 				getFunc: func(_ context.Context, in *privatev1.StorageBackendsGetRequest, _ ...grpc.CallOption) (*privatev1.StorageBackendsGetResponse, error) {
 					if in.GetId() == "backend-gone" {
 						return nil, status.Error(codes.NotFound, "storage backend not found")
@@ -787,13 +784,13 @@ var _ = Describe("Storage Controller", func() {
 				},
 			}
 
-			defs, conns, err := resolveTierDefinitions(ctx, tiersClient, backendsGetter)
+			defs, conns, err := resolveTierDefinitions(ctx, tiersClient, backendsClient)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(defs).To(HaveLen(1))
 			Expect(defs[0].Name).To(Equal("fast"))
 			Expect(conns).NotTo(HaveKey("backend-gone"))
 			Expect(conns).To(HaveKey("backend-1"))
-			Expect(backendsGetter.getCallCount).To(Equal(2), "backend-gone should be fetched once (cached NotFound), backend-1 once")
+			Expect(backendsClient.getCallCount).To(Equal(2), "backend-gone should be fetched once (cached NotFound), backend-1 once")
 		})
 
 		It("should propagate a List error without swallowing it", func() {
@@ -802,13 +799,13 @@ var _ = Describe("Storage Controller", func() {
 					return nil, errors.New("list rpc failed")
 				},
 			}
-			backendsGetter := &mockStorageBackendsGetter{
+			backendsClient := &mockStorageBackendsClient{
 				getFunc: func(context.Context, *privatev1.StorageBackendsGetRequest, ...grpc.CallOption) (*privatev1.StorageBackendsGetResponse, error) {
 					return newTestStorageBackendGetResponse("vast"), nil
 				},
 			}
 
-			_, _, err := resolveTierDefinitions(ctx, tiersClient, backendsGetter)
+			_, _, err := resolveTierDefinitions(ctx, tiersClient, backendsClient)
 			Expect(err).To(HaveOccurred())
 		})
 
@@ -820,13 +817,13 @@ var _ = Describe("Storage Controller", func() {
 					}.Build(), nil
 				},
 			}
-			backendsGetter := &mockStorageBackendsGetter{
+			backendsClient := &mockStorageBackendsClient{
 				getFunc: func(context.Context, *privatev1.StorageBackendsGetRequest, ...grpc.CallOption) (*privatev1.StorageBackendsGetResponse, error) {
 					return nil, status.Error(codes.Unavailable, "backend service down")
 				},
 			}
 
-			_, _, err := resolveTierDefinitions(ctx, tiersClient, backendsGetter)
+			_, _, err := resolveTierDefinitions(ctx, tiersClient, backendsClient)
 			Expect(err).To(HaveOccurred())
 		})
 
@@ -852,7 +849,7 @@ var _ = Describe("Storage Controller", func() {
 					}.Build(), nil
 				},
 			}
-			r.BackendsGetter = &mockStorageBackendsGetter{
+			r.BackendsClient = &mockStorageBackendsClient{
 				getFunc: func(context.Context, *privatev1.StorageBackendsGetRequest, ...grpc.CallOption) (*privatev1.StorageBackendsGetResponse, error) {
 					return newTestStorageBackendGetResponse("vast"), nil
 				},
@@ -894,7 +891,7 @@ var _ = Describe("Storage Controller", func() {
 					}.Build(), nil
 				},
 			}
-			r.BackendsGetter = &mockStorageBackendsGetter{
+			r.BackendsClient = &mockStorageBackendsClient{
 				getFunc: func(context.Context, *privatev1.StorageBackendsGetRequest, ...grpc.CallOption) (*privatev1.StorageBackendsGetResponse, error) {
 					return newTestStorageBackendGetResponse("vast"), nil
 				},
@@ -934,7 +931,7 @@ var _ = Describe("Storage Controller", func() {
 					}.Build(), nil
 				},
 			}
-			r.BackendsGetter = &mockStorageBackendsGetter{
+			r.BackendsClient = &mockStorageBackendsClient{
 				getFunc: func(context.Context, *privatev1.StorageBackendsGetRequest, ...grpc.CallOption) (*privatev1.StorageBackendsGetResponse, error) {
 					return newTestStorageBackendGetResponse("vast"), nil
 				},
@@ -977,7 +974,7 @@ var _ = Describe("Storage Controller", func() {
 			))
 		})
 
-		It("should skip tier validation without panicking when BackendsGetter is nil but TiersClient is set", func() {
+		It("should skip tier validation without panicking when BackendsClient is nil but TiersClient is set", func() {
 			name := "storage-test-no-backends-getter"
 			createReadyTenantForStorage(ctx, name, testNamespace)
 			createLabeledStorageClass(ctx, name+"-default-sc", name, "default")
@@ -1048,7 +1045,7 @@ var _ = Describe("Storage Controller", func() {
 					}.Build(), nil
 				},
 			}
-			backendsGetter := &mockStorageBackendsGetter{
+			backendsClient := &mockStorageBackendsClient{
 				getFunc: func(context.Context, *privatev1.StorageBackendsGetRequest, ...grpc.CallOption) (*privatev1.StorageBackendsGetResponse, error) {
 					return newTestStorageBackendGetResponse("vast"), nil
 				},
@@ -1060,13 +1057,13 @@ var _ = Describe("Storage Controller", func() {
 				provisioning.DefaultMaxJobHistory,
 			)
 			r.TiersClient = tiersClient
-			r.BackendsGetter = backendsGetter
+			r.BackendsClient = backendsClient
 
 			nn := types.NamespacedName{Name: name, Namespace: testNamespace}
 			_, err := r.Reconcile(ctx, storageReconcileRequest(nn))
 			Expect(err).NotTo(HaveOccurred())
 			Expect(tiersClient.listCallCount).To(Equal(1))
-			Expect(backendsGetter.getCallCount).To(Equal(1))
+			Expect(backendsClient.getCallCount).To(Equal(1))
 		})
 
 		It("should not flag an ambiguous (duplicate StorageClass) tier as missing", func() {
@@ -1092,7 +1089,7 @@ var _ = Describe("Storage Controller", func() {
 					}.Build(), nil
 				},
 			}
-			r.BackendsGetter = &mockStorageBackendsGetter{
+			r.BackendsClient = &mockStorageBackendsClient{
 				getFunc: func(context.Context, *privatev1.StorageBackendsGetRequest, ...grpc.CallOption) (*privatev1.StorageBackendsGetResponse, error) {
 					return newTestStorageBackendGetResponse("vast"), nil
 				},
@@ -1154,8 +1151,8 @@ var _ = Describe("Storage Controller", func() {
 				},
 			}
 		}
-		tierDefsBackendsGetter := func() *mockStorageBackendsGetter {
-			return &mockStorageBackendsGetter{
+		tierDefsBackendsClient := func() *mockStorageBackendsClient {
+			return &mockStorageBackendsClient{
 				getFunc: func(context.Context, *privatev1.StorageBackendsGetRequest, ...grpc.CallOption) (*privatev1.StorageBackendsGetResponse, error) {
 					return newTestStorageBackendGetResponse("vast"), nil
 				},
@@ -1180,9 +1177,10 @@ var _ = Describe("Storage Controller", func() {
 				provider, nil, pollInterval,
 				provisioning.DefaultMaxJobHistory,
 			)
-			r.BackendsClient = registeredBackendsClient(1)
 			r.TiersClient = tierDefsTiersClient()
-			r.BackendsGetter = tierDefsBackendsGetter()
+			backendsClient := tierDefsBackendsClient()
+			backendsClient.listFunc = registeredBackendsClient(1).listFunc
+			r.BackendsClient = backendsClient
 
 			nn := types.NamespacedName{Name: name, Namespace: testNamespace}
 			_, err := r.Reconcile(ctx, storageReconcileRequest(nn))
@@ -1214,7 +1212,7 @@ var _ = Describe("Storage Controller", func() {
 				provisioning.DefaultMaxJobHistory,
 			)
 			r.TiersClient = tierDefsTiersClient()
-			r.BackendsGetter = tierDefsBackendsGetter()
+			r.BackendsClient = tierDefsBackendsClient()
 
 			nn := types.NamespacedName{Name: name, Namespace: testNamespace}
 			_, err := r.Reconcile(ctx, storageReconcileRequest(nn))
@@ -1246,7 +1244,7 @@ var _ = Describe("Storage Controller", func() {
 				provisioning.DefaultMaxJobHistory,
 			)
 			r.TiersClient = tierDefsTiersClient()
-			r.BackendsGetter = tierDefsBackendsGetter()
+			r.BackendsClient = tierDefsBackendsClient()
 
 			nn := types.NamespacedName{Name: name, Namespace: testNamespace}
 			_, err := r.Reconcile(ctx, storageReconcileRequest(nn))
@@ -1281,7 +1279,7 @@ var _ = Describe("Storage Controller", func() {
 				provisioning.DefaultMaxJobHistory,
 			)
 			r.TiersClient = tierDefsTiersClient()
-			r.BackendsGetter = tierDefsBackendsGetter()
+			r.BackendsClient = tierDefsBackendsClient()
 
 			nn := types.NamespacedName{Name: name, Namespace: testNamespace}
 			_, err := r.Reconcile(ctx, storageReconcileRequest(nn))
@@ -1321,7 +1319,7 @@ var _ = Describe("Storage Controller", func() {
 				provisioning.DefaultMaxJobHistory,
 			)
 			r.TiersClient = tierDefsTiersClient()
-			r.BackendsGetter = tierDefsBackendsGetter()
+			r.BackendsClient = tierDefsBackendsClient()
 
 			nn := types.NamespacedName{Name: name, Namespace: testNamespace}
 			_, err := r.Reconcile(ctx, storageReconcileRequest(nn))

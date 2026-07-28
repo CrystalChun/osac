@@ -55,7 +55,7 @@ const tierListLimit = 1000
 func resolveTierDefinitions(
 	ctx context.Context,
 	tiersClient StorageTiersLister,
-	backendsGetter StorageBackendsGetter,
+	backendsClient StorageBackendsClient,
 ) ([]provisioning.TierDefinition, map[string]provisioning.BackendConnection, error) {
 	log := ctrllog.FromContext(ctx)
 
@@ -91,7 +91,7 @@ func resolveTierDefinitions(
 
 		resolution, cached := backendCache[backendID]
 		if !cached {
-			getResp, err := backendsGetter.Get(ctx, privatev1.StorageBackendsGetRequest_builder{
+			getResp, err := backendsClient.Get(ctx, privatev1.StorageBackendsGetRequest_builder{
 				Id: backendID,
 			}.Build())
 			if err != nil {
@@ -142,7 +142,7 @@ func resolveTierDefinitions(
 // connections from the Tier API and injects them into ctx for downstream AAP
 // calls to pick up, returning the tier definitions directly for callers that
 // also need them locally (e.g. tier-coverage validation). A nil tiersClient
-// or backendsGetter (no fulfillment service connection configured) and a
+// or backendsClient (no fulfillment service connection configured) and a
 // failed resolution are both treated as "no tier data" — logged and
 // non-fatal — so a transient Tier/Backend API failure never blocks
 // reconciliation of a resource that functioned without this data before this
@@ -151,24 +151,24 @@ func resolveTierDefinitions(
 func resolveAndInjectTierContext(
 	ctx context.Context,
 	tiersClient StorageTiersLister,
-	backendsGetter StorageBackendsGetter,
+	backendsClient StorageBackendsClient,
 	logKV ...any,
 ) (context.Context, []provisioning.TierDefinition) {
 	log := ctrllog.FromContext(ctx)
 
 	var tierDefinitions []provisioning.TierDefinition
 	var backendConnections map[string]provisioning.BackendConnection
-	if tiersClient != nil && backendsGetter != nil {
+	if tiersClient != nil && backendsClient != nil {
 		var err error
-		tierDefinitions, backendConnections, err = resolveTierDefinitions(ctx, tiersClient, backendsGetter)
+		tierDefinitions, backendConnections, err = resolveTierDefinitions(ctx, tiersClient, backendsClient)
 		if err != nil {
 			log.Error(err, "failed to resolve storage tier definitions, proceeding without tier data", logKV...)
 			tierDefinitions = nil
 			backendConnections = nil
 		}
-	} else if tiersClient != nil || backendsGetter != nil {
-		log.Info("storage tier resolution skipped: TiersClient and BackendsGetter must both be set",
-			append(logKV, "tiersClientSet", tiersClient != nil, "backendsGetterSet", backendsGetter != nil)...)
+	} else if tiersClient != nil || backendsClient != nil {
+		log.Info("storage tier resolution skipped: TiersClient and BackendsClient must both be set",
+			append(logKV, "tiersClientSet", tiersClient != nil, "backendsClientSet", backendsClient != nil)...)
 	}
 
 	ctx = provisioning.WithStorageTierDefinitions(ctx, tierDefinitions)
