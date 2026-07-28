@@ -51,14 +51,18 @@ proxy/osac-proxy
 .artifacts/
 /.claude/
 
-# Playwright e2e — live browser session state and run output, never committed
-apps/e2e/.auth/
-apps/e2e/test-results/
-apps/e2e/playwright-report/
-apps/e2e/blob-report/
-apps/e2e/.e2e-run/
+# apps/playwright — manual browser verification against a live cluster, not
+# an e2e test suite. Live session state and run output, never committed.
+apps/playwright/.auth/
+apps/playwright/test-results/
+apps/playwright/playwright-report/
+apps/playwright/blob-report/
 
-# Playwright e2e — ad hoc specs sometimes call page.screenshot() with a bare
-# filename, which lands in apps/e2e/ instead of a gitignored output dir.
-apps/e2e/*.png
-apps/e2e/*.jpg
+# apps/playwright — ad hoc specs are written here for manual verification and
+# are never committed; only the harness itself is.
+apps/playwright/scratch/
+
+# apps/playwright — ad hoc specs sometimes call page.screenshot() with a bare
+# filename, which lands in apps/playwright/ instead of a gitignored output dir.
+apps/playwright/*.png
+apps/playwright/*.jpg

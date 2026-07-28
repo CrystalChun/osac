@@ -14,8 +14,9 @@
     "format": "eslint --fix \"{apps,libs}/*/src/**/*.{ts,tsx}\" && prettier --write \"{apps,libs}/*/src/**/*.{js,jsx,ts,tsx}\"",
     "test": "pnpm -r run test",
     "typecheck": "pnpm -r run typecheck",
-    "e2e": "pnpm --filter @osac/e2e run test:e2e",
-    "e2e:dev": "E2E_BASE_URL=http://localhost:5173 pnpm e2e"
+    "playwright": "pnpm --filter @osac/playwright run playwright",
+    "playwright:dev": "OSAC_UI_BASE_URL=http://localhost:5173 IGNORE_HTTPS_ERRORS=true pnpm playwright",
+    "playwright:report": "pnpm --filter @osac/playwright exec playwright show-report"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",

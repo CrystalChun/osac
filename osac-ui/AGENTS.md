@@ -56,7 +56,7 @@ Multi-stage build images: `nodejs-22-minimal:9.8`, `go-toolset:1.25`, `ubi-minim
 | `@osac/ui-components` | Shared components consumed at source (no build) — typed gRPC hooks live here |
 | `@osac/types` | Generated protobuf types and service descriptors — **never edit**, regenerate with `pnpm gen-types` |
 | `@osac/i18n` | Translation extraction — `locales/en/translation.json` is generated, not hand-edited |
-| `@osac/e2e` | Playwright harness for manual verification against a **live deployed cluster** — not a CI suite, not persisted test coverage. See [Manual verification against a live cluster](#manual-verification-against-a-live-cluster) |
+| `@osac/playwright` | Playwright harness for manual verification against a **live deployed cluster** — not a CI suite, not persisted test coverage. See [Manual verification against a live cluster](#manual-verification-against-a-live-cluster) |
 
 ## Code Style
 
@@ -185,21 +185,23 @@ export const getLabels = (t: TFunction) => ({
 
 ### Manual verification against a live cluster
 
-`apps/e2e` (`@osac/e2e`) is a Playwright harness for manually confirming that a change
-works end-to-end against a **live, already-deployed** cluster — not a CI suite,
-not a replacement for `osac-test-infra`'s gRPC-level coverage, and not something
-that adds to this repo's persisted test count. See [apps/e2e/README.md](apps/e2e/README.md).
+`apps/playwright` (`@osac/playwright`) is a Playwright harness for manually confirming
+that a change works end-to-end against a **live, already-deployed** cluster —
+not a CI suite, not a replacement for `osac-test-infra`'s gRPC-level coverage,
+and not something that adds to this repo's persisted test count. Deliberately
+named `playwright`, not `e2e`, so it's never mistaken for the `/e2e` skill's
+persisted, CI-tracked test suites. See [apps/playwright/README.md](apps/playwright/README.md).
 
-- **Test specs are throwaway and never live in this package**: `E2E_SPEC_FILE`
-  points Playwright at a single spec file anywhere on disk (e.g. `/tmp/check.spec.ts`).
-  The config copies it into a gitignored scratch dir it controls (`apps/e2e/.e2e-run/`)
-  before each run, so there's nothing under `apps/e2e` to ever commit or manually
-  clean up — only the harness itself (`playwright.config.ts`, `auth.setup.ts`)
-  is committed.
+- **This is not a test suite — specs are throwaway**: write ad hoc specs under
+  `apps/playwright/scratch/`, a gitignored directory that only exists locally.
+  `pnpm playwright` runs every spec under it. Nothing there is ever committed
+  or needs manual cleanup — only the harness itself (`playwright.config.ts`,
+  `auth.setup.ts`) is committed. Never write specs under `apps/playwright/src/`,
+  and never treat a `scratch/` spec as regression coverage.
 - Use this when asked to verify a UI change actually works in a browser against
-  a real deployment — requires `E2E_BASE_URL`, `E2E_USERNAME`, `E2E_PASSWORD`,
-  `E2E_SPEC_FILE` (or `pnpm e2e:dev` against a local `pnpm dev` instance). There
-  is no mock `fulfillment-service`, so this cannot run hermetically or in CI.
+  a real deployment — requires `OSAC_UI_BASE_URL`, `OSAC_USERNAME`, `OSAC_PASSWORD`
+  (or `pnpm playwright:dev` against a local `pnpm dev` instance). There is no
+  mock `fulfillment-service`, so this cannot run hermetically or in CI.
 
 ## Build
 

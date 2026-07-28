@@ -1,0 +1,130 @@
+# @osac/playwright
+
+Playwright browser tests for manually verifying `osac-ui` against a **live,
+already-deployed** cluster — the running proxy, SPA, Keycloak realm, and
+`fulfillment-service` backend all in one real environment.
+
+This is not a CI suite. There is no mock server for `fulfillment-service`
+and no way to run this hermetically — it exists for AI agents to manually confirm a
+change actually works end-to-end against a real deployment, the way you'd
+otherwise do by hand in a browser.
+
+## Prerequisites
+
+- A reachable `osac-ui` deployment (any HTTPS URL that serves it).
+- A Keycloak user on that deployment's realm to log in as. This package
+  doesn't provision one — use an existing test account, or create one on the
+  target environment first.
+- Playwright's browser binaries installed once per machine (see Setup below).
+
+## Setup
+
+```bash
+pnpm install
+pnpm --filter @osac/playwright exec playwright install chromium
+```
+
+## Running
+
+Required environment variables:
+
+| Variable           | Description                                                                                        |
+| ------------------ | --------------------------------------------------------------------------------------------------- |
+| `OSAC_UI_BASE_URL` | Full URL of the `osac-ui` deployment to test, e.g. `https://osac-ui-<namespace>.<cluster-domain>` |
+| `OSAC_USERNAME`    | Username of a Keycloak test user on that deployment's realm                                       |
+| `OSAC_PASSWORD`    | Password for that user                                                                             |
+
+```bash
+export OSAC_UI_BASE_URL=https://... OSAC_USERNAME=...
+read -rs OSAC_PASSWORD && export OSAC_PASSWORD   # avoids leaving the password in shell history
+pnpm playwright
+```
+
+(`pnpm playwright` is a root-level shortcut for `pnpm --filter @osac/playwright
+run playwright`.) None of these have defaults — each is required, so a missing
+value fails immediately with a clear error instead of silently pointing at the
+wrong environment. `pnpm playwright` runs every spec under `scratch/` — see
+[Writing a test](#writing-a-test).
+
+Optional:
+
+| Variable                  | Description                                                                                          |
+| -------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `IGNORE_HTTPS_ERRORS` | Set to `true` to trust self-signed/cluster-internal CA certs, common on dev and lab clusters. Off by default because this flow submits a real Keycloak password — only enable it against clusters you trust. `pnpm playwright:dev` sets this for you (see below). |
+
+Testing against a local `pnpm dev` instance instead of a remote deployment:
+
+```bash
+export OSAC_USERNAME=...
+read -rs OSAC_PASSWORD && export OSAC_PASSWORD
+pnpm playwright:dev
+```
+
+`pnpm playwright:dev` sets `OSAC_UI_BASE_URL=http://localhost:5173` and
+`IGNORE_HTTPS_ERRORS=true` for you — the backing `fulfillment-service`/
+Keycloak for a local dev server is typically a dev/lab cluster with a
+self-signed or cluster-internal CA cert. Still requires `pnpm dev` running in
+another terminal, and still needs `OSAC_USERNAME`/`OSAC_PASSWORD`.
+
+## How authentication works
+
+`osac-ui` has no test-mode auth bypass — every login goes through a real
+Keycloak realm via the app's normal OIDC flow. Rather than repeating that
+flow (and Keycloak's own login page) for every test, this harness follows
+Playwright's standard pattern for testing authenticated apps:
+
+1. A `setup` project (`src/auth.setup.ts`) runs once per test run. It opens
+   the app, which auto-redirects to Keycloak when unauthenticated, fills in
+   `OSAC_USERNAME`/`OSAC_PASSWORD` on Keycloak's real login form, and saves the
+   resulting browser session (cookies) to `.auth/user.json`.
+2. Every real test (the `chromium` project) declares a dependency on `setup`
+   and loads that saved session before the test body runs — so tests start
+   already logged in, and the login flow only ever runs once per invocation.
+
+`.auth/user.json` contains a live, real session (the actual `osac-access`
+cookie) — it's gitignored and must never be committed or shared. It's
+regenerated fresh every time you run `pnpm playwright`.
+
+If the target realm's login page uses a custom Keycloak theme, the field/
+button selectors in `auth.setup.ts` (written against Keycloak's default
+theme) may need adjusting.
+
+## Writing a test
+
+**This is not a test suite.** This package provides the harness (auth +
+config) only. Test specs are throwaway, written ad hoc for a specific
+manual-verification task (typically by an AI agent working through a change)
+and run once, then discarded.
+
+Specs live under `scratch/` — a gitignored directory that only exists on your
+machine. Nothing written there is ever committed, so there's nothing to clean
+up and no risk of it landing in a PR. Do not write specs under `src/`, and do
+not treat anything under `scratch/` as regression coverage — if a change
+needs persisted UI coverage, that's a job for `osac-test-infra`'s gRPC-level
+suite, not this harness.
+
+```bash
+mkdir -p apps/playwright/scratch
+cat > apps/playwright/scratch/check.spec.ts <<'EOF'
+import { expect, test } from '@playwright/test';
+
+test('loads the authenticated dashboard', async ({ page }) => {
+  await page.goto('/');
+
+  await expect(page.getByRole('button', { name: 'Account menu' })).toBeVisible();
+});
+EOF
+```
+
+It runs in the `chromium` project — already authenticated via `auth.setup.ts`,
+no need to handle login in the test itself. Run it with:
+
+```bash
+export OSAC_UI_BASE_URL=... OSAC_USERNAME=...
+read -rs OSAC_PASSWORD && export OSAC_PASSWORD
+pnpm playwright
+```
+
+`pnpm playwright` runs every spec under `scratch/` — delete the file when you're done
+with it (or leave it; it's gitignored either way, but a stale spec will run
+again next time).

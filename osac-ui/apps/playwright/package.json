@@ -1,10 +1,10 @@
 {
-  "name": "@osac/e2e",
+  "name": "@osac/playwright",
   "version": "0.0.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "test:e2e": "playwright test",
+    "playwright": "playwright test",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {

@@ -133,7 +133,7 @@ importers:
         specifier: ^4.1.9
         version: 4.1.9(@types/node@24.12.2)(@vitest/browser-playwright@4.1.9)(jsdom@26.1.0)(vite@8.0.8(@types/node@24.12.2)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
-  apps/e2e:
+  apps/playwright:
     devDependencies:
       '@playwright/test':
         specifier: ^1.62.0

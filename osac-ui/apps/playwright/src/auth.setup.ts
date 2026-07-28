@@ -3,10 +3,10 @@ import { expect, test as setup } from '@playwright/test';
 import { AUTH_FILE } from './auth-file';
 
 setup('authenticate', async ({ page }) => {
-  const username = process.env.E2E_USERNAME;
-  const password = process.env.E2E_PASSWORD;
+  const username = process.env.OSAC_USERNAME;
+  const password = process.env.OSAC_PASSWORD;
   if (!username || !password) {
-    throw new Error('E2E_USERNAME and E2E_PASSWORD must be set to a valid Keycloak test user.');
+    throw new Error('OSAC_USERNAME and OSAC_PASSWORD must be set to a valid Keycloak test user.');
   }
 
   // The app checks /api/login/info on load and, if unauthenticated, immediately
