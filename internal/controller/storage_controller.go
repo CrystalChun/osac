@@ -292,35 +292,11 @@ func (r *StorageReconciler) handleBackendReadiness(ctx context.Context, instance
 }
 
 // resolveAndInjectTierContext resolves storage tier definitions and backend
-// connections from the Tier API, injects them into ctx for downstream AAP
-// calls to pick up, and returns the tier definitions directly for callers
-// that also need them locally (e.g. tier-coverage validation). A nil
-// TiersClient (no fulfillment service connection configured) and a failed
-// resolution are both treated as "no tier data" — logged and non-fatal — so
-// a transient Tier/Backend API failure never blocks Tenant storage
-// reconciliation, which functioned without this data before this feature
-// existed.
+// connections for this Tenant and injects them into ctx. See the shared
+// resolveAndInjectTierContext free function (storage_tier_definitions.go) for
+// the nil-tolerant, non-fatal-on-error behavior this delegates to.
 func (r *StorageReconciler) resolveAndInjectTierContext(ctx context.Context, tenantName string) (context.Context, []provisioning.TierDefinition) {
-	log := ctrllog.FromContext(ctx)
-
-	var tierDefinitions []provisioning.TierDefinition
-	var backendConnections map[string]provisioning.BackendConnection
-	if r.TiersClient != nil && r.BackendsGetter != nil {
-		var err error
-		tierDefinitions, backendConnections, err = resolveTierDefinitions(ctx, r.TiersClient, r.BackendsGetter)
-		if err != nil {
-			log.Error(err, "failed to resolve storage tier definitions, proceeding without tier data", "tenant", tenantName)
-			tierDefinitions = nil
-			backendConnections = nil
-		}
-	} else if r.TiersClient != nil || r.BackendsGetter != nil {
-		log.Info("storage tier resolution skipped: TiersClient and BackendsGetter must both be set",
-			"tiersClientSet", r.TiersClient != nil, "backendsGetterSet", r.BackendsGetter != nil)
-	}
-
-	ctx = provisioning.WithStorageTierDefinitions(ctx, tierDefinitions)
-	ctx = provisioning.WithStorageBackendConnections(ctx, backendConnections)
-	return ctx, tierDefinitions
+	return resolveAndInjectTierContext(ctx, r.TiersClient, r.BackendsGetter, "tenant", tenantName)
 }
 
 func (r *StorageReconciler) handleUpdate(ctx context.Context, instance *v1alpha1.Tenant) (ctrl.Result, error) {

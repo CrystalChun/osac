@@ -354,7 +354,7 @@ func setupComputeInstanceControllers(
 			return fmt.Errorf("computeinstance feedback controller: %w", err)
 		}
 	}
-	if err := (controller.NewComputeInstanceReconciler(
+	ciReconciler := controller.NewComputeInstanceReconciler(
 		mgr,
 		computeInstanceNamespace,
 		tenantNamespace,
@@ -363,7 +363,12 @@ func setupComputeInstanceControllers(
 		statusPollInterval,
 		maxJobHistory,
 		targetCluster,
-	)).SetupWithManager(mgr); err != nil {
+	)
+	if grpcConn != nil {
+		ciReconciler.TiersClient = privatev1.NewStorageTiersClient(grpcConn)
+		ciReconciler.BackendsGetter = privatev1.NewStorageBackendsClient(grpcConn)
+	}
+	if err := ciReconciler.SetupWithManager(mgr); err != nil {
 		return fmt.Errorf("computeinstance controller: %w", err)
 	}
 	return nil

@@ -138,6 +138,44 @@ func resolveTierDefinitions(
 	return definitions, connections, nil
 }
 
+// resolveAndInjectTierContext resolves storage tier definitions and backend
+// connections from the Tier API and injects them into ctx for downstream AAP
+// calls to pick up, returning the tier definitions directly for callers that
+// also need them locally (e.g. tier-coverage validation). A nil tiersClient
+// or backendsGetter (no fulfillment service connection configured) and a
+// failed resolution are both treated as "no tier data" — logged and
+// non-fatal — so a transient Tier/Backend API failure never blocks
+// reconciliation of a resource that functioned without this data before this
+// feature existed. logKV is passed through to the error/info log calls for
+// caller-specific context (e.g. "tenant", name or "computeInstance", name).
+func resolveAndInjectTierContext(
+	ctx context.Context,
+	tiersClient StorageTiersLister,
+	backendsGetter StorageBackendsGetter,
+	logKV ...any,
+) (context.Context, []provisioning.TierDefinition) {
+	log := ctrllog.FromContext(ctx)
+
+	var tierDefinitions []provisioning.TierDefinition
+	var backendConnections map[string]provisioning.BackendConnection
+	if tiersClient != nil && backendsGetter != nil {
+		var err error
+		tierDefinitions, backendConnections, err = resolveTierDefinitions(ctx, tiersClient, backendsGetter)
+		if err != nil {
+			log.Error(err, "failed to resolve storage tier definitions, proceeding without tier data", logKV...)
+			tierDefinitions = nil
+			backendConnections = nil
+		}
+	} else if tiersClient != nil || backendsGetter != nil {
+		log.Info("storage tier resolution skipped: TiersClient and BackendsGetter must both be set",
+			append(logKV, "tiersClientSet", tiersClient != nil, "backendsGetterSet", backendsGetter != nil)...)
+	}
+
+	ctx = provisioning.WithStorageTierDefinitions(ctx, tierDefinitions)
+	ctx = provisioning.WithStorageBackendConnections(ctx, backendConnections)
+	return ctx, tierDefinitions
+}
+
 // storageProtocolToString maps the Tier API's StorageProtocol enum to the lowercase
 // string form osac-aap's storage_provider role expects.
 func storageProtocolToString(p privatev1.StorageProtocol) string {
