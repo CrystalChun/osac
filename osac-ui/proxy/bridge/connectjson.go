@@ -153,8 +153,15 @@ func newGRPCReverseProxy(grpcURL string, tlsConfig *tls.Config) *httputil.Revers
 
 func newGRPCTransport(tlsConfig *tls.Config) http.RoundTripper {
 	if tlsConfig != nil {
+		// Clone: ForceAttemptHTTP2 makes net/http mutate TLSClientConfig.NextProtos in
+		// place (via http2.ConfigureTransports) to add "h2". main.go passes this same
+		// *tls.Config to other transports too (FulfillmentHTTPClient,
+		// NewConsoleWebSocketProxy) that never opt into HTTP/2 — mutating the shared
+		// original would make them silently offer ALPN "h2" while still speaking
+		// HTTP/1.1, so Envoy resets their connections expecting an HTTP/2 preface it
+		// never gets (OSAC-3081).
 		return &http.Transport{
-			TLSClientConfig:   tlsConfig,
+			TLSClientConfig:   tlsConfig.Clone(),
 			ForceAttemptHTTP2: true,
 		}
 	}
