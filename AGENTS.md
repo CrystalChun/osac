@@ -29,6 +29,9 @@ make helm-lint
 # Helm template render (dry-run validation against all values files)
 make helm-validate
 
+# Sync submodules and rebuild chart dependencies
+make sync-charts
+
 # Deploy (three-phase Helm install)
 make install VALUES_FILE=values/development/values.yaml
 
@@ -36,9 +39,6 @@ make install VALUES_FILE=values/development/values.yaml
 make install-operators VALUES_FILE=values/<env>/values.yaml
 make install-prereqs VALUES_FILE=values/<env>/values.yaml
 make install-osac VALUES_FILE=values/<env>/values.yaml
-
-# Sync submodules and rebuild chart dependencies
-make sync-charts
 
 # Uninstall
 make uninstall
