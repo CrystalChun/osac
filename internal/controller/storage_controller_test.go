@@ -1025,6 +1025,7 @@ var _ = Describe("Storage Controller", func() {
 			Expect(backendCond).NotTo(BeNil())
 			Expect(backendCond.Status).To(Equal(metav1.ConditionFalse))
 			Expect(backendCond.Reason).To(Equal(v1alpha1.TenantReasonNoProvider))
+			Expect(backendCond.Message).To(ContainSubstring("No fulfillment service connection configured"))
 			// Falls through to Stage 2: default SC resolved, no AAP job triggered
 			Expect(tenant.Status.StorageClasses).NotTo(BeEmpty())
 			Expect(tenant.Status.StorageBackendJobs).To(BeEmpty())
@@ -1053,6 +1054,7 @@ var _ = Describe("Storage Controller", func() {
 			Expect(backendCond).NotTo(BeNil())
 			Expect(backendCond.Status).To(Equal(metav1.ConditionFalse))
 			Expect(backendCond.Reason).To(Equal(v1alpha1.TenantReasonNoProvider))
+			Expect(backendCond.Message).To(ContainSubstring("No storage backend registered"))
 			Expect(tenant.Status.StorageClasses).NotTo(BeEmpty())
 			Expect(tenant.Status.StorageBackendJobs).To(BeEmpty())
 		})

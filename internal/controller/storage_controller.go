@@ -250,13 +250,23 @@ func (r *StorageReconciler) handleBackendReadiness(ctx context.Context, instance
 			fmt.Sprintf("Storage backend is registered but no AAP is configured to provision the hub Secret for tenant %q", tenantName))
 		return false, ctrl.Result{}, true, nil
 	default:
-		// No backend registered: fall through to Stage 2 so the controller resolves
-		// StorageClasses from manually labeled SCs. Normal for prepare-tenant.sh
-		// environments and deployments without a gRPC connection to the fulfillment service.
-		instance.SetStatusCondition(v1alpha1.TenantConditionStorageBackendReady,
-			metav1.ConditionFalse,
-			v1alpha1.TenantReasonNoProvider,
-			"No storage backend registered")
+		// Fall through to Stage 2 so the controller resolves StorageClasses from
+		// manually labeled SCs. Distinguish the two sub-states so operators can tell
+		// whether the fulfillment service is reachable.
+		if r.BackendsClient == nil {
+			// No gRPC connection configured: backend status is unknown.
+			// Normal for prepare-tenant.sh environments without a fulfillment service.
+			instance.SetStatusCondition(v1alpha1.TenantConditionStorageBackendReady,
+				metav1.ConditionFalse,
+				v1alpha1.TenantReasonNoProvider,
+				"No fulfillment service connection configured; storage backend status unknown")
+		} else {
+			// Connected to fulfillment service but no backend is registered yet.
+			instance.SetStatusCondition(v1alpha1.TenantConditionStorageBackendReady,
+				metav1.ConditionFalse,
+				v1alpha1.TenantReasonNoProvider,
+				"No storage backend registered")
+		}
 		return false, ctrl.Result{}, false, nil
 	}
 }
