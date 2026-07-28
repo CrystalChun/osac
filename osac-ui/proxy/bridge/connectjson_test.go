@@ -10,15 +10,16 @@ import (
 )
 
 // TestGlobalTypes_resolvesWellKnownWrapperTypes guards against a proto marshaling failure
-// seen when a response contains a google.protobuf.Any packing a well-known wrapper type
-// (e.g. ClusterTemplateParameterDefinition.default, documented to hold a packed StringValue
-// among others). vanguard's reflection-derived per-service type resolver falls back to
-// protoregistry.GlobalTypes specifically to resolve Any-packed well-known types, but that
-// registry is empty unless something in this binary imports wrapperspb — no .proto file
-// "imports" google/protobuf/wrappers.proto just by declaring an Any field, since Any is
-// opaque, so gRPC reflection never surfaces it. Without the wrapperspb import in
-// connectjson.go, this lookup fails with "unable to resolve
-// type.googleapis.com/google.protobuf.StringValue: not found".
+// seen when a response contains a google.protobuf.Any packing a well-known type — e.g.
+// ClusterTemplateParameterDefinition.default, documented (cluster_template_type.proto) to hold
+// a packed StringValue, BoolValue, ..., or Value (for "any JSON value"). vanguard's
+// reflection-derived per-service type resolver falls back to protoregistry.GlobalTypes
+// specifically to resolve Any-packed well-known types, but that registry is empty unless
+// something in this binary imports the corresponding package (wrapperspb, structpb) — no
+// .proto file "imports" google/protobuf/{wrappers,struct}.proto just by declaring an Any
+// field, since Any is opaque, so gRPC reflection never surfaces it. Without those imports in
+// connectjson.go, lookups like this fail with "unable to resolve
+// type.googleapis.com/google.protobuf.StringValue: not found" (or .Value, .BoolValue, ...).
 func TestGlobalTypes_resolvesWellKnownWrapperTypes(t *testing.T) {
 	t.Parallel()
 
@@ -28,6 +29,9 @@ func TestGlobalTypes_resolvesWellKnownWrapperTypes(t *testing.T) {
 		"type.googleapis.com/google.protobuf.Int32Value",
 		"type.googleapis.com/google.protobuf.Int64Value",
 		"type.googleapis.com/google.protobuf.DoubleValue",
+		"type.googleapis.com/google.protobuf.Value",
+		"type.googleapis.com/google.protobuf.Struct",
+		"type.googleapis.com/google.protobuf.ListValue",
 	} {
 		if _, err := protoregistry.GlobalTypes.FindMessageByURL(typeURL); err != nil {
 			t.Errorf("expected %s to be resolvable via protoregistry.GlobalTypes, got: %v", typeURL, err)
