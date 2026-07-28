@@ -187,10 +187,8 @@ export const getLabels = (t: TFunction) => ({
 
 `apps/playwright` (`@osac/playwright`) is a Playwright harness for manually confirming
 that a change works end-to-end against a **live, already-deployed** cluster —
-not a CI suite, not a replacement for `osac-test-infra`'s gRPC-level coverage,
-and not something that adds to this repo's persisted test count. Deliberately
-named `playwright`, not `e2e`, so it's never mistaken for the `/e2e` skill's
-persisted, CI-tracked test suites. See [apps/playwright/README.md](apps/playwright/README.md).
+not a CI suite and not something that adds to this repo's persisted test count. See
+[apps/playwright/README.md](apps/playwright/README.md).
 
 - **This is not a test suite — specs are throwaway**: write ad hoc specs under
   `apps/playwright/scratch/`, a gitignored directory that only exists locally.
