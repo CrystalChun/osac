@@ -118,14 +118,23 @@ values/
   bmaas-ci/values.yaml                 # BM-as-a-Service CI: bmf + storage + bareMetalInstance
 ```
 
-Submodules are pinned snapshots for version tracking. Image tags in `values/*/values.yaml`
-must match submodule commits — CI enforces this via `scripts/sync-image-tags.sh`.
-Image tags follow the `sha-XXXXXXX` format (first 7 characters of the submodule
-commit SHA). After updating a submodule pointer, run `./scripts/sync-image-tags.sh --fix`.
+Pull secrets and AAP license files are stored alongside values files (e.g.,
+`values/<env>/pull-secret.json`, `values/<env>/license.zip`).
+
+Submodules are pinned snapshots for version tracking. They do not auto-sync --
+to test local changes, synchronize modified files from the working repo into
+the submodule directory, without committing. During active development the
+submodule pointers are often dirty; this is expected. Image tags in
+`values/*/values.yaml` must match submodule commits — CI enforces this via
+`scripts/sync-image-tags.sh`. Image tags follow the `sha-XXXXXXX` format
+(first 7 characters of the submodule commit SHA). After updating a submodule
+pointer, run `./scripts/sync-image-tags.sh --fix`.
 
 Prerequisites are installed via Phase 1 (`make install-operators`) and Phase 2
-(`make install-prereqs`), each gated by values toggles. See `Makefile` for
-underlying commands and `docs/helm-deployment-guide.md` for phase details.
+(`make install-prereqs`), each gated by values toggles. `ca-bundle` Bundle is
+cluster-scoped and managed by the `osac-prereqs` chart via trust-manager. See
+`Makefile` for underlying commands and `docs/helm-deployment-guide.md` for
+phase details.
 
 ## Key Scripts
 

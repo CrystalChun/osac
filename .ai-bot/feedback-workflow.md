@@ -31,3 +31,11 @@ make -C /path/to/osac-installer VALUES_FILE=/path/to/osac-installer/values/devel
 ```
 
 See `Makefile` for the underlying helm lint/template commands these targets execute.
+
+## Session Artifacts
+
+Update `.ai-bot/session-context.md` with a summary of this feedback
+round (what changed, what was kept, why).
+
+Write `.ai-bot/comment-responses.json` with per-comment response
+summaries matching the comment IDs from the task file.

@@ -36,6 +36,25 @@ must pass -- CI enforces all of them on every PR.
    make -C /path/to/osac-installer VALUES_FILE=/path/to/osac-installer/values/development/values.yaml helm-validate
    ```
 
+## Repository Structure
+
+```text
+charts/osac/                     # Helm umbrella chart
+  Chart.yaml                     # Dependencies on subchart repos
+  values.yaml                    # Default values
+  values.schema.json             # JSON Schema for values validation
+  templates/                     # Deployment templates
+
+values/
+  development/values.yaml        # All controllers, latest images
+  vmaas-ci/values.yaml           # VMaaS CI: pinned images
+  caas-ci/values.yaml            # CaaS CI: pinned images
+
+base/                            # Git submodules (version tracking) -- discover with: git submodule status
+prerequisites/                   # Cluster-wide operator manifests
+scripts/                         # Automation scripts (setup, teardown, sync)
+```
+
 ## Coding Conventions
 
 - All YAML files must pass `yamllint --strict` with the repo's
