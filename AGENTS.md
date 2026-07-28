@@ -2,18 +2,20 @@
 
 Helm-based deployment orchestrator for OSAC components. No Go code, no builds, no unit tests — only structural validation.
 
+Helm-based deployment system for the OSAC platform. Component repos (osac-operator, osac-fulfillment-service, osac-aap, bare-metal-fulfillment-operator, osac-ui) are aggregated as Git submodules under `base/` for version tracking. Deployment uses three Helm charts in sequence: `charts/osac-operators/` (Phase 1), `charts/osac-prereqs/` (Phase 2), `charts/osac/` (Phase 3).
+
 ## Quick Start
 
 ```bash
 # Initialize submodules
-git -C /path/to/osac-installer submodule update --init --recursive
+git submodule update --init --recursive
 
 # Validate changes
-yamllint --strict /path/to/osac-installer
-(cd /path/to/osac-installer && pre-commit run --all-files)
-make -C /path/to/osac-installer helm-lint
-make -C /path/to/osac-installer VALUES_FILE=/path/to/osac-installer/values/development/values.yaml helm-validate
-Helm-based deployment system for the OSAC platform. Component repos (osac-operator, osac-fulfillment-service, osac-aap, bare-metal-fulfillment-operator, osac-ui) are aggregated as Git submodules under `base/` for version tracking. Deployment uses three Helm charts in sequence: `charts/osac-operators/` (Phase 1), `charts/osac-prereqs/` (Phase 2), `charts/osac/` (Phase 3).
+yamllint --strict .
+pre-commit run --all-files
+make helm-lint
+make helm-validate VALUES_FILE=values/development/values.yaml
+```
 
 ## Common Commands
 
@@ -27,19 +29,19 @@ make helm-lint
 # Helm template render (dry-run validation against all values files)
 make helm-validate
 
-# Sync submodules and rebuild chart dependencies
-make sync-charts
-
 # Deploy (three-phase Helm install)
-make -C /path/to/osac-installer install VALUES_FILE=/path/to/osac-installer/values/development/values.yaml
+make install VALUES_FILE=values/development/values.yaml
 
 # Individual install phases
 make install-operators VALUES_FILE=values/<env>/values.yaml
 make install-prereqs VALUES_FILE=values/<env>/values.yaml
 make install-osac VALUES_FILE=values/<env>/values.yaml
 
+# Sync submodules and rebuild chart dependencies
+make sync-charts
+
 # Uninstall
-make -C /path/to/osac-installer uninstall
+make uninstall
 ```
 
 ## Critical Rules
@@ -64,6 +66,25 @@ make -C /path/to/osac-installer uninstall
 
 **Shared Clusters:**
 - Always use `-n <namespace>` in `oc`/`kubectl` — never rely on context
+
+## Architecture
+
+See `docs/helm-deployment-guide.md` for complete architecture details, including:
+- Helm chart structure and dependencies
+- Submodule organization and version tracking
+- Prerequisites and operator deployment patterns
+- Values file organization per environment
+
+```text
+charts/osac/           # Helm umbrella chart (Chart.yaml, values.yaml, values.schema.json)
+charts/osac-operators/ # Phase 1: OLM operator subscriptions
+charts/osac-prereqs/   # Phase 2: CRD instances, certs, Keycloak
+values/<env>/          # Environment values (development, vmaas-ci, caas-ci)
+base/                  # Git submodules — discover with: git submodule status
+prerequisites/         # Reference manifests for manual prerequisite installation
+scripts/               # Automation scripts (see README.md for full list)
+```
+
 ### Helm Charts (Three-Phase Deployment)
 
 ```text
@@ -97,33 +118,19 @@ values/
   bmaas-ci/values.yaml                 # BM-as-a-Service CI: bmf + storage + bareMetalInstance
 ```
 
-## Architecture
-
-See `docs/helm-deployment-guide.md` for complete architecture details, including:
-- Helm chart structure and dependencies
-- Submodule organization and version tracking
-- Prerequisites and operator deployment patterns
-- Values file organization per environment
-
-```text
-charts/osac/           # Helm umbrella chart (Chart.yaml, values.yaml, values.schema.json)
-charts/osac-operators/ # Phase 1: OLM operator subscriptions
-charts/osac-prereqs/   # Phase 2: CRD instances, certs, Keycloak
-values/<env>/          # Environment values (development, vmaas-ci, caas-ci)
-base/                  # Git submodules — discover with: git submodule status
-prerequisites/         # Reference manifests for manual prerequisite installation
-scripts/               # Automation scripts (see README.md for full list)
-```
-
 Submodules are pinned snapshots for version tracking. Image tags in `values/*/values.yaml`
 must match submodule commits — CI enforces this via `scripts/sync-image-tags.sh`.
-After updating a submodule pointer, run `./scripts/sync-image-tags.sh --fix`.
+Image tags follow the `sha-XXXXXXX` format (first 7 characters of the submodule
+commit SHA). After updating a submodule pointer, run `./scripts/sync-image-tags.sh --fix`.
 
 Prerequisites are installed via Phase 1 (`make install-operators`) and Phase 2
 (`make install-prereqs`), each gated by values toggles. See `Makefile` for
 underlying commands and `docs/helm-deployment-guide.md` for phase details.
 
 ## Key Scripts
+
+See `README.md` for complete script documentation. Most commonly used:
+
 - **teardown.sh** -- Full teardown: uninstalls Helm releases, removes operators and CRDs
 - **sync-image-tags.sh** -- Syncs image tags in Helm values files to match submodule commits
 - **setup-remote-cluster.sh** -- CI-only: prepares a fresh remote cluster (LVMS, CNV, service accounts)
@@ -153,12 +160,6 @@ underlying commands and `docs/helm-deployment-guide.md` for phase details.
 | `publish-charts.yaml` | Publishes Helm charts on release |
 | `secret-scanning.yaml` | Scans for leaked secrets |
 | `slash-command.yml` | Handles PR slash commands |
-
-See `README.md` for complete script documentation. Most commonly used:
-
-- `teardown.sh` — Full teardown: uninstalls Helm releases, removes operators and CRDs
-- `sync-image-tags.sh` — Syncs Helm values image tags to match submodule commits
-- `refresh-after-snapshot.py` — Refresh after snapshot boot
 
 ## Workflows
 

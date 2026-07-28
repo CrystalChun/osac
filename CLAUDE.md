@@ -34,22 +34,22 @@ Never use Write for files in submodule directories (`base/*/` -- discover with: 
 
 ### Bash Tool
 
-Use for validation commands, Helm operations, git operations. Always use absolute paths since the thread cwd resets between calls. Always specify `-n <namespace>` explicitly in `oc` commands on shared clusters.
+Use for validation commands, Helm operations, git operations. Commands run relative to the installer repo root (cwd). Always specify `-n <namespace>` explicitly in `oc` commands on shared clusters.
 
-Example commands (replace placeholders with absolute paths):
+Example commands (run from the installer repo root):
 
 ```bash
 # Validation suite (run in order, all must pass)
-yamllint --strict /path/to/osac-installer
-(cd /path/to/osac-installer && pre-commit run --all-files)
-make -C /path/to/osac-installer helm-lint
-make -C /path/to/osac-installer VALUES_FILE=/path/to/osac-installer/values/development/values.yaml helm-validate
+yamllint --strict .
+pre-commit run --all-files
+make helm-lint
+make helm-validate VALUES_FILE=values/development/values.yaml
 
 # Git operations (always from installer root, never inside submodules)
-git -C /path/to/osac-installer status
-git -C /path/to/osac-installer add /path/to/file1 /path/to/file2
-git -C /path/to/osac-installer commit -s -m "OSAC-XXXX: description
+git status
+git add file1 file2
+git commit -s -m "OSAC-XXXX: description
 
 Assisted-by: Claude Code <noreply@anthropic.com>"
-git -C /path/to/osac-installer push fork <branch>
+git push fork <branch>
 ```
