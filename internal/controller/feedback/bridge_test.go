@@ -278,6 +278,11 @@ var _ = Describe("Bridge", func() {
 
 			_, err := bridge.Reconcile(ctx, newRequest())
 			Expect(err).NotTo(HaveOccurred())
+			Expect(trk.saveCalls).To(Equal(0))
+
+			updated := &v1alpha1.Subnet{}
+			err = k8sClient.Get(ctx, types.NamespacedName{Name: testName, Namespace: testNamespace}, updated)
+			Expect(apierrors.IsNotFound(err)).To(BeTrue())
 		})
 	})
 
@@ -423,7 +428,7 @@ var _ = Describe("Bridge", func() {
 					Name:       testName,
 					Namespace:  testNamespace,
 					Labels:     map[string]string{testIDLabel: testID},
-					Finalizers: []string{testFinalizer, otherFin},
+					Finalizers: []string{testFinalizer},
 				},
 			}
 			trk := newTracker()
@@ -460,6 +465,60 @@ var _ = Describe("Bridge", func() {
 			_, err := bridge.Reconcile(ctx, newRequest())
 			Expect(err).NotTo(HaveOccurred())
 			Expect(trk.syncUpdateCalls).To(Equal(1))
+		})
+	})
+
+	Context("error propagation", func() {
+		It("should propagate Save errors and skip Signal", func() {
+			cr := &v1alpha1.Subnet{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:       testName,
+					Namespace:  testNamespace,
+					Labels:     map[string]string{testIDLabel: testID},
+					Finalizers: []string{testFinalizer},
+				},
+			}
+			trk := newTracker()
+			trk.syncDeleteFn = func(_ context.Context, _ *v1alpha1.Subnet, remote *privatev1.Subnet) error {
+				remote.GetStatus().SetState(privatev1.SubnetState_SUBNET_STATE_DELETING)
+				return nil
+			}
+			trk.saveErr = errors.New("save failed")
+			k8sClient := newFakeClient(cr)
+			bridge := newBridge(k8sClient, trk)
+
+			Expect(k8sClient.Delete(ctx, cr)).To(Succeed())
+
+			_, err := bridge.Reconcile(ctx, newRequest())
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("save failed"))
+			Expect(trk.signalCalls).To(Equal(0))
+
+			updated := &v1alpha1.Subnet{}
+			Expect(k8sClient.Get(ctx, types.NamespacedName{Name: testName, Namespace: testNamespace}, updated)).To(Succeed())
+			Expect(controllerutil.ContainsFinalizer(updated, testFinalizer)).To(BeTrue())
+		})
+
+		It("should propagate SyncUpdate errors and skip Save", func() {
+			cr := &v1alpha1.Subnet{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:       testName,
+					Namespace:  testNamespace,
+					Labels:     map[string]string{testIDLabel: testID},
+					Finalizers: []string{testFinalizer},
+				},
+			}
+			trk := newTracker()
+			trk.syncUpdateFn = func(_ context.Context, _ *v1alpha1.Subnet, _ *privatev1.Subnet) error {
+				return errors.New("sync update failed")
+			}
+			k8sClient := newFakeClient(cr)
+			bridge := newBridge(k8sClient, trk)
+
+			_, err := bridge.Reconcile(ctx, newRequest())
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("sync update failed"))
+			Expect(trk.saveCalls).To(Equal(0))
 		})
 	})
 
