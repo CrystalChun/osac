@@ -513,55 +513,60 @@ var _ = Describe("ClusterOrder Controller", func() {
 	})
 
 	Context("provisioning callbacks", func() {
-		It("should set Phase to Ready via OnSuccess callback", func() {
+		DescribeTable("OnFailed phase and condition based on ClusterReference state",
+			func(setup func(*v1alpha1.ClusterOrder), expectedPhase v1alpha1.ClusterOrderPhaseType) {
+				instance := &v1alpha1.ClusterOrder{
+					Status: v1alpha1.ClusterOrderStatus{Phase: v1alpha1.ClusterOrderPhaseProgressing},
+				}
+				setup(instance)
+				callbacks := (&ClusterOrderReconciler{}).provisioningCallbacks(instance)
+				callbacks.OnFailed("job failed")
+
+				Expect(instance.Status.Phase).To(Equal(expectedPhase))
+				cond := apimeta.FindStatusCondition(instance.Status.Conditions, v1alpha1.ConditionProgressing)
+				Expect(cond).NotTo(BeNil())
+				Expect(cond.Status).To(Equal(metav1.ConditionFalse))
+				Expect(cond.Reason).To(Equal(v1alpha1.ReasonProvisioningFailed))
+				Expect(cond.Message).To(ContainSubstring("job failed"))
+			},
+			Entry("nil ClusterReference -> Failed with condition",
+				func(_ *v1alpha1.ClusterOrder) {}, v1alpha1.ClusterOrderPhaseFailed),
+			Entry("empty HostedClusterName -> Failed with condition",
+				func(i *v1alpha1.ClusterOrder) {
+					i.Status.ClusterReference = &v1alpha1.ClusterOrderClusterReferenceType{}
+				},
+				v1alpha1.ClusterOrderPhaseFailed),
+		)
+
+		It("should preserve Progressing condition when OnFailed guard is active (OSAC-2024)", func() {
 			instance := &v1alpha1.ClusterOrder{
 				Status: v1alpha1.ClusterOrderStatus{
 					Phase: v1alpha1.ClusterOrderPhaseProgressing,
+					Conditions: []metav1.Condition{
+						{
+							Type:               v1alpha1.ConditionProgressing,
+							Status:             metav1.ConditionTrue,
+							Reason:             v1alpha1.ReasonProgressing,
+							Message:            "provisioning in progress",
+							LastTransitionTime: metav1.Now(),
+						},
+					},
 				},
 			}
+			instance.SetClusterReferenceHostedClusterName("my-cluster")
 
-			reconciler := &ClusterOrderReconciler{}
-			callbacks := reconciler.provisioningCallbacks(instance)
+			callbacks := (&ClusterOrderReconciler{}).provisioningCallbacks(instance)
+			callbacks.OnFailed("ancillary task failed")
 
-			Expect(callbacks.OnSuccess).NotTo(BeNil(), "OnSuccess callback must be set")
-			callbacks.OnSuccess(provisioning.ProvisionStatus{})
-			Expect(instance.Status.Phase).To(Equal(v1alpha1.ClusterOrderPhaseReady))
-		})
-
-		It("should set Phase to Failed via OnFailed callback", func() {
-			instance := &v1alpha1.ClusterOrder{
-				Status: v1alpha1.ClusterOrderStatus{
-					Phase: v1alpha1.ClusterOrderPhaseProgressing,
-				},
-			}
-
-			reconciler := &ClusterOrderReconciler{}
-			callbacks := reconciler.provisioningCallbacks(instance)
-
-			Expect(callbacks.OnFailed).NotTo(BeNil(), "OnFailed callback must be set")
-			callbacks.OnFailed("playbook failed")
-			Expect(instance.Status.Phase).To(Equal(v1alpha1.ClusterOrderPhaseFailed))
-		})
-
-		It("should set Progressing=False condition with error message when OnFailed is called", func() {
-			instance := &v1alpha1.ClusterOrder{
-				Status: v1alpha1.ClusterOrderStatus{
-					Phase: v1alpha1.ClusterOrderPhaseProgressing,
-				},
-			}
-
-			reconciler := &ClusterOrderReconciler{}
-			callbacks := reconciler.provisioningCallbacks(instance)
-			callbacks.OnFailed("Ansible traceback: role xyz failed")
-
+			Expect(instance.Status.Phase).To(Equal(v1alpha1.ClusterOrderPhaseProgressing))
 			cond := apimeta.FindStatusCondition(instance.Status.Conditions, v1alpha1.ConditionProgressing)
 			Expect(cond).NotTo(BeNil())
-			Expect(cond.Status).To(Equal(metav1.ConditionFalse))
-			Expect(cond.Reason).To(Equal(v1alpha1.ReasonProvisioningFailed))
-			Expect(cond.Message).To(ContainSubstring("Ansible traceback"))
+			Expect(cond.Status).To(Equal(metav1.ConditionTrue))
+			Expect(cond.Reason).To(Equal(v1alpha1.ReasonProgressing))
+			Expect(cond.Message).To(Equal("provisioning in progress"))
 		})
 
-		It("should set Progressing=False condition when OnSuccess is called", func() {
+		It("should set Phase=Ready and Progressing=False on OnSuccess", func() {
 			instance := &v1alpha1.ClusterOrder{
 				Status: v1alpha1.ClusterOrderStatus{
 					Phase: v1alpha1.ClusterOrderPhaseProgressing,
@@ -572,6 +577,7 @@ var _ = Describe("ClusterOrder Controller", func() {
 			callbacks := reconciler.provisioningCallbacks(instance)
 			callbacks.OnSuccess(provisioning.ProvisionStatus{})
 
+			Expect(instance.Status.Phase).To(Equal(v1alpha1.ClusterOrderPhaseReady))
 			cond := apimeta.FindStatusCondition(instance.Status.Conditions, v1alpha1.ConditionProgressing)
 			Expect(cond).NotTo(BeNil())
 			Expect(cond.Status).To(Equal(metav1.ConditionFalse))
