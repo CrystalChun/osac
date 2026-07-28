@@ -1180,6 +1180,7 @@ var _ = Describe("Storage Controller", func() {
 				provider, nil, pollInterval,
 				provisioning.DefaultMaxJobHistory,
 			)
+			r.BackendsClient = registeredBackendsClient(1)
 			r.TiersClient = tierDefsTiersClient()
 			r.BackendsGetter = tierDefsBackendsGetter()
 
