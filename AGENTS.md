@@ -32,8 +32,8 @@ make helm-validate
 # Sync submodules and rebuild chart dependencies
 make sync-charts
 
-# Deploy (three-phase Helm install)
-make install VALUES_FILE=values/development/values.yaml
+# Deploy to OpenShift (three-phase Helm install)
+make install VALUES_FILE=values/<env>/values.yaml
 
 # Individual install phases
 make install-operators VALUES_FILE=values/<env>/values.yaml
