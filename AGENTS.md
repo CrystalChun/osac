@@ -14,7 +14,7 @@ git submodule update --init --recursive
 yamllint --strict .
 pre-commit run --all-files
 make helm-lint
-make helm-validate VALUES_FILE=values/development/values.yaml
+make helm-validate
 ```
 
 ## Common Commands

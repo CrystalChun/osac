@@ -27,7 +27,7 @@ After addressing all review comments, run the full validation suite from the ins
 yamllint --strict .
 pre-commit run --all-files
 make helm-lint
-make helm-validate VALUES_FILE=values/development/values.yaml
+make helm-validate
 ```
 
 See `Makefile` for the underlying helm lint/template commands these targets execute.

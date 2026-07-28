@@ -33,7 +33,7 @@ in order. Every command must pass -- CI enforces all of them on every PR.
 4. **Helm template render** (validates against all values files -- see `Makefile` for full command):
 
    ```bash
-   make helm-validate VALUES_FILE=values/development/values.yaml
+   make helm-validate
    ```
 
 ## Repository Structure

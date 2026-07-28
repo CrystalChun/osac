@@ -43,7 +43,7 @@ Example commands (run from the installer repo root):
 yamllint --strict .
 pre-commit run --all-files
 make helm-lint
-make helm-validate VALUES_FILE=values/development/values.yaml
+make helm-validate
 
 # Git operations (always from installer root, never inside submodules)
 git status

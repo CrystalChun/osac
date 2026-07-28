@@ -27,7 +27,7 @@ is structural (YAML lint, pre-commit, Helm lint, Helm template render).
    yamllint --strict .
    pre-commit run --all-files
    make helm-lint
-   make helm-validate VALUES_FILE=values/development/values.yaml
+   make helm-validate
    ```
 
 5. **Read and execute .ai-workflows/bugfix/skills/review.md**
