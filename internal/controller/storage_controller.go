@@ -291,14 +291,6 @@ func (r *StorageReconciler) handleBackendReadiness(ctx context.Context, instance
 	}
 }
 
-// resolveAndInjectTierContext resolves storage tier definitions and backend
-// connections for this Tenant and injects them into ctx. See the shared
-// resolveAndInjectTierContext free function (storage_tier_definitions.go) for
-// the nil-tolerant, non-fatal-on-error behavior this delegates to.
-func (r *StorageReconciler) resolveAndInjectTierContext(ctx context.Context, tenantName string) (context.Context, []provisioning.TierDefinition) {
-	return resolveAndInjectTierContext(ctx, r.TiersClient, r.BackendsGetter, "tenant", tenantName)
-}
-
 func (r *StorageReconciler) handleUpdate(ctx context.Context, instance *v1alpha1.Tenant) (ctrl.Result, error) {
 	log := ctrllog.FromContext(ctx)
 	tenantName := instance.GetName()
@@ -316,7 +308,7 @@ func (r *StorageReconciler) handleUpdate(ctx context.Context, instance *v1alpha1
 	// handleBackendReadiness), so both Stage 2's tier-coverage validation and
 	// every downstream AAP call in this reconcile see the same result without
 	// re-fetching.
-	ctx, tierDefinitions := r.resolveAndInjectTierContext(ctx, tenantName)
+	ctx, tierDefinitions := resolveAndInjectTierContext(ctx, r.TiersClient, r.BackendsGetter, "tenant", tenantName)
 
 	// Stage 1: check hub Secret and route provisioning based on backend registration.
 	// stop is always true when err is non-nil (handleBackendReadiness invariant).
@@ -681,7 +673,7 @@ func (r *StorageReconciler) handleDelete(ctx context.Context, instance *v1alpha1
 	// Resolved independently from handleUpdate's resolution (no caching between
 	// create and delete paths), before the first AAP-triggering call in this
 	// function, so every downstream call in this reconcile sees the same result.
-	ctx, _ = r.resolveAndInjectTierContext(ctx, instance.Name)
+	ctx, _ = resolveAndInjectTierContext(ctx, r.TiersClient, r.BackendsGetter, "tenant", instance.Name)
 
 	// CaaS cleanup: remove cluster-side storage (StorageClasses, CSI) from
 	// all CaaS clusters and remove our finalizer from their ClusterOrders.
