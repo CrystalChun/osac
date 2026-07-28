@@ -24,10 +24,10 @@ to understand the prior session's decisions and changes.
 After addressing all review comments, run the full validation suite from the installer root:
 
 ```bash
-yamllint --strict /path/to/osac-installer
-(cd /path/to/osac-installer && pre-commit run --all-files)
-make -C /path/to/osac-installer helm-lint
-make -C /path/to/osac-installer VALUES_FILE=/path/to/osac-installer/values/development/values.yaml helm-validate
+yamllint --strict .
+pre-commit run --all-files
+make helm-lint
+make helm-validate VALUES_FILE=values/development/values.yaml
 ```
 
 See `Makefile` for the underlying helm lint/template commands these targets execute.

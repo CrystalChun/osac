@@ -17,17 +17,17 @@ is structural (YAML lint, pre-commit, Helm lint, Helm template render).
    - Never modify files inside any `base/*/` submodule directories
      (discover with: `git submodule status`).
    - After submodule pointer changes, run
-     `/path/to/osac-installer/scripts/sync-image-tags.sh --fix` to update corresponding image tags.
+     `./scripts/sync-image-tags.sh --fix` to update corresponding image tags.
 
 4. **Validate changes**
-   Run all validation commands in sequence. If any fail, revise your
-   fix and revalidate (up to 5 iterations):
+   Run all validation commands from the installer root in sequence. If any
+   fail, revise your fix and revalidate (up to 5 iterations):
 
    ```bash
-   yamllint --strict /path/to/osac-installer
-   (cd /path/to/osac-installer && pre-commit run --all-files)
-   make -C /path/to/osac-installer helm-lint
-   make -C /path/to/osac-installer VALUES_FILE=/path/to/osac-installer/values/development/values.yaml helm-validate
+   yamllint --strict .
+   pre-commit run --all-files
+   make helm-lint
+   make helm-validate VALUES_FILE=values/development/values.yaml
    ```
 
 5. **Read and execute .ai-workflows/bugfix/skills/review.md**

@@ -8,32 +8,32 @@ and no unit tests in this repo. All validation is structural.
 
 ## Validation Commands
 
-After making changes, run the following commands in order. Every command
-must pass -- CI enforces all of them on every PR.
+After making changes, run the following commands from the installer root
+in order. Every command must pass -- CI enforces all of them on every PR.
 
 1. **YAML lint** (strict mode, repo-level `.yamllint.yaml` config):
 
    ```bash
-   yamllint --strict /path/to/osac-installer
+   yamllint --strict .
    ```
 
 2. **Pre-commit hooks** (trailing whitespace, merge conflicts, large
    files, private key detection, YAML lint):
 
    ```bash
-   (cd /path/to/osac-installer && pre-commit run --all-files)
+   pre-commit run --all-files
    ```
 
 3. **Helm lint** (validates chart structure and templates -- see `Makefile` for full command):
 
    ```bash
-   make -C /path/to/osac-installer helm-lint
+   make helm-lint
    ```
 
 4. **Helm template render** (validates against all values files -- see `Makefile` for full command):
 
    ```bash
-   make -C /path/to/osac-installer VALUES_FILE=/path/to/osac-installer/values/development/values.yaml helm-validate
+   make helm-validate VALUES_FILE=values/development/values.yaml
    ```
 
 ## Repository Structure
