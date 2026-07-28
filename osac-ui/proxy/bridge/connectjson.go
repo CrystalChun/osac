@@ -21,6 +21,18 @@ import (
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/reflect/protoregistry"
 	"google.golang.org/protobuf/types/descriptorpb"
+	// Registers google.protobuf.{String,Bool,Int32,Int64,UInt32,UInt64,Float,Double,Bytes}Value
+	// into protoregistry.GlobalTypes. vanguard's per-service type resolver (see
+	// resolverForFile in connectrpc.com/vanguard's type_resolver.go) is built purely from
+	// reflection-discovered file descriptors, which never include google/protobuf/wrappers.proto
+	// — Any is opaque, so no .proto file "imports" it just by declaring a google.protobuf.Any
+	// field. vanguard falls back to protoregistry.GlobalTypes specifically to resolve Any-packed
+	// well-known types, but that fallback is empty unless something in this binary references
+	// wrapperspb. Fields like ClusterTemplateParameterDefinition.default (google.protobuf.Any)
+	// are documented to hold a packed StringValue/Int32Value/etc., so without this import any
+	// response containing one fails to marshal with "unable to resolve
+	// type.googleapis.com/google.protobuf.StringValue: not found".
+	_ "google.golang.org/protobuf/types/known/wrapperspb"
 
 	"connectrpc.com/vanguard"
 )
