@@ -33,6 +33,8 @@ interface CatalogItemCardProps {
   selection?: CatalogItemCardSelection;
   onOpenDetails?: () => void;
   isSelected?: boolean;
+  scopeBadge?: React.ReactNode;
+  statusLabel?: React.ReactNode;
 }
 
 const CatalogItemCard = ({
@@ -41,6 +43,8 @@ const CatalogItemCard = ({
   selection,
   onOpenDetails,
   isSelected,
+  scopeBadge,
+  statusLabel,
 }: CatalogItemCardProps) => {
   const { t } = useTranslation();
   const resources = catalogItemResourceParts(item);
@@ -103,6 +107,14 @@ const CatalogItemCard = ({
               {subtitle}
             </Content>
           </StackItem>
+          {scopeBadge || statusLabel ? (
+            <StackItem>
+              <Flex gap={{ default: 'gapSm' }}>
+                {scopeBadge ? <FlexItem>{scopeBadge}</FlexItem> : null}
+                {statusLabel ? <FlexItem>{statusLabel}</FlexItem> : null}
+              </Flex>
+            </StackItem>
+          ) : null}
           {resources.length > 0 ? (
             <StackItem>
               <Flex flexWrap={{ default: 'wrap' }} gap={{ default: 'gapSm' }}>

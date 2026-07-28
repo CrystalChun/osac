@@ -48,7 +48,7 @@ const getTypeLabel = (typeFilter: CatalogTypeFilter, t: TFunction) => {
 const useCatalogItems = (typeFilter: CatalogTypeFilter) => {
   const vms = useComputeInstanceCatalogItems(undefined, typeFilter === 'vm');
   const clusters = useClusterCatalogItems(undefined, typeFilter === 'cluster');
-  const bms = useBareMetalInstanceCatalogItems(typeFilter === 'bm');
+  const bms = useBareMetalInstanceCatalogItems(undefined, typeFilter === 'bm');
 
   switch (typeFilter) {
     case 'vm':

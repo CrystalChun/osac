@@ -9,9 +9,9 @@ import {
 } from '@osac/types';
 
 import { useApiFetch } from '../api-context';
-import { apiQueryKey } from '../types';
-import { buildUpdateMaskPaths } from './update-mask';
+import { type ListParams, apiQueryKey } from '../types';
 import { type ApiQueryClient, useApiQuery, useApiQueryClient } from '../use-api-query';
+import { buildUpdateMaskPaths } from './update-mask';
 
 export const useBareMetalInstances = () => {
   const client = useApiFetch(BareMetalInstances);
@@ -32,11 +32,11 @@ export const useBareMetalInstance = (id: string) => {
   });
 };
 
-export const useBareMetalInstanceCatalogItems = (enabled = true) => {
+export const useBareMetalInstanceCatalogItems = (params: ListParams = {}, enabled = true) => {
   const client = useApiFetch(BareMetalInstanceCatalogItems);
   return useApiQuery({
-    queryKey: apiQueryKey('v1/baremetal_instance_catalog_items'),
-    queryFn: () => client.list({}),
+    queryKey: apiQueryKey('v1/baremetal_instance_catalog_items', undefined, params),
+    queryFn: () => client.list(params),
     select: (data) => data.items,
     enabled,
   });
