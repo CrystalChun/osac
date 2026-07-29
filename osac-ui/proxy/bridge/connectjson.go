@@ -21,6 +21,7 @@ import (
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/reflect/protoregistry"
 	"google.golang.org/protobuf/types/descriptorpb"
+
 	// Registers well-known types into protoregistry.GlobalTypes. vanguard's per-service type
 	// resolver (see resolverForFile in connectrpc.com/vanguard's type_resolver.go) is built
 	// purely from reflection-discovered file descriptors, which never include the .proto files
