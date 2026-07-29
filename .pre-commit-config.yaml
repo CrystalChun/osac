@@ -15,6 +15,7 @@ repos:
   rev: v1.35.1
   hooks:
     - id: yamllint
+      exclude: "^charts/.*/templates/"
       files: \.(yaml|yml)$
       types: [file, yaml]
       entry: yamllint --strict
@@ -27,3 +28,9 @@ repos:
     language: system
     files: \.go$
     entry: bin/golangci-lint run --fix
+  - id: helm-lint
+    pass_filenames: false
+    name: helm-lint
+    language: system
+    files: ^charts/
+    entry: bash -c 'for chart in charts/*/; do helm lint "$chart" || exit 1; done'
