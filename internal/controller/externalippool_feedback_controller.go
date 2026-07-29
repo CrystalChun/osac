@@ -15,6 +15,7 @@ package controller
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"google.golang.org/grpc"
@@ -54,7 +55,7 @@ func NewExternalIPPoolFeedbackReconciler(hubClient clnt.Client, grpcConn *grpc.C
 			}
 			pool := response.GetObject()
 			if pool == nil {
-				return nil, fmt.Errorf("external IP pool not found: response contained nil object")
+				return nil, errors.New("external IP pool not found: response contained nil object")
 			}
 			if !pool.HasSpec() {
 				pool.SetSpec(&privatev1.ExternalIPPoolSpec{})
