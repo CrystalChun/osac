@@ -60,10 +60,19 @@ const (
 )
 
 // StorageBackendsClient is a narrow subset of the generated privatev1.StorageBackendsClient
-// used to check whether any storage backend is registered. The generated client satisfies
+// used to check whether any storage backend is registered (List) and to resolve a single
+// backend's provider and connection details by ID (Get). The generated client satisfies
 // this interface automatically; it is defined here to allow test mocking.
 type StorageBackendsClient interface {
 	List(ctx context.Context, in *privatev1.StorageBackendsListRequest, opts ...grpc.CallOption) (*privatev1.StorageBackendsListResponse, error)
+	Get(ctx context.Context, in *privatev1.StorageBackendsGetRequest, opts ...grpc.CallOption) (*privatev1.StorageBackendsGetResponse, error)
+}
+
+// StorageTiersLister is a narrow subset of the generated privatev1.StorageTiersClient
+// used to list tier definitions. The generated client satisfies this interface
+// automatically; it is defined here to allow test mocking (mirrors StorageBackendsClient).
+type StorageTiersLister interface {
+	List(ctx context.Context, in *privatev1.StorageTiersListRequest, opts ...grpc.CallOption) (*privatev1.StorageTiersListResponse, error)
 }
 
 // StorageReconciler reconciles storage lifecycle on Tenant CRs.
@@ -82,10 +91,16 @@ type StorageReconciler struct {
 	StatusPollInterval     time.Duration
 	MaxJobHistory          int
 	// BackendsClient queries the fulfillment service Backend API to determine whether
-	// a storage backend is registered. When nil (no gRPC connection configured),
-	// backendRegistered() returns false — backward compatible with environments that
-	// run without a fulfillment service connection (e.g. prepare-tenant.sh).
+	// a storage backend is registered (List, via backendRegistered()) and to resolve
+	// a backend's connection details by ID (Get, via resolveTierDefinitions). When
+	// nil (no gRPC connection configured), both backward compatible with
+	// environments that run without a fulfillment service connection (e.g.
+	// prepare-tenant.sh).
 	BackendsClient StorageBackendsClient
+	// TiersClient queries the fulfillment service Tier API. When nil, tier
+	// validation and extra_vars injection are both skipped — backward compatible
+	// with environments without a fulfillment service connection.
+	TiersClient StorageTiersLister
 }
 
 // +kubebuilder:rbac:groups=osac.openshift.io,resources=tenants,verbs=get;list;watch;update;patch
@@ -284,6 +299,12 @@ func (r *StorageReconciler) handleUpdate(ctx context.Context, instance *v1alpha1
 		}
 	}
 
+	// Resolved once here, before Stage 1 (which can return early via
+	// handleBackendReadiness), so both Stage 2's tier-coverage validation and
+	// every downstream AAP call in this reconcile see the same result without
+	// re-fetching.
+	ctx, tierDefinitions := resolveAndInjectTierContext(ctx, r.TiersClient, r.BackendsClient, "tenant", tenantName)
+
 	// Stage 1: check hub Secret and route provisioning based on backend registration.
 	// stop is always true when err is non-nil (handleBackendReadiness invariant).
 	hubSecretReady, stageResult, stop, err := r.handleBackendReadiness(ctx, instance, tenantName)
@@ -308,21 +329,22 @@ func (r *StorageReconciler) handleUpdate(ctx context.Context, instance *v1alpha1
 		// tenant-specific SC. Once the tenant-specific SC appears (via the
 		// StorageClass watch), the next reconcile picks it up and replaces
 		// the Default.
-		result, duplicateMessages, err := r.resolveTenantSpecificStorageClasses(ctx, targetClient, tenantName)
+		scResult, err := r.resolveTenantSpecificStorageClasses(ctx, targetClient, tenantName)
 		if err != nil {
 			return ctrl.Result{}, err
 		}
 
-		for _, msg := range duplicateMessages {
+		for _, msg := range scResult.duplicateMessages {
 			r.Recorder.Eventf(instance, nil, corev1.EventTypeWarning, eventReasonDuplicateStorageClass, eventActionDetectDuplicate, "%s", msg)
 		}
 
-		if len(result) == 0 {
-			if len(duplicateMessages) > 0 {
+		if len(scResult.resolved) == 0 {
+			if len(scResult.duplicateMessages) > 0 {
+				condMsg := r.appendMissingTierWarnings(instance, tierDefinitions, nil, scResult.ambiguousTiers, strings.Join(scResult.duplicateMessages, "; "))
 				instance.SetStatusCondition(v1alpha1.TenantConditionClusterStorageReady,
 					metav1.ConditionFalse,
 					v1alpha1.TenantReasonMultipleFound,
-					strings.Join(duplicateMessages, "; "))
+					condMsg)
 				instance.Status.StorageClasses = nil
 				instance.Status.ClusterStorage = []v1alpha1.ClusterStorageStatus{
 					{ClusterName: clusterName, Ready: false, Reason: v1alpha1.TenantReasonMultipleFound},
@@ -342,19 +364,23 @@ func (r *StorageReconciler) handleUpdate(ctx context.Context, instance *v1alpha1
 			}
 
 			if len(defaultFallback.resolved) > 0 {
+				condMsg := r.appendMissingTierWarnings(instance, tierDefinitions, defaultFallback.resolved, defaultFallback.ambiguousTiers,
+					defaultFallback.conditionMessage()+"; tenant-specific provisioning pending")
 				instance.SetStatusCondition(v1alpha1.TenantConditionClusterStorageReady,
 					metav1.ConditionTrue,
 					v1alpha1.TenantReasonFound,
-					defaultFallback.conditionMessage()+"; tenant-specific provisioning pending")
+					condMsg)
 				instance.Status.StorageClasses = defaultFallback.resolved
 				instance.Status.ClusterStorage = []v1alpha1.ClusterStorageStatus{
 					{ClusterName: clusterName, Ready: true, Reason: v1alpha1.TenantReasonFound},
 				}
 			} else {
+				condMsg := r.appendMissingTierWarnings(instance, tierDefinitions, nil, defaultFallback.ambiguousTiers,
+					fmt.Sprintf("no StorageClass found for tenant %q", tenantName))
 				instance.SetStatusCondition(v1alpha1.TenantConditionClusterStorageReady,
 					metav1.ConditionFalse,
 					v1alpha1.TenantReasonNotFound,
-					fmt.Sprintf("no StorageClass found for tenant %q", tenantName))
+					condMsg)
 				instance.Status.StorageClasses = nil
 				instance.Status.ClusterStorage = []v1alpha1.ClusterStorageStatus{
 					{ClusterName: clusterName, Ready: false, Reason: v1alpha1.TenantReasonNotFound},
@@ -364,15 +390,16 @@ func (r *StorageReconciler) handleUpdate(ctx context.Context, instance *v1alpha1
 			return r.handleClusterStorageProvisioning(ctx, instance, hubSecretReady)
 		}
 
-		condMsg := formatResolvedStorageClasses(result)
-		if len(duplicateMessages) > 0 {
-			condMsg = condMsg + "; " + strings.Join(duplicateMessages, "; ")
+		condMsg := formatResolvedStorageClasses(scResult.resolved)
+		if len(scResult.duplicateMessages) > 0 {
+			condMsg = condMsg + "; " + strings.Join(scResult.duplicateMessages, "; ")
 		}
+		condMsg = r.appendMissingTierWarnings(instance, tierDefinitions, scResult.resolved, scResult.ambiguousTiers, condMsg)
 		instance.SetStatusCondition(v1alpha1.TenantConditionClusterStorageReady,
 			metav1.ConditionTrue,
 			v1alpha1.TenantReasonFound,
 			condMsg)
-		instance.Status.StorageClasses = result
+		instance.Status.StorageClasses = scResult.resolved
 		instance.Status.ClusterStorage = []v1alpha1.ClusterStorageStatus{
 			{ClusterName: clusterName, Ready: true, Reason: v1alpha1.TenantReasonFound},
 		}
@@ -397,10 +424,11 @@ func (r *StorageReconciler) handleUpdate(ctx context.Context, instance *v1alpha1
 			if len(result.duplicateMessages) > 0 {
 				reason = v1alpha1.TenantReasonMultipleFound
 			}
+			condMsg := r.appendMissingTierWarnings(instance, tierDefinitions, nil, result.ambiguousTiers, result.conditionMessage())
 			instance.SetStatusCondition(v1alpha1.TenantConditionClusterStorageReady,
 				metav1.ConditionFalse,
 				reason,
-				result.conditionMessage())
+				condMsg)
 			instance.Status.StorageClasses = nil
 			instance.Status.ClusterStorage = []v1alpha1.ClusterStorageStatus{
 				{ClusterName: clusterName, Ready: false, Reason: reason},
@@ -408,10 +436,11 @@ func (r *StorageReconciler) handleUpdate(ctx context.Context, instance *v1alpha1
 			return ctrl.Result{}, nil
 		}
 
+		condMsg := r.appendMissingTierWarnings(instance, tierDefinitions, result.resolved, result.ambiguousTiers, result.conditionMessage())
 		instance.SetStatusCondition(v1alpha1.TenantConditionClusterStorageReady,
 			metav1.ConditionTrue,
 			v1alpha1.TenantReasonFound,
-			result.conditionMessage())
+			condMsg)
 		instance.Status.StorageClasses = result.resolved
 		instance.Status.ClusterStorage = []v1alpha1.ClusterStorageStatus{
 			{ClusterName: clusterName, Ready: true, Reason: v1alpha1.TenantReasonFound},
@@ -635,6 +664,11 @@ func (r *StorageReconciler) handleDelete(ctx context.Context, instance *v1alpha1
 	if !controllerutil.ContainsFinalizer(instance, storageFinalizer) {
 		return ctrl.Result{}, nil
 	}
+
+	// Resolved independently from handleUpdate's resolution (no caching between
+	// create and delete paths), before the first AAP-triggering call in this
+	// function, so every downstream call in this reconcile sees the same result.
+	ctx, _ = resolveAndInjectTierContext(ctx, r.TiersClient, r.BackendsClient, "tenant", instance.Name)
 
 	// CaaS cleanup: remove cluster-side storage (StorageClasses, CSI) from
 	// all CaaS clusters and remove our finalizer from their ClusterOrders.
@@ -995,17 +1029,26 @@ func (r *StorageReconciler) allTenantReconcileRequests(ctx context.Context) []re
 	return requests
 }
 
+// tenantSpecificStorageClasses is the result of resolveTenantSpecificStorageClasses:
+// resolved StorageClasses per tier, plus the duplicate-SC messages and ambiguous
+// tier names for tiers excluded from resolved because multiple StorageClasses
+// matched (distinct from a tier having no StorageClass at all).
+type tenantSpecificStorageClasses struct {
+	resolved          []v1alpha1.ResolvedStorageClass
+	duplicateMessages []string
+	ambiguousTiers    []string
+}
+
 // resolveTenantSpecificStorageClasses lists only StorageClasses labeled with the
 // given tenant name, ignoring shared defaults (labeled tenant=Default). Used when
 // AAP is configured and the controller should not fall back to shared defaults.
-// Returns resolved classes and any duplicate messages for tiers with multiple SCs.
 func (r *StorageReconciler) resolveTenantSpecificStorageClasses(
 	ctx context.Context, targetClient client.Client, tenantName string,
-) ([]v1alpha1.ResolvedStorageClass, []string, error) {
+) (tenantSpecificStorageClasses, error) {
 	log := ctrllog.FromContext(ctx)
 	scList := &storagev1.StorageClassList{}
 	if err := targetClient.List(ctx, scList, client.MatchingLabels{osacTenantKey: tenantName}); err != nil {
-		return nil, nil, err
+		return tenantSpecificStorageClasses{}, err
 	}
 	byTier := groupByTier(scList.Items)
 	sortedTiers := make([]string, 0, len(byTier))
@@ -1014,13 +1057,12 @@ func (r *StorageReconciler) resolveTenantSpecificStorageClasses(
 	}
 	sort.Strings(sortedTiers)
 
-	var resolved []v1alpha1.ResolvedStorageClass
-	var duplicateMessages []string
+	var result tenantSpecificStorageClasses
 	for _, tier := range sortedTiers {
 		scs := byTier[tier]
 		switch len(scs) {
 		case 1:
-			resolved = append(resolved, v1alpha1.ResolvedStorageClass{
+			result.resolved = append(result.resolved, v1alpha1.ResolvedStorageClass{
 				Name: scs[0].GetName(),
 				Tier: tier,
 			})
@@ -1028,10 +1070,11 @@ func (r *StorageReconciler) resolveTenantSpecificStorageClasses(
 			joined, names := joinStorageClassNames(scs)
 			msg := fmt.Sprintf("tier %q: multiple tenant StorageClasses [%s]", tier, joined)
 			log.Info(msg, "tenant", tenantName, "tier", tier, "storageClasses", names)
-			duplicateMessages = append(duplicateMessages, msg)
+			result.duplicateMessages = append(result.duplicateMessages, msg)
+			result.ambiguousTiers = append(result.ambiguousTiers, tier)
 		}
 	}
-	return resolved, duplicateMessages, nil
+	return result, nil
 }
 
 // formatResolvedStorageClasses builds a human-readable condition message
