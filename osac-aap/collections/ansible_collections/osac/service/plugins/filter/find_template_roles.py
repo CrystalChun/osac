@@ -243,6 +243,25 @@ class ComputeInstanceTemplateSpecDefaults(Base):
     )
 
 
+class ClusterNetwork(Base):
+    """Network CIDR configuration for cluster spec defaults."""
+
+    pod_cidr: str | None = None
+    service_cidr: str | None = None
+
+
+class ClusterTemplateSpecDefaults(Base):
+    """Default values for cluster spec fields.
+
+    Matches the fulfillment-service ClusterTemplateSpecDefaults proto message.
+    """
+
+    pull_secret: str | None = None
+    ssh_public_key: str | None = None
+    release_image: str | None = None
+    network: ClusterNetwork | None = None
+
+
 class ParameterValidation(Base):
     """Validation rules for a template parameter."""
 
@@ -319,11 +338,9 @@ class Metadata(Base):
     parameters: list[TemplateParameterDefinition] = pydantic.Field(default_factory=list)
 
     # spec_defaults is used to set optional default values for the related spec fields associated
-    # with the template type.
-    #
-    # For now, spec_defaults is only used for ComputeInstance templates.
-    # This can be extended/generalized in the future with union type support for other template types.
-    spec_defaults: ComputeInstanceTemplateSpecDefaults | None = None
+    # with the template type. Stored as a raw dict and parsed into the type-specific model
+    # (ClusterTemplateSpecDefaults or ComputeInstanceTemplateSpecDefaults) in templates().
+    spec_defaults: dict[str, Any] | None = None
 
 
 class BaseTemplate(Base):
@@ -354,6 +371,7 @@ class ClusterTemplate(BaseTemplate):
     )
     default_node_request: list[NodeRequest] = pydantic.Field(default=[], exclude=True)
     allowed_resource_classes: list[str] | None = pydantic.Field(None, exclude=True)
+    spec_defaults: ClusterTemplateSpecDefaults | None = None
 
     @pydantic.computed_field
     def node_sets(self) -> dict[str, NodeSet] | None:
@@ -573,10 +591,16 @@ class Collection(Base):
                     }
 
                     if metadata.template_type == TemplateTypeEnum.cluster:
+                        cluster_spec_defaults = None
+                        if metadata.spec_defaults:
+                            cluster_spec_defaults = ClusterTemplateSpecDefaults.model_validate(
+                                metadata.spec_defaults
+                            )
                         yield ClusterTemplate(
                             **common,
                             default_node_request=metadata.default_node_request,
                             allowed_resource_classes=metadata.allowed_resource_classes,
+                            spec_defaults=cluster_spec_defaults,
                         )
                     elif metadata.template_type == TemplateTypeEnum.network:
                         if not metadata.implementation_strategy:
@@ -608,7 +632,12 @@ class Collection(Base):
                     elif metadata.template_type == TemplateTypeEnum.bare_metal_instance:
                         yield BareMetalInstanceTemplate(**common)
                     elif metadata.template_type == TemplateTypeEnum.compute_instance:
-                        yield ComputeInstanceTemplate(**common, spec_defaults=metadata.spec_defaults)
+                        compute_spec_defaults = None
+                        if metadata.spec_defaults:
+                            compute_spec_defaults = ComputeInstanceTemplateSpecDefaults.model_validate(
+                                metadata.spec_defaults
+                            )
+                        yield ComputeInstanceTemplate(**common, spec_defaults=compute_spec_defaults)
                     else:
                         display.warning(
                             f"Unknown template_type '{metadata.template_type}' for role '{path.name}' "
