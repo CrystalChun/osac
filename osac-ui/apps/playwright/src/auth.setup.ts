@@ -1,4 +1,6 @@
 import { expect, test as setup } from '@playwright/test';
+import fs from 'node:fs';
+import path from 'node:path';
 
 import { AUTH_FILE } from './auth-file';
 
@@ -28,4 +30,8 @@ setup('authenticate', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Account menu' })).toBeVisible();
 
   await page.context().storageState({ path: AUTH_FILE });
+  // AUTH_FILE holds a live, real Keycloak session cookie — restrict it to the
+  // current user so other local accounts on a shared machine can't reuse it.
+  fs.chmodSync(path.dirname(AUTH_FILE), 0o700);
+  fs.chmodSync(AUTH_FILE, 0o600);
 });

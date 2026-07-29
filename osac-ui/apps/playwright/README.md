@@ -50,7 +50,7 @@ Optional:
 
 | Variable                  | Description                                                                                          |
 | -------------------------- | ----------------------------------------------------------------------------------------------------- |
-| `IGNORE_HTTPS_ERRORS` | Set to `true` to trust self-signed/cluster-internal CA certs, common on dev and lab clusters. Off by default because this flow submits a real Keycloak password — only enable it against clusters you trust. `pnpm playwright:dev` sets this for you (see below). |
+| `IGNORE_HTTPS_ERRORS` | Set to `true` to trust self-signed/cluster-internal CA certs, common on dev and lab clusters. Off by default because this flow submits a real Keycloak password — it disables TLS verification for the whole browser context, not just `localhost`, so only enable it against clusters you trust. |
 
 Testing against a local `pnpm dev` instance instead of a remote deployment:
 
@@ -60,11 +60,14 @@ read -rs OSAC_PASSWORD && export OSAC_PASSWORD
 pnpm playwright:dev
 ```
 
-`pnpm playwright:dev` sets `OSAC_UI_BASE_URL=http://localhost:5173` and
-`IGNORE_HTTPS_ERRORS=true` for you — the backing `fulfillment-service`/
-Keycloak for a local dev server is typically a dev/lab cluster with a
-self-signed or cluster-internal CA cert. Still requires `pnpm dev` running in
-another terminal, and still needs `OSAC_USERNAME`/`OSAC_PASSWORD`.
+`pnpm playwright:dev` sets `OSAC_UI_BASE_URL=http://localhost:5173` for you.
+Still requires `pnpm dev` running in another terminal, and still needs
+`OSAC_USERNAME`/`OSAC_PASSWORD`. The backing `fulfillment-service`/Keycloak for
+a local dev server is often a dev/lab cluster with a self-signed or
+cluster-internal CA cert — the real login redirect goes there even though the
+UI itself is on `localhost`, so if you hit a TLS error, explicitly opt in with
+`IGNORE_HTTPS_ERRORS=true pnpm playwright:dev` rather than trusting it by
+default.
 
 ## How authentication works
 
