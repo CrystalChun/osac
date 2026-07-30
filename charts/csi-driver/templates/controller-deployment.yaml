@@ -38,6 +38,11 @@ spec:
               mountPath: /csi/osac
           resources:
             {{- toYaml .Values.controller.resources | nindent 12 }}
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
 
         - name: csi-provisioner
           image: "{{ .Values.sidecars.provisioner.image.repository }}:{{ .Values.sidecars.provisioner.image.tag }}"
@@ -50,6 +55,11 @@ spec:
           volumeMounts:
             - name: osac-socket-dir
               mountPath: /csi/osac
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
 
         - name: csi-attacher
           image: "{{ .Values.sidecars.attacher.image.repository }}:{{ .Values.sidecars.attacher.image.tag }}"
@@ -60,6 +70,11 @@ spec:
           volumeMounts:
             - name: osac-socket-dir
               mountPath: /csi/osac
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
 
       volumes:
         - name: osac-socket-dir

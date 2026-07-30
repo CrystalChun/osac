@@ -57,6 +57,11 @@ spec:
               mountPath: /csi/osac
             - name: registration-dir
               mountPath: /registration
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
 
       volumes:
         - name: osac-socket-dir
