@@ -1014,6 +1014,46 @@
         }
       }
     },
+    "csiDriver": {
+      "type": "object",
+      "description": "OSAC CSI driver configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Deploy the OSAC CSI driver (opt-in)",
+          "default": false
+        },
+        "image": {
+          "type": "object",
+          "properties": {
+            "repository": {
+              "type": "string",
+              "description": "CSI driver container image repository",
+              "default": "ghcr.io/osac-project/osac-csi-driver"
+            },
+            "tag": {
+              "type": "string",
+              "description": "CSI driver container image tag",
+              "default": "latest"
+            },
+            "pullPolicy": {
+              "type": "string",
+              "description": "Image pull policy",
+              "enum": [
+                "Always",
+                "IfNotPresent",
+                "Never"
+              ],
+              "default": "Always"
+            }
+          }
+        }
+      }
+    },
+    "csiBackends": {
+      "type": "object",
+      "description": "Vendor CSI backend configuration (deployed with csiDriver)"
+    },
     "bmfCrds": {
       "type": "object",
       "description": "Bare Metal Fulfillment Operator CRDs configuration"
