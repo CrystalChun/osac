@@ -118,6 +118,7 @@ spec:
         - name: clouds
           secret:
             secretName: osac-os-clouds
+            optional: true
         - name: profiles
           configMap:
             name: osac-profiles
