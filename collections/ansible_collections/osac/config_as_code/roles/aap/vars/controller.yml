@@ -924,6 +924,7 @@ controller_instance_groups: # noqa: var-naming[no-role-prefix]
                 - key: clouds.yaml
                   path: clouds.yaml
               defaultMode: 420
+              optional: true
 
   - name: "{{ aap_prefix }}-storage-operations-ig"
     is_container_group: true
