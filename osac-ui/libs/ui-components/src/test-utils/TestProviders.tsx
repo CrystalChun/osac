@@ -3,7 +3,7 @@ import { I18nextProvider } from 'react-i18next';
 import { MemoryRouter } from 'react-router-dom';
 import type { Transport } from '@connectrpc/connect';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { type RenderOptions, type RenderResult, render, renderHook } from '@testing-library/react';
+import { type RenderOptions, type RenderResult, render } from '@testing-library/react';
 import type { UserEvent } from '@testing-library/user-event';
 import userEvent from '@testing-library/user-event';
 import i18n from 'i18next';
@@ -15,8 +15,6 @@ import {
 } from './createMockConnectTransport';
 import en from '../../../i18n/locales/en/translation.json';
 import { ApiProvider } from '../api/api-context';
-import { SessionProvider } from '../hooks/use-session';
-import type { DemoShellRole } from '../shellTypes';
 
 const createTestI18n = () => {
   const instance = i18n.createInstance();
@@ -97,29 +95,4 @@ export const renderWithProviders = (
   });
 
   return { ...view, user: userEvent.setup() };
-};
-
-export type RenderHookWithProvidersOptions = {
-  role: DemoShellRole;
-  transport: Transport;
-  username?: string;
-};
-
-/** Renders a hook wrapped in `SessionProvider` + `ApiProvider` + a fresh `QueryClient` — for testing
- * role-aware hooks (e.g. admin catalog-item hooks) against a mock Connect transport. */
-export const renderHookWithProviders = <TResult,>(
-  hook: () => TResult,
-  { role, transport, username = 'test-user' }: RenderHookWithProvidersOptions,
-) => {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
-  });
-  const wrapper = ({ children }: { children: ReactNode }) => (
-    <SessionProvider role={role} username={username}>
-      <ApiProvider transport={transport}>
-        <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-      </ApiProvider>
-    </SessionProvider>
-  );
-  return { ...renderHook(hook, { wrapper }), queryClient };
 };

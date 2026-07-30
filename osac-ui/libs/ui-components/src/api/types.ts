@@ -25,9 +25,6 @@ export type ApiRoute =
   | 'v1/baremetal_instances'
   | 'v1/public_ips'
   | 'v1/public_ip_attachments'
-  | 'v1/private/compute_instance_catalog_items'
-  | 'v1/private/cluster_catalog_items'
-  | 'v1/private/baremetal_instance_catalog_items'
   | 'v1/console_sessions';
 
 /**

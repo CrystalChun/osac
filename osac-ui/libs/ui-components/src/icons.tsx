@@ -1,7 +1,6 @@
 import type { ComponentType } from 'react';
 import type { SVGIconProps } from '@patternfly/react-icons/dist/esm/createIcon';
 import CloudIcon from '@patternfly/react-icons/dist/esm/icons/cloud-icon';
-import CogIcon from '@patternfly/react-icons/dist/esm/icons/cog-icon';
 import CubeIcon from '@patternfly/react-icons/dist/esm/icons/cube-icon';
 import NetworkIcon from '@patternfly/react-icons/dist/esm/icons/network-icon';
 import ServerIcon from '@patternfly/react-icons/dist/esm/icons/server-icon';
@@ -13,7 +12,6 @@ const SHELL_NAV_ICONS: Record<string, ComponentType<SVGIconProps>> = {
   clusters: CloudIcon,
   'bare-metal': ServerIcon,
   'virtual-networks': NetworkIcon,
-  'catalog-management': CogIcon,
 };
 
 export const shellNavIcon = (itemId: string) => {
@@ -25,21 +23,16 @@ interface CatalogItemIconProps {
   kind:
     | 'osac.public.v1.ClusterCatalogItem'
     | 'osac.public.v1.BareMetalInstanceCatalogItem'
-    | 'osac.public.v1.ComputeInstanceCatalogItem'
-    | 'osac.private.v1.ClusterCatalogItem'
-    | 'osac.private.v1.BareMetalInstanceCatalogItem'
-    | 'osac.private.v1.ComputeInstanceCatalogItem';
+    | 'osac.public.v1.ComputeInstanceCatalogItem';
 }
 
 export const CatalogItemIcon = ({ kind }: CatalogItemIconProps) => {
   let Icon = VirtualMachineIcon;
   switch (kind) {
     case 'osac.public.v1.ClusterCatalogItem':
-    case 'osac.private.v1.ClusterCatalogItem':
       Icon = CloudIcon;
       break;
     case 'osac.public.v1.BareMetalInstanceCatalogItem':
-    case 'osac.private.v1.BareMetalInstanceCatalogItem':
       Icon = ServerIcon;
       break;
     default:
