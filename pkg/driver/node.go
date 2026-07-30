@@ -40,6 +40,16 @@ func (n *NodeServer) NodeStageVolume(ctx context.Context, req *csi.NodeStageVolu
 	klog.Infof("NodeStageVolume called: volumeId=%s stagingPath=%s",
 		req.GetVolumeId(), req.GetStagingTargetPath())
 
+	if req.GetVolumeId() == "" {
+		return nil, status.Error(codes.InvalidArgument, "volume ID is required")
+	}
+	if req.GetStagingTargetPath() == "" {
+		return nil, status.Error(codes.InvalidArgument, "staging target path is required")
+	}
+	if req.GetVolumeCapability() == nil {
+		return nil, status.Error(codes.InvalidArgument, "volume capability is required")
+	}
+
 	socketPath, err := n.resolveVendorSocket(req.GetVolumeContext())
 	if err != nil {
 		return nil, err
@@ -74,9 +84,17 @@ func (n *NodeServer) NodeUnstageVolume(ctx context.Context, req *csi.NodeUnstage
 	klog.Infof("NodeUnstageVolume called: volumeId=%s stagingPath=%s",
 		req.GetVolumeId(), req.GetStagingTargetPath())
 
+	if req.GetVolumeId() == "" {
+		return nil, status.Error(codes.InvalidArgument, "volume ID is required")
+	}
+	if req.GetStagingTargetPath() == "" {
+		return nil, status.Error(codes.InvalidArgument, "staging target path is required")
+	}
+
 	socketPath, err := n.lookupBackendSocket(req.GetVolumeId())
 	if err != nil {
-		return nil, err
+		klog.Infof("NodeUnstageVolume: no backend recorded for volume %q, treating as no-op", req.GetVolumeId())
+		return &csi.NodeUnstageVolumeResponse{}, nil
 	}
 
 	vendorConn, err := n.proxyMgr.GetConnection(socketPath)
@@ -108,6 +126,16 @@ func (n *NodeServer) NodePublishVolume(ctx context.Context, req *csi.NodePublish
 	klog.Infof("NodePublishVolume called: volumeId=%s targetPath=%s",
 		req.GetVolumeId(), req.GetTargetPath())
 
+	if req.GetVolumeId() == "" {
+		return nil, status.Error(codes.InvalidArgument, "volume ID is required")
+	}
+	if req.GetTargetPath() == "" {
+		return nil, status.Error(codes.InvalidArgument, "target path is required")
+	}
+	if req.GetVolumeCapability() == nil {
+		return nil, status.Error(codes.InvalidArgument, "volume capability is required")
+	}
+
 	socketPath, err := n.resolveVendorSocket(req.GetVolumeContext())
 	if err != nil {
 		return nil, err
@@ -136,9 +164,17 @@ func (n *NodeServer) NodeUnpublishVolume(ctx context.Context, req *csi.NodeUnpub
 	klog.Infof("NodeUnpublishVolume called: volumeId=%s targetPath=%s",
 		req.GetVolumeId(), req.GetTargetPath())
 
+	if req.GetVolumeId() == "" {
+		return nil, status.Error(codes.InvalidArgument, "volume ID is required")
+	}
+	if req.GetTargetPath() == "" {
+		return nil, status.Error(codes.InvalidArgument, "target path is required")
+	}
+
 	socketPath, err := n.lookupBackendSocket(req.GetVolumeId())
 	if err != nil {
-		return nil, err
+		klog.Infof("NodeUnpublishVolume: no backend recorded for volume %q, treating as no-op", req.GetVolumeId())
+		return &csi.NodeUnpublishVolumeResponse{}, nil
 	}
 
 	vendorConn, err := n.proxyMgr.GetConnection(socketPath)

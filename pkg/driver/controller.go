@@ -35,6 +35,13 @@ func NewControllerServer(fc fulfillment.Client, proxyMgr *proxy.Manager, vendorS
 func (c *ControllerServer) CreateVolume(ctx context.Context, req *csi.CreateVolumeRequest) (*csi.CreateVolumeResponse, error) {
 	klog.Infof("CreateVolume called: name=%s", req.GetName())
 
+	if req.GetName() == "" {
+		return nil, status.Error(codes.InvalidArgument, "volume name is required")
+	}
+	if len(req.GetVolumeCapabilities()) == 0 {
+		return nil, status.Error(codes.InvalidArgument, "volume capabilities are required")
+	}
+
 	tier := req.GetParameters()["tier"]
 	if tier == "" {
 		return nil, status.Error(codes.InvalidArgument, "parameter 'tier' is required")
@@ -84,6 +91,10 @@ func (c *ControllerServer) CreateVolume(ctx context.Context, req *csi.CreateVolu
 func (c *ControllerServer) DeleteVolume(ctx context.Context, req *csi.DeleteVolumeRequest) (*csi.DeleteVolumeResponse, error) {
 	klog.Infof("DeleteVolume called: volumeId=%s", req.GetVolumeId())
 
+	if req.GetVolumeId() == "" {
+		return nil, status.Error(codes.InvalidArgument, "volume ID is required")
+	}
+
 	socketPath, err := c.resolveVendorSocketFromSecrets(req.GetSecrets())
 	if err != nil {
 		return nil, err
@@ -106,11 +117,25 @@ func (c *ControllerServer) DeleteVolume(ctx context.Context, req *csi.DeleteVolu
 	return resp, nil
 }
 
-// ControllerPublishVolume routes to the vendor based on volume_context.
+// ControllerPublishVolume routes to the vendor based on volume_context or secrets.
 func (c *ControllerServer) ControllerPublishVolume(ctx context.Context, req *csi.ControllerPublishVolumeRequest) (*csi.ControllerPublishVolumeResponse, error) {
 	klog.Infof("ControllerPublishVolume called: volumeId=%s nodeId=%s", req.GetVolumeId(), req.GetNodeId())
 
+	if req.GetVolumeId() == "" {
+		return nil, status.Error(codes.InvalidArgument, "volume ID is required")
+	}
+	if req.GetNodeId() == "" {
+		return nil, status.Error(codes.InvalidArgument, "node ID is required")
+	}
+	if req.GetVolumeCapability() == nil {
+		return nil, status.Error(codes.InvalidArgument, "volume capability is required")
+	}
+
 	socketPath := c.resolveVendorSocket(req.GetVolumeContext())
+	if socketPath == "" {
+		return nil, status.Error(codes.InvalidArgument,
+			"volume context missing required key \"osac.backend\"")
+	}
 
 	vendorConn, err := c.proxyMgr.GetConnection(socketPath)
 	if err != nil {
@@ -121,10 +146,14 @@ func (c *ControllerServer) ControllerPublishVolume(ctx context.Context, req *csi
 	return vendorClient.ControllerPublishVolume(ctx, req)
 }
 
-// ControllerUnpublishVolume routes to the vendor based on volume_context.
+// ControllerUnpublishVolume routes to the vendor based on secrets.
 func (c *ControllerServer) ControllerUnpublishVolume(ctx context.Context, req *csi.ControllerUnpublishVolumeRequest) (*csi.ControllerUnpublishVolumeResponse, error) {
 	klog.Infof("ControllerUnpublishVolume called: volumeId=%s nodeId=%s",
 		req.GetVolumeId(), req.GetNodeId())
+
+	if req.GetVolumeId() == "" {
+		return nil, status.Error(codes.InvalidArgument, "volume ID is required")
+	}
 
 	socketPath, err := c.resolveVendorSocketFromSecrets(req.GetSecrets())
 	if err != nil {
@@ -144,6 +173,13 @@ func (c *ControllerServer) ControllerUnpublishVolume(ctx context.Context, req *c
 // ValidateVolumeCapabilities proxies the call to the vendor CSI driver.
 func (c *ControllerServer) ValidateVolumeCapabilities(ctx context.Context, req *csi.ValidateVolumeCapabilitiesRequest) (*csi.ValidateVolumeCapabilitiesResponse, error) {
 	klog.Infof("ValidateVolumeCapabilities called: volumeId=%s", req.GetVolumeId())
+
+	if req.GetVolumeId() == "" {
+		return nil, status.Error(codes.InvalidArgument, "volume ID is required")
+	}
+	if len(req.GetVolumeCapabilities()) == 0 {
+		return nil, status.Error(codes.InvalidArgument, "volume capabilities are required")
+	}
 
 	socketPath := c.resolveVendorSocket(req.GetVolumeContext())
 	if socketPath == "" {
