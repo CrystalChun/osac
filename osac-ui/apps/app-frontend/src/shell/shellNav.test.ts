@@ -6,7 +6,6 @@ import { tIdentity } from '@osac/ui-components/test-utils/i18n';
 import { navRowsForRole } from './shellNav';
 
 const roles: DemoShellRole[] = ['tenantUser', 'tenantAdmin', 'providerAdmin'];
-const adminRoles: DemoShellRole[] = ['tenantAdmin', 'providerAdmin'];
 
 const findSection = (role: DemoShellRole, sectionId: string) =>
   navRowsForRole(role, tIdentity).find((row) => row.sectionId === sectionId);
@@ -37,19 +36,9 @@ describe('navRowsForRole', () => {
     }
   });
 
-  it('includes Administration section with Catalog management for admin roles', () => {
-    for (const role of adminRoles) {
-      const admin = findSection(role, 'nav-administration');
-      expect(admin).toBeDefined();
-      expect(admin?.label).toBe('Administration');
-      expect(admin?.children).toEqual([
-        { id: 'catalog-management', label: 'Catalog management', path: '/admin/catalog' },
-      ]);
+  it('does not include an Administration section for any role', () => {
+    for (const role of roles) {
+      expect(findSection(role, 'nav-administration')).toBeUndefined();
     }
-  });
-
-  it('does not include Administration section for tenantUser', () => {
-    const admin = findSection('tenantUser', 'nav-administration');
-    expect(admin).toBeUndefined();
   });
 });

@@ -15,7 +15,6 @@ import { ClusterRoutes } from '@osac/ui-components/pages/tenant/ClusterRoutes';
 import { VmCreatePage } from '@osac/ui-components/pages/tenant/VmCreatePage';
 import { VmListPage } from '@osac/ui-components/pages/tenant/VmListPage';
 
-import { AdminCatalogRoutes } from './AdminCatalogRoutes';
 import { ShellMasthead } from './ShellMasthead';
 import { defaultRouteForRole } from './shellRoutes';
 import { ShellSidebar } from './ShellSidebar';
@@ -118,17 +117,6 @@ export const AppShell = ({ logout }: { logout: () => Promise<void> }) => {
             </ShellRoute>
           }
         />
-
-        {(role === 'providerAdmin' || role === 'tenantAdmin') && (
-          <Route
-            path="/admin/catalog/*"
-            element={
-              <ShellRoute>
-                <AdminCatalogRoutes />
-              </ShellRoute>
-            }
-          />
-        )}
 
         <Route path="*" element={<Navigate to={defaultRoute} replace />} />
       </Routes>
