@@ -75,6 +75,12 @@ type ComputeInstanceReconciler struct {
 	// MaxJobHistory defines how many jobs to keep per job array
 	MaxJobHistory int
 	targetCluster mc.ClusterName
+	// TiersClient and BackendsClient query the fulfillment service Tier API for
+	// JIT storage provisioning extra_vars. When nil, tier/backend context
+	// injection is skipped — backward compatible with environments without a
+	// fulfillment service connection. See resolveAndInjectTierContext.
+	TiersClient    StorageTiersLister
+	BackendsClient StorageBackendsClient
 }
 
 func NewComputeInstanceReconciler(
@@ -587,6 +593,12 @@ func (r *ComputeInstanceReconciler) handleUpdate(ctx context.Context, _ reconcil
 	if len(tenant.Status.StorageClasses) > 0 {
 		ctx = provisioning.WithTenantStorageClasses(ctx, tenant.Status.StorageClasses)
 	}
+
+	// Inject storage tier definitions and backend connections for JIT storage
+	// provisioning — osac-aap's playbook_osac_create_compute_instance.yml reads
+	// these to provision an on-demand StorageClass when the tenant doesn't
+	// already have one for the requested tier (OSAC-1992).
+	ctx, _ = resolveAndInjectTierContext(ctx, r.TiersClient, r.BackendsClient, "computeInstance", instance.GetName())
 
 	// Always delegate to provisioning lifecycle — EvaluateAction decides
 	// whether to skip, poll, or trigger. This avoids the A-B-A problem where
