@@ -1,0 +1,7 @@
+go 1.26.5
+
+use (
+	./fulfillment-service
+	./osac-operator
+	./osac-operator/api
+)
