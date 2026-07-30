@@ -1,0 +1,95 @@
+#
+# Copyright (c) 2025 Red Hat Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+# in compliance with the License. You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software distributed under the License
+# is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+# or implied. See the License for the specific language governing permissions and limitations under
+# the License.
+#
+
+name: Check pull request
+
+on:
+  pull_request:
+    branches:
+    - main
+    paths-ignore:
+      - 'OWNERS'
+      - 'LICENSE'
+      - '*.md'
+      - 'docs/**'
+
+permissions:
+  contents: read
+
+jobs:
+
+  check-pre-commit:
+    name: Check pre-commit
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      with:
+        persist-credentials: false
+    - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+    - uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd  # v3.0.1
+      with:
+        extra_args: -c .pre-commit-config-ci.yaml
+
+  check-python-code:
+    name: Check Python code
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      with:
+        persist-credentials: false
+    - uses: ./.github/actions/setup-python
+    - run: uv run ruff check
+
+  check-go-code:
+    name: Check Go and proto code
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      with:
+        persist-credentials: false
+    - uses: ./.github/actions/setup-go
+    - uses: ./.github/actions/setup-python
+    - uses: bufbuild/buf-action@8c6a16e16f12ba20b6470afa9c2ba9b5ba8c97c3  # v1
+      with:
+        version: '1.50.0'
+        setup_only: true
+    - run: |
+        uv run dev.py lint
+
+  check-generated-code:
+    name: Check generated code
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      with:
+        persist-credentials: false
+    - uses: bufbuild/buf-action@8c6a16e16f12ba20b6470afa9c2ba9b5ba8c97c3  # v1
+      with:
+        version: '1.50.0'
+        setup_only: true
+    - run: |
+        buf generate
+        git diff --exit-code
+
+  build-binaries:
+    name: Build binaries
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      with:
+        persist-credentials: false
+    - uses: ./.github/actions/setup-go
+    - uses: goreleaser/goreleaser-action@f06c13b6b1a9625abc9e6e439d9c05a8f2190e94  # v7
+      with:
+        args: build --snapshot --clean

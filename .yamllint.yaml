@@ -1,4 +1,9 @@
 extends: default
+ignore:
+  - fulfillment-service/charts/*/templates/
+  - fulfillment-service/it/charts/*/templates/
+  - osac-operator/charts/*/templates/
+  - osac-operator/config/
 rules:
   line-length: disable
   document-start: disable

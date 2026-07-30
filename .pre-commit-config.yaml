@@ -18,3 +18,4 @@ repos:
       files: \.(yaml|yml)$
       types: [file, yaml]
       entry: yamllint --strict
+      exclude: ^(fulfillment-service/(charts|it/charts)/.*/templates/|osac-operator/(charts/.*/templates/|config/))
