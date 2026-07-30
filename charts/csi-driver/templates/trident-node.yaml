@@ -3,7 +3,7 @@ apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: {{ include "csi-driver.fullname" . }}-trident-node
-  namespace: {{ .Release.Namespace }}
+  namespace: {{ .Values.namespace }}
   labels:
     {{- include "csi-driver.labels" . | nindent 4 }}
     app.kubernetes.io/name: trident-csi-node
@@ -44,7 +44,7 @@ spec:
             - name: TRIDENT_SERVER
               value: "127.0.0.1:8000"
           securityContext:
-            privileged: true
+            privileged: {{ .Values.node.privileged }}
           volumeMounts:
             - name: trident-socket-dir
               mountPath: {{ .Values.vendors.trident.node.socketPath }}
