@@ -96,7 +96,7 @@ func BuildAuthorizeURL(cfg *OIDCConfig, clientID, redirectURI, state, challenge 
 	params.Set("response_type", "code")
 	params.Set("client_id", clientID)
 	params.Set("redirect_uri", redirectURI)
-	params.Set("scope", "openid profile email")
+	params.Set("scope", "openid profile email organization")
 	params.Set("state", state)
 	params.Set("code_challenge", challenge)
 	params.Set("code_challenge_method", "S256")
