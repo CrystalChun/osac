@@ -3,7 +3,7 @@ apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: {{ include "csi-driver.fullname" . }}-pure-node
-  namespace: {{ .Release.Namespace }}
+  namespace: {{ .Values.namespace }}
   labels:
     {{- include "csi-driver.labels" . | nindent 4 }}
     app.kubernetes.io/name: pure-csi-node
@@ -53,7 +53,7 @@ spec:
               value: {{ .Values.vendors.pure.node.clusterName | quote }}
             {{- end }}
           securityContext:
-            privileged: true
+            privileged: {{ .Values.node.privileged }}
           volumeMounts:
             - name: pure-socket-dir
               mountPath: {{ .Values.vendors.pure.node.socketPath }}

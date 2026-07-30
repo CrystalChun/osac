@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "csi-driver.fullname" . }}-controller
-  namespace: {{ .Release.Namespace }}
+  namespace: {{ .Values.namespace }}
   labels:
     {{- include "csi-driver.labels" . | nindent 4 }}
     app.kubernetes.io/component: controller
@@ -43,8 +43,6 @@ spec:
             allowPrivilegeEscalation: false
             capabilities:
               drop: ["ALL"]
-            seccompProfile:
-              type: RuntimeDefault
 
         - name: csi-provisioner
           image: "{{ .Values.sidecars.provisioner.image.repository }}:{{ .Values.sidecars.provisioner.image.tag }}"
@@ -62,8 +60,6 @@ spec:
             allowPrivilegeEscalation: false
             capabilities:
               drop: ["ALL"]
-            seccompProfile:
-              type: RuntimeDefault
 
         - name: csi-attacher
           image: "{{ .Values.sidecars.attacher.image.repository }}:{{ .Values.sidecars.attacher.image.tag }}"
@@ -79,8 +75,6 @@ spec:
             allowPrivilegeEscalation: false
             capabilities:
               drop: ["ALL"]
-            seccompProfile:
-              type: RuntimeDefault
 
       volumes:
         - name: osac-socket-dir

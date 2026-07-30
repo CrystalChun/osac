@@ -3,7 +3,7 @@ apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: {{ include "csi-driver.fullname" . }}-vast-node
-  namespace: {{ .Release.Namespace }}
+  namespace: {{ .Values.namespace }}
   labels:
     {{- include "csi-driver.labels" . | nindent 4 }}
     app.kubernetes.io/name: vast-csi-node
@@ -47,7 +47,7 @@ spec:
             - name: X_CSI_CREDENTIALS_PATH
               value: "/opt/vms-auth"
           securityContext:
-            privileged: true
+            privileged: {{ .Values.node.privileged }}
           volumeMounts:
             - name: vast-socket-dir
               mountPath: {{ .Values.vendors.vast.node.socketPath }}

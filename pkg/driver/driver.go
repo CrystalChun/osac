@@ -74,6 +74,10 @@ func (d *Driver) Run() error {
 		return fmt.Errorf("listening on %q: %w", socketPath, err)
 	}
 
+	if err := os.Chmod(socketPath, 0666); err != nil {
+		return fmt.Errorf("setting socket permissions on %q: %w", socketPath, err)
+	}
+
 	klog.Infof("OSAC CSI driver %q starting on %s", d.name, d.endpoint)
 
 	d.srv = grpc.NewServer(

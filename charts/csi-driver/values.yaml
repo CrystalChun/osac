@@ -1,8 +1,10 @@
+namespace: osac-csi
+
 driverName: csi.osac.openshift.io
 
 image:
   repository: ghcr.io/osac-project/osac-csi-driver
-  tag: "0.0.0"
+  tag: main  # PLACEHOLDER -- overwritten at release time
   pullPolicy: Always
 
 controller:
@@ -19,6 +21,7 @@ controller:
   leaderElection: true
 
 node:
+  privileged: true
   vendorSockets: ""
   resources:
     limits:
