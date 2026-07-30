@@ -16,6 +16,15 @@ spec:
   managementState: "Managed"
 EOF
 
+echo "Waiting for cert-manager ServiceAccounts..."
+for sa in cert-manager cert-manager-webhook cert-manager-cainjector; do
+  echo "  Waiting for ServiceAccount ${sa}..."
+  until oc get sa "${sa}" -n cert-manager &>/dev/null; do
+    sleep 5
+  done
+  echo "  ServiceAccount ${sa} exists."
+done
+
 echo "Waiting for cert-manager deployment..."
 oc wait --for=condition=Available deploy/cert-manager -n cert-manager --timeout=300s
 
