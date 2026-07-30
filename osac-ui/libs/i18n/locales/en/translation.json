@@ -282,6 +282,7 @@
   "TCP": "TCP",
   "Tenant admin": "Tenant admin",
   "Tenant user": "Tenant user",
+  "Tenant: {{ tenantId }}": "Tenant: {{ tenantId }}",
   "The console is available when the virtual machine is running.": "The console is available when the virtual machine is running.",
   "This console is already open in another tab in this browser. Take over to continue here, or switch to that tab.": "This console is already open in another tab in this browser. Take over to continue here, or switch to that tab.",
   "This field is required": "This field is required",

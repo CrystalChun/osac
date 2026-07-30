@@ -19,6 +19,7 @@ import {
   ModalFooter,
   ModalHeader,
   PageToggleButton,
+  Stack,
   Title,
   Toolbar,
   ToolbarContent,
@@ -28,6 +29,7 @@ import {
 import { BarsIcon } from '@patternfly/react-icons/dist/esm/icons/bars-icon';
 import { UserIcon } from '@patternfly/react-icons/dist/esm/icons/user-icon';
 
+import { SubtleContent } from '@osac/ui-components/components/SubtleContent/SubtleContent';
 import UserPreferencesModal from '@osac/ui-components/components/UserPreferences/UserPreferencesModal';
 import { useSession } from '@osac/ui-components/hooks/use-session';
 import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
@@ -44,7 +46,7 @@ export const ShellMasthead = ({ onLogout }: ShellMastheadProps) => {
   const [isPreferencesOpen, setPreferencesOpen] = React.useState(false);
   const [logoutError, setLogoutError] = React.useState<string>();
   const navigate = useNavigate();
-  const { role, username } = useSession();
+  const { role, username, tenantId } = useSession();
   const displayName = username || 'User';
 
   return (
@@ -72,9 +74,14 @@ export const ShellMasthead = ({ onLogout }: ShellMastheadProps) => {
           </MastheadToggle>
           <MastheadLogo>
             <MastheadBrand>
-              <Title headingLevel="h4" size="lg">
-                Red Hat OSAC
-              </Title>
+              <Stack>
+                <Title headingLevel="h4" size="lg">
+                  Red Hat OSAC
+                </Title>
+                {tenantId && (
+                  <SubtleContent>{t('Tenant: {{ tenantId }}', { tenantId })}</SubtleContent>
+                )}
+              </Stack>
             </MastheadBrand>
           </MastheadLogo>
         </MastheadMain>
