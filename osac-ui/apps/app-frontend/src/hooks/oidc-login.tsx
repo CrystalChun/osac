@@ -1,16 +1,19 @@
 import * as React from 'react';
 
-import { DemoShellRole } from '@osac/ui-components/shellTypes';
+import type { UserRole } from '@osac/ui-components/shellTypes';
 import { getErrorMessage } from '@osac/ui-components/utils/error';
 
-const roleFromRoles = (roles: string[], groups: string[]): DemoShellRole => {
+export const roleFromRoles = (roles: string[] = [], groups: string[] = []): UserRole => {
   if (groups.includes('admins')) {
-    return 'providerAdmin';
+    return 'admin';
   }
   if (roles.includes('tenant-admin')) {
-    return 'tenantAdmin';
+    return 'tenant-admin';
   }
-  return 'tenantUser';
+  if (roles.includes('tenant-idp-manager')) {
+    return 'tenant-idp-manager';
+  }
+  return 'tenant-user';
 };
 
 const fetchLoginInfo = async (): Promise<{
@@ -41,7 +44,7 @@ const maxTimeout = 2 ** 31 - 1;
 
 export const useOIDCLogin = (): [
   string,
-  DemoShellRole,
+  UserRole,
   boolean,
   string | undefined,
   () => Promise<void>,
@@ -49,7 +52,7 @@ export const useOIDCLogin = (): [
   const [triggerRelogin, setTriggerRelogin] = React.useState(0);
   const [isLoading, setIsLoading] = React.useState(true);
   const [username, setUsername] = React.useState<string>('');
-  const [role, setRole] = React.useState<DemoShellRole>('tenantUser');
+  const [role, setRole] = React.useState<UserRole>('tenant-user');
   const [error, setError] = React.useState<string>();
 
   const refreshTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -133,7 +136,7 @@ export const useOIDCLogin = (): [
         if (result) {
           setError(undefined);
           setUsername(result.username);
-          setRole(roleFromRoles(result.roles ?? [], result.groups ?? []));
+          setRole(roleFromRoles(result.roles, result.groups));
           setIsLoading(false);
           scheduleRefresh();
         } else {

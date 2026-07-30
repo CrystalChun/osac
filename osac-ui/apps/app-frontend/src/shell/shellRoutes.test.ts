@@ -4,8 +4,9 @@ import { defaultRouteForRole } from './shellRoutes';
 
 describe('defaultRouteForRole', () => {
   it('lands every role on /catalog', () => {
-    expect(defaultRouteForRole('tenantUser')).toBe('/catalog');
-    expect(defaultRouteForRole('tenantAdmin')).toBe('/catalog');
-    expect(defaultRouteForRole('providerAdmin')).toBe('/catalog');
+    expect(defaultRouteForRole('tenant-user')).toBe('/catalog');
+    expect(defaultRouteForRole('tenant-admin')).toBe('/catalog');
+    expect(defaultRouteForRole('tenant-idp-manager')).toBe('/catalog');
+    expect(defaultRouteForRole('admin')).toBe('/catalog');
   });
 });
