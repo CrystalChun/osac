@@ -25,21 +25,16 @@ interface CatalogItemIconProps {
   kind:
     | 'osac.public.v1.ClusterCatalogItem'
     | 'osac.public.v1.BareMetalInstanceCatalogItem'
-    | 'osac.public.v1.ComputeInstanceCatalogItem'
-    | 'osac.private.v1.ClusterCatalogItem'
-    | 'osac.private.v1.BareMetalInstanceCatalogItem'
-    | 'osac.private.v1.ComputeInstanceCatalogItem';
+    | 'osac.public.v1.ComputeInstanceCatalogItem';
 }
 
 export const CatalogItemIcon = ({ kind }: CatalogItemIconProps) => {
   let Icon = VirtualMachineIcon;
   switch (kind) {
     case 'osac.public.v1.ClusterCatalogItem':
-    case 'osac.private.v1.ClusterCatalogItem':
       Icon = CloudIcon;
       break;
     case 'osac.public.v1.BareMetalInstanceCatalogItem':
-    case 'osac.private.v1.BareMetalInstanceCatalogItem':
       Icon = ServerIcon;
       break;
     default:

@@ -4,46 +4,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import type { BareMetalInstanceCatalogItem } from '@osac/types';
-import {
-  BareMetalInstanceCatalogItems,
-  BareMetalInstanceRunStrategy,
-  BareMetalInstances,
-} from '@osac/types';
+import { BareMetalInstanceRunStrategy, BareMetalInstances } from '@osac/types';
 
-import {
-  type PatchBareMetalInstanceInput,
-  useBareMetalInstanceCatalogItems,
-  usePatchBareMetalInstance,
-} from './baremetal-instance';
-import { createCatalogHookTests } from '../../test-utils/catalogHookTestHelpers';
+import { type PatchBareMetalInstanceInput, usePatchBareMetalInstance } from './baremetal-instance';
 import { ApiProvider } from '../api-context';
-
-const item: BareMetalInstanceCatalogItem = {
-  $typeName: 'osac.public.v1.BareMetalInstanceCatalogItem',
-  id: 'public-1',
-  title: 'Public bare metal item',
-  description: '',
-  template: '',
-  published: true,
-  fieldDefinitions: [],
-};
-
-describe('useBareMetalInstanceCatalogItems', () => {
-  createCatalogHookTests({
-    endpointDescription: 'public BareMetalInstanceCatalogItems',
-    useHook: useBareMetalInstanceCatalogItems,
-    role: 'tenantAdmin',
-    item,
-    registerList: (router, onList) =>
-      router.service(BareMetalInstanceCatalogItems, {
-        list: () => {
-          onList?.();
-          return { items: [item] };
-        },
-      }),
-  });
-});
 
 const makeBmi = (id: string) => ({
   id,
