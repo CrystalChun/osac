@@ -204,6 +204,17 @@ ui:
   images:
     ui: ghcr.io/osac-project/osac-ui:latest  # PLACEHOLDER -- overwritten at release time by publish-charts.yaml
 
+# --- CSI Driver ---
+csiDriver:
+  enabled: false
+  image:
+    repository: ghcr.io/osac-project/osac-csi-driver
+    tag: latest  # PLACEHOLDER -- overwritten at release time by publish-charts.yaml
+    pullPolicy: Always
+
+# --- CSI Backends ---
+csiBackends: {}
+
 # --- Bare Metal Fulfillment Operator CRDs ---
 bmfCrds: {}
 

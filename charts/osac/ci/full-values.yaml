@@ -68,6 +68,9 @@ aap:
   configAsCode:
     importBcmAgentsEnabled: false
 
+csiDriver:
+  enabled: true
+
 validation:
   enabled: true
 
