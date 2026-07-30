@@ -314,7 +314,6 @@ func setupClusterControllers(
 				return nil
 			}
 			return controller.NewFeedbackReconciler(
-				ctrl.Log.WithName("feedback"),
 				localMgr.GetClient(), grpcConn,
 				os.Getenv(envClusterOrderNamespace),
 			).SetupWithManager(mgr)
