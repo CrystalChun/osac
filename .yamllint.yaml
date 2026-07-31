@@ -6,6 +6,8 @@ ignore:
   - osac-operator/config/
   - osac-aap/vendor/
   - osac-aap/charts/
+  - bare-metal-fulfillment-operator/charts/*/templates/
+  - bare-metal-fulfillment-operator/config/
 rules:
   line-length: disable
   document-start: disable

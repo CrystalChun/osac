@@ -8,6 +8,11 @@ on:
       - 'osac-operator/config/crd/bases/**'
       - 'osac-operator/hack/sync-helm-crds.py'
       - 'osac-operator/Makefile'
+      - 'bare-metal-fulfillment-operator/api/**'
+      - 'bare-metal-fulfillment-operator/charts/**'
+      - 'bare-metal-fulfillment-operator/config/crd/bases/**'
+      - 'bare-metal-fulfillment-operator/hack/sync-helm-crds.py'
+      - 'bare-metal-fulfillment-operator/Makefile'
       - 'fulfillment-service/charts/**'
       - 'osac-aap/charts/**'
       - '.github/workflows/helm-lint.yaml'
@@ -16,12 +21,17 @@ permissions:
   contents: read
 
 jobs:
-  # osac-operator-only: no other component currently generates Helm CRD
-  # templates from a kubebuilder config/crd/bases/ source of truth, so
-  # there's nothing to matrix this against yet.
+  # Matrixed over every component that generates Helm CRD templates from a
+  # kubebuilder config/crd/bases/ source of truth via hack/sync-helm-crds.py
+  # + make check-helm-crds (osac-operator and bare-metal-fulfillment-operator
+  # share the identical mechanism; fulfillment-service/osac-aap don't have one).
   helm-crds-sync:
-    name: Check Helm CRD sync
+    name: Check Helm CRD sync (${{ matrix.component }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        component: [osac-operator, bare-metal-fulfillment-operator]
     steps:
     - name: Checkout repository
       uses: actions/checkout@v7
@@ -34,7 +44,7 @@ jobs:
         go-version: stable
 
     - name: Verify Helm CRD templates match bases
-      working-directory: osac-operator
+      working-directory: ${{ matrix.component }}
       run: make check-helm-crds
 
   # fulfillment-service's chart guards most values with `required "..." .Values.X`
@@ -51,6 +61,10 @@ jobs:
           - component: osac-operator
             chart: operator-crds
           - component: osac-operator
+            chart: operator
+          - component: bare-metal-fulfillment-operator
+            chart: operator-crds
+          - component: bare-metal-fulfillment-operator
             chart: operator
           - component: fulfillment-service
             chart: service
