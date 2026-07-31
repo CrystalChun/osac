@@ -1,3 +1,10 @@
+# osac-aap's own vendored third-party Ansible collections and Helm charts
+# aren't ours to lint/fix (test fixtures in particular use intentionally
+# invalid JSON), so exclude them from every hook, not just yamllint --
+# matching the top-level (all-hooks) scope osac-aap's own .pre-commit-config.yaml
+# used before this directory was merged in.
+exclude: ^osac-aap/(vendor|charts)/.*
+
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v5.0.0

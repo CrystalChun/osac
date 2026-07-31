@@ -4,6 +4,8 @@ ignore:
   - fulfillment-service/it/charts/*/templates/
   - osac-operator/charts/*/templates/
   - osac-operator/config/
+  - osac-aap/vendor/
+  - osac-aap/charts/
 rules:
   line-length: disable
   document-start: disable
@@ -13,3 +15,11 @@ rules:
     max-spaces-after: 4
   truthy:
     check-keys: false
+  comments:
+    min-spaces-from-content: 1
+  comments-indentation: false
+  braces:
+    max-spaces-inside: 1
+  octal-values:
+    forbid-implicit-octal: true
+    forbid-explicit-octal: true
