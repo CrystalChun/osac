@@ -53,7 +53,15 @@ func NewDriver(name, version, endpoint, nodeID string, fulfillmentClient fulfill
 }
 
 // Run starts the gRPC server and listens for CSI requests.
+// It blocks until a SIGTERM or SIGINT is received.
 func (d *Driver) Run() error {
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGTERM, syscall.SIGINT)
+	defer stop()
+	return d.RunWithContext(ctx)
+}
+
+// RunWithContext starts the gRPC server and blocks until the context is cancelled.
+func (d *Driver) RunWithContext(ctx context.Context) error {
 	u, err := url.Parse(d.endpoint)
 	if err != nil {
 		return fmt.Errorf("parsing endpoint URL %q: %w", d.endpoint, err)
@@ -88,12 +96,9 @@ func (d *Driver) Run() error {
 	csi.RegisterControllerServer(d.srv, d.controller)
 	csi.RegisterNodeServer(d.srv, d.node)
 
-	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGTERM, syscall.SIGINT)
-	defer stop()
-
 	go func() {
 		<-ctx.Done()
-		klog.Infof("Received shutdown signal, stopping gracefully...")
+		klog.Infof("Context cancelled, stopping gracefully...")
 		d.Stop()
 	}()
 
