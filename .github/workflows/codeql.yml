@@ -28,12 +28,12 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
 
       # go.work at the repo root requires go >= 1.26.3 (it links
-      # fulfillment-service, osac-operator, and osac-operator/api into one
-      # workspace); the runner's preinstalled Go is older, so autobuild fails
-      # extraction for all three modules without this. This composite action
-      # pins exactly the Go version go.work requires, so any valid
-      # working-directory containing a go.mod satisfies the workspace-wide
-      # version floor.
+      # fulfillment-service, osac-operator, osac-operator/api, and
+      # bare-metal-fulfillment-operator into one workspace); the runner's
+      # preinstalled Go is older, so autobuild fails extraction for all
+      # modules without this. This composite action pins exactly the Go
+      # version go.work requires, so any valid working-directory containing
+      # a go.mod satisfies the workspace-wide version floor.
       - if: matrix.language == 'go'
         uses: ./.github/actions/setup-go
         with:
@@ -65,6 +65,7 @@ jobs:
           (cd fulfillment-service && go build ./...)
           (cd osac-operator && go build ./...)
           (cd osac-operator/api && go build ./...)
+          (cd bare-metal-fulfillment-operator && go build ./...)
 
       - uses: github/codeql-action/analyze@f205ea1c3313d32999d8d6a48b4f6530d4437b38  # v4.37.4
         with:
