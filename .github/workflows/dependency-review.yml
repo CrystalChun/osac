@@ -29,6 +29,4 @@ jobs:
           #    already on main, pre-dating this PR entirely; not something this
           #    carve-out newly permits into the repo, just a hole this PR's own
           #    scan happens to surface.
-          allow-ghsas: |
-            GHSA-hrxh-6v49-42gf
-            GHSA-gcjh-h69q-9w9g
+          allow-ghsas: "GHSA-hrxh-6v49-42gf, GHSA-gcjh-h69q-9w9g"
