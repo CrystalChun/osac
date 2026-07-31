@@ -25,6 +25,8 @@ import {
   VirtualNetworkState,
   VirtualNetworks,
 } from '@osac/types';
+import type { Tenant as PrivateTenant } from '@osac/types/private';
+import { Tenants as PrivateTenants } from '@osac/types/private';
 
 import { UnauthorizedError } from '../utils/unauthorizedError';
 
@@ -33,6 +35,7 @@ export type MockApiFixtures = {
   clusterCatalogItems?: ClusterCatalogItem[];
   clusterTemplates?: ClusterTemplate[];
   hostTypes?: HostType[];
+  tenants?: PrivateTenant[];
   virtualNetworks?: VirtualNetwork[];
   subnets?: Subnet[];
   securityGroups?: SecurityGroup[];
@@ -102,6 +105,7 @@ export const createMockConnectTransport = (
   const clusterCatalogItems = fixtures.clusterCatalogItems ?? [];
   const clusterTemplates = fixtures.clusterTemplates ?? [];
   const hostTypes = fixtures.hostTypes ?? [];
+  const tenants = fixtures.tenants ?? [];
   const virtualNetworks = fixtures.virtualNetworks ?? [];
   const subnets = fixtures.subnets ?? [];
   const securityGroups = fixtures.securityGroups ?? [];
@@ -187,6 +191,17 @@ export const createMockConnectTransport = (
           items: instanceTypes.filter((item) =>
             matchesInstanceTypeActiveFilter(req.filter, item.spec?.state),
           ),
+        }),
+      });
+
+      router.service(PrivateTenants, {
+        list: () => ({
+          items: tenants,
+          size: tenants.length,
+          total: tenants.length,
+        }),
+        get: (req) => ({
+          object: tenants.find((t) => t.id === req.id),
         }),
       });
 

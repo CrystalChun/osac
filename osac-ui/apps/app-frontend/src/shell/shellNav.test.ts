@@ -36,8 +36,9 @@ describe('navRowsForRole', () => {
     }
   });
 
-  it('does not include an Administration section for any role', () => {
-    for (const role of roles) {
+  it('Administration section shows up only for admin role', () => {
+    expect(findSection('admin', 'nav-administration')).toBeDefined();
+    for (const role of ['tenant-user', 'tenant-admin', 'tenant-idp-manager'] as UserRole[]) {
       expect(findSection(role, 'nav-administration')).toBeUndefined();
     }
   });

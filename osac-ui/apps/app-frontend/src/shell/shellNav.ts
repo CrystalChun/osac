@@ -5,16 +5,24 @@ import type { UserRole } from '@osac/ui-components/shellTypes';
 
 export type NavLink = { id: string; label: string; path: string };
 
-export type NavSection = {
+type NavSection = {
   kind: 'section';
   sectionId: string;
   label: string;
   children: NavLink[];
 };
 
-export type NavRow = NavSection;
+const getAdminNav = (t: TFunction): NavSection[] => [
+  {
+    kind: 'section',
+    sectionId: 'nav-administration',
+    label: t('Administration'),
+    children: [{ id: 'tenant', label: t('Tenants'), path: '/admin/tenants' }],
+  },
+  ...getBaseNav(t),
+];
 
-const getBaseNav = (t: TFunction): NavRow[] => [
+const getBaseNav = (t: TFunction): NavSection[] => [
   {
     kind: 'section',
     sectionId: 'nav-tenant-services',
@@ -45,4 +53,10 @@ const getBaseNav = (t: TFunction): NavRow[] => [
   },
 ];
 
-export const navRowsForRole = (_role: UserRole, t: TFunction): NavRow[] => getBaseNav(t);
+export const navRowsForRole = (role: UserRole, t: TFunction): NavSection[] => {
+  if (role === 'admin') {
+    return getAdminNav(t);
+  }
+
+  return getBaseNav(t);
+};

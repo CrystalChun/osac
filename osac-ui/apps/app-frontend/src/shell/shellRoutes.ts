@@ -1,3 +1,8 @@
 import type { UserRole } from '@osac/ui-components/shellTypes';
 
-export const defaultRouteForRole = (_role: UserRole): string => '/catalog';
+export const defaultRouteForRole = (role: UserRole): string => {
+  if (role === 'admin') {
+    return '/admin/tenants';
+  }
+  return '/catalog';
+};
