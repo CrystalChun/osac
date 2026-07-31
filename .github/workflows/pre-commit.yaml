@@ -16,4 +16,5 @@ jobs:
       with:
         setup_only: true
     - run: make -C osac-operator golangci-lint
+    - run: make -C bare-metal-fulfillment-operator golangci-lint
     - uses: pre-commit/action@v3.0.1
