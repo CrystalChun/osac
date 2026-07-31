@@ -51,10 +51,10 @@ jobs:
           filters: |
             code:
               - '**'
-              - '!OWNERS'
-              - '!LICENSE'
-              - '!*.md'
-              - '!docs/**'
+              - '!**/OWNERS'
+              - '!**/LICENSE'
+              - '!**/*.md'
+              - '!**/docs/**'
 
   # Builds fulfillment-service, osac-operator, osac-aap's execution
   # environment, and bare-metal-fulfillment-operator from this PR's current
