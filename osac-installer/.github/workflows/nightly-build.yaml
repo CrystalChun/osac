@@ -17,16 +17,29 @@ env:
   CHARTS_REPO: ${{ github.repository_owner }}/charts
   VALUES_FILE: values/development/values.yaml
   # Single source of truth for submodule components: repo, image, path, tag-mode (tag|inline), chart-path
+  #
+  # Deliberately empty now -- every component that used to be listed here
+  # is gone, for two different reasons:
+  #   - osac-ui: no longer a submodule at all. Converted to a real released
+  #     OCI chart + image reference, consumed directly via a version pin in
+  #     charts/osac/Chart.yaml, and it already publishes its own chart/image
+  #     independently via its own publish-image.yaml/publish-charts.yaml --
+  #     there's nothing left for this pipeline's submodule-bump/republish
+  #     loops to do for it.
+  #   - osac-operator, fulfillment-service, osac-aap, and
+  #     bare-metal-fulfillment-operator: NOT independently published --
+  #     they're now mono-repo-resident directories sharing this repo's own
+  #     commit history with osac-installer itself, with no submodule under
+  #     base/ at all (removed). There's no separate repo/commit/image
+  #     lineage left for this pipeline to bump a pin toward or republish a
+  #     chart from; they build and version alongside the mono-repo directly.
+  # Once this workflow is wired into root-level CI (a separate, deeper
+  # redesign of what "nightly build" even means when there's nothing left
+  # to bump), these lists -- and the loops that consume them -- likely need
+  # to be replaced entirely rather than repopulated.
   COMPONENTS: >-
-    osac-operator:osac-operator:base/osac-operator:tag:base/osac-operator/charts/operator
-    fulfillment-service:fulfillment-service:base/osac-fulfillment-service:inline:base/osac-fulfillment-service/charts/service
-    osac-aap:osac-aap:base/osac-aap:inline:base/osac-aap/charts/aap
-    bare-metal-fulfillment-operator:bare-metal-fulfillment-operator:base/bare-metal-fulfillment-operator:tag:base/bare-metal-fulfillment-operator/charts/operator
-    osac-ui:osac-ui:base/osac-ui:inline:base/osac-ui/charts/ui
   # CRD charts: name, submodule path, chart path (no image, so no tag-mode field)
   CRD_CHARTS: >-
-    osac-operator-crds:base/osac-operator:base/osac-operator/charts/operator-crds
-    bare-metal-fulfillment-operator-crds:base/bare-metal-fulfillment-operator:base/bare-metal-fulfillment-operator/charts/operator-crds
 
 jobs:
   # -------------------------------------------------------------------

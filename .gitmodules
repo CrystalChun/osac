@@ -1,6 +1,3 @@
-[submodule "osac-installer/base/osac-ui"]
-	path = osac-installer/base/osac-ui
-	url = https://github.com/osac-project/osac-ui.git
 [submodule "osac-installer/base/osac-csi-driver"]
 	path = osac-installer/base/osac-csi-driver
 	url = https://github.com/osac-project/osac-csi-driver.git

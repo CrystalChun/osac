@@ -4,8 +4,11 @@
 # bare-metal-fulfillment-operator now live in the same mono-repo as
 # osac-installer itself and publish SHA-tagged images off that mono-repo's
 # own commits -- there's one shared commit for all of them, not four
-# independent submodule pins. osac-ui remains a genuinely separate
-# repo/submodule and keeps its own commit lookup.
+# independent submodule pins. osac-ui is a real released dependency now
+# (an OCI chart + image pinned to a version tag, e.g. v0.0.5) rather than
+# a submodule commit this script derives a tag from -- its version is
+# bumped manually/deliberately like any other external chart dependency,
+# not auto-synced here.
 
 set -euo pipefail
 
@@ -20,7 +23,6 @@ operator_tag="${osac_tag}"
 fulfillment_tag="${osac_tag}"
 aap_tag="${osac_tag}"
 bmf_tag="${osac_tag}"
-ui_tag="sha-$(git -C "${REPO_ROOT}" submodule status base/osac-ui | awk '{print $1}' | tr -d ' +-' | cut -c1-7)"
 
 for values_file in "${REPO_ROOT}"/values/*/values.yaml; do
   [[ ! -f "${values_file}" ]] && continue
@@ -31,8 +33,7 @@ for values_file in "${REPO_ROOT}"/values/*/values.yaml; do
     "osac-operator:tag ${operator_tag}" \
     "fulfillment-service:inline ${fulfillment_tag}" \
     "osac-aap:inline ${aap_tag}" \
-    "bare-metal-fulfillment-operator:tag ${bmf_tag}" \
-    "osac-ui:inline ${ui_tag}"; do
+    "bare-metal-fulfillment-operator:tag ${bmf_tag}"; do
     component="${pair%%:*}"
     rest="${pair#*:}"
     mode="${rest%% *}"

@@ -1,4 +1,4 @@
-name: Bump submodules and pinned refs
+name: Bump pinned refs
 
 on:
   schedule:
@@ -13,96 +13,19 @@ jobs:
     steps:
       - uses: actions/checkout@v7.0.0
         with:
-          submodules: true
           fetch-depth: 0
           token: ${{ secrets.OSAC_BOT_PAT }}
 
-      - name: Check latest commits have published images
-        id: find
-        env:
-          GH_TOKEN: ${{ secrets.OSAC_BOT_PAT }}
-        run: |
-          set -euo pipefail
-
-          # osac-operator, fulfillment-service, osac-aap, and
-          # bare-metal-fulfillment-operator are now part of this mono-repo
-          # and share its commit history with osac-installer itself --
-          # there's no independent submodule pin to bump toward for them
-          # anymore. Only osac-ui remains a genuinely separate repo with
-          # its own commit lineage to track.
-          #
-          # A repo becoming unreachable (renamed, archived, or deleted as
-          # part of a future mono-repo cutover) must only skip that
-          # component's bump, not abort the whole job -- this used to be a
-          # bare, unguarded call under `set -e`, so one 404 here killed the
-          # bump every 3 hours, until someone noticed. `|| return 1` on the
-          # repo lookup plus `|| VAR=""` at the call site keeps set -e from
-          # propagating past a single component's failure.
-          check_image() {
-            local repo=$1
-            local image=$2
-            local sha
-            sha=$(gh api "repos/osac-project/${repo}/commits?sha=main&per_page=1" --jq '.[0].sha') || {
-              echo "::warning::${repo}: could not resolve latest main commit (repo missing/renamed/archived?) -- skipping this component's bump" >&2
-              return 1
-            }
-            local tag="sha-${sha:0:7}"
-            local token
-            token=$(curl -sf "https://ghcr.io/token?scope=repository:osac-project/${image}:pull" | jq -r .token)
-            local code
-            code=$(curl -s -o /dev/null -w "%{http_code}" \
-              -H "Authorization: Bearer ${token}" \
-              -H "Accept: application/vnd.oci.image.index.v1+json, application/vnd.oci.image.manifest.v1+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.docker.distribution.manifest.v2+json" \
-              "https://ghcr.io/v2/osac-project/${image}/manifests/${tag}")
-            if [[ "${code}" != "200" ]]; then
-              echo "::warning::${repo} latest main commit ${sha:0:7} has no published image (tag ${tag}) -- skipping this component's bump" >&2
-              return 1
-            fi
-            echo "${sha}"
-          }
-
-          UI=$(check_image osac-ui osac-ui) || UI=""
-
-          echo "ui=${UI}" >> "$GITHUB_OUTPUT"
-
-      - name: Update submodules
-        id: update
-        run: |
-          changed=false
-          summary=""
-
-          update_submodule() {
-            local path=$1
-            local name=$2
-            local target=$3
-            if [[ -z "${target}" ]]; then
-              echo "${name}: skipping (no eligible commit found this run -- see check_image warning above)"
-              return
-            fi
-            local current
-            current=$(git -C "${path}" rev-parse HEAD)
-            if [[ "${current}" == "${target}" ]]; then
-              echo "${name}: already at ${target:0:7}"
-              return
-            fi
-            git -C "${path}" fetch origin
-            git -C "${path}" checkout "${target}"
-            changed=true
-            local count
-            count=$(git -C "${path}" rev-list --count "${current}..${target}" 2>/dev/null || echo "?")
-            summary="${summary}- **${name}**: ${current:0:7} → ${target:0:7} (${count} commits)\n"
-            echo "${name}: ${current:0:7} -> ${target:0:7}"
-          }
-
-          update_submodule base/osac-ui osac-ui "${{ steps.find.outputs.ui }}"
-
-          echo "changed=${changed}" >> "$GITHUB_OUTPUT"
-          echo -e "${summary}" > /tmp/bump-summary.txt
-
-      - name: Sync image tags
-        if: steps.update.outputs.changed == 'true'
-        run: ./scripts/sync-image-tags.sh --fix
-
+      # osac-operator, fulfillment-service, osac-aap,
+      # bare-metal-fulfillment-operator, and osac-ui are all either part
+      # of this mono-repo's own commit history or a real released OCI
+      # chart/image dependency now -- there is no submodule left under
+      # base/ to bump a commit pin toward (only osac-csi-driver remains a
+      # submodule, and it isn't bumped by this workflow). The "check
+      # published images, checkout submodule, sync-image-tags --fix"
+      # steps that used to live here were removed for that reason, not
+      # just trimmed -- there's nothing left for them to do. Only the
+      # osac-test-infra pin bump below still applies.
       - name: Bump pinned osac-test-infra reusable-workflow SHA(s)
         id: pins
         env:
@@ -143,11 +66,11 @@ jobs:
           echo -e "${summary}" >> /tmp/bump-summary.txt
 
       - name: Create or update PR
-        if: steps.update.outputs.changed == 'true' || steps.pins.outputs.changed == 'true'
+        if: steps.pins.outputs.changed == 'true'
         env:
           GH_TOKEN: ${{ secrets.OSAC_BOT_PAT }}
         run: |
-          BRANCH="auto/bump-submodules"
+          BRANCH="auto/bump-pinned-refs"
           git config user.name "osac-dev-bot"
           git config user.email "osac-dev-bot@users.noreply.github.com"
           git add -A
@@ -161,18 +84,17 @@ jobs:
             exit 0
           fi
 
-          git commit -m "bump submodules and pinned osac-test-infra refs"
+          git commit -m "bump pinned osac-test-infra refs"
           git push origin "HEAD:${BRANCH}" --force
 
           BODY=$(cat <<BODY_EOF
-          ## Automated submodule and pinned-ref bump
+          ## Automated pinned-ref bump
 
           $(cat /tmp/bump-summary.txt)
 
-          Submodule bumps only move to commits that have a published container
-          image in GHCR. \`osac-test-infra\` pin bumps track its \`main\` branch
-          directly, since that repo publishes no tags for Dependabot to track.
-          Runs every 3 hours via [bump-submodules workflow](../actions/workflows/bump-submodules.yaml).
+          \`osac-test-infra\` pin bumps track its \`main\` branch directly,
+          since that repo publishes no tags for Dependabot to track.
+          Runs every 3 hours via [bump-pinned-refs workflow](../actions/workflows/bump-submodules.yaml).
           BODY_EOF
           )
 
@@ -182,7 +104,7 @@ jobs:
             echo "Updated existing PR #${EXISTING}"
           else
             gh pr create \
-              --title "bump submodules and pinned refs" \
+              --title "bump pinned refs" \
               --body "${BODY}" \
               --base main \
               --head "${BRANCH}"
