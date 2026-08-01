@@ -2,8 +2,10 @@
 # aren't ours to lint/fix (test fixtures in particular use intentionally
 # invalid JSON), so exclude them from every hook, not just yamllint --
 # matching the top-level (all-hooks) scope osac-aap's own .pre-commit-config.yaml
-# used before this directory was merged in.
-exclude: ^osac-aap/(vendor|charts)/.*
+# used before this directory was merged in. osac-installer's own charts/ (its
+# umbrella + prereqs + operators charts) gets the same all-hooks treatment,
+# matching its own pre-merge .pre-commit-config.yaml.
+exclude: ^(osac-aap/(vendor|charts)/.*|osac-installer/charts/.*)
 
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks

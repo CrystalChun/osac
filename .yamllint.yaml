@@ -8,6 +8,7 @@ ignore:
   - osac-aap/charts/
   - bare-metal-fulfillment-operator/charts/*/templates/
   - bare-metal-fulfillment-operator/config/
+  - osac-installer/charts/
 rules:
   line-length: disable
   document-start: disable
