@@ -1,7 +1,7 @@
 # OSAC
 
 This is the mono-repo for the [Open Sovereign AI Cloud (OSAC)](https://github.com/osac-project)
-project. It currently hosts three components as subdirectories, each retaining its own
+project. It hosts multiple components as subdirectories, each retaining its own
 documentation:
 
 - **[fulfillment-service/](fulfillment-service/README.md)** — a gRPC server (with REST gateway)
@@ -17,6 +17,10 @@ documentation:
   collections that provision and manage infrastructure resources (networking, compute,
   bare-metal hosts, OpenShift clusters) when triggered by osac-operator via Ansible Automation
   Platform (AAP).
+- **[osac-csi-driver/](osac-csi-driver/README.md)** — an aggregating CSI meta-driver that
+  presents a single CSI identity to Kubernetes and routes storage requests to vendor-specific
+  CSI drivers (NetApp Trident, VAST, Pure Storage) based on storage tier resolution from the
+  fulfillment service.
 
 See each subdirectory's `README.md` (and `docs/`, where present) for setup, build, test, and
 deployment instructions specific to that component.

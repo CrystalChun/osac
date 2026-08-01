@@ -37,11 +37,11 @@ dependencies:
     condition: ui.enabled
   - name: csi-driver
     version: ">=0.0.0"
-    repository: "file://../../base/osac-csi-driver/charts/csi-driver"
+    repository: "file://../../../osac-csi-driver/charts/csi-driver"
     alias: csiDriver
     condition: csiDriver.enabled
   - name: csi-backends
     version: ">=0.0.0"
-    repository: "file://../../base/osac-csi-driver/charts/csi-backends"
+    repository: "file://../../../osac-csi-driver/charts/csi-backends"
     alias: csiBackends
     condition: csiDriver.enabled

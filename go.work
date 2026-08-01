@@ -3,6 +3,7 @@ go 1.26.3
 use (
 	./bare-metal-fulfillment-operator
 	./fulfillment-service
+	./osac-csi-driver
 	./osac-operator
 	./osac-operator/api
 )

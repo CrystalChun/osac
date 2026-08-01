@@ -15,6 +15,7 @@ on:
       - 'bare-metal-fulfillment-operator/Makefile'
       - 'fulfillment-service/charts/**'
       - 'osac-aap/charts/**'
+      - 'osac-csi-driver/charts/**'
       - '.github/workflows/helm-lint.yaml'
 
 permissions:
@@ -71,6 +72,10 @@ jobs:
             values-file: ci-values.yaml
           - component: osac-aap
             chart: aap
+          - component: osac-csi-driver
+            chart: csi-driver
+          - component: osac-csi-driver
+            chart: csi-backends
     steps:
     - name: Checkout repository
       uses: actions/checkout@v7
