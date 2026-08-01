@@ -60,4 +60,4 @@ repos:
     name: osac-csi-driver golangci-lint
     language: system
     files: ^osac-csi-driver/.*\.go$
-    entry: bash -c "cd osac-csi-driver && bin/golangci-lint run --fix"
+    entry: make -C osac-csi-driver lint-fix

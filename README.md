@@ -27,10 +27,11 @@ deployment instructions specific to that component.
 
 ## Local development with go.work
 
-The root [`go.work`](go.work) file wires `fulfillment-service` and `osac-operator` (plus its
-`api` submodule) together as a Go workspace, so cross-module changes can be built and tested
-locally without publishing intermediate versions. Go tooling run from the repo root will
-automatically use the workspace; no extra flags are needed.
+The root [`go.work`](go.work) file wires `fulfillment-service`, `osac-operator` (plus its
+`api` submodule), `bare-metal-fulfillment-operator`, and `osac-csi-driver` together as a Go
+workspace, so cross-module changes can be built and tested locally without publishing
+intermediate versions. Go tooling run from the repo root will automatically use the
+workspace; no extra flags are needed.
 
 > [!WARNING]
 > Be mindful of the content you commit to this repository. Do not commit any

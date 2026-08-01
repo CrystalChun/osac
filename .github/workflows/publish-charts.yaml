@@ -588,8 +588,18 @@ jobs:
 
     - name: Update image tag in values.yaml
       working-directory: osac-csi-driver
+      # sed exits 0 even when a pattern matches zero lines, so a future values.yaml
+      # format change could silently leave the placeholder unpinned. Verify the
+      # expected replacement actually landed and fail the release instead of
+      # packaging stale values (same pattern as publish-osac-aap-chart above).
       run: |
-        sed -i "s/tag: main  # PLACEHOLDER -- overwritten at release time/tag: v${{ steps.version.outputs.version }}/" charts/csi-driver/values.yaml
+        OLD="tag: main  # PLACEHOLDER -- overwritten at release time"
+        NEW="tag: v${{ steps.version.outputs.version }}"
+        sed -i "s|${OLD}|${NEW}|" charts/csi-driver/values.yaml
+        if ! grep -qF -- "${NEW}" charts/csi-driver/values.yaml; then
+          echo "::error::Expected '${NEW}' not found in charts/csi-driver/values.yaml after substitution (placeholder may be missing or already changed)" >&2
+          exit 1
+        fi
 
     - name: Package chart
       working-directory: osac-csi-driver
