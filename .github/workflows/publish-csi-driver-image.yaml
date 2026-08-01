@@ -69,8 +69,17 @@ jobs:
           # otherwise a dotted prerelease would corrupt the major.minor alias.
           core="${version%%-*}"
           echo "RELEASE_VERSION=${version}" >> "$GITHUB_ENV"
-          echo "RELEASE_MAJOR_MINOR=${core%.*}" >> "$GITHUB_ENV"
-          echo "RELEASE_MAJOR=${core%%.*}" >> "$GITHUB_ENV"
+          if [ "${version}" = "${core}" ]; then
+            # No prerelease suffix -- safe to move the stable major/minor
+            # aliases to this release.
+            echo "RELEASE_MAJOR_MINOR=${core%.*}" >> "$GITHUB_ENV"
+            echo "RELEASE_MAJOR=${core%%.*}" >> "$GITHUB_ENV"
+          else
+            # Prerelease (e.g. v1.2.3-rc.1) -- leave the stable v1.2/v1 aliases
+            # untouched instead of overwriting them with a prerelease image.
+            echo "RELEASE_MAJOR_MINOR=" >> "$GITHUB_ENV"
+            echo "RELEASE_MAJOR=" >> "$GITHUB_ENV"
+          fi
 
       - name: Extract Docker metadata
         id: meta
@@ -84,8 +93,8 @@ jobs:
           # tag (e.g. "osac-csi-driver-v1.2.3").
           tags: |
             type=raw,value=${{ env.RELEASE_VERSION }},enable=${{ env.RELEASE_VERSION != '' }}
-            type=raw,value=${{ env.RELEASE_MAJOR_MINOR }},enable=${{ env.RELEASE_VERSION != '' }}
-            type=raw,value=${{ env.RELEASE_MAJOR }},enable=${{ env.RELEASE_VERSION != '' }}
+            type=raw,value=${{ env.RELEASE_MAJOR_MINOR }},enable=${{ env.RELEASE_MAJOR_MINOR != '' }}
+            type=raw,value=${{ env.RELEASE_MAJOR }},enable=${{ env.RELEASE_MAJOR != '' }}
             type=ref,event=branch
             type=ref,event=pr
             type=sha
