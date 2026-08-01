@@ -110,7 +110,7 @@ service:
 ui:
   enabled: true
   images:
-    ui: ghcr.io/osac-project/osac-ui:sha-d74aaaf
+    ui: ghcr.io/osac-project/osac-ui:v0.0.5
   api:
     fulfillment:
       certs:
