@@ -24,7 +24,7 @@ metadata:
     "helm.sh/hook-weight": "10"
 rules:
   - apiGroups: ["operators.coreos.com"]
-    resources: ["clusterserviceversions"]
+    resources: ["clusterserviceversions", "subscriptions"]
     verbs: ["get", "list"]
   - apiGroups: ["apps"]
     resources: ["deployments"]

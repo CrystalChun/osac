@@ -29,4 +29,3 @@ osac-metering
 {{- define "osac-metering.kafkaReplicas" -}}
 3
 {{- end -}}
-
