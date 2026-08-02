@@ -27,7 +27,7 @@ repos:
       files: \.(yaml|yml)$
       types: [file, yaml]
       entry: yamllint --strict
-      exclude: ^(fulfillment-service/(charts|it/charts)/.*/templates/|osac-operator/(charts/.*/templates/|config/)|bare-metal-fulfillment-operator/(charts/.*/templates/|config/))
+      exclude: ^(fulfillment-service/(charts|it/charts)/.*/templates/|osac-operator/(charts/.*/templates/|config/)|bare-metal-fulfillment-operator/(charts/.*/templates/|config/)|osac-csi-driver/charts/.*/templates/)
 
 - repo: local
   hooks:
@@ -55,3 +55,9 @@ repos:
     language: system
     files: ^bare-metal-fulfillment-operator/.*\.go$
     entry: bash -c "cd bare-metal-fulfillment-operator && bin/golangci-lint run --fix"
+  - id: osac-csi-driver-golangci-lint
+    pass_filenames: false
+    name: osac-csi-driver golangci-lint
+    language: system
+    files: ^osac-csi-driver/.*\.go$
+    entry: make -C osac-csi-driver lint-fix

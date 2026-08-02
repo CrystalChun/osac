@@ -15,6 +15,7 @@ on:
       - 'bare-metal-fulfillment-operator/Makefile'
       - 'fulfillment-service/charts/**'
       - 'osac-aap/charts/**'
+      - 'osac-csi-driver/charts/**'
       - 'osac-installer/charts/**'
       - 'osac-installer/values/**'
       - 'osac-installer/ct.yaml'
@@ -74,6 +75,10 @@ jobs:
             values-file: ci-values.yaml
           - component: osac-aap
             chart: aap
+          - component: osac-csi-driver
+            chart: csi-driver
+          - component: osac-csi-driver
+            chart: csi-backends
     steps:
     - name: Checkout repository
       uses: actions/checkout@v7
@@ -104,12 +109,10 @@ jobs:
         fi
 
   # osac-installer's own umbrella chart (charts/osac/) composes every other
-  # component's chart as a file:// dependency plus osac-ui/osac-csi-driver's
-  # real submodule/OCI dependencies -- a different thing from linting any one
-  # component's chart in isolation above, so this stays a separate job rather
-  # than another matrix entry. Needs the actual submodules checked out (unlike
-  # the jobs above) since helm dependency build resolves osac-ui/osac-csi-driver
-  # from base/ on disk.
+  # component's chart as a file:// dependency, plus osac-ui as an OCI
+  # dependency -- a different thing from linting any one component's chart in
+  # isolation above, so this stays a separate job rather than another matrix
+  # entry.
   helm-lint-installer:
     name: Lint Helm charts (osac-installer)
     runs-on: ubuntu-latest
@@ -117,7 +120,6 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v6
       with:
-        submodules: recursive
         persist-credentials: false
 
     - name: Set up Helm

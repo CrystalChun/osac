@@ -72,6 +72,15 @@ __pycache__
 /bare-metal-fulfillment-operator/charts/*/charts/
 /bare-metal-fulfillment-operator/charts/*/Chart.lock
 
+# osac-csi-driver
+/osac-csi-driver/bin/*
+/osac-csi-driver/main
+/osac-csi-driver/dist/
+/osac-csi-driver/go.work
+/osac-csi-driver/MEMORY.md
+/osac-csi-driver/charts/*/charts/
+/osac-csi-driver/charts/*/Chart.lock
+
 # osac-aap
 .logs/*
 *.retry
