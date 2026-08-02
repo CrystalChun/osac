@@ -192,8 +192,9 @@ not a CI suite and not something that adds to this repo's persisted test count. 
 
 - **This is not a test suite — specs are throwaway**: write ad hoc specs under
   `apps/playwright/scratch/`, a gitignored directory that only exists locally.
-  `pnpm playwright` runs every spec under it. Nothing there is ever committed
-  or needs manual cleanup — only the harness itself (`playwright.config.ts`,
+  Nothing there is ever committed, but gitignore doesn't stop it from running —
+  `pnpm playwright` reruns every spec still in the directory, so delete a spec
+  once you're done with it. Only the harness itself (`playwright.config.ts`,
   `auth.setup.ts`) plus one fixed exception, `src/smoke.spec.ts` (a persisted
   harness self-check — loads the app, asserts the masthead renders — not a
   feature test), is committed. Never write other specs under

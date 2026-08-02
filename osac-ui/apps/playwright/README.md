@@ -141,11 +141,13 @@ ad hoc for a specific manual-verification task (typically by an AI agent
 working through a change) and run once, then discarded.
 
 Specs live under `scratch/` — a gitignored directory that only exists on your
-machine. Nothing written there is ever committed, so there's nothing to clean
-up and no risk of it landing in a PR. Do not write specs under `src/` (that's
-reserved for the harness and the smoke test), and do not treat anything under
-`scratch/` as regression coverage — if a change needs persisted UI coverage,
-that's a job for `osac-test-infra`'s gRPC-level suite, not this harness.
+machine, so nothing written there is ever committed or lands in a PR. Gitignore
+only keeps it out of git, though — `pnpm playwright` re-runs every spec still
+in the directory, so delete a spec once you're done with it (see the example
+below). Do not write specs under `src/` (that's reserved for the harness and
+the smoke test), and do not treat anything under `scratch/` as regression
+coverage — if a change needs persisted UI coverage, that's a job for
+`osac-test-infra`'s gRPC-level suite, not this harness.
 
 ```bash
 mkdir -p apps/playwright/scratch
