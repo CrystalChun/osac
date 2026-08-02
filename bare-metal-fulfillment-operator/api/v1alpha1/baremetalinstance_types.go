@@ -38,7 +38,36 @@ const (
 	RunStrategyHalted BareMetalInstanceRunStrategy = "Halted"
 )
 
+// BareMetalNetworkAttachment defines one NIC: a Subnet reference, optional SecurityGroup
+// references, a physical interface binding, and primary gateway designation.
+type BareMetalNetworkAttachment struct {
+	// SubnetRef is the fulfillment Subnet ID. Must reference a Subnet in READY state.
+	// +kubebuilder:validation:Required
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=253
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="subnetRef is immutable"
+	SubnetRef string `json:"subnetRef"`
+
+	// SecurityGroupRefs lists fulfillment SecurityGroup IDs applied on this NIC.
+	// Mutable — can be changed to add/remove security groups.
+	// +kubebuilder:validation:Optional
+	SecurityGroupRefs []string `json:"securityGroupRefs,omitempty"`
+
+	// Interface is the physical interface name from the HostType's NetworkInterface list.
+	// When omitted on a single-attachment instance, the system selects the first fabric-role interface.
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="interface is immutable"
+	Interface string `json:"interface,omitempty"`
+
+	// Primary designates this attachment as the default gateway for multi-NIC instances.
+	// When omitted on a single-attachment instance, that attachment is implicitly primary.
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="primary is immutable"
+	Primary bool `json:"primary,omitempty"`
+}
+
 // BareMetalInstanceSpec defines the desired state of BareMetalInstance.
+// +kubebuilder:validation:XValidation:rule="self.networkAttachments.size() <= 1 || self.networkAttachments.filter(x, x.primary == true).size() == 1",message="when multiple network attachments exist, exactly one must have primary set to true"
 type BareMetalInstanceSpec struct {
 	// HostType is the resource class/type of the host.
 	// +kubebuilder:validation:Required
@@ -92,6 +121,17 @@ type BareMetalInstanceSpec struct {
 	// The value itself is not important; only the change matters.
 	// +kubebuilder:validation:Optional
 	RestartTrigger int64 `json:"restartTrigger"`
+	// NetworkAttachments for the bare metal instance. One entry per physical NIC.
+	// The list structure is immutable after creation (entries cannot be added or removed),
+	// but securityGroupRefs within each entry can be updated.
+	//
+	// MaxItems is required for CEL cost budget calculation.
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:validation:MaxItems=8
+	// +kubebuilder:validation:XValidation:rule="size(oldSelf) == 0 || (size(self) == size(oldSelf) && self.all(na, oldSelf.exists(old, old.subnetRef == na.subnetRef)))",message="cannot change or add/remove network attachments after initial assignment"
+	// +listType=map
+	// +listMapKey=subnetRef
+	NetworkAttachments []BareMetalNetworkAttachment `json:"networkAttachments,omitempty"`
 }
 
 // BareMetalInstancePhaseType is a valid value for .status.phase
