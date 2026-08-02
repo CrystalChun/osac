@@ -35,6 +35,11 @@ dependencies:
     repository: "oci://ghcr.io/osac-project/charts"
     alias: ui
     condition: ui.enabled
+  - name: osac-metering
+    version: ">=0.0.0"
+    repository: "file://../../../osac-metering/charts/osac-metering"
+    alias: metering
+    condition: metering.enabled
   - name: csi-driver
     version: ">=0.0.0"
     repository: "file://../../../osac-csi-driver/charts/csi-driver"

@@ -204,6 +204,14 @@ ui:
   images:
     ui: ghcr.io/osac-project/osac-ui:latest  # PLACEHOLDER -- overwritten at release time by publish-charts.yaml
 
+# --- Metering ---
+metering:
+  enabled: false
+  image:
+    repository: ghcr.io/osac-project/metering-service
+    tag: latest  # PLACEHOLDER -- overwritten at release time by publish-charts.yaml
+    pullPolicy: Always
+
 # --- CSI Driver ---
 csiDriver:
   enabled: false
