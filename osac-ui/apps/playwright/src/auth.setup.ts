@@ -29,9 +29,14 @@ setup('authenticate', async ({ page }) => {
 
   await expect(page.getByRole('button', { name: 'Account menu' })).toBeVisible();
 
+  // Harden the .auth directory before storageState writes into it — AUTH_FILE
+  // holds a live, real Keycloak session cookie, and creating the dir with
+  // default permissions first would briefly expose it before the chmod below.
+  fs.mkdirSync(path.dirname(AUTH_FILE), { recursive: true, mode: 0o700 });
   await page.context().storageState({ path: AUTH_FILE });
-  // AUTH_FILE holds a live, real Keycloak session cookie — restrict it to the
-  // current user so other local accounts on a shared machine can't reuse it.
+  // Restrict to the current user so other local accounts on a shared machine
+  // can't reuse the session; also re-assert dir perms in case it pre-existed
+  // with looser permissions.
   fs.chmodSync(path.dirname(AUTH_FILE), 0o700);
   fs.chmodSync(AUTH_FILE, 0o600);
 });
