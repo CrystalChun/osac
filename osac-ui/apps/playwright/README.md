@@ -143,11 +143,11 @@ working through a change) and run once, then discarded.
 Specs live under `scratch/` — a gitignored directory that only exists on your
 machine, so nothing written there is ever committed or lands in a PR. Gitignore
 only keeps it out of git, though — `pnpm playwright` re-runs every spec still
-in the directory, so delete a spec once you're done with it (see the example
-below). Do not write specs under `src/` (that's reserved for the harness and
-the smoke test), and do not treat anything under `scratch/` as regression
-coverage — if a change needs persisted UI coverage, that's a job for
-`osac-test-infra`'s gRPC-level suite, not this harness.
+in the directory, so delete a spec once you're done with it. Do not write
+specs under `src/` (that's reserved for the harness and the smoke test), and
+do not treat anything under `scratch/` as regression coverage — if a change
+needs persisted UI coverage, that's a job for `osac-test-infra`'s gRPC-level
+suite, not this harness.
 
 ```bash
 mkdir -p apps/playwright/scratch
@@ -171,6 +171,6 @@ read -rs OSAC_PASSWORD && export OSAC_PASSWORD
 pnpm playwright
 ```
 
-`pnpm playwright` runs every spec under `scratch/` — delete the file when you're done
-with it (or leave it; it's gitignored either way, but a stale spec will run
-again next time).
+`pnpm playwright` runs every spec under `scratch/` — delete the file when
+you're done with it. Gitignore keeps it out of git either way, but it does
+not stop Playwright from finding and re-running a stale spec next time.
