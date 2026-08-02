@@ -16,6 +16,7 @@ on:
       - 'fulfillment-service/charts/**'
       - 'osac-aap/charts/**'
       - 'osac-csi-driver/charts/**'
+      - 'osac-metering/charts/**'
       - 'osac-installer/charts/**'
       - 'osac-installer/values/**'
       - 'osac-installer/ct.yaml'
@@ -59,6 +60,9 @@ jobs:
               - '.github/workflows/helm-lint.yaml'
             osac-csi-driver:
               - 'osac-csi-driver/charts/**'
+              - '.github/workflows/helm-lint.yaml'
+            osac-metering:
+              - 'osac-metering/charts/**'
               - '.github/workflows/helm-lint.yaml'
             osac-installer:
               - 'osac-installer/charts/**'
@@ -130,6 +134,8 @@ jobs:
             chart: csi-driver
           - component: osac-csi-driver
             chart: csi-backends
+          - component: osac-metering
+            chart: osac-metering
     steps:
     - name: Check component changes
       id: should-run
@@ -189,7 +195,8 @@ jobs:
       contains(fromJSON(needs.changes.outputs.changes), 'bare-metal-fulfillment-operator') ||
       contains(fromJSON(needs.changes.outputs.changes), 'fulfillment-service') ||
       contains(fromJSON(needs.changes.outputs.changes), 'osac-aap') ||
-      contains(fromJSON(needs.changes.outputs.changes), 'osac-csi-driver')
+      contains(fromJSON(needs.changes.outputs.changes), 'osac-csi-driver') ||
+      contains(fromJSON(needs.changes.outputs.changes), 'osac-metering')
     steps:
     - name: Checkout repository
       uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v6
