@@ -46,7 +46,7 @@ export const VmCreatePage = () => {
       if (!instance?.id) {
         throw new Error('Create response missing id');
       }
-      qc.setQueryData(apiQueryKey('v1/compute_instances', [instance.id]), instance);
+      qc.setQueryData(apiQueryKey('v1/compute_instances', [instance.id]), { object: instance });
       navigate(`/vms/${instance.id}`);
     },
     [navigate, provisionVm, qc],
