@@ -194,12 +194,19 @@ not a CI suite and not something that adds to this repo's persisted test count. 
   `apps/playwright/scratch/`, a gitignored directory that only exists locally.
   `pnpm playwright` runs every spec under it. Nothing there is ever committed
   or needs manual cleanup — only the harness itself (`playwright.config.ts`,
-  `auth.setup.ts`) is committed. Never write specs under `apps/playwright/src/`,
-  and never treat a `scratch/` spec as regression coverage.
+  `auth.setup.ts`) plus one fixed exception, `src/smoke.spec.ts` (a persisted
+  harness self-check — loads the app, asserts the masthead renders — not a
+  feature test), is committed. Never write other specs under
+  `apps/playwright/src/`, and never treat a `scratch/` spec as regression
+  coverage.
+- Iterating on a `scratch/` spec: `pnpm playwright:setup` logs in once, then
+  `pnpm playwright:run` re-runs just the `scratch/` specs without
+  re-authenticating — faster than `pnpm playwright`, which always re-logs in.
 - Use this when asked to verify a UI change actually works in a browser against
   a real deployment — requires `OSAC_UI_BASE_URL`, `OSAC_USERNAME`, `OSAC_PASSWORD`
-  (or `pnpm playwright:dev` against a local `pnpm dev` instance). There is no
-  mock `fulfillment-service`, so this cannot run hermetically or in CI.
+  (or `OSAC_UI_BASE_URL=http://localhost:5173` against a local `pnpm dev`
+  instance). There is no mock `fulfillment-service`, so this cannot run
+  hermetically or in CI.
 
 ## Build
 

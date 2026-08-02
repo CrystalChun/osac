@@ -63,6 +63,13 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'], trace: 'off' },
     },
     {
+      name: 'smoke',
+      testDir: './src',
+      testMatch: /smoke\.spec\.ts/,
+      use: { ...devices['Desktop Chrome'], storageState: AUTH_FILE },
+      dependencies: ['setup'],
+    },
+    {
       name: 'chromium',
       testDir: scratchDir,
       use: { ...devices['Desktop Chrome'], storageState: AUTH_FILE },
