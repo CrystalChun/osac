@@ -67,7 +67,6 @@ type BareMetalNetworkAttachment struct {
 }
 
 // BareMetalInstanceSpec defines the desired state of BareMetalInstance.
-// +kubebuilder:validation:XValidation:rule="self.networkAttachments.size() <= 1 || self.networkAttachments.filter(x, x.primary == true).size() == 1",message="when multiple network attachments exist, exactly one must have primary set to true"
 type BareMetalInstanceSpec struct {
 	// HostType is the resource class/type of the host.
 	// +kubebuilder:validation:Required
@@ -129,6 +128,7 @@ type BareMetalInstanceSpec struct {
 	// +kubebuilder:validation:Optional
 	// +kubebuilder:validation:MaxItems=8
 	// +kubebuilder:validation:XValidation:rule="size(oldSelf) == 0 || (size(self) == size(oldSelf) && self.all(na, oldSelf.exists(old, old.subnetRef == na.subnetRef)))",message="cannot change or add/remove network attachments after initial assignment"
+	// +kubebuilder:validation:XValidation:rule="self.size() <= 1 || self.filter(x, x.primary == true).size() == 1",message="when multiple network attachments exist, exactly one must have primary set to true"
 	// +listType=map
 	// +listMapKey=subnetRef
 	NetworkAttachments []BareMetalNetworkAttachment `json:"networkAttachments,omitempty"`
