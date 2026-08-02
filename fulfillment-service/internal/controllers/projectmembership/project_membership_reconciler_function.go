@@ -296,9 +296,9 @@ func (t *task) syncProjectMembership(ctx context.Context, existingProject *priva
 	var successfulUsers []*privatev1.UserReference
 	var assignmentErrors []string
 	for _, userRef := range users {
-		userID := userRef.GetName()
-		if err := t.addUserToGroup(ctx, userID, organizationName, groupID); err != nil {
-			assignmentErrors = append(assignmentErrors, fmt.Sprintf("user %s: %v", userID, err))
+		userKey := refKeyStr(userRef)
+		if err := t.addUserToGroup(ctx, userKey, organizationName, groupID); err != nil {
+			assignmentErrors = append(assignmentErrors, fmt.Sprintf("user %s: %v", userKey, err))
 		} else {
 			successfulUsers = append(successfulUsers, userRef)
 		}
@@ -325,24 +325,24 @@ func (t *task) handleUserListChange(ctx context.Context, existingProject *privat
 
 	desiredSet := make(map[string]bool)
 	for _, u := range desiredUsers {
-		desiredSet[u.GetName()] = true
+		desiredSet[refKeyStr(u)] = true
 	}
 	syncedSet := make(map[string]bool)
 	for _, u := range syncedUsers {
-		syncedSet[u.GetName()] = true
+		syncedSet[refKeyStr(u)] = true
 	}
 
 	var usersToAdd []string
 	for _, u := range desiredUsers {
-		if !syncedSet[u.GetName()] {
-			usersToAdd = append(usersToAdd, u.GetName())
+		if !syncedSet[refKeyStr(u)] {
+			usersToAdd = append(usersToAdd, refKeyStr(u))
 		}
 	}
 
 	var usersToRemove []string
 	for _, u := range syncedUsers {
-		if !desiredSet[u.GetName()] {
-			usersToRemove = append(usersToRemove, u.GetName())
+		if !desiredSet[refKeyStr(u)] {
+			usersToRemove = append(usersToRemove, refKeyStr(u))
 		}
 	}
 
@@ -356,9 +356,9 @@ func (t *task) handleUserListChange(ctx context.Context, existingProject *privat
 	}
 
 	// Track the actual synced user set so partial progress is preserved on failure.
-	actualUsers := make(map[string]bool)
+	actualUsers := make(map[string]*privatev1.UserReference)
 	for _, u := range syncedUsers {
-		actualUsers[u.GetName()] = true
+		actualUsers[refKeyStr(u)] = u
 	}
 
 	var syncErrors []string
@@ -371,18 +371,21 @@ func (t *task) handleUserListChange(ctx context.Context, existingProject *privat
 		}
 	}
 
-	for _, userID := range usersToAdd {
-		if err := t.addUserToGroup(ctx, userID, organizationName, groupID); err != nil {
-			syncErrors = append(syncErrors, fmt.Sprintf("add user %s: %v", userID, err))
-		} else {
-			actualUsers[userID] = true
+	for _, u := range desiredUsers {
+		key := refKeyStr(u)
+		if !syncedSet[key] {
+			if err := t.addUserToGroup(ctx, key, organizationName, groupID); err != nil {
+				syncErrors = append(syncErrors, fmt.Sprintf("add user %s: %v", key, err))
+			} else {
+				actualUsers[key] = u
+			}
 		}
 	}
 
 	if len(syncErrors) > 0 {
 		currentUsers := make([]*privatev1.UserReference, 0, len(actualUsers))
-		for name := range actualUsers {
-			currentUsers = append(currentUsers, privatev1.UserReference_builder{Name: name}.Build())
+		for _, ref := range actualUsers {
+			currentUsers = append(currentUsers, ref)
 		}
 		t.membership.GetStatus().SetState(privatev1.ProjectMembershipState_PROJECT_MEMBERSHIP_STATE_FAILED)
 		t.membership.GetStatus().SetUsers(currentUsers)
@@ -652,11 +655,23 @@ func (t *task) cleanupProjectMembership(ctx context.Context) error {
 	}
 
 	for _, userRef := range users {
-		userID := userRef.GetName()
-		if err := t.removeUserFromGroup(ctx, userID, organizationName, groupID); err != nil {
-			return fmt.Errorf("failed to remove user %s during cleanup: %w", userID, err)
+		userKey := refKeyStr(userRef)
+		if err := t.removeUserFromGroup(ctx, userKey, organizationName, groupID); err != nil {
+			return fmt.Errorf("failed to remove user %s during cleanup: %w", userKey, err)
 		}
 	}
 
 	return nil
+}
+
+type refKeyer interface {
+	GetId() string
+	GetName() string
+}
+
+func refKeyStr(ref refKeyer) string {
+	if ref.GetId() != "" {
+		return ref.GetId()
+	}
+	return ref.GetName()
 }

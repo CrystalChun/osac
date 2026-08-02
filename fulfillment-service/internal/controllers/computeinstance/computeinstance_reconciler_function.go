@@ -673,10 +673,7 @@ func (t *task) addExplicitFields(ctx context.Context, spec *osacv1alpha1.Compute
 			t.computeInstance.GetId(),
 		)
 	}
-	instanceTypeKey := instanceTypeRef.GetName()
-	if instanceTypeKey == "" {
-		instanceTypeKey = instanceTypeRef.GetId()
-	}
+	instanceTypeKey := refKeyStr(instanceTypeRef)
 	response, err := t.r.instanceTypesClient.Get(ctx, privatev1.InstanceTypesGetRequest_builder{
 		Id: instanceTypeKey,
 	}.Build())
