@@ -119,7 +119,7 @@ var _ = Describe("update tenant annotation", func() {
 				Tenant:     tenantName,
 			}.Build(),
 			Spec: privatev1.ClusterSpec_builder{
-				Template: "test-template",
+				Template: &privatev1.ClusterTemplateReference{Name: "test-template"},
 			}.Build(),
 			Status: privatev1.ClusterStatus_builder{
 				State: privatev1.ClusterState_CLUSTER_STATE_PROGRESSING,
@@ -198,10 +198,10 @@ var _ = Describe("update tenant annotation", func() {
 				Tenant:     tenantName,
 			}.Build(),
 			Spec: privatev1.ClusterSpec_builder{
-				Template: "test-template",
+				Template: &privatev1.ClusterTemplateReference{Name: "test-template"},
 				NodeSets: map[string]*privatev1.ClusterNodeSet{
 					"gpu.gb200": privatev1.ClusterNodeSet_builder{
-						HostType: "gpu.gb200",
+						HostType: &privatev1.HostTypeReference{Name: "gpu.gb200"},
 						Size:     5,
 					}.Build(),
 				},
@@ -284,10 +284,10 @@ var _ = Describe("update tenant annotation", func() {
 				Tenant:     tenantName,
 			}.Build(),
 			Spec: privatev1.ClusterSpec_builder{
-				Template: "test-template",
+				Template: &privatev1.ClusterTemplateReference{Name: "test-template"},
 				NodeSets: map[string]*privatev1.ClusterNodeSet{
 					"gpu.gb200": privatev1.ClusterNodeSet_builder{
-						HostType: "gpu.gb200",
+						HostType: &privatev1.HostTypeReference{Name: "gpu.gb200"},
 						Size:     5,
 					}.Build(),
 				},
@@ -364,10 +364,10 @@ var _ = Describe("update tenant annotation", func() {
 				Tenant:     tenantName,
 			}.Build(),
 			Spec: privatev1.ClusterSpec_builder{
-				Template: "test-template",
+				Template: &privatev1.ClusterTemplateReference{Name: "test-template"},
 				NodeSets: map[string]*privatev1.ClusterNodeSet{
 					"gpu.gb200": privatev1.ClusterNodeSet_builder{
-						HostType: "gpu.gb200",
+						HostType: &privatev1.HostTypeReference{Name: "gpu.gb200"},
 						Size:     5,
 					}.Build(),
 				},
@@ -446,7 +446,7 @@ var _ = Describe("update tenant annotation", func() {
 				Tenant:     tenantName,
 			}.Build(),
 			Spec: privatev1.ClusterSpec_builder{
-				Template:     "test-template",
+				Template:     &privatev1.ClusterTemplateReference{Name: "test-template"},
 				PullSecret:   &pullSecret,
 				SshPublicKey: &sshKey,
 				VersionName:  &versionName,
@@ -964,7 +964,7 @@ var _ = Describe("hub persistence", func() {
 				Tenant:     tenantName,
 			}.Build(),
 			Spec: privatev1.ClusterSpec_builder{
-				Template: "test-template",
+				Template: &privatev1.ClusterTemplateReference{Name: "test-template"},
 			}.Build(),
 			Status: privatev1.ClusterStatus_builder{
 				State: privatev1.ClusterState_CLUSTER_STATE_PROGRESSING,
@@ -1026,7 +1026,7 @@ var _ = Describe("hub persistence", func() {
 				Tenant:     tenantName,
 			}.Build(),
 			Spec: privatev1.ClusterSpec_builder{
-				Template: "test-template",
+				Template: &privatev1.ClusterTemplateReference{Name: "test-template"},
 			}.Build(),
 			Status: privatev1.ClusterStatus_builder{
 				State: privatev1.ClusterState_CLUSTER_STATE_PROGRESSING,
@@ -1101,7 +1101,7 @@ var _ = Describe("hub persistence", func() {
 				Tenant:     tenantName,
 			}.Build(),
 			Spec: privatev1.ClusterSpec_builder{
-				Template: "test-template",
+				Template: &privatev1.ClusterTemplateReference{Name: "test-template"},
 			}.Build(),
 			Status: privatev1.ClusterStatus_builder{
 				State: privatev1.ClusterState_CLUSTER_STATE_PROGRESSING,
@@ -1125,7 +1125,7 @@ var _ = Describe("hub persistence", func() {
 				Tenant:     tenantName,
 			}.Build(),
 			Spec: privatev1.ClusterSpec_builder{
-				Template: "test-template",
+				Template: &privatev1.ClusterTemplateReference{Name: "test-template"},
 			}.Build(),
 			Status: privatev1.ClusterStatus_builder{
 				State: privatev1.ClusterState_CLUSTER_STATE_PROGRESSING,
@@ -1176,7 +1176,7 @@ var _ = Describe("hub persistence", func() {
 				Tenant:     tenantName,
 			}.Build(),
 			Spec: privatev1.ClusterSpec_builder{
-				Template: "test-template",
+				Template: &privatev1.ClusterTemplateReference{Name: "test-template"},
 			}.Build(),
 			Status: privatev1.ClusterStatus_builder{
 				State: privatev1.ClusterState_CLUSTER_STATE_PROGRESSING,
@@ -1242,7 +1242,7 @@ var _ = Describe("hub persistence", func() {
 				Tenant:     tenantName,
 			}.Build(),
 			Spec: privatev1.ClusterSpec_builder{
-				Template: "test-template",
+				Template: &privatev1.ClusterTemplateReference{Name: "test-template"},
 			}.Build(),
 			// No Status field — run() must initialize it without panicking
 		}.Build()
