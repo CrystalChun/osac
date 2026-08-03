@@ -13,7 +13,11 @@
     "lint": "eslint \"{apps,libs}/*/src/**\" && prettier --check \"{apps,libs}/*/src/**/*.{js,jsx,ts,tsx}\" && pnpm run i18n",
     "format": "eslint --fix \"{apps,libs}/*/src/**/*.{ts,tsx}\" && prettier --write \"{apps,libs}/*/src/**/*.{js,jsx,ts,tsx}\"",
     "test": "pnpm -r run test",
-    "typecheck": "pnpm -r run typecheck"
+    "typecheck": "pnpm -r run typecheck",
+    "playwright": "pnpm --filter @osac/playwright run playwright",
+    "playwright:setup": "pnpm --filter @osac/playwright run playwright:setup",
+    "playwright:run": "pnpm --filter @osac/playwright run playwright:run",
+    "playwright:report": "pnpm --filter @osac/playwright exec playwright show-report"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",

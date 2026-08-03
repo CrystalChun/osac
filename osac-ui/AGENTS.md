@@ -56,6 +56,7 @@ Multi-stage build images: `nodejs-22-minimal:9.8`, `go-toolset:1.25`, `ubi-minim
 | `@osac/ui-components` | Shared components consumed at source (no build) — typed gRPC hooks live here |
 | `@osac/types` | Generated protobuf types and service descriptors — **never edit**, regenerate with `pnpm gen-types` |
 | `@osac/i18n` | Translation extraction — `locales/en/translation.json` is generated, not hand-edited |
+| `@osac/playwright` | Playwright harness for manual verification against a **live deployed cluster** — not a CI suite, not persisted test coverage. See [Manual verification against a live cluster](#manual-verification-against-a-live-cluster) |
 
 ## Code Style
 
@@ -179,8 +180,34 @@ export const getLabels = (t: TFunction) => ({
 - `apps/app-frontend/vitest.config.ts` — single runner for app-frontend and ui-components tests (`include` spans both packages)
 - ESLint relaxes type safety rules for test files (no-unsafe-* off)
 - Testing libraries: @testing-library/react 16.x, @testing-library/jest-dom 6.x
-- No E2E tests in this repo — E2E coverage lives in `osac-test-infra`
+- No persisted E2E test suite in this repo, and no persisted UI-level E2E coverage anywhere: `osac-test-infra`'s CI-tracked E2E suites hit the fulfillment gRPC/REST API and Kubernetes CRs directly — no browser, nothing UI-related
 - CI runs lint, test, and container build; run `pnpm test` locally before submitting
+
+### Manual verification against a live cluster
+
+`apps/playwright` (`@osac/playwright`) is a Playwright harness for manually confirming
+that a change works end-to-end against a **live, already-deployed** cluster —
+not a CI suite and not something that adds to this repo's persisted test count. See
+[apps/playwright/README.md](apps/playwright/README.md).
+
+- **This is not a test suite — specs are throwaway**: write ad hoc specs under
+  `apps/playwright/scratch/`, a gitignored directory that only exists locally.
+  Nothing there is ever committed, but gitignore doesn't stop it from running —
+  `pnpm playwright` reruns every spec still in the directory, so delete a spec
+  once you're done with it. Only the harness itself (`playwright.config.ts`,
+  `auth.setup.ts`) plus one fixed exception, `src/smoke.spec.ts` (a persisted
+  harness self-check — loads the app, asserts the masthead renders — not a
+  feature test), is committed. Never write other specs under
+  `apps/playwright/src/`, and never treat a `scratch/` spec as regression
+  coverage.
+- Iterating on a `scratch/` spec: `pnpm playwright:setup` logs in once, then
+  `pnpm playwright:run` re-runs just the `scratch/` specs without
+  re-authenticating — faster than `pnpm playwright`, which always re-logs in.
+- Use this when asked to verify a UI change actually works in a browser against
+  a real deployment — requires `OSAC_UI_BASE_URL`, `OSAC_USERNAME`, `OSAC_PASSWORD`
+  (or `OSAC_UI_BASE_URL=http://localhost:5173` against a local `pnpm dev`
+  instance). There is no mock `fulfillment-service`, so this cannot run
+  hermetically or in CI.
 
 ## Build
 
