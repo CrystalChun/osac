@@ -44,19 +44,12 @@ var _ = Describe("Private cluster versions", func() {
 		client = privatev1.NewClusterVersionsClient(tool.InternalView().AdminConn())
 	})
 
-	createCV := func(version string, versionNames ...string) *privatev1.ClusterVersion {
-		var allowedUpgrades *privatev1.ClusterVersionAllowedUpgrades
-		if len(versionNames) > 0 {
-			allowedUpgrades = privatev1.ClusterVersionAllowedUpgrades_builder{
-				VersionNames: versionNames,
-			}.Build()
-		}
+	createCV := func(version string) *privatev1.ClusterVersion {
 		response, err := client.Create(ctx, privatev1.ClusterVersionsCreateRequest_builder{
 			Object: privatev1.ClusterVersion_builder{
 				Spec: privatev1.ClusterVersionSpec_builder{
-					Version:         version,
-					Image:           fmt.Sprintf("quay.io/openshift-release-dev/ocp-release:%s", version),
-					AllowedUpgrades: allowedUpgrades,
+					Version: version,
+					Image:   fmt.Sprintf("quay.io/openshift-release-dev/ocp-release:%s", version),
 				}.Build(),
 			}.Build(),
 		}.Build())
@@ -147,129 +140,4 @@ var _ = Describe("Private cluster versions", func() {
 		Expect(status.Code()).To(Equal(grpccodes.InvalidArgument))
 	})
 
-	It("Creates with allowed_upgrades cross-references", func() {
-		versionA := nextCVVersion()
-		versionB := nextCVVersion()
-		cvA := createCV(versionA)
-		cvB := createCV(versionB)
-
-		// Create CV-C referencing both A and B:
-		versionC := nextCVVersion()
-		nameA := cvA.GetMetadata().GetName()
-		nameB := cvB.GetMetadata().GetName()
-		cvC := createCV(versionC, nameA, nameB)
-
-		// Get CV-C and verify references round-trip:
-		getResponse, err := client.Get(ctx, privatev1.ClusterVersionsGetRequest_builder{
-			Id: cvC.GetId(),
-		}.Build())
-		Expect(err).ToNot(HaveOccurred())
-		versionNames := getResponse.GetObject().GetSpec().GetAllowedUpgrades().GetVersionNames()
-		Expect(versionNames).To(ConsistOf(nameA, nameB))
-	})
-
-	It("Delete cleans up allowed_upgrades and increments version", func() {
-		versionA := nextCVVersion()
-		versionB := nextCVVersion()
-		versionC := nextCVVersion()
-		cvA := createCV(versionA)
-		cvB := createCV(versionB)
-		cvC := createCV(versionC)
-		nameA := cvA.GetMetadata().GetName()
-
-		// Update CV-B and CV-C to reference CV-A:
-		updateResponseB, err := client.Update(ctx, privatev1.ClusterVersionsUpdateRequest_builder{
-			Object: privatev1.ClusterVersion_builder{
-				Id: cvB.GetId(),
-				Spec: privatev1.ClusterVersionSpec_builder{
-					AllowedUpgrades: privatev1.ClusterVersionAllowedUpgrades_builder{
-						VersionNames: []string{nameA},
-					}.Build(),
-				}.Build(),
-			}.Build(),
-			UpdateMask: &fieldmaskpb.FieldMask{Paths: []string{"spec.allowed_upgrades"}},
-		}.Build())
-		Expect(err).ToNot(HaveOccurred())
-		versionB_before := updateResponseB.GetObject().GetMetadata().GetVersion()
-
-		updateResponseC, err := client.Update(ctx, privatev1.ClusterVersionsUpdateRequest_builder{
-			Object: privatev1.ClusterVersion_builder{
-				Id: cvC.GetId(),
-				Spec: privatev1.ClusterVersionSpec_builder{
-					AllowedUpgrades: privatev1.ClusterVersionAllowedUpgrades_builder{
-						VersionNames: []string{nameA},
-					}.Build(),
-				}.Build(),
-			}.Build(),
-			UpdateMask: &fieldmaskpb.FieldMask{Paths: []string{"spec.allowed_upgrades"}},
-		}.Build())
-		Expect(err).ToNot(HaveOccurred())
-		versionC_before := updateResponseC.GetObject().GetMetadata().GetVersion()
-
-		// Delete CV-A:
-		_, err = client.Delete(ctx, privatev1.ClusterVersionsDeleteRequest_builder{
-			Id: cvA.GetId(),
-		}.Build())
-		Expect(err).ToNot(HaveOccurred())
-
-		// Verify CV-B: version_names no longer contains nameA, metadata.version incremented:
-		getB, err := client.Get(ctx, privatev1.ClusterVersionsGetRequest_builder{
-			Id: cvB.GetId(),
-		}.Build())
-		Expect(err).ToNot(HaveOccurred())
-		Expect(getB.GetObject().GetSpec().GetAllowedUpgrades().GetVersionNames()).ToNot(
-			ContainElement(nameA))
-		Expect(getB.GetObject().GetMetadata().GetVersion()).To(
-			BeNumerically(">", versionB_before))
-
-		// Verify CV-C: version_names no longer contains nameA, metadata.version incremented:
-		getC, err := client.Get(ctx, privatev1.ClusterVersionsGetRequest_builder{
-			Id: cvC.GetId(),
-		}.Build())
-		Expect(err).ToNot(HaveOccurred())
-		Expect(getC.GetObject().GetSpec().GetAllowedUpgrades().GetVersionNames()).ToNot(
-			ContainElement(nameA))
-		Expect(getC.GetObject().GetMetadata().GetVersion()).To(
-			BeNumerically(">", versionC_before))
-	})
-
-	It("Delete preserves unrelated references", func() {
-		versionA := nextCVVersion()
-		versionB := nextCVVersion()
-		versionC := nextCVVersion()
-		cvA := createCV(versionA)
-		cvB := createCV(versionB)
-		cvC := createCV(versionC)
-		nameA := cvA.GetMetadata().GetName()
-		nameB := cvB.GetMetadata().GetName()
-
-		// Update CV-C to reference both A and B:
-		_, err := client.Update(ctx, privatev1.ClusterVersionsUpdateRequest_builder{
-			Object: privatev1.ClusterVersion_builder{
-				Id: cvC.GetId(),
-				Spec: privatev1.ClusterVersionSpec_builder{
-					AllowedUpgrades: privatev1.ClusterVersionAllowedUpgrades_builder{
-						VersionNames: []string{nameA, nameB},
-					}.Build(),
-				}.Build(),
-			}.Build(),
-			UpdateMask: &fieldmaskpb.FieldMask{Paths: []string{"spec.allowed_upgrades"}},
-		}.Build())
-		Expect(err).ToNot(HaveOccurred())
-
-		// Delete CV-A:
-		_, err = client.Delete(ctx, privatev1.ClusterVersionsDeleteRequest_builder{
-			Id: cvA.GetId(),
-		}.Build())
-		Expect(err).ToNot(HaveOccurred())
-
-		// Get CV-C: should still reference B but not A:
-		getC, err := client.Get(ctx, privatev1.ClusterVersionsGetRequest_builder{
-			Id: cvC.GetId(),
-		}.Build())
-		Expect(err).ToNot(HaveOccurred())
-		versionNames := getC.GetObject().GetSpec().GetAllowedUpgrades().GetVersionNames()
-		Expect(versionNames).To(ConsistOf(nameB))
-		Expect(versionNames).ToNot(ContainElement(nameA))
-	})
 })

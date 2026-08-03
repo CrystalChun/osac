@@ -65,12 +65,6 @@ var _ = Describe("Create clusterversion flag registration", func() {
 		Expect(flag.Usage).To(ContainSubstring("ACTIVE"))
 	})
 
-	It("should register --allowed-upgrade flag", func() {
-		cmd := Cmd()
-		flag := cmd.Flags().Lookup("allowed-upgrade")
-		Expect(flag).NotTo(BeNil())
-		Expect(flag.Usage).To(ContainSubstring("upgrade"))
-	})
 })
 
 var _ = Describe("State parsing", func() {

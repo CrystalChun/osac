@@ -127,15 +127,6 @@ func renderClusterVersion(w io.Writer, cv *publicv1.ClusterVersion) {
 				fmt.Fprintf(writer, "Obsolete At:\t%s\n", ts.AsTime().Format(time.RFC3339))
 			}
 		}
-
-		allowedUpgrades := "(unrestricted)"
-		if spec.HasAllowedUpgrades() {
-			allowedUpgrades = "(none)"
-		}
-		if names := spec.GetAllowedUpgrades().GetVersionNames(); len(names) > 0 {
-			allowedUpgrades = strings.Join(names, ", ")
-		}
-		fmt.Fprintf(writer, "Allowed Upgrades:\t%s\n", allowedUpgrades)
 	}
 
 	writer.Flush()
@@ -147,7 +138,7 @@ const longHelp = `
 Describe a cluster version.
 
 Displays detailed information about a cluster version, including its version string, lifecycle
-state, availability, deprecation details, and allowed upgrade targets.
+state, availability, and deprecation details.
 
 To describe a cluster version by name:
 

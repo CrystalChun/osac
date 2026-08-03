@@ -123,54 +123,6 @@ var _ = Describe("Rendering tests", func() {
 		Expect(output).To(MatchRegexp(`Default:\s+-`))
 	})
 
-	It("should show allowed upgrades when present", func() {
-		cv := publicv1.ClusterVersion_builder{
-			Id: "cv-006",
-			Metadata: publicv1.Metadata_builder{
-				Name: "4-16-0",
-			}.Build(),
-			Spec: publicv1.ClusterVersionSpec_builder{
-				Version: "4.16.0",
-				AllowedUpgrades: publicv1.ClusterVersionAllowedUpgrades_builder{
-					VersionNames: []string{"4-17-0", "4-17-1"},
-				}.Build(),
-			}.Build(),
-		}.Build()
-		output := formatClusterVersion(cv)
-		Expect(output).To(MatchRegexp(`Allowed Upgrades:\s+4-17-0, 4-17-1`))
-	})
-
-	It("should show (none) for empty allowed upgrades", func() {
-		cv := publicv1.ClusterVersion_builder{
-			Id: "cv-007",
-			Metadata: publicv1.Metadata_builder{
-				Name: "4-17-0",
-			}.Build(),
-			Spec: publicv1.ClusterVersionSpec_builder{
-				Version: "4.17.0",
-				AllowedUpgrades: publicv1.ClusterVersionAllowedUpgrades_builder{
-					VersionNames: []string{},
-				}.Build(),
-			}.Build(),
-		}.Build()
-		output := formatClusterVersion(cv)
-		Expect(output).To(MatchRegexp(`Allowed Upgrades:\s+\(none\)`))
-	})
-
-	It("should show (unrestricted) when allowed upgrades absent", func() {
-		cv := publicv1.ClusterVersion_builder{
-			Id: "cv-008",
-			Metadata: publicv1.Metadata_builder{
-				Name: "4-17-0",
-			}.Build(),
-			Spec: publicv1.ClusterVersionSpec_builder{
-				Version: "4.17.0",
-			}.Build(),
-		}.Build()
-		output := formatClusterVersion(cv)
-		Expect(output).To(MatchRegexp(`Allowed Upgrades:\s+\(unrestricted\)`))
-	})
-
 	It("should show '-' for name when metadata is nil", func() {
 		cv := publicv1.ClusterVersion_builder{
 			Id: "cv-009",

@@ -15,7 +15,6 @@ syntax = "proto3";
 
 package osac.private.v1;
 
-import "buf/validate/validate.proto";
 import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
 import "osac/private/v1/metadata_type.proto";
@@ -60,28 +59,6 @@ message ClusterVersionDeprecation {
   google.protobuf.Timestamp obsolescence_timestamp = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
-// Constrains which cluster versions are valid upgrade targets from a given version.
-//
-// Three-way semantics apply:
-// - Message absent: no path constraint is enforced (the target must still be enabled and not obsolete).
-// - Message present with empty version_names: no valid targets exist and version change is rejected.
-// - Message present with version_names: only the listed versions are accepted as upgrade targets.
-message ClusterVersionAllowedUpgrades {
-  // ClusterVersion names (metadata.name). Must reference existing, non-deleted ClusterVersions. When a target
-  // version is deleted, it is automatically removed from all lists.
-  // No duplicate or empty entries are allowed.
-  repeated string version_names = 1 [(buf.validate.field).repeated = {
-    unique: true,
-    max_items: 1000,
-    items: {
-      string: {
-        min_len: 1,
-        max_len: 63
-      }
-    }
-  }];
-}
-
 // Contains the details about the cluster version that are available only for the system.
 //
 // Cluster versions are admin-managed catalog entries that define which OpenShift versions are available. Users
@@ -114,8 +91,8 @@ message ClusterVersion {
 // Defines the desired configuration for a ClusterVersion.
 //
 // The spec contains admin-specified parameters that define the version catalog entry. The `image` and `version`
-// fields are immutable after creation. The `enabled`, `is_default`, `state`, `deprecation`, and `allowed_upgrades`
-// fields may be updated to manage the version lifecycle.
+// fields are immutable after creation. The `enabled`, `is_default`, `state`, and `deprecation` fields may be
+// updated to manage the version lifecycle.
 message ClusterVersionSpec {
   // OCI release image pullspec for this version. Required on creation, immutable afterwards.
   //
@@ -156,12 +133,6 @@ message ClusterVersionSpec {
     (google.api.field_behavior) = REQUIRED,
     (google.api.field_behavior) = IMMUTABLE
   ];
-
-  // Constrains which versions are valid upgrade targets from this version.
-  //
-  // When absent, any enabled non-obsolete version is a valid target. When present with an empty list,
-  // version changes are blocked. When present with entries, only the listed versions are accepted.
-  ClusterVersionAllowedUpgrades allowed_upgrades = 7 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // Contains the system-provided status of a ClusterVersion.
