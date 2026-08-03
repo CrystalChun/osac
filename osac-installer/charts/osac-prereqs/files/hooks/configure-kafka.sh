@@ -3,6 +3,14 @@ set -euo pipefail
 
 KAFKA_NS=osac-kafka
 
+echo "Waiting for AMQ Streams install plan..."
+until INSTALL_PLAN=$(oc get subscription amq-streams -n "${KAFKA_NS}" -o jsonpath='{.status.installPlanRef.name}' 2>/dev/null) && [[ -n "${INSTALL_PLAN}" ]]; do
+  sleep 10
+done
+
+echo "Approving install plan ${INSTALL_PLAN}..."
+oc patch installplan "${INSTALL_PLAN}" -n "${KAFKA_NS}" --type merge -p '{"spec":{"approved":true}}'
+
 echo "Waiting for AMQ Streams Subscription to report installedCSV..."
 until AMQ_CSV=$(oc get subscription amq-streams -n "${KAFKA_NS}" -o jsonpath='{.status.installedCSV}' 2>/dev/null) && [[ -n "${AMQ_CSV}" ]]; do
   sleep 10
