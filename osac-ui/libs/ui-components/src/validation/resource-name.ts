@@ -1,14 +1,12 @@
 import type { TFunction } from 'i18next';
-import * as yup from 'yup';
+import * as Yup from 'yup';
 
 const DNS_LABEL_PATTERN = /^[a-z0-9-]+$/;
 
 /** Yup schema for metadata.name — aligned with fulfillment-service validateName (RFC 1035 DNS labels). */
-export const buildMetadataNameSchema = (t: TFunction): yup.StringSchema =>
-  yup
-    .string()
-    .trim()
-    .required(t('catalogProvision.validation.nameRequired'))
+export const resourceNameSchema = (t: TFunction): Yup.StringSchema =>
+  Yup.string()
+    .required(t('Name is required'))
     .max(63, t('Name must be at most 63 characters long'))
     .test(
       'dns-label-charset',

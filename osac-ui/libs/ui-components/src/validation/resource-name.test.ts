@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { ValidationError } from 'yup';
 
-import { buildMetadataNameSchema } from './metadataNameSchema';
-import { tIdentity as t } from '../../../test-utils/i18n';
+import { resourceNameSchema } from './resource-name';
+import { tIdentity as t } from '../test-utils/i18n';
 
 const validateName = async (name: string) => {
-  const schema = buildMetadataNameSchema(t);
+  const schema = resourceNameSchema(t);
   try {
     await schema.validate(name);
     return undefined;
@@ -28,12 +28,12 @@ describe('buildMetadataNameSchema', () => {
   });
 
   it.each([
-    ['', 'catalogProvision.validation.nameRequired'],
-    ['   ', 'catalogProvision.validation.nameRequired'],
+    ['', 'Name is required'],
     [
       'a234567890123456789012345678901234567890123456789012345678901234',
       'Name must be at most 63 characters long',
     ],
+    ['    ', 'Name must only contain lowercase letters (a-z), digits (0-9), and hyphens (-)'],
     ['MyVM', 'Name must only contain lowercase letters (a-z), digits (0-9), and hyphens (-)'],
     ['my_vm', 'Name must only contain lowercase letters (a-z), digits (0-9), and hyphens (-)'],
     ['-myvm', 'Name cannot start with a hyphen'],

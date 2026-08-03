@@ -25,7 +25,11 @@ import {
   VirtualNetworkState,
   VirtualNetworks,
 } from '@osac/types';
-import type { Tenant as PrivateTenant } from '@osac/types/private';
+import type {
+  Tenant as PrivateTenant,
+  TenantsCreateRequest,
+  TenantsCreateResponse,
+} from '@osac/types/private';
 import { Tenants as PrivateTenants } from '@osac/types/private';
 
 import { UnauthorizedError } from '../utils/unauthorizedError';
@@ -95,6 +99,7 @@ const matchesInstanceTypeActiveFilter = (
 
 export type MockTransportOverrides = {
   onClusterCreate?: (req: ClustersCreateRequest) => ClustersCreateResponse;
+  onTenantCreate?: (req: TenantsCreateRequest) => TenantsCreateResponse;
 };
 
 export const createMockConnectTransport = (
@@ -203,6 +208,25 @@ export const createMockConnectTransport = (
         get: (req) => ({
           object: tenants.find((t) => t.id === req.id),
         }),
+        create: (req) => {
+          if (overrides.onTenantCreate) {
+            return overrides.onTenantCreate(req);
+          }
+          return {
+            object: {
+              id: 'new-tenant-1',
+              metadata: req.object?.metadata,
+              spec: req.object?.spec,
+              status: {
+                breakGlassCredentials: {
+                  username: 'break-glass-admin',
+                  password: 'temp-password-123',
+                },
+              },
+            },
+          };
+        },
+        delete: () => ({}),
       });
 
       router.service(Clusters, {

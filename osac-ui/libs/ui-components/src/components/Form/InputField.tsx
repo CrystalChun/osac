@@ -1,4 +1,4 @@
-import { FormGroup, TextArea, TextInput } from '@patternfly/react-core';
+import { FormGroup, Split, SplitItem, TextArea, TextInput } from '@patternfly/react-core';
 import { useField } from 'formik';
 
 import { getVisibleFieldError } from './fieldError';
@@ -31,7 +31,8 @@ export const InputField = ({
   type = 'text',
   helperText,
   onBlur,
-}: InputFieldProps) => {
+  children,
+}: React.PropsWithChildren<InputFieldProps>) => {
   const [field, meta] = useField<string>(name);
   const showValidationErrors = useShowFieldValidationErrors();
   const error = getVisibleFieldError(meta, showValidationErrors);
@@ -60,23 +61,28 @@ export const InputField = ({
           aria-describedby={helperDescribedBy}
         />
       ) : (
-        <TextInput
-          id={fieldId}
-          name={name}
-          type={type}
-          value={field.value ?? ''}
-          onChange={(_event, value) => {
-            void field.onChange({ target: { name, value } });
-          }}
-          onBlur={(event) => {
-            field.onBlur(event);
-            onBlur?.();
-          }}
-          isDisabled={isDisabled}
-          validated={validated}
-          aria-invalid={error ? true : undefined}
-          aria-describedby={helperDescribedBy}
-        />
+        <Split hasGutter>
+          <SplitItem isFilled>
+            <TextInput
+              id={fieldId}
+              name={name}
+              type={type}
+              value={field.value ?? ''}
+              onChange={(_event, value) => {
+                void field.onChange({ target: { name, value } });
+              }}
+              onBlur={(event) => {
+                field.onBlur(event);
+                onBlur?.();
+              }}
+              isDisabled={isDisabled}
+              validated={validated}
+              aria-invalid={error ? true : undefined}
+              aria-describedby={helperDescribedBy}
+            />
+          </SplitItem>
+          <SplitItem>{children}</SplitItem>
+        </Split>
       )}
       <FormFieldHelper error={error} description={helperText} fieldId={fieldId} />
     </FormGroup>

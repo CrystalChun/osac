@@ -2,6 +2,7 @@ import type { TFunction } from 'i18next';
 import * as yup from 'yup';
 
 import type { ClusterCatalogItem } from '@osac/types';
+import { resourceNameSchema } from '@osac/ui-components/validation/resource-name';
 
 import type { ClusterNodeSetRow } from './fields';
 import {
@@ -24,7 +25,6 @@ import {
   readCatalogFieldDefinitions,
 } from '../../catalogOverlay';
 import { isValidPullSecret, isValidSshPublicKey } from '../../fields/credentialValidation';
-import { buildMetadataNameSchema } from '../../metadataNameSchema';
 import type { WizardStepId } from '../../stepIds';
 
 const nodeSetRowSchema = (t: TFunction) =>
@@ -74,7 +74,7 @@ const buildClusterFieldDefinitions = (catalogItem: unknown, t: TFunction) => {
 
   return {
     catalogItemId: yup.string().required(t('Select a catalog item')),
-    metadataName: buildMetadataNameSchema(t),
+    metadataName: resourceNameSchema(t),
     specSshPublicKey: mergeCatalogValidation(
       yup
         .string()

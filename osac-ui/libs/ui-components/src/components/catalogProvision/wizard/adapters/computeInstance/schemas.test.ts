@@ -103,9 +103,9 @@ describe('buildComputeInstanceStepSchema', () => {
     const errors = await validateStep('general', {
       ...emptyValues,
       catalogItemId: vmCatalogItem.id,
-      metadata: { name: '   ' },
+      metadata: { name: '' },
     });
-    expect(errors).toEqual({ metadata: { name: 'catalogProvision.validation.nameRequired' } });
+    expect(errors).toEqual({ metadata: { name: 'Name is required' } });
   });
 
   it('rejects invalid DNS label names on general step', async () => {
