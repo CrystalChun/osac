@@ -30,15 +30,16 @@ import { UserIcon } from '@patternfly/react-icons/dist/esm/icons/user-icon';
 
 import UserPreferencesModal from '@osac/ui-components/components/UserPreferences/UserPreferencesModal';
 import { useSession } from '@osac/ui-components/hooks/use-session';
+import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
+import { userRoleLabels } from '@osac/ui-components/shellTypes';
 import { getErrorMessage } from '@osac/ui-components/utils/error';
-
-import { operatingModeLabel } from './shellLabels';
 
 interface ShellMastheadProps {
   onLogout: () => Promise<void>;
 }
 
 export const ShellMasthead = ({ onLogout }: ShellMastheadProps) => {
+  const { t } = useTranslation();
   const [isUserMenuOpen, setIsUserMenuOpen] = React.useState(false);
   const [isPreferencesOpen, setPreferencesOpen] = React.useState(false);
   const [logoutError, setLogoutError] = React.useState<string>();
@@ -102,7 +103,7 @@ export const ShellMasthead = ({ onLogout }: ShellMastheadProps) => {
                       >
                         {displayName}{' '}
                         <Label color="grey" variant="outline" isCompact>
-                          {operatingModeLabel(role)}
+                          {userRoleLabels(t)[role]}
                         </Label>
                       </MenuToggle>
                     )}

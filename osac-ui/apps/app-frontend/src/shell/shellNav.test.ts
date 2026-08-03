@@ -1,16 +1,16 @@
 import { describe, expect, it } from 'vitest';
 
-import type { DemoShellRole } from '@osac/ui-components/shellTypes';
+import type { UserRole } from '@osac/ui-components/shellTypes';
 import { tIdentity } from '@osac/ui-components/test-utils/i18n';
 
 import { navRowsForRole } from './shellNav';
 
-const roles: DemoShellRole[] = ['tenantUser', 'tenantAdmin', 'providerAdmin'];
+const roles: UserRole[] = ['tenant-user', 'tenant-admin', 'tenant-idp-manager', 'admin'];
 
-const findSection = (role: DemoShellRole, sectionId: string) =>
+const findSection = (role: UserRole, sectionId: string) =>
   navRowsForRole(role, tIdentity).find((row) => row.sectionId === sectionId);
 
-const servicesChildren = (role: DemoShellRole) =>
+const servicesChildren = (role: UserRole) =>
   findSection(role, 'nav-tenant-services')?.children ?? [];
 
 describe('navRowsForRole', () => {

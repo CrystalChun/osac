@@ -117,7 +117,6 @@ export const AppShell = ({ logout }: { logout: () => Promise<void> }) => {
             </ShellRoute>
           }
         />
-
         <Route path="*" element={<Navigate to={defaultRoute} replace />} />
       </Routes>
     </Page>

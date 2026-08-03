@@ -1,10 +1,10 @@
 import { createContext, useContext } from 'react';
 
-import type { DemoShellRole } from '../shellTypes';
+import type { UserRole } from '../shellTypes';
 import { type ResolvedTheme, type Theme, useTheme } from './use-theme';
 
 interface SessionContextValue {
-  role: DemoShellRole;
+  role: UserRole;
   username: string;
   userTheme: Theme;
   resolvedTheme: ResolvedTheme;
@@ -15,7 +15,7 @@ const SessionContext = createContext<SessionContextValue | null>(null);
 
 interface SessionProviderProps {
   children: React.ReactNode;
-  role: DemoShellRole;
+  role: UserRole;
   username: string;
 }
 
