@@ -30,9 +30,6 @@ spec:
     - jsonPath: .spec.hostClass
       name: HostClass
       type: string
-    - jsonPath: .spec.networkClass
-      name: NetworkClass
-      type: string
     - jsonPath: .spec.externalHostID
       name: ExternalHostID
       type: string
@@ -159,10 +156,6 @@ spec:
                     have primary set to true
                   rule: self.size() <= 1 || self.filter(x, x.primary == true).size()
                     == 1
-              networkClass:
-                description: NetworkClass is the network class for this host (e.g.
-                  openstack).
-                type: string
               restartTrigger:
                 description: |-
                   RestartTrigger is used to trigger a restart of the physical machine.
