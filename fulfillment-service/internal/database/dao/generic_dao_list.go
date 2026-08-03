@@ -25,9 +25,10 @@ import (
 // ListRequest represents a request to list objects with pagination and filtering.
 type ListRequest[O Object] struct {
 	request[O]
-	filter string
-	limit  int32
-	offset int32
+	filter    string
+	limit     int32
+	offset    int32
+	lockShare bool
 }
 
 // SetFilter sets the CEL expression that defines which objects should be returned.
@@ -45,6 +46,13 @@ func (r *ListRequest[O]) SetLimit(value int32) *ListRequest[O] {
 // SetOffset sets the starting point for pagination.
 func (r *ListRequest[O]) SetOffset(value int32) *ListRequest[O] {
 	r.offset = value
+	return r
+}
+
+// SetLockShare acquires a FOR SHARE lock on matched rows, preventing concurrent
+// modifications (UPDATE/DELETE) until the current transaction commits.
+func (r *ListRequest[O]) SetLockShare(value bool) *ListRequest[O] {
+	r.lockShare = value
 	return r
 }
 
@@ -155,6 +163,9 @@ func (r *ListRequest[O]) do(ctx context.Context) (response *ListResponse[O], err
 	}
 	r.sql.params = append(r.sql.params, limit)
 	fmt.Fprintf(&buffer, ` limit $%d`, len(r.sql.params))
+	if r.lockShare {
+		buffer.WriteString(` for share`)
+	}
 
 	// Execute the SQL query:
 	sql = buffer.String()
