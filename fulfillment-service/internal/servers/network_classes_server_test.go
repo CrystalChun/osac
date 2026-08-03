@@ -101,7 +101,7 @@ var _ = Describe("Network classes server", func() {
 		createNetworkClass := func() *privatev1.NetworkClass {
 			response, err := privateServer.Create(ctx, privatev1.NetworkClassesCreateRequest_builder{
 				Object: privatev1.NetworkClass_builder{
-					Metadata:               privatev1.Metadata_builder{Name: "test-nc"}.Build(),
+					Metadata:               privatev1.Metadata_builder{Name: fmt.Sprintf("test-nc-%s", uuid.NewString()[:8])}.Build(),
 					Title:                  "Test Network Class",
 					ImplementationStrategy: fmt.Sprintf("ovn-%s", uuid.NewString()[:8]),
 					FabricManager:          "netris",
@@ -115,7 +115,7 @@ var _ = Describe("Network classes server", func() {
 		createDefaultNetworkClass := func() *privatev1.NetworkClass {
 			response, err := privateServer.Create(ctx, privatev1.NetworkClassesCreateRequest_builder{
 				Object: privatev1.NetworkClass_builder{
-					Metadata:               privatev1.Metadata_builder{Name: "test-default-nc"}.Build(),
+					Metadata:               privatev1.Metadata_builder{Name: fmt.Sprintf("test-default-nc-%s", uuid.NewString()[:8])}.Build(),
 					Title:                  "Default Network Class",
 					ImplementationStrategy: fmt.Sprintf("ovn-%s", uuid.NewString()[:8]),
 					FabricManager:          "netris",

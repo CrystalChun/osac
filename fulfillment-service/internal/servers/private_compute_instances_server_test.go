@@ -16,6 +16,7 @@ package servers
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -291,7 +292,7 @@ var _ = Describe("Private compute instances server", func() {
 				Title:       "Test Template",
 				Description: "Test template for validation",
 				Metadata: privatev1.Metadata_builder{
-					Name:   templateID,
+					Name:   strings.ReplaceAll(templateID, ".", "-"),
 					Tenant: auth.SharedTenant,
 				}.Build(),
 				Parameters: []*privatev1.ComputeInstanceTemplateParameterDefinition{
