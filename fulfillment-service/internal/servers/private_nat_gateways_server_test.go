@@ -564,8 +564,8 @@ var _ = Describe("Private NAT gateways server", func() {
 						},
 					}.Build(),
 					Spec: privatev1.NATGatewaySpec_builder{
-						VirtualNetwork: vnID,
-						ExternalIp:     eip.GetId(),
+						VirtualNetwork: privatev1.VirtualNetworkLocalReference_builder{Id: vnID}.Build(),
+						ExternalIp:     privatev1.ExternalIPLocalReference_builder{Id: eip.GetId()}.Build(),
 					}.Build(),
 				}.Build(),
 			}.Build())

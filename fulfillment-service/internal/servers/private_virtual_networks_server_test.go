@@ -1756,7 +1756,7 @@ var _ = Describe("Private virtual networks server", func() {
 					}.Build(),
 					Spec: privatev1.VirtualNetworkSpec_builder{
 						Ipv4Cidr:     proto.String("10.0.0.0/16"),
-						NetworkClass: nc.GetId(),
+						NetworkClass: privatev1.NetworkClassReference_builder{Id: nc.GetId()}.Build(),
 						Region:       "us-west-1",
 					}.Build(),
 				}.Build(),

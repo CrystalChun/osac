@@ -475,7 +475,7 @@ var _ = Describe("SecurityGroups server", func() {
 						},
 					}.Build(),
 					Spec: publicv1.SecurityGroupSpec_builder{
-						VirtualNetwork: virtualNetworkID,
+						VirtualNetwork: publicv1.VirtualNetworkLocalReference_builder{Id: virtualNetworkID}.Build(),
 					}.Build(),
 				}.Build(),
 			}.Build())

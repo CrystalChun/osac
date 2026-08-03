@@ -1456,7 +1456,7 @@ var _ = Describe("Private subnets server", func() {
 						}.Build(),
 						Spec: privatev1.SubnetSpec_builder{
 							Ipv4Cidr:       new("10.0.1.0/24"),
-							VirtualNetwork: vn.GetId(),
+							VirtualNetwork: privatev1.VirtualNetworkLocalReference_builder{Id: vn.GetId()}.Build(),
 						}.Build(),
 					}.Build(),
 				}.Build())
