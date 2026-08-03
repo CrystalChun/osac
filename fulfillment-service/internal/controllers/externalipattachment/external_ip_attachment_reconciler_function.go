@@ -274,7 +274,7 @@ func (t *task) delete(ctx context.Context) (err error) {
 func (t *task) selectHub(ctx context.Context) error {
 	t.hubId = t.externalIPAttachment.GetStatus().GetHub()
 	if t.hubId == "" {
-		eipKey := refKeyStr(t.externalIPAttachment.GetSpec().GetExternalIp())
+		eipKey := controllers.RefKeyStr(t.externalIPAttachment.GetSpec().GetExternalIp())
 		eipResponse, err := t.r.externalIPsClient.Get(ctx, privatev1.ExternalIPsGetRequest_builder{
 			Id: eipKey,
 		}.Build())
@@ -370,10 +370,10 @@ func (t *task) removeFinalizer() {
 
 func (t *task) buildSpec() osacv1alpha1.ExternalIPAttachmentSpec {
 	spec := osacv1alpha1.ExternalIPAttachmentSpec{
-		ExternalIP: refKeyStr(t.externalIPAttachment.GetSpec().GetExternalIp()),
+		ExternalIP: controllers.RefKeyStr(t.externalIPAttachment.GetSpec().GetExternalIp()),
 	}
 	if t.externalIPAttachment.GetSpec().HasComputeInstance() {
-		ci := refKeyStr(t.externalIPAttachment.GetSpec().GetComputeInstance())
+		ci := controllers.RefKeyStr(t.externalIPAttachment.GetSpec().GetComputeInstance())
 		spec.ComputeInstance = &ci
 	}
 	if t.externalIPAttachment.GetSpec().HasCluster() {

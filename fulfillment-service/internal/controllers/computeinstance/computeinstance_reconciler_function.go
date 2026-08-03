@@ -546,17 +546,7 @@ func (t *task) setReconciliationFailed(err error) {
 	)
 }
 
-type refKeyer interface {
-	GetId() string
-	GetName() string
-}
 
-func refKeyStr(ref refKeyer) string {
-	if ref.GetId() != "" {
-		return ref.GetId()
-	}
-	return ref.GetName()
-}
 
 // buildSpec constructs the spec for the Kubernetes ComputeInstance object based on the
 // compute instance from the database.
@@ -566,7 +556,7 @@ func (t *task) buildSpec(ctx context.Context) (osacv1alpha1.ComputeInstanceSpec,
 		return osacv1alpha1.ComputeInstanceSpec{}, err
 	}
 	spec := osacv1alpha1.ComputeInstanceSpec{
-		TemplateID:         refKeyStr(t.computeInstance.GetSpec().GetTemplate()),
+		TemplateID:         controllers.RefKeyStr(t.computeInstance.GetSpec().GetTemplate()),
 		TemplateParameters: templateParameters,
 	}
 
@@ -673,7 +663,7 @@ func (t *task) addExplicitFields(ctx context.Context, spec *osacv1alpha1.Compute
 			t.computeInstance.GetId(),
 		)
 	}
-	instanceTypeKey := refKeyStr(instanceTypeRef)
+	instanceTypeKey := controllers.RefKeyStr(instanceTypeRef)
 	response, err := t.r.instanceTypesClient.Get(ctx, privatev1.InstanceTypesGetRequest_builder{
 		Id: instanceTypeKey,
 	}.Build())

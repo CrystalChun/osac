@@ -31,6 +31,7 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	privatev1 "github.com/osac-project/osac/fulfillment-service/internal/api/osac/private/v1"
+	"github.com/osac-project/osac/fulfillment-service/internal/controllers"
 	"github.com/osac-project/osac/fulfillment-service/internal/controllers/finalizers"
 	"github.com/osac-project/osac/fulfillment-service/internal/idp"
 	"github.com/osac-project/osac/fulfillment-service/internal/masks"
@@ -296,7 +297,7 @@ func (t *task) syncProjectMembership(ctx context.Context, existingProject *priva
 	var successfulUsers []*privatev1.UserReference
 	var assignmentErrors []string
 	for _, userRef := range users {
-		userKey := refKeyStr(userRef)
+		userKey := controllers.RefKeyStr(userRef)
 		if err := t.addUserToGroup(ctx, userKey, organizationName, groupID); err != nil {
 			assignmentErrors = append(assignmentErrors, fmt.Sprintf("user %s: %v", userKey, err))
 		} else {
@@ -325,24 +326,24 @@ func (t *task) handleUserListChange(ctx context.Context, existingProject *privat
 
 	desiredSet := make(map[string]bool)
 	for _, u := range desiredUsers {
-		desiredSet[refKeyStr(u)] = true
+		desiredSet[controllers.RefKeyStr(u)] = true
 	}
 	syncedSet := make(map[string]bool)
 	for _, u := range syncedUsers {
-		syncedSet[refKeyStr(u)] = true
+		syncedSet[controllers.RefKeyStr(u)] = true
 	}
 
 	var usersToAdd []string
 	for _, u := range desiredUsers {
-		if !syncedSet[refKeyStr(u)] {
-			usersToAdd = append(usersToAdd, refKeyStr(u))
+		if !syncedSet[controllers.RefKeyStr(u)] {
+			usersToAdd = append(usersToAdd, controllers.RefKeyStr(u))
 		}
 	}
 
 	var usersToRemove []string
 	for _, u := range syncedUsers {
-		if !desiredSet[refKeyStr(u)] {
-			usersToRemove = append(usersToRemove, refKeyStr(u))
+		if !desiredSet[controllers.RefKeyStr(u)] {
+			usersToRemove = append(usersToRemove, controllers.RefKeyStr(u))
 		}
 	}
 
@@ -358,7 +359,7 @@ func (t *task) handleUserListChange(ctx context.Context, existingProject *privat
 	// Track the actual synced user set so partial progress is preserved on failure.
 	actualUsers := make(map[string]*privatev1.UserReference)
 	for _, u := range syncedUsers {
-		actualUsers[refKeyStr(u)] = u
+		actualUsers[controllers.RefKeyStr(u)] = u
 	}
 
 	var syncErrors []string
@@ -372,7 +373,7 @@ func (t *task) handleUserListChange(ctx context.Context, existingProject *privat
 	}
 
 	for _, u := range desiredUsers {
-		key := refKeyStr(u)
+		key := controllers.RefKeyStr(u)
 		if !syncedSet[key] {
 			if err := t.addUserToGroup(ctx, key, organizationName, groupID); err != nil {
 				syncErrors = append(syncErrors, fmt.Sprintf("add user %s: %v", key, err))
@@ -655,7 +656,7 @@ func (t *task) cleanupProjectMembership(ctx context.Context) error {
 	}
 
 	for _, userRef := range users {
-		userKey := refKeyStr(userRef)
+		userKey := controllers.RefKeyStr(userRef)
 		if err := t.removeUserFromGroup(ctx, userKey, organizationName, groupID); err != nil {
 			return fmt.Errorf("failed to remove user %s during cleanup: %w", userKey, err)
 		}
@@ -664,14 +665,4 @@ func (t *task) cleanupProjectMembership(ctx context.Context) error {
 	return nil
 }
 
-type refKeyer interface {
-	GetId() string
-	GetName() string
-}
 
-func refKeyStr(ref refKeyer) string {
-	if ref.GetId() != "" {
-		return ref.GetId()
-	}
-	return ref.GetName()
-}
