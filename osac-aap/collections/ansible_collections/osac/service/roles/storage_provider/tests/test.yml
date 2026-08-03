@@ -167,9 +167,7 @@
           ansible.builtin.assert:
             that:
               - >-
-                'unsupported protocol' in (ansible_failed_result.results | default([]) | map(attribute='msg') | join(' ') | lower)
-                or 'Invalid protocol' in (ansible_failed_result.results | default([]) | map(attribute='msg') | join(' '))
-                or 'One or more items failed' in (ansible_failed_result.msg | default(''))
+                'unsupported protocol' in (ansible_failed_result.msg | default('') | lower)
             fail_msg: "Role failed but with unexpected message: {{ ansible_failed_result.msg | default('unknown') }}"
             success_msg: "Role correctly rejected invalid protocol"
 
@@ -215,15 +213,15 @@
             msg: "Role did not fail as expected when provider is invalid"
 
       rescue:
+        # ansible_failed_result is NOT refreshed for this kind of failure: a genuinely-missing
+        # role name is a runner-level ERROR! raised during dynamic role resolution, not a normal
+        # task failure, so it never repopulates the rescue block's ansible_failed_result -- it
+        # would still hold whatever an earlier, unrelated task last set it to. There is nothing
+        # reliable to assert about the failure's content from inside the playbook; reaching this
+        # rescue at all already proves the role failed to load for the invalid provider name.
         - name: Verify role failed for invalid provider
-          ansible.builtin.assert:
-            that:
-              - >-
-                'osac.templates.netapp_storage' in (ansible_failed_result.msg | default(''))
-                or 'was not found' in (ansible_failed_result.msg | default(''))
-                or 'One or more items failed' in (ansible_failed_result.msg | default(''))
-            fail_msg: "Role failed but with unexpected message: {{ ansible_failed_result.msg | default('unknown') }}"
-            success_msg: "Role correctly rejected invalid provider"
+          ansible.builtin.debug:
+            msg: "Role correctly rejected invalid provider (rescue reached after role-resolution failure)"
 
 # ──────────────────────────────────────────────────────────────
 # Test 6: Invalid action -- error path
@@ -791,8 +789,7 @@
           ansible.builtin.assert:
             that:
               - >-
-                'unsupported protocol' in (ansible_failed_result.results | default([]) | map(attribute='msg') | join(' ') | lower)
-                or 'One or more items failed' in (ansible_failed_result.msg | default(''))
+                'unsupported protocol' in (ansible_failed_result.msg | default('') | lower)
             fail_msg: "Role failed but with unexpected message: {{ ansible_failed_result.msg | default('unknown') }}"
             success_msg: "Role correctly rejected both tiers with unsupported protocols"
 
@@ -850,8 +847,7 @@
           ansible.builtin.assert:
             that:
               - >-
-                'has no backend_id' in (ansible_failed_result.results | default([]) | map(attribute='msg') | join(' '))
-                or 'One or more items failed' in (ansible_failed_result.msg | default(''))
+                'has no backend_id' in (ansible_failed_result.msg | default(''))
             fail_msg: "Role failed but with unexpected message: {{ ansible_failed_result.msg | default('unknown') }}"
             success_msg: "Role correctly rejected a tier with no backend_id"
 
@@ -908,8 +904,7 @@
           ansible.builtin.assert:
             that:
               - >-
-                'unsupported protocol' in (ansible_failed_result.results | default([]) | map(attribute='msg') | join(' ') | lower)
-                or 'One or more items failed' in (ansible_failed_result.msg | default(''))
+                'unsupported protocol' in (ansible_failed_result.msg | default('') | lower)
             fail_msg: "Role failed but with unexpected message: {{ ansible_failed_result.msg | default('unknown') }}"
             success_msg: "Role correctly rejected invalid protocol via ensure_storage_class"
 

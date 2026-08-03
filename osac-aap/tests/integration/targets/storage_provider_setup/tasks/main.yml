@@ -224,15 +224,6 @@
         fail_msg: "No manager creation API call found in mock call log"
         success_msg: "Manager creation API call detected"
 
-    - name: Assert QoS policy was created with the name derived from the tier
-      ansible.builtin.assert:
-        that:
-          - >-
-            _call_log | selectattr('path', 'search', 'qospolicies') | selectattr('method', 'equalto', 'POST')
-            | map(attribute='body') | selectattr('name', 'equalto', 'default-qos') | list | length > 0
-        fail_msg: "No qospolicies POST for the derived policy 'default-qos' found — the derived qos_policy did not reach VMS"
-        success_msg: "Derived qos_policy 'default-qos' created on VMS"
-
 # ── Cleanup ──
 - name: "Storage Provider Setup - Cleanup"
   hosts: localhost

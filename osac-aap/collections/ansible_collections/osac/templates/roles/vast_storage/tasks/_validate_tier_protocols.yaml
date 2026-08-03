@@ -43,4 +43,4 @@
 
     - name: Re-raise the original protocol validation failure
       ansible.builtin.fail:
-        msg: "{{ ansible_failed_result.msg }}"
+        msg: "{{ osac_storage_provider_failures[0].message }}"
