@@ -26,7 +26,6 @@ const (
 type Consumer struct {
 	client    privatev1.EventsClient
 	publisher kafkapub.EventPublisher
-	topic     string
 	logger    logr.Logger
 
 	InitialDelay   time.Duration
@@ -34,11 +33,10 @@ type Consumer struct {
 	HandlerRetries int
 }
 
-func NewConsumer(client privatev1.EventsClient, publisher kafkapub.EventPublisher, topic string, logger logr.Logger) *Consumer {
+func NewConsumer(client privatev1.EventsClient, publisher kafkapub.EventPublisher, logger logr.Logger) *Consumer {
 	return &Consumer{
 		client:         client,
 		publisher:      publisher,
-		topic:          topic,
 		logger:         logger,
 		InitialDelay:   defaultInitialDelay,
 		MaxDelay:       defaultMaxDelay,
@@ -109,7 +107,6 @@ func (c *Consumer) logPublished(ce *cloudevents.Event) {
 		"type", ce.Type(),
 		"resource_id", resourceID,
 		"tenant_id", tenantID,
-		"topic", c.topic,
 	)
 }
 

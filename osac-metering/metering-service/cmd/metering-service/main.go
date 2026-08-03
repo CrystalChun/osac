@@ -157,7 +157,7 @@ func run(ctx context.Context, logger logr.Logger, cfg *config) error {
 
 	publisher := kafkapub.NewPublisher(producer, cfg.kafkaTopic)
 	eventsClient := privatev1.NewEventsClient(grpcConn)
-	consumer := watch.NewConsumer(eventsClient, publisher, cfg.kafkaTopic, logger)
+	consumer := watch.NewConsumer(eventsClient, publisher, logger)
 
 	health.conn = grpcConn
 	health.ready.Store(true)

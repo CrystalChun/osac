@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: osac-metering
+  name: {{ include "osac-metering.fullname" . }}
   labels:
-    app.kubernetes.io/name: osac-metering
+    {{- include "osac-metering.labels" . | nindent 4 }}
     app.kubernetes.io/component: metering
 spec:
   replicas: 1
@@ -11,14 +11,14 @@ spec:
     type: Recreate
   selector:
     matchLabels:
-      app.kubernetes.io/name: osac-metering
+      {{- include "osac-metering.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: osac-metering
+        {{- include "osac-metering.selectorLabels" . | nindent 8 }}
         app.kubernetes.io/component: metering
     spec:
-      serviceAccountName: osac-metering
+      serviceAccountName: {{ include "osac-metering.fullname" . }}
       securityContext:
         runAsNonRoot: true
         seccompProfile:
@@ -83,7 +83,7 @@ spec:
               oc get secret "${CA_SECRET}" -n "${SOURCE_NS}" -o jsonpath='{.data.ca\.crt}' | base64 -d > /etc/kafka-secrets/ca.crt
               echo "Kafka secrets fetched."
       containers:
-        - name: osac-metering
+        - name: {{ include "osac-metering.name" . }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:

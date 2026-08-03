@@ -143,7 +143,7 @@ var _ = Describe("Consumer", func() {
 	})
 
 	newConsumer := func(pub *mockPublisher) *watch.Consumer {
-		c := watch.NewConsumer(client, pub, "osac.metering.lifecycle", logr.Discard())
+		c := watch.NewConsumer(client, pub, logr.Discard())
 		c.InitialDelay = time.Millisecond
 		c.MaxDelay = time.Millisecond
 		return c
