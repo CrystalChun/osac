@@ -97,6 +97,67 @@ spec:
                 x-kubernetes-validations:
                 - message: field is immutable
                   rule: self == oldSelf
+              networkAttachments:
+                description: |-
+                  NetworkAttachments for the bare metal instance. One entry per physical NIC.
+                  The list structure is immutable after creation (entries cannot be added or removed),
+                  but securityGroupRefs within each entry can be updated.
+
+                  MaxItems is required for CEL cost budget calculation.
+                items:
+                  description: |-
+                    BareMetalNetworkAttachment defines one NIC: a Subnet reference, optional SecurityGroup
+                    references, a physical interface binding, and primary gateway designation.
+                  properties:
+                    interface:
+                      description: |-
+                        Interface is the physical interface name from the HostType's NetworkInterface list.
+                        When omitted on a single-attachment instance, the system selects the first fabric-role interface.
+                      type: string
+                      x-kubernetes-validations:
+                      - message: interface is immutable
+                        rule: self == oldSelf
+                    primary:
+                      description: |-
+                        Primary designates this attachment as the default gateway for multi-NIC instances.
+                        When omitted on a single-attachment instance, that attachment is implicitly primary.
+                      type: boolean
+                      x-kubernetes-validations:
+                      - message: primary is immutable
+                        rule: self == oldSelf
+                    securityGroupRefs:
+                      description: |-
+                        SecurityGroupRefs lists fulfillment SecurityGroup IDs applied on this NIC.
+                        Mutable — can be changed to add/remove security groups.
+                      items:
+                        type: string
+                      type: array
+                    subnetRef:
+                      description: SubnetRef is the fulfillment Subnet ID. Must reference
+                        a Subnet in READY state.
+                      maxLength: 253
+                      minLength: 1
+                      type: string
+                      x-kubernetes-validations:
+                      - message: subnetRef is immutable
+                        rule: self == oldSelf
+                  required:
+                  - subnetRef
+                  type: object
+                maxItems: 8
+                type: array
+                x-kubernetes-list-map-keys:
+                - subnetRef
+                x-kubernetes-list-type: map
+                x-kubernetes-validations:
+                - message: cannot change or add/remove network attachments after initial
+                    assignment
+                  rule: size(oldSelf) == 0 || (size(self) == size(oldSelf) && self.all(na,
+                    oldSelf.exists(old, old.subnetRef == na.subnetRef)))
+                - message: when multiple network attachments exist, exactly one must
+                    have primary set to true
+                  rule: self.size() <= 1 || self.filter(x, x.primary == true).size()
+                    == 1
               networkClass:
                 description: NetworkClass is the network class for this host (e.g.
                   openstack).
