@@ -195,11 +195,7 @@ func (t *task) update(ctx context.Context) error {
 		}
 		err = t.hubClient.Create(ctx, newObject)
 		if err != nil {
-			if apierrors.IsInvalid(err) {
-				t.setFailed(err)
-				return nil
-			}
-			return err
+			return t.handleK8sWriteError(ctx, err)
 		}
 		t.r.logger.DebugContext(
 			ctx,
@@ -212,11 +208,7 @@ func (t *task) update(ctx context.Context) error {
 		update.Spec = spec
 		err = t.hubClient.Patch(ctx, update, clnt.MergeFrom(object))
 		if err != nil {
-			if apierrors.IsInvalid(err) {
-				t.setFailed(err)
-				return nil
-			}
-			return err
+			return t.handleK8sWriteError(ctx, err)
 		}
 		t.r.logger.DebugContext(
 			ctx,
@@ -409,10 +401,18 @@ func (t *task) removeFinalizer() {
 	}
 }
 
-// setFailed transitions the external IP to FAILED state with the given error message.
-// Used when a permanent error (e.g., Kubernetes CRD validation failure) means the resource
-// cannot be provisioned.
-func (t *task) setFailed(err error) {
+func (t *task) handleK8sWriteError(ctx context.Context, err error) error {
+	if apierrors.IsInvalid(err) {
+		t.setFailed(ctx, err)
+		return nil
+	}
+	return err
+}
+
+func (t *task) setFailed(ctx context.Context, err error) {
+	t.r.logger.WarnContext(ctx, "Permanent error, marking resource as failed",
+		slog.String("error", err.Error()),
+	)
 	if !t.externalIP.HasStatus() {
 		t.externalIP.SetStatus(&privatev1.ExternalIPStatus{})
 	}
