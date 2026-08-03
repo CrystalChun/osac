@@ -1,7 +1,12 @@
 #!/bin/bash
 # Project statusline: extends user statusline with osac + ai-workflows sync status
+# Opt out: set CLAUDE_REPO_STATUSLINE_DISABLED=1 in .claude/settings.local.json env
 
 input=$(cat)
+
+if [[ "${CLAUDE_REPO_STATUSLINE_DISABLED:-}" == "1" ]]; then
+  exit 0
+fi
 
 project_dir="${1:-}"
 
