@@ -95,32 +95,31 @@ validation, and lifecycle management.
    mkdir -p roles/my_cluster_template/{tasks,defaults,meta}
    ```
 
-2. Define template metadata in `roles/my_cluster_template/meta/osac.yaml`:
+2. Define template metadata, spec defaults, and parameters in `roles/my_cluster_template/meta/osac.yaml`:
    ```yaml
    title: My Cluster Template
    description: Description of what this template provides
+
+   template_type: cluster
+
    default_node_request:
    - resourceClass: fc430
      numberOfNodes: 2
    allowed_resource_classes: []
+
+   spec_defaults:
+     release_image: "quay.io/openshift-release-dev/ocp-release:4.17.0-multi"
+
+   parameters:
+     - name: my_param
+       title: My Parameter
+       description: What this parameter controls
+       type: string
+       required: true
    ```
 
-3. Define parameters in `roles/my_cluster_template/meta/argument_specs.yaml`:
-   ```yaml
-   argument_specs:
-     main:
-       options:
-         template_parameters:
-           type: dict
-           options:
-             my_param:
-               description: Parameter description
-               type: str
-               required: true
-   ```
-
-4. Implement provisioning tasks in `roles/my_cluster_template/tasks/install.yaml`
-5. Implement cleanup tasks in `roles/my_cluster_template/tasks/delete.yaml`
+3. Implement provisioning tasks in `roles/my_cluster_template/tasks/install.yaml`
+4. Implement cleanup tasks in `roles/my_cluster_template/tasks/delete.yaml`
 
 ### Creating a New ComputeInstance Template
 
@@ -322,7 +321,7 @@ Templates integrate with OSAC through a well-defined interface:
 
 Contributions are welcome! Please ensure all templates:
 - Include comprehensive `meta/osac.yaml` metadata
-- Define parameters in `meta/osac.yaml` (ComputeInstance templates) or `meta/argument_specs.yaml` (cluster templates)
+- Define parameters in `meta/osac.yaml`
 - Implement both create and delete operations
 - Follow Ansible best practices
 - Include descriptive variable names and comments
