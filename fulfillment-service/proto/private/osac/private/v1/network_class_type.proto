@@ -94,6 +94,17 @@ message NetworkClassSpec {
   // the class's supported capabilities. The operator uses this during capabilities intersection
   // to remove capabilities that the provider has explicitly disabled for this region.
   NetworkClassCapabilities disable_capabilities = 2;
+
+  // Prefix length that reserves the last /N of each subnet CIDR for VIP allocation (e.g., cluster
+  // API server and ingress endpoints). This is a deployment-wide parameter. At subnet creation, the
+  // fabric manager excludes this range from its DHCP pool, and the k8s manager creates an IPAddressPool
+  // covering only this range.
+  // Example: with a 10.0.1.0/24 subnet and vip_prefix_length=28, the last /28 (10.0.1.240-10.0.1.255)
+  // is reserved for VIPs; DHCP serves 10.0.1.1-10.0.1.239.
+  optional int32 vip_prefix_length = 3 [(buf.validate.field).int32 = {
+    gte: 1,
+    lte: 128
+  }];
 }
 
 // Default networking configuration used during tenant onboarding.
