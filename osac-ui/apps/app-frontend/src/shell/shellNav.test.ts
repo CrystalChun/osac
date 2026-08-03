@@ -5,7 +5,7 @@ import { tIdentity } from '@osac/ui-components/test-utils/i18n';
 
 import { navRowsForRole } from './shellNav';
 
-const roles: UserRole[] = ['tenant-user', 'tenant-admin', 'tenant-idp-manager', 'admin'];
+const roles: UserRole[] = ['tenant-user', 'tenant-admin', 'admin'];
 
 const findSection = (role: UserRole, sectionId: string) =>
   navRowsForRole(role, tIdentity).find((row) => row.sectionId === sectionId);
@@ -40,6 +40,13 @@ describe('navRowsForRole', () => {
     expect(findSection('admin', 'nav-administration')).toBeDefined();
     for (const role of ['tenant-user', 'tenant-admin', 'tenant-idp-manager'] as UserRole[]) {
       expect(findSection(role, 'nav-administration')).toBeUndefined();
+    }
+  });
+
+  it('IDP administration shows up only for idp manager', () => {
+    expect(findSection('tenant-idp-manager', 'nav-tenant-administration')).toBeDefined();
+    for (const role of ['tenant-user', 'tenant-admin', 'admin'] as UserRole[]) {
+      expect(findSection(role, 'nav-tenant-administration')).toBeUndefined();
     }
   });
 });

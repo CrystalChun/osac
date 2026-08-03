@@ -7,6 +7,7 @@ import type {
   ClustersCreateResponse,
   ComputeInstanceCatalogItem,
   HostType,
+  IdentityProvider,
   InstanceType,
   SecurityGroup,
   Subnet,
@@ -18,6 +19,7 @@ import {
   Clusters,
   ComputeInstanceCatalogItems,
   HostTypes,
+  IdentityProviders,
   InstanceTypeState,
   InstanceTypes,
   SecurityGroups,
@@ -39,6 +41,7 @@ export type MockApiFixtures = {
   virtualNetworks?: VirtualNetwork[];
   subnets?: Subnet[];
   securityGroups?: SecurityGroup[];
+  identityProviders?: IdentityProvider[];
   instanceTypes?: InstanceType[];
 };
 
@@ -106,6 +109,7 @@ export const createMockConnectTransport = (
   const clusterTemplates = fixtures.clusterTemplates ?? [];
   const hostTypes = fixtures.hostTypes ?? [];
   const tenants = fixtures.tenants ?? [];
+  const identityProviders = fixtures.identityProviders ?? [];
   const virtualNetworks = fixtures.virtualNetworks ?? [];
   const subnets = fixtures.subnets ?? [];
   const securityGroups = fixtures.securityGroups ?? [];
@@ -203,6 +207,21 @@ export const createMockConnectTransport = (
         get: (req) => ({
           object: tenants.find((t) => t.id === req.id),
         }),
+      });
+
+      router.service(IdentityProviders, {
+        list: () => ({
+          items: identityProviders,
+          size: identityProviders.length,
+          total: identityProviders.length,
+        }),
+        get: (req) => ({
+          object: identityProviders.find((idp) => idp.id === req.id),
+        }),
+        create: (req) => ({
+          object: { id: 'new-idp-1', ...req.object },
+        }),
+        delete: () => ({}),
       });
 
       router.service(Clusters, {

@@ -27,7 +27,8 @@ export type ApiRoute =
   | 'v1/external_ip_attachments'
   | 'v1/external_ip_pools'
   | 'v1/console_sessions'
-  | 'v1/private/tenants';
+  | 'v1/private/tenants'
+  | 'v1/identity_providers';
 
 /**
  * Strict 3-part tuple that encodes an API address.
