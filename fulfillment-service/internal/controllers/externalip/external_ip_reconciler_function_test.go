@@ -977,7 +977,8 @@ var _ = Describe("Kubernetes validation error handling", func() {
 			Update(gomock.Any(), gomock.Any(), gomock.Any()).
 			DoAndReturn(func(ctx context.Context, req *privatev1.ExternalIPsUpdateRequest, opts ...grpc.CallOption) (*privatev1.ExternalIPsUpdateResponse, error) {
 				return &privatev1.ExternalIPsUpdateResponse{Object: req.GetObject()}, nil
-			}).AnyTimes()
+			}).
+			AnyTimes()
 
 		externalIP := privatev1.ExternalIP_builder{
 			Id: "eip-validation-test",
@@ -1003,7 +1004,10 @@ var _ = Describe("Kubernetes validation error handling", func() {
 
 		err := f.run(ctx, externalIP)
 		Expect(err).ToNot(HaveOccurred())
-		Expect(externalIP.GetStatus().GetState()).To(Equal(privatev1.ExternalIPState_EXTERNAL_IP_STATE_FAILED))
+
+		Expect(externalIP.GetStatus().GetState()).To(
+			Equal(privatev1.ExternalIPState_EXTERNAL_IP_STATE_FAILED),
+		)
 		Expect(externalIP.GetStatus().GetMessage()).To(ContainSubstring("pool reference is invalid"))
 	})
 })

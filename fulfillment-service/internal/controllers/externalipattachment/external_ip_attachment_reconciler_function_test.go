@@ -779,10 +779,7 @@ var _ = Describe("Kubernetes validation error handling", func() {
 		hubCache := controllers.NewMockHubCache(ctrl)
 		hubCache.EXPECT().
 			Get(gomock.Any(), "hub-1").
-			Return(&controllers.HubEntry{
-				Namespace: "test-ns",
-				Client:    fakeClient,
-			}, nil)
+			Return(&controllers.HubEntry{Namespace: "test-ns", Client: fakeClient}, nil)
 
 		attachment := privatev1.ExternalIPAttachment_builder{
 			Id: "eia-validation-test",

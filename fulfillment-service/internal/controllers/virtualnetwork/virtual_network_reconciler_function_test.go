@@ -866,7 +866,8 @@ var _ = Describe("Kubernetes validation error handling", func() {
 			Update(gomock.Any(), gomock.Any(), gomock.Any()).
 			DoAndReturn(func(ctx context.Context, req *privatev1.VirtualNetworksUpdateRequest, opts ...grpc.CallOption) (*privatev1.VirtualNetworksUpdateResponse, error) {
 				return &privatev1.VirtualNetworksUpdateResponse{Object: req.GetObject()}, nil
-			}).AnyTimes()
+			}).
+			AnyTimes()
 
 		vn := privatev1.VirtualNetwork_builder{
 			Id: "vn-validation-test",
@@ -893,7 +894,10 @@ var _ = Describe("Kubernetes validation error handling", func() {
 
 		err := f.run(ctx, vn)
 		Expect(err).ToNot(HaveOccurred())
-		Expect(vn.GetStatus().GetState()).To(Equal(privatev1.VirtualNetworkState_VIRTUAL_NETWORK_STATE_FAILED))
+
+		Expect(vn.GetStatus().GetState()).To(
+			Equal(privatev1.VirtualNetworkState_VIRTUAL_NETWORK_STATE_FAILED),
+		)
 		Expect(vn.GetStatus().GetMessage()).To(ContainSubstring("network class is invalid"))
 	})
 })

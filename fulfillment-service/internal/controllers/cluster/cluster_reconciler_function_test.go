@@ -1297,10 +1297,7 @@ var _ = Describe("Kubernetes validation error handling", func() {
 		hubCache := controllers.NewMockHubCache(ctrl)
 		hubCache.EXPECT().
 			Get(gomock.Any(), hubID).
-			Return(&controllers.HubEntry{
-				Namespace: hubNamespace,
-				Client:    fakeClient,
-			}, nil)
+			Return(&controllers.HubEntry{Namespace: hubNamespace, Client: fakeClient}, nil)
 
 		clustersClient := NewMockClustersClient(ctrl)
 		clustersClient.EXPECT().
@@ -1335,18 +1332,21 @@ var _ = Describe("Kubernetes validation error handling", func() {
 		err := f.run(ctx, cluster)
 		Expect(err).ToNot(HaveOccurred())
 
-		Expect(cluster.GetStatus().GetState()).To(Equal(
-			privatev1.ClusterState_CLUSTER_STATE_FAILED))
+		Expect(cluster.GetStatus().GetState()).To(
+			Equal(privatev1.ClusterState_CLUSTER_STATE_FAILED),
+		)
 
 		conditions := cluster.GetStatus().GetConditions()
-		var found bool
+		var progressingCondition *privatev1.ClusterCondition
 		for _, c := range conditions {
 			if c.GetType() == privatev1.ClusterConditionType_CLUSTER_CONDITION_TYPE_PROGRESSING {
-				Expect(c.GetStatus()).To(Equal(privatev1.ConditionStatus_CONDITION_STATUS_FALSE))
-				Expect(c.GetReason()).To(Equal("ValidationFailed"))
-				found = true
+				progressingCondition = c
+				break
 			}
 		}
-		Expect(found).To(BeTrue())
+		Expect(progressingCondition).ToNot(BeNil())
+		Expect(progressingCondition.GetStatus()).To(Equal(privatev1.ConditionStatus_CONDITION_STATUS_FALSE))
+		Expect(progressingCondition.GetReason()).To(Equal("ValidationFailed"))
+		Expect(progressingCondition.GetMessage()).To(ContainSubstring("invalid template"))
 	})
 })

@@ -825,7 +825,8 @@ var _ = Describe("Kubernetes validation error handling", func() {
 			Update(gomock.Any(), gomock.Any(), gomock.Any()).
 			DoAndReturn(func(ctx context.Context, req *privatev1.SubnetsUpdateRequest, opts ...grpc.CallOption) (*privatev1.SubnetsUpdateResponse, error) {
 				return &privatev1.SubnetsUpdateResponse{Object: req.GetObject()}, nil
-			}).AnyTimes()
+			}).
+			AnyTimes()
 
 		subnet := privatev1.Subnet_builder{
 			Id: "subnet-validation-test",
@@ -851,7 +852,10 @@ var _ = Describe("Kubernetes validation error handling", func() {
 
 		err := f.run(ctx, subnet)
 		Expect(err).ToNot(HaveOccurred())
-		Expect(subnet.GetStatus().GetState()).To(Equal(privatev1.SubnetState_SUBNET_STATE_FAILED))
+
+		Expect(subnet.GetStatus().GetState()).To(
+			Equal(privatev1.SubnetState_SUBNET_STATE_FAILED),
+		)
 		Expect(subnet.GetStatus().GetMessage()).To(ContainSubstring("CIDR is invalid"))
 	})
 })

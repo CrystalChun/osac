@@ -1220,7 +1220,8 @@ var _ = Describe("Kubernetes validation error handling", func() {
 			Update(gomock.Any(), gomock.Any(), gomock.Any()).
 			DoAndReturn(func(ctx context.Context, req *privatev1.ExternalIPPoolsUpdateRequest, opts ...grpc.CallOption) (*privatev1.ExternalIPPoolsUpdateResponse, error) {
 				return &privatev1.ExternalIPPoolsUpdateResponse{Object: req.GetObject()}, nil
-			}).AnyTimes()
+			}).
+			AnyTimes()
 
 		pool := privatev1.ExternalIPPool_builder{
 			Id: "pool-validation-test",
@@ -1247,7 +1248,10 @@ var _ = Describe("Kubernetes validation error handling", func() {
 
 		err := f.run(ctx, pool)
 		Expect(err).ToNot(HaveOccurred())
-		Expect(pool.GetStatus().GetState()).To(Equal(privatev1.ExternalIPPoolState_EXTERNAL_IP_POOL_STATE_FAILED))
+
+		Expect(pool.GetStatus().GetState()).To(
+			Equal(privatev1.ExternalIPPoolState_EXTERNAL_IP_POOL_STATE_FAILED),
+		)
 		Expect(pool.GetStatus().GetMessage()).To(ContainSubstring("CIDR is invalid"))
 	})
 })
