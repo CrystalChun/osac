@@ -13,7 +13,7 @@
     _requested_storage_tier: "{{ lookup('env', 'STORAGE_REQUESTED_TIER') | default('default', true) }}"
 
   pre_tasks:
-    - name: Show job vars
+    - name: Show resource metadata
       ansible.builtin.debug:
         var: osac_job_vars.resource.metadata
 

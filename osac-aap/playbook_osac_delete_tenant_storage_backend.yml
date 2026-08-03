@@ -9,7 +9,7 @@
     _storage_tiers_raw: "{{ lookup('env', 'STORAGE_TIERS') }}"
 
   pre_tasks:
-    - name: Show job vars
+    - name: Show resource metadata
       ansible.builtin.debug:
         var: osac_job_vars.resource.metadata
 

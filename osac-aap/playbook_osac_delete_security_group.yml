@@ -13,9 +13,9 @@
     template_parameters: {}
 
   pre_tasks:
-    - name: Show job vars
+    - name: Show resource metadata
       ansible.builtin.debug:
-        var: osac_job_vars.resource
+        var: osac_job_vars.resource.metadata
 
   tasks:
     - name: Display SecurityGroup information

@@ -26,7 +26,7 @@
     _storage_snapshots: "{{ lookup('env', 'STORAGE_SNAPSHOTS_ENABLED') | default('true', true) | bool }}"
 
   pre_tasks:
-    - name: Show job vars
+    - name: Show resource metadata
       ansible.builtin.debug:
         var: osac_job_vars.resource.metadata
 

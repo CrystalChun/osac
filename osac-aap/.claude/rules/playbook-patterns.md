@@ -30,9 +30,9 @@ AAP job templates: `osac-{action}-{resource}`
          | default(osac_job_vars.resource.spec.implementationStrategy, true) }}
 
   pre_tasks:
-    - name: Show job vars
+    - name: Show resource metadata
       ansible.builtin.debug:
-        var: osac_job_vars.resource
+        var: osac_job_vars.resource.metadata
 
   tasks:
     - name: Call the selected implementation role
