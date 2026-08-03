@@ -240,11 +240,7 @@ func (t *task) update(ctx context.Context) error {
 		}
 		err = t.hubClient.Create(ctx, object)
 		if err != nil {
-			if apierrors.IsInvalid(err) {
-				t.setFailed(err)
-				return nil
-			}
-			return fmt.Errorf("%w: %w", errTransientK8sError, err)
+			return t.handleK8sWriteError(err)
 		}
 		t.r.logger.DebugContext(
 			ctx,
@@ -257,11 +253,7 @@ func (t *task) update(ctx context.Context) error {
 		update.Spec = spec
 		err = t.hubClient.Patch(ctx, update, clnt.MergeFrom(object))
 		if err != nil {
-			if apierrors.IsInvalid(err) {
-				t.setFailed(err)
-				return nil
-			}
-			return fmt.Errorf("%w: %w", errTransientK8sError, err)
+			return t.handleK8sWriteError(err)
 		}
 		t.r.logger.DebugContext(
 			ctx,
@@ -522,6 +514,14 @@ func (t *task) removeFinalizer() {
 		})
 		t.computeInstance.GetMetadata().SetFinalizers(list)
 	}
+}
+
+func (t *task) handleK8sWriteError(err error) error {
+	if apierrors.IsInvalid(err) {
+		t.setFailed(err)
+		return nil
+	}
+	return fmt.Errorf("%w: %w", errTransientK8sError, err)
 }
 
 // setFailed transitions the compute instance to FAILED state with the given error message.
