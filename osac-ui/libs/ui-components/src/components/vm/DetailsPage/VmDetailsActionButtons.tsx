@@ -10,7 +10,7 @@ import SyncAltIcon from '@patternfly/react-icons/dist/esm/icons/sync-alt-icon';
 import type { ComputeInstance } from '@osac/types';
 import { ComputeInstanceState } from '@osac/types';
 
-import AttachPublicIpModal from './AttachPublicIpModal';
+import AttachExternalIpModal from './AttachExternalIpModal';
 import VmDeleteConfirmModal from './VmDeleteConfirmModal';
 import { usePatchComputeInstance } from '../../../api/v1/compute-instance';
 import { useTranslation } from '../../../hooks/useTranslation';
@@ -23,7 +23,7 @@ const VmDetailsActionButtons = ({ vm }: VmDetailsActionButtonsProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [attachPublicIpOpen, setAttachPublicIpOpen] = useState(false);
+  const [attachExternalIpOpen, setAttachExternalIpOpen] = useState(false);
   const patchVm = usePatchComputeInstance();
 
   const state = vm.status?.state;
@@ -33,7 +33,8 @@ const VmDetailsActionButtons = ({ vm }: VmDetailsActionButtonsProps) => {
     state === ComputeInstanceState.RUNNING || state === ComputeInstanceState.PAUSED;
   const canDelete =
     state !== ComputeInstanceState.DELETING && state !== ComputeInstanceState.STARTING;
-  const canAttachPublicIp = state === ComputeInstanceState.RUNNING && !vm.status?.publicIpAddress;
+  const canAttachExternalIp =
+    state === ComputeInstanceState.RUNNING && !vm.status?.externalIpAddress;
 
   return (
     <>
@@ -44,11 +45,11 @@ const VmDetailsActionButtons = ({ vm }: VmDetailsActionButtonsProps) => {
           onSuccess={() => navigate('/vms')}
         />
       )}
-      {attachPublicIpOpen && (
-        <AttachPublicIpModal
+      {attachExternalIpOpen && (
+        <AttachExternalIpModal
           vm={vm}
-          onClose={() => setAttachPublicIpOpen(false)}
-          onSuccess={() => setAttachPublicIpOpen(false)}
+          onClose={() => setAttachExternalIpOpen(false)}
+          onSuccess={() => setAttachExternalIpOpen(false)}
         />
       )}
       <Flex
@@ -95,14 +96,14 @@ const VmDetailsActionButtons = ({ vm }: VmDetailsActionButtonsProps) => {
         <Button
           variant="secondary"
           icon={<GlobeIcon />}
-          isDisabled={!canAttachPublicIp}
+          isDisabled={!canAttachExternalIp}
           onClick={() => {
-            if (canAttachPublicIp) {
-              setAttachPublicIpOpen(true);
+            if (canAttachExternalIp) {
+              setAttachExternalIpOpen(true);
             }
           }}
         >
-          {t('Attach public IP')}
+          {t('Attach external IP')}
         </Button>
         <Button
           variant="danger"

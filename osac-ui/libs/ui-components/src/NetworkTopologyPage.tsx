@@ -63,9 +63,15 @@ const readSubnet = (vm: ComputeInstance): string => {
 
 const readIpAddress = (vm: ComputeInstance): string | undefined => {
   return (
-    vm.status?.publicIpAddress?.trim() ||
+    vm.status?.externalIpAddress?.trim() ||
     vm.status?.internalIpAddress?.trim() ||
-    wireStr(vm.status, 'public_ip_address', 'publicIpAddress') ||
+    wireStr(
+      vm.status,
+      'external_ip_address',
+      'externalIpAddress',
+      'public_ip_address',
+      'publicIpAddress',
+    ) ||
     wireStr(vm.status, 'internal_ip_address', 'internalIpAddress', 'ipAddress')
   );
 };

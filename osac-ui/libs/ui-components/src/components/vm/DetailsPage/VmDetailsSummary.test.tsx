@@ -19,7 +19,7 @@ vi.mock('../VmInstanceTypeLabel', () => ({
 const vm = {
   id: 'vm-1',
   spec: { instanceType: 'standard-4-8' },
-  status: { publicIpAddress: '203.0.113.1', internalIpAddress: '10.0.0.5' },
+  status: { externalIpAddress: '203.0.113.1', internalIpAddress: '10.0.0.5' },
 } as ComputeInstance;
 
 const standardInstanceType = {
@@ -31,7 +31,7 @@ const renderSummary = (instance: ComputeInstance = vm, instanceType?: InstanceTy
   renderWithProviders(<VmDetailsSummary vm={instance} instanceType={instanceType} />);
 
 describe('VmDetailsSummary', () => {
-  it('shows instance type, public IP, and internal IP cards', () => {
+  it('shows instance type, external IP, and internal IP cards', () => {
     renderSummary(vm, standardInstanceType);
 
     expect(screen.getByText('Standard 4 vCPU / 8 GiB')).toBeInTheDocument();

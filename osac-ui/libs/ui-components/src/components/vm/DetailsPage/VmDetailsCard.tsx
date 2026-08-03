@@ -67,9 +67,9 @@ const VmDetailsCard = ({ vm }: Props) => {
           {hasCatalogItem ? (
             <>
               <DescriptionListGroup>
-                <DescriptionListTerm>{fieldLabels.sshKey}</DescriptionListTerm>
+                <DescriptionListTerm>{fieldLabels.sshPublicKey}</DescriptionListTerm>
                 <DescriptionListDescription>
-                  {displayValue(vm.spec?.sshKey)}
+                  {displayValue(vm.spec?.sshPublicKey)}
                 </DescriptionListDescription>
               </DescriptionListGroup>
               <DescriptionListGroup>

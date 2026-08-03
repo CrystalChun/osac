@@ -16,7 +16,7 @@ describe('applyVmCatalogGeneralDefaults', () => {
         id: 'cat-locked',
         fieldDefinitions: [
           {
-            path: 'ssh_key',
+            path: 'ssh_public_key',
             editable: false,
             default: { string_value: 'ssh-ed25519 locked' },
           },
@@ -25,7 +25,7 @@ describe('applyVmCatalogGeneralDefaults', () => {
       helpers,
       tIdentity,
     );
-    expect(setFieldValue).toHaveBeenCalledWith('spec.sshKey', 'ssh-ed25519 locked');
+    expect(setFieldValue).toHaveBeenCalledWith('spec.sshPublicKey', 'ssh-ed25519 locked');
 
     setFieldValue.mockClear();
     applyVmCatalogGeneralDefaults(
@@ -33,7 +33,7 @@ describe('applyVmCatalogGeneralDefaults', () => {
         id: 'cat-editable',
         fieldDefinitions: [
           {
-            path: 'ssh_key',
+            path: 'ssh_public_key',
             editable: true,
             default: { string_value: 'ssh-ed25519 default' },
           },
@@ -42,7 +42,7 @@ describe('applyVmCatalogGeneralDefaults', () => {
       helpers,
       tIdentity,
     );
-    expect(setFieldValue).toHaveBeenCalledWith('spec.sshKey', 'ssh-ed25519 default');
+    expect(setFieldValue).toHaveBeenCalledWith('spec.sshPublicKey', 'ssh-ed25519 default');
   });
 });
 
@@ -54,7 +54,7 @@ describe('buildComputeInstanceCreatePayload ssh key', () => {
       metadata: { name: 'web-01' },
       spec: {
         ...createEmptyComputeInstanceValues().spec,
-        sshKey: 'ssh-ed25519 locked',
+        sshPublicKey: 'ssh-ed25519 locked',
         image: { sourceRef: 'quay.io/example/rhel9' },
         networking: {
           virtualNetwork: { value: 'vn-1', label: 'tenant-vn' },
@@ -67,7 +67,7 @@ describe('buildComputeInstanceCreatePayload ssh key', () => {
     const vm = buildComputeInstanceCreatePayload(values, {
       id: 'cat-locked',
     } as ComputeInstanceCatalogItem);
-    expect(vm.spec?.sshKey).toBe('ssh-ed25519 locked');
+    expect(vm.spec?.sshPublicKey).toBe('ssh-ed25519 locked');
   });
 
   it('includes prefilled catalog ssh default in client payload', () => {
@@ -77,7 +77,7 @@ describe('buildComputeInstanceCreatePayload ssh key', () => {
       metadata: { name: 'web-02' },
       spec: {
         ...createEmptyComputeInstanceValues().spec,
-        sshKey: 'ssh-ed25519 default',
+        sshPublicKey: 'ssh-ed25519 default',
         image: { sourceRef: 'quay.io/example/rhel9' },
         networking: {
           virtualNetwork: { value: 'vn-1', label: 'tenant-vn' },
@@ -90,7 +90,7 @@ describe('buildComputeInstanceCreatePayload ssh key', () => {
     const vm = buildComputeInstanceCreatePayload(values, {
       id: 'cat-editable',
     } as ComputeInstanceCatalogItem);
-    expect(vm.spec?.sshKey).toBe('ssh-ed25519 default');
+    expect(vm.spec?.sshPublicKey).toBe('ssh-ed25519 default');
   });
 
   it('omits ssh key when tenant clears prefilled default', () => {
@@ -112,6 +112,6 @@ describe('buildComputeInstanceCreatePayload ssh key', () => {
     const vm = buildComputeInstanceCreatePayload(values, {
       id: 'cat-editable',
     } as ComputeInstanceCatalogItem);
-    expect(vm.spec?.sshKey).toBeUndefined();
+    expect(vm.spec?.sshPublicKey).toBeUndefined();
   });
 });

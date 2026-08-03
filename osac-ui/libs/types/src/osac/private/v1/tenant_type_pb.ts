@@ -18,6 +18,8 @@
 import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
+import type { ConditionStatus } from "./condition_status_type_pb";
+import { file_osac_private_v1_condition_status_type } from "./condition_status_type_pb";
 import type { Metadata } from "./metadata_type_pb";
 import { file_osac_private_v1_metadata_type } from "./metadata_type_pb";
 import type { BreakGlassCredentials } from "./break_glass_credentials_type_pb";
@@ -28,7 +30,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/private/v1/tenant_type.proto.
  */
 export const file_osac_private_v1_tenant_type: GenFile = /*@__PURE__*/
-  fileDesc("CiFvc2FjL3ByaXZhdGUvdjEvdGVuYW50X3R5cGUucHJvdG8SD29zYWMucHJpdmF0ZS52MSKbAQoGVGVuYW50EgoKAmlkGAEgASgJEisKCG1ldGFkYXRhGAIgASgLMhkub3NhYy5wcml2YXRlLnYxLk1ldGFkYXRhEikKBHNwZWMYAyABKAsyGy5vc2FjLnByaXZhdGUudjEuVGVuYW50U3BlYxItCgZzdGF0dXMYBCABKAsyHS5vc2FjLnByaXZhdGUudjEuVGVuYW50U3RhdHVzIoUECgpUZW5hbnRTcGVjEvYDCgdkb21haW5zGAEgAygJQuQDukjgA5IB3AMYASLXA7oBeAoObm90X2lwX2FkZHJlc3MSKW11c3QgYmUgYSBETlMgaG9zdG5hbWUsIG5vdCBhbiBJUCBhZGRyZXNzGjshdGhpcy5tYXRjaGVzKCdeWzAtOS5dKyQnKSAmJiAhdGhpcy5tYXRjaGVzKCdeWzAtOWEtZjpdKyQnKboBWQoObWluX3R3b19sYWJlbHMSM211c3QgaGF2ZSBhdCBsZWFzdCB0d28gbGFiZWxzIChlLmcuLCAnZXhhbXBsZS5jb20nKRoSdGhpcy5jb250YWlucygnLicpugH1AQoQdmFsaWRfZG5zX2xhYmVscxJkYWxsIGxhYmVscyBtdXN0IGJlIHZhbGlkIEROUyBsYWJlbHMgKGxvd2VyY2FzZSBhLXovMC05L2h5cGhlbiwgbWF4IDYzIGNoYXJzLCBhbHBoYW51bWVyaWMgc3RhcnQvZW5kKRp7dGhpcy5zcGxpdCgnLicpLmFsbChsYWJlbCwgbGFiZWwuc2l6ZSgpID4gMCAmJiBsYWJlbC5zaXplKCkgPD0gNjMgJiYgbGFiZWwubWF0Y2hlcygnXlthLXowLTldKFthLXowLTktXXswLDYxfVthLXowLTldKT8kJykpcgUQARj9ASLcAQoMVGVuYW50U3RhdHVzEkcKF2JyZWFrX2dsYXNzX2NyZWRlbnRpYWxzGAEgASgLMiYub3NhYy5wcml2YXRlLnYxLkJyZWFrR2xhc3NDcmVkZW50aWFscxIrCgVzdGF0ZRgCIAEoDjIcLm9zYWMucHJpdmF0ZS52MS5UZW5hbnRTdGF0ZRIUCgdtZXNzYWdlGAMgASgJSACIAQESFwoPaWRwX3RlbmFudF9uYW1lGAQgASgJEhsKE2JyZWFrX2dsYXNzX3VzZXJfaWQYBSABKAlCCgoIX21lc3NhZ2UqdwoLVGVuYW50U3RhdGUSHAoYVEVOQU5UX1NUQVRFX1VOU1BFQ0lGSUVEEAASGAoUVEVOQU5UX1NUQVRFX1BFTkRJTkcQARIXChNURU5BTlRfU1RBVEVfU1lOQ0VEEAISFwoTVEVOQU5UX1NUQVRFX0ZBSUxFRBADYgZwcm90bzM", [file_buf_validate_validate, file_osac_private_v1_metadata_type, file_osac_private_v1_break_glass_credentials_type]);
+  fileDesc("CiFvc2FjL3ByaXZhdGUvdjEvdGVuYW50X3R5cGUucHJvdG8SD29zYWMucHJpdmF0ZS52MSKbAQoGVGVuYW50EgoKAmlkGAEgASgJEisKCG1ldGFkYXRhGAIgASgLMhkub3NhYy5wcml2YXRlLnYxLk1ldGFkYXRhEikKBHNwZWMYAyABKAsyGy5vc2FjLnByaXZhdGUudjEuVGVuYW50U3BlYxItCgZzdGF0dXMYBCABKAsyHS5vc2FjLnByaXZhdGUudjEuVGVuYW50U3RhdHVzIoUECgpUZW5hbnRTcGVjEvYDCgdkb21haW5zGAEgAygJQuQDukjgA5IB3AMYASLXA7oBeAoObm90X2lwX2FkZHJlc3MSKW11c3QgYmUgYSBETlMgaG9zdG5hbWUsIG5vdCBhbiBJUCBhZGRyZXNzGjshdGhpcy5tYXRjaGVzKCdeWzAtOS5dKyQnKSAmJiAhdGhpcy5tYXRjaGVzKCdeWzAtOWEtZjpdKyQnKboBWQoObWluX3R3b19sYWJlbHMSM211c3QgaGF2ZSBhdCBsZWFzdCB0d28gbGFiZWxzIChlLmcuLCAnZXhhbXBsZS5jb20nKRoSdGhpcy5jb250YWlucygnLicpugH1AQoQdmFsaWRfZG5zX2xhYmVscxJkYWxsIGxhYmVscyBtdXN0IGJlIHZhbGlkIEROUyBsYWJlbHMgKGxvd2VyY2FzZSBhLXovMC05L2h5cGhlbiwgbWF4IDYzIGNoYXJzLCBhbHBoYW51bWVyaWMgc3RhcnQvZW5kKRp7dGhpcy5zcGxpdCgnLicpLmFsbChsYWJlbCwgbGFiZWwuc2l6ZSgpID4gMCAmJiBsYWJlbC5zaXplKCkgPD0gNjMgJiYgbGFiZWwubWF0Y2hlcygnXlthLXowLTldKFthLXowLTktXXswLDYxfVthLXowLTldKT8kJykpcgUQARj9ASKSAgoMVGVuYW50U3RhdHVzEkcKF2JyZWFrX2dsYXNzX2NyZWRlbnRpYWxzGAEgASgLMiYub3NhYy5wcml2YXRlLnYxLkJyZWFrR2xhc3NDcmVkZW50aWFscxIrCgVzdGF0ZRgCIAEoDjIcLm9zYWMucHJpdmF0ZS52MS5UZW5hbnRTdGF0ZRIUCgdtZXNzYWdlGAMgASgJSACIAQESFwoPaWRwX3RlbmFudF9uYW1lGAQgASgJEhsKE2JyZWFrX2dsYXNzX3VzZXJfaWQYBSABKAkSNAoKY29uZGl0aW9ucxgGIAMoCzIgLm9zYWMucHJpdmF0ZS52MS5UZW5hbnRDb25kaXRpb25CCgoIX21lc3NhZ2UiuQEKD1RlbmFudENvbmRpdGlvbhIyCgR0eXBlGAEgASgOMiQub3NhYy5wcml2YXRlLnYxLlRlbmFudENvbmRpdGlvblR5cGUSMAoGc3RhdHVzGAIgASgOMiAub3NhYy5wcml2YXRlLnYxLkNvbmRpdGlvblN0YXR1cxITCgZyZWFzb24YAyABKAlIAIgBARIUCgdtZXNzYWdlGAQgASgJSAGIAQFCCQoHX3JlYXNvbkIKCghfbWVzc2FnZSpwChNUZW5hbnRDb25kaXRpb25UeXBlEiUKIVRFTkFOVF9DT05ESVRJT05fVFlQRV9VTlNQRUNJRklFRBAAEjIKLlRFTkFOVF9DT05ESVRJT05fVFlQRV9ERUZBVUxUX05FVFdPUktJTkdfUkVBRFkQASp3CgtUZW5hbnRTdGF0ZRIcChhURU5BTlRfU1RBVEVfVU5TUEVDSUZJRUQQABIYChRURU5BTlRfU1RBVEVfUEVORElORxABEhcKE1RFTkFOVF9TVEFURV9TWU5DRUQQAhIXChNURU5BTlRfU1RBVEVfRkFJTEVEEANiBnByb3RvMw", [file_buf_validate_validate, file_osac_private_v1_condition_status_type, file_osac_private_v1_metadata_type, file_osac_private_v1_break_glass_credentials_type]);
 
 /**
  * @generated from message osac.private.v1.Tenant
@@ -155,6 +157,13 @@ export type TenantStatus = Message<"osac.private.v1.TenantStatus"> & {
    * @generated from field: string break_glass_user_id = 5;
    */
   breakGlassUserId: string;
+
+  /**
+   * Conditions provide detailed status information about various subsystems of the tenant.
+   *
+   * @generated from field: repeated osac.private.v1.TenantCondition conditions = 6;
+   */
+  conditions: TenantCondition[];
 };
 
 /**
@@ -163,6 +172,80 @@ export type TenantStatus = Message<"osac.private.v1.TenantStatus"> & {
  */
 export const TenantStatusSchema: GenMessage<TenantStatus> = /*@__PURE__*/
   messageDesc(file_osac_private_v1_tenant_type, 2);
+
+/**
+ * Represents a specific aspect of the tenant's current state.
+ *
+ * @generated from message osac.private.v1.TenantCondition
+ */
+export type TenantCondition = Message<"osac.private.v1.TenantCondition"> & {
+  /**
+   * Type of condition.
+   *
+   * @generated from field: osac.private.v1.TenantConditionType type = 1;
+   */
+  type: TenantConditionType;
+
+  /**
+   * Status of the condition (True, False, or Unknown).
+   *
+   * @generated from field: osac.private.v1.ConditionStatus status = 2;
+   */
+  status: ConditionStatus;
+
+  /**
+   * Machine-readable reason for the condition's last transition.
+   *
+   * @generated from field: optional string reason = 3;
+   */
+  reason?: string | undefined;
+
+  /**
+   * Human-readable message providing details about the condition.
+   *
+   * @generated from field: optional string message = 4;
+   */
+  message?: string | undefined;
+};
+
+/**
+ * Describes the message osac.private.v1.TenantCondition.
+ * Use `create(TenantConditionSchema)` to create a new message.
+ */
+export const TenantConditionSchema: GenMessage<TenantCondition> = /*@__PURE__*/
+  messageDesc(file_osac_private_v1_tenant_type, 3);
+
+/**
+ * Types of conditions that can be reported for a Tenant.
+ *
+ * @generated from enum osac.private.v1.TenantConditionType
+ */
+export enum TenantConditionType {
+  /**
+   * Unspecified condition type.
+   *
+   * @generated from enum value: TENANT_CONDITION_TYPE_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * Indicates whether all default networking resources (VirtualNetwork, Subnets, SecurityGroup, NATGateway)
+   * have reached READY state.
+   *
+   * Status meanings:
+   * - True: All default networking resources are ready, or no default networking is configured
+   * - False: One or more default networking resources are pending or failed
+   *
+   * @generated from enum value: TENANT_CONDITION_TYPE_DEFAULT_NETWORKING_READY = 1;
+   */
+  DEFAULT_NETWORKING_READY = 1,
+}
+
+/**
+ * Describes the enum osac.private.v1.TenantConditionType.
+ */
+export const TenantConditionTypeSchema: GenEnum<TenantConditionType> = /*@__PURE__*/
+  enumDesc(file_osac_private_v1_tenant_type, 0);
 
 /**
  * Lifecycle states for Tenant resources.
@@ -229,5 +312,5 @@ export enum TenantState {
  * Describes the enum osac.private.v1.TenantState.
  */
 export const TenantStateSchema: GenEnum<TenantState> = /*@__PURE__*/
-  enumDesc(file_osac_private_v1_tenant_type, 0);
+  enumDesc(file_osac_private_v1_tenant_type, 1);
 

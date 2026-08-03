@@ -30,6 +30,8 @@ export const file_osac_public_v1_tenant_type: GenFile = /*@__PURE__*/
 /**
  * A tenant groups resources and users for a customer or business unit.
  *
+ * buf:lint:ignore OSAC_OBJECT_SHAPE
+ *
  * @generated from message osac.public.v1.Tenant
  */
 export type Tenant = Message<"osac.public.v1.Tenant"> & {

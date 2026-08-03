@@ -35,8 +35,8 @@ const buildComputeInstanceFieldDefinitions = (catalogItem: unknown, t: TFunction
     definitions,
     t('catalogProvision.vm.fields.bootDisk'),
   );
-  const sshKeyOverlay = getCatalogFieldOverlay('ssh_key', definitions, t('SSH public key'));
-  const sshKeyRequired = hasCatalogFieldDefinition('ssh_key', definitions);
+  const sshKeyOverlay = getCatalogFieldOverlay('ssh_public_key', definitions, t('SSH public key'));
+  const sshKeyRequired = hasCatalogFieldDefinition('ssh_public_key', definitions);
   const userDataRequired = hasCatalogFieldDefinition('spec.user_data', definitions);
 
   return {
@@ -130,7 +130,7 @@ export const buildComputeInstanceStepSchema = (
           name: fields.metadataName,
         }),
         spec: yup.object({
-          sshKey: fields.specSshKey,
+          sshPublicKey: fields.specSshKey,
         }),
       });
     case 'configuration':

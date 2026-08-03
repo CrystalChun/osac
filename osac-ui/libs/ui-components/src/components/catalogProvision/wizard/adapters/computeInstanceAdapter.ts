@@ -58,7 +58,7 @@ const buildReviewSections = (
     t('catalogProvision.vm.fields.bootDisk'),
   );
   const sshKeyOverlay = getCatalogFieldOverlay(
-    'ssh_key',
+    'ssh_public_key',
     definitions,
     t('catalogProvision.vm.fields.sshKey'),
   );
@@ -68,7 +68,7 @@ const buildReviewSections = (
       title: t('catalogProvision.steps.general.title'),
       rows: [
         reviewRow(t('catalogProvision.vm.fields.name'), formatReviewScalar(values.metadata.name)),
-        reviewRow(sshKeyOverlay.label, formatReviewScalar(values.spec.sshKey, true)),
+        reviewRow(sshKeyOverlay.label, formatReviewScalar(values.spec.sshPublicKey, true)),
       ],
     },
     {

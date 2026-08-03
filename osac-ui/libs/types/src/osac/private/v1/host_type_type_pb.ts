@@ -28,6 +28,8 @@ export const file_osac_private_v1_host_type_type: GenFile = /*@__PURE__*/
   fileDesc("CiRvc2FjL3ByaXZhdGUvdjEvaG9zdF90eXBlX3R5cGUucHJvdG8SD29zYWMucHJpdmF0ZS52MSKeAQoISG9zdFR5cGUSCgoCaWQYASABKAkSKwoIbWV0YWRhdGEYAiABKAsyGS5vc2FjLnByaXZhdGUudjEuTWV0YWRhdGESDQoFdGl0bGUYAyABKAkSEwoLZGVzY3JpcHRpb24YBCABKAkSNQoKaW50ZXJmYWNlcxgFIAMoCzIhLm9zYWMucHJpdmF0ZS52MS5OZXR3b3JrSW50ZXJmYWNlIkMKEE5ldHdvcmtJbnRlcmZhY2USDAoEbmFtZRgBIAEoCRIMCgRyb2xlGAIgASgJEhMKC2Rlc2NyaXB0aW9uGAMgASgJYgZwcm90bzM", [file_osac_private_v1_metadata_type]);
 
 /**
+ * buf:lint:ignore OSAC_OBJECT_SHAPE
+ *
  * @generated from message osac.private.v1.HostType
  */
 export type HostType = Message<"osac.private.v1.HostType"> & {

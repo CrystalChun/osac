@@ -31,7 +31,7 @@ describe('VmNetworkingTab', () => {
       instanceTypeId: undefined,
       isInstanceTypeLoading: false,
       fieldLabels: {
-        sshKey: '',
+        sshPublicKey: '',
         image: '',
         bootDisk: '',
         userData: '',
@@ -63,7 +63,7 @@ describe('VmNetworkingTab', () => {
       instanceTypeId: undefined,
       isInstanceTypeLoading: false,
       fieldLabels: {
-        sshKey: '',
+        sshPublicKey: '',
         image: '',
         bootDisk: '',
         userData: '',

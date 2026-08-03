@@ -17,6 +17,7 @@
 
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
 import type { Any } from "../../../google/protobuf/any_pb";
 import { file_google_protobuf_any } from "../../../google/protobuf/any_pb";
 import type { BareMetalInstanceImage } from "./baremetal_instance_type_pb";
@@ -29,17 +30,20 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/private/v1/baremetal_instance_template_type.proto.
  */
 export const file_osac_private_v1_baremetal_instance_template_type: GenFile = /*@__PURE__*/
-  fileDesc("CjZvc2FjL3ByaXZhdGUvdjEvYmFyZW1ldGFsX2luc3RhbmNlX3RlbXBsYXRlX3R5cGUucHJvdG8SD29zYWMucHJpdmF0ZS52MSKaAgoZQmFyZU1ldGFsSW5zdGFuY2VUZW1wbGF0ZRIKCgJpZBgBIAEoCRIrCghtZXRhZGF0YRgCIAEoCzIZLm9zYWMucHJpdmF0ZS52MS5NZXRhZGF0YRINCgV0aXRsZRgDIAEoCRITCgtkZXNjcmlwdGlvbhgEIAEoCRJNCg1zcGVjX2RlZmF1bHRzGAUgASgLMjYub3NhYy5wcml2YXRlLnYxLkJhcmVNZXRhbEluc3RhbmNlVGVtcGxhdGVTcGVjRGVmYXVsdHMSUQoKcGFyYW1ldGVycxgGIAMoCzI9Lm9zYWMucHJpdmF0ZS52MS5CYXJlTWV0YWxJbnN0YW5jZVRlbXBsYXRlUGFyYW1ldGVyRGVmaW5pdGlvbiKnAQosQmFyZU1ldGFsSW5zdGFuY2VUZW1wbGF0ZVBhcmFtZXRlckRlZmluaXRpb24SDAoEbmFtZRgBIAEoCRINCgV0aXRsZRgCIAEoCRITCgtkZXNjcmlwdGlvbhgDIAEoCRIQCghyZXF1aXJlZBgEIAEoCBIMCgR0eXBlGAUgASgJEiUKB2RlZmF1bHQYBiABKAsyFC5nb29nbGUucHJvdG9idWYuQW55Im4KJUJhcmVNZXRhbEluc3RhbmNlVGVtcGxhdGVTcGVjRGVmYXVsdHMSOwoFaW1hZ2UYASABKAsyJy5vc2FjLnByaXZhdGUudjEuQmFyZU1ldGFsSW5zdGFuY2VJbWFnZUgAiAEBQggKBl9pbWFnZWIGcHJvdG8z", [file_google_protobuf_any, file_osac_private_v1_baremetal_instance_type, file_osac_private_v1_metadata_type]);
+  fileDesc("CjZvc2FjL3ByaXZhdGUvdjEvYmFyZW1ldGFsX2luc3RhbmNlX3RlbXBsYXRlX3R5cGUucHJvdG8SD29zYWMucHJpdmF0ZS52MSLRAgoZQmFyZU1ldGFsSW5zdGFuY2VUZW1wbGF0ZRIuCgJpZBgBIAEoCUIiukgfch0QATIZXlthLXpBLVpfXVthLXpBLVowLTkuX10qJBIrCghtZXRhZGF0YRgCIAEoCzIZLm9zYWMucHJpdmF0ZS52MS5NZXRhZGF0YRINCgV0aXRsZRgDIAEoCRITCgtkZXNjcmlwdGlvbhgEIAEoCRJNCg1zcGVjX2RlZmF1bHRzGAUgASgLMjYub3NhYy5wcml2YXRlLnYxLkJhcmVNZXRhbEluc3RhbmNlVGVtcGxhdGVTcGVjRGVmYXVsdHMSUQoKcGFyYW1ldGVycxgGIAMoCzI9Lm9zYWMucHJpdmF0ZS52MS5CYXJlTWV0YWxJbnN0YW5jZVRlbXBsYXRlUGFyYW1ldGVyRGVmaW5pdGlvbhIRCglob3N0X3R5cGUYByABKAkipwEKLEJhcmVNZXRhbEluc3RhbmNlVGVtcGxhdGVQYXJhbWV0ZXJEZWZpbml0aW9uEgwKBG5hbWUYASABKAkSDQoFdGl0bGUYAiABKAkSEwoLZGVzY3JpcHRpb24YAyABKAkSEAoIcmVxdWlyZWQYBCABKAgSDAoEdHlwZRgFIAEoCRIlCgdkZWZhdWx0GAYgASgLMhQuZ29vZ2xlLnByb3RvYnVmLkFueSJuCiVCYXJlTWV0YWxJbnN0YW5jZVRlbXBsYXRlU3BlY0RlZmF1bHRzEjsKBWltYWdlGAEgASgLMicub3NhYy5wcml2YXRlLnYxLkJhcmVNZXRhbEluc3RhbmNlSW1hZ2VIAIgBAUIICgZfaW1hZ2ViBnByb3RvMw", [file_buf_validate_validate, file_google_protobuf_any, file_osac_private_v1_baremetal_instance_type, file_osac_private_v1_metadata_type]);
 
 /**
  * A bare metal instance template defines a hardware profile (host type, OS image, network configuration)
  * that can be used to create bare metal instances via a catalog item.
  *
+ * buf:lint:ignore OSAC_OBJECT_SHAPE
+ *
  * @generated from message osac.private.v1.BareMetalInstanceTemplate
  */
 export type BareMetalInstanceTemplate = Message<"osac.private.v1.BareMetalInstanceTemplate"> & {
   /**
-   * Unique identifier of the template.
+   * Unique identifier of the template. Must be a valid Ansible role name: letters, digits,
+   * underscores, and dots, starting with a letter or underscore (e.g., "osac.templates.bm_host_provisioning").
    *
    * @generated from field: string id = 1;
    */
@@ -75,6 +79,13 @@ export type BareMetalInstanceTemplate = Message<"osac.private.v1.BareMetalInstan
    * @generated from field: repeated osac.private.v1.BareMetalInstanceTemplateParameterDefinition parameters = 6;
    */
   parameters: BareMetalInstanceTemplateParameterDefinition[];
+
+  /**
+   * Identifier of the HostType that defines the hardware profile for instances created from this template.
+   *
+   * @generated from field: string host_type = 7;
+   */
+  hostType: string;
 };
 
 /**

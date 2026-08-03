@@ -55,7 +55,7 @@ const VmDetailsSummary = ({
 }: VmDetailsSummaryProps) => {
   const { t } = useTranslation();
   const instanceTypeId = vm.spec?.instanceType?.trim();
-  const publicIp = vm.status?.publicIpAddress;
+  const externalIp = vm.status?.externalIpAddress;
   const internalIp = vm.status?.internalIpAddress;
 
   return (
@@ -70,8 +70,8 @@ const VmDetailsSummary = ({
         </SummaryCard>
       </GridItem>
       <GridItem sm={6} md={4}>
-        <SummaryCard icon={GlobeIcon} title={t('Public IP')}>
-          {publicIp || '—'}
+        <SummaryCard icon={GlobeIcon} title={t('External IP')}>
+          {externalIp || '—'}
         </SummaryCard>
       </GridItem>
       <GridItem sm={6} md={4}>

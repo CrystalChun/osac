@@ -35,6 +35,8 @@ export const file_osac_public_v1_cluster_template_type: GenFile = /*@__PURE__*/
  * A cluster template defines a type of cluster that can be created by the user. Note that the user doesn't create these
  * templates: the system provides a collection of them, and the user chooses one.
  *
+ * buf:lint:ignore OSAC_OBJECT_SHAPE
+ *
  * @generated from message osac.public.v1.ClusterTemplate
  */
 export type ClusterTemplate = Message<"osac.public.v1.ClusterTemplate"> & {

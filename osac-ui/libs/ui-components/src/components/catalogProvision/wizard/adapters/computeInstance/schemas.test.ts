@@ -44,7 +44,7 @@ const emptyValues: ComputeInstanceWizardValues = {
   catalogItemId: '',
   metadata: { name: '' },
   spec: {
-    sshKey: '',
+    sshPublicKey: '',
     image: { sourceRef: '' },
     instanceType: EMPTY_LABELED_RESOURCE_REF,
     userData: '',
@@ -204,7 +204,7 @@ describe('buildComputeInstanceStepSchema', () => {
       fieldDefinitions: [
         ...(vmCatalogItem.fieldDefinitions ?? []),
         {
-          path: 'ssh_key',
+          path: 'ssh_public_key',
           displayName: 'SSH key',
           editable: true,
         },
@@ -220,7 +220,7 @@ describe('buildComputeInstanceStepSchema', () => {
       catalogItem,
     );
     expect(errors).toEqual({
-      spec: { sshKey: 'catalogProvision.validation.required' },
+      spec: { sshPublicKey: 'catalogProvision.validation.required' },
     });
   });
 

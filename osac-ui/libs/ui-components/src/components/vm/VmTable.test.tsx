@@ -59,7 +59,7 @@ const runningVm: ComputeInstance = {
     conditions: [],
     state: ComputeInstanceState.RUNNING,
     internalIpAddress: '10.0.0.5',
-    publicIpAddress: '203.0.113.1',
+    externalIpAddress: '203.0.113.1',
   },
 };
 
