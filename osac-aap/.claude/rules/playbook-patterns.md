@@ -52,9 +52,10 @@ AAP job templates: `osac-{action}-{resource}`
 The bare `debug: var: ansible_eda.event.payload` shown above is safe as long as
 nothing in `payload.spec` is a secret. Some CR specs are not — e.g.
 `blockEncryptionPassphrase` on Tenant/ClusterOrder/ComputeInstance CRs. Before
-adding this debug task to a new or existing playbook, check whether the
-playbook also reads a sensitive field out of `payload.spec`; if it does, use
-the shared, centralized task instead of debugging the whole object:
+adding this debug task to a new or existing playbook, inspect the CR
+schema for every field that can occur in `payload.spec`. If any field can
+contain a secret, use the shared, centralized task instead of debugging the
+whole object:
 
 ```yaml
   pre_tasks:

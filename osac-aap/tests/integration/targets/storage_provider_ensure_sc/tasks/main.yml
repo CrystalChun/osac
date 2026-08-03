@@ -112,7 +112,7 @@
       be-test:
         endpoint: "127.0.0.1:18443"
         username: "admin"
-        password: "admin"
+        password: "mock-admin-password"
     storage_provider_action: ensure_storage_class
     storage_provider_block_encryption_passphrase: "test-encryption-passphrase"
     vast_storage_validate_certs: false
@@ -369,7 +369,7 @@
       be-test:
         endpoint: "127.0.0.1:18443"
         username: "admin"
-        password: "admin"
+        password: "mock-admin-password"
     storage_provider_action: ensure_storage_class
     storage_provider_block_encryption_passphrase: "test-encryption-passphrase"
     vast_storage_validate_certs: false
@@ -507,7 +507,7 @@
       be-test:
         endpoint: "127.0.0.1:18443"
         username: "admin"
-        password: "admin"
+        password: "mock-admin-password"
     storage_provider_action: ensure_storage_class
     storage_provider_snapshots_enabled: false
     vast_storage_validate_certs: false
@@ -524,6 +524,21 @@
   gather_facts: false
 
   tasks:
+    - name: Verify NFS StorageClass was provisioned (proves ensure_storage_class completed)
+      kubernetes.core.k8s_info:
+        api_version: storage.k8s.io/v1
+        kind: StorageClass
+        name: "vast-nfs-test-ensuresc-nosnap-default"
+      register: _nosnap_sc_result
+
+    - name: Assert exactly one NFS StorageClass exists for the snapshots-disabled tenant
+      ansible.builtin.assert:
+        that:
+          - _nosnap_sc_result.resources | length == 1
+        fail_msg: >-
+          StorageClass 'vast-nfs-test-ensuresc-nosnap-default' was not found — ensure_storage_class
+          must have failed before snapshot suppression could even be exercised.
+
     - name: Check if VolumeSnapshotClass CRD exists
       kubernetes.core.k8s_info:
         api_version: apiextensions.k8s.io/v1

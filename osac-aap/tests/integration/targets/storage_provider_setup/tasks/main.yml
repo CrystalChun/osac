@@ -33,7 +33,7 @@
       be-test:
         endpoint: "127.0.0.1:18443"
         username: "admin"
-        password: "admin"
+        password: "mock-admin-password"
     storage_provider_action: setup
     storage_provider_provisioning_target: vmaas
     vast_storage_validate_certs: false
@@ -223,6 +223,15 @@
           - _call_log | selectattr('path', 'search', 'managers') | list | length > 0
         fail_msg: "No manager creation API call found in mock call log"
         success_msg: "Manager creation API call detected"
+
+    - name: Assert QoS policy was created with the name derived from the tier
+      ansible.builtin.assert:
+        that:
+          - >-
+            _call_log | selectattr('path', 'search', 'qospolicies') | selectattr('method', 'equalto', 'POST')
+            | map(attribute='body') | selectattr('name', 'equalto', 'default-qos') | list | length > 0
+        fail_msg: "No qospolicies POST for the derived policy 'default-qos' found — the derived qos_policy did not reach VMS"
+        success_msg: "Derived qos_policy 'default-qos' created on VMS"
 
 # ── Cleanup ──
 - name: "Storage Provider Setup - Cleanup"

@@ -227,6 +227,7 @@ Currently, all CaaS targets return an explicit "not yet implemented" error.
 
 **Configuration:** Storage tiers arrive via the `ansible_eda.event.storage_tier_definitions`
 extra_var, populated by osac-operator from the Tier API:
+
 ```json
 [
   {"name": "default", "protocol": "nfs", "provider": "vast", "backend_id": "be-001",
@@ -235,6 +236,7 @@ extra_var, populated by osac-operator from the Tier API:
    "qos_limits": {"static_limits": {"max_reads_bw_mbps": 500, "max_writes_bw_mbps": 500}}, "quota_bytes": 500}
 ]
 ```
+
 Backend connection details (endpoint, username, password) are resolved separately and
 passed via the `storage_provider_backend_connections` extra_var, keyed by `backend_id`.
 

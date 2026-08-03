@@ -39,8 +39,21 @@
 # with configured qos_limits get a derived qos_policy of '<name>-qos' below, which must
 # ALSO be a valid (<=63 char) DNS label. Caught here, at the same point as the other
 # tier-name checks, rather than surfacing later as a confusing failure on the derived
-# value. Mirrors the has-QoS-limits condition in the derivation step below — must be
-# kept in sync with it.
+# value. The has-QoS-limits condition itself is computed once, below, and shared with
+# the derivation step so the two can't drift out of sync.
+- name: Compute QoS-enabled tier names (single source for length-guard and derivation)
+  ansible.builtin.set_fact:
+    _qos_enabled_tier_names: >-
+      {% set _names = [] -%}
+      {% for _tier in storage_provider_tiers -%}
+      {% if _tier.qos_limits is defined and _tier.qos_limits.static_limits is defined and
+            ((_tier.qos_limits.static_limits.max_reads_bw_mbps | default(0) | int) > 0 or
+             (_tier.qos_limits.static_limits.max_writes_bw_mbps | default(0) | int) > 0) -%}
+      {% set _ = _names.append(_tier.name) -%}
+      {% endif -%}
+      {% endfor -%}
+      {{ _names }}
+
 - name: Validate QoS-enabled tier names leave room for the derived '-qos' suffix
   ansible.builtin.fail:
     msg: >-
@@ -52,10 +65,7 @@
   loop_control:
     label: "{{ item.name }}"
   when: >-
-    (item.name | length > 59) and
-    (item.qos_limits is defined and item.qos_limits.static_limits is defined and
-     ((item.qos_limits.static_limits.max_reads_bw_mbps | default(0) | int) > 0 or
-      (item.qos_limits.static_limits.max_writes_bw_mbps | default(0) | int) > 0))
+    (item.name | length > 59) and (item.name in _qos_enabled_tier_names)
 
 - name: Validate tier names are unique across the entire list
   ansible.builtin.fail:
@@ -105,12 +115,9 @@
     _storage_provider_tiers: >-
       {% set _tiers = [] -%}
       {% for _tier in storage_provider_tiers -%}
-      {% set _has_qos_limits = (_tier.qos_limits is defined and _tier.qos_limits.static_limits is defined and
-           ((_tier.qos_limits.static_limits.max_reads_bw_mbps | default(0) | int) > 0 or
-            (_tier.qos_limits.static_limits.max_writes_bw_mbps | default(0) | int) > 0)) -%}
       {% set _tier_without_qos_policy = _tier | dict2items | rejectattr('key', 'equalto', 'qos_policy') | items2dict -%}
       {% set _ = _tiers.append(
-           (_tier_without_qos_policy | combine({'qos_policy': _tier.name + '-qos'})) if _has_qos_limits
+           (_tier_without_qos_policy | combine({'qos_policy': _tier.name + '-qos'})) if (_tier.name in _qos_enabled_tier_names)
            else _tier_without_qos_policy
          ) -%}
       {% endfor -%}

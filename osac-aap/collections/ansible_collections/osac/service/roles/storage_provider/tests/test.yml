@@ -138,6 +138,11 @@
   hosts: localhost
   gather_facts: false
 
+  pre_tasks:
+    - name: Clear any structured failure artifact from earlier scenarios
+      ansible.builtin.set_fact:
+        osac_storage_provider_failures: []
+
   tasks:
     - name: Run invalid-protocol failure test
       block:
@@ -402,13 +407,15 @@
             success_msg: "Role correctly rejected invalid input"
 
 # ──────────────────────────────────────────────────────────────
-# Test 13: Tier with no qos_policy gets a derived one that exceeds DNS label length -- error path
-# Expected: role fails with the qos_policy DNS label validation message, proving the
-# "Default qos_policy for tiers that do not specify one" step actually ran and that its
-# output feeds the existing qos_policy validation (OSAC-1992: tiers from
-# ansible_eda.event.storage_tier_definitions never carry qos_policy -- the role derives it).
+# Test 13: Tier name too long to safely derive a qos_policy -- error path
+# Expected: role fails at the length-guard task (not the downstream qos_policy DNS-label
+# validation -- that task is unreachable for auto-derived values, since the length-guard
+# rejects any QoS-enabled tier whose name would produce an over-length derived qos_policy
+# before derivation ever runs). Proves the length-guard actually catches this case
+# (OSAC-1992: tiers from ansible_eda.event.storage_tier_definitions never carry
+# qos_policy -- the role derives it as '<name>-qos').
 # ──────────────────────────────────────────────────────────────
-- name: Test storage_provider -- derived qos_policy exceeds DNS label length (should fail)
+- name: Test storage_provider -- tier name too long for derived qos_policy (should fail)
   hosts: localhost
   gather_facts: false
 
@@ -433,45 +440,47 @@
 
         - name: This task should not be reached -- role should have failed
           ansible.builtin.fail:
-            msg: "Role did not fail as expected when the derived qos_policy exceeds the DNS label length limit"
+            msg: "Role did not fail as expected when the tier name is too long for a derived qos_policy"
 
       rescue:
-        - name: Verify role failed with expected qos_policy DNS label message
+        - name: Verify role failed with expected length-guard message
           ansible.builtin.assert:
             that:
               - >-
-                'invalid qos_policy' in (ansible_failed_result.results | default([]) | map(attribute='msg') | join(' '))
-                and '-qos' in (ansible_failed_result.results | default([]) | map(attribute='msg') | join(' '))
-                or 'One or more items failed' in (ansible_failed_result.msg | default(''))
+                'capped at 59 characters' in (ansible_failed_result.results | default([]) | map(attribute='msg') | join(' '))
+              - >-
+                '-qos' in (ansible_failed_result.results | default([]) | map(attribute='msg') | join(' '))
             fail_msg: "Role failed but with unexpected message: {{ ansible_failed_result.msg | default('unknown') }}"
-            success_msg: "Role correctly derived and rejected an over-length qos_policy"
+            success_msg: "Role correctly rejected a tier name too long to safely derive a qos_policy"
 
 # ──────────────────────────────────────────────────────────────
-# Test 14: Explicit qos_policy is ignored; derivation always overwrites it -- error path
-# Expected: role fails on the DERIVED qos_policy's DNS-label length, not the caller's short,
-# well-formed supplied value -- proving the caller's value was discarded entirely and
-# derivation ran unconditionally (OSAC-1992 follow-up: closes the gap where an unvalidated
-# override could produce inconsistent naming across callers, or let a caller's qos_policy
-# silently pass through unused). Uses the same 60-char tier name construction as Test 13 --
-# if a bug ever used the caller's value instead of deriving, this test would pass with no
-# DNS-label failure at all, since "short" alone is well within the length limit.
+# Test 14: Explicit qos_policy is ignored; derivation always overwrites it -- success path
+# Expected: role does NOT fail on qos_policy validation even though the caller supplies a
+# deliberately invalid qos_policy value -- proving the caller's value is discarded entirely
+# and replaced by the derived '<name>-qos' (a valid DNS label for this short tier name)
+# (OSAC-1992 follow-up: closes the gap where an unvalidated override could produce
+# inconsistent naming across callers, or let a caller's invalid qos_policy silently pass
+# through unused). A short, valid tier name is used deliberately: a long one would trip the
+# Test 13 length-guard before qos_policy handling is ever reached, proving nothing about
+# discarding. If a bug ever used the caller's value instead of deriving, this test would
+# fail with an "invalid qos_policy" message quoting the caller's malformed string.
 # ──────────────────────────────────────────────────────────────
-- name: Test storage_provider -- explicit qos_policy is ignored, derivation still runs (should fail)
+- name: Test storage_provider -- explicit qos_policy is ignored, derivation still runs (should succeed)
   hosts: localhost
   gather_facts: false
 
   tasks:
     - name: Run explicit-qos_policy-ignored test
       block:
-        - name: Attempt with a 60-char tier name, qos_limits, and a short explicit qos_policy
+        - name: Attempt with a short tier name, qos_limits, and a deliberately invalid explicit qos_policy
           ansible.builtin.include_role:
             name: osac.service.storage_provider
           vars:
             storage_provider_tiers:
-              - name: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+              - name: "acme-tier"
                 protocol: nfs
                 provider: vast
-                qos_policy: "short"
+                qos_policy: "Invalid Policy!"
                 qos_limits:
                   static_limits:
                     max_reads_bw_mbps: 100
@@ -480,21 +489,23 @@
             tenant_name: "tenant-acme"
             tenant_namespace: "osac-tenants"
 
-        - name: This task should not be reached -- role should have failed
-          ansible.builtin.fail:
-            msg: "Role did not fail as expected -- the caller's explicit qos_policy may have been used instead of derived"
+        # If we get here, qos_policy validation passed on the DERIVED value
+        # ('acme-tier-qos'), proving the caller's invalid supplied value was discarded.
+        - name: Validation passed (dispatch outcome is not under test)
+          ansible.builtin.debug:
+            msg: "Validation passed -- caller's invalid qos_policy was correctly discarded"
 
       rescue:
-        - name: Verify role failed on the derived qos_policy, not the caller's supplied value
+        - name: Verify any failure is from dispatch, not from the caller's discarded qos_policy
           ansible.builtin.assert:
             that:
               - >-
-                'invalid qos_policy' in (ansible_failed_result.results | default([]) | map(attribute='msg') | join(' '))
-                and '-qos' in (ansible_failed_result.results | default([]) | map(attribute='msg') | join(' '))
-                and 'short' not in (ansible_failed_result.results | default([]) | map(attribute='msg') | join(' '))
-                or 'One or more items failed' in (ansible_failed_result.msg | default(''))
-            fail_msg: "Role failed but with unexpected message: {{ ansible_failed_result.msg | default('unknown') }}"
-            success_msg: "Role correctly ignored the caller's qos_policy and derived its own, which then failed DNS-label validation as expected"
+                'invalid qos_policy' not in (ansible_failed_result.msg | default(''))
+              - >-
+                'Invalid Policy' not in (ansible_failed_result.results | default([]) | map(attribute='msg') | join(' '))
+            fail_msg: >-
+              Role failed on the caller's supplied qos_policy instead of discarding it: {{ ansible_failed_result.msg | default('unknown error') }}
+            success_msg: "Role correctly discarded the caller's invalid qos_policy and derived its own"
 
 # ──────────────────────────────────────────────────────────────
 # Test 15: Tier without configured qos_limits opts out of qos_policy entirely, even if
@@ -503,7 +514,7 @@
 # tier with no read/write bandwidth limits configured -- even a deliberately invalid
 # caller-supplied qos_policy is stripped without ever being format-checked. Uses a 60-char
 # tier name that WOULD fail DNS-label validation if a qos_policy were derived (same
-# construction as Test 13/14) -- if this test ever starts failing with an "invalid qos_policy"
+# construction as Test 13) -- if this test ever starts failing with an "invalid qos_policy"
 # message, the opt-out has regressed.
 # ──────────────────────────────────────────────────────────────
 - name: Test storage_provider -- tier without qos_limits discards qos_policy entirely, even if supplied
@@ -553,6 +564,11 @@
   hosts: localhost
   gather_facts: false
 
+  pre_tasks:
+    - name: Clear any structured failure artifact from earlier scenarios
+      ansible.builtin.set_fact:
+        osac_storage_provider_failures: []
+
   tasks:
     - name: Run ambiguous-backend-association failure test
       block:
@@ -573,11 +589,11 @@
               be-001:
                 endpoint: vast-1.example.com
                 username: admin
-                password: secret
+                password: mock-backend-password
               be-002:
                 endpoint: vast-2.example.com
                 username: admin
-                password: secret
+                password: mock-backend-password
             storage_provider_action: setup
             tenant_name: "tenant-acme"
             tenant_namespace: "osac-tenants"
@@ -619,6 +635,11 @@
 - name: Test storage_provider -- VAST tier's backend_id has no connection entry (should fail)
   hosts: localhost
   gather_facts: false
+
+  pre_tasks:
+    - name: Clear any structured failure artifact from earlier scenarios
+      ansible.builtin.set_fact:
+        osac_storage_provider_failures: []
 
   tasks:
     - name: Run unresolved-backend-connection failure test
@@ -672,6 +693,11 @@
 - name: Test storage_provider -- VAST backend connection missing required fields (should fail)
   hosts: localhost
   gather_facts: false
+
+  pre_tasks:
+    - name: Clear any structured failure artifact from earlier scenarios
+      ansible.builtin.set_fact:
+        osac_storage_provider_failures: []
 
   tasks:
     - name: Run incomplete-backend-connection failure test
@@ -730,6 +756,11 @@
 - name: Test storage_provider -- two tiers simultaneously fail protocol validation (should fail)
   hosts: localhost
   gather_facts: false
+
+  pre_tasks:
+    - name: Clear any structured failure artifact from earlier scenarios
+      ansible.builtin.set_fact:
+        osac_storage_provider_failures: []
 
   tasks:
     - name: Run simultaneous-protocol-failure test
@@ -790,6 +821,11 @@
   hosts: localhost
   gather_facts: false
 
+  pre_tasks:
+    - name: Clear any structured failure artifact from earlier scenarios
+      ansible.builtin.set_fact:
+        osac_storage_provider_failures: []
+
   tasks:
     - name: Run missing-backend_id failure test
       block:
@@ -842,6 +878,11 @@
 - name: Test storage_provider -- invalid protocol via ensure_storage_class (should fail)
   hosts: localhost
   gather_facts: false
+
+  pre_tasks:
+    - name: Clear any structured failure artifact from earlier scenarios
+      ansible.builtin.set_fact:
+        osac_storage_provider_failures: []
 
   tasks:
     - name: Run invalid-protocol-via-ensure_storage_class failure test

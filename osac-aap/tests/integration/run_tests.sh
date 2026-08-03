@@ -161,7 +161,7 @@ echo ""
 # provider" scenario), which aborts the whole process even though that scenario's own rescue
 # block already passed. The second invocation resumes at the next scenario to cover
 # everything after it.
-STORAGE_PROVIDER_UNIT_TEST="../../collections/ansible_collections/osac/service/roles/storage_provider/tests/test.yml"
+STORAGE_PROVIDER_UNIT_TEST="${SCRIPT_DIR}/../../collections/ansible_collections/osac/service/roles/storage_provider/tests/test.yml"
 
 if ansible-playbook "${STORAGE_PROVIDER_UNIT_TEST}" -v; then
   echo "  ✓ storage_provider unit tests (part 1) passed"
@@ -171,12 +171,15 @@ else
   FAILED+=("storage_provider_unit_tests:part1")
 fi
 
+part2_log="${SCRIPT_DIR}/.storage_provider_unit_part2.log"
 if ansible-playbook --start-at-task "Attempt with invalid action 'destroy' (expected to fail)" \
-  "${STORAGE_PROVIDER_UNIT_TEST}" -v; then
+  "${STORAGE_PROVIDER_UNIT_TEST}" -v > "${part2_log}" 2>&1 \
+  && grep -q 'ok=[1-9]' "${part2_log}"; then
   echo "  ✓ storage_provider unit tests (part 2) passed"
   PASSED+=("storage_provider_unit_tests:part2")
 else
-  echo "  ✗ storage_provider unit tests (part 2) failed"
+  echo "  ✗ storage_provider unit tests (part 2) failed or matched no task (see ${part2_log})"
+  tail -60 "${part2_log}" 2>/dev/null || true
   FAILED+=("storage_provider_unit_tests:part2")
 fi
 
