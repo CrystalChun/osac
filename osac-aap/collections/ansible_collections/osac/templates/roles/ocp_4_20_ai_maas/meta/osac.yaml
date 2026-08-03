@@ -12,6 +12,10 @@ default_node_request:
   - resourceClass: g5
     numberOfNodes: 2
 allowed_resource_classes: []
+
+spec_defaults:
+  release_image: "quay.io/openshift-release-dev/ocp-release:4.20.0-multi"
+
 parameters:
   - name: enable_maas
     title: Enable MaaS Gateway
