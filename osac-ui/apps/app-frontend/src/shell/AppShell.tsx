@@ -18,6 +18,7 @@ import { VmListPage } from '@osac/ui-components/pages/tenant/VmListPage';
 import { ShellMasthead } from './ShellMasthead';
 import { defaultRouteForRole } from './shellRoutes';
 import { ShellSidebar } from './ShellSidebar';
+import { TenantRoutes } from './TenantRoutes';
 
 const ShellRoute = ({ children }: { children: ReactNode }) => {
   const { pathname } = useLocation();
@@ -37,6 +38,14 @@ export const AppShell = ({ logout }: { logout: () => Promise<void> }) => {
       isManagedSidebar
     >
       <Routes>
+        <Route
+          path="/admin/tenants/*"
+          element={
+            <ShellRoute>
+              <TenantRoutes />
+            </ShellRoute>
+          }
+        />
         <Route
           path="/vms"
           element={
