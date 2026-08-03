@@ -74,26 +74,19 @@ func Cmd() *cobra.Command {
 		"",
 		stateFlagHelp,
 	)
-	flags.StringSliceVar(
-		&runner.allowedUpgrades,
-		"allowed-upgrade",
-		nil,
-		allowedUpgradeFlagHelp,
-	)
 	result.MarkFlagRequired("version") //nolint:errcheck
 	result.MarkFlagRequired("image")   //nolint:errcheck
 	return result
 }
 
 type runnerContext struct {
-	console         *terminal.Console
-	name            string
-	version         string
-	image           string
-	enabled         bool
-	isDefault       bool
-	state           string
-	allowedUpgrades []string
+	console   *terminal.Console
+	name      string
+	version   string
+	image     string
+	enabled   bool
+	isDefault bool
+	state     string
 }
 
 func (c *runnerContext) run(cmd *cobra.Command, args []string) error {
@@ -128,11 +121,6 @@ func (c *runnerContext) run(cmd *cobra.Command, args []string) error {
 	}
 	if cmd.Flags().Changed("default") {
 		spec.IsDefault = proto.Bool(c.isDefault)
-	}
-	if len(c.allowedUpgrades) > 0 {
-		spec.AllowedUpgrades = privatev1.ClusterVersionAllowedUpgrades_builder{
-			VersionNames: c.allowedUpgrades,
-		}.Build()
 	}
 
 	cv := privatev1.ClusterVersion_builder{
@@ -191,14 +179,6 @@ To create a cluster version:
   --image quay.io/openshift-release-dev/ocp-release:4.17.0-multi \
   --enabled --default
 {{ bt 3 }}
-
-To create a cluster version with allowed upgrade targets:
-
-{{ bt 3 }}shell
-{{ binary }} create clusterversion --version 4.16.0 \
-  --image quay.io/openshift-release-dev/ocp-release:4.16.0-multi \
-  --allowed-upgrade 4-17-0,4-17-1
-{{ bt 3 }}
 `
 
 const nameFlagHelp = `
@@ -227,9 +207,4 @@ version may be the default.
 const stateFlagHelp = `
 _STATE_ - Lifecycle state: {{ bt }}ACTIVE{{ bt }}, {{ bt }}DEPRECATED{{ bt }}, or
 {{ bt }}OBSOLETE{{ bt }}. Defaults to ACTIVE if not specified.
-`
-
-const allowedUpgradeFlagHelp = `
-_NAME_ - Cluster version names ({{ bt }}metadata.name{{ bt }}) that clusters on this version may
-upgrade to. Repeatable or comma-separated.
 `

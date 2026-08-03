@@ -78,7 +78,7 @@ var _ = Describe("CEL filter utilities", func() {
 			Entry("exact field reference",
 				"this.spec.state == 1", true, "this.spec.state"),
 			Entry("child field via prefix",
-				"this.spec.allowed_upgrades.version_names.size() > 0", true, "this.spec.allowed_upgrades"),
+				"this.spec.deprecation.deprecation_timestamp != null", true, "this.spec.deprecation"),
 			Entry("sibling field with shared prefix does not match",
 				"this.spec.state_machine == true", false, "this.spec.state"),
 			Entry("unrelated field does not match",
