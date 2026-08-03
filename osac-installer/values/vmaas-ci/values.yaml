@@ -70,6 +70,7 @@ service:
     - osac-operator
     - osac-operator-controller-manager
     - template-publisher
+    - osac-metering
     controllerCredentials:
     - secret:
         name: fulfillment-controller-credentials
@@ -167,3 +168,11 @@ bundledPostgres:
   database:
     name: service
     user: service
+
+# --- Kafka (metering infrastructure) ---
+kafka:
+  enabled: true
+
+# --- Metering ---
+metering:
+  enabled: true

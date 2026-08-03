@@ -6,7 +6,7 @@ image:
 # Assumes co-located deployment. Cross-namespace/cross-cluster support
 # tracked in OSAC-3537.
 fulfillment:
-  address: "fulfillment-service.osac.svc.cluster.local:8001"
+  address: "fulfillment-internal-api.osac.svc.cluster.local:8001"
 
 certs:
   caBundle:

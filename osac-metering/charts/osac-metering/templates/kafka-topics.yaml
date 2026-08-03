@@ -9,7 +9,7 @@
   (dict "name" "osac.metering.corrections"  "partitions" 3 "retentionDays" 30)
   (dict "name" "osac.metering.dlq"          "partitions" 1 "retentionDays" 90)
 }}
-apiVersion: kafka.strimzi.io/v1beta2
+apiVersion: kafka.strimzi.io/v1
 kind: KafkaTopic
 metadata:
   name: {{ .name }}
