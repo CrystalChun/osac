@@ -390,8 +390,6 @@ func (t *task) removeFinalizer() {
 	}
 }
 
-
-
 // buildSpec constructs the spec for the Kubernetes Subnet object based on the
 // subnet from the database.
 func (t *task) buildSpec() osacv1alpha1.SubnetSpec {

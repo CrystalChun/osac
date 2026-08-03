@@ -367,8 +367,6 @@ func (t *task) removeFinalizer() {
 	}
 }
 
-
-
 func (t *task) buildSpec() osacv1alpha1.NATGatewaySpec {
 	return osacv1alpha1.NATGatewaySpec{
 		VirtualNetwork: controllers.RefKeyStr(t.natGateway.GetSpec().GetVirtualNetwork()),

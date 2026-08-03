@@ -571,8 +571,6 @@ func (t *task) addFinalizer() bool {
 	return false
 }
 
-
-
 func (t *task) removeFinalizer() {
 	list := t.cluster.GetMetadata().GetFinalizers()
 	if slices.Contains(list, finalizers.Controller) {

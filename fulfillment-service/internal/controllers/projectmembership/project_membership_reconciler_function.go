@@ -664,5 +664,3 @@ func (t *task) cleanupProjectMembership(ctx context.Context) error {
 
 	return nil
 }
-
-

@@ -390,8 +390,6 @@ func (t *task) removeFinalizer() {
 	}
 }
 
-
-
 // buildSpec constructs the spec for the Kubernetes VirtualNetwork object based on the
 // virtual network from the database.
 func (t *task) buildSpec() osacv1alpha1.VirtualNetworkSpec {

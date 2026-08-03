@@ -157,8 +157,6 @@ func (t *task) update(ctx context.Context) error {
 	return t.syncRoleAssignments(ctx)
 }
 
-
-
 // getRoleByNameOrID fetches a role by ID or name. If the provided value is not found as an ID,
 // it attempts to find the role by name.
 func (t *task) getRoleByNameOrID(ctx context.Context, nameOrID string) (*privatev1.Role, error) {

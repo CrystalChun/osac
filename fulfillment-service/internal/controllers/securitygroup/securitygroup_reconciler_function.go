@@ -393,8 +393,6 @@ func (t *task) removeFinalizer() {
 	}
 }
 
-
-
 // buildSpec constructs the spec for the Kubernetes SecurityGroup object based on the
 // security group from the database.
 func (t *task) buildSpec() osacv1alpha1.SecurityGroupSpec {

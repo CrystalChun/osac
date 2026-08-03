@@ -546,8 +546,6 @@ func (t *task) setReconciliationFailed(err error) {
 	)
 }
 
-
-
 // buildSpec constructs the spec for the Kubernetes ComputeInstance object based on the
 // compute instance from the database.
 func (t *task) buildSpec(ctx context.Context) (osacv1alpha1.ComputeInstanceSpec, error) {
