@@ -37,7 +37,7 @@ export type ApiRoute =
  */
 export type ApiQueryKey = [
   baseUrl: ApiRoute,
-  pathParams?: (string | number)[] | undefined,
+  pathParams?: (string | number | undefined)[] | undefined,
   queryParams?: Record<string, unknown>,
 ];
 

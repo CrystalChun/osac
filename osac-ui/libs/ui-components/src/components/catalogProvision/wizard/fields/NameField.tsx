@@ -1,7 +1,11 @@
 import { useTranslation } from '../../../../hooks/useTranslation';
 import { InputField } from '../../../Form/InputField';
 
-const NameField = () => {
+interface NameFieldProps {
+  isDisabled?: boolean;
+}
+
+const NameField = ({ isDisabled }: NameFieldProps) => {
   const { t } = useTranslation();
 
   return (
@@ -11,6 +15,7 @@ const NameField = () => {
       fieldId="metadata-name"
       isRequired
       helperText={t('Name must be a valid DNS label (RFC 1035).')}
+      isDisabled={isDisabled}
     />
   );
 };

@@ -3,7 +3,7 @@ import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { Page } from '@patternfly/react-core';
 
 import ErrorBoundary from '@osac/ui-components/components/ErrorBoundary/ErrorBoundary';
-import IdentityProviderListPage from '@osac/ui-components/components/IdentityProvider/IdentityProviderListPage';
+import IdentityProviderRoutes from '@osac/ui-components/components/IdentityProvider/IdentityProviderRoutes';
 import { VmDetailsPage } from '@osac/ui-components/components/vm/VmDetailsPage';
 import { useSession } from '@osac/ui-components/hooks/use-session';
 import { SecurityGroupDetailPage } from '@osac/ui-components/pages/networking/SecurityGroupDetailPage';
@@ -48,10 +48,10 @@ export const AppShell = ({ logout }: { logout: () => Promise<void> }) => {
           }
         />
         <Route
-          path="/tenant/identity-provider"
+          path="/tenant/identity-provider/*"
           element={
             <ShellRoute>
-              <IdentityProviderListPage />
+              <IdentityProviderRoutes />
             </ShellRoute>
           }
         />

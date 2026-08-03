@@ -230,7 +230,7 @@ const WizardStepBody = ({
   const GeneralStepComponent = adapter.GeneralStep;
 
   return (
-    <FieldValidationProvider value={validationAlert}>
+    <FieldValidationProvider showErrors={validationAlert}>
       <Stack hasGutter>
         {validationAlert ? (
           <StackItem>

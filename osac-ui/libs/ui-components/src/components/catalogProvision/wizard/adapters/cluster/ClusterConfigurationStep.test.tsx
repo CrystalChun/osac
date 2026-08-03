@@ -79,7 +79,7 @@ describe('ClusterConfigurationStep', () => {
   it('shows pool size validation error when size is zero', async () => {
     const row = createEmptyNodeSetRow();
     renderWithProviders(
-      <FieldValidationProvider value>
+      <FieldValidationProvider showErrors>
         <Formik
           initialValues={{
             ...createEmptyClusterValues(),

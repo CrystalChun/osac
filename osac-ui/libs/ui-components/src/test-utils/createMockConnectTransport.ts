@@ -8,6 +8,10 @@ import type {
   ComputeInstanceCatalogItem,
   HostType,
   IdentityProvider,
+  IdentityProvidersCreateRequest,
+  IdentityProvidersCreateResponse,
+  IdentityProvidersUpdateRequest,
+  IdentityProvidersUpdateResponse,
   InstanceType,
   SecurityGroup,
   Subnet,
@@ -102,6 +106,12 @@ const matchesInstanceTypeActiveFilter = (
 
 export type MockTransportOverrides = {
   onClusterCreate?: (req: ClustersCreateRequest) => ClustersCreateResponse;
+  onIdentityProviderCreate?: (
+    req: IdentityProvidersCreateRequest,
+  ) => IdentityProvidersCreateResponse;
+  onIdentityProviderUpdate?: (
+    req: IdentityProvidersUpdateRequest,
+  ) => IdentityProvidersUpdateResponse;
   onTenantCreate?: (req: TenantsCreateRequest) => TenantsCreateResponse;
 };
 
@@ -203,6 +213,34 @@ export const createMockConnectTransport = (
         }),
       });
 
+      router.service(IdentityProviders, {
+        list: () => ({
+          items: identityProviders,
+          size: identityProviders.length,
+          total: identityProviders.length,
+        }),
+        get: (req) => ({
+          object: identityProviders.find((idp) => idp.id === req.id),
+        }),
+        create: (req) => {
+          if (overrides.onIdentityProviderCreate) {
+            return overrides.onIdentityProviderCreate(req);
+          }
+          return {
+            object: { id: 'new-idp-1', ...req.object },
+          };
+        },
+        update: (req) => {
+          if (overrides.onIdentityProviderUpdate) {
+            return overrides.onIdentityProviderUpdate(req);
+          }
+          return {
+            object: req.object,
+          };
+        },
+        delete: () => ({}),
+      });
+
       router.service(PrivateTenants, {
         list: () => ({
           items: tenants,
@@ -230,21 +268,6 @@ export const createMockConnectTransport = (
             },
           };
         },
-        delete: () => ({}),
-      });
-
-      router.service(IdentityProviders, {
-        list: () => ({
-          items: identityProviders,
-          size: identityProviders.length,
-          total: identityProviders.length,
-        }),
-        get: (req) => ({
-          object: identityProviders.find((idp) => idp.id === req.id),
-        }),
-        create: (req) => ({
-          object: { id: 'new-idp-1', ...req.object },
-        }),
         delete: () => ({}),
       });
 
