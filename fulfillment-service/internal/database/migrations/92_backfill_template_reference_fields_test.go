@@ -30,7 +30,7 @@ var _ = DescribeMigration("Backfill template reference fields", func() {
 		)
 		Expect(err).ToNot(HaveOccurred())
 
-		err = tool.Migrate(ctx, 91)
+		err = tool.Migrate(ctx, 92)
 		Expect(err).ToNot(HaveOccurred())
 
 		var data json.RawMessage
@@ -60,7 +60,7 @@ var _ = DescribeMigration("Backfill template reference fields", func() {
 		)
 		Expect(err).ToNot(HaveOccurred())
 
-		err = tool.Migrate(ctx, 91)
+		err = tool.Migrate(ctx, 92)
 		Expect(err).ToNot(HaveOccurred())
 
 		var data json.RawMessage
@@ -86,7 +86,7 @@ var _ = DescribeMigration("Backfill template reference fields", func() {
 		)
 		Expect(err).ToNot(HaveOccurred())
 
-		err = tool.Migrate(ctx, 91)
+		err = tool.Migrate(ctx, 92)
 		Expect(err).ToNot(HaveOccurred())
 
 		var data json.RawMessage
@@ -111,7 +111,7 @@ var _ = DescribeMigration("Backfill template reference fields", func() {
 		)
 		Expect(err).ToNot(HaveOccurred())
 
-		err = tool.Migrate(ctx, 91)
+		err = tool.Migrate(ctx, 92)
 		Expect(err).ToNot(HaveOccurred())
 
 		var data json.RawMessage

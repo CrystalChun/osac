@@ -30,7 +30,7 @@ var _ = DescribeMigration("Backfill catalog resource names", func() {
 		)
 		Expect(err).ToNot(HaveOccurred())
 
-		err = tool.Migrate(ctx, 90)
+		err = tool.Migrate(ctx, 91)
 		Expect(err).ToNot(HaveOccurred())
 
 		var name string
@@ -60,7 +60,7 @@ var _ = DescribeMigration("Backfill catalog resource names", func() {
 		)
 		Expect(err).ToNot(HaveOccurred())
 
-		err = tool.Migrate(ctx, 90)
+		err = tool.Migrate(ctx, 91)
 		Expect(err).ToNot(HaveOccurred())
 
 		var name string
@@ -79,7 +79,7 @@ var _ = DescribeMigration("Backfill catalog resource names", func() {
 		)
 		Expect(err).ToNot(HaveOccurred())
 
-		err = tool.Migrate(ctx, 90)
+		err = tool.Migrate(ctx, 91)
 		Expect(err).ToNot(HaveOccurred())
 
 		var name string
@@ -98,7 +98,7 @@ var _ = DescribeMigration("Backfill catalog resource names", func() {
 		)
 		Expect(err).ToNot(HaveOccurred())
 
-		err = tool.Migrate(ctx, 90)
+		err = tool.Migrate(ctx, 91)
 		Expect(err).ToNot(HaveOccurred())
 
 		var name string
@@ -116,7 +116,7 @@ var _ = DescribeMigration("Backfill catalog resource names", func() {
 		)
 		Expect(err).ToNot(HaveOccurred())
 
-		err = tool.Migrate(ctx, 90)
+		err = tool.Migrate(ctx, 91)
 		Expect(err).ToNot(HaveOccurred())
 
 		_, err = conn.Exec(ctx,
