@@ -613,6 +613,20 @@ func (t *task) mutateBMI(ctx context.Context, object *bmfov1alpha1.BareMetalInst
 		}
 	}
 
+	protoAttachments := t.bareMetalInstance.GetSpec().GetNetworkAttachments()
+	if len(protoAttachments) > 0 {
+		networkAttachments := make([]bmfov1alpha1.BareMetalNetworkAttachment, 0, len(protoAttachments))
+		for _, att := range protoAttachments {
+			networkAttachments = append(networkAttachments, bmfov1alpha1.BareMetalNetworkAttachment{
+				SubnetRef:         att.GetSubnet(),
+				SecurityGroupRefs: att.GetSecurityGroups(),
+				Interface:         att.GetInterface(),
+				Primary:           att.GetPrimary(),
+			})
+		}
+		object.Spec.NetworkAttachments = networkAttachments
+	}
+
 	return nil
 }
 
