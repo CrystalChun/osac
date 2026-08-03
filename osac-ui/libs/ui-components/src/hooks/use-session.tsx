@@ -6,6 +6,7 @@ import { type ResolvedTheme, type Theme, useTheme } from './use-theme';
 interface SessionContextValue {
   role: UserRole;
   username: string;
+  tenantId: string;
   userTheme: Theme;
   resolvedTheme: ResolvedTheme;
   setUserTheme: (theme: Theme) => void;
@@ -17,9 +18,10 @@ interface SessionProviderProps {
   children: React.ReactNode;
   role: UserRole;
   username: string;
+  tenantId: string;
 }
 
-export const SessionProvider = ({ children, role, username }: SessionProviderProps) => {
+export const SessionProvider = ({ children, role, username, tenantId }: SessionProviderProps) => {
   const themeProps = useTheme();
 
   return role ? (
@@ -27,6 +29,7 @@ export const SessionProvider = ({ children, role, username }: SessionProviderPro
       value={{
         role,
         username,
+        tenantId,
         ...themeProps,
       }}
     >

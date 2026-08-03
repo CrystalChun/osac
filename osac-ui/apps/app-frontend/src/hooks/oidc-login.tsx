@@ -20,6 +20,7 @@ const fetchLoginInfo = async (): Promise<{
   username: string;
   roles: string[];
   groups: string[];
+  tenantId: string;
 } | null> => {
   try {
     const resp = await fetch('/api/login/info', { credentials: 'include' });
@@ -29,7 +30,12 @@ const fetchLoginInfo = async (): Promise<{
     if (!resp.ok) {
       return null;
     }
-    return (await resp.json()) as { username: string; roles: string[]; groups: string[] };
+    return (await resp.json()) as {
+      username: string;
+      roles: string[];
+      groups: string[];
+      tenantId: string;
+    };
   } catch {
     return null;
   }
@@ -45,6 +51,7 @@ const maxTimeout = 2 ** 31 - 1;
 export const useOIDCLogin = (): [
   string,
   UserRole,
+  string,
   boolean,
   string | undefined,
   () => Promise<void>,
@@ -53,6 +60,7 @@ export const useOIDCLogin = (): [
   const [isLoading, setIsLoading] = React.useState(true);
   const [username, setUsername] = React.useState<string>('');
   const [role, setRole] = React.useState<UserRole>('tenant-user');
+  const [tenantId, setTenantId] = React.useState<string>('');
   const [error, setError] = React.useState<string>();
 
   const refreshTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -137,6 +145,7 @@ export const useOIDCLogin = (): [
           setError(undefined);
           setUsername(result.username);
           setRole(roleFromRoles(result.roles, result.groups));
+          setTenantId(result.tenantId ?? '');
           setIsLoading(false);
           scheduleRefresh();
         } else {
@@ -183,5 +192,5 @@ export const useOIDCLogin = (): [
     }
   }, []);
 
-  return [username, role, isLoading, error, logout];
+  return [username, role, tenantId, isLoading, error, logout];
 };

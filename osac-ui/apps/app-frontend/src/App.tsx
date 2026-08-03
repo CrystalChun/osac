@@ -21,7 +21,7 @@ const LoggedInHomeRedirect = () => {
 };
 
 const App = () => {
-  const [username, role, isLoading, error, logout] = useOIDCLogin();
+  const [username, role, tenantId, isLoading, error, logout] = useOIDCLogin();
 
   if (isLoading) {
     return (
@@ -47,7 +47,7 @@ const App = () => {
   }
 
   return (
-    <SessionProvider role={role} username={username}>
+    <SessionProvider role={role} username={username} tenantId={tenantId}>
       <Routes>
         <Route path="/" element={<LoggedInHomeRedirect />} />
 

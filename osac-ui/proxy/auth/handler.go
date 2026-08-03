@@ -49,6 +49,7 @@ type loginInfoResponse struct {
 	Username string   `json:"username"`
 	Roles    []string `json:"roles"`
 	Groups   []string `json:"groups"`
+	TenantID string   `json:"tenantId"`
 }
 
 // GetLogin handles GET /api/login — starts the OIDC Authorization Code + PKCE flow.
@@ -189,8 +190,9 @@ func (h *Handler) GetLoginInfo(w http.ResponseWriter, r *http.Request) {
 	username := UsernameFromToken(idToken)
 	roles := RolesFromToken(roleToken)
 	groups := GroupsFromToken(roleToken)
+	tenantID := TenantIdFromToken(idToken)
 	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(loginInfoResponse{Username: username, Roles: roles, Groups: groups}); err != nil {
+	if err := json.NewEncoder(w).Encode(loginInfoResponse{Username: username, Roles: roles, Groups: groups, TenantID: tenantID}); err != nil {
 		log.WithError(err).Warn("failed to encode login info response")
 	}
 }
