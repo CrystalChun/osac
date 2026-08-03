@@ -22,15 +22,21 @@ import (
 	. "github.com/onsi/gomega"
 	"go.uber.org/mock/gomock"
 	"google.golang.org/grpc"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/util/validation/field"
+	clnt "sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
+	"sigs.k8s.io/controller-runtime/pkg/client/interceptor"
 
 	privatev1 "github.com/osac-project/osac/fulfillment-service/internal/api/osac/private/v1"
 	"github.com/osac-project/osac/fulfillment-service/internal/controllers"
 	"github.com/osac-project/osac/fulfillment-service/internal/controllers/finalizers"
 	"github.com/osac-project/osac/fulfillment-service/internal/kubernetes/annotations"
 	"github.com/osac-project/osac/fulfillment-service/internal/kubernetes/labels"
+	"github.com/osac-project/osac/fulfillment-service/internal/masks"
 	osacv1alpha1 "github.com/osac-project/osac/osac-operator/api/v1alpha1"
 )
 
@@ -1256,5 +1262,91 @@ var _ = Describe("hub persistence", func() {
 		}
 
 		Expect(func() { f.run(ctx, cluster) }).ToNot(Panic())
+	})
+})
+
+var _ = Describe("Kubernetes validation error handling", func() {
+	It("should set state to FAILED when K8s Create returns Invalid error", func() {
+		ctx := context.Background()
+		ctrl := gomock.NewController(GinkgoT())
+		DeferCleanup(ctrl.Finish)
+
+		const (
+			clusterID    = "cluster-invalid-test"
+			tenantName   = "test-tenant"
+			hubID        = "hub-1"
+			hubNamespace = "test-ns"
+		)
+
+		scheme := runtime.NewScheme()
+		Expect(osacv1alpha1.AddToScheme(scheme)).To(Succeed())
+
+		fakeClient := fake.NewClientBuilder().
+			WithScheme(scheme).
+			WithInterceptorFuncs(interceptor.Funcs{
+				Create: func(ctx context.Context, client clnt.WithWatch, obj clnt.Object, opts ...clnt.CreateOption) error {
+					return apierrors.NewInvalid(
+						schema.GroupKind{Group: "osac.openshift.io", Kind: "ClusterOrder"},
+						"order-test",
+						field.ErrorList{field.Invalid(field.NewPath("spec", "templateID"), "", "invalid template")},
+					)
+				},
+			}).
+			Build()
+
+		hubCache := controllers.NewMockHubCache(ctrl)
+		hubCache.EXPECT().
+			Get(gomock.Any(), hubID).
+			Return(&controllers.HubEntry{
+				Namespace: hubNamespace,
+				Client:    fakeClient,
+			}, nil)
+
+		clustersClient := NewMockClustersClient(ctrl)
+		clustersClient.EXPECT().
+			Update(gomock.Any(), gomock.Any(), gomock.Any()).
+			DoAndReturn(func(ctx context.Context, req *privatev1.ClustersUpdateRequest, opts ...grpc.CallOption) (*privatev1.ClustersUpdateResponse, error) {
+				return &privatev1.ClustersUpdateResponse{Object: req.GetObject()}, nil
+			}).
+			AnyTimes()
+
+		cluster := privatev1.Cluster_builder{
+			Id: clusterID,
+			Metadata: privatev1.Metadata_builder{
+				Finalizers: []string{finalizers.Controller},
+				Tenant:     tenantName,
+			}.Build(),
+			Spec: privatev1.ClusterSpec_builder{
+				Template: &privatev1.ClusterTemplateReference{Name: "test-template"},
+			}.Build(),
+			Status: privatev1.ClusterStatus_builder{
+				State: privatev1.ClusterState_CLUSTER_STATE_PROGRESSING,
+				Hub:   hubID,
+			}.Build(),
+		}.Build()
+
+		f := &function{
+			logger:         logger,
+			hubCache:       hubCache,
+			clustersClient: clustersClient,
+			maskCalculator: masks.NewCalculator().Build(),
+		}
+
+		err := f.run(ctx, cluster)
+		Expect(err).ToNot(HaveOccurred())
+
+		Expect(cluster.GetStatus().GetState()).To(Equal(
+			privatev1.ClusterState_CLUSTER_STATE_FAILED))
+
+		conditions := cluster.GetStatus().GetConditions()
+		var found bool
+		for _, c := range conditions {
+			if c.GetType() == privatev1.ClusterConditionType_CLUSTER_CONDITION_TYPE_PROGRESSING {
+				Expect(c.GetStatus()).To(Equal(privatev1.ConditionStatus_CONDITION_STATUS_FALSE))
+				Expect(c.GetReason()).To(Equal("ValidationFailed"))
+				found = true
+			}
+		}
+		Expect(found).To(BeTrue())
 	})
 })

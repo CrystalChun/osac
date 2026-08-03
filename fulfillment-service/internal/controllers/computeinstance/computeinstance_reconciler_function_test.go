@@ -2093,10 +2093,10 @@ var _ = Describe("Kubernetes validation error handling", func() {
 				Tenant:     tenantName,
 			}.Build(),
 			Spec: privatev1.ComputeInstanceSpec_builder{
-				Template:     "osac.templates.ocp_virt_vm",
-				InstanceType: new("test-type"),
+				Template:     &privatev1.ComputeInstanceTemplateReference{Name: "osac.templates.ocp_virt_vm"},
+				InstanceType: &privatev1.InstanceTypeReference{Name: "test-type"},
 				NetworkAttachments: []*privatev1.NetworkAttachment{
-					privatev1.NetworkAttachment_builder{Subnet: subnetID}.Build(),
+					privatev1.NetworkAttachment_builder{Subnet: &privatev1.SubnetLocalReference{Id: subnetID}}.Build(),
 				},
 			}.Build(),
 			Status: privatev1.ComputeInstanceStatus_builder{
