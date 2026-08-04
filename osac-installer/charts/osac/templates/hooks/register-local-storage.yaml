@@ -92,7 +92,7 @@ print(m['id'])
             case "${TIER_CODE}" in
               2??) echo "StorageTier 'local' created." ;;
               409)
-                echo "StorageTier 'local' already exists, verifying backend reference..."
+                echo "StorageTier 'local' already exists, verifying spec..."
                 EXISTING_TIER=$(curl -skS --connect-timeout 5 --max-time 30 \
                   "${API}/storage_tiers" -H "Authorization: Bearer ${AUTH_TOKEN}")
                 echo "${EXISTING_TIER}" | python3 -c "
@@ -101,12 +101,12 @@ items=json.load(sys.stdin).get('items',[])
 m=next((t for t in items if t.get('metadata',{}).get('name')=='local'),None)
 if not m:
     print('ERROR: StorageTier local not found after 409', file=sys.stderr); sys.exit(1)
-backends=[b.get('backend_id') for b in m.get('spec',{}).get('backends',[])]
-if '${BACKEND_ID}' not in backends:
-    print(f'WARNING: existing local tier references backends {backends}, not ${BACKEND_ID}')
-else:
-    print('StorageTier local correctly references backend ${BACKEND_ID}.')
-" || true
+backends=m.get('spec',{}).get('backends',[])
+match=next((b for b in backends if b.get('backend_id')=='${BACKEND_ID}' and b.get('protocol')==2),None)
+if not match:
+    print(f'ERROR: existing local tier does not reference backend ${BACKEND_ID} with protocol=2; got: {backends}', file=sys.stderr); sys.exit(1)
+print('StorageTier local correctly references backend ${BACKEND_ID} with protocol=2.')
+"
                 ;;
               *)
                 echo "ERROR: Failed to create StorageTier 'local' (HTTP ${TIER_CODE}):" >&2
