@@ -1007,9 +1007,20 @@
         "image": {
           "type": "object",
           "properties": {
-            "repository": { "type": "string" },
-            "tag": { "type": "string" },
-            "pullPolicy": { "type": "string", "enum": ["Always", "IfNotPresent", "Never"] }
+            "repository": {
+              "type": "string"
+            },
+            "tag": {
+              "type": "string"
+            },
+            "pullPolicy": {
+              "type": "string",
+              "enum": [
+                "Always",
+                "IfNotPresent",
+                "Never"
+              ]
+            }
           }
         },
         "database": {
@@ -1334,8 +1345,7 @@
           "description": "Run the register-local-storage hook job when LVMS is deployed",
           "default": false
         }
-      },
-      "additionalProperties": false
+      }
     }
   }
 }
