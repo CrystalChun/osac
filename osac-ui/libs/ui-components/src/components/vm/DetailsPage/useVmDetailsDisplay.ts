@@ -53,7 +53,7 @@ export const useVmDetailsDisplay = (vm: ComputeInstance) => {
       t('catalogProvision.vm.fields.bootDisk'),
     );
     const sshKeyOverlay = getCatalogFieldOverlay(
-      'ssh_key',
+      'ssh_public_key',
       definitions,
       t('catalogProvision.vm.fields.sshKey'),
     );
@@ -62,7 +62,7 @@ export const useVmDetailsDisplay = (vm: ComputeInstance) => {
       image: imageOverlay.label,
       userData: userDataOverlay.label,
       bootDisk: bootDiskOverlay.label,
-      sshKey: sshKeyOverlay.label,
+      sshPublicKey: sshKeyOverlay.label,
     };
   }, [catalogItem, t]);
 

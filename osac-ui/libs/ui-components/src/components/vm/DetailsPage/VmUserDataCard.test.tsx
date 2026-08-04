@@ -27,7 +27,7 @@ describe('VmUserDataCard', () => {
   beforeEach(() => {
     vi.mocked(useVmDetailsDisplay).mockReturnValue({
       hasCatalogItem: true,
-      fieldLabels: { userData: 'User Data', sshKey: '', image: '', bootDisk: '' },
+      fieldLabels: { userData: 'User Data', sshPublicKey: '', image: '', bootDisk: '' },
       catalogItemId: 'catalog-rhel-9',
       isCatalogItemLoading: false,
       instanceType: undefined,
@@ -49,7 +49,7 @@ describe('VmUserDataCard', () => {
   it('renders nothing when catalog item is missing', () => {
     vi.mocked(useVmDetailsDisplay).mockReturnValue({
       hasCatalogItem: false,
-      fieldLabels: { userData: 'User Data', sshKey: '', image: '', bootDisk: '' },
+      fieldLabels: { userData: 'User Data', sshPublicKey: '', image: '', bootDisk: '' },
       catalogItemId: undefined,
       isCatalogItemLoading: false,
       instanceType: undefined,

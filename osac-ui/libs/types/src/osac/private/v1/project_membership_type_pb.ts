@@ -25,7 +25,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/private/v1/project_membership_type.proto.
  */
 export const file_osac_private_v1_project_membership_type: GenFile = /*@__PURE__*/
-  fileDesc("Ci1vc2FjL3ByaXZhdGUvdjEvcHJvamVjdF9tZW1iZXJzaGlwX3R5cGUucHJvdG8SD29zYWMucHJpdmF0ZS52MSK8AQoRUHJvamVjdE1lbWJlcnNoaXASCgoCaWQYASABKAkSKwoIbWV0YWRhdGEYAiABKAsyGS5vc2FjLnByaXZhdGUudjEuTWV0YWRhdGESNAoEc3BlYxgDIAEoCzImLm9zYWMucHJpdmF0ZS52MS5Qcm9qZWN0TWVtYmVyc2hpcFNwZWMSOAoGc3RhdHVzGAQgASgLMigub3NhYy5wcml2YXRlLnYxLlByb2plY3RNZW1iZXJzaGlwU3RhdHVzIngKFVByb2plY3RNZW1iZXJzaGlwU3BlYxIPCgdwcm9qZWN0GAEgASgJEjQKBHJvbGUYAiABKA4yJi5vc2FjLnByaXZhdGUudjEuUHJvamVjdE1lbWJlcnNoaXBSb2xlEg4KBHVzZXIYAyABKAlIAEIICgZtZW1iZXIicwoXUHJvamVjdE1lbWJlcnNoaXBTdGF0dXMSNgoFc3RhdGUYASABKA4yJy5vc2FjLnByaXZhdGUudjEuUHJvamVjdE1lbWJlcnNoaXBTdGF0ZRIUCgdtZXNzYWdlGAIgASgJSACIAQFCCgoIX21lc3NhZ2UqiQEKFVByb2plY3RNZW1iZXJzaGlwUm9sZRInCiNQUk9KRUNUX01FTUJFUlNISVBfUk9MRV9VTlNQRUNJRklFRBAAEiIKHlBST0pFQ1RfTUVNQkVSU0hJUF9ST0xFX1ZJRVdFUhABEiMKH1BST0pFQ1RfTUVNQkVSU0hJUF9ST0xFX01BTkFHRVIQAiqxAQoWUHJvamVjdE1lbWJlcnNoaXBTdGF0ZRIoCiRQUk9KRUNUX01FTUJFUlNISVBfU1RBVEVfVU5TUEVDSUZJRUQQABIkCiBQUk9KRUNUX01FTUJFUlNISVBfU1RBVEVfUEVORElORxABEiIKHlBST0pFQ1RfTUVNQkVSU0hJUF9TVEFURV9SRUFEWRACEiMKH1BST0pFQ1RfTUVNQkVSU0hJUF9TVEFURV9GQUlMRUQQA2IGcHJvdG8z", [file_osac_private_v1_metadata_type]);
+  fileDesc("Ci1vc2FjL3ByaXZhdGUvdjEvcHJvamVjdF9tZW1iZXJzaGlwX3R5cGUucHJvdG8SD29zYWMucHJpdmF0ZS52MSK8AQoRUHJvamVjdE1lbWJlcnNoaXASCgoCaWQYASABKAkSKwoIbWV0YWRhdGEYAiABKAsyGS5vc2FjLnByaXZhdGUudjEuTWV0YWRhdGESNAoEc3BlYxgDIAEoCzImLm9zYWMucHJpdmF0ZS52MS5Qcm9qZWN0TWVtYmVyc2hpcFNwZWMSOAoGc3RhdHVzGAQgASgLMigub3NhYy5wcml2YXRlLnYxLlByb2plY3RNZW1iZXJzaGlwU3RhdHVzIlwKFVByb2plY3RNZW1iZXJzaGlwU3BlYxI0CgRyb2xlGAIgASgOMiYub3NhYy5wcml2YXRlLnYxLlByb2plY3RNZW1iZXJzaGlwUm9sZRINCgV1c2VycxgDIAMoCSKCAQoXUHJvamVjdE1lbWJlcnNoaXBTdGF0dXMSNgoFc3RhdGUYASABKA4yJy5vc2FjLnByaXZhdGUudjEuUHJvamVjdE1lbWJlcnNoaXBTdGF0ZRIUCgdtZXNzYWdlGAIgASgJSACIAQESDQoFdXNlcnMYAyADKAlCCgoIX21lc3NhZ2UqiQEKFVByb2plY3RNZW1iZXJzaGlwUm9sZRInCiNQUk9KRUNUX01FTUJFUlNISVBfUk9MRV9VTlNQRUNJRklFRBAAEiIKHlBST0pFQ1RfTUVNQkVSU0hJUF9ST0xFX1ZJRVdFUhABEiMKH1BST0pFQ1RfTUVNQkVSU0hJUF9ST0xFX01BTkFHRVIQAiqxAQoWUHJvamVjdE1lbWJlcnNoaXBTdGF0ZRIoCiRQUk9KRUNUX01FTUJFUlNISVBfU1RBVEVfVU5TUEVDSUZJRUQQABIkCiBQUk9KRUNUX01FTUJFUlNISVBfU1RBVEVfUEVORElORxABEiIKHlBST0pFQ1RfTUVNQkVSU0hJUF9TVEFURV9SRUFEWRACEiMKH1BST0pFQ1RfTUVNQkVSU0hJUF9TVEFURV9GQUlMRUQQA2IGcHJvdG8z", [file_osac_private_v1_metadata_type]);
 
 /**
  * ProjectMembership represents a member's association with a project and their role within it.
@@ -70,39 +70,25 @@ export const ProjectMembershipSchema: GenMessage<ProjectMembership> = /*@__PURE_
   messageDesc(file_osac_private_v1_project_membership_type, 0);
 
 /**
- * Describes a member of a project.
+ * Describes the members of a project.
  *
  * @generated from message osac.private.v1.ProjectMembershipSpec
  */
 export type ProjectMembershipSpec = Message<"osac.private.v1.ProjectMembershipSpec"> & {
   /**
-   * Reference to the project that this membership applies to. This is the unique identifier (ID) of the Project object,
-   * not the project name.
-   *
-   * @generated from field: string project = 1;
-   */
-  project: string;
-
-  /**
-   * Role of the member in the project. This indicates whether the member is a viewer, manager, etc.
+   * Role of the members in the project. This indicates whether the members are viewers, managers, etc.
    *
    * @generated from field: osac.private.v1.ProjectMembershipRole role = 2;
    */
   role: ProjectMembershipRole;
 
   /**
-   * Unique identifier of the member. Currently members are users (referenced by their User object ID), but this leaves
-   * room for adding other kinds of members in the future, like groups.
+   * Identifiers of the users that are members of the project. These are user identifiers (the `id` field of User
+   * objects), not usernames or email addresses.
    *
-   * @generated from oneof osac.private.v1.ProjectMembershipSpec.member
+   * @generated from field: repeated string users = 3;
    */
-  member: {
-    /**
-     * @generated from field: string user = 3;
-     */
-    value: string;
-    case: "user";
-  } | { case: undefined; value?: undefined };
+  users: string[];
 };
 
 /**
@@ -132,6 +118,15 @@ export type ProjectMembershipStatus = Message<"osac.private.v1.ProjectMembership
    * @generated from field: optional string message = 2;
    */
   message?: string | undefined;
+
+  /**
+   * List of user IDs that have been successfully synced to the identity provider. This tracks which users
+   * currently have the role assigned, allowing the controller to detect when users are added or removed from
+   * the membership.
+   *
+   * @generated from field: repeated string users = 3;
+   */
+  users: string[];
 };
 
 /**

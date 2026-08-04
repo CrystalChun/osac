@@ -35,6 +35,8 @@ export const file_osac_public_v1_compute_instance_template_type: GenFile = /*@__
  * A compute instance template defines a type of compute instance that can be created by the user. Note that the user doesn't create these
  * templates: the system provides a collection of them, and the user chooses one.
  *
+ * buf:lint:ignore OSAC_OBJECT_SHAPE
+ *
  * @generated from message osac.public.v1.ComputeInstanceTemplate
  */
 export type ComputeInstanceTemplate = Message<"osac.public.v1.ComputeInstanceTemplate"> & {

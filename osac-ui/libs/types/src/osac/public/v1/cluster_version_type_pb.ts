@@ -17,6 +17,7 @@
 
 import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
 import { file_google_api_field_behavior } from "../../../google/api/field_behavior_pb";
 import type { Timestamp } from "../../../google/protobuf/timestamp_pb";
 import { file_google_protobuf_timestamp } from "../../../google/protobuf/timestamp_pb";
@@ -28,14 +29,14 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/public/v1/cluster_version_type.proto.
  */
 export const file_osac_public_v1_cluster_version_type: GenFile = /*@__PURE__*/
-  fileDesc("Cilvc2FjL3B1YmxpYy92MS9jbHVzdGVyX3ZlcnNpb25fdHlwZS5wcm90bxIOb3NhYy5wdWJsaWMudjEinAEKGUNsdXN0ZXJWZXJzaW9uRGVwcmVjYXRpb24SPgoVZGVwcmVjYXRpb25fdGltZXN0YW1wGAEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEID4EEDEj8KFm9ic29sZXNjZW5jZV90aW1lc3RhbXAYAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgPgQQMiNgodQ2x1c3RlclZlcnNpb25BbGxvd2VkVXBncmFkZXMSFQoNdmVyc2lvbl9uYW1lcxgBIAMoCSKwAQoOQ2x1c3RlclZlcnNpb24SCgoCaWQYASABKAkSKgoIbWV0YWRhdGEYAiABKAsyGC5vc2FjLnB1YmxpYy52MS5NZXRhZGF0YRIwCgRzcGVjGAMgASgLMiIub3NhYy5wdWJsaWMudjEuQ2x1c3RlclZlcnNpb25TcGVjEjQKBnN0YXR1cxgEIAEoCzIkLm9zYWMucHVibGljLnYxLkNsdXN0ZXJWZXJzaW9uU3RhdHVzIs0CChJDbHVzdGVyVmVyc2lvblNwZWMSGQoHZW5hYmxlZBgCIAEoCEID4EEBSACIAQESHAoKaXNfZGVmYXVsdBgDIAEoCEID4EEBSAGIAQESNwoFc3RhdGUYBCABKA4yIy5vc2FjLnB1YmxpYy52MS5DbHVzdGVyVmVyc2lvblN0YXRlQgPgQQESQwoLZGVwcmVjYXRpb24YBSABKAsyKS5vc2FjLnB1YmxpYy52MS5DbHVzdGVyVmVyc2lvbkRlcHJlY2F0aW9uQgPgQQESFwoHdmVyc2lvbhgGIAEoCUIG4EEC4EEFEkwKEGFsbG93ZWRfdXBncmFkZXMYByABKAsyLS5vc2FjLnB1YmxpYy52MS5DbHVzdGVyVmVyc2lvbkFsbG93ZWRVcGdyYWRlc0ID4EEBQgoKCF9lbmFibGVkQg0KC19pc19kZWZhdWx0IhYKFENsdXN0ZXJWZXJzaW9uU3RhdHVzKqgBChNDbHVzdGVyVmVyc2lvblN0YXRlEiUKIUNMVVNURVJfVkVSU0lPTl9TVEFURV9VTlNQRUNJRklFRBAAEiAKHENMVVNURVJfVkVSU0lPTl9TVEFURV9BQ1RJVkUQARIkCiBDTFVTVEVSX1ZFUlNJT05fU1RBVEVfREVQUkVDQVRFRBACEiIKHkNMVVNURVJfVkVSU0lPTl9TVEFURV9PQlNPTEVURRADYgZwcm90bzM", [file_google_api_field_behavior, file_google_protobuf_timestamp, file_osac_public_v1_metadata_type]);
+  fileDesc("Cilvc2FjL3B1YmxpYy92MS9jbHVzdGVyX3ZlcnNpb25fdHlwZS5wcm90bxIOb3NhYy5wdWJsaWMudjEinAEKGUNsdXN0ZXJWZXJzaW9uRGVwcmVjYXRpb24SPgoVZGVwcmVjYXRpb25fdGltZXN0YW1wGAEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEID4EEDEj8KFm9ic29sZXNjZW5jZV90aW1lc3RhbXAYAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgPgQQMiSwodQ2x1c3RlclZlcnNpb25BbGxvd2VkVXBncmFkZXMSKgoNdmVyc2lvbl9uYW1lcxgBIAMoCUITukgQkgENEOgHGAEiBnIEEAEYPyKwAQoOQ2x1c3RlclZlcnNpb24SCgoCaWQYASABKAkSKgoIbWV0YWRhdGEYAiABKAsyGC5vc2FjLnB1YmxpYy52MS5NZXRhZGF0YRIwCgRzcGVjGAMgASgLMiIub3NhYy5wdWJsaWMudjEuQ2x1c3RlclZlcnNpb25TcGVjEjQKBnN0YXR1cxgEIAEoCzIkLm9zYWMucHVibGljLnYxLkNsdXN0ZXJWZXJzaW9uU3RhdHVzIs0CChJDbHVzdGVyVmVyc2lvblNwZWMSGQoHZW5hYmxlZBgCIAEoCEID4EEBSACIAQESHAoKaXNfZGVmYXVsdBgDIAEoCEID4EEBSAGIAQESNwoFc3RhdGUYBCABKA4yIy5vc2FjLnB1YmxpYy52MS5DbHVzdGVyVmVyc2lvblN0YXRlQgPgQQESQwoLZGVwcmVjYXRpb24YBSABKAsyKS5vc2FjLnB1YmxpYy52MS5DbHVzdGVyVmVyc2lvbkRlcHJlY2F0aW9uQgPgQQESFwoHdmVyc2lvbhgGIAEoCUIG4EEC4EEFEkwKEGFsbG93ZWRfdXBncmFkZXMYByABKAsyLS5vc2FjLnB1YmxpYy52MS5DbHVzdGVyVmVyc2lvbkFsbG93ZWRVcGdyYWRlc0ID4EEBQgoKCF9lbmFibGVkQg0KC19pc19kZWZhdWx0IhYKFENsdXN0ZXJWZXJzaW9uU3RhdHVzKqgBChNDbHVzdGVyVmVyc2lvblN0YXRlEiUKIUNMVVNURVJfVkVSU0lPTl9TVEFURV9VTlNQRUNJRklFRBAAEiAKHENMVVNURVJfVkVSU0lPTl9TVEFURV9BQ1RJVkUQARIkCiBDTFVTVEVSX1ZFUlNJT05fU1RBVEVfREVQUkVDQVRFRBACEiIKHkNMVVNURVJfVkVSU0lPTl9TVEFURV9PQlNPTEVURRADYgZwcm90bzM", [file_buf_validate_validate, file_google_api_field_behavior, file_google_protobuf_timestamp, file_osac_public_v1_metadata_type]);
 
 /**
  * Contains deprecation details for a cluster version.
  *
  * The timestamps are managed by the server during lifecycle state transitions. The deprecation_timestamp is set when
- * the version transitions to DEPRECATED, and the obsolescence_timestamp is set when it transitions to OBSOLETE. Both
- * are cleared if the version returns to ACTIVE.
+ * the version transitions to DEPRECATED, and the obsolescence_timestamp is set when it transitions to OBSOLETE.
+ * Timestamps are retained as historical record when the version returns to ACTIVE.
  *
  * @generated from message osac.public.v1.ClusterVersionDeprecation
  */
@@ -76,6 +77,7 @@ export type ClusterVersionAllowedUpgrades = Message<"osac.public.v1.ClusterVersi
   /**
    * ClusterVersion names (metadata.name). Must reference existing, non-deleted ClusterVersions. When a target
    * version is deleted, it is automatically removed from all lists.
+   * No duplicate or empty entries are allowed.
    *
    * @generated from field: repeated string version_names = 1;
    */
@@ -257,7 +259,7 @@ export enum ClusterVersionState {
    * The cluster version is fully available for new cluster creation.
    *
    * This is the default state assigned on creation. Returning to ACTIVE from DEPRECATED or OBSOLETE
-   * clears the corresponding deprecation timestamps.
+   * retains the corresponding deprecation timestamps as historical record.
    *
    * @generated from enum value: CLUSTER_VERSION_STATE_ACTIVE = 1;
    */

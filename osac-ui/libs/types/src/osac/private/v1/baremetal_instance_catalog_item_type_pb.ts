@@ -33,6 +33,8 @@ export const file_osac_private_v1_baremetal_instance_catalog_item_type: GenFile 
  * A bare metal instance catalog item defines a curated hardware offering that references an underlying bare metal
  * instance template. Admins control which fields users can set, enforce defaults, and validate input via JSON Schema.
  *
+ * buf:lint:ignore OSAC_OBJECT_SHAPE
+ *
  * @generated from message osac.private.v1.BareMetalInstanceCatalogItem
  */
 export type BareMetalInstanceCatalogItem = Message<"osac.private.v1.BareMetalInstanceCatalogItem"> & {

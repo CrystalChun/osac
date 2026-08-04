@@ -50,7 +50,7 @@ export const VmTable = ({
           const instanceTypeId = vm.spec?.instanceType?.trim();
           const instanceType = instanceTypeId ? instanceTypeById.get(instanceTypeId) : undefined;
           const internalIp = vm.status?.internalIpAddress;
-          const externalIp = vm.status?.publicIpAddress;
+          const externalIp = vm.status?.externalIpAddress;
 
           return (
             <Tr key={vm.id}>

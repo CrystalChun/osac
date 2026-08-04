@@ -17,6 +17,7 @@
 
 import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
 import type { Timestamp } from "../../../google/protobuf/timestamp_pb";
 import { file_google_protobuf_timestamp } from "../../../google/protobuf/timestamp_pb";
 import type { Metadata } from "./metadata_type_pb";
@@ -27,7 +28,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/private/v1/instance_type_type.proto.
  */
 export const file_osac_private_v1_instance_type_type: GenFile = /*@__PURE__*/
-  fileDesc("Cihvc2FjL3ByaXZhdGUvdjEvaW5zdGFuY2VfdHlwZV90eXBlLnByb3RvEg9vc2FjLnByaXZhdGUudjEi2AEKF0luc3RhbmNlVHlwZURlcHJlY2F0aW9uEjEKBXN0YXRlGAEgASgOMiIub3NhYy5wcml2YXRlLnYxLkluc3RhbmNlVHlwZVN0YXRlEhMKC3JlcGxhY2VtZW50GAIgASgJEjkKFWRlcHJlY2F0aW9uX3RpbWVzdGFtcBgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASOgoWb2Jzb2xlc2NlbmNlX3RpbWVzdGFtcBgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAirQEKDEluc3RhbmNlVHlwZRIKCgJpZBgBIAEoCRIrCghtZXRhZGF0YRgCIAEoCzIZLm9zYWMucHJpdmF0ZS52MS5NZXRhZGF0YRIvCgRzcGVjGAMgASgLMiEub3NhYy5wcml2YXRlLnYxLkluc3RhbmNlVHlwZVNwZWMSMwoGc3RhdHVzGAQgASgLMiMub3NhYy5wcml2YXRlLnYxLkluc3RhbmNlVHlwZVN0YXR1cyK8AQoQSW5zdGFuY2VUeXBlU3BlYxINCgVjb3JlcxgBIAEoBRISCgptZW1vcnlfZ2liGAIgASgFEhMKC2Rlc2NyaXB0aW9uGAMgASgJEjEKBXN0YXRlGAQgASgOMiIub3NhYy5wcml2YXRlLnYxLkluc3RhbmNlVHlwZVN0YXRlEj0KC2RlcHJlY2F0aW9uGAUgASgLMigub3NhYy5wcml2YXRlLnYxLkluc3RhbmNlVHlwZURlcHJlY2F0aW9uIhQKEkluc3RhbmNlVHlwZVN0YXR1cyqeAQoRSW5zdGFuY2VUeXBlU3RhdGUSIwofSU5TVEFOQ0VfVFlQRV9TVEFURV9VTlNQRUNJRklFRBAAEh4KGklOU1RBTkNFX1RZUEVfU1RBVEVfQUNUSVZFEAESIgoeSU5TVEFOQ0VfVFlQRV9TVEFURV9ERVBSRUNBVEVEEAISIAocSU5TVEFOQ0VfVFlQRV9TVEFURV9PQlNPTEVURRADYgZwcm90bzM", [file_google_protobuf_timestamp, file_osac_private_v1_metadata_type]);
+  fileDesc("Cihvc2FjL3ByaXZhdGUvdjEvaW5zdGFuY2VfdHlwZV90eXBlLnByb3RvEg9vc2FjLnByaXZhdGUudjEi2AEKF0luc3RhbmNlVHlwZURlcHJlY2F0aW9uEjEKBXN0YXRlGAEgASgOMiIub3NhYy5wcml2YXRlLnYxLkluc3RhbmNlVHlwZVN0YXRlEhMKC3JlcGxhY2VtZW50GAIgASgJEjkKFWRlcHJlY2F0aW9uX3RpbWVzdGFtcBgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASOgoWb2Jzb2xlc2NlbmNlX3RpbWVzdGFtcBgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAirQEKDEluc3RhbmNlVHlwZRIKCgJpZBgBIAEoCRIrCghtZXRhZGF0YRgCIAEoCzIZLm9zYWMucHJpdmF0ZS52MS5NZXRhZGF0YRIvCgRzcGVjGAMgASgLMiEub3NhYy5wcml2YXRlLnYxLkluc3RhbmNlVHlwZVNwZWMSMwoGc3RhdHVzGAQgASgLMiMub3NhYy5wcml2YXRlLnYxLkluc3RhbmNlVHlwZVN0YXR1cyJpCgdHcHVTcGVjEiQKE3BjaV9kZXZpY2Vfc2VsZWN0b3IYASABKAlCB7pIBHICEAESHgoNcmVzb3VyY2VfbmFtZRgCIAEoCUIHukgEcgIQARIYCgVjb3VudBgDIAEoBUIJukgGGgQYECgBIvABChBJbnN0YW5jZVR5cGVTcGVjEg0KBWNvcmVzGAEgASgFEhIKCm1lbW9yeV9naWIYAiABKAUSEwoLZGVzY3JpcHRpb24YAyABKAkSMQoFc3RhdGUYBCABKA4yIi5vc2FjLnByaXZhdGUudjEuSW5zdGFuY2VUeXBlU3RhdGUSPQoLZGVwcmVjYXRpb24YBSABKAsyKC5vc2FjLnByaXZhdGUudjEuSW5zdGFuY2VUeXBlRGVwcmVjYXRpb24SKgoDZ3B1GAYgASgLMhgub3NhYy5wcml2YXRlLnYxLkdwdVNwZWNIAIgBAUIGCgRfZ3B1IhQKEkluc3RhbmNlVHlwZVN0YXR1cyqeAQoRSW5zdGFuY2VUeXBlU3RhdGUSIwofSU5TVEFOQ0VfVFlQRV9TVEFURV9VTlNQRUNJRklFRBAAEh4KGklOU1RBTkNFX1RZUEVfU1RBVEVfQUNUSVZFEAESIgoeSU5TVEFOQ0VfVFlQRV9TVEFURV9ERVBSRUNBVEVEEAISIAocSU5TVEFOQ0VfVFlQRV9TVEFURV9PQlNPTEVURRADYgZwcm90bzM", [file_buf_validate_validate, file_google_protobuf_timestamp, file_osac_private_v1_metadata_type]);
 
 /**
  * Contains deprecation details for an instance type.
@@ -125,6 +126,41 @@ export const InstanceTypeSchema: GenMessage<InstanceType> = /*@__PURE__*/
   messageDesc(file_osac_private_v1_instance_type_type, 1);
 
 /**
+ * Hardware specification for GPU devices attached to compute instances provisioned with this instance type.
+ *
+ * @generated from message osac.private.v1.GpuSpec
+ */
+export type GpuSpec = Message<"osac.private.v1.GpuSpec"> & {
+  /**
+   * PCI device selector identifying the GPU hardware (e.g., "10DE:20B0").
+   *
+   * @generated from field: string pci_device_selector = 1;
+   */
+  pciDeviceSelector: string;
+
+  /**
+   * Kubernetes device plugin resource name (e.g., "nvidia.com/A100").
+   *
+   * @generated from field: string resource_name = 2;
+   */
+  resourceName: string;
+
+  /**
+   * Number of GPU devices of this type.
+   *
+   * @generated from field: int32 count = 3;
+   */
+  count: number;
+};
+
+/**
+ * Describes the message osac.private.v1.GpuSpec.
+ * Use `create(GpuSpecSchema)` to create a new message.
+ */
+export const GpuSpecSchema: GenMessage<GpuSpec> = /*@__PURE__*/
+  messageDesc(file_osac_private_v1_instance_type_type, 2);
+
+/**
  * Defines the desired configuration for an InstanceType.
  *
  * The spec contains admin-specified parameters that define the compute bundle. The `cores` and `memory_gib`
@@ -168,6 +204,13 @@ export type InstanceTypeSpec = Message<"osac.private.v1.InstanceTypeSpec"> & {
    * @generated from field: osac.private.v1.InstanceTypeDeprecation deprecation = 5;
    */
   deprecation?: InstanceTypeDeprecation | undefined;
+
+  /**
+   * GPU configuration. Omit for non-GPU instance types. Immutable after creation.
+   *
+   * @generated from field: optional osac.private.v1.GpuSpec gpu = 6;
+   */
+  gpu?: GpuSpec | undefined;
 };
 
 /**
@@ -175,7 +218,7 @@ export type InstanceTypeSpec = Message<"osac.private.v1.InstanceTypeSpec"> & {
  * Use `create(InstanceTypeSpecSchema)` to create a new message.
  */
 export const InstanceTypeSpecSchema: GenMessage<InstanceTypeSpec> = /*@__PURE__*/
-  messageDesc(file_osac_private_v1_instance_type_type, 2);
+  messageDesc(file_osac_private_v1_instance_type_type, 3);
 
 /**
  * Contains the system-provided status of an InstanceType.
@@ -192,7 +235,7 @@ export type InstanceTypeStatus = Message<"osac.private.v1.InstanceTypeStatus"> &
  * Use `create(InstanceTypeStatusSchema)` to create a new message.
  */
 export const InstanceTypeStatusSchema: GenMessage<InstanceTypeStatus> = /*@__PURE__*/
-  messageDesc(file_osac_private_v1_instance_type_type, 3);
+  messageDesc(file_osac_private_v1_instance_type_type, 4);
 
 /**
  * Lifecycle states for InstanceType resources.

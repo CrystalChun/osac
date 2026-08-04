@@ -33,6 +33,8 @@ export const file_osac_private_v1_cluster_catalog_item_type: GenFile = /*@__PURE
  * A cluster catalog item defines a curated infrastructure offering that references an underlying cluster template.
  * Admins control which fields users can set, enforce defaults, and validate input via JSON Schema.
  *
+ * buf:lint:ignore OSAC_OBJECT_SHAPE
+ *
  * @generated from message osac.private.v1.ClusterCatalogItem
  */
 export type ClusterCatalogItem = Message<"osac.private.v1.ClusterCatalogItem"> & {

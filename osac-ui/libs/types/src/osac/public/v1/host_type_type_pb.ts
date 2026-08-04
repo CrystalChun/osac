@@ -37,6 +37,8 @@ export const file_osac_public_v1_host_type_type: GenFile = /*@__PURE__*/
  *
  * The detailed chracteristics of the host (CPU, memory, GPU, etc) will be in the `description` field.
  *
+ * buf:lint:ignore OSAC_OBJECT_SHAPE
+ *
  * @generated from message osac.public.v1.HostType
  */
 export type HostType = Message<"osac.public.v1.HostType"> & {

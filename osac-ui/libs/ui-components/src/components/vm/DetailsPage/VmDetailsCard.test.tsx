@@ -37,7 +37,7 @@ const catalogVm: ComputeInstance = {
   spec: {
     $typeName: 'osac.public.v1.ComputeInstanceSpec',
     catalogItem: 'catalog-rhel-9',
-    sshKey: 'ssh-rsa AAAA...',
+    sshPublicKey: 'ssh-rsa AAAA...',
     image: {
       $typeName: 'osac.public.v1.ComputeInstanceImage',
       sourceRef: 'quay.io/example/rhel9',
@@ -89,7 +89,7 @@ describe('VmDetailsCard', () => {
       instanceTypeId: 'standard-4-8',
       isInstanceTypeLoading: false,
       fieldLabels: {
-        sshKey: 'SSH public key',
+        sshPublicKey: 'SSH public key',
         image: 'VM image',
         bootDisk: 'Boot disk',
         userData: 'User Data',
@@ -122,7 +122,7 @@ describe('VmDetailsCard', () => {
       instanceTypeId: undefined,
       isInstanceTypeLoading: false,
       fieldLabels: {
-        sshKey: 'SSH public key',
+        sshPublicKey: 'SSH public key',
         image: 'VM image',
         bootDisk: 'Boot disk',
         userData: 'User Data',

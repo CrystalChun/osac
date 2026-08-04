@@ -33,6 +33,8 @@ export const file_osac_public_v1_compute_instance_catalog_item_type: GenFile = /
  * A compute instance catalog item defines a curated infrastructure offering that references an underlying compute
  * instance template.
  *
+ * buf:lint:ignore OSAC_OBJECT_SHAPE
+ *
  * @generated from message osac.public.v1.ComputeInstanceCatalogItem
  */
 export type ComputeInstanceCatalogItem = Message<"osac.public.v1.ComputeInstanceCatalogItem"> & {
