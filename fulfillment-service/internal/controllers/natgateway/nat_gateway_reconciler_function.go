@@ -13,6 +13,8 @@ language governing permissions and limitations under the License.
 
 package natgateway
 
+//go:generate mockgen -source=../../api/osac/private/v1/nat_gateways_service_grpc.pb.go -destination=nat_gateways_client_mock.go -package=natgateway NATGatewaysClient
+
 import (
 	"context"
 	"errors"

@@ -13,6 +13,8 @@ language governing permissions and limitations under the License.
 
 package baremetalinstance
 
+//go:generate mockgen -source=../../api/osac/private/v1/baremetal_instances_service_grpc.pb.go -destination=bare_metal_instances_client_mock.go -package=baremetalinstance BareMetalInstancesClient
+
 import (
 	"context"
 	"encoding/json"

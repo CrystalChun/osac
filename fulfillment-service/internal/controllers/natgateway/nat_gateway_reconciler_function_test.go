@@ -35,6 +35,7 @@ import (
 	"github.com/osac-project/osac/fulfillment-service/internal/controllers"
 	"github.com/osac-project/osac/fulfillment-service/internal/controllers/finalizers"
 	"github.com/osac-project/osac/fulfillment-service/internal/kubernetes/labels"
+	"github.com/osac-project/osac/fulfillment-service/internal/masks"
 	osacv1alpha1 "github.com/osac-project/osac/osac-operator/api/v1alpha1"
 )
 
@@ -660,7 +661,16 @@ var _ = Describe("Kubernetes validation error handling", func() {
 		hubCache := controllers.NewMockHubCache(ctrl)
 		hubCache.EXPECT().
 			Get(gomock.Any(), "hub-1").
-			Return(&controllers.HubEntry{Namespace: "test-ns", Client: fakeClient}, nil)
+			Return(&controllers.HubEntry{Namespace: "test-ns", Client: fakeClient}, nil).
+			AnyTimes()
+
+		natGatewaysClient := NewMockNATGatewaysClient(ctrl)
+		natGatewaysClient.EXPECT().
+			Update(gomock.Any(), gomock.Any(), gomock.Any()).
+			DoAndReturn(func(ctx context.Context, req *privatev1.NATGatewaysUpdateRequest, opts ...grpc.CallOption) (*privatev1.NATGatewaysUpdateResponse, error) {
+				return &privatev1.NATGatewaysUpdateResponse{Object: req.GetObject()}, nil
+			}).
+			AnyTimes()
 
 		natGateway := privatev1.NATGateway_builder{
 			Id: "natgw-validation-test",
@@ -678,15 +688,14 @@ var _ = Describe("Kubernetes validation error handling", func() {
 			}.Build(),
 		}.Build()
 
-		t := &task{
-			r: &function{
-				logger:   logger,
-				hubCache: hubCache,
-			},
-			natGateway: natGateway,
+		f := &function{
+			logger:            logger,
+			hubCache:          hubCache,
+			natGatewaysClient: natGatewaysClient,
+			maskCalculator:    masks.NewCalculator().Build(),
 		}
 
-		err := t.update(ctx)
+		err := f.run(ctx, natGateway)
 		Expect(err).ToNot(HaveOccurred())
 
 		Expect(natGateway.GetStatus().GetState()).To(

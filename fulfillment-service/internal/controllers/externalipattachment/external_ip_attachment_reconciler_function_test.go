@@ -35,6 +35,7 @@ import (
 	"github.com/osac-project/osac/fulfillment-service/internal/controllers"
 	"github.com/osac-project/osac/fulfillment-service/internal/controllers/finalizers"
 	"github.com/osac-project/osac/fulfillment-service/internal/kubernetes/labels"
+	"github.com/osac-project/osac/fulfillment-service/internal/masks"
 	osacv1alpha1 "github.com/osac-project/osac/osac-operator/api/v1alpha1"
 )
 
@@ -779,7 +780,16 @@ var _ = Describe("Kubernetes validation error handling", func() {
 		hubCache := controllers.NewMockHubCache(ctrl)
 		hubCache.EXPECT().
 			Get(gomock.Any(), "hub-1").
-			Return(&controllers.HubEntry{Namespace: "test-ns", Client: fakeClient}, nil)
+			Return(&controllers.HubEntry{Namespace: "test-ns", Client: fakeClient}, nil).
+			AnyTimes()
+
+		externalIPAttachmentsClient := NewMockExternalIPAttachmentsClient(ctrl)
+		externalIPAttachmentsClient.EXPECT().
+			Update(gomock.Any(), gomock.Any(), gomock.Any()).
+			DoAndReturn(func(ctx context.Context, req *privatev1.ExternalIPAttachmentsUpdateRequest, opts ...grpc.CallOption) (*privatev1.ExternalIPAttachmentsUpdateResponse, error) {
+				return &privatev1.ExternalIPAttachmentsUpdateResponse{Object: req.GetObject()}, nil
+			}).
+			AnyTimes()
 
 		attachment := privatev1.ExternalIPAttachment_builder{
 			Id: "eia-validation-test",
@@ -796,15 +806,14 @@ var _ = Describe("Kubernetes validation error handling", func() {
 			}.Build(),
 		}.Build()
 
-		t := &task{
-			r: &function{
-				logger:   logger,
-				hubCache: hubCache,
-			},
-			externalIPAttachment: attachment,
+		f := &function{
+			logger:                      logger,
+			hubCache:                    hubCache,
+			externalIPAttachmentsClient: externalIPAttachmentsClient,
+			maskCalculator:              masks.NewCalculator().Build(),
 		}
 
-		err := t.update(ctx)
+		err := f.run(ctx, attachment)
 		Expect(err).ToNot(HaveOccurred())
 
 		Expect(attachment.GetStatus().GetState()).To(

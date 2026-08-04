@@ -20,6 +20,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"go.uber.org/mock/gomock"
+	"google.golang.org/grpc"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -31,6 +32,7 @@ import (
 	privatev1 "github.com/osac-project/osac/fulfillment-service/internal/api/osac/private/v1"
 	"github.com/osac-project/osac/fulfillment-service/internal/controllers"
 	"github.com/osac-project/osac/fulfillment-service/internal/controllers/finalizers"
+	"github.com/osac-project/osac/fulfillment-service/internal/masks"
 	osacv1alpha1 "github.com/osac-project/osac/osac-operator/api/v1alpha1"
 )
 
@@ -443,7 +445,16 @@ var _ = Describe("Kubernetes validation error handling", func() {
 		hubCache := controllers.NewMockHubCache(ctrl)
 		hubCache.EXPECT().
 			Get(gomock.Any(), "hub-1").
-			Return(&controllers.HubEntry{Namespace: "test-ns", Client: fakeClient}, nil)
+			Return(&controllers.HubEntry{Namespace: "test-ns", Client: fakeClient}, nil).
+			AnyTimes()
+
+		securityGroupsClient := NewMockSecurityGroupsClient(ctrl)
+		securityGroupsClient.EXPECT().
+			Update(gomock.Any(), gomock.Any(), gomock.Any()).
+			DoAndReturn(func(ctx context.Context, req *privatev1.SecurityGroupsUpdateRequest, opts ...grpc.CallOption) (*privatev1.SecurityGroupsUpdateResponse, error) {
+				return &privatev1.SecurityGroupsUpdateResponse{Object: req.GetObject()}, nil
+			}).
+			AnyTimes()
 
 		sg := privatev1.SecurityGroup_builder{
 			Id: "sg-validation-test",
@@ -459,16 +470,15 @@ var _ = Describe("Kubernetes validation error handling", func() {
 			}.Build(),
 		}.Build()
 
-		t := &task{
-			r: &function{
-				logger:                logger,
-				hubCache:              hubCache,
-				virtualNetworksClient: vnClient,
-			},
-			securityGroup: sg,
+		f := &function{
+			logger:                logger,
+			hubCache:              hubCache,
+			securityGroupsClient:  securityGroupsClient,
+			virtualNetworksClient: vnClient,
+			maskCalculator:        masks.NewCalculator().Build(),
 		}
 
-		err := t.update(ctx)
+		err := f.run(ctx, sg)
 		Expect(err).ToNot(HaveOccurred())
 
 		Expect(sg.GetStatus().GetState()).To(

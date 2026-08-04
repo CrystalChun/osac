@@ -13,6 +13,8 @@ language governing permissions and limitations under the License.
 
 package securitygroup
 
+//go:generate mockgen -source=../../api/osac/private/v1/security_groups_service_grpc.pb.go -destination=security_groups_client_mock.go -package=securitygroup SecurityGroupsClient
+
 import (
 	"context"
 	"errors"

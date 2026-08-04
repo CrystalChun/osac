@@ -13,6 +13,8 @@ language governing permissions and limitations under the License.
 
 package externalipattachment
 
+//go:generate mockgen -source=../../api/osac/private/v1/external_ip_attachments_service_grpc.pb.go -destination=external_ip_attachments_client_mock.go -package=externalipattachment ExternalIPAttachmentsClient
+
 import (
 	"context"
 	"errors"
