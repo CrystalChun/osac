@@ -61,9 +61,10 @@ import sys,json
 items=json.load(sys.stdin).get('items',[])
 m=next((i for i in items if i.get('metadata',{}).get('name')=='local'),None)
 if not m:
-    print('ERROR: StorageBackend local not found after 409', file=sys.stderr); sys.exit(1)
-if m.get('spec',{}).get('provider') != 'lvms':
-    print(f'ERROR: existing local backend has provider {m[\"spec\"].get(\"provider\")!r}, expected lvms', file=sys.stderr); sys.exit(1)
+    sys.stderr.write('ERROR: StorageBackend local not found after 409\n'); sys.exit(1)
+provider=m.get('spec',{}).get('provider','')
+if provider != 'lvms':
+    sys.stderr.write('ERROR: existing local backend has provider ' + provider + ', expected lvms\n'); sys.exit(1)
 print(m['id'])
 ")
                 echo "StorageBackend 'local' already registered with provider=lvms (id: ${BACKEND_ID})."
@@ -100,11 +101,11 @@ import sys,json
 items=json.load(sys.stdin).get('items',[])
 m=next((t for t in items if t.get('metadata',{}).get('name')=='local'),None)
 if not m:
-    print('ERROR: StorageTier local not found after 409', file=sys.stderr); sys.exit(1)
+    sys.stderr.write('ERROR: StorageTier local not found after 409\n'); sys.exit(1)
 backends=m.get('spec',{}).get('backends',[])
 match=next((b for b in backends if b.get('backend_id')=='${BACKEND_ID}' and b.get('protocol')==2),None)
 if not match:
-    print(f'ERROR: existing local tier does not reference backend ${BACKEND_ID} with protocol=2; got: {backends}', file=sys.stderr); sys.exit(1)
+    sys.stderr.write('ERROR: existing local tier does not reference backend ${BACKEND_ID} with protocol=2\n'); sys.exit(1)
 print('StorageTier local correctly references backend ${BACKEND_ID} with protocol=2.')
 "
                 ;;
