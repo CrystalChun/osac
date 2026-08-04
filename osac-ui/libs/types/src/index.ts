@@ -56,3 +56,6 @@ export * from './osac/public/v1/baremetal_instance_type_pb.js';
 export * from './osac/public/v1/baremetal_instances_service_pb.js';
 export * from './osac/public/v1/baremetal_instance_catalog_item_type_pb.js';
 export * from './osac/public/v1/baremetal_instance_catalog_items_service_pb.js';
+
+export * from './osac/public/v1/identity_provider_type_pb.js';
+export * from './osac/public/v1/identity_providers_service_pb.js';

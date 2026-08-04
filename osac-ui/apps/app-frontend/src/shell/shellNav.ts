@@ -12,6 +12,15 @@ type NavSection = {
   children: NavLink[];
 };
 
+const getIdpManagerNav = (t: TFunction): NavSection[] => [
+  {
+    kind: 'section',
+    sectionId: 'nav-tenant-administration',
+    label: t('Tenant'),
+    children: [{ id: 'idp', label: t('Identity providers'), path: '/tenant/identity-provider' }],
+  },
+];
+
 const getAdminNav = (t: TFunction): NavSection[] => [
   {
     kind: 'section',
@@ -56,6 +65,10 @@ const getBaseNav = (t: TFunction): NavSection[] => [
 export const navRowsForRole = (role: UserRole, t: TFunction): NavSection[] => {
   if (role === 'admin') {
     return getAdminNav(t);
+  }
+
+  if (role === 'tenant-idp-manager') {
+    return getIdpManagerNav(t);
   }
 
   return getBaseNav(t);
