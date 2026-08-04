@@ -52,12 +52,21 @@ spec:
                 echo "StorageBackend 'local' created (id: ${BACKEND_ID})."
                 ;;
               409)
-                echo "StorageBackend 'local' already exists, fetching ID..."
-                BACKEND_ID=$(curl -skS --connect-timeout 5 --max-time 30 \
+                echo "StorageBackend 'local' already exists, verifying spec..."
+                EXISTING=$(curl -skS --connect-timeout 5 --max-time 30 \
                   "${API}/storage_backends" \
-                  -H "Authorization: Bearer ${AUTH_TOKEN}" | \
-                  python3 -c "import sys,json; items=json.load(sys.stdin).get('items',[]); m=next((i for i in items if i.get('metadata',{}).get('name')=='local'),None); sys.exit('local backend not found') if not m else print(m['id'])")
-                echo "StorageBackend 'local' already registered (id: ${BACKEND_ID})."
+                  -H "Authorization: Bearer ${AUTH_TOKEN}")
+                BACKEND_ID=$(echo "${EXISTING}" | python3 -c "
+import sys,json
+items=json.load(sys.stdin).get('items',[])
+m=next((i for i in items if i.get('metadata',{}).get('name')=='local'),None)
+if not m:
+    print('ERROR: StorageBackend local not found after 409', file=sys.stderr); sys.exit(1)
+if m.get('spec',{}).get('provider') != 'lvms':
+    print(f'ERROR: existing local backend has provider {m[\"spec\"].get(\"provider\")!r}, expected lvms', file=sys.stderr); sys.exit(1)
+print(m['id'])
+")
+                echo "StorageBackend 'local' already registered with provider=lvms (id: ${BACKEND_ID})."
                 ;;
               *)
                 echo "ERROR: Failed to create StorageBackend 'local' (HTTP ${BACKEND_CODE}):" >&2
@@ -82,7 +91,23 @@ spec:
 
             case "${TIER_CODE}" in
               2??) echo "StorageTier 'local' created." ;;
-              409) echo "StorageTier 'local' already exists, skipping." ;;
+              409)
+                echo "StorageTier 'local' already exists, verifying backend reference..."
+                EXISTING_TIER=$(curl -skS --connect-timeout 5 --max-time 30 \
+                  "${API}/storage_tiers" -H "Authorization: Bearer ${AUTH_TOKEN}")
+                echo "${EXISTING_TIER}" | python3 -c "
+import sys,json
+items=json.load(sys.stdin).get('items',[])
+m=next((t for t in items if t.get('metadata',{}).get('name')=='local'),None)
+if not m:
+    print('ERROR: StorageTier local not found after 409', file=sys.stderr); sys.exit(1)
+backends=[b.get('backend_id') for b in m.get('spec',{}).get('backends',[])]
+if '${BACKEND_ID}' not in backends:
+    print(f'WARNING: existing local tier references backends {backends}, not ${BACKEND_ID}')
+else:
+    print('StorageTier local correctly references backend ${BACKEND_ID}.')
+" || true
+                ;;
               *)
                 echo "ERROR: Failed to create StorageTier 'local' (HTTP ${TIER_CODE}):" >&2
                 cat "${TIER_RESP}" >&2
