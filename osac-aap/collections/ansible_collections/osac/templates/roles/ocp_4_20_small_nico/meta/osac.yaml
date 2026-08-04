@@ -20,7 +20,7 @@ default_node_request:
 allowed_resource_classes: []
 
 spec_defaults:
-  release_image: "quay.io/openshift-release-dev/ocp-release:4.20.0-multi"
+  version_name: "4.20.0"
 
 parameters:
   - name: pull_secret
