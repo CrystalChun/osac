@@ -58,7 +58,6 @@ func NewDAOLookupFunc[O dao.Object](d *dao.GenericDAO[O]) ReferenceLookupFunc {
 		response, err := d.List().
 			SetFilter(filter).
 			SetLimit(1).
-			SetLockShare(true).
 			Do(ctx)
 		if err != nil {
 			return nil, fmt.Errorf("lookup failed: %w", err)
