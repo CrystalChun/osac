@@ -132,6 +132,71 @@ var _ = Describe("buildSpec", func() {
 		Expect(spec.ComputeInstance).To(BeNil())
 	})
 
+	It("Includes cluster and targetEndpoint in spec", func() {
+		cl := "cluster-uuid-abc123"
+		t := &task{
+			externalIPAttachment: privatev1.ExternalIPAttachment_builder{
+				Id: "eia-uuid-test-cluster",
+				Spec: privatev1.ExternalIPAttachmentSpec_builder{
+					ExternalIp:     "eip-uuid-cluster",
+					Cluster:        &cl,
+					TargetEndpoint: privatev1.ExternalIPAttachmentEndpoint_EXTERNAL_IP_ATTACHMENT_ENDPOINT_API,
+				}.Build(),
+			}.Build(),
+		}
+
+		spec := t.buildSpec()
+
+		Expect(spec.ExternalIP).To(Equal("eip-uuid-cluster"))
+		Expect(spec.Cluster).ToNot(BeNil())
+		Expect(*spec.Cluster).To(Equal("cluster-uuid-abc123"))
+		Expect(spec.TargetEndpoint).ToNot(BeNil())
+		Expect(*spec.TargetEndpoint).To(Equal(osacv1alpha1.ExternalIPAttachmentTargetEndpointAPI))
+		Expect(spec.ComputeInstance).To(BeNil())
+		Expect(spec.BaremetalInstance).To(BeNil())
+	})
+
+	It("Includes cluster with ingress endpoint in spec", func() {
+		cl := "cluster-uuid-ingress"
+		t := &task{
+			externalIPAttachment: privatev1.ExternalIPAttachment_builder{
+				Id: "eia-uuid-test-ingress",
+				Spec: privatev1.ExternalIPAttachmentSpec_builder{
+					ExternalIp:     "eip-uuid-ingress",
+					Cluster:        &cl,
+					TargetEndpoint: privatev1.ExternalIPAttachmentEndpoint_EXTERNAL_IP_ATTACHMENT_ENDPOINT_INGRESS,
+				}.Build(),
+			}.Build(),
+		}
+
+		spec := t.buildSpec()
+
+		Expect(spec.TargetEndpoint).ToNot(BeNil())
+		Expect(*spec.TargetEndpoint).To(Equal(osacv1alpha1.ExternalIPAttachmentTargetEndpointIngress))
+	})
+
+	It("Includes baremetalInstance in spec", func() {
+		bmi := "bmi-uuid-abc123"
+		t := &task{
+			externalIPAttachment: privatev1.ExternalIPAttachment_builder{
+				Id: "eia-uuid-test-bmi",
+				Spec: privatev1.ExternalIPAttachmentSpec_builder{
+					ExternalIp:        "eip-uuid-bmi",
+					BaremetalInstance: &bmi,
+				}.Build(),
+			}.Build(),
+		}
+
+		spec := t.buildSpec()
+
+		Expect(spec.ExternalIP).To(Equal("eip-uuid-bmi"))
+		Expect(spec.BaremetalInstance).ToNot(BeNil())
+		Expect(*spec.BaremetalInstance).To(Equal("bmi-uuid-abc123"))
+		Expect(spec.ComputeInstance).To(BeNil())
+		Expect(spec.Cluster).To(BeNil())
+		Expect(spec.TargetEndpoint).To(BeNil())
+	})
+
 	It("Does not include status fields", func() {
 		ci := "ci-uuid-xyz"
 		t := &task{
