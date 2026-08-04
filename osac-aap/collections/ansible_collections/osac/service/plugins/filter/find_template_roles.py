@@ -188,10 +188,16 @@ class NodeRequest(Base):
                                           validation_alias="numberOfNodes")
 
 
+class HostTypeReference(Base):
+    """Typed reference to a HostType resource (matches the proto HostTypeReference message)."""
+
+    name: str
+
+
 class NodeSet(Base):
     """NodeSet represents the template's default bare metal resources"""
 
-    host_type: str
+    host_type: HostTypeReference
     size: int
 
 
@@ -384,7 +390,8 @@ class ClusterTemplate(BaseTemplate):
     def node_sets(self) -> dict[str, NodeSet] | None:
         ret = {
             nr.resource_class: NodeSet(
-                host_type=nr.resource_class, size=nr.number_of_nodes
+                host_type=HostTypeReference(name=nr.resource_class),
+                size=nr.number_of_nodes,
             )
             for nr in self.default_node_request
         }
