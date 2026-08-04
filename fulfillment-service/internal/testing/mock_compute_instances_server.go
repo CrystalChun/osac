@@ -19,7 +19,7 @@ import (
 	"strings"
 	"sync"
 
-	publicv1 "github.com/osac-project/fulfillment-service/internal/api/osac/public/v1"
+	publicv1 "github.com/osac-project/osac/fulfillment-service/internal/api/osac/public/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

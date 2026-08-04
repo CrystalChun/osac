@@ -27,7 +27,7 @@ import (
 	"github.com/spf13/pflag"
 	"golang.org/x/term"
 
-	"github.com/osac-project/fulfillment-service/internal/templating"
+	"github.com/osac-project/osac/fulfillment-service/internal/templating"
 )
 
 //go:embed templates

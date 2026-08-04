@@ -27,7 +27,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	v1alpha1 "github.com/osac-project/osac-operator/api/v1alpha1"
+	v1alpha1 "github.com/osac-project/osac/osac-operator/api/v1alpha1"
 )
 
 // mockProvider implements ProvisioningProvider for unit tests in the provisioning package.

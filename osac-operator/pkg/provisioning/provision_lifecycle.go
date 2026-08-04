@@ -29,7 +29,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	ctrllog "sigs.k8s.io/controller-runtime/pkg/log"
 
-	v1alpha1 "github.com/osac-project/osac-operator/api/v1alpha1"
+	v1alpha1 "github.com/osac-project/osac/osac-operator/api/v1alpha1"
 )
 
 // State points into the resource's status fields used by the provisioning lifecycle.

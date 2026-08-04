@@ -11,8 +11,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	ctrllog "sigs.k8s.io/controller-runtime/pkg/log"
 
-	"github.com/osac-project/osac-operator/api/v1alpha1"
-	"github.com/osac-project/osac-operator/pkg/aap"
+	"github.com/osac-project/osac/osac-operator/api/v1alpha1"
+	"github.com/osac-project/osac/osac-operator/pkg/aap"
 )
 
 // AAPClient is the interface for AAP operations used by the provider.
