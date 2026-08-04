@@ -25,7 +25,7 @@ managed:
 
 inputs:
 
-- module: buf.build/osac-project/private-api:v0.0.79
+- directory: ../fulfillment-service/proto/private
 
 plugins:
 
