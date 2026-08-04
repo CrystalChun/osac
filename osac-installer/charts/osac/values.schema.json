@@ -1014,6 +1014,25 @@
         }
       }
     },
+    "metering": {
+      "type": "object",
+      "description": "OSAC Metering Service configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Deploy the OSAC Metering Service (opt-in)",
+          "default": false
+        },
+        "image": {
+          "type": "object",
+          "properties": {
+            "repository": { "type": "string" },
+            "tag": { "type": "string" },
+            "pullPolicy": { "type": "string", "enum": ["Always", "IfNotPresent", "Never"] }
+          }
+        }
+      }
+    },
     "csiDriver": {
       "type": "object",
       "description": "OSAC CSI driver configuration",

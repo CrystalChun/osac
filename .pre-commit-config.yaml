@@ -61,3 +61,9 @@ repos:
     language: system
     files: ^osac-csi-driver/.*\.go$
     entry: make -C osac-csi-driver lint-fix
+  - id: osac-metering-golangci-lint
+    pass_filenames: false
+    name: osac-metering golangci-lint
+    language: system
+    files: ^osac-metering/metering-service/.*\.go$
+    entry: make -C osac-metering/metering-service lint

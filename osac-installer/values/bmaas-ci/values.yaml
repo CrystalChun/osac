@@ -68,6 +68,7 @@ service:
     - osac-operator
     - osac-operator-controller-manager
     - template-publisher
+    - osac-metering
     controllerCredentials:
     - secret:
         name: fulfillment-controller-credentials

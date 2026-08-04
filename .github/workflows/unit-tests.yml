@@ -68,3 +68,19 @@ jobs:
     - working-directory: fulfillment-service
       run: |
         ginkgo run --timeout 1h -r internal
+
+  run-osac-metering-tests:
+    name: Run unit tests (osac-metering)
+    needs: changes
+    if: needs.changes.outputs.should-run == 'true'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      with:
+        persist-credentials: false
+    - uses: ./.github/actions/setup-go
+      with:
+        working-directory: osac-metering/metering-service
+    - working-directory: osac-metering/metering-service
+      run: |
+        ginkgo run -r internal
