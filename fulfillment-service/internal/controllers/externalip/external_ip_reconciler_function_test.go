@@ -978,7 +978,7 @@ var _ = Describe("Kubernetes validation error handling", func() {
 			DoAndReturn(func(ctx context.Context, req *privatev1.ExternalIPsUpdateRequest, opts ...grpc.CallOption) (*privatev1.ExternalIPsUpdateResponse, error) {
 				return &privatev1.ExternalIPsUpdateResponse{Object: req.GetObject()}, nil
 			}).
-			AnyTimes()
+			MinTimes(1)
 
 		externalIP := privatev1.ExternalIP_builder{
 			Id: "eip-validation-test",

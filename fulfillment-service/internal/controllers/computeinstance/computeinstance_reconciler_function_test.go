@@ -2082,7 +2082,7 @@ var _ = Describe("Kubernetes validation error handling", func() {
 			DoAndReturn(func(ctx context.Context, req *privatev1.ComputeInstancesUpdateRequest, opts ...grpc.CallOption) (*privatev1.ComputeInstancesUpdateResponse, error) {
 				return &privatev1.ComputeInstancesUpdateResponse{Object: req.GetObject()}, nil
 			}).
-			AnyTimes()
+			MinTimes(1)
 	})
 
 	newComputeInstance := func() *privatev1.ComputeInstance {

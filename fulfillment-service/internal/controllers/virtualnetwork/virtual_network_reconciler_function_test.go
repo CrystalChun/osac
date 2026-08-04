@@ -867,7 +867,7 @@ var _ = Describe("Kubernetes validation error handling", func() {
 			DoAndReturn(func(ctx context.Context, req *privatev1.VirtualNetworksUpdateRequest, opts ...grpc.CallOption) (*privatev1.VirtualNetworksUpdateResponse, error) {
 				return &privatev1.VirtualNetworksUpdateResponse{Object: req.GetObject()}, nil
 			}).
-			AnyTimes()
+			MinTimes(1)
 
 		vn := privatev1.VirtualNetwork_builder{
 			Id: "vn-validation-test",

@@ -670,7 +670,7 @@ var _ = Describe("Kubernetes validation error handling", func() {
 			DoAndReturn(func(ctx context.Context, req *privatev1.NATGatewaysUpdateRequest, opts ...grpc.CallOption) (*privatev1.NATGatewaysUpdateResponse, error) {
 				return &privatev1.NATGatewaysUpdateResponse{Object: req.GetObject()}, nil
 			}).
-			AnyTimes()
+			MinTimes(1)
 
 		natGateway := privatev1.NATGateway_builder{
 			Id: "natgw-validation-test",

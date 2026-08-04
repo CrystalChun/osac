@@ -454,7 +454,7 @@ var _ = Describe("Kubernetes validation error handling", func() {
 			DoAndReturn(func(ctx context.Context, req *privatev1.SecurityGroupsUpdateRequest, opts ...grpc.CallOption) (*privatev1.SecurityGroupsUpdateResponse, error) {
 				return &privatev1.SecurityGroupsUpdateResponse{Object: req.GetObject()}, nil
 			}).
-			AnyTimes()
+			MinTimes(1)
 
 		sg := privatev1.SecurityGroup_builder{
 			Id: "sg-validation-test",

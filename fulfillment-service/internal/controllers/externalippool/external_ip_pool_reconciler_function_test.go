@@ -1221,7 +1221,7 @@ var _ = Describe("Kubernetes validation error handling", func() {
 			DoAndReturn(func(ctx context.Context, req *privatev1.ExternalIPPoolsUpdateRequest, opts ...grpc.CallOption) (*privatev1.ExternalIPPoolsUpdateResponse, error) {
 				return &privatev1.ExternalIPPoolsUpdateResponse{Object: req.GetObject()}, nil
 			}).
-			AnyTimes()
+			MinTimes(1)
 
 		pool := privatev1.ExternalIPPool_builder{
 			Id: "pool-validation-test",

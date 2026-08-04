@@ -789,7 +789,7 @@ var _ = Describe("Kubernetes validation error handling", func() {
 			DoAndReturn(func(ctx context.Context, req *privatev1.ExternalIPAttachmentsUpdateRequest, opts ...grpc.CallOption) (*privatev1.ExternalIPAttachmentsUpdateResponse, error) {
 				return &privatev1.ExternalIPAttachmentsUpdateResponse{Object: req.GetObject()}, nil
 			}).
-			AnyTimes()
+			MinTimes(1)
 
 		attachment := privatev1.ExternalIPAttachment_builder{
 			Id: "eia-validation-test",
