@@ -2,6 +2,7 @@ import type { TFunction } from 'i18next';
 import * as yup from 'yup';
 
 import { BareMetalInstanceCatalogItem } from '@osac/types';
+import { resourceNameSchema } from '@osac/ui-components/validation/resource-name';
 import { userDataSchema } from '@osac/ui-components/validation/user-data';
 
 import { BM_SSH_KEY_WIRE_PATH, BM_USER_DATA_WIRE_PATH } from './fields';
@@ -12,7 +13,6 @@ import {
   readCatalogFieldDefinitions,
 } from '../../catalogOverlay';
 import { isValidSshPublicKey } from '../../fields/credentialValidation';
-import { buildMetadataNameSchema } from '../../metadataNameSchema';
 import type { WizardStepId } from '../../stepIds';
 
 const buildBareMetalInstanceFieldDefinitions = (
@@ -37,7 +37,7 @@ const buildBareMetalInstanceFieldDefinitions = (
 
   return {
     catalogItemId: yup.string().required(t('catalogProvision.validation.catalogItemRequired')),
-    metadataName: buildMetadataNameSchema(t),
+    metadataName: resourceNameSchema(t),
     specSshKey: mergeCatalogValidation(
       yup
         .string()

@@ -1,6 +1,7 @@
 import type { TFunction } from 'i18next';
 import * as yup from 'yup';
 
+import { resourceNameSchema } from '@osac/ui-components/validation/resource-name';
 import { userDataSchema } from '@osac/ui-components/validation/user-data';
 
 import {
@@ -14,7 +15,6 @@ import {
   readCatalogFieldDefinitions,
 } from '../../catalogOverlay';
 import { isValidSshPublicKey } from '../../fields/credentialValidation';
-import { buildMetadataNameSchema } from '../../metadataNameSchema';
 import type { WizardStepId } from '../../stepIds';
 
 const buildComputeInstanceFieldDefinitions = (catalogItem: unknown, t: TFunction) => {
@@ -41,7 +41,7 @@ const buildComputeInstanceFieldDefinitions = (catalogItem: unknown, t: TFunction
 
   return {
     catalogItemId: yup.string().required(t('catalogProvision.validation.catalogItemRequired')),
-    metadataName: buildMetadataNameSchema(t),
+    metadataName: resourceNameSchema(t),
     specSshKey: mergeCatalogValidation(
       yup
         .string()

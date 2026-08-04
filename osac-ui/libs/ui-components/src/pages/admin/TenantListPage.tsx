@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Button,
   SearchInput,
@@ -14,12 +15,14 @@ import ListPage from '@osac/ui-components/components/Page/ListPage';
 import ListPageBody from '@osac/ui-components/components/Page/ListPageBody';
 import { Timestamp } from '@osac/ui-components/components/Primitives/Timestamp';
 import { SubtleContent } from '@osac/ui-components/components/SubtleContent/SubtleContent';
+import TenantActionsMenu from '@osac/ui-components/components/Tenant/TenantActionsMenu';
 import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
 
 import TenantStatusLabel from '../../components/Tenant/TenantStatusLabel';
 
 export const TenantListPage = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [search, setSearch] = useState('');
 
   const { data: tenants = [], isLoading, error } = useTenants();
@@ -40,6 +43,11 @@ export const TenantListPage = () => {
       title={t('Tenants')}
       description={t('Manage tenants for this cloud platform.')}
       error={error}
+      actions={
+        <Button variant="primary" onClick={() => navigate('/admin/tenants/create')}>
+          {t('Create tenant')}
+        </Button>
+      }
     >
       <ListPageBody isLoading={isLoading} error={error}>
         <Toolbar>
@@ -71,6 +79,7 @@ export const TenantListPage = () => {
                 <Th>{t('Status')}</Th>
                 <Th>{t('Primary domain')}</Th>
                 <Th>{t('Registered')}</Th>
+                <Th aria-label={t('Actions')} />
               </Tr>
             </Thead>
             <Tbody>
@@ -87,6 +96,9 @@ export const TenantListPage = () => {
                   <Td dataLabel={t('Primary domain')}>{tenant.spec?.domains?.[0] ?? '—'}</Td>
                   <Td dataLabel={t('Registered')}>
                     <Timestamp value={tenant.metadata?.creationTimestamp} />
+                  </Td>
+                  <Td dataLabel={t('Actions')} isActionCell>
+                    <TenantActionsMenu tenant={tenant} />
                   </Td>
                 </Tr>
               ))}
