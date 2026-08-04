@@ -3,10 +3,8 @@ image:
   tag: latest
   pullPolicy: Always
 
-# Assumes co-located deployment. Cross-namespace/cross-cluster support
-# tracked in OSAC-3537.
-fulfillment:
-  address: "fulfillment-internal-api.osac.svc.cluster.local:8001"
+# Fulfillment address is auto-derived from release namespace.
+# Override fulfillment.address for cross-namespace/cross-cluster (OSAC-3537).
 
 certs:
   caBundle:

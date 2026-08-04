@@ -88,7 +88,7 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: FULFILLMENT_SERVER_ADDRESS
-              value: {{ .Values.fulfillment.address | quote }}
+              value: {{ ((.Values.fulfillment).address) | default (printf "fulfillment-internal-api.%s.svc.cluster.local:8001" .Release.Namespace) | quote }}
             - name: TLS_CA_CERT
               value: /etc/ca-bundle/bundle.pem
             - name: KAFKA_BROKERS
