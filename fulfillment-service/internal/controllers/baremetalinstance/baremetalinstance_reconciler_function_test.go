@@ -574,11 +574,14 @@ var _ = Describe("mutateBMI", func() {
 			bareMetalInstance: privatev1.BareMetalInstance_builder{
 				Id: "bmi-test",
 				Spec: privatev1.BareMetalInstanceSpec_builder{
-					CatalogItem: "catalog-1",
+					CatalogItem: privatev1.BareMetalInstanceCatalogItemReference_builder{Id: "catalog-1"}.Build(),
 					NetworkAttachments: []*privatev1.BareMetalNetworkAttachment{
 						privatev1.BareMetalNetworkAttachment_builder{
-							Subnet:         "subnet-1",
-							SecurityGroups: []string{"sg-1", "sg-2"},
+							Subnet:         privatev1.SubnetLocalReference_builder{Id: "subnet-1"}.Build(),
+							SecurityGroups: []*privatev1.SecurityGroupLocalReference{
+								privatev1.SecurityGroupLocalReference_builder{Id: "sg-1"}.Build(),
+								privatev1.SecurityGroupLocalReference_builder{Id: "sg-2"}.Build(),
+							},
 							Interface:      new("data-0"),
 							Primary:        new(true),
 						}.Build(),
@@ -608,16 +611,18 @@ var _ = Describe("mutateBMI", func() {
 			bareMetalInstance: privatev1.BareMetalInstance_builder{
 				Id: "bmi-test",
 				Spec: privatev1.BareMetalInstanceSpec_builder{
-					CatalogItem: "catalog-1",
+					CatalogItem: privatev1.BareMetalInstanceCatalogItemReference_builder{Id: "catalog-1"}.Build(),
 					NetworkAttachments: []*privatev1.BareMetalNetworkAttachment{
 						privatev1.BareMetalNetworkAttachment_builder{
-							Subnet:    "subnet-data",
+							Subnet:    privatev1.SubnetLocalReference_builder{Id: "subnet-data"}.Build(),
 							Interface: new("data-0"),
 							Primary:   new(true),
 						}.Build(),
 						privatev1.BareMetalNetworkAttachment_builder{
-							Subnet:         "subnet-storage",
-							SecurityGroups: []string{"sg-storage"},
+							Subnet:         privatev1.SubnetLocalReference_builder{Id: "subnet-storage"}.Build(),
+							SecurityGroups: []*privatev1.SecurityGroupLocalReference{
+								privatev1.SecurityGroupLocalReference_builder{Id: "sg-storage"}.Build(),
+							},
 							Interface:      new("data-1"),
 						}.Build(),
 					},
@@ -649,7 +654,7 @@ var _ = Describe("mutateBMI", func() {
 			bareMetalInstance: privatev1.BareMetalInstance_builder{
 				Id: "bmi-test",
 				Spec: privatev1.BareMetalInstanceSpec_builder{
-					CatalogItem: "catalog-1",
+					CatalogItem: privatev1.BareMetalInstanceCatalogItemReference_builder{Id: "catalog-1"}.Build(),
 				}.Build(),
 			}.Build(),
 		}
@@ -671,10 +676,10 @@ var _ = Describe("mutateBMI", func() {
 			bareMetalInstance: privatev1.BareMetalInstance_builder{
 				Id: "bmi-test",
 				Spec: privatev1.BareMetalInstanceSpec_builder{
-					CatalogItem: "catalog-1",
+					CatalogItem: privatev1.BareMetalInstanceCatalogItemReference_builder{Id: "catalog-1"}.Build(),
 					NetworkAttachments: []*privatev1.BareMetalNetworkAttachment{
 						privatev1.BareMetalNetworkAttachment_builder{
-							Subnet: "subnet-1",
+							Subnet: privatev1.SubnetLocalReference_builder{Id: "subnet-1"}.Build(),
 						}.Build(),
 					},
 				}.Build(),
