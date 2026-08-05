@@ -47,7 +47,7 @@ AAP job templates: `osac-{action}-{resource}`
 3. Dynamically includes the appropriate role from `osac.templates`
 4. Role performs actual provisioning (creates K8s resources, updates CR)
 
-### Show EDA Event and Sensitive `payload.spec` Fields
+### Show Resource Metadata and Sensitive `payload.spec` Fields
 
 The bare `debug: var: osac_job_vars.resource` shown above is safe as long as
 nothing in `payload.spec` is a secret. Some CR specs are not — e.g.
@@ -59,7 +59,7 @@ whole object:
 
 ```yaml
   pre_tasks:
-    - name: Show EDA Event metadata
+    - name: Show resource metadata
       ansible.builtin.include_role:
         name: osac.service.common
         tasks_from: show_resource_metadata
