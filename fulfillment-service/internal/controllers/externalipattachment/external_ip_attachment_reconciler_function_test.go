@@ -177,7 +177,7 @@ var _ = Describe("buildSpec", func() {
 			externalIPAttachment: privatev1.ExternalIPAttachment_builder{
 				Id: "eia-uuid-test-bmi",
 				Spec: privatev1.ExternalIPAttachmentSpec_builder{
-					ExternalIp:       privatev1.ExternalIPLocalReference_builder{Id: "eip-uuid-bmi"}.Build(),
+					ExternalIp:        privatev1.ExternalIPLocalReference_builder{Id: "eip-uuid-bmi"}.Build(),
 					BaremetalInstance: privatev1.BareMetalInstanceLocalReference_builder{Id: "bmi-uuid-abc123"}.Build(),
 				}.Build(),
 			}.Build(),
