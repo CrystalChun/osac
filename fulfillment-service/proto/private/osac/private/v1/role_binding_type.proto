@@ -16,7 +16,7 @@ syntax = "proto3";
 package osac.private.v1;
 
 import "osac/private/v1/metadata_type.proto";
-import "osac/private/v1/project_membership_type.proto";
+import "osac/private/v1/user_type.proto";
 
 // Represents a binding between a role and a set of users.
 //
