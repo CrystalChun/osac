@@ -984,7 +984,8 @@ type tenantSpecificStorageClasses struct {
 
 // resolveTenantSpecificStorageClasses lists only StorageClasses labeled with the
 // given tenant name, ignoring shared defaults (labeled tenant=Default). Used when
-// AAP is configured and the controller should not fall back to shared defaults.
+// resolveTenantSpecificStorageClasses lists only StorageClasses labeled with the
+// given tenant name. Used when AAP is configured. 
 func (r *StorageReconciler) resolveTenantSpecificStorageClasses(
 	ctx context.Context, targetClient client.Client, tenantName string,
 ) (tenantSpecificStorageClasses, error) {

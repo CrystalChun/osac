@@ -37,7 +37,9 @@ type tierResolutionResult struct {
 	duplicateMessages []string
 	// ambiguousTiers holds the name of every tier excluded from resolved because
 	// multiple StorageClasses matched it (tenant-specific or Default) — a distinct,
-	// separately-reported problem from a tier having no StorageClass at all.
+// ambiguousTiers holds the name of every tier excluded from resolved because
+// multiple StorageClasses matched it — a distinct, separately-reported problem
+// from a tier having no StorageClass at all.
 	ambiguousTiers []string
 }
 
