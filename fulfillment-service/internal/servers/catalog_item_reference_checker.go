@@ -20,7 +20,7 @@ import (
 	grpccodes "google.golang.org/grpc/codes"
 	grpcstatus "google.golang.org/grpc/status"
 
-	"github.com/osac-project/fulfillment-service/internal/database/dao"
+	"github.com/osac-project/osac/fulfillment-service/internal/database/dao"
 )
 
 // catalogItemReferenceChecker checks whether the caller has any resources that reference a catalog item.
