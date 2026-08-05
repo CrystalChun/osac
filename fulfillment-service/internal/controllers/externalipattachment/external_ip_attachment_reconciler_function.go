@@ -377,7 +377,7 @@ func (t *task) buildSpec() osacv1alpha1.ExternalIPAttachmentSpec {
 		spec.ComputeInstance = &ci
 	}
 	if t.externalIPAttachment.GetSpec().HasCluster() {
-		cl := t.externalIPAttachment.GetSpec().GetCluster()
+		cl := controllers.RefKeyStr(t.externalIPAttachment.GetSpec().GetCluster())
 		spec.Cluster = &cl
 		endpoint := mapTargetEndpoint(t.externalIPAttachment.GetSpec().GetTargetEndpoint())
 		if endpoint != "" {
@@ -386,7 +386,7 @@ func (t *task) buildSpec() osacv1alpha1.ExternalIPAttachmentSpec {
 		}
 	}
 	if t.externalIPAttachment.GetSpec().HasBaremetalInstance() {
-		bmi := t.externalIPAttachment.GetSpec().GetBaremetalInstance()
+		bmi := controllers.RefKeyStr(t.externalIPAttachment.GetSpec().GetBaremetalInstance())
 		spec.BaremetalInstance = &bmi
 	}
 	return spec

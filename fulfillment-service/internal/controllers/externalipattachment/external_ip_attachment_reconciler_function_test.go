@@ -132,13 +132,12 @@ var _ = Describe("buildSpec", func() {
 	})
 
 	It("Includes cluster and targetEndpoint in spec", func() {
-		cl := "cluster-uuid-abc123"
 		t := &task{
 			externalIPAttachment: privatev1.ExternalIPAttachment_builder{
 				Id: "eia-uuid-test-cluster",
 				Spec: privatev1.ExternalIPAttachmentSpec_builder{
-					ExternalIp:     "eip-uuid-cluster",
-					Cluster:        &cl,
+					ExternalIp:     privatev1.ExternalIPLocalReference_builder{Id: "eip-uuid-cluster"}.Build(),
+					Cluster:        privatev1.ClusterLocalReference_builder{Id: "cluster-uuid-abc123"}.Build(),
 					TargetEndpoint: privatev1.ExternalIPAttachmentEndpoint_EXTERNAL_IP_ATTACHMENT_ENDPOINT_API,
 				}.Build(),
 			}.Build(),
@@ -156,13 +155,12 @@ var _ = Describe("buildSpec", func() {
 	})
 
 	It("Includes cluster with ingress endpoint in spec", func() {
-		cl := "cluster-uuid-ingress"
 		t := &task{
 			externalIPAttachment: privatev1.ExternalIPAttachment_builder{
 				Id: "eia-uuid-test-ingress",
 				Spec: privatev1.ExternalIPAttachmentSpec_builder{
-					ExternalIp:     "eip-uuid-ingress",
-					Cluster:        &cl,
+					ExternalIp:     privatev1.ExternalIPLocalReference_builder{Id: "eip-uuid-ingress"}.Build(),
+					Cluster:        privatev1.ClusterLocalReference_builder{Id: "cluster-uuid-ingress"}.Build(),
 					TargetEndpoint: privatev1.ExternalIPAttachmentEndpoint_EXTERNAL_IP_ATTACHMENT_ENDPOINT_INGRESS,
 				}.Build(),
 			}.Build(),
@@ -175,13 +173,12 @@ var _ = Describe("buildSpec", func() {
 	})
 
 	It("Includes baremetalInstance in spec", func() {
-		bmi := "bmi-uuid-abc123"
 		t := &task{
 			externalIPAttachment: privatev1.ExternalIPAttachment_builder{
 				Id: "eia-uuid-test-bmi",
 				Spec: privatev1.ExternalIPAttachmentSpec_builder{
-					ExternalIp:        "eip-uuid-bmi",
-					BaremetalInstance: &bmi,
+					ExternalIp:       privatev1.ExternalIPLocalReference_builder{Id: "eip-uuid-bmi"}.Build(),
+					BaremetalInstance: privatev1.BareMetalInstanceLocalReference_builder{Id: "bmi-uuid-abc123"}.Build(),
 				}.Build(),
 			}.Build(),
 		}
