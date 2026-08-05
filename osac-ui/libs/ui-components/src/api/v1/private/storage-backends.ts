@@ -93,9 +93,16 @@ export const useUpdateStorageBackend = () => {
         spec.credentials = create(StorageBackendCredentialsSchema, input.credentials);
       }
 
+      const paths = buildUpdateMaskPaths({ spec } as Record<string, unknown>);
+      if (paths.length === 0) {
+        throw new Error(
+          'useUpdateStorageBackend requires at least one of endpoint, description, or credentials',
+        );
+      }
+
       const resp = await client.update({
         object: { id: input.id, spec },
-        updateMask: { paths: buildUpdateMaskPaths({ spec } as Record<string, unknown>) },
+        updateMask: { paths },
         lock: true,
       });
       if (!resp.object) {

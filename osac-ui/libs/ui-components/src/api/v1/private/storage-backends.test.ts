@@ -31,7 +31,7 @@ const makeStorageBackend = (id: string, state: StorageBackendState = StorageBack
       provider: 'vast',
       endpoint: `${id}.example.com`,
       description: '',
-      credentials: { username: 'admin', password: 'secret' },
+      credentials: { username: 'test-admin', password: 'test-secret' },
     },
     status: { state },
   });
@@ -124,7 +124,7 @@ describe('useCreateStorageBackend', () => {
         provider: 'vast',
         endpoint: 'vast.example.com',
         description: 'primary array',
-        credentials: { username: 'admin', password: 'secret' },
+        credentials: { username: 'test-admin', password: 'test-secret' },
       });
     });
 
@@ -136,7 +136,7 @@ describe('useCreateStorageBackend', () => {
         provider: 'vast',
         endpoint: 'vast.example.com',
         description: 'primary array',
-        credentials: { username: 'admin', password: 'secret' },
+        credentials: { username: 'test-admin', password: 'test-secret' },
       },
     });
   });
@@ -197,7 +197,7 @@ describe('useUpdateStorageBackend', () => {
   it('sends a single spec.credentials mask entry, never split into username/password leaves', async () => {
     const captured = await mutateAndCaptureUpdate({
       id: 'b-1',
-      credentials: { username: 'new-admin', password: 'new-secret' },
+      credentials: { username: 'test-updated-admin', password: 'test-updated-secret' },
     });
 
     expect((captured?.updateMask as { paths?: string[] } | undefined)?.paths).toEqual([
@@ -205,8 +205,8 @@ describe('useUpdateStorageBackend', () => {
     ]);
     const object = captured?.object as { spec?: { credentials?: unknown } };
     expect(object.spec?.credentials).toMatchObject({
-      username: 'new-admin',
-      password: 'new-secret',
+      username: 'test-updated-admin',
+      password: 'test-updated-secret',
     });
   });
 
@@ -214,6 +214,30 @@ describe('useUpdateStorageBackend', () => {
     const captured = await mutateAndCaptureUpdate({ id: 'b-1', endpoint: 'new.example.com' });
 
     expect(captured?.lock).toBe(true);
+  });
+
+  it('rejects an update with no fields to change, without calling the RPC', async () => {
+    let called = false;
+    const transport = createMockConnectTransport(
+      { storageBackends: [makeStorageBackend('b-1')] },
+      {
+        onStorageBackendUpdate: (_req) => {
+          called = true;
+          return create(StorageBackendsUpdateResponseSchema, {
+            object: makeStorageBackend('b-1'),
+          });
+        },
+      },
+    );
+    const { wrapper } = makeWrapper(transport);
+    const { result } = renderHook(() => useUpdateStorageBackend(), { wrapper });
+
+    act(() => {
+      result.current.mutate({ id: 'b-1' });
+    });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(called).toBe(false);
   });
 });
 
