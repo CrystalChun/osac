@@ -10,12 +10,13 @@ import { type ApiQueryClient, useApiQuery, useApiQueryClient } from '../../use-a
 const invalidateTenantsQueries = (qc: ApiQueryClient) =>
   qc.invalidateQueries({ queryKey: apiQueryKey('v1/private/tenants') });
 
-export const useTenants = (params: ListParams = {}) => {
+export const useTenants = (params: ListParams = {}, disabled?: boolean) => {
   const client = useApiFetch(Tenants);
   return useApiQuery({
     queryKey: apiQueryKey('v1/private/tenants', undefined, params),
     queryFn: () => client.list(params),
     select: (data) => data.items,
+    enabled: !disabled,
   });
 };
 

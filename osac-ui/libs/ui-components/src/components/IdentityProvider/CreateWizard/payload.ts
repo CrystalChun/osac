@@ -37,6 +37,7 @@ export const buildIdpCreatePayload = (
           ...values.spec.config,
         },
       },
+      enabled: true,
     },
   };
 };

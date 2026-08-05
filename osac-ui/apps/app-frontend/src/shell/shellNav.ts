@@ -12,14 +12,17 @@ type NavSection = {
   children: NavLink[];
 };
 
-const getIdpManagerNav = (t: TFunction): NavSection[] => [
-  {
-    kind: 'section',
-    sectionId: 'nav-tenant-administration',
-    label: t('Tenant'),
-    children: [{ id: 'idp', label: t('Identity providers'), path: '/tenant/identity-provider' }],
-  },
-];
+const getTenantAdminSection = (t: TFunction): NavSection => ({
+  kind: 'section',
+  sectionId: 'nav-tenant-administration',
+  label: t('Tenant'),
+  children: [
+    { id: 'idp', label: t('Identity providers'), path: '/tenant/identity-provider' },
+    { id: 'role-bindings', label: t('Role Bindings'), path: '/tenant/role-binding' },
+  ],
+});
+
+const getIdpManagerNav = (t: TFunction): NavSection[] => [getTenantAdminSection(t)];
 
 const getAdminNav = (t: TFunction): NavSection[] => [
   {
@@ -45,6 +48,12 @@ const getAdminNav = (t: TFunction): NavSection[] => [
       },
     ],
   },
+  getTenantAdminSection(t),
+  ...getBaseNav(t),
+];
+
+const getTenantAdminNav = (t: TFunction): NavSection[] => [
+  getTenantAdminSection(t),
   ...getBaseNav(t),
 ];
 
@@ -86,6 +95,10 @@ export const navRowsForRole = (role: UserRole, t: TFunction): NavSection[] => {
 
   if (role === 'tenant-idp-manager') {
     return getIdpManagerNav(t);
+  }
+
+  if (role === 'tenant-admin') {
+    return getTenantAdminNav(t);
   }
 
   return getBaseNav(t);

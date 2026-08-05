@@ -31,7 +31,9 @@ export type ApiRoute =
   | 'v1/private/tenants'
   | 'v1/private/storage_backends'
   | 'v1/private/storage_tiers'
-  | 'v1/identity_providers';
+  | 'v1/identity_providers'
+  | 'v1/roles'
+  | 'v1/role_bindings';
 
 /**
  * Strict 3-part tuple that encodes an API address.
