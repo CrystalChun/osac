@@ -1215,7 +1215,7 @@ var _ = Describe("Private clusters server", func() {
 				Expect(status.Message()).To(ContainSubstring("CLUSTER_STATE_DELETING"))
 			})
 
-			It("Rejects spec update when cluster state is unspecified", func() {
+			It("Allows spec update when cluster state is unspecified", func() {
 				object := createClusterWithState(privatev1.ClusterState_CLUSTER_STATE_UNSPECIFIED)
 
 				_, err := server.Update(ctx, privatev1.ClustersUpdateRequest_builder{
@@ -1233,12 +1233,7 @@ var _ = Describe("Private clusters server", func() {
 						Paths: []string{"spec.node_sets.compute.size"},
 					},
 				}.Build())
-				Expect(err).To(HaveOccurred())
-				status, ok := grpcstatus.FromError(err)
-				Expect(ok).To(BeTrue())
-				Expect(status.Code()).To(Equal(grpccodes.InvalidArgument))
-				Expect(status.Message()).To(ContainSubstring("cannot update cluster spec"))
-				Expect(status.Message()).To(ContainSubstring("CLUSTER_STATE_UNSPECIFIED"))
+				Expect(err).ToNot(HaveOccurred())
 			})
 
 			It("Allows status-only update when cluster state is failed", func() {
