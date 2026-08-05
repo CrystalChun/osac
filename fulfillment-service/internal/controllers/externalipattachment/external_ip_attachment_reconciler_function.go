@@ -375,5 +375,29 @@ func (t *task) buildSpec() osacv1alpha1.ExternalIPAttachmentSpec {
 		ci := t.externalIPAttachment.GetSpec().GetComputeInstance()
 		spec.ComputeInstance = &ci
 	}
+	if t.externalIPAttachment.GetSpec().HasCluster() {
+		cl := t.externalIPAttachment.GetSpec().GetCluster()
+		spec.Cluster = &cl
+		endpoint := mapTargetEndpoint(t.externalIPAttachment.GetSpec().GetTargetEndpoint())
+		if endpoint != "" {
+			te := osacv1alpha1.ExternalIPAttachmentTargetEndpoint(endpoint)
+			spec.TargetEndpoint = &te
+		}
+	}
+	if t.externalIPAttachment.GetSpec().HasBaremetalInstance() {
+		bmi := t.externalIPAttachment.GetSpec().GetBaremetalInstance()
+		spec.BaremetalInstance = &bmi
+	}
 	return spec
+}
+
+func mapTargetEndpoint(endpoint privatev1.ExternalIPAttachmentEndpoint) string {
+	switch endpoint {
+	case privatev1.ExternalIPAttachmentEndpoint_EXTERNAL_IP_ATTACHMENT_ENDPOINT_API:
+		return string(osacv1alpha1.ExternalIPAttachmentTargetEndpointAPI)
+	case privatev1.ExternalIPAttachmentEndpoint_EXTERNAL_IP_ATTACHMENT_ENDPOINT_INGRESS:
+		return string(osacv1alpha1.ExternalIPAttachmentTargetEndpointIngress)
+	default:
+		return ""
+	}
 }
