@@ -624,6 +624,7 @@ var _ = Describe("Storage Controller", func() {
 			name := "storage-test-no-tenant-sc"
 			createReadyTenantForStorage(ctx, name, testNamespace)
 			createHubSecret(ctx, name, secretsNamespace)
+			createLabeledStorageClass(ctx, name+"-default-sc", "Default", "default")
 
 			r := NewStorageReconciler(
 				testMcManager, testNamespace, mcmanager.LocalCluster,
@@ -645,6 +646,7 @@ var _ = Describe("Storage Controller", func() {
 			name := "storage-test-tenant-priority"
 			createReadyTenantForStorage(ctx, name, testNamespace)
 			createHubSecret(ctx, name, secretsNamespace)
+			createLabeledStorageClass(ctx, name+"-default-sc", "Default", "default")
 			createLabeledStorageClass(ctx, name+"-tenant-sc", name, "default")
 
 			r := NewStorageReconciler(
