@@ -20,7 +20,7 @@ import (
 
 	"google.golang.org/protobuf/reflect/protoreflect"
 
-	"github.com/osac-project/fulfillment-service/internal/database/dao"
+	"github.com/osac-project/osac/fulfillment-service/internal/database/dao"
 )
 
 // errRefNotFound satisfies the IsNotFound() interface expected by the reference validator.
