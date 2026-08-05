@@ -577,13 +577,13 @@ var _ = Describe("mutateBMI", func() {
 					CatalogItem: privatev1.BareMetalInstanceCatalogItemReference_builder{Id: "catalog-1"}.Build(),
 					NetworkAttachments: []*privatev1.BareMetalNetworkAttachment{
 						privatev1.BareMetalNetworkAttachment_builder{
-							Subnet:         privatev1.SubnetLocalReference_builder{Id: "subnet-1"}.Build(),
+							Subnet: privatev1.SubnetLocalReference_builder{Id: "subnet-1"}.Build(),
 							SecurityGroups: []*privatev1.SecurityGroupLocalReference{
 								privatev1.SecurityGroupLocalReference_builder{Id: "sg-1"}.Build(),
 								privatev1.SecurityGroupLocalReference_builder{Id: "sg-2"}.Build(),
 							},
-							Interface:      new("data-0"),
-							Primary:        new(true),
+							Interface: new("data-0"),
+							Primary:   new(true),
 						}.Build(),
 					},
 				}.Build(),
@@ -619,11 +619,11 @@ var _ = Describe("mutateBMI", func() {
 							Primary:   new(true),
 						}.Build(),
 						privatev1.BareMetalNetworkAttachment_builder{
-							Subnet:         privatev1.SubnetLocalReference_builder{Id: "subnet-storage"}.Build(),
+							Subnet: privatev1.SubnetLocalReference_builder{Id: "subnet-storage"}.Build(),
 							SecurityGroups: []*privatev1.SecurityGroupLocalReference{
 								privatev1.SecurityGroupLocalReference_builder{Id: "sg-storage"}.Build(),
 							},
-							Interface:      new("data-1"),
+							Interface: new("data-1"),
 						}.Build(),
 					},
 				}.Build(),
