@@ -755,7 +755,7 @@ var _ = Describe("Public clusters", func() {
 		createResponse, err := clustersClient.Create(ctx, publicv1.ClustersCreateRequest_builder{
 			Object: publicv1.Cluster_builder{
 				Spec: publicv1.ClusterSpec_builder{
-					Template:    templateId,
+					Template:    publicv1.ClusterTemplateReference_builder{Id: templateId}.Build(),
 					VersionName: &cvName,
 				}.Build(),
 			}.Build(),
