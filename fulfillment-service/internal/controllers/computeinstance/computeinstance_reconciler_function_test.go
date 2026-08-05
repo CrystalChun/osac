@@ -22,7 +22,7 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	osacv1alpha1 "github.com/osac-project/osac-operator/api/v1alpha1"
+	osacv1alpha1 "github.com/osac-project/osac/osac-operator/api/v1alpha1"
 	"go.uber.org/mock/gomock"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/anypb"
@@ -36,11 +36,11 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 	"sigs.k8s.io/controller-runtime/pkg/client/interceptor"
 
-	privatev1 "github.com/osac-project/fulfillment-service/internal/api/osac/private/v1"
-	"github.com/osac-project/fulfillment-service/internal/controllers"
-	"github.com/osac-project/fulfillment-service/internal/controllers/finalizers"
-	"github.com/osac-project/fulfillment-service/internal/kubernetes/gvks"
-	"github.com/osac-project/fulfillment-service/internal/kubernetes/labels"
+	privatev1 "github.com/osac-project/osac/fulfillment-service/internal/api/osac/private/v1"
+	"github.com/osac-project/osac/fulfillment-service/internal/controllers"
+	"github.com/osac-project/osac/fulfillment-service/internal/controllers/finalizers"
+	"github.com/osac-project/osac/fulfillment-service/internal/kubernetes/gvks"
+	"github.com/osac-project/osac/fulfillment-service/internal/kubernetes/labels"
 )
 
 var _ = Describe("buildSpec", func() {

@@ -23,7 +23,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	ctrllog "sigs.k8s.io/controller-runtime/pkg/log"
 
-	v1alpha1 "github.com/osac-project/osac-operator/api/v1alpha1"
+	v1alpha1 "github.com/osac-project/osac/osac-operator/api/v1alpha1"
 )
 
 // Action represents the outcome of shouldTriggerProvision.
