@@ -49,7 +49,7 @@ AAP job templates: `osac-{action}-{resource}`
 
 ### Show EDA Event and Sensitive `payload.spec` Fields
 
-The bare `debug: var: ansible_eda.event.payload` shown above is safe as long as
+The bare `debug: var: osac_job_vars.resource` shown above is safe as long as
 nothing in `payload.spec` is a secret. Some CR specs are not — e.g.
 `blockEncryptionPassphrase` on Tenant/ClusterOrder/ComputeInstance CRs. Before
 adding this debug task to a new or existing playbook, inspect the CR
@@ -62,17 +62,17 @@ whole object:
     - name: Show EDA Event metadata
       ansible.builtin.include_role:
         name: osac.service.common
-        tasks_from: show_eda_event_metadata
+        tasks_from: show_resource_metadata
       vars:
-        eda_event_extra_fields:
-          template_id: "{{ ansible_eda.event.payload.spec.templateID | default('unknown') }}"
+        resource_extra_fields:
+          template_id: "{{ osac_job_vars.resource.spec.templateID | default('unknown') }}"
 ```
 
 This logs `kind`/`metadata.name`/`metadata.namespace`/`metadata.uid` plus any
-additional non-sensitive fields passed via `eda_event_extra_fields` — never
-source an `eda_event_extra_fields` value from `payload.spec` without first
+additional non-sensitive fields passed via `resource_extra_fields` — never
+source an `resource_extra_fields` value from `payload.spec` without first
 confirming it isn't a secret. See
-`collections/ansible_collections/osac/service/roles/common/tasks/show_eda_event_metadata.yaml`.
+`collections/ansible_collections/osac/service/roles/common/tasks/show_resource_metadata.yaml`.
 
 ## Template Roles
 
