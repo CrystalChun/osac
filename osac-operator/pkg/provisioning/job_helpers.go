@@ -1,7 +1,7 @@
 package provisioning
 
 import (
-	"github.com/osac-project/osac-operator/api/v1alpha1"
+	"github.com/osac-project/osac/osac-operator/api/v1alpha1"
 )
 
 // FindJobByID finds a job by its ID in the jobs array.

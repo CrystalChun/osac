@@ -10,9 +10,9 @@ import (
 	. "github.com/onsi/gomega"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/osac-project/osac-operator/api/v1alpha1"
-	"github.com/osac-project/osac-operator/pkg/aap"
-	"github.com/osac-project/osac-operator/pkg/provisioning"
+	"github.com/osac-project/osac/osac-operator/api/v1alpha1"
+	"github.com/osac-project/osac/osac-operator/pkg/aap"
+	"github.com/osac-project/osac/osac-operator/pkg/provisioning"
 )
 
 // mockAAPClient is a test double for aap.Client
@@ -97,7 +97,6 @@ var _ = Describe("AAPProvider", func() {
 				}
 				aapClient.launchJobTemplateFunc = func(ctx context.Context, req aap.LaunchJobTemplateRequest) (*aap.LaunchJobTemplateResponse, error) {
 					Expect(req.TemplateName).To(Equal("provision-job"))
-					// Verify EDA event structure for compatibility with EDA-designed templates
 					Expect(req.ExtraVars).To(HaveKey("ansible_eda"))
 					payload := extractEDAPayload(req.ExtraVars)
 					// Verify serialized resource contains the ObjectMeta fields under "metadata"
@@ -132,7 +131,6 @@ var _ = Describe("AAPProvider", func() {
 				}
 				aapClient.launchWorkflowTemplateFunc = func(ctx context.Context, req aap.LaunchWorkflowTemplateRequest) (*aap.LaunchWorkflowTemplateResponse, error) {
 					Expect(req.TemplateName).To(Equal("provision-workflow"))
-					// Verify EDA event structure for compatibility with EDA-designed templates
 					Expect(req.ExtraVars).To(HaveKey("ansible_eda"))
 					payload := extractEDAPayload(req.ExtraVars)
 					// Verify serialized resource contains the ObjectMeta fields under "metadata"

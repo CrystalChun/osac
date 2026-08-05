@@ -23,9 +23,9 @@ import (
 	grpccodes "google.golang.org/grpc/codes"
 	grpcstatus "google.golang.org/grpc/status"
 
-	privatev1 "github.com/osac-project/fulfillment-service/internal/api/osac/private/v1"
-	"github.com/osac-project/fulfillment-service/internal/auth"
-	"github.com/osac-project/fulfillment-service/internal/database/dao"
+	privatev1 "github.com/osac-project/osac/fulfillment-service/internal/api/osac/private/v1"
+	"github.com/osac-project/osac/fulfillment-service/internal/auth"
+	"github.com/osac-project/osac/fulfillment-service/internal/database/dao"
 )
 
 const defaultLabel = "osac.openshift.io/default"
@@ -382,26 +382,7 @@ func (p *DefaultNetworkingProvisioner) provisionNATGateway(
 }
 
 func (p *DefaultNetworkingProvisioner) findExternalIPPool(ctx context.Context) (*privatev1.ExternalIPPool, error) {
-	listResponse, err := p.externalIPPoolDao.List().Do(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("failed to query ExternalIP pools: %w", err)
-	}
-	var best *privatev1.ExternalIPPool
-	for _, pool := range listResponse.GetItems() {
-		if pool.GetStatus().GetState() != privatev1.ExternalIPPoolState_EXTERNAL_IP_POOL_STATE_READY {
-			continue
-		}
-		if pool.GetStatus().GetAvailable() <= 0 {
-			continue
-		}
-		if best == nil || pool.GetStatus().GetAvailable() > best.GetStatus().GetAvailable() {
-			best = pool
-		}
-	}
-	if best == nil {
-		return nil, fmt.Errorf("no ExternalIP pool with available capacity found for default NATGateway")
-	}
-	return best, nil
+	return SelectExternalIPPool(ctx, p.externalIPPoolDao, privatev1.IPFamily_IP_FAMILY_UNSPECIFIED)
 }
 
 func (p *DefaultNetworkingProvisioner) createDefaultExternalIP(

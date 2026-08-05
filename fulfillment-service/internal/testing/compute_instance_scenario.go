@@ -17,7 +17,7 @@ import (
 	"fmt"
 	"os"
 
-	publicv1 "github.com/osac-project/fulfillment-service/internal/api/osac/public/v1"
+	publicv1 "github.com/osac-project/osac/fulfillment-service/internal/api/osac/public/v1"
 	"gopkg.in/yaml.v3"
 )
 
