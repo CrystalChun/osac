@@ -537,13 +537,13 @@ func (s *PrivateClustersServer) validateTemplateImmutability(ctx context.Context
 	// These immutable non-optional proto3 fields have no presence tracking, so a
 	// zero value is ambiguous. Treat zero as absent and normalize to the existing
 	// value before comparing.
-	if updatingTemplate && newSpec.GetTemplate() == "" {
+	if updatingTemplate && newSpec.GetTemplate().GetId() == "" && newSpec.GetTemplate().GetName() == "" {
 		newSpec.SetTemplate(existingSpec.GetTemplate())
 	}
 	if updatingTemplateParams && len(newSpec.GetTemplateParameters()) == 0 {
 		newSpec.SetTemplateParameters(existingSpec.GetTemplateParameters())
 	}
-	if updatingCatalogItem && newSpec.GetCatalogItem() == "" {
+	if updatingCatalogItem && newSpec.GetCatalogItem().GetId() == "" && newSpec.GetCatalogItem().GetName() == "" {
 		newSpec.SetCatalogItem(existingSpec.GetCatalogItem())
 	}
 
