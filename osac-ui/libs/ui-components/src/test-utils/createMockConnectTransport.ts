@@ -33,10 +33,19 @@ import {
 } from '@osac/types';
 import type {
   Tenant as PrivateTenant,
+  StorageBackend,
+  StorageBackendsCreateRequest,
+  StorageBackendsCreateResponse,
+  StorageBackendsUpdateRequest,
+  StorageBackendsUpdateResponse,
   TenantsCreateRequest,
   TenantsCreateResponse,
 } from '@osac/types/private';
-import { Tenants as PrivateTenants } from '@osac/types/private';
+import {
+  Tenants as PrivateTenants,
+  StorageBackendState,
+  StorageBackends,
+} from '@osac/types/private';
 
 import { UnauthorizedError } from '../utils/unauthorizedError';
 
@@ -51,6 +60,7 @@ export type MockApiFixtures = {
   securityGroups?: SecurityGroup[];
   identityProviders?: IdentityProvider[];
   instanceTypes?: InstanceType[];
+  storageBackends?: StorageBackend[];
 };
 
 export const wrapWithAuthInterceptor = (transport: Transport): Transport => {
@@ -104,6 +114,16 @@ const matchesInstanceTypeActiveFilter = (
   return state === InstanceTypeState.ACTIVE;
 };
 
+const matchesStorageBackendReadyFilter = (
+  filter: string | undefined,
+  state: number | undefined,
+): boolean => {
+  if (!filter?.includes('this.status.state ==')) {
+    return true;
+  }
+  return state === StorageBackendState.READY;
+};
+
 export type MockTransportOverrides = {
   onClusterCreate?: (req: ClustersCreateRequest) => ClustersCreateResponse;
   onIdentityProviderCreate?: (
@@ -113,6 +133,8 @@ export type MockTransportOverrides = {
     req: IdentityProvidersUpdateRequest,
   ) => IdentityProvidersUpdateResponse;
   onTenantCreate?: (req: TenantsCreateRequest) => TenantsCreateResponse;
+  onStorageBackendCreate?: (req: StorageBackendsCreateRequest) => StorageBackendsCreateResponse;
+  onStorageBackendUpdate?: (req: StorageBackendsUpdateRequest) => StorageBackendsUpdateResponse;
 };
 
 export const createMockConnectTransport = (
@@ -129,6 +151,7 @@ export const createMockConnectTransport = (
   const subnets = fixtures.subnets ?? [];
   const securityGroups = fixtures.securityGroups ?? [];
   const instanceTypes = fixtures.instanceTypes ?? [];
+  const storageBackends = fixtures.storageBackends ?? [];
 
   return wrapWithAuthInterceptor(
     createRouterTransport((router) => {
@@ -237,6 +260,38 @@ export const createMockConnectTransport = (
           return {
             object: req.object,
           };
+        },
+        delete: () => ({}),
+      });
+
+      router.service(StorageBackends, {
+        list: (req) => {
+          const items = storageBackends.filter((item) =>
+            matchesStorageBackendReadyFilter(req.filter, item.status?.state),
+          );
+          return { items, size: items.length, total: items.length };
+        },
+        get: (req) => ({
+          object: storageBackends.find((b) => b.id === req.id),
+        }),
+        create: (req) => {
+          if (overrides.onStorageBackendCreate) {
+            return overrides.onStorageBackendCreate(req);
+          }
+          return {
+            object: {
+              id: 'new-storage-backend-1',
+              metadata: req.object?.metadata,
+              spec: req.object?.spec,
+              status: { state: StorageBackendState.READY },
+            },
+          };
+        },
+        update: (req) => {
+          if (overrides.onStorageBackendUpdate) {
+            return overrides.onStorageBackendUpdate(req);
+          }
+          return { object: req.object };
         },
         delete: () => ({}),
       });
