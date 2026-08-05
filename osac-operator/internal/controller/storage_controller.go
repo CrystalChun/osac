@@ -982,10 +982,8 @@ type tenantSpecificStorageClasses struct {
 	ambiguousTiers    []string
 }
 
-// resolveTenantSpecificStorageClasses lists only StorageClasses labeled with the
-// given tenant name, ignoring shared defaults (labeled tenant=Default). Used when
-// resolveTenantSpecificStorageClasses lists only StorageClasses labeled with the
-// given tenant name. Used when AAP is configured. 
+// resolveTenantSpecificStorageClasses lists StorageClasses labeled with the
+// given tenant name. Used when AAP is configured.
 func (r *StorageReconciler) resolveTenantSpecificStorageClasses(
 	ctx context.Context, targetClient client.Client, tenantName string,
 ) (tenantSpecificStorageClasses, error) {
