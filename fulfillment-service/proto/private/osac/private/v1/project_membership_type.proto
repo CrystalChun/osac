@@ -16,7 +16,6 @@ syntax = "proto3";
 package osac.private.v1;
 
 import "osac/private/v1/metadata_type.proto";
-import "osac/private/v1/reference_types.proto";
 
 // ProjectMembership represents a member's association with a project and their role within it.
 message ProjectMembership {
@@ -82,4 +81,12 @@ enum ProjectMembershipState {
 
   // The project membership failed to synchronize with the identity provider.
   PROJECT_MEMBERSHIP_STATE_FAILED = 3;
+}
+
+// Reference to a User resource.
+message UserReference {
+  string id = 1;
+  string name = 2;
+  string project = 3;
+  bool shared = 4;
 }

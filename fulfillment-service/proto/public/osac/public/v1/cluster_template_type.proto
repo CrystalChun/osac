@@ -18,7 +18,7 @@ package osac.public.v1;
 import "google/protobuf/any.proto";
 import "osac/public/v1/cluster_type.proto";
 import "osac/public/v1/metadata_type.proto";
-import "osac/public/v1/reference_types.proto";
+import "osac/public/v1/host_type_type.proto";
 
 // A cluster template defines a type of cluster that can be created by the user. Note that the user doesn't create these
 // templates: the system provides a collection of them, and the user chooses one.

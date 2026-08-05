@@ -18,7 +18,7 @@ package osac.private.v1;
 import "google/protobuf/any.proto";
 import "osac/private/v1/compute_instance_type.proto";
 import "osac/private/v1/metadata_type.proto";
-import "osac/private/v1/reference_types.proto";
+import "osac/private/v1/instance_type_type.proto";
 
 // buf:lint:ignore OSAC_OBJECT_SHAPE
 message ComputeInstanceTemplate {

@@ -17,7 +17,7 @@ package osac.public.v1;
 
 import "osac/public/v1/field_definition_type.proto";
 import "osac/public/v1/metadata_type.proto";
-import "osac/public/v1/reference_types.proto";
+import "osac/public/v1/cluster_type.proto";
 
 // A cluster catalog item defines a curated infrastructure offering that references an underlying cluster template.
 // Admins control which fields users can set, enforce defaults, and validate input via JSON Schema.

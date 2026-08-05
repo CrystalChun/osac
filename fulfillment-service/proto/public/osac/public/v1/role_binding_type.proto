@@ -16,7 +16,7 @@ syntax = "proto3";
 package osac.public.v1;
 
 import "osac/public/v1/metadata_type.proto";
-import "osac/public/v1/reference_types.proto";
+import "osac/public/v1/project_membership_type.proto";
 
 // Represents a binding between a role and a set of users.
 //
@@ -74,4 +74,12 @@ enum RoleBindingState {
 
   // The role binding failed to be applied to the underlying authorization system.
   ROLE_BINDING_STATE_FAILED = 3;
+}
+
+// Reference to a Role resource.
+message RoleReference {
+  string id = 1;
+  string name = 2;
+  string project = 3;
+  bool shared = 4;
 }

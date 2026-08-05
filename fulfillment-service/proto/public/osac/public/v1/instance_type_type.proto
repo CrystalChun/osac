@@ -18,7 +18,6 @@ package osac.public.v1;
 import "buf/validate/validate.proto";
 import "google/protobuf/timestamp.proto";
 import "osac/public/v1/metadata_type.proto";
-import "osac/public/v1/reference_types.proto";
 
 // Lifecycle states for InstanceType resources.
 enum InstanceTypeState {
@@ -120,3 +119,17 @@ message InstanceTypeSpec {
 //
 // Currently empty. Reserved for future reconciliation state.
 message InstanceTypeStatus {}
+
+// Reference to an InstanceType resource.
+message InstanceTypeReference {
+  string id = 1;
+  string name = 2;
+  string project = 3;
+  bool shared = 4;
+}
+
+// Local reference to an InstanceType resource.
+message InstanceTypeLocalReference {
+  string id = 1;
+  string name = 2;
+}

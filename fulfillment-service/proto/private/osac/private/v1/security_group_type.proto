@@ -17,7 +17,7 @@ package osac.private.v1;
 
 import "google/api/field_behavior.proto";
 import "osac/private/v1/metadata_type.proto";
-import "osac/private/v1/reference_types.proto";
+import "osac/private/v1/virtual_network_type.proto";
 
 // Represents a virtual firewall controlling network traffic for compute instances.
 //
@@ -264,4 +264,10 @@ enum SecurityGroupState {
   // Manual intervention may be required to resolve the underlying issue
   // before retrying deletion.
   SECURITY_GROUP_STATE_DELETE_FAILED = 5;
+}
+
+// Local reference to a SecurityGroup resource.
+message SecurityGroupLocalReference {
+  string id = 1;
+  string name = 2;
 }

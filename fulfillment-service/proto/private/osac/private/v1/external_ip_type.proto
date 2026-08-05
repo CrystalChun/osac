@@ -17,7 +17,7 @@ package osac.private.v1;
 
 import "google/api/field_behavior.proto";
 import "osac/private/v1/metadata_type.proto";
-import "osac/private/v1/reference_types.proto";
+import "osac/private/v1/external_ip_pool_type.proto";
 
 // Represents an external IP address allocated from an ExternalIPPool.
 //
@@ -133,4 +133,10 @@ enum ExternalIPState {
   // returns the address to the pool. An ExternalIP cannot be deleted while attached
   // (status.attached = true).
   EXTERNAL_IP_STATE_DELETING = 4;
+}
+
+// Local reference to an ExternalIP resource.
+message ExternalIPLocalReference {
+  string id = 1;
+  string name = 2;
 }

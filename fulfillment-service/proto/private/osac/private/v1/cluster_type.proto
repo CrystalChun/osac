@@ -19,7 +19,9 @@ import "google/protobuf/any.proto";
 import "google/protobuf/timestamp.proto";
 import "osac/private/v1/condition_status_type.proto";
 import "osac/private/v1/metadata_type.proto";
-import "osac/private/v1/reference_types.proto";
+import "osac/private/v1/host_type_type.proto";
+import "osac/private/v1/security_group_type.proto";
+import "osac/private/v1/subnet_type.proto";
 
 // Contains the details about the cluster that are available only for the system.
 message Cluster {
@@ -144,4 +146,26 @@ message ClusterNetworkAttachment {
 message ClusterNodeSet {
   HostTypeReference host_type = 1;
   int32 size = 2;
+}
+
+// Local reference to a Cluster resource.
+message ClusterLocalReference {
+  string id = 1;
+  string name = 2;
+}
+
+// Reference to a ClusterTemplate resource.
+message ClusterTemplateReference {
+  string id = 1;
+  string name = 2;
+  string project = 3;
+  bool shared = 4;
+}
+
+// Reference to a ClusterCatalogItem resource.
+message ClusterCatalogItemReference {
+  string id = 1;
+  string name = 2;
+  string project = 3;
+  bool shared = 4;
 }

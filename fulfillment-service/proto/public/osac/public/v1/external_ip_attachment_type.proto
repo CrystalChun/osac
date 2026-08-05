@@ -17,7 +17,10 @@ package osac.public.v1;
 
 import "google/api/field_behavior.proto";
 import "osac/public/v1/metadata_type.proto";
-import "osac/public/v1/reference_types.proto";
+import "osac/public/v1/baremetal_instance_type.proto";
+import "osac/public/v1/cluster_type.proto";
+import "osac/public/v1/compute_instance_type.proto";
+import "osac/public/v1/external_ip_type.proto";
 
 // Represents a binding between an ExternalIP and a target resource.
 //

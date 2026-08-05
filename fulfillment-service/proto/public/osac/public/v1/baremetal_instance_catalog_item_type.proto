@@ -17,7 +17,7 @@ package osac.public.v1;
 
 import "osac/public/v1/field_definition_type.proto";
 import "osac/public/v1/metadata_type.proto";
-import "osac/public/v1/reference_types.proto";
+import "osac/public/v1/baremetal_instance_template_type.proto";
 
 // A bare metal instance catalog item defines a curated hardware offering that references an underlying bare metal
 // instance template.
