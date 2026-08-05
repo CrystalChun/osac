@@ -556,11 +556,11 @@ var _ = Describe("update tenant annotation", func() {
 				Tenant:     tenantName,
 			}.Build(),
 			Spec: privatev1.ClusterSpec_builder{
-				Template:    "test-template",
+				Template:    &privatev1.ClusterTemplateReference{Name: "test-template"},
 				VersionName: &versionName,
 				NodeSets: map[string]*privatev1.ClusterNodeSet{
 					"gpu.gb200": privatev1.ClusterNodeSet_builder{
-						HostType: "gpu.gb200",
+						HostType: &privatev1.HostTypeReference{Name: "gpu.gb200"},
 						Size:     5,
 					}.Build(),
 				},
@@ -664,11 +664,11 @@ var _ = Describe("update tenant annotation", func() {
 				Tenant:     tenantName,
 			}.Build(),
 			Spec: privatev1.ClusterSpec_builder{
-				Template:    "test-template",
+				Template:    &privatev1.ClusterTemplateReference{Name: "test-template"},
 				VersionName: &newVersionName,
 				NodeSets: map[string]*privatev1.ClusterNodeSet{
 					"gpu.gb200": privatev1.ClusterNodeSet_builder{
-						HostType: "gpu.gb200",
+						HostType: &privatev1.HostTypeReference{Name: "gpu.gb200"},
 						Size:     3,
 					}.Build(),
 				},
@@ -804,7 +804,7 @@ var _ = Describe("update version resolution failure", func() {
 				Tenant:     tenantName,
 			}.Build(),
 			Spec: privatev1.ClusterSpec_builder{
-				Template:    "test-template",
+				Template:    &privatev1.ClusterTemplateReference{Name: "test-template"},
 				VersionName: &versionName,
 			}.Build(),
 			Status: privatev1.ClusterStatus_builder{
