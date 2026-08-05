@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import type { Tenant } from '@osac/types/private';
 import { TenantState } from '@osac/types/private';
 
-import { TenantListPage } from './TenantListPage';
+import TenantListPage from './TenantListPage';
 import { renderWithProviders } from '../../test-utils/TestProviders';
 
 const makeTenant = (id: string, name: string, state?: TenantState) =>

@@ -2,7 +2,7 @@ import { Code, ConnectError } from '@connectrpc/connect';
 import { screen, waitFor, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { TenantCreatePage } from './TenantCreatePage';
+import TenantCreatePage from './TenantCreatePage';
 import type { MockTransportOverrides } from '../../../test-utils/createMockConnectTransport';
 import { renderWithProviders } from '../../../test-utils/TestProviders';
 

@@ -26,7 +26,7 @@ import { getErrorMessage } from '../../../utils/error';
 import { InputField } from '../../Form/InputField';
 import OsacForm from '../../Form/OsacForm';
 
-export const TenantCreatePage = () => {
+const TenantCreatePage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { data, mutate, error, isPending } = useCreateTenant();
@@ -141,3 +141,5 @@ export const TenantCreatePage = () => {
     </>
   );
 };
+
+export default TenantCreatePage;

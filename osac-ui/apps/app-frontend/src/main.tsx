@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter } from 'react-router-dom';
+import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { createConnectTransport } from '@connectrpc/connect-web';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createRoot } from 'react-dom/client';
@@ -34,6 +34,8 @@ const queryClient = new QueryClient({
   },
 });
 
+const router = createBrowserRouter([{ path: '*', element: <App /> }]);
+
 const rootElement = document.getElementById('root');
 
 if (rootElement) {
@@ -41,9 +43,7 @@ if (rootElement) {
     <React.StrictMode>
       <ApiProvider transport={connectTransport}>
         <QueryClientProvider client={queryClient}>
-          <BrowserRouter>
-            <App />
-          </BrowserRouter>
+          <RouterProvider router={router} />
         </QueryClientProvider>
       </ApiProvider>
     </React.StrictMode>,

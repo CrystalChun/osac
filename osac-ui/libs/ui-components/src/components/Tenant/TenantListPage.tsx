@@ -20,7 +20,7 @@ import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
 
 import TenantStatusLabel from '../../components/Tenant/TenantStatusLabel';
 
-export const TenantListPage = () => {
+const TenantListPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
@@ -85,11 +85,7 @@ export const TenantListPage = () => {
             <Tbody>
               {filteredTenants.map((tenant) => (
                 <Tr key={tenant.id}>
-                  <Td dataLabel={t('Tenant')}>
-                    <Button variant="link" isInline onClick={() => {}}>
-                      {tenant.metadata?.name || tenant.id}
-                    </Button>
-                  </Td>
+                  <Td dataLabel={t('Tenant')}>{tenant.metadata?.name || tenant.id}</Td>
                   <Td dataLabel={t('Status')}>
                     <TenantStatusLabel state={tenant.status?.state} />
                   </Td>
@@ -109,3 +105,5 @@ export const TenantListPage = () => {
     </ListPage>
   );
 };
+
+export default TenantListPage;

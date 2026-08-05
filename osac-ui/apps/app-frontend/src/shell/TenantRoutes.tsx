@@ -1,7 +1,7 @@
 import { Route, Routes } from 'react-router-dom';
 
-import { TenantCreatePage } from '@osac/ui-components/components/Tenant/TenantCreatePage/TenantCreatePage';
-import { TenantListPage } from '@osac/ui-components/pages/admin/TenantListPage';
+import TenantCreatePage from '@osac/ui-components/components/Tenant/TenantCreatePage/TenantCreatePage';
+import TenantListPage from '@osac/ui-components/components/Tenant/TenantListPage';
 
 export const TenantRoutes = () => (
   <Routes>

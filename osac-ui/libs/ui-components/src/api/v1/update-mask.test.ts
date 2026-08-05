@@ -40,4 +40,31 @@ describe('buildUpdateMaskPaths', () => {
   it('returns an empty array for an empty object', () => {
     expect(buildUpdateMaskPaths({})).toEqual([]);
   });
+
+  it('handles protobuf oneof fields using the case as the field name', () => {
+    const body = {
+      spec: {
+        title: 'My IDP',
+        config: {
+          case: 'oidc',
+          value: {
+            authorizationUrl: 'https://example.com/auth',
+            clientId: 'my-client',
+          },
+        },
+      },
+    };
+    expect(buildUpdateMaskPaths(body)).toEqual([
+      'spec.title',
+      'spec.oidc.authorization_url',
+      'spec.oidc.client_id',
+    ]);
+  });
+
+  it('handles oneof with a non-object value as a leaf', () => {
+    const body = {
+      config: { case: 'simpleValue', value: 'hello' },
+    };
+    expect(buildUpdateMaskPaths(body)).toEqual(['simple_value']);
+  });
 });

@@ -27,14 +27,15 @@ export interface StatusLabelProps {
   text: string;
   color?: LabelColor;
   icon?: ComponentType<SVGProps<SVGSVGElement>>;
+  noIcon?: boolean;
 }
 
-export const ResourceStatusLabel = ({ status, text, color, icon }: StatusLabelProps) => {
+export const ResourceStatusLabel = ({ status, text, color, icon, noIcon }: StatusLabelProps) => {
   const style = STATUS_STYLE[status];
   const labelColor = color ?? style.color;
   const StatusIcon = icon ?? style.icon;
   return (
-    <Label color={labelColor} icon={<StatusIcon aria-hidden />}>
+    <Label color={labelColor} icon={noIcon ? undefined : <StatusIcon aria-hidden />}>
       {text}
     </Label>
   );

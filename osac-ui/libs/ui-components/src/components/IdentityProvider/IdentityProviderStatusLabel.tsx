@@ -1,6 +1,6 @@
 import type { TFunction } from 'i18next';
 
-import { IdentityProviderPhase } from '@osac/types';
+import { IdentityProvider, IdentityProviderPhase } from '@osac/types';
 
 import {
   ResourceStatusLabel,
@@ -9,7 +9,7 @@ import {
 import { useTranslation } from '../../hooks/useTranslation';
 
 interface IdentityProviderStatusLabelProps {
-  phase?: IdentityProviderPhase;
+  idp: IdentityProvider;
 }
 
 const identityProviderPhaseMap = (
@@ -33,13 +33,19 @@ const identityProviderPhaseMap = (
   },
 });
 
-const IdentityProviderStatusLabel = ({ phase }: IdentityProviderStatusLabelProps) => {
+const IdentityProviderStatusLabel = ({ idp }: IdentityProviderStatusLabelProps) => {
   const { t } = useTranslation();
+
+  if (!idp.spec?.enabled) {
+    return <ResourceStatusLabel text={t('Disabled')} status="unspecified" noIcon />;
+  }
 
   const phaseMap = identityProviderPhaseMap(t);
 
   const status =
-    phase !== undefined ? phaseMap[phase] : phaseMap[IdentityProviderPhase.UNSPECIFIED];
+    idp.status?.phase !== undefined
+      ? phaseMap[idp.status.phase]
+      : phaseMap[IdentityProviderPhase.UNSPECIFIED];
 
   return <ResourceStatusLabel {...status} />;
 };
