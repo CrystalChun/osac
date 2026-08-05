@@ -22,7 +22,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	grpccodes "google.golang.org/grpc/codes"
 	grpcstatus "google.golang.org/grpc/status"
-	"google.golang.org/protobuf/proto"
 
 	privatev1 "github.com/osac-project/osac/fulfillment-service/internal/api/osac/private/v1"
 	"github.com/osac-project/osac/fulfillment-service/internal/auth"
@@ -342,25 +341,25 @@ func validateImmutableFieldsExternalIPAttachment(
 	newSpec := newAttachment.GetSpec()
 	existingSpec := existingAttachment.GetSpec()
 
-	if !proto.Equal(newSpec.GetExternalIp(), existingSpec.GetExternalIp()) {
+	if refKey(newSpec.GetExternalIp()) != refKey(existingSpec.GetExternalIp()) {
 		return grpcstatus.Errorf(grpccodes.InvalidArgument,
 			"field 'spec.external_ip' is immutable and cannot be changed from '%s' to '%s'",
 			refKey(existingSpec.GetExternalIp()), refKey(newSpec.GetExternalIp()))
 	}
 
-	if !proto.Equal(newSpec.GetComputeInstance(), existingSpec.GetComputeInstance()) {
+	if refKey(newSpec.GetComputeInstance()) != refKey(existingSpec.GetComputeInstance()) {
 		return grpcstatus.Errorf(grpccodes.InvalidArgument,
 			"field 'spec.compute_instance' is immutable and cannot be changed from '%s' to '%s'",
 			refKey(existingSpec.GetComputeInstance()), refKey(newSpec.GetComputeInstance()))
 	}
 
-	if !proto.Equal(newSpec.GetCluster(), existingSpec.GetCluster()) {
+	if refKey(newSpec.GetCluster()) != refKey(existingSpec.GetCluster()) {
 		return grpcstatus.Errorf(grpccodes.InvalidArgument,
 			"field 'spec.cluster' is immutable and cannot be changed from '%s' to '%s'",
 			refKey(existingSpec.GetCluster()), refKey(newSpec.GetCluster()))
 	}
 
-	if !proto.Equal(newSpec.GetBaremetalInstance(), existingSpec.GetBaremetalInstance()) {
+	if refKey(newSpec.GetBaremetalInstance()) != refKey(existingSpec.GetBaremetalInstance()) {
 		return grpcstatus.Errorf(grpccodes.InvalidArgument,
 			"field 'spec.baremetal_instance' is immutable and cannot be changed from '%s' to '%s'",
 			refKey(existingSpec.GetBaremetalInstance()), refKey(newSpec.GetBaremetalInstance()))

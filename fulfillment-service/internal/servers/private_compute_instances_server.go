@@ -470,7 +470,7 @@ func (s *PrivateComputeInstancesServer) validateTemplateImmutability(ctx context
 	existingSpec := existingCI.GetSpec()
 	newSpec := request.GetObject().GetSpec()
 
-	if updatingTemplate && !proto.Equal(existingSpec.GetTemplate(), newSpec.GetTemplate()) {
+	if updatingTemplate && refKey(existingSpec.GetTemplate()) != refKey(newSpec.GetTemplate()) {
 		return grpcstatus.Errorf(
 			grpccodes.InvalidArgument,
 			"cannot change spec.template from '%s' to '%s': template is immutable",
@@ -491,7 +491,7 @@ func (s *PrivateComputeInstancesServer) validateTemplateImmutability(ctx context
 		}
 	}
 
-	if updatingCatalogItem && !proto.Equal(existingSpec.GetCatalogItem(), newSpec.GetCatalogItem()) {
+	if updatingCatalogItem && refKey(existingSpec.GetCatalogItem()) != refKey(newSpec.GetCatalogItem()) {
 		return grpcstatus.Errorf(
 			grpccodes.InvalidArgument,
 			"cannot change spec.catalog_item from '%s' to '%s': catalog item is immutable",
@@ -500,7 +500,7 @@ func (s *PrivateComputeInstancesServer) validateTemplateImmutability(ctx context
 		)
 	}
 
-	if updatingInstanceType && !proto.Equal(existingSpec.GetInstanceType(), newSpec.GetInstanceType()) {
+	if updatingInstanceType && refKey(existingSpec.GetInstanceType()) != refKey(newSpec.GetInstanceType()) {
 		return grpcstatus.Errorf(
 			grpccodes.InvalidArgument,
 			"cannot change spec.instance_type from '%s' to '%s': instance type is immutable",

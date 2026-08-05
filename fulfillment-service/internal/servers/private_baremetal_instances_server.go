@@ -363,7 +363,7 @@ func (s *PrivateBareMetalInstancesServer) validateImmutability(ctx context.Conte
 		return grpcstatus.Errorf(grpccodes.Internal, "stored bare metal instance is missing spec")
 	}
 
-	if updatingCatalogItem && !proto.Equal(existingSpec.GetCatalogItem(), newSpec.GetCatalogItem()) {
+	if updatingCatalogItem && refKey(existingSpec.GetCatalogItem()) != refKey(newSpec.GetCatalogItem()) {
 		return grpcstatus.Errorf(grpccodes.InvalidArgument,
 			"cannot change spec.catalog_item from '%s' to '%s': catalog_item is immutable",
 			refKey(existingSpec.GetCatalogItem()), refKey(newSpec.GetCatalogItem()))
@@ -415,7 +415,7 @@ func compareNetworkAttachmentsImmutability(existing, updated []*privatev1.BareMe
 			len(existing), len(updated))
 	}
 	for i := range existing {
-		if !proto.Equal(existing[i].GetSubnet(), updated[i].GetSubnet()) {
+		if refKey(existing[i].GetSubnet()) != refKey(updated[i].GetSubnet()) {
 			return grpcstatus.Errorf(grpccodes.InvalidArgument,
 				"cannot change network_attachments[%d].subnet from '%s' to '%s': subnet is immutable",
 				i, refKey(existing[i].GetSubnet()), refKey(updated[i].GetSubnet()))

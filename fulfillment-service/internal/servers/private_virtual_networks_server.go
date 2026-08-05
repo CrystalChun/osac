@@ -22,7 +22,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	grpccodes "google.golang.org/grpc/codes"
 	grpcstatus "google.golang.org/grpc/status"
-	"google.golang.org/protobuf/proto"
 
 	privatev1 "github.com/osac-project/osac/fulfillment-service/internal/api/osac/private/v1"
 	"github.com/osac-project/osac/fulfillment-service/internal/auth"
@@ -255,7 +254,7 @@ func (s *PrivateVirtualNetworksServer) validateVirtualNetwork(ctx context.Contex
 	// VN-VAL-04, VN-VAL-05, VN-VAL-06: Validate NetworkClass
 	// Only on Create (existingVN == nil) or if network_class differs (VN-VAL-10 above prevents NC
 	// changes on Update, so the second branch is effectively dead but kept for safety).
-	if existingVN == nil || !proto.Equal(spec.GetNetworkClass(), existingVN.GetSpec().GetNetworkClass()) {
+	if existingVN == nil || refKey(spec.GetNetworkClass()) != refKey(existingVN.GetSpec().GetNetworkClass()) {
 		implementationStrategy, err = s.validateNetworkClassReference(ctx, spec)
 		if err != nil {
 			return
@@ -282,7 +281,7 @@ func validateImmutableFields(newVN *privatev1.VirtualNetwork, existingVN *privat
 	}
 
 	// Check immutable network_class field
-	if !proto.Equal(newSpec.GetNetworkClass(), existingSpec.GetNetworkClass()) {
+	if refKey(newSpec.GetNetworkClass()) != refKey(existingSpec.GetNetworkClass()) {
 		return grpcstatus.Errorf(grpccodes.InvalidArgument,
 			"field 'spec.network_class' is immutable and cannot be changed from '%s' to '%s'",
 			refKey(existingSpec.GetNetworkClass()), refKey(newSpec.GetNetworkClass()))

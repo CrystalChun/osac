@@ -487,7 +487,7 @@ func (s *PrivateClustersServer) validateNodeSetHostTypeImmutability(
 		}
 		existingHostType := existingNodeSet.GetHostType()
 		newHostType := newNodeSet.GetHostType()
-		if !proto.Equal(existingHostType, newHostType) {
+		if refKey(existingHostType) != refKey(newHostType) {
 			return grpcstatus.Errorf(
 				grpccodes.InvalidArgument,
 				"cannot change host_type for node set '%s' from '%s' to '%s': host_type is immutable",
@@ -547,8 +547,10 @@ func (s *PrivateClustersServer) validateTemplateImmutability(ctx context.Context
 		newSpec.SetCatalogItem(existingSpec.GetCatalogItem())
 	}
 
-	// Check if template has changed:
-	if updatingTemplate && !proto.Equal(existingSpec.GetTemplate(), newSpec.GetTemplate()) {
+	// Check if template has changed. Compare by refKey (Id) rather than proto.Equal because
+	// validateAndTransformCluster normalizes the stored reference to Id-only, while the
+	// reference validator interceptor may backfill Name on incoming requests.
+	if updatingTemplate && refKey(existingSpec.GetTemplate()) != refKey(newSpec.GetTemplate()) {
 		return grpcstatus.Errorf(
 			grpccodes.InvalidArgument,
 			"cannot change spec.template from '%s' to '%s': template is immutable",
@@ -570,7 +572,7 @@ func (s *PrivateClustersServer) validateTemplateImmutability(ctx context.Context
 		}
 	}
 
-	if updatingCatalogItem && !proto.Equal(existingSpec.GetCatalogItem(), newSpec.GetCatalogItem()) {
+	if updatingCatalogItem && refKey(existingSpec.GetCatalogItem()) != refKey(newSpec.GetCatalogItem()) {
 		return grpcstatus.Errorf(
 			grpccodes.InvalidArgument,
 			"cannot change spec.catalog_item from '%s' to '%s': catalog item is immutable",

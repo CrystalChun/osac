@@ -22,7 +22,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	grpccodes "google.golang.org/grpc/codes"
 	grpcstatus "google.golang.org/grpc/status"
-	"google.golang.org/protobuf/proto"
 
 	privatev1 "github.com/osac-project/osac/fulfillment-service/internal/api/osac/private/v1"
 	"github.com/osac-project/osac/fulfillment-service/internal/auth"
@@ -364,7 +363,7 @@ func validateImmutableFieldsExternalIP(newExternalIP, existingExternalIP *privat
 	newPool := newExternalIP.GetSpec().GetPool()
 	existingPool := existingExternalIP.GetSpec().GetPool()
 
-	if !proto.Equal(newPool, existingPool) {
+	if refKey(newPool) != refKey(existingPool) {
 		return grpcstatus.Errorf(grpccodes.InvalidArgument,
 			"field 'spec.pool' is immutable and cannot be changed from '%s' to '%s'",
 			refKey(existingPool), refKey(newPool))
