@@ -22,6 +22,8 @@ import (
 	"log/slog"
 	"net/http"
 	"net/url"
+	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 
@@ -140,7 +142,14 @@ func (c *runnerContext) terminateSession(ctx context.Context, cfg *config.Settin
 
 	logoutURL := fmt.Sprintf("%s?%s", metadata.EndSessionEndpoint, params.Encode())
 
-	resp, err := client.Get(logoutURL)
+	// Build the request with the caller's context explicitly rather than using http.Client.Get, which
+	// always issues its request with context.Background() and therefore ignores cancellation and
+	// deadlines set by the caller.
+	request, err := http.NewRequestWithContext(ctx, http.MethodGet, logoutURL, nil)
+	if err != nil {
+		return fmt.Errorf("failed to create end_session_endpoint request: %w", err)
+	}
+	resp, err := client.Do(request)
 	if err != nil {
 		return fmt.Errorf("failed to call end_session_endpoint: %w", err)
 	}
@@ -164,8 +173,15 @@ func (c *runnerContext) refreshForIdToken(ctx context.Context, client *http.Clie
 		form.Set("client_secret", clientSecret)
 	}
 
-	// Send the request to the token endpoint:
-	resp, err := client.PostForm(tokenEndpoint, form)
+	// Build the request with the caller's context explicitly rather than using http.Client.PostForm,
+	// which always issues its request with context.Background() and therefore ignores cancellation
+	// and deadlines set by the caller.
+	request, err := http.NewRequestWithContext(ctx, http.MethodPost, tokenEndpoint, strings.NewReader(form.Encode()))
+	if err != nil {
+		return "", fmt.Errorf("failed to create token endpoint request: %w", err)
+	}
+	request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	resp, err := client.Do(request)
 	if err != nil {
 		return "", fmt.Errorf("failed to call token endpoint: %w", err)
 	}
@@ -193,6 +209,12 @@ func (c *runnerContext) refreshForIdToken(ctx context.Context, client *http.Clie
 	return tokenResponse.IdToken, nil
 }
 
+// httpRequestTimeout bounds requests made by this client so a stalled connection to the OAuth server
+// fails instead of hanging forever. The caller's context (see terminateSession/refreshForIdToken) is
+// also honored via NewRequestWithContext, but this is a necessary backstop for a bare
+// context.Background() with no deadline of its own.
+const httpRequestTimeout = 30 * time.Second
+
 func (c *runnerContext) httpClient(caPool *x509.CertPool, insecure bool) *http.Client {
 	tlsConfig := &tls.Config{
 		RootCAs: caPool,
@@ -201,6 +223,7 @@ func (c *runnerContext) httpClient(caPool *x509.CertPool, insecure bool) *http.C
 		tlsConfig.InsecureSkipVerify = true
 	}
 	return &http.Client{
+		Timeout: httpRequestTimeout,
 		Transport: &http.Transport{
 			TLSClientConfig: tlsConfig,
 		},

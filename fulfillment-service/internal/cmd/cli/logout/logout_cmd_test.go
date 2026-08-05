@@ -183,6 +183,62 @@ var _ = Describe("Logout command execution", func() {
 		Expect(output.String()).To(ContainSubstring("Successfully logged out"))
 		Expect(settings.Address()).To(BeEmpty())
 	})
+
+	It("Fails promptly instead of hanging when the end-session endpoint never responds", func() {
+		// release unblocks the /logout handler, closed explicitly after the call below returns so
+		// that server.Close() during cleanup doesn't itself block waiting for it to return.
+		release := make(chan struct{})
+		var serverURL string
+		mux := http.NewServeMux()
+		mux.HandleFunc("/.well-known/openid-configuration", func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(map[string]string{
+				"issuer":               serverURL,
+				"token_endpoint":       serverURL + "/token",
+				"end_session_endpoint": serverURL + "/logout",
+			})
+		})
+		mux.HandleFunc("/token", func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(map[string]string{
+				"id_token": "the-id-token",
+			})
+		})
+		mux.HandleFunc("/logout", func(w http.ResponseWriter, r *http.Request) {
+			<-release
+		})
+		server := httptest.NewServer(mux)
+		DeferCleanup(server.Close)
+		serverURL = server.URL
+
+		ctx, settings := setupContext()
+		settings.SetAddress("localhost:8000")
+		settings.SetIssuer(server.URL)
+		settings.SetAccessToken("my-access-token")
+		settings.SetRefreshToken("my-refresh-token")
+		settings.SetTokenExpiry(time.Now().Add(1 * time.Hour))
+		settings.SetFlow("code")
+		settings.SetClientId("test-client")
+		settings.SetClientSecret("test-secret")
+		settings.SetScopes([]string{"openid"})
+		err := settings.Save(ctx)
+		Expect(err).ToNot(HaveOccurred())
+		err = settings.Load(ctx)
+		Expect(err).ToNot(HaveOccurred())
+
+		requestCtx, cancel := context.WithTimeout(ctx, 1*time.Second)
+		defer cancel()
+
+		runner := &runnerContext{}
+		start := time.Now()
+		err = runner.terminateSession(requestCtx, settings, slog.Default())
+		elapsed := time.Since(start)
+		close(release)
+
+		Expect(err).To(HaveOccurred())
+		Expect(elapsed).To(BeNumerically("<", 5*time.Second),
+			"terminateSession should fail promptly once the context deadline is reached, not hang forever")
+	})
 })
 
 var _ = Describe("refreshForIdToken", func() {
@@ -288,6 +344,33 @@ var _ = Describe("refreshForIdToken", func() {
 		)
 		Expect(err).To(HaveOccurred())
 		Expect(err.Error()).To(ContainSubstring("failed to call token endpoint"))
+	})
+
+	It("Fails promptly instead of hanging when the token endpoint never responds", func() {
+		// release unblocks the handler, closed explicitly after the call below returns so that
+		// server.Close() during cleanup doesn't itself block waiting for this handler to return.
+		release := make(chan struct{})
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			<-release
+		}))
+		DeferCleanup(server.Close)
+
+		// Use the runner's real client constructor rather than an injected test client, since the
+		// defect is the combination of that constructor's lack of a timeout with PostForm ignoring
+		// the caller's context:
+		client := runner.httpClient(nil, false)
+
+		requestCtx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
+		defer cancel()
+		start := time.Now()
+		_, err := runner.refreshForIdToken(requestCtx, client, server.URL,
+			"my-refresh-token", "my-client", "my-secret")
+		elapsed := time.Since(start)
+		close(release)
+
+		Expect(err).To(HaveOccurred())
+		Expect(elapsed).To(BeNumerically("<", 5*time.Second),
+			"refreshForIdToken should fail promptly once the context deadline is reached, not hang forever")
 	})
 })
 
