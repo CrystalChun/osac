@@ -25,6 +25,17 @@ __debug_bin*
 # Go coverage tool output (e.g. LiteIDE)
 *.out
 
+# go.work.sum is a derived, workspace-level checksum cache regenerated
+# automatically by `go build`/`go test` from the repo root -- unlike each
+# module's own go.sum (which stays committed and is the real, reproducible
+# dependency lock), this file grows non-deterministically depending on what
+# each contributor happens to build locally, which caused near-constant
+# merge conflicts unrelated to any actual code change. Matches GitHub's own
+# default Go .gitignore template and the general community consensus for
+# go.work/go.work.sum (see golang/go#53502) -- not needed for reproducible
+# builds since every module's go.sum already covers that.
+/go.work.sum
+
 # editor and IDE paraphernalia
 .idea
 .vscode
