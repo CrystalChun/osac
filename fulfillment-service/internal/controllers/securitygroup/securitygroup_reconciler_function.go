@@ -25,7 +25,6 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/proto"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	clnt "sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -207,7 +206,7 @@ func (t *task) update(ctx context.Context) error {
 		}
 		err = t.hubClient.Create(ctx, object)
 		if err != nil {
-			return t.handleK8sWriteError(ctx, err)
+			return controllers.HandleK8sWriteError(ctx, t.r.logger, err, t.setFailed)
 		}
 		t.r.logger.DebugContext(
 			ctx,
@@ -220,7 +219,7 @@ func (t *task) update(ctx context.Context) error {
 		update.Spec = spec
 		err = t.hubClient.Patch(ctx, update, clnt.MergeFrom(object))
 		if err != nil {
-			return t.handleK8sWriteError(ctx, err)
+			return controllers.HandleK8sWriteError(ctx, t.r.logger, err, t.setFailed)
 		}
 		t.r.logger.DebugContext(
 			ctx,
@@ -396,18 +395,7 @@ func (t *task) removeFinalizer() {
 	}
 }
 
-func (t *task) handleK8sWriteError(ctx context.Context, err error) error {
-	if apierrors.IsInvalid(err) {
-		t.setFailed(ctx, err)
-		return nil
-	}
-	return err
-}
-
-func (t *task) setFailed(ctx context.Context, err error) {
-	t.r.logger.WarnContext(ctx, "Permanent error, marking resource as failed",
-		slog.String("error", err.Error()),
-	)
+func (t *task) setFailed(err error) {
 	if !t.securityGroup.HasStatus() {
 		t.securityGroup.SetStatus(&privatev1.SecurityGroupStatus{})
 	}
