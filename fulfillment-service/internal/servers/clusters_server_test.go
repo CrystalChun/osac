@@ -16,6 +16,7 @@ package servers
 import (
 	"fmt"
 
+	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	grpccodes "google.golang.org/grpc/codes"
@@ -278,6 +279,9 @@ var _ = Describe("Clusters server", func() {
 		It("Creates object", func() {
 			response, err := server.Create(ctx, publicv1.ClustersCreateRequest_builder{
 				Object: publicv1.Cluster_builder{
+					Metadata: publicv1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: publicv1.ClusterSpec_builder{
 						Template: publicv1.ClusterTemplateReference_builder{Id: "my_template"}.Build(),
 					}.Build(),
@@ -292,7 +296,11 @@ var _ = Describe("Clusters server", func() {
 
 		It("Doesn't create object without template", func() {
 			response, err := server.Create(ctx, publicv1.ClustersCreateRequest_builder{
-				Object: publicv1.Cluster_builder{}.Build(),
+				Object: publicv1.Cluster_builder{
+					Metadata: publicv1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
+				}.Build(),
 			}.Build())
 			Expect(err).To(HaveOccurred())
 			Expect(response).To(BeNil())
@@ -305,6 +313,9 @@ var _ = Describe("Clusters server", func() {
 		It("Takes default node sets from template", func() {
 			response, err := server.Create(ctx, publicv1.ClustersCreateRequest_builder{
 				Object: publicv1.Cluster_builder{
+					Metadata: publicv1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: publicv1.ClusterSpec_builder{
 						Template: publicv1.ClusterTemplateReference_builder{Id: "my_template"}.Build(),
 					}.Build(),
@@ -326,6 +337,9 @@ var _ = Describe("Clusters server", func() {
 		It("Rejects node set that isn't in the template", func() {
 			response, err := server.Create(ctx, publicv1.ClustersCreateRequest_builder{
 				Object: publicv1.Cluster_builder{
+					Metadata: publicv1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: publicv1.ClusterSpec_builder{
 						Template: publicv1.ClusterTemplateReference_builder{Id: "my_template"}.Build(),
 						NodeSets: map[string]*publicv1.ClusterNodeSet{
@@ -351,6 +365,9 @@ var _ = Describe("Clusters server", func() {
 		It("Rejects node set with host type that isn't in the template", func() {
 			response, err := server.Create(ctx, publicv1.ClustersCreateRequest_builder{
 				Object: publicv1.Cluster_builder{
+					Metadata: publicv1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: publicv1.ClusterSpec_builder{
 						Template: publicv1.ClusterTemplateReference_builder{Id: "my_template"}.Build(),
 						NodeSets: map[string]*publicv1.ClusterNodeSet{
@@ -376,6 +393,9 @@ var _ = Describe("Clusters server", func() {
 		It("Rejects node set with zero size", func() {
 			response, err := server.Create(ctx, publicv1.ClustersCreateRequest_builder{
 				Object: publicv1.Cluster_builder{
+					Metadata: publicv1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: publicv1.ClusterSpec_builder{
 						Template: publicv1.ClusterTemplateReference_builder{Id: "my_template"}.Build(),
 						NodeSets: map[string]*publicv1.ClusterNodeSet{
@@ -399,6 +419,9 @@ var _ = Describe("Clusters server", func() {
 		It("Rejects node set with negative size", func() {
 			response, err := server.Create(ctx, publicv1.ClustersCreateRequest_builder{
 				Object: publicv1.Cluster_builder{
+					Metadata: publicv1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: publicv1.ClusterSpec_builder{
 						Template: publicv1.ClusterTemplateReference_builder{Id: "my_template"}.Build(),
 						NodeSets: map[string]*publicv1.ClusterNodeSet{
@@ -422,6 +445,9 @@ var _ = Describe("Clusters server", func() {
 		It("Accepts node set with explicit size", func() {
 			response, err := server.Create(ctx, publicv1.ClustersCreateRequest_builder{
 				Object: publicv1.Cluster_builder{
+					Metadata: publicv1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: publicv1.ClusterSpec_builder{
 						Template: publicv1.ClusterTemplateReference_builder{Id: "my_template"}.Build(),
 						NodeSets: map[string]*publicv1.ClusterNodeSet{
@@ -443,6 +469,9 @@ var _ = Describe("Clusters server", func() {
 		It("Accepts multiple node sets with explicit size", func() {
 			response, err := server.Create(ctx, publicv1.ClustersCreateRequest_builder{
 				Object: publicv1.Cluster_builder{
+					Metadata: publicv1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: publicv1.ClusterSpec_builder{
 						Template: publicv1.ClusterTemplateReference_builder{Id: "my_template"}.Build(),
 						NodeSets: map[string]*publicv1.ClusterNodeSet{
@@ -470,6 +499,9 @@ var _ = Describe("Clusters server", func() {
 		It("Merges explicit size for one node set with size for another node set from the template", func() {
 			response, err := server.Create(ctx, publicv1.ClustersCreateRequest_builder{
 				Object: publicv1.Cluster_builder{
+					Metadata: publicv1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: publicv1.ClusterSpec_builder{
 						Template: publicv1.ClusterTemplateReference_builder{Id: "my_template"}.Build(),
 						NodeSets: map[string]*publicv1.ClusterNodeSet{
@@ -496,6 +528,9 @@ var _ = Describe("Clusters server", func() {
 				ctx,
 				publicv1.ClustersCreateRequest_builder{
 					Object: publicv1.Cluster_builder{
+						Metadata: publicv1.Metadata_builder{
+							Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+						}.Build(),
 						Spec: publicv1.ClusterSpec_builder{
 							Template: publicv1.ClusterTemplateReference_builder{Id: "my_deleted_template"}.Build(),
 						}.Build(),
@@ -515,6 +550,9 @@ var _ = Describe("Clusters server", func() {
 		It("Doesn't create object if there are missing required template parameters", func() {
 			response, err := server.Create(ctx, publicv1.ClustersCreateRequest_builder{
 				Object: publicv1.Cluster_builder{
+					Metadata: publicv1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: publicv1.ClusterSpec_builder{
 						Template: publicv1.ClusterTemplateReference_builder{Id: "my_with_parameters"}.Build(),
 					}.Build(),
@@ -533,6 +571,9 @@ var _ = Describe("Clusters server", func() {
 		It("Doesn't create object if one parameter doesn't exist in the template", func() {
 			response, err := server.Create(ctx, publicv1.ClustersCreateRequest_builder{
 				Object: publicv1.Cluster_builder{
+					Metadata: publicv1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: publicv1.ClusterSpec_builder{
 						Template: publicv1.ClusterTemplateReference_builder{Id: "my_with_parameters"}.Build(),
 						TemplateParameters: map[string]*anypb.Any{
@@ -555,6 +596,9 @@ var _ = Describe("Clusters server", func() {
 		It("Doesn't create object if two parameters don't exist in the template", func() {
 			response, err := server.Create(ctx, publicv1.ClustersCreateRequest_builder{
 				Object: publicv1.Cluster_builder{
+					Metadata: publicv1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: publicv1.ClusterSpec_builder{
 						Template: publicv1.ClusterTemplateReference_builder{Id: "my_with_parameters"}.Build(),
 						TemplateParameters: map[string]*anypb.Any{
@@ -578,6 +622,9 @@ var _ = Describe("Clusters server", func() {
 		It("Doesn't create object if parameter type doesn't match the template", func() {
 			response, err := server.Create(ctx, publicv1.ClustersCreateRequest_builder{
 				Object: publicv1.Cluster_builder{
+					Metadata: publicv1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: publicv1.ClusterSpec_builder{
 						Template: publicv1.ClusterTemplateReference_builder{Id: "my_with_parameters"}.Build(),
 						TemplateParameters: map[string]*anypb.Any{
@@ -601,6 +648,9 @@ var _ = Describe("Clusters server", func() {
 		It("Takes default values of parameters from the template", func() {
 			response, err := server.Create(ctx, publicv1.ClustersCreateRequest_builder{
 				Object: publicv1.Cluster_builder{
+					Metadata: publicv1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: publicv1.ClusterSpec_builder{
 						Template: publicv1.ClusterTemplateReference_builder{Id: "my_with_parameters"}.Build(),
 						TemplateParameters: map[string]*anypb.Any{
@@ -631,6 +681,9 @@ var _ = Describe("Clusters server", func() {
 		It("Allows overriding of default values of template parameters", func() {
 			response, err := server.Create(ctx, publicv1.ClustersCreateRequest_builder{
 				Object: publicv1.Cluster_builder{
+					Metadata: publicv1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: publicv1.ClusterSpec_builder{
 						Template: publicv1.ClusterTemplateReference_builder{Id: "my_with_parameters"}.Build(),
 						TemplateParameters: map[string]*anypb.Any{
@@ -657,6 +710,9 @@ var _ = Describe("Clusters server", func() {
 			for range count {
 				_, err := server.Create(ctx, publicv1.ClustersCreateRequest_builder{
 					Object: publicv1.Cluster_builder{
+						Metadata: publicv1.Metadata_builder{
+							Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+						}.Build(),
 						Spec: publicv1.ClusterSpec_builder{
 							Template: publicv1.ClusterTemplateReference_builder{Id: "my_template"}.Build(),
 						}.Build(),
@@ -679,6 +735,9 @@ var _ = Describe("Clusters server", func() {
 			for range count {
 				_, err := server.Create(ctx, publicv1.ClustersCreateRequest_builder{
 					Object: publicv1.Cluster_builder{
+						Metadata: publicv1.Metadata_builder{
+							Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+						}.Build(),
 						Spec: publicv1.ClusterSpec_builder{
 							Template: publicv1.ClusterTemplateReference_builder{Id: "my_template"}.Build(),
 						}.Build(),
@@ -701,6 +760,9 @@ var _ = Describe("Clusters server", func() {
 			for range count {
 				_, err := server.Create(ctx, publicv1.ClustersCreateRequest_builder{
 					Object: publicv1.Cluster_builder{
+						Metadata: publicv1.Metadata_builder{
+							Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+						}.Build(),
 						Spec: publicv1.ClusterSpec_builder{
 							Template: publicv1.ClusterTemplateReference_builder{Id: "my_template"}.Build(),
 						}.Build(),
@@ -724,6 +786,9 @@ var _ = Describe("Clusters server", func() {
 			for range count {
 				response, err := server.Create(ctx, publicv1.ClustersCreateRequest_builder{
 					Object: publicv1.Cluster_builder{
+						Metadata: publicv1.Metadata_builder{
+							Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+						}.Build(),
 						Spec: publicv1.ClusterSpec_builder{
 							Template: publicv1.ClusterTemplateReference_builder{Id: "my_template"}.Build(),
 						}.Build(),
@@ -748,6 +813,9 @@ var _ = Describe("Clusters server", func() {
 			// Create the object:
 			createResponse, err := server.Create(ctx, publicv1.ClustersCreateRequest_builder{
 				Object: publicv1.Cluster_builder{
+					Metadata: publicv1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: publicv1.ClusterSpec_builder{
 						Template: publicv1.ClusterTemplateReference_builder{Id: "my_template"}.Build(),
 					}.Build(),
@@ -979,6 +1047,9 @@ var _ = Describe("Clusters server", func() {
 			// Try to create an object with status:
 			createResponse, err := server.Create(ctx, publicv1.ClustersCreateRequest_builder{
 				Object: publicv1.Cluster_builder{
+					Metadata: publicv1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: publicv1.ClusterSpec_builder{
 						Template: publicv1.ClusterTemplateReference_builder{Id: "my_template"}.Build(),
 					}.Build(),
@@ -1624,6 +1695,9 @@ var _ = Describe("Clusters server", func() {
 			pullSecret := "my-secret-pull-secret"
 			response, err := server.Create(ctx, publicv1.ClustersCreateRequest_builder{
 				Object: publicv1.Cluster_builder{
+					Metadata: publicv1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: publicv1.ClusterSpec_builder{
 						Template:   publicv1.ClusterTemplateReference_builder{Id: "my_template"}.Build(),
 						PullSecret: &pullSecret,
@@ -1638,6 +1712,9 @@ var _ = Describe("Clusters server", func() {
 			pullSecret := "my-secret-pull-secret"
 			createResponse, err := server.Create(ctx, publicv1.ClustersCreateRequest_builder{
 				Object: publicv1.Cluster_builder{
+					Metadata: publicv1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: publicv1.ClusterSpec_builder{
 						Template:   publicv1.ClusterTemplateReference_builder{Id: "my_template"}.Build(),
 						PullSecret: &pullSecret,
@@ -1657,6 +1734,9 @@ var _ = Describe("Clusters server", func() {
 			pullSecret := "my-secret-pull-secret"
 			_, err := server.Create(ctx, publicv1.ClustersCreateRequest_builder{
 				Object: publicv1.Cluster_builder{
+					Metadata: publicv1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: publicv1.ClusterSpec_builder{
 						Template:   publicv1.ClusterTemplateReference_builder{Id: "my_template"}.Build(),
 						PullSecret: &pullSecret,
@@ -1696,6 +1776,9 @@ var _ = Describe("Clusters server", func() {
 			versionName := "4-18-0"
 			createResponse, err := server.Create(ctx, publicv1.ClustersCreateRequest_builder{
 				Object: publicv1.Cluster_builder{
+					Metadata: publicv1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: publicv1.ClusterSpec_builder{
 						Template:     publicv1.ClusterTemplateReference_builder{Id: "my_template"}.Build(),
 						PullSecret:   &pullSecret,
@@ -1728,6 +1811,9 @@ var _ = Describe("Clusters server", func() {
 		It("Does not redact pull_secret when not set", func() {
 			response, err := server.Create(ctx, publicv1.ClustersCreateRequest_builder{
 				Object: publicv1.Cluster_builder{
+					Metadata: publicv1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: publicv1.ClusterSpec_builder{
 						Template: publicv1.ClusterTemplateReference_builder{Id: "my_template"}.Build(),
 					}.Build(),
@@ -1785,6 +1871,9 @@ var _ = Describe("Clusters server", func() {
 			invalidCIDR := "not-a-cidr"
 			_, err := server.Create(ctx, publicv1.ClustersCreateRequest_builder{
 				Object: publicv1.Cluster_builder{
+					Metadata: publicv1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: publicv1.ClusterSpec_builder{
 						Template: publicv1.ClusterTemplateReference_builder{Id: "my_template"}.Build(),
 						Network: publicv1.ClusterNetwork_builder{
@@ -1805,6 +1894,9 @@ var _ = Describe("Clusters server", func() {
 			invalidCIDR := "999.999.999.999/99"
 			_, err := server.Create(ctx, publicv1.ClustersCreateRequest_builder{
 				Object: publicv1.Cluster_builder{
+					Metadata: publicv1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: publicv1.ClusterSpec_builder{
 						Template: publicv1.ClusterTemplateReference_builder{Id: "my_template"}.Build(),
 						Network: publicv1.ClusterNetwork_builder{
@@ -1826,6 +1918,9 @@ var _ = Describe("Clusters server", func() {
 			serviceCIDR := "172.30.0.0/16"
 			response, err := server.Create(ctx, publicv1.ClustersCreateRequest_builder{
 				Object: publicv1.Cluster_builder{
+					Metadata: publicv1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: publicv1.ClusterSpec_builder{
 						Template: publicv1.ClusterTemplateReference_builder{Id: "my_template"}.Build(),
 						Network: publicv1.ClusterNetwork_builder{
@@ -1906,6 +2001,9 @@ var _ = Describe("Clusters server", func() {
 			It("Returns resolved cluster without persisting", func() {
 				response, err := server.Create(dryRunCtx(), publicv1.ClustersCreateRequest_builder{
 					Object: publicv1.Cluster_builder{
+						Metadata: publicv1.Metadata_builder{
+							Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+						}.Build(),
 						Spec: publicv1.ClusterSpec_builder{
 							Template: publicv1.ClusterTemplateReference_builder{Id: "my_template"}.Build(),
 						}.Build(),
@@ -1923,6 +2021,9 @@ var _ = Describe("Clusters server", func() {
 			It("Returns same error as real creation for invalid template", func() {
 				_, realErr := server.Create(ctx, publicv1.ClustersCreateRequest_builder{
 					Object: publicv1.Cluster_builder{
+						Metadata: publicv1.Metadata_builder{
+							Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+						}.Build(),
 						Spec: publicv1.ClusterSpec_builder{
 							Template: publicv1.ClusterTemplateReference_builder{Id: "non-existent"}.Build(),
 						}.Build(),
@@ -1932,6 +2033,9 @@ var _ = Describe("Clusters server", func() {
 
 				_, dryRunErr := server.Create(dryRunCtx(), publicv1.ClustersCreateRequest_builder{
 					Object: publicv1.Cluster_builder{
+						Metadata: publicv1.Metadata_builder{
+							Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+						}.Build(),
 						Spec: publicv1.ClusterSpec_builder{
 							Template: publicv1.ClusterTemplateReference_builder{Id: "non-existent"}.Build(),
 						}.Build(),

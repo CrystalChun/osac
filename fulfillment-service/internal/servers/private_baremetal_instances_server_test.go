@@ -14,9 +14,11 @@ language governing permissions and limitations under the License.
 package servers
 
 import (
+	"fmt"
 	"strings"
 
 	"buf.build/go/protovalidate"
+	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
@@ -103,6 +105,9 @@ var _ = Describe("Private bare metal instances server", func() {
 			// Create a published catalog item for use in tests.
 			catalogResp, err := catalogServer.Create(ctx, privatev1.BareMetalInstanceCatalogItemsCreateRequest_builder{
 				Object: privatev1.BareMetalInstanceCatalogItem_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Title:     "Test catalog item",
 					Template:  privatev1.BareMetalInstanceTemplateReference_builder{Id: "test-template"}.Build(),
 					Published: true,
@@ -137,6 +142,9 @@ var _ = Describe("Private bare metal instances server", func() {
 		createCatalogItemWithTemplate := func(templateID string) string {
 			catalogResp, err := catalogServer.Create(ctx, privatev1.BareMetalInstanceCatalogItemsCreateRequest_builder{
 				Object: privatev1.BareMetalInstanceCatalogItem_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Title:     "Catalog with template params",
 					Template:  privatev1.BareMetalInstanceTemplateReference_builder{Id: templateID}.Build(),
 					Published: true,
@@ -149,6 +157,9 @@ var _ = Describe("Private bare metal instances server", func() {
 		It("Creates object with minimal spec", func() {
 			response, err := server.Create(ctx, privatev1.BareMetalInstancesCreateRequest_builder{
 				Object: privatev1.BareMetalInstance_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: privatev1.BareMetalInstanceSpec_builder{
 						CatalogItem: privatev1.BareMetalInstanceCatalogItemReference_builder{Id: catalogItemID}.Build(),
 					}.Build(),
@@ -162,6 +173,9 @@ var _ = Describe("Private bare metal instances server", func() {
 		It("Creates object with valid SSH key", func() {
 			response, err := server.Create(ctx, privatev1.BareMetalInstancesCreateRequest_builder{
 				Object: privatev1.BareMetalInstance_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: privatev1.BareMetalInstanceSpec_builder{
 						CatalogItem:  privatev1.BareMetalInstanceCatalogItemReference_builder{Id: catalogItemID}.Build(),
 						SshPublicKey: new(testSSHPublicKey),
@@ -175,6 +189,9 @@ var _ = Describe("Private bare metal instances server", func() {
 		It("Rejects nonexistent catalog item", func() {
 			_, err := server.Create(ctx, privatev1.BareMetalInstancesCreateRequest_builder{
 				Object: privatev1.BareMetalInstance_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: privatev1.BareMetalInstanceSpec_builder{
 						CatalogItem: privatev1.BareMetalInstanceCatalogItemReference_builder{Id: "does-not-exist"}.Build(),
 					}.Build(),
@@ -210,6 +227,9 @@ var _ = Describe("Private bare metal instances server", func() {
 
 			_, err = server.Create(ctx, privatev1.BareMetalInstancesCreateRequest_builder{
 				Object: privatev1.BareMetalInstance_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: privatev1.BareMetalInstanceSpec_builder{
 						CatalogItem: privatev1.BareMetalInstanceCatalogItemReference_builder{Id: "my-named-catalog-item"}.Build(),
 					}.Build(),
@@ -225,6 +245,9 @@ var _ = Describe("Private bare metal instances server", func() {
 		It("Rejects unpublished catalog item", func() {
 			unpubResp, err := catalogServer.Create(ctx, privatev1.BareMetalInstanceCatalogItemsCreateRequest_builder{
 				Object: privatev1.BareMetalInstanceCatalogItem_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Title:     "Unpublished item",
 					Template:  privatev1.BareMetalInstanceTemplateReference_builder{Id: "test-template"}.Build(),
 					Published: false,
@@ -235,6 +258,9 @@ var _ = Describe("Private bare metal instances server", func() {
 
 			_, err = server.Create(ctx, privatev1.BareMetalInstancesCreateRequest_builder{
 				Object: privatev1.BareMetalInstance_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: privatev1.BareMetalInstanceSpec_builder{
 						CatalogItem: privatev1.BareMetalInstanceCatalogItemReference_builder{Id: unpubID}.Build(),
 					}.Build(),
@@ -252,6 +278,9 @@ var _ = Describe("Private bare metal instances server", func() {
 		It("Rejects invalid SSH key at create time", func() {
 			_, err := server.Create(ctx, privatev1.BareMetalInstancesCreateRequest_builder{
 				Object: privatev1.BareMetalInstance_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: privatev1.BareMetalInstanceSpec_builder{
 						CatalogItem:  privatev1.BareMetalInstanceCatalogItemReference_builder{Id: catalogItemID}.Build(),
 						SshPublicKey: new("not-a-valid-ssh-key"),
@@ -269,6 +298,9 @@ var _ = Describe("Private bare metal instances server", func() {
 			bigData := strings.Repeat("x", bareMetalInstanceUserDataMaxBytes+1)
 			_, err := server.Create(ctx, privatev1.BareMetalInstancesCreateRequest_builder{
 				Object: privatev1.BareMetalInstance_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: privatev1.BareMetalInstanceSpec_builder{
 						CatalogItem: privatev1.BareMetalInstanceCatalogItemReference_builder{Id: catalogItemID}.Build(),
 						UserData:    new(bigData),
@@ -287,6 +319,9 @@ var _ = Describe("Private bare metal instances server", func() {
 			exactData := strings.Repeat("x", bareMetalInstanceUserDataMaxBytes)
 			_, err := server.Create(ctx, privatev1.BareMetalInstancesCreateRequest_builder{
 				Object: privatev1.BareMetalInstance_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: privatev1.BareMetalInstanceSpec_builder{
 						CatalogItem: privatev1.BareMetalInstanceCatalogItemReference_builder{Id: catalogItemID}.Build(),
 						UserData:    new(exactData),
@@ -312,6 +347,9 @@ var _ = Describe("Private bare metal instances server", func() {
 
 			secondResp, err := catalogServer.Create(ctx, privatev1.BareMetalInstanceCatalogItemsCreateRequest_builder{
 				Object: privatev1.BareMetalInstanceCatalogItem_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Title:     "Second catalog item",
 					Template:  privatev1.BareMetalInstanceTemplateReference_builder{Id: "test-template"}.Build(),
 					Published: true,
@@ -452,6 +490,9 @@ var _ = Describe("Private bare metal instances server", func() {
 		It("Creates object with image and persists it", func() {
 			createResponse, err := server.Create(ctx, privatev1.BareMetalInstancesCreateRequest_builder{
 				Object: privatev1.BareMetalInstance_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: privatev1.BareMetalInstanceSpec_builder{
 						CatalogItem: privatev1.BareMetalInstanceCatalogItemReference_builder{Id: catalogItemID}.Build(),
 						Image: privatev1.BareMetalInstanceImage_builder{
@@ -478,6 +519,9 @@ var _ = Describe("Private bare metal instances server", func() {
 		It("Rejects image with missing source_type", func() {
 			_, err := server.Create(ctx, privatev1.BareMetalInstancesCreateRequest_builder{
 				Object: privatev1.BareMetalInstance_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: privatev1.BareMetalInstanceSpec_builder{
 						CatalogItem: privatev1.BareMetalInstanceCatalogItemReference_builder{Id: catalogItemID}.Build(),
 						Image: privatev1.BareMetalInstanceImage_builder{
@@ -496,6 +540,9 @@ var _ = Describe("Private bare metal instances server", func() {
 		It("Rejects image with missing source_ref", func() {
 			_, err := server.Create(ctx, privatev1.BareMetalInstancesCreateRequest_builder{
 				Object: privatev1.BareMetalInstance_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: privatev1.BareMetalInstanceSpec_builder{
 						CatalogItem: privatev1.BareMetalInstanceCatalogItemReference_builder{Id: catalogItemID}.Build(),
 						Image: privatev1.BareMetalInstanceImage_builder{
@@ -539,6 +586,9 @@ var _ = Describe("Private bare metal instances server", func() {
 
 			catResp, err := catalogServer.Create(ctx, privatev1.BareMetalInstanceCatalogItemsCreateRequest_builder{
 				Object: privatev1.BareMetalInstanceCatalogItem_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Title:     "Catalog with image default",
 					Template:  privatev1.BareMetalInstanceTemplateReference_builder{Id: "image-default-template"}.Build(),
 					Published: true,
@@ -549,6 +599,9 @@ var _ = Describe("Private bare metal instances server", func() {
 
 			createResponse, err := server.Create(ctx, privatev1.BareMetalInstancesCreateRequest_builder{
 				Object: privatev1.BareMetalInstance_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: privatev1.BareMetalInstanceSpec_builder{
 						CatalogItem: privatev1.BareMetalInstanceCatalogItemReference_builder{Id: catID}.Build(),
 					}.Build(),
@@ -588,6 +641,9 @@ var _ = Describe("Private bare metal instances server", func() {
 
 			catResp, err := catalogServer.Create(ctx, privatev1.BareMetalInstanceCatalogItemsCreateRequest_builder{
 				Object: privatev1.BareMetalInstanceCatalogItem_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Title:     "Catalog with image default override",
 					Template:  privatev1.BareMetalInstanceTemplateReference_builder{Id: "image-override-template"}.Build(),
 					Published: true,
@@ -598,6 +654,9 @@ var _ = Describe("Private bare metal instances server", func() {
 
 			createResponse, err := server.Create(ctx, privatev1.BareMetalInstancesCreateRequest_builder{
 				Object: privatev1.BareMetalInstance_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: privatev1.BareMetalInstanceSpec_builder{
 						CatalogItem: privatev1.BareMetalInstanceCatalogItemReference_builder{Id: catID}.Build(),
 						Image: privatev1.BareMetalInstanceImage_builder{
@@ -641,6 +700,9 @@ var _ = Describe("Private bare metal instances server", func() {
 
 			catResp, err := catalogServer.Create(ctx, privatev1.BareMetalInstanceCatalogItemsCreateRequest_builder{
 				Object: privatev1.BareMetalInstanceCatalogItem_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Title:     "Catalog with partial merge",
 					Template:  privatev1.BareMetalInstanceTemplateReference_builder{Id: "image-partial-merge-template"}.Build(),
 					Published: true,
@@ -651,6 +713,9 @@ var _ = Describe("Private bare metal instances server", func() {
 
 			createResponse, err := server.Create(ctx, privatev1.BareMetalInstancesCreateRequest_builder{
 				Object: privatev1.BareMetalInstance_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: privatev1.BareMetalInstanceSpec_builder{
 						CatalogItem: privatev1.BareMetalInstanceCatalogItemReference_builder{Id: catID}.Build(),
 						Image: privatev1.BareMetalInstanceImage_builder{
@@ -758,6 +823,9 @@ var _ = Describe("Private bare metal instances server", func() {
 		It("Signals object", func() {
 			createResponse, err := server.Create(ctx, privatev1.BareMetalInstancesCreateRequest_builder{
 				Object: privatev1.BareMetalInstance_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: privatev1.BareMetalInstanceSpec_builder{
 						CatalogItem: privatev1.BareMetalInstanceCatalogItemReference_builder{Id: catalogItemID}.Build(),
 					}.Build(),
@@ -786,6 +854,9 @@ var _ = Describe("Private bare metal instances server", func() {
 
 			response, err := server.Create(ctx, privatev1.BareMetalInstancesCreateRequest_builder{
 				Object: privatev1.BareMetalInstance_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: privatev1.BareMetalInstanceSpec_builder{
 						CatalogItem:        privatev1.BareMetalInstanceCatalogItemReference_builder{Id: catID}.Build(),
 						TemplateParameters: map[string]*anypb.Any{"os_version": osParam},
@@ -811,6 +882,9 @@ var _ = Describe("Private bare metal instances server", func() {
 
 			response, err := server.Create(ctx, privatev1.BareMetalInstancesCreateRequest_builder{
 				Object: privatev1.BareMetalInstance_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: privatev1.BareMetalInstanceSpec_builder{
 						CatalogItem:        privatev1.BareMetalInstanceCatalogItemReference_builder{Id: catID}.Build(),
 						TemplateParameters: map[string]*anypb.Any{"os_version": osParam},
@@ -839,6 +913,9 @@ var _ = Describe("Private bare metal instances server", func() {
 
 			_, err = server.Create(ctx, privatev1.BareMetalInstancesCreateRequest_builder{
 				Object: privatev1.BareMetalInstance_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: privatev1.BareMetalInstanceSpec_builder{
 						CatalogItem: privatev1.BareMetalInstanceCatalogItemReference_builder{Id: catID}.Build(),
 						TemplateParameters: map[string]*anypb.Any{
@@ -864,6 +941,9 @@ var _ = Describe("Private bare metal instances server", func() {
 
 			_, err := server.Create(ctx, privatev1.BareMetalInstancesCreateRequest_builder{
 				Object: privatev1.BareMetalInstance_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: privatev1.BareMetalInstanceSpec_builder{
 						CatalogItem:        privatev1.BareMetalInstanceCatalogItemReference_builder{Id: catID}.Build(),
 						TemplateParameters: map[string]*anypb.Any{},
@@ -889,6 +969,9 @@ var _ = Describe("Private bare metal instances server", func() {
 
 			_, err = server.Create(ctx, privatev1.BareMetalInstancesCreateRequest_builder{
 				Object: privatev1.BareMetalInstance_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: privatev1.BareMetalInstanceSpec_builder{
 						CatalogItem:        privatev1.BareMetalInstanceCatalogItemReference_builder{Id: catID}.Build(),
 						TemplateParameters: map[string]*anypb.Any{"os_version": wrongType},
@@ -992,6 +1075,9 @@ var _ = Describe("Private bare metal instances server", func() {
 
 			comboCatResp, err := catalogServer.Create(ctx, privatev1.BareMetalInstanceCatalogItemsCreateRequest_builder{
 				Object: privatev1.BareMetalInstanceCatalogItem_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Title:     "Catalog with both constraints",
 					Template:  privatev1.BareMetalInstanceTemplateReference_builder{Id: "combo-template"}.Build(),
 					Published: true,
@@ -1016,6 +1102,9 @@ var _ = Describe("Private bare metal instances server", func() {
 
 			response, err := server.Create(ctx, privatev1.BareMetalInstancesCreateRequest_builder{
 				Object: privatev1.BareMetalInstance_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: privatev1.BareMetalInstanceSpec_builder{
 						CatalogItem:        privatev1.BareMetalInstanceCatalogItemReference_builder{Id: comboCatID}.Build(),
 						TemplateParameters: map[string]*anypb.Any{"os_version": osParam},
@@ -1034,6 +1123,9 @@ var _ = Describe("Private bare metal instances server", func() {
 
 			catResp, err := catalogServer.Create(ctx, privatev1.BareMetalInstanceCatalogItemsCreateRequest_builder{
 				Object: privatev1.BareMetalInstanceCatalogItem_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Title:     "Override + template params",
 					Template:  privatev1.BareMetalInstanceTemplateReference_builder{Id: "override-combo-template"}.Build(),
 					Published: true,
@@ -1059,6 +1151,9 @@ var _ = Describe("Private bare metal instances server", func() {
 			userKey := "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIUserProvidedKeyThatShouldBeOverridden user@test"
 			_, err = server.Create(ctx, privatev1.BareMetalInstancesCreateRequest_builder{
 				Object: privatev1.BareMetalInstance_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: privatev1.BareMetalInstanceSpec_builder{
 						CatalogItem:        privatev1.BareMetalInstanceCatalogItemReference_builder{Id: catID}.Build(),
 						SshPublicKey:       &userKey,
@@ -1080,6 +1175,9 @@ var _ = Describe("Private bare metal instances server", func() {
 
 			catResp, err := catalogServer.Create(ctx, privatev1.BareMetalInstanceCatalogItemsCreateRequest_builder{
 				Object: privatev1.BareMetalInstanceCatalogItem_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Title:     "Editable + template params",
 					Template:  privatev1.BareMetalInstanceTemplateReference_builder{Id: "editable-combo-template"}.Build(),
 					Published: true,
@@ -1103,6 +1201,9 @@ var _ = Describe("Private bare metal instances server", func() {
 
 			response, err := server.Create(ctx, privatev1.BareMetalInstancesCreateRequest_builder{
 				Object: privatev1.BareMetalInstance_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: privatev1.BareMetalInstanceSpec_builder{
 						CatalogItem:        privatev1.BareMetalInstanceCatalogItemReference_builder{Id: catID}.Build(),
 						SshPublicKey:       new(testSSHPublicKey),
@@ -1122,6 +1223,9 @@ var _ = Describe("Private bare metal instances server", func() {
 
 			catResp, err := catalogServer.Create(ctx, privatev1.BareMetalInstanceCatalogItemsCreateRequest_builder{
 				Object: privatev1.BareMetalInstanceCatalogItem_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Title:     "FD fail + valid TP",
 					Template:  privatev1.BareMetalInstanceTemplateReference_builder{Id: "fd-fail-template"}.Build(),
 					Published: true,
@@ -1145,6 +1249,9 @@ var _ = Describe("Private bare metal instances server", func() {
 
 			_, err = server.Create(ctx, privatev1.BareMetalInstancesCreateRequest_builder{
 				Object: privatev1.BareMetalInstance_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: privatev1.BareMetalInstanceSpec_builder{
 						CatalogItem:        privatev1.BareMetalInstanceCatalogItemReference_builder{Id: catID}.Build(),
 						TemplateParameters: map[string]*anypb.Any{"os_version": osParam},
@@ -1165,6 +1272,9 @@ var _ = Describe("Private bare metal instances server", func() {
 
 			catResp, err := catalogServer.Create(ctx, privatev1.BareMetalInstanceCatalogItemsCreateRequest_builder{
 				Object: privatev1.BareMetalInstanceCatalogItem_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Title:     "Valid FD + TP fail",
 					Template:  privatev1.BareMetalInstanceTemplateReference_builder{Id: "tp-fail-template"}.Build(),
 					Published: true,
@@ -1182,6 +1292,9 @@ var _ = Describe("Private bare metal instances server", func() {
 
 			_, err = server.Create(ctx, privatev1.BareMetalInstancesCreateRequest_builder{
 				Object: privatev1.BareMetalInstance_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: privatev1.BareMetalInstanceSpec_builder{
 						CatalogItem:        privatev1.BareMetalInstanceCatalogItemReference_builder{Id: catID}.Build(),
 						TemplateParameters: map[string]*anypb.Any{},
@@ -1198,6 +1311,9 @@ var _ = Describe("Private bare metal instances server", func() {
 		It("Creates object with auto_external_ip_attachment and persists it", func() {
 			response, err := server.Create(ctx, privatev1.BareMetalInstancesCreateRequest_builder{
 				Object: privatev1.BareMetalInstance_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: privatev1.BareMetalInstanceSpec_builder{
 						CatalogItem:              privatev1.BareMetalInstanceCatalogItemReference_builder{Id: catalogItemID}.Build(),
 						AutoExternalIpAttachment: true,
@@ -1250,6 +1366,9 @@ var _ = Describe("Private bare metal instances server", func() {
 		It("Rejects template_parameters when catalog item has no template", func() {
 			noTemplateResp, err := catalogServer.Create(ctx, privatev1.BareMetalInstanceCatalogItemsCreateRequest_builder{
 				Object: privatev1.BareMetalInstanceCatalogItem_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Title:     "No template item",
 					Published: true,
 				}.Build(),
@@ -1262,6 +1381,9 @@ var _ = Describe("Private bare metal instances server", func() {
 
 			_, err = server.Create(ctx, privatev1.BareMetalInstancesCreateRequest_builder{
 				Object: privatev1.BareMetalInstance_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: privatev1.BareMetalInstanceSpec_builder{
 						CatalogItem:        privatev1.BareMetalInstanceCatalogItemReference_builder{Id: noTemplateCatID}.Build(),
 						TemplateParameters: map[string]*anypb.Any{"os_version": osParam},
@@ -1354,6 +1476,9 @@ var _ = Describe("Private bare metal instances server", func() {
 			// Create catalog items referencing the templates.
 			catResp, err := catalogServer.Create(ctx, privatev1.BareMetalInstanceCatalogItemsCreateRequest_builder{
 				Object: privatev1.BareMetalInstanceCatalogItem_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Title:     "Catalog with HT",
 					Template:  privatev1.BareMetalInstanceTemplateReference_builder{Id: "template-with-ht"}.Build(),
 					Published: true,
@@ -1364,6 +1489,9 @@ var _ = Describe("Private bare metal instances server", func() {
 
 			catResp2, err := catalogServer.Create(ctx, privatev1.BareMetalInstanceCatalogItemsCreateRequest_builder{
 				Object: privatev1.BareMetalInstanceCatalogItem_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Title:     "Catalog no HT",
 					Template:  privatev1.BareMetalInstanceTemplateReference_builder{Id: "template-no-ht"}.Build(),
 					Published: true,
@@ -1376,6 +1504,9 @@ var _ = Describe("Private bare metal instances server", func() {
 		It("Accepts single attachment without interface", func() {
 			_, err := server.Create(ctx, privatev1.BareMetalInstancesCreateRequest_builder{
 				Object: privatev1.BareMetalInstance_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: privatev1.BareMetalInstanceSpec_builder{
 						CatalogItem: privatev1.BareMetalInstanceCatalogItemReference_builder{Id: catIDWithHT}.Build(),
 						NetworkAttachments: []*privatev1.BareMetalNetworkAttachment{
@@ -1392,6 +1523,9 @@ var _ = Describe("Private bare metal instances server", func() {
 		It("Accepts single attachment with valid interface", func() {
 			_, err := server.Create(ctx, privatev1.BareMetalInstancesCreateRequest_builder{
 				Object: privatev1.BareMetalInstance_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: privatev1.BareMetalInstanceSpec_builder{
 						CatalogItem: privatev1.BareMetalInstanceCatalogItemReference_builder{Id: catIDWithHT}.Build(),
 						NetworkAttachments: []*privatev1.BareMetalNetworkAttachment{
@@ -1409,6 +1543,9 @@ var _ = Describe("Private bare metal instances server", func() {
 		It("Accepts multiple attachments with distinct valid interfaces and one primary", func() {
 			_, err := server.Create(ctx, privatev1.BareMetalInstancesCreateRequest_builder{
 				Object: privatev1.BareMetalInstance_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: privatev1.BareMetalInstanceSpec_builder{
 						CatalogItem: privatev1.BareMetalInstanceCatalogItemReference_builder{Id: catIDWithHT}.Build(),
 						NetworkAttachments: []*privatev1.BareMetalNetworkAttachment{
@@ -1431,6 +1568,9 @@ var _ = Describe("Private bare metal instances server", func() {
 		It("Rejects interface not in HostType interfaces list", func() {
 			_, err := server.Create(ctx, privatev1.BareMetalInstancesCreateRequest_builder{
 				Object: privatev1.BareMetalInstance_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: privatev1.BareMetalInstanceSpec_builder{
 						CatalogItem: privatev1.BareMetalInstanceCatalogItemReference_builder{Id: catIDWithHT}.Build(),
 						NetworkAttachments: []*privatev1.BareMetalNetworkAttachment{
@@ -1453,6 +1593,9 @@ var _ = Describe("Private bare metal instances server", func() {
 		It("Rejects duplicate interface across attachments", func() {
 			_, err := server.Create(ctx, privatev1.BareMetalInstancesCreateRequest_builder{
 				Object: privatev1.BareMetalInstance_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: privatev1.BareMetalInstanceSpec_builder{
 						CatalogItem: privatev1.BareMetalInstanceCatalogItemReference_builder{Id: catIDWithHT}.Build(),
 						NetworkAttachments: []*privatev1.BareMetalNetworkAttachment{
@@ -1480,6 +1623,9 @@ var _ = Describe("Private bare metal instances server", func() {
 		It("Rejects interface with lifecycle role", func() {
 			_, err := server.Create(ctx, privatev1.BareMetalInstancesCreateRequest_builder{
 				Object: privatev1.BareMetalInstance_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: privatev1.BareMetalInstanceSpec_builder{
 						CatalogItem: privatev1.BareMetalInstanceCatalogItemReference_builder{Id: catIDWithHT}.Build(),
 						NetworkAttachments: []*privatev1.BareMetalNetworkAttachment{
@@ -1502,6 +1648,9 @@ var _ = Describe("Private bare metal instances server", func() {
 		It("Rejects multiple attachments without explicit interface", func() {
 			_, err := server.Create(ctx, privatev1.BareMetalInstancesCreateRequest_builder{
 				Object: privatev1.BareMetalInstance_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: privatev1.BareMetalInstanceSpec_builder{
 						CatalogItem: privatev1.BareMetalInstanceCatalogItemReference_builder{Id: catIDWithHT}.Build(),
 						NetworkAttachments: []*privatev1.BareMetalNetworkAttachment{
@@ -1526,6 +1675,9 @@ var _ = Describe("Private bare metal instances server", func() {
 		It("Rejects attachment count exceeding available interfaces", func() {
 			_, err := server.Create(ctx, privatev1.BareMetalInstancesCreateRequest_builder{
 				Object: privatev1.BareMetalInstance_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: privatev1.BareMetalInstanceSpec_builder{
 						CatalogItem: privatev1.BareMetalInstanceCatalogItemReference_builder{Id: catIDWithHT}.Build(),
 						NetworkAttachments: []*privatev1.BareMetalNetworkAttachment{
@@ -1547,6 +1699,9 @@ var _ = Describe("Private bare metal instances server", func() {
 		It("Rejects multiple attachments with no primary", func() {
 			_, err := server.Create(ctx, privatev1.BareMetalInstancesCreateRequest_builder{
 				Object: privatev1.BareMetalInstance_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: privatev1.BareMetalInstanceSpec_builder{
 						CatalogItem: privatev1.BareMetalInstanceCatalogItemReference_builder{Id: catIDWithHT}.Build(),
 						NetworkAttachments: []*privatev1.BareMetalNetworkAttachment{
@@ -1572,6 +1727,9 @@ var _ = Describe("Private bare metal instances server", func() {
 		It("Rejects multiple attachments with more than one primary", func() {
 			_, err := server.Create(ctx, privatev1.BareMetalInstancesCreateRequest_builder{
 				Object: privatev1.BareMetalInstance_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: privatev1.BareMetalInstanceSpec_builder{
 						CatalogItem: privatev1.BareMetalInstanceCatalogItemReference_builder{Id: catIDWithHT}.Build(),
 						NetworkAttachments: []*privatev1.BareMetalNetworkAttachment{
@@ -1599,6 +1757,9 @@ var _ = Describe("Private bare metal instances server", func() {
 		It("Skips interface-against-HostType validation when template has no host_type", func() {
 			_, err := server.Create(ctx, privatev1.BareMetalInstancesCreateRequest_builder{
 				Object: privatev1.BareMetalInstance_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: privatev1.BareMetalInstanceSpec_builder{
 						CatalogItem: privatev1.BareMetalInstanceCatalogItemReference_builder{Id: catIDNoHT}.Build(),
 						NetworkAttachments: []*privatev1.BareMetalNetworkAttachment{
@@ -1616,6 +1777,9 @@ var _ = Describe("Private bare metal instances server", func() {
 		It("Still validates structural rules when template has no host_type", func() {
 			_, err := server.Create(ctx, privatev1.BareMetalInstancesCreateRequest_builder{
 				Object: privatev1.BareMetalInstance_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: privatev1.BareMetalInstanceSpec_builder{
 						CatalogItem: privatev1.BareMetalInstanceCatalogItemReference_builder{Id: catIDNoHT}.Build(),
 						NetworkAttachments: []*privatev1.BareMetalNetworkAttachment{
@@ -1642,6 +1806,9 @@ var _ = Describe("Private bare metal instances server", func() {
 		It("Accepts no network attachments", func() {
 			_, err := server.Create(ctx, privatev1.BareMetalInstancesCreateRequest_builder{
 				Object: privatev1.BareMetalInstance_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: privatev1.BareMetalInstanceSpec_builder{
 						CatalogItem: privatev1.BareMetalInstanceCatalogItemReference_builder{Id: catIDWithHT}.Build(),
 					}.Build(),
@@ -1731,6 +1898,9 @@ var _ = Describe("Private bare metal instances server", func() {
 		It("Rejects update that changes array size", func() {
 			createResp, err := server.Create(ctx, privatev1.BareMetalInstancesCreateRequest_builder{
 				Object: privatev1.BareMetalInstance_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: privatev1.BareMetalInstanceSpec_builder{
 						CatalogItem: privatev1.BareMetalInstanceCatalogItemReference_builder{Id: catIDWithHT}.Build(),
 						NetworkAttachments: []*privatev1.BareMetalNetworkAttachment{
@@ -1769,6 +1939,9 @@ var _ = Describe("Private bare metal instances server", func() {
 		It("Rejects update that changes subnet", func() {
 			createResp, err := server.Create(ctx, privatev1.BareMetalInstancesCreateRequest_builder{
 				Object: privatev1.BareMetalInstance_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: privatev1.BareMetalInstanceSpec_builder{
 						CatalogItem: privatev1.BareMetalInstanceCatalogItemReference_builder{Id: catIDWithHT}.Build(),
 						NetworkAttachments: []*privatev1.BareMetalNetworkAttachment{
@@ -1809,6 +1982,9 @@ var _ = Describe("Private bare metal instances server", func() {
 		It("Rejects update that changes interface", func() {
 			createResp, err := server.Create(ctx, privatev1.BareMetalInstancesCreateRequest_builder{
 				Object: privatev1.BareMetalInstance_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: privatev1.BareMetalInstanceSpec_builder{
 						CatalogItem: privatev1.BareMetalInstanceCatalogItemReference_builder{Id: catIDWithHT}.Build(),
 						NetworkAttachments: []*privatev1.BareMetalNetworkAttachment{
@@ -1849,6 +2025,9 @@ var _ = Describe("Private bare metal instances server", func() {
 		It("Rejects update that changes primary", func() {
 			createResp, err := server.Create(ctx, privatev1.BareMetalInstancesCreateRequest_builder{
 				Object: privatev1.BareMetalInstance_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+					}.Build(),
 					Spec: privatev1.BareMetalInstanceSpec_builder{
 						CatalogItem: privatev1.BareMetalInstanceCatalogItemReference_builder{Id: catIDWithHT}.Build(),
 						NetworkAttachments: []*privatev1.BareMetalNetworkAttachment{
