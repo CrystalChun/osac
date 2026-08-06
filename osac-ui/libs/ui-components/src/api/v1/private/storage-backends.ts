@@ -55,11 +55,7 @@ export const useCreateStorageBackend = () => {
 
 export type UpdateStorageBackendInput = {
   id: string;
-  spec: {
-    endpoint?: string;
-    description?: string;
-    credentials?: MessageInitShape<typeof StorageBackendCredentialsSchema>;
-  };
+  spec: MessageInitShape<typeof StorageBackendSpecSchema>;
 };
 
 export const useUpdateStorageBackend = () => {
@@ -72,14 +68,9 @@ export const useUpdateStorageBackend = () => {
         spec.credentials = create(StorageBackendCredentialsSchema, spec.credentials);
       }
 
-      const paths = buildUpdateMaskPaths({ spec } as Record<string, unknown>);
-      if (paths.length === 0) {
-        throw new Error('useUpdateStorageBackend requires at least one field to update');
-      }
-
       const resp = await client.update({
         object: { id: input.id, spec },
-        updateMask: { paths },
+        updateMask: { paths: buildUpdateMaskPaths({ spec } as Record<string, unknown>) },
       });
       if (!resp.object) {
         throw new Error('Update response missing object');

@@ -213,30 +213,6 @@ describe('useUpdateStorageBackend', () => {
       password: 'test-updated-secret',
     });
   });
-
-  it('rejects an update with no fields to change, without calling the RPC', async () => {
-    let called = false;
-    const transport = createMockConnectTransport(
-      { storageBackends: [makeStorageBackend('b-1')] },
-      {
-        onStorageBackendUpdate: (_req) => {
-          called = true;
-          return create(StorageBackendsUpdateResponseSchema, {
-            object: makeStorageBackend('b-1'),
-          });
-        },
-      },
-    );
-    const { wrapper } = makeWrapper(transport);
-    const { result } = renderHook(() => useUpdateStorageBackend(), { wrapper });
-
-    act(() => {
-      result.current.mutate({ id: 'b-1', spec: {} });
-    });
-
-    await waitFor(() => expect(result.current.isError).toBe(true));
-    expect(called).toBe(false);
-  });
 });
 
 describe('useDeleteStorageBackend', () => {
