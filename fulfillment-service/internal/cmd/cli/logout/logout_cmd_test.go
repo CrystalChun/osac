@@ -194,17 +194,19 @@ var _ = Describe("Logout command execution", func() {
 		mux := http.NewServeMux()
 		mux.HandleFunc("/.well-known/openid-configuration", func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(map[string]string{
+			err := json.NewEncoder(w).Encode(map[string]string{
 				"issuer":               serverURL,
 				"token_endpoint":       serverURL + "/token",
 				"end_session_endpoint": serverURL + "/logout",
 			})
+			Expect(err).ToNot(HaveOccurred())
 		})
 		mux.HandleFunc("/token", func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(map[string]string{
+			err := json.NewEncoder(w).Encode(map[string]string{
 				"id_token": "the-id-token",
 			})
+			Expect(err).ToNot(HaveOccurred())
 		})
 		mux.HandleFunc("/logout", func(w http.ResponseWriter, r *http.Request) {
 			<-release

@@ -217,16 +217,20 @@ const httpRequestTimeout = 30 * time.Second
 
 func (c *runnerContext) httpClient(caPool *x509.CertPool, insecure bool) *http.Client {
 	tlsConfig := &tls.Config{
-		RootCAs: caPool,
+		RootCAs:    caPool,
+		MinVersion: tls.VersionTLS13,
 	}
 	if insecure {
 		tlsConfig.InsecureSkipVerify = true
 	}
+	// Clone http.DefaultTransport rather than starting from a bare struct literal, so proxy
+	// support (Proxy: http.ProxyFromEnvironment), dial/keep-alive timeouts, HTTP/2, and connection
+	// pooling defaults are preserved — only the TLS configuration is overridden.
+	transport := http.DefaultTransport.(*http.Transport).Clone()
+	transport.TLSClientConfig = tlsConfig
 	return &http.Client{
-		Timeout: httpRequestTimeout,
-		Transport: &http.Transport{
-			TLSClientConfig: tlsConfig,
-		},
+		Timeout:   httpRequestTimeout,
+		Transport: transport,
 	}
 }
 

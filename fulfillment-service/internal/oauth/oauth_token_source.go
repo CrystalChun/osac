@@ -431,16 +431,20 @@ func (b *TokenSourceBuilder) resolveDefaults() (cfg resolvedConfig, err error) {
 	cfg.httpClient = b.httpClient
 	if cfg.httpClient == nil {
 		tlsConfig := &tls.Config{
-			RootCAs: cfg.caPool,
+			RootCAs:    cfg.caPool,
+			MinVersion: tls.VersionTLS13,
 		}
 		if b.insecure {
 			tlsConfig.InsecureSkipVerify = true
 		}
+		// Clone http.DefaultTransport rather than starting from a bare struct literal, so proxy
+		// support (Proxy: http.ProxyFromEnvironment), dial/keep-alive timeouts, HTTP/2, and
+		// connection pooling defaults are preserved — only the TLS configuration is overridden.
+		transport := http.DefaultTransport.(*http.Transport).Clone()
+		transport.TLSClientConfig = tlsConfig
 		cfg.httpClient = &http.Client{
-			Timeout: httpRequestTimeout,
-			Transport: &http.Transport{
-				TLSClientConfig: tlsConfig,
-			},
+			Timeout:   httpRequestTimeout,
+			Transport: transport,
 		}
 	}
 
