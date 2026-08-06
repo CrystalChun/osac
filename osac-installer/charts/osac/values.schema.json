@@ -1338,11 +1338,11 @@
     },
     "lvms": {
       "type": "object",
-      "description": "LVMS StorageBackend registration in OSAC. Distinct from lvms.enabled in osac-prereqs (which installs the LVMS operator). Enable registerStorageBackend only in environments where LVMS is installed AND you want it exposed as an OSAC storage backend.",
+      "description": "Register LVMS as a local StorageBackend + StorageTier in the fulfillment service after install. For CI/development environments only.",
       "properties": {
-        "registerStorageBackend": {
+        "enabled": {
           "type": "boolean",
-          "description": "Register LVMS as a local StorageBackend + StorageTier in the fulfillment service. Do not enable in vmaas-ci or production.",
+          "description": "Run the register-local-storage hook job when LVMS is deployed",
           "default": false
         }
       }
