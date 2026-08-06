@@ -372,6 +372,7 @@
   "Tenants": "Tenants",
   "The console is available when the virtual machine is running.": "The console is available when the virtual machine is running.",
   "This console is already open in another tab in this browser. Take over to continue here, or switch to that tab.": "This console is already open in another tab in this browser. Take over to continue here, or switch to that tab.",
+  "This feature is coming soon.": "This feature is coming soon.",
   "This field is required": "This field is required",
   "This might be because the console is already open in another session.": "This might be because the console is already open in another session.",
   "This permanently deletes the bare metal instance. This action cannot be undone.": "This permanently deletes the bare metal instance. This action cannot be undone.",
