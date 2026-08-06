@@ -14,6 +14,7 @@ import {
 import {
   STORAGE_BACKEND_READY_LIST_FILTER,
   invalidateStorageBackendsQueries,
+  storageBackendIdsFilter,
   useCreateStorageBackend,
   useDeleteStorageBackend,
   usePrivateStorageBackend,
@@ -229,6 +230,22 @@ describe('useDeleteStorageBackend', () => {
 
     await waitFor(() => expect(result.current.isSuccess || result.current.isError).toBe(true));
     expect(result.current.isSuccess).toBe(true);
+  });
+});
+
+describe('storageBackendIdsFilter', () => {
+  it('builds an in-list CEL filter from the given ids', () => {
+    expect(storageBackendIdsFilter(['b-1', 'b-2'])).toBe('this.id in ["b-1", "b-2"]');
+  });
+
+  it('builds an empty in-list filter for no ids', () => {
+    expect(storageBackendIdsFilter([])).toBe('this.id in []');
+  });
+
+  it('escapes embedded quotes and backslashes in each id', () => {
+    expect(storageBackendIdsFilter(['say "hi"', 'path\\to'])).toBe(
+      'this.id in ["say \\"hi\\"", "path\\\\to"]',
+    );
   });
 });
 

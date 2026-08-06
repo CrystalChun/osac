@@ -12,9 +12,13 @@ import {
 import { useApiFetch } from '../../api-context';
 import { type ListParams, apiQueryKey } from '../../types';
 import { type ApiQueryClient, useApiQuery, useApiQueryClient } from '../../use-api-query';
+import { escapeCelStringLiteral } from '../networking';
 import { buildUpdateMaskPaths } from '../update-mask';
 
 export const STORAGE_BACKEND_READY_LIST_FILTER = `this.status.state == ${StorageBackendState.READY}`;
+
+export const storageBackendIdsFilter = (ids: string[]): string =>
+  `this.id in [${ids.map((id) => `"${escapeCelStringLiteral(id)}"`).join(', ')}]`;
 
 export const usePrivateStorageBackends = (params: ListParams = {}) => {
   const client = useApiFetch(StorageBackends);
