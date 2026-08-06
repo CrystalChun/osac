@@ -62,6 +62,18 @@ var _ = Describe("Protovalidate validation", func() {
 		}
 	})
 
+	It("Rejects Tenant with missing metadata", func() {
+		_, err := tenantClient.Create(ctx, privatev1.TenantsCreateRequest_builder{
+			Object: privatev1.Tenant_builder{}.Build(),
+		}.Build())
+
+		Expect(err).To(HaveOccurred())
+		status, ok := grpcstatus.FromError(err)
+		Expect(ok).To(BeTrue(), "error should be a gRPC status error")
+		Expect(status.Code()).To(Equal(grpccodes.InvalidArgument), "should return InvalidArgument")
+		Expect(status.Message()).To(ContainSubstring("metadata is required"))
+	})
+
 	It("Rejects Tenant with invalid metadata name (too long)", func() {
 		// Create a Tenant with name > 63 chars:
 		invalidName := "this-name-is-way-too-long-and-exceeds-the-sixty-three-character-limit-for-dns-labels"
