@@ -1035,11 +1035,11 @@ var _ = Describe("Token source", func() {
 				},
 			),
 		)
-		// release unblocks the handler. It is closed explicitly right after the request below
-		// returns (success or failure) rather than relying on the server noticing the client gave
-		// up, which isn't guaranteed to happen promptly — so that server.Close() during cleanup
-		// doesn't itself block waiting for this handler to return.
+		// release unblocks the handler. Deferred so it always runs — even if the goroutine below
+		// never completes — so server.Close() during cleanup doesn't itself block waiting for this
+		// handler to return.
 		release := make(chan struct{})
+		defer close(release)
 		server.RouteToHandler(
 			http.MethodPost,
 			"/token",
@@ -1061,15 +1061,27 @@ var _ = Describe("Token source", func() {
 		Expect(err).ToNot(HaveOccurred())
 
 		// Request a token with a context that has a short deadline. If the request honors the
-		// context, it fails quickly once the deadline is reached instead of hanging forever:
+		// context, it fails quickly once the deadline is reached instead of hanging forever. Run it
+		// in a goroutine racing a timer, rather than calling it synchronously, so that a regression
+		// fails this spec cleanly instead of hanging the whole test binary:
 		requestCtx, cancel := context.WithTimeout(ctx, 500*time.Millisecond)
 		defer cancel()
+		done := make(chan error, 1)
 		start := time.Now()
-		_, err = source.Token(requestCtx)
-		elapsed := time.Since(start)
-		close(release)
+		go func() {
+			_, tokenErr := source.Token(requestCtx)
+			done <- tokenErr
+		}()
 
-		Expect(err).To(HaveOccurred())
+		var tokenErr error
+		select {
+		case tokenErr = <-done:
+		case <-time.After(5 * time.Second):
+			Fail("Token() should fail promptly once the context deadline is reached, not hang forever")
+		}
+		elapsed := time.Since(start)
+
+		Expect(tokenErr).To(HaveOccurred())
 		Expect(elapsed).To(BeNumerically("<", 5*time.Second),
 			"Token() should fail promptly once the context deadline is reached, not hang forever")
 	})

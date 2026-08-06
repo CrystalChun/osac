@@ -185,9 +185,11 @@ var _ = Describe("Logout command execution", func() {
 	})
 
 	It("Fails promptly instead of hanging when the end-session endpoint never responds", func() {
-		// release unblocks the /logout handler, closed explicitly after the call below returns so
-		// that server.Close() during cleanup doesn't itself block waiting for it to return.
+		// release unblocks the /logout handler. Deferred so it always runs — even if the goroutine
+		// below never completes — so server.Close() during cleanup doesn't itself block waiting for
+		// it to return.
 		release := make(chan struct{})
+		defer close(release)
 		var serverURL string
 		mux := http.NewServeMux()
 		mux.HandleFunc("/.well-known/openid-configuration", func(w http.ResponseWriter, r *http.Request) {
@@ -229,13 +231,24 @@ var _ = Describe("Logout command execution", func() {
 		requestCtx, cancel := context.WithTimeout(ctx, 1*time.Second)
 		defer cancel()
 
+		// Run the call in a goroutine racing a timer, rather than calling it synchronously, so
+		// that a regression fails this spec cleanly instead of hanging the whole test binary:
 		runner := &runnerContext{}
+		done := make(chan error, 1)
 		start := time.Now()
-		err = runner.terminateSession(requestCtx, settings, slog.Default())
-		elapsed := time.Since(start)
-		close(release)
+		go func() {
+			done <- runner.terminateSession(requestCtx, settings, slog.Default())
+		}()
 
-		Expect(err).To(HaveOccurred())
+		var sessionErr error
+		select {
+		case sessionErr = <-done:
+		case <-time.After(5 * time.Second):
+			Fail("terminateSession should fail promptly once the context deadline is reached, not hang forever")
+		}
+		elapsed := time.Since(start)
+
+		Expect(sessionErr).To(HaveOccurred())
 		Expect(elapsed).To(BeNumerically("<", 5*time.Second),
 			"terminateSession should fail promptly once the context deadline is reached, not hang forever")
 	})
@@ -347,9 +360,11 @@ var _ = Describe("refreshForIdToken", func() {
 	})
 
 	It("Fails promptly instead of hanging when the token endpoint never responds", func() {
-		// release unblocks the handler, closed explicitly after the call below returns so that
-		// server.Close() during cleanup doesn't itself block waiting for this handler to return.
+		// release unblocks the handler. Deferred so it always runs — even if the goroutine below
+		// never completes — so server.Close() during cleanup doesn't itself block waiting for this
+		// handler to return.
 		release := make(chan struct{})
+		defer close(release)
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			<-release
 		}))
@@ -362,13 +377,26 @@ var _ = Describe("refreshForIdToken", func() {
 
 		requestCtx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
 		defer cancel()
-		start := time.Now()
-		_, err := runner.refreshForIdToken(requestCtx, client, server.URL,
-			"my-refresh-token", "my-client", "my-secret")
-		elapsed := time.Since(start)
-		close(release)
 
-		Expect(err).To(HaveOccurred())
+		// Run the call in a goroutine racing a timer, rather than calling it synchronously, so
+		// that a regression fails this spec cleanly instead of hanging the whole test binary:
+		done := make(chan error, 1)
+		start := time.Now()
+		go func() {
+			_, refreshErr := runner.refreshForIdToken(requestCtx, client, server.URL,
+				"my-refresh-token", "my-client", "my-secret")
+			done <- refreshErr
+		}()
+
+		var refreshErr error
+		select {
+		case refreshErr = <-done:
+		case <-time.After(5 * time.Second):
+			Fail("refreshForIdToken should fail promptly once the context deadline is reached, not hang forever")
+		}
+		elapsed := time.Since(start)
+
+		Expect(refreshErr).To(HaveOccurred())
 		Expect(elapsed).To(BeNumerically("<", 5*time.Second),
 			"refreshForIdToken should fail promptly once the context deadline is reached, not hang forever")
 	})
