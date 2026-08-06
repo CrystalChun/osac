@@ -289,7 +289,9 @@ clusterVersions:
   #   default: true
 
 lvms:
-  # Register LVMS as a local StorageBackend + StorageTier in the fulfillment service
-  # after install. For CI/development environments only — production deployments
-  # should use their own storage operators (Ceph, Pure, VAST, etc.).
-  enabled: false
+  # Distinct from lvms.enabled in charts/osac-prereqs (which installs the LVMS operator
+  # and creates the LVMCluster). This flag registers LVMS as a local StorageBackend +
+  # StorageTier in the OSAC fulfillment service. Enable only in environments where LVMS
+  # is installed AND you want it exposed as an OSAC-managed storage backend
+  # (dev/demo clusters). Do NOT enable in vmaas-ci or production — those use VAST/Ceph.
+  registerStorageBackend: false

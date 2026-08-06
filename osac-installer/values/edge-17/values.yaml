@@ -1,0 +1,41 @@
+# edge-17 dev values — CaaS LVMS testing (OSAC-3234)
+# Extends values/caas-ci/values.yaml with edge-17-specific overrides.
+# Usage (this file is an overlay — caas-ci is the base):
+#   make install-operators VALUES_FILE=values/caas-ci/values.yaml
+#   make install-prereqs   VALUES_FILE=values/caas-ci/values.yaml DOMAIN=<cluster-domain>
+#   make install-osac      VALUES_FILE=values/caas-ci/values.yaml DOMAIN=<cluster-domain> \
+#                          EXTRA_HELM_ARGS="--values values/edge-17/values.yaml \
+#                                           --set-string aap.instanceGroups.clusterFulfillment.secret.AWS_ACCESS_KEY_ID=<key> \
+#                                           --set-string aap.instanceGroups.clusterFulfillment.secret.AWS_SECRET_ACCESS_KEY=<secret>"
+#
+# DOMAIN is the apps domain of the edge-17 cluster, e.g.:
+#   apps.caas-dev.eridani.com   (or whatever cluster-tool assigns)
+# Get it with: oc get ingresses.config/cluster -o jsonpath='{.spec.domain}'
+
+# --- Fulfillment Service ---
+# externalHostname and internalHostname are set via DOMAIN= make var, no override needed here.
+
+# --- AAP ---
+aap:
+  instanceGroups:
+    clusterFulfillment:
+      enabled: true
+      config:
+        NETWORK_STEPS_COLLECTION: "ci.steps"
+        HOSTED_CLUSTER_CONTROLLER_AVAILABILITY_POLICY: "SingleReplica"
+        HOSTED_CLUSTER_INFRASTRUCTURE_AVAILABILITY_POLICY: "SingleReplica"
+        EXTERNAL_ACCESS_BASE_DOMAIN: "ecoeng-osac-ci.devcluster.openshift.com"
+        EXTERNAL_ACCESS_SUPPORTED_BASE_DOMAINS: "ecoeng-osac-ci.devcluster.openshift.com"
+        HOSTED_CLUSTER_BASE_DOMAIN: "ecoeng-osac-ci.devcluster.openshift.com"
+        IMPORT_AGENTS_NAMESPACE: "hardware-inventory"
+        IMPORT_AGENTS_INFRAENV_NAME: "hardware-inventory"
+        IMPORT_AGENTS_PULL_SECRET_NAME: "pull-secret"
+      # AWS credentials for Route53 — passed via EXTRA_HELM_ARGS, not stored here:
+      #   --set-string aap.instanceGroups.clusterFulfillment.secret.AWS_ACCESS_KEY_ID=<key>
+      #   --set-string aap.instanceGroups.clusterFulfillment.secret.AWS_SECRET_ACCESS_KEY=<secret>
+
+# --- LVMS StorageBackend ---
+# edge-17 uses sno-4-22 (CaaS) which has LVMS installed via make install-operators.
+# Register it as an OSAC StorageBackend for OSAC-3234 testing.
+lvms:
+  registerStorageBackend: true
