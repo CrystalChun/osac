@@ -9,6 +9,7 @@ import {
   StorageTierSchema,
   StorageTierState,
   StorageTiersCreateResponseSchema,
+  StorageTiersListResponseSchema,
   StorageTiersUpdateResponseSchema,
 } from '@osac/types/private';
 
@@ -67,6 +68,38 @@ describe('usePrivateStorageTiers', () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.data).toHaveLength(2);
     expect(result.current.data?.map((t) => t.id)).toEqual(['t-1', 't-2']);
+  });
+
+  it('forwards filter, limit, offset, and order to the list request', async () => {
+    let captured: Record<string, unknown> | undefined;
+    const transport = createMockConnectTransport(
+      {},
+      {
+        onStorageTierList: (req) => {
+          captured = req as unknown as Record<string, unknown>;
+          return create(StorageTiersListResponseSchema, { items: [] });
+        },
+      },
+    );
+    const { wrapper } = makeWrapper(transport);
+    const { result } = renderHook(
+      () =>
+        usePrivateStorageTiers({
+          filter: 'this.status.state == 1',
+          limit: 10,
+          offset: 5,
+          order: 'metadata.name',
+        }),
+      { wrapper },
+    );
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(captured).toMatchObject({
+      filter: 'this.status.state == 1',
+      limit: 10,
+      offset: 5,
+      order: 'metadata.name',
+    });
   });
 });
 

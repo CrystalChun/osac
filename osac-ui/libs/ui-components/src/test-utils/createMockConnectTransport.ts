@@ -41,6 +41,8 @@ import type {
   StorageTier,
   StorageTiersCreateRequest,
   StorageTiersCreateResponse,
+  StorageTiersListRequest,
+  StorageTiersListResponse,
   StorageTiersUpdateRequest,
   StorageTiersUpdateResponse,
   TenantsCreateRequest,
@@ -143,6 +145,7 @@ export type MockTransportOverrides = {
   onTenantCreate?: (req: TenantsCreateRequest) => TenantsCreateResponse;
   onStorageBackendCreate?: (req: StorageBackendsCreateRequest) => StorageBackendsCreateResponse;
   onStorageBackendUpdate?: (req: StorageBackendsUpdateRequest) => StorageBackendsUpdateResponse;
+  onStorageTierList?: (req: StorageTiersListRequest) => StorageTiersListResponse;
   onStorageTierCreate?: (req: StorageTiersCreateRequest) => StorageTiersCreateResponse;
   onStorageTierUpdate?: (req: StorageTiersUpdateRequest) => StorageTiersUpdateResponse;
 };
@@ -317,11 +320,16 @@ export const createMockConnectTransport = (
       });
 
       router.service(StorageTiers, {
-        list: () => ({
-          items: storageTiers,
-          size: storageTiers.length,
-          total: storageTiers.length,
-        }),
+        list: (req) => {
+          if (overrides.onStorageTierList) {
+            return overrides.onStorageTierList(req);
+          }
+          return {
+            items: storageTiers,
+            size: storageTiers.length,
+            total: storageTiers.length,
+          };
+        },
         get: (req) => ({
           object: storageTiers.find((t) => t.id === req.id),
         }),
