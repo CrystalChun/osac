@@ -3,6 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 
 import {
   StorageBackendCredentialsSchema,
+  StorageBackendSchema,
   StorageBackendSpecSchema,
   StorageBackendState,
   StorageBackends,
@@ -37,30 +38,12 @@ export const usePrivateStorageBackend = (id: string) => {
 export const invalidateStorageBackendsQueries = (qc: ApiQueryClient) =>
   qc.invalidateQueries({ queryKey: apiQueryKey('v1/private/storage_backends') });
 
-export interface CreateStorageBackendInput {
-  name: string;
-  provider: string;
-  endpoint: string;
-  description?: string;
-  credentials: { username: string; password: string };
-}
-
 export const useCreateStorageBackend = () => {
   const client = useApiFetch(StorageBackends);
   const qc = useApiQueryClient();
   return useMutation({
-    mutationFn: async (input: CreateStorageBackendInput) => {
-      const resp = await client.create({
-        object: {
-          metadata: { name: input.name },
-          spec: {
-            provider: input.provider,
-            endpoint: input.endpoint,
-            description: input.description ?? '',
-            credentials: input.credentials,
-          },
-        },
-      });
+    mutationFn: async (input: MessageInitShape<typeof StorageBackendSchema>) => {
+      const resp = await client.create({ object: input });
       if (!resp.object) {
         throw new Error('Create response missing object');
       }
@@ -70,40 +53,33 @@ export const useCreateStorageBackend = () => {
   });
 };
 
-export interface UpdateStorageBackendInput {
+export type UpdateStorageBackendInput = {
   id: string;
-  endpoint?: string;
-  description?: string;
-  credentials?: { username: string; password: string };
-}
+  spec: {
+    endpoint?: string;
+    description?: string;
+    credentials?: MessageInitShape<typeof StorageBackendCredentialsSchema>;
+  };
+};
 
 export const useUpdateStorageBackend = () => {
   const client = useApiFetch(StorageBackends);
   const qc = useApiQueryClient();
   return useMutation({
     mutationFn: async (input: UpdateStorageBackendInput) => {
-      const spec: MessageInitShape<typeof StorageBackendSpecSchema> = {};
-      if (input.endpoint !== undefined) {
-        spec.endpoint = input.endpoint;
-      }
-      if (input.description !== undefined) {
-        spec.description = input.description;
-      }
-      if (input.credentials) {
-        spec.credentials = create(StorageBackendCredentialsSchema, input.credentials);
+      const spec: MessageInitShape<typeof StorageBackendSpecSchema> = { ...input.spec };
+      if (spec.credentials) {
+        spec.credentials = create(StorageBackendCredentialsSchema, spec.credentials);
       }
 
       const paths = buildUpdateMaskPaths({ spec } as Record<string, unknown>);
       if (paths.length === 0) {
-        throw new Error(
-          'useUpdateStorageBackend requires at least one of endpoint, description, or credentials',
-        );
+        throw new Error('useUpdateStorageBackend requires at least one field to update');
       }
 
       const resp = await client.update({
         object: { id: input.id, spec },
         updateMask: { paths },
-        lock: true,
       });
       if (!resp.object) {
         throw new Error('Update response missing object');
