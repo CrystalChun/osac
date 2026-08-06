@@ -26,7 +26,10 @@ const getAdminNav = (t: TFunction): NavSection[] => [
     kind: 'section',
     sectionId: 'nav-administration',
     label: t('Administration'),
-    children: [{ id: 'tenant', label: t('Tenants'), path: '/admin/tenants' }],
+    children: [
+      { id: 'tenant', label: t('Tenants'), path: '/admin/tenants' },
+      { id: 'storage', label: t('Storage'), path: '/admin/storage' },
+    ],
   },
   ...getBaseNav(t),
 ];
