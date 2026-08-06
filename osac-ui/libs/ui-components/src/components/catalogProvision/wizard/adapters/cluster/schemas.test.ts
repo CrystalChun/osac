@@ -198,7 +198,7 @@ describe('buildClusterStepSchema', () => {
           nodeSetRows: [
             {
               ...row,
-              hostType: { value: 'acme_1tb', label: 'ACME 1TB' },
+              hostType: 'acme_1tb',
               size: '0',
             },
           ],
@@ -229,13 +229,13 @@ describe('buildClusterStepSchema', () => {
             {
               ...row,
               rowId: 'row-1',
-              hostType: { value: 'acme_1tb', label: 'ACME 1TB' },
+              hostType: 'acme_1tb',
               size: '3',
             },
             {
               ...row,
               rowId: 'row-2',
-              hostType: { value: 'acme_1tb', label: 'ACME 1TB' },
+              hostType: 'acme_1tb',
               size: '2',
             },
           ],

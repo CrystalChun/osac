@@ -90,7 +90,7 @@ describe('ClusterConfigurationStep', () => {
               nodeSetRows: [
                 {
                   ...row,
-                  hostType: { value: 'acme_1tb', label: 'ACME 1TB' },
+                  hostType: 'acme_1tb',
                   size: '3',
                 },
               ],

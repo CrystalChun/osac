@@ -5,11 +5,10 @@ import { Protocol } from '@osac/types';
 import { protocolToString } from './SecurityGroupRulesTable';
 import { useTranslation } from '../../hooks/useTranslation';
 import { InputField } from '../Form/InputField';
-import type { LabeledResourceRef } from '../Form/labeledResourceRef';
 import { SelectField } from '../Form/SelectField';
 
 export interface RuleFormValues {
-  protocol: LabeledResourceRef;
+  protocol: number;
   portFrom: string;
   portTo: string;
   ipv4Cidr: string;
@@ -21,15 +20,13 @@ export const SecurityGroupRuleForm = () => {
   const { values } = useFormikContext<RuleFormValues>();
 
   const protocolOptions = [
-    { value: String(Protocol.TCP), label: protocolToString(Protocol.TCP, t) },
-    { value: String(Protocol.UDP), label: protocolToString(Protocol.UDP, t) },
-    { value: String(Protocol.ICMP), label: protocolToString(Protocol.ICMP, t) },
-    { value: String(Protocol.ALL), label: protocolToString(Protocol.ALL, t) },
+    { value: Protocol.TCP, label: protocolToString(Protocol.TCP, t) },
+    { value: Protocol.UDP, label: protocolToString(Protocol.UDP, t) },
+    { value: Protocol.ICMP, label: protocolToString(Protocol.ICMP, t) },
+    { value: Protocol.ALL, label: protocolToString(Protocol.ALL, t) },
   ];
 
-  const showPortRange =
-    values.protocol.value === String(Protocol.TCP) ||
-    values.protocol.value === String(Protocol.UDP);
+  const showPortRange = values.protocol === Protocol.TCP || values.protocol === Protocol.UDP;
 
   return (
     <>

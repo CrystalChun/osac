@@ -206,6 +206,9 @@ export const createMockConnectTransport = (
               matchesVirtualNetworkScopeFilter(req.filter, undefined),
           ),
         }),
+        get: (req) => ({
+          object: virtualNetworks.find((i) => i.id === req.id),
+        }),
       });
 
       router.service(Subnets, {
@@ -215,6 +218,9 @@ export const createMockConnectTransport = (
               matchesReadyStateFilter(req.filter, item.status?.state) &&
               matchesVirtualNetworkScopeFilter(req.filter, item.spec?.virtualNetwork),
           ),
+        }),
+        get: (req) => ({
+          object: subnets.find((i) => i.id === req.id),
         }),
       });
 
@@ -233,6 +239,9 @@ export const createMockConnectTransport = (
           items: instanceTypes.filter((item) =>
             matchesInstanceTypeActiveFilter(req.filter, item.spec?.state),
           ),
+        }),
+        get: (req) => ({
+          object: instanceTypes.find((i) => i.id === req.id),
         }),
       });
 

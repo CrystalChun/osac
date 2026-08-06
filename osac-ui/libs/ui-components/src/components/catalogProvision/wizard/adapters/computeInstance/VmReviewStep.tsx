@@ -1,0 +1,180 @@
+import {
+  Alert,
+  Bullseye,
+  DescriptionList,
+  DescriptionListDescription,
+  DescriptionListGroup,
+  DescriptionListTerm,
+  Spinner,
+  Stack,
+  StackItem,
+} from '@patternfly/react-core';
+import { useFormikContext } from 'formik';
+
+import { useInstanceType } from '@osac/ui-components/api/v1/instance-types';
+import {
+  useSecurityGroups,
+  useSubnet,
+  useVirtualNetwork,
+} from '@osac/ui-components/api/v1/networking';
+import { CatalogItem } from '@osac/ui-components/components/catalog/catalogItemDisplay';
+import { formatInstanceTypeReviewLabelFromType } from '@osac/ui-components/components/vm/utils';
+import { getErrorMessage } from '@osac/ui-components/utils/error';
+
+import { ComputeInstanceWizardValues } from './fields';
+import { useTranslation } from '../../../../../hooks/useTranslation';
+import { formatBootDiskSizeForReview, formatReviewScalar } from '../../catalogOverlay';
+
+interface Props {
+  catalogItem: CatalogItem | null;
+}
+
+export const VmReviewStep = ({ catalogItem }: Props) => {
+  const { t } = useTranslation();
+  const { values } = useFormikContext<ComputeInstanceWizardValues>();
+
+  const {
+    data: instanceType,
+    isLoading: instanceLoading,
+    error: instanceErr,
+  } = useInstanceType(values.spec.instanceType);
+
+  const {
+    data: virtualNetwork,
+    isLoading: virtNetLoading,
+    error: virtNetErr,
+  } = useVirtualNetwork(values.spec.networking.virtualNetwork);
+
+  const {
+    data: subnet,
+    isLoading: subnetLoading,
+    error: subnetError,
+  } = useSubnet(values.spec.networking.subnet);
+
+  const {
+    data: securityGroups,
+    isLoading: scLoading,
+    error: scError,
+  } = useSecurityGroups({
+    filter: `this.id in [${values.spec.networking.securityGroups.map((sc) => `"${sc}"`).join(',')}]`,
+  });
+
+  if (instanceLoading || virtNetLoading || subnetLoading || scLoading) {
+    return (
+      <Bullseye>
+        <Spinner />
+      </Bullseye>
+    );
+  }
+
+  return (
+    <Stack hasGutter>
+      {!!instanceErr && (
+        <StackItem>
+          <Alert variant="warning" isInline title={t('Failed to fetch instance type')}>
+            {getErrorMessage(instanceErr)}
+          </Alert>
+        </StackItem>
+      )}
+      {!!virtNetErr && (
+        <StackItem>
+          <Alert variant="warning" isInline title={t('Failed to fetch virtual network')}>
+            {getErrorMessage(virtNetErr)}
+          </Alert>
+        </StackItem>
+      )}
+      {!!subnetError && (
+        <StackItem>
+          <Alert variant="warning" isInline title={t('Failed to fetch subnet')}>
+            {getErrorMessage(subnetError)}
+          </Alert>
+        </StackItem>
+      )}
+      {!!scError && (
+        <StackItem>
+          <Alert variant="warning" isInline title={t('Failed to fetch security groups')}>
+            {getErrorMessage(scError)}
+          </Alert>
+        </StackItem>
+      )}
+      <StackItem>
+        <DescriptionList
+          isHorizontal
+          isCompact
+          aria-label={t('catalogProvision.steps.review.title')}
+        >
+          <DescriptionListGroup>
+            <DescriptionListTerm>{t('Catalog item')}</DescriptionListTerm>
+            <DescriptionListDescription>
+              {catalogItem?.title || catalogItem?.metadata?.name || '—'}
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+
+          <DescriptionListGroup>
+            <DescriptionListTerm>{t('Name')}</DescriptionListTerm>
+            <DescriptionListDescription>
+              {formatReviewScalar(values.metadata.name)}
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+          <DescriptionListGroup>
+            <DescriptionListTerm>{t('SSH public key')}</DescriptionListTerm>
+            <DescriptionListDescription>
+              {formatReviewScalar(values.spec.sshPublicKey)}
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+          <DescriptionListGroup>
+            <DescriptionListTerm>{t('VM image')}</DescriptionListTerm>
+            <DescriptionListDescription>
+              {formatReviewScalar(values.spec.image.sourceRef)}
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+
+          <DescriptionListGroup>
+            <DescriptionListTerm>{t('Instance type')}</DescriptionListTerm>
+            <DescriptionListDescription>
+              {formatInstanceTypeReviewLabelFromType(
+                instanceType,
+                undefined,
+                values.spec.instanceType,
+              )}
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+          <DescriptionListGroup>
+            <DescriptionListTerm>{t('Boot disk')}</DescriptionListTerm>
+            <DescriptionListDescription>
+              {formatBootDiskSizeForReview(values.spec.bootDisk.sizeGib)}
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+
+          <DescriptionListGroup>
+            <DescriptionListTerm>{t('User Data')}</DescriptionListTerm>
+            <DescriptionListDescription>
+              {formatReviewScalar(values.spec.userData)}
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+
+          <DescriptionListGroup>
+            <DescriptionListTerm>{t('Virtual network')}</DescriptionListTerm>
+            <DescriptionListDescription>
+              {virtualNetwork?.metadata?.name || values.spec.networking.virtualNetwork}
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+          <DescriptionListGroup>
+            <DescriptionListTerm>{t('Subnet')}</DescriptionListTerm>
+            <DescriptionListDescription>
+              {subnet?.metadata?.name || values.spec.networking.subnet}
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+          <DescriptionListGroup>
+            <DescriptionListTerm>{t('Security groups')}</DescriptionListTerm>
+            <DescriptionListDescription>
+              {values.spec.networking.securityGroups
+                .map((sc) => securityGroups?.find(({ id }) => id === sc)?.metadata?.name || sc)
+                .join(', ')}
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+        </DescriptionList>
+      </StackItem>
+    </Stack>
+  );
+};

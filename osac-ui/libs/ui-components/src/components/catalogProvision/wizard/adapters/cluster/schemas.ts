@@ -17,7 +17,6 @@ import {
   cidrsOverlap,
   isValidCidr,
 } from '../../../../../validation/cidr-validation';
-import { labeledResourceRefSchema } from '../../../../Form/labeledResourceRefSchema';
 import {
   getCatalogFieldOverlay,
   hasCatalogFieldDefinition,
@@ -30,7 +29,7 @@ import type { WizardStepId } from '../../stepIds';
 const nodeSetRowSchema = (t: TFunction) =>
   yup.object({
     rowId: yup.string().required(),
-    hostType: labeledResourceRefSchema(t('Host type is required')),
+    hostType: yup.string().required(t('Host type is required')),
     size: yup
       .string()
       .required(t('Pool size is required'))
@@ -115,9 +114,7 @@ const buildClusterFieldDefinitions = (catalogItem: unknown, t: TFunction) => {
       .of(rowSchema)
       .min(1, t('At least one node set is required'))
       .test('unique-host-types', t('Each host type can only be selected once'), (rows) => {
-        const hostTypeIds = (rows ?? [])
-          .map((row) => row?.hostType?.value?.trim() ?? '')
-          .filter(Boolean);
+        const hostTypeIds = (rows ?? []).map((row) => row?.hostType?.trim() ?? '').filter(Boolean);
         return new Set(hostTypeIds).size === hostTypeIds.length;
       }),
     specNetwork: yup.object({

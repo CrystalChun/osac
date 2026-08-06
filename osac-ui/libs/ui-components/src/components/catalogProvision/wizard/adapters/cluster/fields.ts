@@ -1,8 +1,6 @@
-import type { LabeledResourceRef } from '../../../../Form/labeledResourceRef';
-
 export interface ClusterNodeSetRow {
   rowId: string;
-  hostType: LabeledResourceRef;
+  hostType: string;
   size: string;
 }
 
@@ -49,6 +47,6 @@ export const createNodeSetRowId = (): string => crypto.randomUUID();
 
 export const createEmptyNodeSetRow = (): ClusterNodeSetRow => ({
   rowId: createNodeSetRowId(),
-  hostType: { value: '', label: '' },
+  hostType: '',
   size: '',
 });

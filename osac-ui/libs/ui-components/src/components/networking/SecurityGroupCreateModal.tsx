@@ -18,7 +18,6 @@ import type { SecurityGroupSchema } from '@osac/types';
 
 import { useCreateSecurityGroup, useVirtualNetworks } from '../../api/v1/networking';
 import { InputField } from '../../components/Form/InputField';
-import { labeledResourceRefSchema } from '../../components/Form/labeledResourceRefSchema';
 import OsacForm from '../../components/Form/OsacForm';
 import { SelectField } from '../../components/Form/SelectField';
 import { useTranslation } from '../../hooks/useTranslation';
@@ -32,13 +31,13 @@ interface SecurityGroupCreateModalProps {
 
 interface FormValues {
   name: string;
-  virtualNetwork: { value: string; label: string };
+  virtualNetwork: string;
 }
 
 const validationSchema = (t: TFunction) =>
   Yup.object({
     name: Yup.string().required(t('Name is required')),
-    virtualNetwork: labeledResourceRefSchema(t('Virtual network is required')),
+    virtualNetwork: Yup.string().required(t('Virtual network is required')),
   });
 
 export const SecurityGroupCreateModal = ({
@@ -55,26 +54,19 @@ export const SecurityGroupCreateModal = ({
     label: `${vn.metadata?.name ?? vn.id} (${vn.spec?.ipv4Cidr ?? ''})`,
   }));
 
-  const preselectedVirtualNetwork = virtualNetworkId
-    ? (virtualNetworkOptions.find((option) => option.value === virtualNetworkId) ?? {
-        value: virtualNetworkId,
-        label: virtualNetworkId,
-      })
-    : { value: '', label: '' };
-
   return (
     <Formik<FormValues>
       enableReinitialize
       initialValues={{
         name: '',
-        virtualNetwork: preselectedVirtualNetwork,
+        virtualNetwork: virtualNetworkId || '',
       }}
       validationSchema={validationSchema(t)}
       onSubmit={async (values) => {
         try {
           const body: MessageInitShape<typeof SecurityGroupSchema> = {
             metadata: { name: values.name },
-            spec: { virtualNetwork: values.virtualNetwork.value, ingress: [], egress: [] },
+            spec: { virtualNetwork: values.virtualNetwork, ingress: [], egress: [] },
           };
           const sg = await createSecurityGroup.mutateAsync(body);
           navigate(`/networking/security-groups/${sg.id}`);

@@ -5,7 +5,6 @@ import { useFormikContext } from 'formik';
 import type { ComputeInstanceCatalogItem } from '@osac/types';
 
 import type { ComputeInstanceWizardValues } from './fields';
-import { EMPTY_LABELED_RESOURCE_REF } from './fields';
 import {
   VIRTUAL_NETWORK_READY_LIST_FILTER,
   resourceDisplayName,
@@ -27,7 +26,7 @@ interface Props {
 export const VmNetworkingStep = ({ catalogItem }: Props) => {
   const { t } = useTranslation();
   const { values, setFieldValue } = useFormikContext<ComputeInstanceWizardValues>();
-  const virtualNetworkId = values.spec.networking.virtualNetwork.value;
+  const virtualNetworkId = values.spec.networking.virtualNetwork;
 
   const {
     data: virtualNetworks = [],
@@ -94,7 +93,7 @@ export const VmNetworkingStep = ({ catalogItem }: Props) => {
     const previous = previousVirtualNetworkIdRef.current;
     previousVirtualNetworkIdRef.current = virtualNetworkId;
     if (previous && previous !== virtualNetworkId) {
-      void setFieldValue('spec.networking.subnet', EMPTY_LABELED_RESOURCE_REF);
+      void setFieldValue('spec.networking.subnet', '');
       void setFieldValue('spec.networking.securityGroups', []);
     }
   }, [setFieldValue, virtualNetworkId]);

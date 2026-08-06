@@ -15,7 +15,6 @@ import * as Yup from 'yup';
 import type { ComputeInstance } from '@osac/types';
 
 import { useAttachExternalIp, useExternalIPPools } from '../../../api/v1/external-ip';
-import { labeledResourceRefSchema } from '../../../components/Form/labeledResourceRefSchema';
 import { useTranslation } from '../../../hooks/useTranslation';
 import { getErrorMessage } from '../../../utils/error';
 import OsacForm from '../../Form/OsacForm';
@@ -28,12 +27,12 @@ interface AttachExternalIpModalProps {
 }
 
 interface FormValues {
-  pool: { value: string; label: string };
+  pool: string;
 }
 
 const validationSchema = (t: TFunction) =>
   Yup.object({
-    pool: labeledResourceRefSchema(t('An external IP pool is required')),
+    pool: Yup.string().required(t('An external IP pool is required')),
   });
 
 const AttachExternalIpModal = ({ vm, onClose, onSuccess }: AttachExternalIpModalProps) => {
@@ -49,13 +48,13 @@ const AttachExternalIpModal = ({ vm, onClose, onSuccess }: AttachExternalIpModal
 
   return (
     <Formik<FormValues>
-      initialValues={{ pool: { value: '', label: '' } }}
+      initialValues={{ pool: '' }}
       validationSchema={validationSchema(t)}
       onSubmit={async (values) => {
         try {
           await attachExternalIp.mutateAsync({
             computeInstanceId: vm.id,
-            pool: values.pool.value,
+            pool: values.pool,
           });
           onSuccess();
         } catch {
