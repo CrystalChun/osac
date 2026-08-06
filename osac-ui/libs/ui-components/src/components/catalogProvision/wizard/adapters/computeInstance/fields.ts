@@ -1,13 +1,10 @@
-import type { LabeledResourceRef } from '../../../../Form/labeledResourceRef';
-import { EMPTY_LABELED_RESOURCE_REF } from '../../../../Form/labeledResourceRef';
-
 /** VMs are always created in the running state; stop/start is handled on the details page. */
 export const VM_CREATE_RUN_STRATEGY = 'Always' as const;
 
 export interface ComputeInstanceNetworkingValues {
-  virtualNetwork: LabeledResourceRef;
-  subnet: LabeledResourceRef;
-  securityGroups: LabeledResourceRef[];
+  virtualNetwork: string;
+  subnet: string;
+  securityGroups: string[];
 }
 
 export interface ComputeInstanceWizardValues {
@@ -20,7 +17,7 @@ export interface ComputeInstanceWizardValues {
     image: {
       sourceRef: string;
     };
-    instanceType: LabeledResourceRef;
+    instanceType: string;
     userData: string;
     bootDisk: {
       sizeGib: string;
@@ -28,8 +25,6 @@ export interface ComputeInstanceWizardValues {
     networking: ComputeInstanceNetworkingValues;
   };
 }
-
-export { EMPTY_LABELED_RESOURCE_REF };
 
 export const VM_SSH_KEY_WIRE_PATH = 'ssh_public_key';
 export const VM_SSH_KEY_FORM_PATH = 'spec.sshPublicKey';

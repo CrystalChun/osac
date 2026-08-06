@@ -1,22 +1,18 @@
+import { TFunction } from 'i18next';
+
 import { CatalogProvisionKind } from '../catalogFieldDefinition';
 
-export const WIZARD_STEP_IDS = [
-  'catalog',
-  'general',
-  'configuration',
-  'networking',
-  'review',
-] as const;
+export const WIZARD_STEP_IDS = ['catalog', 'general', 'configuration', 'networking', 'review'];
 
 export type WizardStepId = (typeof WIZARD_STEP_IDS)[number];
 
-export const STEP_LABEL_KEYS: Record<WizardStepId, string> = {
-  catalog: 'catalogProvision.steps.catalog.title',
-  general: 'catalogProvision.steps.general.title',
-  configuration: 'catalogProvision.steps.configuration.title',
-  networking: 'catalogProvision.steps.networking.title',
-  review: 'catalogProvision.steps.review.title',
-};
+export const STEP_LABEL_KEYS = (t: TFunction): Record<WizardStepId, string> => ({
+  catalog: t('Catalog item'),
+  general: t('General'),
+  configuration: t('Configuration'),
+  networking: t('Networking'),
+  review: t('Review'),
+});
 
 const BARE_METAL_WIZARD_STEPS: readonly WizardStepId[] = [
   'catalog',

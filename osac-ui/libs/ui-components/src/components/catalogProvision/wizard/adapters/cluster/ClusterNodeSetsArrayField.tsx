@@ -34,14 +34,14 @@ const ClusterNodeSetsArrayField = () => {
     () =>
       new Set(
         values.spec.nodeSetRows
-          .map((row) => row.hostType.value.trim())
+          .map((row) => row.hostType.trim())
           .filter((hostTypeId) => hostTypeId.length > 0),
       ),
     [values.spec.nodeSetRows],
   );
 
   const hostTypeOptionsForRow = (rowIndex: number) => {
-    const currentHostTypeId = values.spec.nodeSetRows[rowIndex]?.hostType.value.trim() ?? '';
+    const currentHostTypeId = values.spec.nodeSetRows[rowIndex]?.hostType.trim() ?? '';
     return hostTypes.map((hostType) => ({
       value: hostType.id,
       label: hostTypeDisplayName(hostType),

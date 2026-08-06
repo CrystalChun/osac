@@ -5,7 +5,6 @@ import type { ComputeInstanceCatalogItem } from '@osac/types';
 import { tIdentity } from '@osac/ui-components/test-utils/i18n';
 
 import type { ComputeInstanceWizardValues } from './fields';
-import { EMPTY_LABELED_RESOURCE_REF } from './fields';
 import { buildComputeInstanceStepSchema } from './schemas';
 
 const vmCatalogItem: ComputeInstanceCatalogItem = {
@@ -46,12 +45,12 @@ const emptyValues: ComputeInstanceWizardValues = {
   spec: {
     sshPublicKey: '',
     image: { sourceRef: '' },
-    instanceType: EMPTY_LABELED_RESOURCE_REF,
+    instanceType: '',
     userData: '',
     bootDisk: { sizeGib: '' },
     networking: {
-      virtualNetwork: EMPTY_LABELED_RESOURCE_REF,
-      subnet: EMPTY_LABELED_RESOURCE_REF,
+      virtualNetwork: '',
+      subnet: '',
       securityGroups: [],
     },
   },
@@ -140,7 +139,7 @@ describe('buildComputeInstanceStepSchema', () => {
         spec: {
           ...emptyValues.spec,
           image: { sourceRef: 'quay.io/example/rhel9' },
-          instanceType: { value: 'standard-4-8', label: 'standard-4-8' },
+          instanceType: 'standard-4-8',
           bootDisk: { sizeGib: 'not-a-number' },
         },
       },

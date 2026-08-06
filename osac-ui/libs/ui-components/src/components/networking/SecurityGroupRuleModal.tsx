@@ -17,19 +17,16 @@ import * as Yup from 'yup';
 import { Protocol, type SecurityGroup, SecurityGroupSchema, type SecurityRule } from '@osac/types';
 
 import { type RuleFormValues, SecurityGroupRuleForm } from './SecurityGroupRuleForm';
-import { protocolToString } from './SecurityGroupRulesTable';
 import { toPlainRule } from './securityGroupRuleUtils';
 import { useUpdateSecurityGroup } from '../../api/v1/networking';
 import { useTranslation } from '../../hooks/useTranslation';
 import { getErrorMessage } from '../../utils/error';
-import { labeledResourceRefSchema } from '../Form/labeledResourceRefSchema';
 
 const createRuleValidationSchema = (t: TFunction) =>
   Yup.object({
-    protocol: labeledResourceRefSchema(t('Protocol is required')),
+    protocol: Yup.number().required(t('Protocol is required')),
     portFrom: Yup.string().when('protocol', {
-      is: (protocol: { value?: string }) =>
-        protocol?.value === String(Protocol.TCP) || protocol?.value === String(Protocol.UDP),
+      is: (protocol: number) => protocol === Protocol.TCP || protocol === Protocol.UDP,
       then: (schema) =>
         schema
           .required(t('Port From is required for TCP/UDP'))
@@ -44,8 +41,7 @@ const createRuleValidationSchema = (t: TFunction) =>
       otherwise: (schema) => schema.notRequired(),
     }),
     portTo: Yup.string().when('protocol', {
-      is: (protocol: { value?: string }) =>
-        protocol?.value === String(Protocol.TCP) || protocol?.value === String(Protocol.UDP),
+      is: (protocol: number) => protocol === Protocol.TCP || protocol === Protocol.UDP,
       then: (schema) =>
         schema
           .required(t('Port To is required for TCP/UDP'))
@@ -121,10 +117,7 @@ export const SecurityGroupRuleModal = ({
     ruleIndex !== undefined ? securityGroup.spec?.[direction]?.[ruleIndex] : undefined;
 
   const defaultValues: RuleFormValues = {
-    protocol: {
-      value: String(initialValues?.protocol ?? Protocol.TCP),
-      label: protocolToString(initialValues?.protocol ?? Protocol.TCP, t),
-    },
+    protocol: initialValues?.protocol ?? Protocol.TCP,
     portFrom: initialValues?.portFrom?.toString() ?? '',
     portTo: initialValues?.portTo?.toString() ?? '',
     ipv4Cidr: initialValues?.ipv4Cidr ?? '',
@@ -134,7 +127,7 @@ export const SecurityGroupRuleModal = ({
   const handleSubmit = async (values: RuleFormValues) => {
     try {
       const rule = {
-        protocol: Number(values.protocol.value),
+        protocol: values.protocol,
         ...(values.portFrom &&
           String(values.portFrom).trim() !== '' && {
             portFrom: parseInt(String(values.portFrom), 10),

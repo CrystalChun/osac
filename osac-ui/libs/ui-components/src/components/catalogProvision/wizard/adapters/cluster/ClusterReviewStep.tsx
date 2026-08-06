@@ -1,0 +1,134 @@
+import {
+  Alert,
+  Bullseye,
+  DescriptionList,
+  DescriptionListDescription,
+  DescriptionListGroup,
+  DescriptionListTerm,
+  Spinner,
+  Stack,
+  StackItem,
+} from '@patternfly/react-core';
+import { useFormikContext } from 'formik';
+
+import { HostType } from '@osac/types';
+import { useHostTypes } from '@osac/ui-components/api/v1/host-types';
+import { CatalogItem } from '@osac/ui-components/components/catalog/catalogItemDisplay';
+import { getErrorMessage } from '@osac/ui-components/utils/error';
+
+import { ClusterWizardValues } from './fields';
+import { useTranslation } from '../../../../../hooks/useTranslation';
+import { formatReviewScalar } from '../../catalogOverlay';
+
+const formatNodeSetsForReview = (
+  hostTypes: HostType[],
+  nodeSetRows: ClusterWizardValues['spec']['nodeSetRows'],
+): string => {
+  if (nodeSetRows.length === 0) {
+    return '—';
+  }
+  return nodeSetRows
+    .map((row) => {
+      const hostType = hostTypes.find((h) => h.id === row.hostType);
+
+      return `${hostType?.title || hostType?.metadata?.name || row.hostType}: ${row.size}`;
+    })
+    .join(', ');
+};
+
+interface Props {
+  catalogItem: CatalogItem | null;
+}
+
+export const ClusterReviewStep = ({ catalogItem }: Props) => {
+  const { t } = useTranslation();
+  const { values } = useFormikContext<ClusterWizardValues>();
+
+  const {
+    data = [],
+    isLoading,
+    error,
+  } = useHostTypes({
+    filter: `this.id in [${values.spec.nodeSetRows.map(({ hostType }) => `"${hostType}"`).join(',')}]`,
+  });
+
+  if (isLoading) {
+    return (
+      <Bullseye>
+        <Spinner />
+      </Bullseye>
+    );
+  }
+
+  return (
+    <Stack hasGutter>
+      {!!error && (
+        <StackItem>
+          <Alert variant="warning" isInline title={t('Failed to fetch host types')}>
+            {getErrorMessage(error)}
+          </Alert>
+        </StackItem>
+      )}
+      <StackItem>
+        <DescriptionList
+          isHorizontal
+          isCompact
+          aria-label={t('catalogProvision.steps.review.title')}
+        >
+          <DescriptionListGroup>
+            <DescriptionListTerm>{t('Catalog item')}</DescriptionListTerm>
+            <DescriptionListDescription>
+              {catalogItem?.title || catalogItem?.metadata?.name || '—'}
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+
+          <DescriptionListGroup>
+            <DescriptionListTerm>{t('Name')}</DescriptionListTerm>
+            <DescriptionListDescription>
+              {formatReviewScalar(values.metadata.name)}
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+          <DescriptionListGroup>
+            <DescriptionListTerm>{t('SSH public key')}</DescriptionListTerm>
+            <DescriptionListDescription>
+              {formatReviewScalar(values.spec.sshPublicKey)}
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+          <DescriptionListGroup>
+            <DescriptionListTerm>{t('Pull secret')}</DescriptionListTerm>
+            <DescriptionListDescription>
+              {formatReviewScalar(values.spec.pullSecret, true)}
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+
+          <DescriptionListGroup>
+            <DescriptionListTerm>{t('Release image')}</DescriptionListTerm>
+            <DescriptionListDescription>
+              {formatReviewScalar(values.spec.releaseImage)}
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+          <DescriptionListGroup>
+            <DescriptionListTerm>{t('Node sets')}</DescriptionListTerm>
+            <DescriptionListDescription>
+              {formatNodeSetsForReview(data, values.spec.nodeSetRows)}
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+
+          <DescriptionListGroup>
+            <DescriptionListTerm>{t('Pod CIDR')}</DescriptionListTerm>
+            <DescriptionListDescription>
+              {formatReviewScalar(values.spec.network.podCidr)}
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+
+          <DescriptionListGroup>
+            <DescriptionListTerm>{t('Service CIDR')}</DescriptionListTerm>
+            <DescriptionListDescription>
+              {formatReviewScalar(values.spec.network.serviceCidr)}
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+        </DescriptionList>
+      </StackItem>
+    </Stack>
+  );
+};

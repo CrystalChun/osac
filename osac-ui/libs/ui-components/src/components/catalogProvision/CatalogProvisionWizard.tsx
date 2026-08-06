@@ -30,8 +30,13 @@ import { useBareMetalInstanceAdapter } from './wizard/adapters/bareMetalInstance
 import { useClusterAdapter } from './wizard/adapters/clusterAdapter';
 import { useComputeInstanceAdapter } from './wizard/adapters/computeInstanceAdapter';
 import type { CatalogProvisionAdapter } from './wizard/adapters/types';
-import { STEP_LABEL_KEYS, type WizardStepId, getWizardOrderedSteps } from './wizard/stepIds';
-import { CatalogStep, ReviewStep } from './wizard/steps/WizardSteps';
+import {
+  STEP_LABEL_KEYS,
+  WIZARD_STEP_IDS,
+  type WizardStepId,
+  getWizardOrderedSteps,
+} from './wizard/stepIds';
+import { CatalogStep } from './wizard/steps/WizardSteps';
 
 export type {
   CatalogProvisionPayload,
@@ -75,7 +80,7 @@ interface WizardFooterProps {
 }
 
 const isWizardStepId = (stepId: string | number | undefined): stepId is WizardStepId =>
-  typeof stepId === 'string' && Object.hasOwn(STEP_LABEL_KEYS, stepId);
+  typeof stepId === 'string' && WIZARD_STEP_IDS.includes(stepId);
 
 const CatalogProvisionWizardFooter = ({
   formik,
@@ -211,7 +216,6 @@ interface WizardBodyProps {
   adapter: ErasedCatalogAdapter;
   stepId: WizardStepId;
   catalogItem: CatalogItem | null;
-  values: CatalogProvisionWizardValues;
   provisionError?: string;
   validationAlert: boolean;
 }
@@ -220,7 +224,6 @@ const WizardStepBody = ({
   adapter,
   stepId,
   catalogItem,
-  values,
   provisionError,
   validationAlert,
 }: WizardBodyProps) => {
@@ -228,6 +231,7 @@ const WizardStepBody = ({
   const ConfigurationStep = adapter.ConfigurationStep;
   const NetworkingStep = adapter.NetworkingStep;
   const GeneralStepComponent = adapter.GeneralStep;
+  const ReviewStepComponent = adapter.ReviewStep;
 
   return (
     <FieldValidationProvider showErrors={validationAlert}>
@@ -248,9 +252,7 @@ const WizardStepBody = ({
         {stepId === 'general' ? <GeneralStepComponent catalogItem={catalogItem} /> : null}
         {stepId === 'configuration' ? <ConfigurationStep catalogItem={catalogItem} /> : null}
         {stepId === 'networking' ? <NetworkingStep catalogItem={catalogItem} /> : null}
-        {stepId === 'review' ? (
-          <ReviewStep adapter={adapter} catalogItem={catalogItem} values={values} />
-        ) : null}
+        {stepId === 'review' ? <ReviewStepComponent catalogItem={catalogItem} /> : null}
       </Stack>
     </FieldValidationProvider>
   );
@@ -499,12 +501,11 @@ const CatalogProvisionWizardForm = ({
           }
         >
           {orderedSteps.map((stepId) => (
-            <WizardStep key={stepId} id={stepId} name={t(STEP_LABEL_KEYS[stepId])}>
+            <WizardStep key={stepId} id={stepId} name={STEP_LABEL_KEYS(t)[stepId]}>
               <WizardStepBody
                 adapter={adapter}
                 stepId={stepId}
                 catalogItem={selectedCatalogItem}
-                values={formik.values}
                 provisionError={provisionError}
                 validationAlert={validationAlert}
               />

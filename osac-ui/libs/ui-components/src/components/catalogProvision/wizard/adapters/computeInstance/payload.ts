@@ -3,7 +3,7 @@ import { type MessageInitShape } from '@bufbuild/protobuf';
 import { type ComputeInstanceCatalogItem, ComputeInstanceSchema } from '@osac/types';
 
 import type { ComputeInstanceWizardValues } from './fields';
-import { EMPTY_LABELED_RESOURCE_REF, VM_CREATE_RUN_STRATEGY } from './fields';
+import { VM_CREATE_RUN_STRATEGY } from './fields';
 
 export const createEmptyComputeInstanceValues = (): ComputeInstanceWizardValues => ({
   catalogItemId: '',
@@ -11,12 +11,12 @@ export const createEmptyComputeInstanceValues = (): ComputeInstanceWizardValues 
   spec: {
     sshPublicKey: '',
     image: { sourceRef: '' },
-    instanceType: EMPTY_LABELED_RESOURCE_REF,
+    instanceType: '',
     userData: '',
     bootDisk: { sizeGib: '' },
     networking: {
-      virtualNetwork: EMPTY_LABELED_RESOURCE_REF,
-      subnet: EMPTY_LABELED_RESOURCE_REF,
+      virtualNetwork: '',
+      subnet: '',
       securityGroups: [],
     },
   },
@@ -26,11 +26,9 @@ export const buildComputeInstanceCreatePayload = (
   values: ComputeInstanceWizardValues,
   catalogItem: ComputeInstanceCatalogItem,
 ): MessageInitShape<typeof ComputeInstanceSchema> => {
-  const instanceType = values.spec.instanceType.value.trim();
-
   const spec: MessageInitShape<typeof ComputeInstanceSchema>['spec'] = {
     catalogItem: catalogItem.id,
-    instanceType,
+    instanceType: values.spec.instanceType,
     image: {
       sourceType: 'registry',
       sourceRef: values.spec.image.sourceRef.trim(),
@@ -38,8 +36,8 @@ export const buildComputeInstanceCreatePayload = (
     runStrategy: VM_CREATE_RUN_STRATEGY,
     networkAttachments: [
       {
-        subnet: values.spec.networking.subnet.value,
-        securityGroups: values.spec.networking.securityGroups.map((group) => group.value),
+        subnet: values.spec.networking.subnet,
+        securityGroups: values.spec.networking.securityGroups,
       },
     ],
   };

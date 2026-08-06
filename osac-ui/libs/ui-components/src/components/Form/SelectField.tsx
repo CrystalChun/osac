@@ -12,14 +12,9 @@ import { useField } from 'formik';
 import { getVisibleFieldError } from './fieldError';
 import { useShowFieldValidationErrors } from './FieldValidationContext';
 import { FormFieldHelper } from './FormFieldHelper';
-import {
-  EMPTY_LABELED_RESOURCE_REF,
-  type LabeledResourceRef,
-  isLabeledResourceRefEmpty,
-} from './labeledResourceRef';
 
 export interface SelectFieldOption {
-  value: string;
+  value: string | number;
   label: string;
   isDisabled?: boolean;
 }
@@ -50,15 +45,13 @@ export const SelectField = ({
   loadingPlaceholder = 'Loading...',
   autoSelectSingleOption = false,
 }: SelectFieldProps) => {
-  const [field, meta, helpers] = useField<LabeledResourceRef>(name);
+  const [field, meta, helpers] = useField<string | number>(name);
   const [isOpen, setIsOpen] = useState(false);
   const showValidationErrors = useShowFieldValidationErrors();
   const error = getVisibleFieldError(meta, showValidationErrors);
   const validated = error ? 'error' : 'default';
   const effectivePlaceholder = isLoading ? loadingPlaceholder : placeholder;
   const controlDisabled = isDisabled || isLoading;
-  const fieldValue = field.value ?? EMPTY_LABELED_RESOURCE_REF;
-  const selectedValue = fieldValue.value;
 
   useEffect(() => {
     if (
@@ -66,35 +59,22 @@ export const SelectField = ({
       isLoading ||
       isDisabled ||
       options.length !== 1 ||
-      !isLabeledResourceRefEmpty(fieldValue)
+      field.value !== ''
     ) {
       return;
     }
-    void helpers.setValue({ value: options[0].value, label: options[0].label }, false);
-  }, [autoSelectSingleOption, fieldValue, helpers, isDisabled, isLoading, options]);
+    void helpers.setValue(options[0].value, false);
+  }, [autoSelectSingleOption, field.value, helpers, isDisabled, isLoading, options]);
 
   const toggleLabel = useMemo(() => {
-    if (isLabeledResourceRefEmpty(fieldValue)) {
+    if (field.value === '') {
       return effectivePlaceholder ?? '';
     }
-    return fieldValue.label.trim() || fieldValue.value;
-  }, [effectivePlaceholder, fieldValue]);
+    return options.find(({ value }) => value === field.value)?.label || field.value;
+  }, [effectivePlaceholder, field.value, options]);
 
-  const onSelect = (
-    _event: MouseEvent<Element> | undefined,
-    value: string | number | undefined,
-  ) => {
-    if (value == null) {
-      void helpers.setValue(EMPTY_LABELED_RESOURCE_REF, true);
-    } else {
-      const option = options.find((entry) => entry.value === String(value));
-      void helpers.setValue(
-        option
-          ? { value: option.value, label: option.label }
-          : { value: String(value), label: String(value) },
-        true,
-      );
-    }
+  const onSelect = (_event: MouseEvent<Element> | undefined, value: string | number) => {
+    helpers.setValue(value, true);
     void helpers.setTouched(true, false);
     setIsOpen(false);
   };
@@ -121,7 +101,7 @@ export const SelectField = ({
       <Select
         id={`${fieldId}-select`}
         isOpen={isOpen}
-        selected={selectedValue}
+        selected={field.value}
         onSelect={onSelect}
         onOpenChange={setIsOpen}
         toggle={toggle}

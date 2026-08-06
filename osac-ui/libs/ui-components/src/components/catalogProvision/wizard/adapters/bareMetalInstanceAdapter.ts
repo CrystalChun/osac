@@ -1,15 +1,12 @@
 import { useMemo } from 'react';
 import type { MessageInitShape } from '@bufbuild/protobuf';
-import type { TFunction } from 'i18next';
 
 import type { BareMetalInstanceCatalogItem } from '@osac/types';
 import { BareMetalInstanceSchema } from '@osac/types';
 
-import { useBareMetalInstanceCatalogItems } from '../../../../api/v1/baremetal-instance';
-import { useTranslation } from '../../../../hooks/useTranslation';
-import { type ReviewSection, formatReviewScalar, reviewRow } from '../catalogOverlay';
 import BareMetalConfigurationStep from './bareMetalInstance/BareMetalConfigurationStep';
 import BareMetalGeneralStep from './bareMetalInstance/BareMetalGeneralStep';
+import { BareMetalReviewStep } from './bareMetalInstance/BareMetalReviewStep';
 import {
   type BareMetalInstanceWizardValues,
   applyBmCatalogDefaults,
@@ -18,24 +15,8 @@ import {
 import { buildBareMetalInstanceCreatePayload } from './bareMetalInstance/payload';
 import { buildBareMetalInstanceStepSchema } from './bareMetalInstance/schemas';
 import type { CatalogProvisionAdapter } from './types';
-
-const buildBmReviewSections = (
-  values: BareMetalInstanceWizardValues,
-  _catalogItem: BareMetalInstanceCatalogItem,
-  t: TFunction,
-): ReviewSection[] => [
-  {
-    title: t('General'),
-    rows: [
-      reviewRow(t('Name'), formatReviewScalar(values.metadata.name)),
-      reviewRow(t('SSH public key'), formatReviewScalar(values.spec.sshKey, true)),
-    ],
-  },
-  {
-    title: t('Configuration'),
-    rows: [reviewRow(t('User data'), formatReviewScalar(values.spec.userData, true))],
-  },
-];
+import { useBareMetalInstanceCatalogItems } from '../../../../api/v1/baremetal-instance';
+import { useTranslation } from '../../../../hooks/useTranslation';
 
 export const useBareMetalInstanceAdapter = (): CatalogProvisionAdapter<
   BareMetalInstanceCatalogItem,
@@ -62,10 +43,10 @@ export const useBareMetalInstanceAdapter = (): CatalogProvisionAdapter<
       buildCreatePayload: (values, _catalogItem) => buildBareMetalInstanceCreatePayload(values),
       ConfigurationStep: BareMetalConfigurationStep,
       GeneralStep: BareMetalGeneralStep,
+      ReviewStep: BareMetalReviewStep,
       NetworkingStep: () => null,
       getStepValidationSchema: (catalogItem, stepId) =>
         buildBareMetalInstanceStepSchema(catalogItem, stepId, t),
-      getReviewSections: (values, catalogItem) => buildBmReviewSections(values, catalogItem, t),
       onCatalogItemSelected: (item, helpers) => {
         helpers.resetForm({
           values: {
