@@ -17,13 +17,16 @@ export const StorageManagementPage = ({ activeTab }: { activeTab: StorageTab }) 
   const navigate = useNavigate();
 
   return (
-    <ListPage title={t('Storage')}>
+    <ListPage
+      title={t('Storage')}
+      description={t('Manage storage backends and tiers for this cloud platform.')}
+    >
       <ListPageBody isLoading={false}>
         <Tabs
           activeKey={activeTab}
           onSelect={(_event, tabKey) => {
             if (isStorageTab(tabKey)) {
-              navigate(`/admin/storage/${tabKey}`);
+              navigate(`/admin/storage/${tabKey}`, { replace: true });
             }
           }}
           aria-label={t('Storage tabs')}

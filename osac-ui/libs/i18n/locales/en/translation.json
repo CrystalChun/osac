@@ -246,6 +246,7 @@
   "Logout URL": "Logout URL",
   "Manage firewall rules for your virtual networks.": "Manage firewall rules for your virtual networks.",
   "Manage identity providers for your tenant.": "Manage identity providers for your tenant.",
+  "Manage storage backends and tiers for this cloud platform.": "Manage storage backends and tiers for this cloud platform.",
   "Manage tenants for this cloud platform.": "Manage tenants for this cloud platform.",
   "Manage virtual networks for your compute instances.": "Manage virtual networks for your compute instances.",
   "Message": "Message",
