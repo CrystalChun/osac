@@ -343,9 +343,9 @@ func (t *task) addExplicitFields(ctx context.Context, spec *osacv1alpha1.Cluster
 	if clusterSpec.HasSshPublicKey() {
 		spec.SSHPublicKey = clusterSpec.GetSshPublicKey()
 	}
-	// Resolve version_name to a release image via the ClusterVersion resource.
-	if clusterSpec.HasVersionName() && clusterSpec.GetVersionName() != "" {
-		image, err := t.resolveVersionImage(ctx, clusterSpec.GetVersionName())
+	// Resolve version reference to a release image via the ClusterVersion resource.
+	if versionRef := clusterSpec.GetVersion(); versionRef != nil && versionRef.GetName() != "" {
+		image, err := t.resolveVersionImage(ctx, versionRef.GetName())
 		if err != nil {
 			return err
 		}
