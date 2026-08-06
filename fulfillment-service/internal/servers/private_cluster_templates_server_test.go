@@ -192,6 +192,9 @@ var _ = Describe("Private cluster templates server", func() {
 			for i := range count {
 				createResponse, err := server.Create(ctx, privatev1.ClusterTemplatesCreateRequest_builder{
 					Object: privatev1.ClusterTemplate_builder{
+						Metadata: privatev1.Metadata_builder{
+							Name: fmt.Sprintf("my-filter-template-%d", i),
+						}.Build(),
 						Title:       fmt.Sprintf("My title %d", i),
 						Description: fmt.Sprintf("My description %d.", i),
 					}.Build(),
@@ -223,6 +226,9 @@ var _ = Describe("Private cluster templates server", func() {
 			// Create the object:
 			createResponse, err := server.Create(ctx, privatev1.ClusterTemplatesCreateRequest_builder{
 				Object: privatev1.ClusterTemplate_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: "test-cluster-template-get",
+					}.Build(),
 					Title:       "My title",
 					Description: "My description.",
 				}.Build(),
@@ -248,6 +254,9 @@ var _ = Describe("Private cluster templates server", func() {
 			// Create the object:
 			createResponse, err := server.Create(ctx, privatev1.ClusterTemplatesCreateRequest_builder{
 				Object: privatev1.ClusterTemplate_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: "test-cluster-template-update",
+					}.Build(),
 					Title:       "My title",
 					Description: "My description.",
 				}.Build(),
@@ -264,7 +273,10 @@ var _ = Describe("Private cluster templates server", func() {
 			// Update the object:
 			updateResponse, err := server.Update(ctx, privatev1.ClusterTemplatesUpdateRequest_builder{
 				Object: privatev1.ClusterTemplate_builder{
-					Id:          object.GetId(),
+					Id: object.GetId(),
+					Metadata: privatev1.Metadata_builder{
+						Name: "test-cluster-template-update",
+					}.Build(),
 					Title:       "Your title",
 					Description: "Your description.",
 				}.Build(),
@@ -286,6 +298,9 @@ var _ = Describe("Private cluster templates server", func() {
 			// Create the object:
 			createResponse, err := server.Create(ctx, privatev1.ClusterTemplatesCreateRequest_builder{
 				Object: privatev1.ClusterTemplate_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: "test-cluster-template-title",
+					}.Build(),
 					Title:       "Original title",
 					Description: "Original description.",
 				}.Build(),
@@ -331,6 +346,9 @@ var _ = Describe("Private cluster templates server", func() {
 			// Create the object:
 			createResponse, err := server.Create(ctx, privatev1.ClusterTemplatesCreateRequest_builder{
 				Object: privatev1.ClusterTemplate_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: "test-cluster-template-desc",
+					}.Build(),
 					Title:       "Original title",
 					Description: "Original description.",
 				}.Build(),
@@ -376,6 +394,9 @@ var _ = Describe("Private cluster templates server", func() {
 			// Create the object:
 			createResponse, err := server.Create(ctx, privatev1.ClusterTemplatesCreateRequest_builder{
 				Object: privatev1.ClusterTemplate_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: "test-cluster-template-both",
+					}.Build(),
 					Title:       "Original title",
 					Description: "Original description.",
 				}.Build(),
@@ -508,6 +529,7 @@ var _ = Describe("Private cluster templates server", func() {
 			createResponse, err := server.Create(ctx, privatev1.ClusterTemplatesCreateRequest_builder{
 				Object: privatev1.ClusterTemplate_builder{
 					Metadata: privatev1.Metadata_builder{
+						Name:       "test-cluster-template-delete",
 						Finalizers: []string{"a"},
 					}.Build(),
 					Title:       "My title",
