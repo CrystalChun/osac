@@ -38,6 +38,11 @@ import type {
   StorageBackendsCreateResponse,
   StorageBackendsUpdateRequest,
   StorageBackendsUpdateResponse,
+  StorageTier,
+  StorageTiersCreateRequest,
+  StorageTiersCreateResponse,
+  StorageTiersUpdateRequest,
+  StorageTiersUpdateResponse,
   TenantsCreateRequest,
   TenantsCreateResponse,
 } from '@osac/types/private';
@@ -45,6 +50,8 @@ import {
   Tenants as PrivateTenants,
   StorageBackendState,
   StorageBackends,
+  StorageTierState,
+  StorageTiers,
 } from '@osac/types/private';
 
 import { UnauthorizedError } from '../utils/unauthorizedError';
@@ -61,6 +68,7 @@ export type MockApiFixtures = {
   identityProviders?: IdentityProvider[];
   instanceTypes?: InstanceType[];
   storageBackends?: StorageBackend[];
+  storageTiers?: StorageTier[];
 };
 
 export const wrapWithAuthInterceptor = (transport: Transport): Transport => {
@@ -135,6 +143,8 @@ export type MockTransportOverrides = {
   onTenantCreate?: (req: TenantsCreateRequest) => TenantsCreateResponse;
   onStorageBackendCreate?: (req: StorageBackendsCreateRequest) => StorageBackendsCreateResponse;
   onStorageBackendUpdate?: (req: StorageBackendsUpdateRequest) => StorageBackendsUpdateResponse;
+  onStorageTierCreate?: (req: StorageTiersCreateRequest) => StorageTiersCreateResponse;
+  onStorageTierUpdate?: (req: StorageTiersUpdateRequest) => StorageTiersUpdateResponse;
 };
 
 export const createMockConnectTransport = (
@@ -152,6 +162,7 @@ export const createMockConnectTransport = (
   const securityGroups = fixtures.securityGroups ?? [];
   const instanceTypes = fixtures.instanceTypes ?? [];
   const storageBackends = fixtures.storageBackends ?? [];
+  const storageTiers = fixtures.storageTiers ?? [];
 
   return wrapWithAuthInterceptor(
     createRouterTransport((router) => {
@@ -299,6 +310,37 @@ export const createMockConnectTransport = (
         update: (req) => {
           if (overrides.onStorageBackendUpdate) {
             return overrides.onStorageBackendUpdate(req);
+          }
+          return { object: req.object };
+        },
+        delete: () => ({}),
+      });
+
+      router.service(StorageTiers, {
+        list: () => ({
+          items: storageTiers,
+          size: storageTiers.length,
+          total: storageTiers.length,
+        }),
+        get: (req) => ({
+          object: storageTiers.find((t) => t.id === req.id),
+        }),
+        create: (req) => {
+          if (overrides.onStorageTierCreate) {
+            return overrides.onStorageTierCreate(req);
+          }
+          return {
+            object: {
+              id: 'new-storage-tier-1',
+              metadata: req.object?.metadata,
+              spec: req.object?.spec,
+              status: { state: StorageTierState.ACTIVE },
+            },
+          };
+        },
+        update: (req) => {
+          if (overrides.onStorageTierUpdate) {
+            return overrides.onStorageTierUpdate(req);
           }
           return { object: req.object };
         },
