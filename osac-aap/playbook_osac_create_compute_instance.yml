@@ -9,7 +9,11 @@
     template_id: "{{ osac_job_vars.resource.spec.templateID }}"
     template_parameters: {}
     tenant_storage_classes: "{{ osac_job_vars.tenant_storage_classes | default([]) }}"
-    _requested_storage_tier: "{{ lookup('env', 'STORAGE_REQUESTED_TIER') | default('default', true) }}"
+    # 'local' matches the only tier every current environment actually registers
+    # (register-local-storage.yaml's LVMS-backed StorageTier, see osac-installer).
+    # No environment defines a tier literally named 'default' -- that name only
+    # ever appeared in storage_provider's own VAST-oriented unit test fixtures.
+    _requested_storage_tier: "{{ lookup('env', 'STORAGE_REQUESTED_TIER') | default('local', true) }}"
 
   pre_tasks:
     - name: Show resource metadata
