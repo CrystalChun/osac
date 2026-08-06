@@ -20,10 +20,10 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 
-	privatev1 "github.com/osac-project/fulfillment-service/internal/api/osac/private/v1"
-	"github.com/osac-project/fulfillment-service/internal/auth"
-	"github.com/osac-project/fulfillment-service/internal/database/dao"
-	"github.com/osac-project/fulfillment-service/internal/events"
+	privatev1 "github.com/osac-project/osac/fulfillment-service/internal/api/osac/private/v1"
+	"github.com/osac-project/osac/fulfillment-service/internal/auth"
+	"github.com/osac-project/osac/fulfillment-service/internal/database/dao"
+	"github.com/osac-project/osac/fulfillment-service/internal/events"
 )
 
 type PrivateClusterTemplatesServerBuilder struct {
@@ -135,6 +135,12 @@ func (s *PrivateClusterTemplatesServer) Create(ctx context.Context,
 	if object := request.GetObject(); object != nil {
 		if err = s.validateSpecDefaultsVersionName(ctx, object); err != nil {
 			return
+		}
+		if object.GetMetadata().GetName() == "" && object.GetId() != "" {
+			if object.GetMetadata() == nil {
+				object.SetMetadata(&privatev1.Metadata{})
+			}
+			object.GetMetadata().SetName(templateNameFromID(object.GetId()))
 		}
 	}
 	err = s.generic.Create(ctx, request, &response)

@@ -33,13 +33,13 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 
-	publicv1 "github.com/osac-project/fulfillment-service/internal/api/osac/public/v1"
-	"github.com/osac-project/fulfillment-service/internal/cmd/cli/create/fieldutil"
-	"github.com/osac-project/fulfillment-service/internal/config"
-	"github.com/osac-project/fulfillment-service/internal/exit"
-	"github.com/osac-project/fulfillment-service/internal/logging"
-	"github.com/osac-project/fulfillment-service/internal/reflection"
-	"github.com/osac-project/fulfillment-service/internal/terminal"
+	publicv1 "github.com/osac-project/osac/fulfillment-service/internal/api/osac/public/v1"
+	"github.com/osac-project/osac/fulfillment-service/internal/cmd/cli/create/fieldutil"
+	"github.com/osac-project/osac/fulfillment-service/internal/config"
+	"github.com/osac-project/osac/fulfillment-service/internal/exit"
+	"github.com/osac-project/osac/fulfillment-service/internal/logging"
+	"github.com/osac-project/osac/fulfillment-service/internal/reflection"
+	"github.com/osac-project/osac/fulfillment-service/internal/terminal"
 )
 
 //go:embed templates
@@ -251,7 +251,7 @@ func (c *runnerContext) run(cmd *cobra.Command, args []string) error {
 	if c.args.catalogItem != "" {
 		// Catalog item path: skip template lookup entirely (per D-04).
 		specBuilder := publicv1.ClusterSpec_builder{
-			CatalogItem: c.args.catalogItem,
+			CatalogItem: &publicv1.ClusterCatalogItemReference{Name: c.args.catalogItem},
 		}
 		c.applyOptionalSpecFields(&specBuilder, pullSecret, sshPublicKey)
 		spec := specBuilder.Build()
@@ -286,7 +286,7 @@ func (c *runnerContext) run(cmd *cobra.Command, args []string) error {
 
 	// Build the cluster spec:
 	specBuilder := publicv1.ClusterSpec_builder{
-		Template:           template.GetId(),
+		Template:           &publicv1.ClusterTemplateReference{Id: template.GetId()},
 		TemplateParameters: templateParameterValues,
 	}
 	c.applyOptionalSpecFields(&specBuilder, pullSecret, sshPublicKey)
