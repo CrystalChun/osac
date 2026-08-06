@@ -449,7 +449,7 @@ var _ = Describe("update tenant annotation", func() {
 				Template:     &privatev1.ClusterTemplateReference{Name: "test-template"},
 				PullSecret:   &pullSecret,
 				SshPublicKey: &sshKey,
-				VersionName:  &versionName,
+				Version:      &privatev1.ClusterVersionReference{Name: versionName},
 				Network: privatev1.ClusterNetwork_builder{
 					PodCidr:     &podCIDR,
 					ServiceCidr: &serviceCIDR,
@@ -556,8 +556,8 @@ var _ = Describe("update tenant annotation", func() {
 				Tenant:     tenantName,
 			}.Build(),
 			Spec: privatev1.ClusterSpec_builder{
-				Template:    &privatev1.ClusterTemplateReference{Name: "test-template"},
-				VersionName: &versionName,
+				Template: &privatev1.ClusterTemplateReference{Name: "test-template"},
+				Version:  &privatev1.ClusterVersionReference{Name: versionName},
 				NodeSets: map[string]*privatev1.ClusterNodeSet{
 					"gpu.gb200": privatev1.ClusterNodeSet_builder{
 						HostType: &privatev1.HostTypeReference{Name: "gpu.gb200"},
@@ -595,7 +595,7 @@ var _ = Describe("update tenant annotation", func() {
 		Expect(patchedCR.Spec.NodeRequests[0].NumberOfNodes).To(Equal(5))
 	})
 
-	It("should update ReleaseImage when version_name changes", func() {
+	It("should update ReleaseImage when version changes", func() {
 		oldImage := "quay.io/openshift-release-dev/ocp-release:4.17.0-multi"
 		newImage := "quay.io/openshift-release-dev/ocp-release:4.18.0-multi"
 		newVersionName := "4-18-0"
@@ -664,8 +664,8 @@ var _ = Describe("update tenant annotation", func() {
 				Tenant:     tenantName,
 			}.Build(),
 			Spec: privatev1.ClusterSpec_builder{
-				Template:    &privatev1.ClusterTemplateReference{Name: "test-template"},
-				VersionName: &newVersionName,
+				Template: &privatev1.ClusterTemplateReference{Name: "test-template"},
+				Version:  &privatev1.ClusterVersionReference{Name: newVersionName},
 				NodeSets: map[string]*privatev1.ClusterNodeSet{
 					"gpu.gb200": privatev1.ClusterNodeSet_builder{
 						HostType: &privatev1.HostTypeReference{Name: "gpu.gb200"},
@@ -804,8 +804,8 @@ var _ = Describe("update version resolution failure", func() {
 				Tenant:     tenantName,
 			}.Build(),
 			Spec: privatev1.ClusterSpec_builder{
-				Template:    &privatev1.ClusterTemplateReference{Name: "test-template"},
-				VersionName: &versionName,
+				Template: &privatev1.ClusterTemplateReference{Name: "test-template"},
+				Version:  &privatev1.ClusterVersionReference{Name: versionName},
 			}.Build(),
 			Status: privatev1.ClusterStatus_builder{
 				State: privatev1.ClusterState_CLUSTER_STATE_PROGRESSING,
