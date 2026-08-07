@@ -16,6 +16,7 @@ package servers
 import (
 	"fmt"
 
+	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"google.golang.org/protobuf/proto"
@@ -177,6 +178,9 @@ var _ = Describe("External IP attachments server", func() {
 			createResponse, err := externalIPAttachmentsServer.Create(ctx,
 				publicv1.ExternalIPAttachmentsCreateRequest_builder{
 					Object: publicv1.ExternalIPAttachment_builder{
+						Metadata: publicv1.Metadata_builder{
+							Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+						}.Build(),
 						Spec: publicv1.ExternalIPAttachmentSpec_builder{
 							ExternalIp:     publicv1.ExternalIPLocalReference_builder{Id: eip.GetId()}.Build(),
 							Cluster:        publicv1.ClusterLocalReference_builder{Id: cluster.GetId()}.Build(),
@@ -207,6 +211,9 @@ var _ = Describe("External IP attachments server", func() {
 			createResponse, err := externalIPAttachmentsServer.Create(ctx,
 				publicv1.ExternalIPAttachmentsCreateRequest_builder{
 					Object: publicv1.ExternalIPAttachment_builder{
+						Metadata: publicv1.Metadata_builder{
+							Name: fmt.Sprintf("test-%s", uuid.NewString()[:8]),
+						}.Build(),
 						Spec: publicv1.ExternalIPAttachmentSpec_builder{
 							ExternalIp:        publicv1.ExternalIPLocalReference_builder{Id: eip.GetId()}.Build(),
 							BaremetalInstance: publicv1.BareMetalInstanceLocalReference_builder{Id: bmi.GetId()}.Build(),

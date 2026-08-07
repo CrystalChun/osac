@@ -88,6 +88,9 @@ var _ = Describe("Private cluster templates server", func() {
 		It("Creates object", func() {
 			response, err := server.Create(ctx, privatev1.ClusterTemplatesCreateRequest_builder{
 				Object: privatev1.ClusterTemplate_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: fmt.Sprintf("test-%s", uuid.New()[24:32]),
+					}.Build(),
 					Title:       "My title",
 					Description: "My description.",
 				}.Build(),
@@ -455,6 +458,9 @@ var _ = Describe("Private cluster templates server", func() {
 			It("Rejects create with non-existent spec_defaults.version", func() {
 				_, err := validatedServer.Create(ctx, privatev1.ClusterTemplatesCreateRequest_builder{
 					Object: privatev1.ClusterTemplate_builder{
+						Metadata: privatev1.Metadata_builder{
+							Name: fmt.Sprintf("test-%s", uuid.New()[24:32]),
+						}.Build(),
 						Title:       "Bad version template",
 						Description: "Template referencing a non-existent version.",
 						SpecDefaults: privatev1.ClusterTemplateSpecDefaults_builder{
@@ -495,6 +501,9 @@ var _ = Describe("Private cluster templates server", func() {
 				// Create a template first:
 				createResponse, err := validatedServer.Create(ctx, privatev1.ClusterTemplatesCreateRequest_builder{
 					Object: privatev1.ClusterTemplate_builder{
+						Metadata: privatev1.Metadata_builder{
+							Name: fmt.Sprintf("test-%s", uuid.New()[24:32]),
+						}.Build(),
 						Title:       "My template",
 						Description: "Template to update.",
 					}.Build(),
