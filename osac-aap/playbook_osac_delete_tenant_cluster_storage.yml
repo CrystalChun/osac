@@ -16,13 +16,13 @@
     tenant_name: >-
       {%- if osac_job_vars.resource.kind == 'ClusterOrder' -%}
       {{ osac_job_vars.resource.metadata.annotations['osac.openshift.io/tenant'] }}
-      {%- else -%}
+      {%- elif osac_job_vars.resource.kind == 'Tenant' -%}
       {{ osac_job_vars.resource.metadata.name }}
       {%- endif -%}
     tenant_namespace: >-
       {%- if osac_job_vars.resource.kind == 'ClusterOrder' -%}
       openshift-osac-storage
-      {%- else -%}
+      {%- elif osac_job_vars.resource.kind == 'Tenant' -%}
       {{ osac_job_vars.resource.metadata.namespace }}
       {%- endif -%}
 
