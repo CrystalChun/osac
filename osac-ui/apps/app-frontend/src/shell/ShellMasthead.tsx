@@ -57,7 +57,7 @@ export const ShellMasthead = ({ onLogout }: ShellMastheadProps) => {
           </ModalBody>
           <ModalFooter>
             <Button variant="primary" onClick={() => setLogoutError(undefined)}>
-              Close
+              {t('Close')}
             </Button>
           </ModalFooter>
         </Modal>

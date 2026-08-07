@@ -1,6 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, SearchInput } from '@patternfly/react-core';
+import {
+  Button,
+  SearchInput,
+  Toolbar,
+  ToolbarContent,
+  ToolbarGroup,
+  ToolbarItem
+} from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
 import { useSubnets, useVirtualNetworks } from '../../api/v1/networking';
@@ -50,13 +57,20 @@ export const VirtualNetworksListPage = () => {
         }
       >
         <ListPageBody isLoading={isLoading} error={error}>
-          <SearchInput
-            placeholder={t('Search virtual networks by name…')}
-            value={search}
-            onChange={(_e, v) => setSearch(v)}
-            onClear={() => setSearch('')}
-            style={{ marginBottom: '1rem' }}
-          />
+          <Toolbar>
+            <ToolbarContent>
+              <ToolbarGroup>
+                <ToolbarItem>
+                  <SearchInput
+                    placeholder={t('Search virtual networks by name…')}
+                    value={search}
+                    onChange={(_e, v) => setSearch(v)}
+                    onClear={() => setSearch('')}
+                  />
+                </ToolbarItem>
+              </ToolbarGroup>
+            </ToolbarContent>
+          </Toolbar>
           {filteredVNs.length === 0 ? (
             <SubtleContent component="p">
               {search
