@@ -1,7 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
-  Button,
   EmptyState,
   EmptyStateBody,
   Flex,
@@ -17,9 +16,6 @@ import {
 import { useBareMetalInstanceCatalogItems } from '@osac/ui-components/api/v1/baremetal-instance';
 import { useClusterCatalogItems } from '@osac/ui-components/api/v1/cluster-catalog-item';
 import { useComputeInstanceCatalogItems } from '@osac/ui-components/api/v1/compute-instance-catalog-item';
-import {
-  CatalogItemDetailDrawer
-} from '@osac/ui-components/components/catalog/CatalogItemDetailDrawer.tsx';
 import {
   CatalogItem,
   CatalogItemKind,
@@ -98,7 +94,6 @@ const CatalogPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [selectedCatalogItem, setSelectedCatalogItem] = useState<CatalogItemWithType>();
   const hasInitializedTypeFilters = useRef(false);
 
   const typeFilters = useMemo(() => parseTypeFilters(searchParams), [searchParams]);
@@ -182,7 +177,7 @@ const CatalogPage = () => {
   }), [data]);
 
   const filteredItems = useMemo(() =>
-    filterCatalogItemsBySearch(filterCatalogItemsByTypes(data, typeFilters), search),
+    filterCatalogItemsBySearch(filterCatalogItemsByTypes(data, typeFilters), search) as CatalogItemWithType[],
     [search, data, typeFilters]);
 
   const searchTerm = search.trim();
@@ -192,113 +187,75 @@ const CatalogPage = () => {
     'Browse catalog items and launch virtual machines, clusters, or bare metal machines from published offerings.',
   );
 
-  const catalogCreateAction = useMemo(() => {
-    if (!selectedCatalogItem) {
-      return null;
-    }
-    if (selectedCatalogItem.type === 'vm') {
-      return {
-        label: t('Create virtual machine'),
-        path: `/vms/create/${selectedCatalogItem.id}`,
-      };
-    }
-    if (selectedCatalogItem.type === 'cluster') {
-      return {
-        label: t('Create cluster'),
-        path: `/clusters/create/${selectedCatalogItem.id}`,
-      };
-    }
-    if (selectedCatalogItem.type === 'bm') {
-      return {
-        label: t('Provision bare metal'),
-        path: `/bare-metal/create/${selectedCatalogItem.id}`,
-      };
-    }
-    return null;
-  }, [selectedCatalogItem, t]);
-
   return (
     <ListPage title={t('Catalog')} description={pageDescription}>
-      <CatalogItemDetailDrawer
-        item={selectedCatalogItem}
-        onClose={() => setSelectedCatalogItem(undefined)}
-        actions={
-          catalogCreateAction ? (
-            <Button variant="primary" onClick={() => navigate(catalogCreateAction.path)}>
-              {catalogCreateAction.label}
-            </Button>
-          ) : null
-        }
-      >
-        <Stack hasGutter>
-          <StackItem>
-            <Flex
-              spaceItems={{ default: 'spaceItemsSm' }}
-              alignItems={{ default: 'alignItemsCenter' }}
-              flexWrap={{ default: 'wrap' }}
-            >
-              <FlexItem>
-                <ToggleGroup aria-label={t('Filter catalog by resource type')}>
-                  {catalogTypeFilters.map((option) => (
-                    <ToggleGroupItem
-                      key={option.value}
-                      text={(
-                        <Flex spaceItems={{ default: 'spaceItemsSm' }} flexWrap={{ default: 'nowrap' }}>
-                          <FlexItem>{option.label}</FlexItem>
-                          <FlexItem>
-                            <Label isCompact>{typeCounts[option.value]}</Label>
-                          </FlexItem>
-                        </Flex>
-                      )}
-                      buttonId={`catalog-type-filter-${option.value}`}
-                      isSelected={typeFilters.includes(option.value)}
-                      onChange={() => toggleTypeFilter(option.value)}
-                    />
-                  ))}
-                </ToggleGroup>
-              </FlexItem>
-              <FlexItem>
-                <SearchInput
-                  placeholder={t('Search catalog items')}
-                  value={search}
-                  onChange={(_event, value) => setSearch(value)}
-                  onClear={() => setSearch('')}
-                  aria-label={t('Filter catalog by keyword')}
-                  isDisabled={isLoading || !!error}
-                />
-              </FlexItem>
-            </Flex>
-          </StackItem>
+      <Stack hasGutter>
+        <StackItem>
+          <Flex
+            spaceItems={{ default: 'spaceItemsSm' }}
+            alignItems={{ default: 'alignItemsCenter' }}
+            flexWrap={{ default: 'wrap' }}
+          >
+            <FlexItem>
+              <ToggleGroup aria-label={t('Filter catalog by resource type')}>
+                {catalogTypeFilters.map((option) => (
+                  <ToggleGroupItem
+                    key={option.value}
+                    text={(
+                      <Flex spaceItems={{ default: 'spaceItemsSm' }} flexWrap={{ default: 'nowrap' }}>
+                        <FlexItem>{option.label}</FlexItem>
+                        <FlexItem>
+                          <Label isCompact>{typeCounts[option.value]}</Label>
+                        </FlexItem>
+                      </Flex>
+                    )}
+                    buttonId={`catalog-type-filter-${option.value}`}
+                    isSelected={typeFilters.includes(option.value)}
+                    onChange={() => toggleTypeFilter(option.value)}
+                  />
+                ))}
+              </ToggleGroup>
+            </FlexItem>
+            <FlexItem>
+              <SearchInput
+                placeholder={t('Search catalog items')}
+                value={search}
+                onChange={(_event, value) => setSearch(value)}
+                onClear={() => setSearch('')}
+                aria-label={t('Filter catalog by keyword')}
+                isDisabled={isLoading || !!error}
+              />
+            </FlexItem>
+          </Flex>
+        </StackItem>
 
-          {showEmptyState ? (
-            <StackItem>
-              {typeFilters.length === 0 ? (
-                <EmptyState titleText={t('Select a service to view catalog items')} headingLevel="h2">
-                  <EmptyStateBody>
-                    {t('Choose one or more services above to filter the catalog.')}
-                  </EmptyStateBody>
-                </EmptyState>
-              ) : (
-                <EmptyState titleText={t('No catalog items found')} headingLevel="h2">
-                  <EmptyStateBody>
-                    {searchTerm
-                      ? t('No catalog items match your search.')
-                      : t('No published catalog items are available yet.')}
-                  </EmptyStateBody>
-                </EmptyState>
-              )}
-            </StackItem>
-          ) : (
-            <CatalogItemListSection
-              items={filteredItems as CatalogItemWithType[]}
-              isLoading={isLoading}
-              error={error}
-              selectedItemId={selectedCatalogItem?.id ?? null}
-              onSelectItem={(item) => setSelectedCatalogItem(item)}
-            />
-          )}
-        </Stack>
-      </CatalogItemDetailDrawer>
+        {showEmptyState ? (
+          <StackItem>
+            {typeFilters?.length === 0 ? (
+              <EmptyState titleText={t('Select a service to view catalog items')} headingLevel="h2">
+                <EmptyStateBody>
+                  {t('Choose one or more services above to filter the catalog.')}
+                </EmptyStateBody>
+              </EmptyState>
+            ) : (
+              <EmptyState titleText={t('No catalog items found')} headingLevel="h2">
+                <EmptyStateBody>
+                  {searchTerm
+                    ? t('No catalog items match your search.')
+                    : t('No published catalog items are available yet.')}
+                </EmptyStateBody>
+              </EmptyState>
+            )}
+          </StackItem>
+        ) : (
+          <CatalogItemListSection
+            items={filteredItems}
+            isLoading={isLoading}
+            error={error}
+            onSelectItem={(item) => navigate(`/catalog/${item.type}/${item.id}`)}
+          />
+        )}
+      </Stack>
     </ListPage>
   );
 };

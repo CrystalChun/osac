@@ -16,7 +16,6 @@ import QueryErrorState from '../Resource/QueryErrorState';
 interface CatalogItemListSectionProps {
   title?: string;
   items: CatalogItemWithType[];
-  selectedItemId?: string | null;
   onSelectItem: (item: CatalogItemWithType) => void;
   isLoading?: boolean;
   error?: unknown;
@@ -25,7 +24,6 @@ interface CatalogItemListSectionProps {
 export const CatalogItemListSection = ({
   title,
   items,
-  selectedItemId,
   onSelectItem,
   isLoading = false,
   error = null,
@@ -67,7 +65,6 @@ export const CatalogItemListSection = ({
                   <CatalogItemCard
                     item={item}
                     type={item.type}
-                    isSelected={selectedItemId === item.id}
                     onOpenDetails={() => onSelectItem(item)}
                   />
                 </GalleryItem>

@@ -2,6 +2,7 @@ import { type ReactNode } from 'react';
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { Page, SkipToContent } from '@patternfly/react-core';
 
+import { CatalogItemDetailPage } from '@osac/ui-components/components/catalog/details/CatalogItemDetailPage.tsx';
 import ErrorBoundary from '@osac/ui-components/components/ErrorBoundary/ErrorBoundary';
 import IdentityProviderRoutes from '@osac/ui-components/components/IdentityProvider/IdentityProviderRoutes';
 import ProjectRoutes from '@osac/ui-components/components/Project/ProjectRoutes';
@@ -57,6 +58,14 @@ export const AppShell = ({ logout }: { logout: () => Promise<void> }) => {
           element={
             <ShellRoute>
               <CatalogPage />
+            </ShellRoute>
+          }
+        />
+        <Route
+          path="/catalog/:kind/:id"
+          element={
+            <ShellRoute>
+              <CatalogItemDetailPage />
             </ShellRoute>
           }
         />

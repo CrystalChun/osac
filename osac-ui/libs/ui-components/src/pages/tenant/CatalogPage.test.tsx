@@ -16,6 +16,7 @@ import {
 } from '@osac/types';
 
 import CatalogPage from './CatalogPage';
+import { CatalogItemDetailPage } from '../../components/catalog/details/CatalogItemDetailPage.tsx';
 import { wrapWithAuthInterceptor } from '../../test-utils/createMockConnectTransport';
 import { renderWithProviders } from '../../test-utils/TestProviders';
 
@@ -165,10 +166,11 @@ const unauthorizedTransport = createCatalogPageTransport({
 const renderCatalogPage = (transport = unauthorizedTransport) =>
   renderWithProviders(<CatalogPage />, { transport });
 
-const renderCatalogPageWithCreateRoutes = (transport = createCatalogPageTransport()) =>
+const renderCatalogPageWithDetailRoutes = (transport = createCatalogPageTransport()) =>
   renderWithProviders(
     <Routes>
       <Route path="/catalog" element={<CatalogPage />} />
+      <Route path="/catalog/:kind/:id" element={<CatalogItemDetailPage />} />
       <Route path="/clusters/create/:catalogItemId" element={<div>Create cluster page</div>} />
       <Route path="/vms/create/:catalogItemId" element={<div>Create virtual machine page</div>} />
     </Routes>,
@@ -356,8 +358,8 @@ describe('CatalogPage', () => {
     expect(screen.getByText('No catalog items match your search.')).toBeInTheDocument();
   });
 
-  it('navigates to cluster create from the catalog item drawer', async () => {
-    const { user } = renderCatalogPageWithCreateRoutes();
+  it('navigates to cluster create from the catalog item detail page', async () => {
+    const { user } = renderCatalogPageWithDetailRoutes();
 
     await waitFor(() => {
       expect(screen.getByText(clusterCatalogItem.title)).toBeInTheDocument();
@@ -371,7 +373,7 @@ describe('CatalogPage', () => {
 
     await waitFor(() => {
       expect(
-        screen.getByRole('heading', { name: clusterCatalogItem.title, level: 2 }),
+        screen.getByRole('heading', { name: clusterCatalogItem.title, level: 1 }),
       ).toBeInTheDocument();
     });
     await user.click(await screen.findByRole('button', { name: 'Create cluster' }));
@@ -381,8 +383,8 @@ describe('CatalogPage', () => {
     });
   });
 
-  it('navigates to VM create from the catalog item drawer', async () => {
-    const { user } = renderCatalogPageWithCreateRoutes();
+  it('navigates to VM create from the catalog item detail page', async () => {
+    const { user } = renderCatalogPageWithDetailRoutes();
 
     await waitFor(() => {
       expect(screen.getByText(vmCatalogItem.title)).toBeInTheDocument();
@@ -393,6 +395,13 @@ describe('CatalogPage', () => {
         name: `Open catalog item details for ${vmCatalogItem.title}`,
       }),
     );
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('heading', { name: vmCatalogItem.title, level: 1 }),
+      ).toBeInTheDocument();
+    });
+
     await user.click(await screen.findByRole('button', { name: 'Create virtual machine' }));
 
     await waitFor(() => {

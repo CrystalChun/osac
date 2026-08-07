@@ -1,6 +1,6 @@
 import { Label } from '@patternfly/react-core';
 
-import { useTranslation } from '../../hooks/useTranslation';
+import { useTranslation } from '../../../hooks/useTranslation.ts';
 
 interface CatalogFieldEditabilityLabelProps {
   editable: boolean;
