@@ -26,7 +26,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/public/v1/virtual_network_type.proto.
  */
 export const file_osac_public_v1_virtual_network_type: GenFile = /*@__PURE__*/
-  fileDesc("Cilvc2FjL3B1YmxpYy92MS92aXJ0dWFsX25ldHdvcmtfdHlwZS5wcm90bxIOb3NhYy5wdWJsaWMudjEisAEKDlZpcnR1YWxOZXR3b3JrEgoKAmlkGAEgASgJEioKCG1ldGFkYXRhGAIgASgLMhgub3NhYy5wdWJsaWMudjEuTWV0YWRhdGESMAoEc3BlYxgDIAEoCzIiLm9zYWMucHVibGljLnYxLlZpcnR1YWxOZXR3b3JrU3BlYxI0CgZzdGF0dXMYBCABKAsyJC5vc2FjLnB1YmxpYy52MS5WaXJ0dWFsTmV0d29ya1N0YXR1cyLLAQoSVmlydHVhbE5ldHdvcmtTcGVjEh0KDW5ldHdvcmtfY2xhc3MYAiABKAlCBuBBAeBBBRIbCglpcHY0X2NpZHIYAyABKAlCA+BBBUgAiAEBEhsKCWlwdjZfY2lkchgEIAEoCUID4EEFSAGIAQESQAoMY2FwYWJpbGl0aWVzGAUgASgLMioub3NhYy5wdWJsaWMudjEuVmlydHVhbE5ldHdvcmtDYXBhYmlsaXRpZXNCDAoKX2lwdjRfY2lkckIMCgpfaXB2Nl9jaWRyImEKGlZpcnR1YWxOZXR3b3JrQ2FwYWJpbGl0aWVzEhMKC2VuYWJsZV9pcHY0GAEgASgIEhMKC2VuYWJsZV9pcHY2GAIgASgIEhkKEWVuYWJsZV9kdWFsX3N0YWNrGAMgASgIImwKFFZpcnR1YWxOZXR3b3JrU3RhdHVzEjIKBXN0YXRlGAEgASgOMiMub3NhYy5wdWJsaWMudjEuVmlydHVhbE5ldHdvcmtTdGF0ZRIUCgdtZXNzYWdlGAIgASgJSACIAQFCCgoIX21lc3NhZ2UqogEKE1ZpcnR1YWxOZXR3b3JrU3RhdGUSJQohVklSVFVBTF9ORVRXT1JLX1NUQVRFX1VOU1BFQ0lGSUVEEAASIQodVklSVFVBTF9ORVRXT1JLX1NUQVRFX1BFTkRJTkcQARIfChtWSVJUVUFMX05FVFdPUktfU1RBVEVfUkVBRFkQAhIgChxWSVJUVUFMX05FVFdPUktfU1RBVEVfRkFJTEVEEANiBnByb3RvMw", [file_google_api_field_behavior, file_osac_public_v1_metadata_type]);
+  fileDesc("Cilvc2FjL3B1YmxpYy92MS92aXJ0dWFsX25ldHdvcmtfdHlwZS5wcm90bxIOb3NhYy5wdWJsaWMudjEisAEKDlZpcnR1YWxOZXR3b3JrEgoKAmlkGAEgASgJEioKCG1ldGFkYXRhGAIgASgLMhgub3NhYy5wdWJsaWMudjEuTWV0YWRhdGESMAoEc3BlYxgDIAEoCzIiLm9zYWMucHVibGljLnYxLlZpcnR1YWxOZXR3b3JrU3BlYxI0CgZzdGF0dXMYBCABKAsyJC5vc2FjLnB1YmxpYy52MS5WaXJ0dWFsTmV0d29ya1N0YXR1cyLyAQoSVmlydHVhbE5ldHdvcmtTcGVjEkQKDW5ldHdvcmtfY2xhc3MYAiABKAsyJS5vc2FjLnB1YmxpYy52MS5OZXR3b3JrQ2xhc3NSZWZlcmVuY2VCBuBBAeBBBRIbCglpcHY0X2NpZHIYAyABKAlCA+BBBUgAiAEBEhsKCWlwdjZfY2lkchgEIAEoCUID4EEFSAGIAQESQAoMY2FwYWJpbGl0aWVzGAUgASgLMioub3NhYy5wdWJsaWMudjEuVmlydHVhbE5ldHdvcmtDYXBhYmlsaXRpZXNCDAoKX2lwdjRfY2lkckIMCgpfaXB2Nl9jaWRyImEKGlZpcnR1YWxOZXR3b3JrQ2FwYWJpbGl0aWVzEhMKC2VuYWJsZV9pcHY0GAEgASgIEhMKC2VuYWJsZV9pcHY2GAIgASgIEhkKEWVuYWJsZV9kdWFsX3N0YWNrGAMgASgIImwKFFZpcnR1YWxOZXR3b3JrU3RhdHVzEjIKBXN0YXRlGAEgASgOMiMub3NhYy5wdWJsaWMudjEuVmlydHVhbE5ldHdvcmtTdGF0ZRIUCgdtZXNzYWdlGAIgASgJSACIAQFCCgoIX21lc3NhZ2UiOAocVmlydHVhbE5ldHdvcmtMb2NhbFJlZmVyZW5jZRIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJIlIKFU5ldHdvcmtDbGFzc1JlZmVyZW5jZRIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJEg8KB3Byb2plY3QYAyABKAkSDgoGc2hhcmVkGAQgASgIKqIBChNWaXJ0dWFsTmV0d29ya1N0YXRlEiUKIVZJUlRVQUxfTkVUV09SS19TVEFURV9VTlNQRUNJRklFRBAAEiEKHVZJUlRVQUxfTkVUV09SS19TVEFURV9QRU5ESU5HEAESHwobVklSVFVBTF9ORVRXT1JLX1NUQVRFX1JFQURZEAISIAocVklSVFVBTF9ORVRXT1JLX1NUQVRFX0ZBSUxFRBADYgZwcm90bzM", [file_google_api_field_behavior, file_osac_public_v1_metadata_type]);
 
 /**
  * Represents a tenant-isolated virtual network.
@@ -103,9 +103,9 @@ export type VirtualNetworkSpec = Message<"osac.public.v1.VirtualNetworkSpec"> & 
    * If omitted on creation and a default NetworkClass is configured, the default is used;
    * otherwise creation fails. Once set, this field is immutable.
    *
-   * @generated from field: string network_class = 2;
+   * @generated from field: osac.public.v1.NetworkClassReference network_class = 2;
    */
-  networkClass: string;
+  networkClass?: NetworkClassReference | undefined;
 
   /**
    * IPv4 CIDR block for this network. Optional for IPv6-only networks. Immutable after creation.
@@ -230,6 +230,64 @@ export type VirtualNetworkStatus = Message<"osac.public.v1.VirtualNetworkStatus"
  */
 export const VirtualNetworkStatusSchema: GenMessage<VirtualNetworkStatus> = /*@__PURE__*/
   messageDesc(file_osac_public_v1_virtual_network_type, 3);
+
+/**
+ * Local reference to a VirtualNetwork resource.
+ *
+ * @generated from message osac.public.v1.VirtualNetworkLocalReference
+ */
+export type VirtualNetworkLocalReference = Message<"osac.public.v1.VirtualNetworkLocalReference"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string name = 2;
+   */
+  name: string;
+};
+
+/**
+ * Describes the message osac.public.v1.VirtualNetworkLocalReference.
+ * Use `create(VirtualNetworkLocalReferenceSchema)` to create a new message.
+ */
+export const VirtualNetworkLocalReferenceSchema: GenMessage<VirtualNetworkLocalReference> = /*@__PURE__*/
+  messageDesc(file_osac_public_v1_virtual_network_type, 4);
+
+/**
+ * Reference to a NetworkClass resource.
+ *
+ * @generated from message osac.public.v1.NetworkClassReference
+ */
+export type NetworkClassReference = Message<"osac.public.v1.NetworkClassReference"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string name = 2;
+   */
+  name: string;
+
+  /**
+   * @generated from field: string project = 3;
+   */
+  project: string;
+
+  /**
+   * @generated from field: bool shared = 4;
+   */
+  shared: boolean;
+};
+
+/**
+ * Describes the message osac.public.v1.NetworkClassReference.
+ * Use `create(NetworkClassReferenceSchema)` to create a new message.
+ */
+export const NetworkClassReferenceSchema: GenMessage<NetworkClassReference> = /*@__PURE__*/
+  messageDesc(file_osac_public_v1_virtual_network_type, 5);
 
 /**
  * Lifecycle states for VirtualNetwork resources.

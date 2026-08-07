@@ -1,10 +1,17 @@
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { create } from '@bufbuild/protobuf';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { SecurityGroup, VirtualNetwork } from '@osac/types';
-import { Protocol, SecurityGroupState, SubnetState, VirtualNetworkState } from '@osac/types';
+import {
+  Protocol,
+  SecurityGroupState,
+  SubnetState,
+  VirtualNetworkLocalReferenceSchema,
+  VirtualNetworkState,
+} from '@osac/types';
 
 import { VirtualNetworkDetailPage } from './VirtualNetworkDetailPage';
 import * as networkingApi from '../../api/v1/networking';
@@ -40,7 +47,7 @@ describe('VirtualNetworkDetailPage', () => {
     spec: {
       $typeName: 'osac.public.v1.VirtualNetworkSpec',
       ipv4Cidr: '10.0.0.0/16',
-      networkClass: '',
+      networkClass: undefined,
     },
     status: {
       $typeName: 'osac.public.v1.VirtualNetworkStatus',
@@ -65,7 +72,7 @@ describe('VirtualNetworkDetailPage', () => {
 
       spec: {
         $typeName: 'osac.public.v1.SecurityGroupSpec',
-        virtualNetwork: 'vn-1',
+        virtualNetwork: create(VirtualNetworkLocalReferenceSchema, { id: 'vn-1' }),
         ingress: [
           {
             $typeName: 'osac.public.v1.SecurityRule',
@@ -110,7 +117,7 @@ describe('VirtualNetworkDetailPage', () => {
             spec: {
               $typeName: 'osac.public.v1.SubnetSpec',
               ipv4Cidr: '10.0.1.0/24',
-              virtualNetwork: '',
+              virtualNetwork: undefined,
             },
             status: {
               $typeName: 'osac.public.v1.SubnetStatus',

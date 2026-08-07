@@ -9,7 +9,6 @@ import {
   ExternalIPAttachment,
   ExternalIPAttachments,
   ExternalIPAttachmentsCreateRequest,
-  ExternalIPAttachmentsCreateResponse,
   ExternalIPState,
   ExternalIPs,
 } from '@osac/types';
@@ -142,23 +141,17 @@ const createAttachExternalIpTransport = ({
     router.service(ExternalIPAttachments, {
       create: (req) => {
         if (onAttachmentCreate) {
-          return {
-            $typeName: 'osac.public.v1.ExternalIPAttachmentsCreateResponse',
-            object: onAttachmentCreate(req),
-          };
+          return { object: onAttachmentCreate(req) };
         }
         return {
-          $typeName: 'osac.public.v1.ExternalIPAttachmentsCreateResponse',
           object: {
-            $typeName: 'osac.public.v1.ExternalIPAttachment',
             id: 'attachment-1',
             spec: {
-              $typeName: 'osac.public.v1.ExternalIPAttachmentSpec',
-              externalIp: 'eip-1',
+              externalIp: { id: 'eip-1' },
               target: req.object?.spec?.target,
             },
           },
-        } as ExternalIPAttachmentsCreateResponse;
+        };
       },
     });
 
@@ -190,7 +183,7 @@ describe('useAttachExternalIp', () => {
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
-    expect(result.current.data?.spec?.externalIp).toBe('eip-1');
+    expect(result.current.data?.spec?.externalIp?.id).toBe('eip-1');
   });
 
   it('rolls back the allocated ExternalIP when creating the attachment fails', async () => {

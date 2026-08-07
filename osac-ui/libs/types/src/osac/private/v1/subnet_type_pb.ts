@@ -20,13 +20,15 @@ import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_google_api_field_behavior } from "../../../google/api/field_behavior_pb";
 import type { Metadata } from "./metadata_type_pb";
 import { file_osac_private_v1_metadata_type } from "./metadata_type_pb";
+import type { VirtualNetworkLocalReference } from "./virtual_network_type_pb";
+import { file_osac_private_v1_virtual_network_type } from "./virtual_network_type_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file osac/private/v1/subnet_type.proto.
  */
 export const file_osac_private_v1_subnet_type: GenFile = /*@__PURE__*/
-  fileDesc("CiFvc2FjL3ByaXZhdGUvdjEvc3VibmV0X3R5cGUucHJvdG8SD29zYWMucHJpdmF0ZS52MSKbAQoGU3VibmV0EgoKAmlkGAEgASgJEisKCG1ldGFkYXRhGAIgASgLMhkub3NhYy5wcml2YXRlLnYxLk1ldGFkYXRhEikKBHNwZWMYAyABKAsyGy5vc2FjLnByaXZhdGUudjEuU3VibmV0U3BlYxItCgZzdGF0dXMYBCABKAsyHS5vc2FjLnByaXZhdGUudjEuU3VibmV0U3RhdHVzIoMBCgpTdWJuZXRTcGVjEh8KD3ZpcnR1YWxfbmV0d29yaxgBIAEoCUIG4EEC4EEFEhsKCWlwdjRfY2lkchgCIAEoCUID4EEFSACIAQESGwoJaXB2Nl9jaWRyGAMgASgJQgPgQQVIAYgBAUIMCgpfaXB2NF9jaWRyQgwKCl9pcHY2X2NpZHIiagoMU3VibmV0U3RhdHVzEisKBXN0YXRlGAEgASgOMhwub3NhYy5wcml2YXRlLnYxLlN1Ym5ldFN0YXRlEhQKB21lc3NhZ2UYAiABKAlIAIgBARILCgNodWIYAyABKAlCCgoIX21lc3NhZ2UqsQEKC1N1Ym5ldFN0YXRlEhwKGFNVQk5FVF9TVEFURV9VTlNQRUNJRklFRBAAEhgKFFNVQk5FVF9TVEFURV9QRU5ESU5HEAESFgoSU1VCTkVUX1NUQVRFX1JFQURZEAISFwoTU1VCTkVUX1NUQVRFX0ZBSUxFRBADEhkKFVNVQk5FVF9TVEFURV9ERUxFVElORxAEEh4KGlNVQk5FVF9TVEFURV9ERUxFVEVfRkFJTEVEEAViBnByb3RvMw", [file_google_api_field_behavior, file_osac_private_v1_metadata_type]);
+  fileDesc("CiFvc2FjL3ByaXZhdGUvdjEvc3VibmV0X3R5cGUucHJvdG8SD29zYWMucHJpdmF0ZS52MSKbAQoGU3VibmV0EgoKAmlkGAEgASgJEisKCG1ldGFkYXRhGAIgASgLMhkub3NhYy5wcml2YXRlLnYxLk1ldGFkYXRhEikKBHNwZWMYAyABKAsyGy5vc2FjLnByaXZhdGUudjEuU3VibmV0U3BlYxItCgZzdGF0dXMYBCABKAsyHS5vc2FjLnByaXZhdGUudjEuU3VibmV0U3RhdHVzIrIBCgpTdWJuZXRTcGVjEk4KD3ZpcnR1YWxfbmV0d29yaxgBIAEoCzItLm9zYWMucHJpdmF0ZS52MS5WaXJ0dWFsTmV0d29ya0xvY2FsUmVmZXJlbmNlQgbgQQLgQQUSGwoJaXB2NF9jaWRyGAIgASgJQgPgQQVIAIgBARIbCglpcHY2X2NpZHIYAyABKAlCA+BBBUgBiAEBQgwKCl9pcHY0X2NpZHJCDAoKX2lwdjZfY2lkciJqCgxTdWJuZXRTdGF0dXMSKwoFc3RhdGUYASABKA4yHC5vc2FjLnByaXZhdGUudjEuU3VibmV0U3RhdGUSFAoHbWVzc2FnZRgCIAEoCUgAiAEBEgsKA2h1YhgDIAEoCUIKCghfbWVzc2FnZSIwChRTdWJuZXRMb2NhbFJlZmVyZW5jZRIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJKrEBCgtTdWJuZXRTdGF0ZRIcChhTVUJORVRfU1RBVEVfVU5TUEVDSUZJRUQQABIYChRTVUJORVRfU1RBVEVfUEVORElORxABEhYKElNVQk5FVF9TVEFURV9SRUFEWRACEhcKE1NVQk5FVF9TVEFURV9GQUlMRUQQAxIZChVTVUJORVRfU1RBVEVfREVMRVRJTkcQBBIeChpTVUJORVRfU1RBVEVfREVMRVRFX0ZBSUxFRBAFYgZwcm90bzM", [file_google_api_field_behavior, file_osac_private_v1_metadata_type, file_osac_private_v1_virtual_network_type]);
 
 /**
  * Represents a subdivision of a VirtualNetwork for organizing compute instances.
@@ -101,10 +103,10 @@ export const SubnetSchema: GenMessage<Subnet> = /*@__PURE__*/
  */
 export type SubnetSpec = Message<"osac.private.v1.SubnetSpec"> & {
   /**
-   * Parent VirtualNetwork ID. Required and immutable after creation.
+   * Parent VirtualNetwork reference. Required and immutable after creation.
    *
-   * Must reference the ID of an existing VirtualNetwork in READY state. This field is required and immutable
-   * after creation. The referenced VirtualNetwork must be in the same region as this Subnet.
+   * Must reference an existing VirtualNetwork in READY state. The referenced VirtualNetwork must be
+   * in the same region as this Subnet.
    *
    * The system validates that:
    * - The VirtualNetwork exists
@@ -112,11 +114,9 @@ export type SubnetSpec = Message<"osac.private.v1.SubnetSpec"> & {
    * - The Subnet's CIDR blocks are subsets of the VirtualNetwork's CIDR blocks
    * - The Subnet's CIDR blocks do not overlap with other Subnets in the same VirtualNetwork
    *
-   * Example: "vnet-abc123"
-   *
-   * @generated from field: string virtual_network = 1;
+   * @generated from field: osac.private.v1.VirtualNetworkLocalReference virtual_network = 1;
    */
-  virtualNetwork: string;
+  virtualNetwork?: VirtualNetworkLocalReference | undefined;
 
   /**
    * IPv4 CIDR block for this subnet. Optional for IPv6-only subnets. Immutable after creation.
@@ -206,6 +206,30 @@ export type SubnetStatus = Message<"osac.private.v1.SubnetStatus"> & {
  */
 export const SubnetStatusSchema: GenMessage<SubnetStatus> = /*@__PURE__*/
   messageDesc(file_osac_private_v1_subnet_type, 2);
+
+/**
+ * Local reference to a Subnet resource.
+ *
+ * @generated from message osac.private.v1.SubnetLocalReference
+ */
+export type SubnetLocalReference = Message<"osac.private.v1.SubnetLocalReference"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string name = 2;
+   */
+  name: string;
+};
+
+/**
+ * Describes the message osac.private.v1.SubnetLocalReference.
+ * Use `create(SubnetLocalReferenceSchema)` to create a new message.
+ */
+export const SubnetLocalReferenceSchema: GenMessage<SubnetLocalReference> = /*@__PURE__*/
+  messageDesc(file_osac_private_v1_subnet_type, 3);
 
 /**
  * Lifecycle states for Subnet resources.

@@ -42,7 +42,12 @@ describe('VmNetworkingTab', () => {
     const vm = {
       id: 'vm-1',
       spec: {
-        networkAttachments: [{ subnet: 'subnet-1', securityGroups: ['sg-1', 'sg-2'] }],
+        networkAttachments: [
+          {
+            subnet: { id: 'subnet-1' },
+            securityGroups: [{ id: 'sg-1' }, { id: 'sg-2' }],
+          },
+        ],
       },
     } as ComputeInstance;
 

@@ -46,7 +46,7 @@ export const SecurityGroupDetailPage = () => {
   const sgName = sg?.metadata?.name ?? id;
   const isFailed = sg?.status?.state === SecurityGroupState.FAILED;
 
-  const vnId = sg?.spec?.virtualNetwork ?? '';
+  const vnId = sg?.spec?.virtualNetwork?.id ?? '';
   const vn = virtualNetworks.find((v) => v.id === vnId);
   const vnName = resourceDisplayName(vn?.metadata, vnId);
 

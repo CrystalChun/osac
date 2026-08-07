@@ -25,13 +25,19 @@ import type { ConditionStatus } from "./condition_status_type_pb";
 import { file_osac_private_v1_condition_status_type } from "./condition_status_type_pb";
 import type { Metadata } from "./metadata_type_pb";
 import { file_osac_private_v1_metadata_type } from "./metadata_type_pb";
+import type { InstanceTypeReference } from "./instance_type_type_pb";
+import { file_osac_private_v1_instance_type_type } from "./instance_type_type_pb";
+import type { SecurityGroupLocalReference } from "./security_group_type_pb";
+import { file_osac_private_v1_security_group_type } from "./security_group_type_pb";
+import type { SubnetLocalReference } from "./subnet_type_pb";
+import { file_osac_private_v1_subnet_type } from "./subnet_type_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file osac/private/v1/compute_instance_type.proto.
  */
 export const file_osac_private_v1_compute_instance_type: GenFile = /*@__PURE__*/
-  fileDesc("Citvc2FjL3ByaXZhdGUvdjEvY29tcHV0ZV9pbnN0YW5jZV90eXBlLnByb3RvEg9vc2FjLnByaXZhdGUudjEitgEKD0NvbXB1dGVJbnN0YW5jZRIKCgJpZBgBIAEoCRIrCghtZXRhZGF0YRgCIAEoCzIZLm9zYWMucHJpdmF0ZS52MS5NZXRhZGF0YRIyCgRzcGVjGAMgASgLMiQub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZVNwZWMSNgoGc3RhdHVzGAQgASgLMiYub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZVN0YXR1cyI/ChRDb21wdXRlSW5zdGFuY2VJbWFnZRITCgtzb3VyY2VfdHlwZRgBIAEoCRISCgpzb3VyY2VfcmVmGAIgASgJIicKE0NvbXB1dGVJbnN0YW5jZURpc2sSEAoIc2l6ZV9naWIYASABKAUiPAoRTmV0d29ya0F0dGFjaG1lbnQSDgoGc3VibmV0GAEgASgJEhcKD3NlY3VyaXR5X2dyb3VwcxgCIAMoCSLvBgoTQ29tcHV0ZUluc3RhbmNlU3BlYxIQCgh0ZW1wbGF0ZRgBIAEoCRJZChN0ZW1wbGF0ZV9wYXJhbWV0ZXJzGAIgAygLMjwub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZVNwZWMuVGVtcGxhdGVQYXJhbWV0ZXJzRW50cnkSPQoUcmVzdGFydF9yZXF1ZXN0ZWRfYXQYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wSACIAQESOQoFaW1hZ2UYBCABKAsyJS5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlSW1hZ2VIAYgBARIbCg5zc2hfcHVibGljX2tleRgHIAEoCUgCiAEBEjwKCWJvb3RfZGlzaxgIIAEoCzIkLm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2VEaXNrSAOIAQESPgoQYWRkaXRpb25hbF9kaXNrcxgJIAMoCzIkLm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2VEaXNrEhkKDHJ1bl9zdHJhdGVneRgKIAEoCUgEiAEBEhYKCXVzZXJfZGF0YRgLIAEoCUgFiAEBEj8KE25ldHdvcmtfYXR0YWNobWVudHMYDiADKAsyIi5vc2FjLnByaXZhdGUudjEuTmV0d29ya0F0dGFjaG1lbnQSFAoMY2F0YWxvZ19pdGVtGA8gASgJEhcKCmlzX3dpbmRvd3MYECABKAhIBogBARIaCg1pbnN0YW5jZV90eXBlGBEgASgJSAeIAQEaTwoXVGVtcGxhdGVQYXJhbWV0ZXJzRW50cnkSCwoDa2V5GAEgASgJEiMKBXZhbHVlGAIgASgLMhQuZ29vZ2xlLnByb3RvYnVmLkFueToCOAFCFwoVX3Jlc3RhcnRfcmVxdWVzdGVkX2F0QggKBl9pbWFnZUIRCg9fc3NoX3B1YmxpY19rZXlCDAoKX2Jvb3RfZGlza0IPCg1fcnVuX3N0cmF0ZWd5QgwKCl91c2VyX2RhdGFCDQoLX2lzX3dpbmRvd3NCEAoOX2luc3RhbmNlX3R5cGVKBAgFEAZKBAgGEAdKBAgMEA1KBAgNEA5SBWNvcmVzUgptZW1vcnlfZ2liUgZzdWJuZXRSD3NlY3VyaXR5X2dyb3VwcyL/AgoVQ29tcHV0ZUluc3RhbmNlU3RhdHVzEjQKBXN0YXRlGAEgASgOMiUub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZVN0YXRlEj0KCmNvbmRpdGlvbnMYAiADKAsyKS5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlQ29uZGl0aW9uEhsKE2ludGVybmFsX2lwX2FkZHJlc3MYAyABKAkSCwoDaHViGAQgASgJEjoKEWxhc3RfcmVzdGFydGVkX2F0GAUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEgAiAEBEhsKE2V4dGVybmFsX2lwX2FkZHJlc3MYBiABKAkSPgoVc3RhdGVfdHJhbnNpdGlvbl90aW1lGAcgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEgBiAEBQhQKEl9sYXN0X3Jlc3RhcnRlZF9hdEIYChZfc3RhdGVfdHJhbnNpdGlvbl90aW1lIoUCChhDb21wdXRlSW5zdGFuY2VDb25kaXRpb24SOwoEdHlwZRgBIAEoDjItLm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2VDb25kaXRpb25UeXBlEjAKBnN0YXR1cxgCIAEoDjIgLm9zYWMucHJpdmF0ZS52MS5Db25kaXRpb25TdGF0dXMSOAoUbGFzdF90cmFuc2l0aW9uX3RpbWUYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhMKBnJlYXNvbhgEIAEoCUgAiAEBEhQKB21lc3NhZ2UYBSABKAlIAYgBAUIJCgdfcmVhc29uQgoKCF9tZXNzYWdlKrsCChRDb21wdXRlSW5zdGFuY2VTdGF0ZRImCiJDT01QVVRFX0lOU1RBTkNFX1NUQVRFX1VOU1BFQ0lGSUVEEAASIwofQ09NUFVURV9JTlNUQU5DRV9TVEFURV9TVEFSVElORxABEiIKHkNPTVBVVEVfSU5TVEFOQ0VfU1RBVEVfUlVOTklORxACEiEKHUNPTVBVVEVfSU5TVEFOQ0VfU1RBVEVfRkFJTEVEEAMSIwofQ09NUFVURV9JTlNUQU5DRV9TVEFURV9ERUxFVElORxAEEiMKH0NPTVBVVEVfSU5TVEFOQ0VfU1RBVEVfU1RPUFBJTkcQBRIiCh5DT01QVVRFX0lOU1RBTkNFX1NUQVRFX1NUT1BQRUQQBhIhCh1DT01QVVRFX0lOU1RBTkNFX1NUQVRFX1BBVVNFRBAHKokDChxDb21wdXRlSW5zdGFuY2VDb25kaXRpb25UeXBlEi8KK0NPTVBVVEVfSU5TVEFOQ0VfQ09ORElUSU9OX1RZUEVfVU5TUEVDSUZJRUQQABI5CjVDT01QVVRFX0lOU1RBTkNFX0NPTkRJVElPTl9UWVBFX0NPTkZJR1VSQVRJT05fQVBQTElFRBABEikKJUNPTVBVVEVfSU5TVEFOQ0VfQ09ORElUSU9OX1RZUEVfUkVBRFkQAhI3CjNDT01QVVRFX0lOU1RBTkNFX0NPTkRJVElPTl9UWVBFX1JFU1RBUlRfSU5fUFJPR1JFU1MQAxIyCi5DT01QVVRFX0lOU1RBTkNFX0NPTkRJVElPTl9UWVBFX1JFU1RBUlRfRkFJTEVEEAQSLworQ09NUFVURV9JTlNUQU5DRV9DT05ESVRJT05fVFlQRV9QUk9WSVNJT05FRBAFEjQKMENPTVBVVEVfSU5TVEFOQ0VfQ09ORElUSU9OX1RZUEVfUkVTVEFSVF9SRVFVSVJFRBAGYgZwcm90bzM", [file_google_protobuf_any, file_google_protobuf_timestamp, file_osac_private_v1_condition_status_type, file_osac_private_v1_metadata_type]);
+  fileDesc("Citvc2FjL3ByaXZhdGUvdjEvY29tcHV0ZV9pbnN0YW5jZV90eXBlLnByb3RvEg9vc2FjLnByaXZhdGUudjEitgEKD0NvbXB1dGVJbnN0YW5jZRIKCgJpZBgBIAEoCRIrCghtZXRhZGF0YRgCIAEoCzIZLm9zYWMucHJpdmF0ZS52MS5NZXRhZGF0YRIyCgRzcGVjGAMgASgLMiQub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZVNwZWMSNgoGc3RhdHVzGAQgASgLMiYub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZVN0YXR1cyI/ChRDb21wdXRlSW5zdGFuY2VJbWFnZRITCgtzb3VyY2VfdHlwZRgBIAEoCRISCgpzb3VyY2VfcmVmGAIgASgJIicKE0NvbXB1dGVJbnN0YW5jZURpc2sSEAoIc2l6ZV9naWIYASABKAUikQEKEU5ldHdvcmtBdHRhY2htZW50EjUKBnN1Ym5ldBgBIAEoCzIlLm9zYWMucHJpdmF0ZS52MS5TdWJuZXRMb2NhbFJlZmVyZW5jZRJFCg9zZWN1cml0eV9ncm91cHMYAiADKAsyLC5vc2FjLnByaXZhdGUudjEuU2VjdXJpdHlHcm91cExvY2FsUmVmZXJlbmNlIukHChNDb21wdXRlSW5zdGFuY2VTcGVjEkMKCHRlbXBsYXRlGAEgASgLMjEub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZVRlbXBsYXRlUmVmZXJlbmNlElkKE3RlbXBsYXRlX3BhcmFtZXRlcnMYAiADKAsyPC5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlU3BlYy5UZW1wbGF0ZVBhcmFtZXRlcnNFbnRyeRI9ChRyZXN0YXJ0X3JlcXVlc3RlZF9hdBgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBIAIgBARI5CgVpbWFnZRgEIAEoCzIlLm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2VJbWFnZUgBiAEBEhsKDnNzaF9wdWJsaWNfa2V5GAcgASgJSAKIAQESPAoJYm9vdF9kaXNrGAggASgLMiQub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZURpc2tIA4gBARI+ChBhZGRpdGlvbmFsX2Rpc2tzGAkgAygLMiQub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZURpc2sSGQoMcnVuX3N0cmF0ZWd5GAogASgJSASIAQESFgoJdXNlcl9kYXRhGAsgASgJSAWIAQESPwoTbmV0d29ya19hdHRhY2htZW50cxgOIAMoCzIiLm9zYWMucHJpdmF0ZS52MS5OZXR3b3JrQXR0YWNobWVudBJKCgxjYXRhbG9nX2l0ZW0YDyABKAsyNC5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlQ2F0YWxvZ0l0ZW1SZWZlcmVuY2USFwoKaXNfd2luZG93cxgQIAEoCEgGiAEBEj0KDWluc3RhbmNlX3R5cGUYESABKAsyJi5vc2FjLnByaXZhdGUudjEuSW5zdGFuY2VUeXBlUmVmZXJlbmNlGk8KF1RlbXBsYXRlUGFyYW1ldGVyc0VudHJ5EgsKA2tleRgBIAEoCRIjCgV2YWx1ZRgCIAEoCzIULmdvb2dsZS5wcm90b2J1Zi5Bbnk6AjgBQhcKFV9yZXN0YXJ0X3JlcXVlc3RlZF9hdEIICgZfaW1hZ2VCEQoPX3NzaF9wdWJsaWNfa2V5QgwKCl9ib290X2Rpc2tCDwoNX3J1bl9zdHJhdGVneUIMCgpfdXNlcl9kYXRhQg0KC19pc193aW5kb3dzSgQIBRAGSgQIBhAHSgQIDBANSgQIDRAOUgVjb3Jlc1IKbWVtb3J5X2dpYlIGc3VibmV0Ug9zZWN1cml0eV9ncm91cHMi/wIKFUNvbXB1dGVJbnN0YW5jZVN0YXR1cxI0CgVzdGF0ZRgBIAEoDjIlLm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2VTdGF0ZRI9Cgpjb25kaXRpb25zGAIgAygLMikub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZUNvbmRpdGlvbhIbChNpbnRlcm5hbF9pcF9hZGRyZXNzGAMgASgJEgsKA2h1YhgEIAEoCRI6ChFsYXN0X3Jlc3RhcnRlZF9hdBgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBIAIgBARIbChNleHRlcm5hbF9pcF9hZGRyZXNzGAYgASgJEj4KFXN0YXRlX3RyYW5zaXRpb25fdGltZRgHIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBIAYgBAUIUChJfbGFzdF9yZXN0YXJ0ZWRfYXRCGAoWX3N0YXRlX3RyYW5zaXRpb25fdGltZSKFAgoYQ29tcHV0ZUluc3RhbmNlQ29uZGl0aW9uEjsKBHR5cGUYASABKA4yLS5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlQ29uZGl0aW9uVHlwZRIwCgZzdGF0dXMYAiABKA4yIC5vc2FjLnByaXZhdGUudjEuQ29uZGl0aW9uU3RhdHVzEjgKFGxhc3RfdHJhbnNpdGlvbl90aW1lGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBITCgZyZWFzb24YBCABKAlIAIgBARIUCgdtZXNzYWdlGAUgASgJSAGIAQFCCQoHX3JlYXNvbkIKCghfbWVzc2FnZSI5Ch1Db21wdXRlSW5zdGFuY2VMb2NhbFJlZmVyZW5jZRIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJIl0KIENvbXB1dGVJbnN0YW5jZVRlbXBsYXRlUmVmZXJlbmNlEgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkSDwoHcHJvamVjdBgDIAEoCRIOCgZzaGFyZWQYBCABKAgiYAojQ29tcHV0ZUluc3RhbmNlQ2F0YWxvZ0l0ZW1SZWZlcmVuY2USCgoCaWQYASABKAkSDAoEbmFtZRgCIAEoCRIPCgdwcm9qZWN0GAMgASgJEg4KBnNoYXJlZBgEIAEoCCq7AgoUQ29tcHV0ZUluc3RhbmNlU3RhdGUSJgoiQ09NUFVURV9JTlNUQU5DRV9TVEFURV9VTlNQRUNJRklFRBAAEiMKH0NPTVBVVEVfSU5TVEFOQ0VfU1RBVEVfU1RBUlRJTkcQARIiCh5DT01QVVRFX0lOU1RBTkNFX1NUQVRFX1JVTk5JTkcQAhIhCh1DT01QVVRFX0lOU1RBTkNFX1NUQVRFX0ZBSUxFRBADEiMKH0NPTVBVVEVfSU5TVEFOQ0VfU1RBVEVfREVMRVRJTkcQBBIjCh9DT01QVVRFX0lOU1RBTkNFX1NUQVRFX1NUT1BQSU5HEAUSIgoeQ09NUFVURV9JTlNUQU5DRV9TVEFURV9TVE9QUEVEEAYSIQodQ09NUFVURV9JTlNUQU5DRV9TVEFURV9QQVVTRUQQByqJAwocQ29tcHV0ZUluc3RhbmNlQ29uZGl0aW9uVHlwZRIvCitDT01QVVRFX0lOU1RBTkNFX0NPTkRJVElPTl9UWVBFX1VOU1BFQ0lGSUVEEAASOQo1Q09NUFVURV9JTlNUQU5DRV9DT05ESVRJT05fVFlQRV9DT05GSUdVUkFUSU9OX0FQUExJRUQQARIpCiVDT01QVVRFX0lOU1RBTkNFX0NPTkRJVElPTl9UWVBFX1JFQURZEAISNwozQ09NUFVURV9JTlNUQU5DRV9DT05ESVRJT05fVFlQRV9SRVNUQVJUX0lOX1BST0dSRVNTEAMSMgouQ09NUFVURV9JTlNUQU5DRV9DT05ESVRJT05fVFlQRV9SRVNUQVJUX0ZBSUxFRBAEEi8KK0NPTVBVVEVfSU5TVEFOQ0VfQ09ORElUSU9OX1RZUEVfUFJPVklTSU9ORUQQBRI0CjBDT01QVVRFX0lOU1RBTkNFX0NPTkRJVElPTl9UWVBFX1JFU1RBUlRfUkVRVUlSRUQQBmIGcHJvdG8z", [file_google_protobuf_any, file_google_protobuf_timestamp, file_osac_private_v1_condition_status_type, file_osac_private_v1_metadata_type, file_osac_private_v1_instance_type_type, file_osac_private_v1_security_group_type, file_osac_private_v1_subnet_type]);
 
 /**
  * Contains the details about the compute instance that are available only for the system.
@@ -125,18 +131,18 @@ export const ComputeInstanceDiskSchema: GenMessage<ComputeInstanceDisk> = /*@__P
  */
 export type NetworkAttachment = Message<"osac.private.v1.NetworkAttachment"> & {
   /**
-   * Fulfillment Subnet ID.
+   * Reference to the Subnet for this NIC.
    *
-   * @generated from field: string subnet = 1;
+   * @generated from field: osac.private.v1.SubnetLocalReference subnet = 1;
    */
-  subnet: string;
+  subnet?: SubnetLocalReference | undefined;
 
   /**
-   * Fulfillment SecurityGroup IDs for this NIC.
+   * References to SecurityGroups for this NIC.
    *
-   * @generated from field: repeated string security_groups = 2;
+   * @generated from field: repeated osac.private.v1.SecurityGroupLocalReference security_groups = 2;
    */
-  securityGroups: string[];
+  securityGroups: SecurityGroupLocalReference[];
 };
 
 /**
@@ -153,9 +159,9 @@ export type ComputeInstanceSpec = Message<"osac.private.v1.ComputeInstanceSpec">
   /**
    * Copies of the public fields.
    *
-   * @generated from field: string template = 1;
+   * @generated from field: osac.private.v1.ComputeInstanceTemplateReference template = 1;
    */
-  template: string;
+  template?: ComputeInstanceTemplateReference | undefined;
 
   /**
    * @generated from field: map<string, google.protobuf.Any> template_parameters = 2;
@@ -220,9 +226,9 @@ export type ComputeInstanceSpec = Message<"osac.private.v1.ComputeInstanceSpec">
    * Reference to a compute instance catalog item. Mutually exclusive with template during the migration period.
    * When set, the server fetches the catalog item and applies its field definitions.
    *
-   * @generated from field: string catalog_item = 15;
+   * @generated from field: osac.private.v1.ComputeInstanceCatalogItemReference catalog_item = 15;
    */
-  catalogItem: string;
+  catalogItem?: ComputeInstanceCatalogItemReference | undefined;
 
   /**
    * Indicates whether this compute instance runs a Windows guest OS (true) or Linux (false/omitted).
@@ -232,13 +238,13 @@ export type ComputeInstanceSpec = Message<"osac.private.v1.ComputeInstanceSpec">
   isWindows?: boolean | undefined;
 
   /**
-   * Reference to an instance type by name. Specifies the compute configuration (cores, memory)
+   * Reference to an instance type. Specifies the compute configuration (cores, memory)
    * for this instance. The API validates that the instance type exists and is not OBSOLETE;
    * resolution of cores/memory_gib happens in the reconciler.
    *
-   * @generated from field: optional string instance_type = 17;
+   * @generated from field: osac.private.v1.InstanceTypeReference instance_type = 17;
    */
-  instanceType?: string | undefined;
+  instanceType?: InstanceTypeReference | undefined;
 };
 
 /**
@@ -345,6 +351,98 @@ export type ComputeInstanceCondition = Message<"osac.private.v1.ComputeInstanceC
  */
 export const ComputeInstanceConditionSchema: GenMessage<ComputeInstanceCondition> = /*@__PURE__*/
   messageDesc(file_osac_private_v1_compute_instance_type, 6);
+
+/**
+ * Local reference to a ComputeInstance resource.
+ *
+ * @generated from message osac.private.v1.ComputeInstanceLocalReference
+ */
+export type ComputeInstanceLocalReference = Message<"osac.private.v1.ComputeInstanceLocalReference"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string name = 2;
+   */
+  name: string;
+};
+
+/**
+ * Describes the message osac.private.v1.ComputeInstanceLocalReference.
+ * Use `create(ComputeInstanceLocalReferenceSchema)` to create a new message.
+ */
+export const ComputeInstanceLocalReferenceSchema: GenMessage<ComputeInstanceLocalReference> = /*@__PURE__*/
+  messageDesc(file_osac_private_v1_compute_instance_type, 7);
+
+/**
+ * Reference to a ComputeInstanceTemplate resource.
+ *
+ * @generated from message osac.private.v1.ComputeInstanceTemplateReference
+ */
+export type ComputeInstanceTemplateReference = Message<"osac.private.v1.ComputeInstanceTemplateReference"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string name = 2;
+   */
+  name: string;
+
+  /**
+   * @generated from field: string project = 3;
+   */
+  project: string;
+
+  /**
+   * @generated from field: bool shared = 4;
+   */
+  shared: boolean;
+};
+
+/**
+ * Describes the message osac.private.v1.ComputeInstanceTemplateReference.
+ * Use `create(ComputeInstanceTemplateReferenceSchema)` to create a new message.
+ */
+export const ComputeInstanceTemplateReferenceSchema: GenMessage<ComputeInstanceTemplateReference> = /*@__PURE__*/
+  messageDesc(file_osac_private_v1_compute_instance_type, 8);
+
+/**
+ * Reference to a ComputeInstanceCatalogItem resource.
+ *
+ * @generated from message osac.private.v1.ComputeInstanceCatalogItemReference
+ */
+export type ComputeInstanceCatalogItemReference = Message<"osac.private.v1.ComputeInstanceCatalogItemReference"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string name = 2;
+   */
+  name: string;
+
+  /**
+   * @generated from field: string project = 3;
+   */
+  project: string;
+
+  /**
+   * @generated from field: bool shared = 4;
+   */
+  shared: boolean;
+};
+
+/**
+ * Describes the message osac.private.v1.ComputeInstanceCatalogItemReference.
+ * Use `create(ComputeInstanceCatalogItemReferenceSchema)` to create a new message.
+ */
+export const ComputeInstanceCatalogItemReferenceSchema: GenMessage<ComputeInstanceCatalogItemReference> = /*@__PURE__*/
+  messageDesc(file_osac_private_v1_compute_instance_type, 9);
 
 /**
  * @generated from enum osac.private.v1.ComputeInstanceState

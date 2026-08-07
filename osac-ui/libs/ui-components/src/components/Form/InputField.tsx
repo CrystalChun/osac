@@ -81,7 +81,7 @@ export const InputField = ({
               aria-describedby={helperDescribedBy}
             />
           </SplitItem>
-          <SplitItem>{children}</SplitItem>
+          {children && <SplitItem>{children}</SplitItem>}
         </Split>
       )}
       <FormFieldHelper error={error} description={helperText} fieldId={fieldId} />

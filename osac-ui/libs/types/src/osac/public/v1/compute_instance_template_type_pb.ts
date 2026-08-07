@@ -23,13 +23,15 @@ import type { ComputeInstanceDisk, ComputeInstanceImage } from "./compute_instan
 import { file_osac_public_v1_compute_instance_type } from "./compute_instance_type_pb";
 import type { Metadata } from "./metadata_type_pb";
 import { file_osac_public_v1_metadata_type } from "./metadata_type_pb";
+import type { InstanceTypeReference } from "./instance_type_type_pb";
+import { file_osac_public_v1_instance_type_type } from "./instance_type_type_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file osac/public/v1/compute_instance_template_type.proto.
  */
 export const file_osac_public_v1_compute_instance_template_type: GenFile = /*@__PURE__*/
-  fileDesc("CjNvc2FjL3B1YmxpYy92MS9jb21wdXRlX2luc3RhbmNlX3RlbXBsYXRlX3R5cGUucHJvdG8SDm9zYWMucHVibGljLnYxIpECChdDb21wdXRlSW5zdGFuY2VUZW1wbGF0ZRIKCgJpZBgBIAEoCRIqCghtZXRhZGF0YRgCIAEoCzIYLm9zYWMucHVibGljLnYxLk1ldGFkYXRhEg0KBXRpdGxlGAMgASgJEhMKC2Rlc2NyaXB0aW9uGAQgASgJEk4KCnBhcmFtZXRlcnMYBSADKAsyOi5vc2FjLnB1YmxpYy52MS5Db21wdXRlSW5zdGFuY2VUZW1wbGF0ZVBhcmFtZXRlckRlZmluaXRpb24SSgoNc3BlY19kZWZhdWx0cxgGIAEoCzIzLm9zYWMucHVibGljLnYxLkNvbXB1dGVJbnN0YW5jZVRlbXBsYXRlU3BlY0RlZmF1bHRzIqUBCipDb21wdXRlSW5zdGFuY2VUZW1wbGF0ZVBhcmFtZXRlckRlZmluaXRpb24SDAoEbmFtZRgBIAEoCRINCgV0aXRsZRgCIAEoCRITCgtkZXNjcmlwdGlvbhgDIAEoCRIQCghyZXF1aXJlZBgEIAEoCBIMCgR0eXBlGAUgASgJEiUKB2RlZmF1bHQYBiABKAsyFC5nb29nbGUucHJvdG9idWYuQW55ItUCCiNDb21wdXRlSW5zdGFuY2VUZW1wbGF0ZVNwZWNEZWZhdWx0cxI4CgVpbWFnZRgDIAEoCzIkLm9zYWMucHVibGljLnYxLkNvbXB1dGVJbnN0YW5jZUltYWdlSACIAQESOwoJYm9vdF9kaXNrGAQgASgLMiMub3NhYy5wdWJsaWMudjEuQ29tcHV0ZUluc3RhbmNlRGlza0gBiAEBEhkKDHJ1bl9zdHJhdGVneRgFIAEoCUgCiAEBEhoKDWluc3RhbmNlX3R5cGUYBiABKAlIA4gBARIXCgppc193aW5kb3dzGAcgASgISASIAQFCCAoGX2ltYWdlQgwKCl9ib290X2Rpc2tCDwoNX3J1bl9zdHJhdGVneUIQCg5faW5zdGFuY2VfdHlwZUINCgtfaXNfd2luZG93c0oECAEQAkoECAIQA1IFY29yZXNSCm1lbW9yeV9naWJiBnByb3RvMw", [file_google_protobuf_any, file_osac_public_v1_compute_instance_type, file_osac_public_v1_metadata_type]);
+  fileDesc("CjNvc2FjL3B1YmxpYy92MS9jb21wdXRlX2luc3RhbmNlX3RlbXBsYXRlX3R5cGUucHJvdG8SDm9zYWMucHVibGljLnYxIpECChdDb21wdXRlSW5zdGFuY2VUZW1wbGF0ZRIKCgJpZBgBIAEoCRIqCghtZXRhZGF0YRgCIAEoCzIYLm9zYWMucHVibGljLnYxLk1ldGFkYXRhEg0KBXRpdGxlGAMgASgJEhMKC2Rlc2NyaXB0aW9uGAQgASgJEk4KCnBhcmFtZXRlcnMYBSADKAsyOi5vc2FjLnB1YmxpYy52MS5Db21wdXRlSW5zdGFuY2VUZW1wbGF0ZVBhcmFtZXRlckRlZmluaXRpb24SSgoNc3BlY19kZWZhdWx0cxgGIAEoCzIzLm9zYWMucHVibGljLnYxLkNvbXB1dGVJbnN0YW5jZVRlbXBsYXRlU3BlY0RlZmF1bHRzIqUBCipDb21wdXRlSW5zdGFuY2VUZW1wbGF0ZVBhcmFtZXRlckRlZmluaXRpb24SDAoEbmFtZRgBIAEoCRINCgV0aXRsZRgCIAEoCRITCgtkZXNjcmlwdGlvbhgDIAEoCRIQCghyZXF1aXJlZBgEIAEoCBIMCgR0eXBlGAUgASgJEiUKB2RlZmF1bHQYBiABKAsyFC5nb29nbGUucHJvdG9idWYuQW55IuUCCiNDb21wdXRlSW5zdGFuY2VUZW1wbGF0ZVNwZWNEZWZhdWx0cxI4CgVpbWFnZRgDIAEoCzIkLm9zYWMucHVibGljLnYxLkNvbXB1dGVJbnN0YW5jZUltYWdlSACIAQESOwoJYm9vdF9kaXNrGAQgASgLMiMub3NhYy5wdWJsaWMudjEuQ29tcHV0ZUluc3RhbmNlRGlza0gBiAEBEhkKDHJ1bl9zdHJhdGVneRgFIAEoCUgCiAEBEjwKDWluc3RhbmNlX3R5cGUYBiABKAsyJS5vc2FjLnB1YmxpYy52MS5JbnN0YW5jZVR5cGVSZWZlcmVuY2USFwoKaXNfd2luZG93cxgHIAEoCEgDiAEBQggKBl9pbWFnZUIMCgpfYm9vdF9kaXNrQg8KDV9ydW5fc3RyYXRlZ3lCDQoLX2lzX3dpbmRvd3NKBAgBEAJKBAgCEANSBWNvcmVzUgptZW1vcnlfZ2liYgZwcm90bzM", [file_google_protobuf_any, file_osac_public_v1_compute_instance_type, file_osac_public_v1_metadata_type, file_osac_public_v1_instance_type_type]);
 
 /**
  * A compute instance template defines a type of compute instance that can be created by the user. Note that the user doesn't create these
@@ -207,12 +209,12 @@ export type ComputeInstanceTemplateSpecDefaults = Message<"osac.public.v1.Comput
   runStrategy?: string | undefined;
 
   /**
-   * Default instance type name. Specifies the default compute configuration for instances
+   * Default instance type. Specifies the default compute configuration for instances
    * created from this template.
    *
-   * @generated from field: optional string instance_type = 6;
+   * @generated from field: osac.public.v1.InstanceTypeReference instance_type = 6;
    */
-  instanceType?: string | undefined;
+  instanceType?: InstanceTypeReference | undefined;
 
   /**
    * Default guest OS type. When true, the VM runs Windows. When false or omitted, the VM runs Linux.

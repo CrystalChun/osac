@@ -1,13 +1,22 @@
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { Subnet, SubnetState, VirtualNetwork, VirtualNetworkState } from '@osac/types';
 
 import { SubnetCreateModal } from './SubnetCreateModal';
+import * as networkingApi from '../../api/v1/networking';
+
+vi.mock('../../api/v1/networking', async (importOriginal) => {
+  const actual = await importOriginal<typeof networkingApi>();
+  return {
+    ...actual,
+    useCreateSubnet: vi.fn(),
+  };
+});
 
 describe('SubnetCreateModal', () => {
   const mockOnClose = vi.fn();
-  const mockOnCreate = vi.fn();
+  const mutateAsync = vi.fn();
   const mockParentVN: VirtualNetwork = {
     $typeName: 'osac.public.v1.VirtualNetwork',
     id: 'vn-123',
@@ -24,7 +33,6 @@ describe('SubnetCreateModal', () => {
     spec: {
       $typeName: 'osac.public.v1.VirtualNetworkSpec',
       ipv4Cidr: '10.0.0.0/16',
-      networkClass: '',
     },
     status: {
       $typeName: 'osac.public.v1.VirtualNetworkStatus',
@@ -47,7 +55,11 @@ describe('SubnetCreateModal', () => {
       },
       spec: {
         $typeName: 'osac.public.v1.SubnetSpec',
-        virtualNetwork: 'vn-123',
+        virtualNetwork: {
+          $typeName: 'osac.public.v1.VirtualNetworkLocalReference',
+          id: 'vn-123',
+          name: 'prod-vn',
+        },
         ipv4Cidr: '10.0.1.0/24',
       },
       status: {
@@ -57,11 +69,18 @@ describe('SubnetCreateModal', () => {
     },
   ];
 
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(networkingApi.useCreateSubnet).mockReturnValue({
+      mutateAsync,
+      error: null,
+    } as unknown as ReturnType<typeof networkingApi.useCreateSubnet>);
+  });
+
   it('renders with Name and CIDR fields', () => {
     render(
       <SubnetCreateModal
         onClose={mockOnClose}
-        onCreate={mockOnCreate}
         parentVN={mockParentVN}
         existingSubnets={mockExistingSubnets}
       />,
@@ -77,7 +96,6 @@ describe('SubnetCreateModal', () => {
     render(
       <SubnetCreateModal
         onClose={mockOnClose}
-        onCreate={mockOnCreate}
         parentVN={mockParentVN}
         existingSubnets={mockExistingSubnets}
       />,
@@ -90,7 +108,6 @@ describe('SubnetCreateModal', () => {
     render(
       <SubnetCreateModal
         onClose={mockOnClose}
-        onCreate={mockOnCreate}
         parentVN={mockParentVN}
         existingSubnets={mockExistingSubnets}
       />,

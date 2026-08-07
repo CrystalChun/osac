@@ -20,7 +20,13 @@ const clusterCatalogItem: ClusterCatalogItem = {
   },
   title: 'OpenShift 4 cluster',
   description: 'Standard OpenShift cluster offering',
-  template: 'tpl-openshift-4',
+  template: {
+    $typeName: 'osac.public.v1.ClusterTemplateReference',
+    id: 'tpl-openshift-4',
+    name: '',
+    project: '',
+    shared: false,
+  },
   published: true,
   fieldDefinitions: [
     {
@@ -66,12 +72,11 @@ describe('buildClusterCreatePayload', () => {
     expect(buildClusterCreatePayload(values, clusterCatalogItem)).toEqual({
       metadata: { name: 'my-cluster' },
       spec: {
-        catalogItem: clusterCatalogItem.id,
+        catalogItem: { id: clusterCatalogItem.id },
         sshPublicKey: 'ssh-rsa AAAA',
         pullSecret: '{"auths":{}}',
-        releaseImage: '4.17.0',
         nodeSets: {
-          acme_1tb: { hostType: 'acme_1tb', size: 3 },
+          acme_1tb: { hostType: { id: 'acme_1tb' }, size: 3 },
         },
         network: {
           podCidr: '10.128.0.0/14',
@@ -96,9 +101,8 @@ describe('buildClusterCreatePayload', () => {
 
     const payload = buildClusterCreatePayload(values, clusterCatalogItem);
     expect(payload.spec).toEqual({
-      catalogItem: clusterCatalogItem.id,
+      catalogItem: { id: clusterCatalogItem.id },
       pullSecret: 'secret',
-      releaseImage: '4.17.0',
     });
     expect(payload.spec).not.toHaveProperty('nodeSets');
     expect(payload.spec).not.toHaveProperty('network');
@@ -126,7 +130,7 @@ describe('buildClusterCreatePayload', () => {
 
     const payload = buildClusterCreatePayload(values, clusterCatalogItem);
     expect(payload.spec?.nodeSets).toEqual({
-      acme_1tb: { hostType: 'acme_1tb', size: 3 },
+      acme_1tb: { hostType: { id: 'acme_1tb' }, size: 3 },
     });
   });
 });

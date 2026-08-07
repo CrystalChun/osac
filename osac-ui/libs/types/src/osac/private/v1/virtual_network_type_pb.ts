@@ -26,7 +26,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/private/v1/virtual_network_type.proto.
  */
 export const file_osac_private_v1_virtual_network_type: GenFile = /*@__PURE__*/
-  fileDesc("Cipvc2FjL3ByaXZhdGUvdjEvdmlydHVhbF9uZXR3b3JrX3R5cGUucHJvdG8SD29zYWMucHJpdmF0ZS52MSKzAQoOVmlydHVhbE5ldHdvcmsSCgoCaWQYASABKAkSKwoIbWV0YWRhdGEYAiABKAsyGS5vc2FjLnByaXZhdGUudjEuTWV0YWRhdGESMQoEc3BlYxgDIAEoCzIjLm9zYWMucHJpdmF0ZS52MS5WaXJ0dWFsTmV0d29ya1NwZWMSNQoGc3RhdHVzGAQgASgLMiUub3NhYy5wcml2YXRlLnYxLlZpcnR1YWxOZXR3b3JrU3RhdHVzIo0CChJWaXJ0dWFsTmV0d29ya1NwZWMSFgoGcmVnaW9uGAEgASgJQgbgQQLgQQUSHQoNbmV0d29ya19jbGFzcxgCIAEoCUIG4EEB4EEFEhsKCWlwdjRfY2lkchgDIAEoCUID4EEFSACIAQESGwoJaXB2Nl9jaWRyGAQgASgJQgPgQQVIAYgBARJBCgxjYXBhYmlsaXRpZXMYBSABKAsyKy5vc2FjLnByaXZhdGUudjEuVmlydHVhbE5ldHdvcmtDYXBhYmlsaXRpZXMSJwoXaW1wbGVtZW50YXRpb25fc3RyYXRlZ3kYBiABKAlCBuBBA+BBBUIMCgpfaXB2NF9jaWRyQgwKCl9pcHY2X2NpZHIiYQoaVmlydHVhbE5ldHdvcmtDYXBhYmlsaXRpZXMSEwoLZW5hYmxlX2lwdjQYASABKAgSEwoLZW5hYmxlX2lwdjYYAiABKAgSGQoRZW5hYmxlX2R1YWxfc3RhY2sYAyABKAgiegoUVmlydHVhbE5ldHdvcmtTdGF0dXMSMwoFc3RhdGUYASABKA4yJC5vc2FjLnByaXZhdGUudjEuVmlydHVhbE5ldHdvcmtTdGF0ZRIUCgdtZXNzYWdlGAIgASgJSACIAQESCwoDaHViGAMgASgJQgoKCF9tZXNzYWdlKqIBChNWaXJ0dWFsTmV0d29ya1N0YXRlEiUKIVZJUlRVQUxfTkVUV09SS19TVEFURV9VTlNQRUNJRklFRBAAEiEKHVZJUlRVQUxfTkVUV09SS19TVEFURV9QRU5ESU5HEAESHwobVklSVFVBTF9ORVRXT1JLX1NUQVRFX1JFQURZEAISIAocVklSVFVBTF9ORVRXT1JLX1NUQVRFX0ZBSUxFRBADYgZwcm90bzM", [file_google_api_field_behavior, file_osac_private_v1_metadata_type]);
+  fileDesc("Cipvc2FjL3ByaXZhdGUvdjEvdmlydHVhbF9uZXR3b3JrX3R5cGUucHJvdG8SD29zYWMucHJpdmF0ZS52MSKzAQoOVmlydHVhbE5ldHdvcmsSCgoCaWQYASABKAkSKwoIbWV0YWRhdGEYAiABKAsyGS5vc2FjLnByaXZhdGUudjEuTWV0YWRhdGESMQoEc3BlYxgDIAEoCzIjLm9zYWMucHJpdmF0ZS52MS5WaXJ0dWFsTmV0d29ya1NwZWMSNQoGc3RhdHVzGAQgASgLMiUub3NhYy5wcml2YXRlLnYxLlZpcnR1YWxOZXR3b3JrU3RhdHVzIrUCChJWaXJ0dWFsTmV0d29ya1NwZWMSFgoGcmVnaW9uGAEgASgJQgbgQQLgQQUSRQoNbmV0d29ya19jbGFzcxgCIAEoCzImLm9zYWMucHJpdmF0ZS52MS5OZXR3b3JrQ2xhc3NSZWZlcmVuY2VCBuBBAeBBBRIbCglpcHY0X2NpZHIYAyABKAlCA+BBBUgAiAEBEhsKCWlwdjZfY2lkchgEIAEoCUID4EEFSAGIAQESQQoMY2FwYWJpbGl0aWVzGAUgASgLMisub3NhYy5wcml2YXRlLnYxLlZpcnR1YWxOZXR3b3JrQ2FwYWJpbGl0aWVzEicKF2ltcGxlbWVudGF0aW9uX3N0cmF0ZWd5GAYgASgJQgbgQQPgQQVCDAoKX2lwdjRfY2lkckIMCgpfaXB2Nl9jaWRyImEKGlZpcnR1YWxOZXR3b3JrQ2FwYWJpbGl0aWVzEhMKC2VuYWJsZV9pcHY0GAEgASgIEhMKC2VuYWJsZV9pcHY2GAIgASgIEhkKEWVuYWJsZV9kdWFsX3N0YWNrGAMgASgIInoKFFZpcnR1YWxOZXR3b3JrU3RhdHVzEjMKBXN0YXRlGAEgASgOMiQub3NhYy5wcml2YXRlLnYxLlZpcnR1YWxOZXR3b3JrU3RhdGUSFAoHbWVzc2FnZRgCIAEoCUgAiAEBEgsKA2h1YhgDIAEoCUIKCghfbWVzc2FnZSI4ChxWaXJ0dWFsTmV0d29ya0xvY2FsUmVmZXJlbmNlEgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkiUgoVTmV0d29ya0NsYXNzUmVmZXJlbmNlEgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkSDwoHcHJvamVjdBgDIAEoCRIOCgZzaGFyZWQYBCABKAgqogEKE1ZpcnR1YWxOZXR3b3JrU3RhdGUSJQohVklSVFVBTF9ORVRXT1JLX1NUQVRFX1VOU1BFQ0lGSUVEEAASIQodVklSVFVBTF9ORVRXT1JLX1NUQVRFX1BFTkRJTkcQARIfChtWSVJUVUFMX05FVFdPUktfU1RBVEVfUkVBRFkQAhIgChxWSVJUVUFMX05FVFdPUktfU1RBVEVfRkFJTEVEEANiBnByb3RvMw", [file_google_api_field_behavior, file_osac_private_v1_metadata_type]);
 
 /**
  * Represents a tenant-isolated virtual network.
@@ -109,17 +109,13 @@ export type VirtualNetworkSpec = Message<"osac.private.v1.VirtualNetworkSpec"> &
    * The NetworkClass for this VirtualNetwork. If omitted on creation, the default NetworkClass is used.
    * Once set (either explicitly or via default), this field is immutable.
    *
-   * This field stores the ID of the selected NetworkClass resource. The selected NetworkClass determines the
-   * network backend (implementation_strategy) and the available capabilities.
+   * The selected NetworkClass determines the network backend (implementation_strategy) and the available
+   * capabilities. The NetworkClass must support the requested IP addressing capabilities (IPv4, IPv6, or
+   * dual-stack) specified via the capabilities field.
    *
-   * The NetworkClass must support the requested IP addressing capabilities (IPv4, IPv6, or dual-stack) specified
-   * via the capabilities field.
-   *
-   * Example: "udn-net", "phys-net", "ovn-kubernetes"
-   *
-   * @generated from field: string network_class = 2;
+   * @generated from field: osac.private.v1.NetworkClassReference network_class = 2;
    */
-  networkClass: string;
+  networkClass?: NetworkClassReference | undefined;
 
   /**
    * IPv4 CIDR block for this network. Optional for IPv6-only networks. Immutable after creation.
@@ -267,6 +263,64 @@ export type VirtualNetworkStatus = Message<"osac.private.v1.VirtualNetworkStatus
  */
 export const VirtualNetworkStatusSchema: GenMessage<VirtualNetworkStatus> = /*@__PURE__*/
   messageDesc(file_osac_private_v1_virtual_network_type, 3);
+
+/**
+ * Local reference to a VirtualNetwork resource.
+ *
+ * @generated from message osac.private.v1.VirtualNetworkLocalReference
+ */
+export type VirtualNetworkLocalReference = Message<"osac.private.v1.VirtualNetworkLocalReference"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string name = 2;
+   */
+  name: string;
+};
+
+/**
+ * Describes the message osac.private.v1.VirtualNetworkLocalReference.
+ * Use `create(VirtualNetworkLocalReferenceSchema)` to create a new message.
+ */
+export const VirtualNetworkLocalReferenceSchema: GenMessage<VirtualNetworkLocalReference> = /*@__PURE__*/
+  messageDesc(file_osac_private_v1_virtual_network_type, 4);
+
+/**
+ * Reference to a NetworkClass resource.
+ *
+ * @generated from message osac.private.v1.NetworkClassReference
+ */
+export type NetworkClassReference = Message<"osac.private.v1.NetworkClassReference"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string name = 2;
+   */
+  name: string;
+
+  /**
+   * @generated from field: string project = 3;
+   */
+  project: string;
+
+  /**
+   * @generated from field: bool shared = 4;
+   */
+  shared: boolean;
+};
+
+/**
+ * Describes the message osac.private.v1.NetworkClassReference.
+ * Use `create(NetworkClassReferenceSchema)` to create a new message.
+ */
+export const NetworkClassReferenceSchema: GenMessage<NetworkClassReference> = /*@__PURE__*/
+  messageDesc(file_osac_private_v1_virtual_network_type, 5);
 
 /**
  * Lifecycle states for VirtualNetwork resources.

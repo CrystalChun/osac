@@ -35,7 +35,7 @@ const BareMetalDetailsCard = ({ instance }: Props) => {
           <DescriptionListGroup>
             <DescriptionListTerm>{t('Catalog item')}</DescriptionListTerm>
             <DescriptionListDescription>
-              {displayValue(instance.spec?.catalogItem)}
+              {displayValue(instance.spec?.catalogItem?.name)}
             </DescriptionListDescription>
           </DescriptionListGroup>
           <DescriptionListGroup>

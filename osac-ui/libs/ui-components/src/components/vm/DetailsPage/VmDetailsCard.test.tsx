@@ -1,7 +1,14 @@
+import { create } from '@bufbuild/protobuf';
 import { screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
-import { ComputeInstance, InstanceTypeState } from '@osac/types';
+import {
+  ComputeInstance,
+  ComputeInstanceCatalogItemReferenceSchema,
+  ComputeInstanceTemplateReferenceSchema,
+  InstanceTypeReferenceSchema,
+  InstanceTypeState,
+} from '@osac/types';
 
 import VmDetailsCard from './VmDetailsCard';
 import { renderWithProviders } from '../../../test-utils/TestProviders';
@@ -36,14 +43,14 @@ const catalogVm: ComputeInstance = {
   },
   spec: {
     $typeName: 'osac.public.v1.ComputeInstanceSpec',
-    catalogItem: 'catalog-rhel-9',
+    catalogItem: create(ComputeInstanceCatalogItemReferenceSchema, { id: 'catalog-rhel-9' }),
     sshPublicKey: 'ssh-rsa AAAA...',
     image: {
       $typeName: 'osac.public.v1.ComputeInstanceImage',
       sourceRef: 'quay.io/example/rhel9',
       sourceType: '',
     },
-    instanceType: 'standard-4-8',
+    instanceType: create(InstanceTypeReferenceSchema, { id: 'standard-4-8' }),
     bootDisk: {
       $typeName: 'osac.public.v1.ComputeInstanceDisk',
       sizeGib: 40,
@@ -51,7 +58,7 @@ const catalogVm: ComputeInstance = {
     userData: '#cloud-config',
     additionalDisks: [],
     networkAttachments: [],
-    template: '',
+    template: create(ComputeInstanceTemplateReferenceSchema, { id: '' }),
     templateParameters: {},
   },
 };

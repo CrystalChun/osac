@@ -19,9 +19,7 @@ import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 import { VirtualNetworkState } from '@osac/types';
 
 import {
-  type SubnetInput,
   securityGroupFilterForVirtualNetwork,
-  useCreateSubnet,
   useSecurityGroups,
   useSubnets,
   useVirtualNetwork,
@@ -60,13 +58,6 @@ export const VirtualNetworkDetailPage = () => {
   } = useSecurityGroups({
     filter: securityGroupFilterForVirtualNetwork(id),
   });
-
-  const createSubnet = useCreateSubnet();
-
-  const handleCreateSubnet = async (input: SubnetInput) => {
-    await createSubnet.mutateAsync(input);
-    setIsSubnetModalOpen(false);
-  };
 
   const vnName = vn?.metadata?.name ?? id;
   const isFailed = vn?.status?.state === VirtualNetworkState.FAILED;
@@ -261,7 +252,6 @@ export const VirtualNetworkDetailPage = () => {
       {isSubnetModalOpen && vn && (
         <SubnetCreateModal
           onClose={() => setIsSubnetModalOpen(false)}
-          onCreate={handleCreateSubnet}
           parentVN={vn}
           existingSubnets={subnets}
         />

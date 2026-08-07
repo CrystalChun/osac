@@ -27,7 +27,13 @@ const clusterCatalogItem: ClusterCatalogItem = {
   },
   title: 'OpenShift 4 cluster',
   description: 'Standard OpenShift cluster offering',
-  template: 'tpl-openshift-4',
+  template: {
+    $typeName: 'osac.public.v1.ClusterTemplateReference',
+    id: 'tpl-openshift-4',
+    name: '',
+    project: '',
+    shared: false,
+  },
   published: true,
   fieldDefinitions: [
     {

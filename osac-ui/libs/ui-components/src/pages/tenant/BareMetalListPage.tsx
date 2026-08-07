@@ -92,7 +92,7 @@ export const BareMetalListPage = () => {
                         {name}
                       </Button>
                     </Td>
-                    <Td dataLabel={t('Catalog item')}>{inst.spec?.catalogItem ?? '—'}</Td>
+                    <Td dataLabel={t('Catalog item')}>{inst.spec?.catalogItem?.name ?? '—'}</Td>
                     <Td dataLabel={t('Status')}>
                       <BareMetalStatusLabel state={inst.status?.state} />
                     </Td>

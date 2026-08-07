@@ -81,7 +81,7 @@ describe('SecurityGroupCreateModal', () => {
       expect(mutateAsync).toHaveBeenCalledWith(
         expect.objectContaining({
           metadata: { name: 'sg-web' },
-          spec: { virtualNetwork: 'vn-1', ingress: [], egress: [] },
+          spec: { virtualNetwork: { id: 'vn-1' }, ingress: [], egress: [] },
         }),
       );
     });

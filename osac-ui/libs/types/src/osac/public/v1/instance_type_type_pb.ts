@@ -28,7 +28,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/public/v1/instance_type_type.proto.
  */
 export const file_osac_public_v1_instance_type_type: GenFile = /*@__PURE__*/
-  fileDesc("Cidvc2FjL3B1YmxpYy92MS9pbnN0YW5jZV90eXBlX3R5cGUucHJvdG8SDm9zYWMucHVibGljLnYxItcBChdJbnN0YW5jZVR5cGVEZXByZWNhdGlvbhIwCgVzdGF0ZRgBIAEoDjIhLm9zYWMucHVibGljLnYxLkluc3RhbmNlVHlwZVN0YXRlEhMKC3JlcGxhY2VtZW50GAIgASgJEjkKFWRlcHJlY2F0aW9uX3RpbWVzdGFtcBgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASOgoWb2Jzb2xlc2NlbmNlX3RpbWVzdGFtcBgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiqgEKDEluc3RhbmNlVHlwZRIKCgJpZBgBIAEoCRIqCghtZXRhZGF0YRgCIAEoCzIYLm9zYWMucHVibGljLnYxLk1ldGFkYXRhEi4KBHNwZWMYAyABKAsyIC5vc2FjLnB1YmxpYy52MS5JbnN0YW5jZVR5cGVTcGVjEjIKBnN0YXR1cxgEIAEoCzIiLm9zYWMucHVibGljLnYxLkluc3RhbmNlVHlwZVN0YXR1cyJpCgdHcHVTcGVjEiQKE3BjaV9kZXZpY2Vfc2VsZWN0b3IYASABKAlCB7pIBHICEAESHgoNcmVzb3VyY2VfbmFtZRgCIAEoCUIHukgEcgIQARIYCgVjb3VudBgDIAEoBUIJukgGGgQYECgBIu0BChBJbnN0YW5jZVR5cGVTcGVjEg0KBWNvcmVzGAEgASgFEhIKCm1lbW9yeV9naWIYAiABKAUSEwoLZGVzY3JpcHRpb24YAyABKAkSMAoFc3RhdGUYBCABKA4yIS5vc2FjLnB1YmxpYy52MS5JbnN0YW5jZVR5cGVTdGF0ZRI8CgtkZXByZWNhdGlvbhgFIAEoCzInLm9zYWMucHVibGljLnYxLkluc3RhbmNlVHlwZURlcHJlY2F0aW9uEikKA2dwdRgGIAEoCzIXLm9zYWMucHVibGljLnYxLkdwdVNwZWNIAIgBAUIGCgRfZ3B1IhQKEkluc3RhbmNlVHlwZVN0YXR1cyqeAQoRSW5zdGFuY2VUeXBlU3RhdGUSIwofSU5TVEFOQ0VfVFlQRV9TVEFURV9VTlNQRUNJRklFRBAAEh4KGklOU1RBTkNFX1RZUEVfU1RBVEVfQUNUSVZFEAESIgoeSU5TVEFOQ0VfVFlQRV9TVEFURV9ERVBSRUNBVEVEEAISIAocSU5TVEFOQ0VfVFlQRV9TVEFURV9PQlNPTEVURRADYgZwcm90bzM", [file_buf_validate_validate, file_google_protobuf_timestamp, file_osac_public_v1_metadata_type]);
+  fileDesc("Cidvc2FjL3B1YmxpYy92MS9pbnN0YW5jZV90eXBlX3R5cGUucHJvdG8SDm9zYWMucHVibGljLnYxIoMCChdJbnN0YW5jZVR5cGVEZXByZWNhdGlvbhIwCgVzdGF0ZRgBIAEoDjIhLm9zYWMucHVibGljLnYxLkluc3RhbmNlVHlwZVN0YXRlEj8KC3JlcGxhY2VtZW50GAIgASgLMioub3NhYy5wdWJsaWMudjEuSW5zdGFuY2VUeXBlTG9jYWxSZWZlcmVuY2USOQoVZGVwcmVjYXRpb25fdGltZXN0YW1wGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBI6ChZvYnNvbGVzY2VuY2VfdGltZXN0YW1wGAQgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCKqAQoMSW5zdGFuY2VUeXBlEgoKAmlkGAEgASgJEioKCG1ldGFkYXRhGAIgASgLMhgub3NhYy5wdWJsaWMudjEuTWV0YWRhdGESLgoEc3BlYxgDIAEoCzIgLm9zYWMucHVibGljLnYxLkluc3RhbmNlVHlwZVNwZWMSMgoGc3RhdHVzGAQgASgLMiIub3NhYy5wdWJsaWMudjEuSW5zdGFuY2VUeXBlU3RhdHVzImkKB0dwdVNwZWMSJAoTcGNpX2RldmljZV9zZWxlY3RvchgBIAEoCUIHukgEcgIQARIeCg1yZXNvdXJjZV9uYW1lGAIgASgJQge6SARyAhABEhgKBWNvdW50GAMgASgFQgm6SAYaBBgQKAEi7QEKEEluc3RhbmNlVHlwZVNwZWMSDQoFY29yZXMYASABKAUSEgoKbWVtb3J5X2dpYhgCIAEoBRITCgtkZXNjcmlwdGlvbhgDIAEoCRIwCgVzdGF0ZRgEIAEoDjIhLm9zYWMucHVibGljLnYxLkluc3RhbmNlVHlwZVN0YXRlEjwKC2RlcHJlY2F0aW9uGAUgASgLMicub3NhYy5wdWJsaWMudjEuSW5zdGFuY2VUeXBlRGVwcmVjYXRpb24SKQoDZ3B1GAYgASgLMhcub3NhYy5wdWJsaWMudjEuR3B1U3BlY0gAiAEBQgYKBF9ncHUiFAoSSW5zdGFuY2VUeXBlU3RhdHVzIlIKFUluc3RhbmNlVHlwZVJlZmVyZW5jZRIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJEg8KB3Byb2plY3QYAyABKAkSDgoGc2hhcmVkGAQgASgIIjYKGkluc3RhbmNlVHlwZUxvY2FsUmVmZXJlbmNlEgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkqngEKEUluc3RhbmNlVHlwZVN0YXRlEiMKH0lOU1RBTkNFX1RZUEVfU1RBVEVfVU5TUEVDSUZJRUQQABIeChpJTlNUQU5DRV9UWVBFX1NUQVRFX0FDVElWRRABEiIKHklOU1RBTkNFX1RZUEVfU1RBVEVfREVQUkVDQVRFRBACEiAKHElOU1RBTkNFX1RZUEVfU1RBVEVfT0JTT0xFVEUQA2IGcHJvdG8z", [file_buf_validate_validate, file_google_protobuf_timestamp, file_osac_public_v1_metadata_type]);
 
 /**
  * Contains deprecation details for an instance type.
@@ -48,11 +48,11 @@ export type InstanceTypeDeprecation = Message<"osac.public.v1.InstanceTypeDeprec
   state: InstanceTypeState;
 
   /**
-   * Suggested replacement instance type name (e.g., "standard-8-32").
+   * Suggested replacement instance type.
    *
-   * @generated from field: string replacement = 2;
+   * @generated from field: osac.public.v1.InstanceTypeLocalReference replacement = 2;
    */
-  replacement: string;
+  replacement?: InstanceTypeLocalReference | undefined;
 
   /**
    * When deprecation was announced. Auto-set on transition to DEPRECATED.
@@ -239,6 +239,64 @@ export type InstanceTypeStatus = Message<"osac.public.v1.InstanceTypeStatus"> & 
  */
 export const InstanceTypeStatusSchema: GenMessage<InstanceTypeStatus> = /*@__PURE__*/
   messageDesc(file_osac_public_v1_instance_type_type, 4);
+
+/**
+ * Reference to an InstanceType resource.
+ *
+ * @generated from message osac.public.v1.InstanceTypeReference
+ */
+export type InstanceTypeReference = Message<"osac.public.v1.InstanceTypeReference"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string name = 2;
+   */
+  name: string;
+
+  /**
+   * @generated from field: string project = 3;
+   */
+  project: string;
+
+  /**
+   * @generated from field: bool shared = 4;
+   */
+  shared: boolean;
+};
+
+/**
+ * Describes the message osac.public.v1.InstanceTypeReference.
+ * Use `create(InstanceTypeReferenceSchema)` to create a new message.
+ */
+export const InstanceTypeReferenceSchema: GenMessage<InstanceTypeReference> = /*@__PURE__*/
+  messageDesc(file_osac_public_v1_instance_type_type, 5);
+
+/**
+ * Local reference to an InstanceType resource.
+ *
+ * @generated from message osac.public.v1.InstanceTypeLocalReference
+ */
+export type InstanceTypeLocalReference = Message<"osac.public.v1.InstanceTypeLocalReference"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string name = 2;
+   */
+  name: string;
+};
+
+/**
+ * Describes the message osac.public.v1.InstanceTypeLocalReference.
+ * Use `create(InstanceTypeLocalReferenceSchema)` to create a new message.
+ */
+export const InstanceTypeLocalReferenceSchema: GenMessage<InstanceTypeLocalReference> = /*@__PURE__*/
+  messageDesc(file_osac_public_v1_instance_type_type, 6);
 
 /**
  * Lifecycle states for InstanceType resources.

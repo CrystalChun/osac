@@ -35,7 +35,7 @@ describe('SecurityGroupsListPage', () => {
       id: 'sg-1',
       metadata: { name: 'sg-web' },
       spec: {
-        virtualNetwork: 'vn-1',
+        virtualNetwork: { id: 'vn-1' },
         ingress: [{ protocol: Protocol.TCP, portFrom: 80, portTo: 80 }],
         egress: [],
       },
@@ -45,7 +45,7 @@ describe('SecurityGroupsListPage', () => {
       id: 'sg-2',
       metadata: { name: 'sg-db' },
       spec: {
-        virtualNetwork: 'vn-1',
+        virtualNetwork: { id: 'vn-1' },
         ingress: [{ protocol: Protocol.TCP, portFrom: 3306, portTo: 3306 }],
         egress: [{ protocol: Protocol.ALL }],
       },

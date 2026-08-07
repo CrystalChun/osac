@@ -25,7 +25,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/public/v1/host_type_type.proto.
  */
 export const file_osac_public_v1_host_type_type: GenFile = /*@__PURE__*/
-  fileDesc("CiNvc2FjL3B1YmxpYy92MS9ob3N0X3R5cGVfdHlwZS5wcm90bxIOb3NhYy5wdWJsaWMudjEinAEKCEhvc3RUeXBlEgoKAmlkGAEgASgJEioKCG1ldGFkYXRhGAIgASgLMhgub3NhYy5wdWJsaWMudjEuTWV0YWRhdGESDQoFdGl0bGUYAyABKAkSEwoLZGVzY3JpcHRpb24YBCABKAkSNAoKaW50ZXJmYWNlcxgFIAMoCzIgLm9zYWMucHVibGljLnYxLk5ldHdvcmtJbnRlcmZhY2UiQwoQTmV0d29ya0ludGVyZmFjZRIMCgRuYW1lGAEgASgJEgwKBHJvbGUYAiABKAkSEwoLZGVzY3JpcHRpb24YAyABKAliBnByb3RvMw", [file_osac_public_v1_metadata_type]);
+  fileDesc("CiNvc2FjL3B1YmxpYy92MS9ob3N0X3R5cGVfdHlwZS5wcm90bxIOb3NhYy5wdWJsaWMudjEinAEKCEhvc3RUeXBlEgoKAmlkGAEgASgJEioKCG1ldGFkYXRhGAIgASgLMhgub3NhYy5wdWJsaWMudjEuTWV0YWRhdGESDQoFdGl0bGUYAyABKAkSEwoLZGVzY3JpcHRpb24YBCABKAkSNAoKaW50ZXJmYWNlcxgFIAMoCzIgLm9zYWMucHVibGljLnYxLk5ldHdvcmtJbnRlcmZhY2UiQwoQTmV0d29ya0ludGVyZmFjZRIMCgRuYW1lGAEgASgJEgwKBHJvbGUYAiABKAkSEwoLZGVzY3JpcHRpb24YAyABKAkiTgoRSG9zdFR5cGVSZWZlcmVuY2USCgoCaWQYASABKAkSDAoEbmFtZRgCIAEoCRIPCgdwcm9qZWN0GAMgASgJEg4KBnNoYXJlZBgEIAEoCGIGcHJvdG8z", [file_osac_public_v1_metadata_type]);
 
 /**
  * Describes a set of hosts that share characteristics.
@@ -132,4 +132,38 @@ export type NetworkInterface = Message<"osac.public.v1.NetworkInterface"> & {
  */
 export const NetworkInterfaceSchema: GenMessage<NetworkInterface> = /*@__PURE__*/
   messageDesc(file_osac_public_v1_host_type_type, 1);
+
+/**
+ * Reference to a HostType resource.
+ *
+ * @generated from message osac.public.v1.HostTypeReference
+ */
+export type HostTypeReference = Message<"osac.public.v1.HostTypeReference"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string name = 2;
+   */
+  name: string;
+
+  /**
+   * @generated from field: string project = 3;
+   */
+  project: string;
+
+  /**
+   * @generated from field: bool shared = 4;
+   */
+  shared: boolean;
+};
+
+/**
+ * Describes the message osac.public.v1.HostTypeReference.
+ * Use `create(HostTypeReferenceSchema)` to create a new message.
+ */
+export const HostTypeReferenceSchema: GenMessage<HostTypeReference> = /*@__PURE__*/
+  messageDesc(file_osac_public_v1_host_type_type, 2);
 

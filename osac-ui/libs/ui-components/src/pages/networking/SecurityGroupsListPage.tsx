@@ -71,7 +71,7 @@ export const SecurityGroupsListPage = () => {
                   <Tbody>
                     {filteredSGs.map((sg) => {
                       const name = sg.metadata?.name ?? sg.id;
-                      const vnId = sg.spec?.virtualNetwork ?? '';
+                      const vnId = sg.spec?.virtualNetwork?.id ?? '';
                       const vn = virtualNetworks.find((v) => v.id === vnId);
                       const vnName = resourceDisplayName(vn?.metadata, vnId);
                       const ingressCount = sg.spec?.ingress?.length ?? 0;

@@ -21,13 +21,15 @@ import type { FieldDefinition } from "./field_definition_type_pb";
 import { file_osac_private_v1_field_definition_type } from "./field_definition_type_pb";
 import type { Metadata } from "./metadata_type_pb";
 import { file_osac_private_v1_metadata_type } from "./metadata_type_pb";
+import type { ComputeInstanceTemplateReference } from "./compute_instance_type_pb";
+import { file_osac_private_v1_compute_instance_type } from "./compute_instance_type_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file osac/private/v1/compute_instance_catalog_item_type.proto.
  */
 export const file_osac_private_v1_compute_instance_catalog_item_type: GenFile = /*@__PURE__*/
-  fileDesc("Cjhvc2FjL3ByaXZhdGUvdjEvY29tcHV0ZV9pbnN0YW5jZV9jYXRhbG9nX2l0ZW1fdHlwZS5wcm90bxIPb3NhYy5wcml2YXRlLnYxIusBChpDb21wdXRlSW5zdGFuY2VDYXRhbG9nSXRlbRIKCgJpZBgBIAEoCRIrCghtZXRhZGF0YRgCIAEoCzIZLm9zYWMucHJpdmF0ZS52MS5NZXRhZGF0YRINCgV0aXRsZRgDIAEoCRITCgtkZXNjcmlwdGlvbhgEIAEoCRIQCgh0ZW1wbGF0ZRgFIAEoCRIRCglwdWJsaXNoZWQYBiABKAgSDgoGdGVuYW50GAcgASgJEjsKEWZpZWxkX2RlZmluaXRpb25zGAggAygLMiAub3NhYy5wcml2YXRlLnYxLkZpZWxkRGVmaW5pdGlvbmIGcHJvdG8z", [file_osac_private_v1_field_definition_type, file_osac_private_v1_metadata_type]);
+  fileDesc("Cjhvc2FjL3ByaXZhdGUvdjEvY29tcHV0ZV9pbnN0YW5jZV9jYXRhbG9nX2l0ZW1fdHlwZS5wcm90bxIPb3NhYy5wcml2YXRlLnYxIp4CChpDb21wdXRlSW5zdGFuY2VDYXRhbG9nSXRlbRIKCgJpZBgBIAEoCRIrCghtZXRhZGF0YRgCIAEoCzIZLm9zYWMucHJpdmF0ZS52MS5NZXRhZGF0YRINCgV0aXRsZRgDIAEoCRITCgtkZXNjcmlwdGlvbhgEIAEoCRJDCgh0ZW1wbGF0ZRgFIAEoCzIxLm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2VUZW1wbGF0ZVJlZmVyZW5jZRIRCglwdWJsaXNoZWQYBiABKAgSDgoGdGVuYW50GAcgASgJEjsKEWZpZWxkX2RlZmluaXRpb25zGAggAygLMiAub3NhYy5wcml2YXRlLnYxLkZpZWxkRGVmaW5pdGlvbmIGcHJvdG8z", [file_osac_private_v1_field_definition_type, file_osac_private_v1_metadata_type, file_osac_private_v1_compute_instance_type]);
 
 /**
  * A compute instance catalog item defines a curated infrastructure offering that references an underlying compute
@@ -63,11 +65,11 @@ export type ComputeInstanceCatalogItem = Message<"osac.private.v1.ComputeInstanc
   description: string;
 
   /**
-   * Identifier of the underlying compute instance template that this catalog item references.
+   * Reference to the underlying compute instance template that this catalog item references.
    *
-   * @generated from field: string template = 5;
+   * @generated from field: osac.private.v1.ComputeInstanceTemplateReference template = 5;
    */
-  template: string;
+  template?: ComputeInstanceTemplateReference | undefined;
 
   /**
    * Whether this catalog item is visible in the public API.

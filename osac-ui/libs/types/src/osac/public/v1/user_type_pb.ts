@@ -29,7 +29,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/public/v1/user_type.proto.
  */
 export const file_osac_public_v1_user_type: GenFile = /*@__PURE__*/
-  fileDesc("Ch5vc2FjL3B1YmxpYy92MS91c2VyX3R5cGUucHJvdG8SDm9zYWMucHVibGljLnYxIpIBCgRVc2VyEgoKAmlkGAEgASgJEioKCG1ldGFkYXRhGAIgASgLMhgub3NhYy5wdWJsaWMudjEuTWV0YWRhdGESJgoEc3BlYxgDIAEoCzIYLm9zYWMucHVibGljLnYxLlVzZXJTcGVjEioKBnN0YXR1cxgEIAEoCzIaLm9zYWMucHVibGljLnYxLlVzZXJTdGF0dXMihwEKCFVzZXJTcGVjEhAKCHVzZXJuYW1lGAEgASgJEg0KBWVtYWlsGAIgASgJEg8KB2VuYWJsZWQYAyABKAgSOQoLY3JlZGVudGlhbHMYBCABKAsyHy5vc2FjLnB1YmxpYy52MS5Vc2VyQ3JlZGVudGlhbHNIAIgBAUIOCgxfY3JlZGVudGlhbHMiUQoPVXNlckNyZWRlbnRpYWxzEhUKCHBhc3N3b3JkGAEgASgJSACIAQESGgoSdGVtcG9yYXJ5X3Bhc3N3b3JkGAIgASgIQgsKCV9wYXNzd29yZCJOCgpVc2VyU3RhdHVzEg0KBXBoYXNlGAEgASgJEjEKCmNvbmRpdGlvbnMYAiADKAsyHS5vc2FjLnB1YmxpYy52MS5Vc2VyQ29uZGl0aW9uIsoBCg1Vc2VyQ29uZGl0aW9uEgwKBHR5cGUYASABKAkSLwoGc3RhdHVzGAIgASgOMh8ub3NhYy5wdWJsaWMudjEuQ29uZGl0aW9uU3RhdHVzEjgKFGxhc3RfdHJhbnNpdGlvbl90aW1lGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBITCgZyZWFzb24YBCABKAlIAIgBARIUCgdtZXNzYWdlGAUgASgJSAGIAQFCCQoHX3JlYXNvbkIKCghfbWVzc2FnZWIGcHJvdG8z", [file_google_protobuf_timestamp, file_osac_public_v1_condition_status_type, file_osac_public_v1_metadata_type]);
+  fileDesc("Ch5vc2FjL3B1YmxpYy92MS91c2VyX3R5cGUucHJvdG8SDm9zYWMucHVibGljLnYxIpIBCgRVc2VyEgoKAmlkGAEgASgJEioKCG1ldGFkYXRhGAIgASgLMhgub3NhYy5wdWJsaWMudjEuTWV0YWRhdGESJgoEc3BlYxgDIAEoCzIYLm9zYWMucHVibGljLnYxLlVzZXJTcGVjEioKBnN0YXR1cxgEIAEoCzIaLm9zYWMucHVibGljLnYxLlVzZXJTdGF0dXMihwEKCFVzZXJTcGVjEhAKCHVzZXJuYW1lGAEgASgJEg0KBWVtYWlsGAIgASgJEg8KB2VuYWJsZWQYAyABKAgSOQoLY3JlZGVudGlhbHMYBCABKAsyHy5vc2FjLnB1YmxpYy52MS5Vc2VyQ3JlZGVudGlhbHNIAIgBAUIOCgxfY3JlZGVudGlhbHMiUQoPVXNlckNyZWRlbnRpYWxzEhUKCHBhc3N3b3JkGAEgASgJSACIAQESGgoSdGVtcG9yYXJ5X3Bhc3N3b3JkGAIgASgIQgsKCV9wYXNzd29yZCJOCgpVc2VyU3RhdHVzEg0KBXBoYXNlGAEgASgJEjEKCmNvbmRpdGlvbnMYAiADKAsyHS5vc2FjLnB1YmxpYy52MS5Vc2VyQ29uZGl0aW9uIsoBCg1Vc2VyQ29uZGl0aW9uEgwKBHR5cGUYASABKAkSLwoGc3RhdHVzGAIgASgOMh8ub3NhYy5wdWJsaWMudjEuQ29uZGl0aW9uU3RhdHVzEjgKFGxhc3RfdHJhbnNpdGlvbl90aW1lGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBITCgZyZWFzb24YBCABKAlIAIgBARIUCgdtZXNzYWdlGAUgASgJSAGIAQFCCQoHX3JlYXNvbkIKCghfbWVzc2FnZSJKCg1Vc2VyUmVmZXJlbmNlEgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkSDwoHcHJvamVjdBgDIAEoCRIOCgZzaGFyZWQYBCABKAhiBnByb3RvMw", [file_google_protobuf_timestamp, file_osac_public_v1_condition_status_type, file_osac_public_v1_metadata_type]);
 
 /**
  * A user in a tenant's identity provider.
@@ -222,4 +222,38 @@ export type UserCondition = Message<"osac.public.v1.UserCondition"> & {
  */
 export const UserConditionSchema: GenMessage<UserCondition> = /*@__PURE__*/
   messageDesc(file_osac_public_v1_user_type, 4);
+
+/**
+ * Reference to a User resource.
+ *
+ * @generated from message osac.public.v1.UserReference
+ */
+export type UserReference = Message<"osac.public.v1.UserReference"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string name = 2;
+   */
+  name: string;
+
+  /**
+   * @generated from field: string project = 3;
+   */
+  project: string;
+
+  /**
+   * @generated from field: bool shared = 4;
+   */
+  shared: boolean;
+};
+
+/**
+ * Describes the message osac.public.v1.UserReference.
+ * Use `create(UserReferenceSchema)` to create a new message.
+ */
+export const UserReferenceSchema: GenMessage<UserReference> = /*@__PURE__*/
+  messageDesc(file_osac_public_v1_user_type, 5);
 

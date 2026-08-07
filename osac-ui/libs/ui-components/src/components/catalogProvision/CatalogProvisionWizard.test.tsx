@@ -1,3 +1,4 @@
+import { create } from '@bufbuild/protobuf';
 import type { Transport } from '@connectrpc/connect';
 import type { RenderOptions } from '@testing-library/react';
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
@@ -6,9 +7,13 @@ import { describe, expect, it, vi } from 'vitest';
 
 import type { ClusterCatalogItem, ComputeInstanceCatalogItem } from '@osac/types';
 import {
+  ClusterTemplateReferenceSchema,
+  ComputeInstanceTemplateReferenceSchema,
+  HostTypeReferenceSchema,
   InstanceTypeState,
   SecurityGroupState,
   SubnetState,
+  VirtualNetworkLocalReferenceSchema,
   VirtualNetworkState,
 } from '@osac/types';
 
@@ -221,7 +226,7 @@ const vmCatalogItem: ComputeInstanceCatalogItem = {
   },
   title: 'RHEL 9 catalog',
   description: 'RHEL 9 base image',
-  template: 'tpl-rhel-9',
+  template: create(ComputeInstanceTemplateReferenceSchema, { id: 'tpl-rhel-9' }),
   published: true,
   fieldDefinitions: [
     {
@@ -253,7 +258,7 @@ const clusterCatalogItem: ClusterCatalogItem = {
   },
   title: 'OpenShift 4 cluster',
   description: 'Standard OpenShift cluster offering',
-  template: 'tpl-openshift-4',
+  template: create(ClusterTemplateReferenceSchema, { id: 'tpl-openshift-4' }),
   published: true,
   fieldDefinitions: [
     {
@@ -302,7 +307,7 @@ const multiFieldCatalogItem: ComputeInstanceCatalogItem = {
   },
   title: 'RHEL 9 catalog',
   description: 'RHEL 9 base image',
-  template: 'tpl-rhel-9',
+  template: create(ComputeInstanceTemplateReferenceSchema, { id: 'tpl-rhel-9' }),
   published: true,
   fieldDefinitions: [
     {
@@ -347,7 +352,7 @@ const apiFixtures: MockApiFixtures = {
       nodeSets: {
         compute: {
           $typeName: 'osac.public.v1.ClusterTemplateNodeSet',
-          hostType: 'acme_1tb',
+          hostType: create(HostTypeReferenceSchema, { id: 'acme_1tb' }),
           size: 3,
         },
       },
@@ -428,7 +433,7 @@ const apiFixtures: MockApiFixtures = {
       },
       spec: {
         $typeName: 'osac.public.v1.SubnetSpec',
-        virtualNetwork: 'vn-1',
+        virtualNetwork: create(VirtualNetworkLocalReferenceSchema, { id: 'vn-1' }),
       },
       status: {
         $typeName: 'osac.public.v1.SubnetStatus',
@@ -452,7 +457,7 @@ const apiFixtures: MockApiFixtures = {
       },
       spec: {
         $typeName: 'osac.public.v1.SecurityGroupSpec',
-        virtualNetwork: 'vn-1',
+        virtualNetwork: create(VirtualNetworkLocalReferenceSchema, { id: 'vn-1' }),
         egress: [],
         ingress: [],
       },
@@ -603,7 +608,7 @@ describe('CatalogProvisionWizard', () => {
       spec: {
         image: { sourceRef: 'quay.io/example/rhel9' },
         runStrategy: 'Always',
-        instanceType: 'standard-4-8',
+        instanceType: { id: 'standard-4-8' },
         bootDisk: { sizeGib: 40 },
       },
     });
@@ -872,7 +877,7 @@ describe('CatalogProvisionWizard', () => {
             },
             spec: {
               $typeName: 'osac.public.v1.SubnetSpec',
-              virtualNetwork: 'vn-ready',
+              virtualNetwork: create(VirtualNetworkLocalReferenceSchema, { id: 'vn-ready' }),
             },
             status: {
               $typeName: 'osac.public.v1.SubnetStatus',
@@ -896,7 +901,7 @@ describe('CatalogProvisionWizard', () => {
             },
             spec: {
               $typeName: 'osac.public.v1.SecurityGroupSpec',
-              virtualNetwork: 'vn-ready',
+              virtualNetwork: create(VirtualNetworkLocalReferenceSchema, { id: 'vn-ready' }),
               egress: [],
               ingress: [],
             },
@@ -970,13 +975,13 @@ describe('CatalogProvisionWizard', () => {
       metadata: { name: 'web-01' },
       spec: {
         image: { sourceRef: 'quay.io/example/rhel9' },
-        instanceType: 'standard-4-8',
+        instanceType: { id: 'standard-4-8' },
       },
     });
     expect(onProvision.mock.calls[0][0]).not.toHaveProperty('spec.cores');
     expect(onProvision.mock.calls[0][0]).not.toHaveProperty('spec.memoryGib');
     expect(onProvision.mock.calls[0][0]).toHaveProperty('spec.networkAttachments', [
-      { subnet: 'subnet-1', securityGroups: ['sg-1'] },
+      { subnet: { id: 'subnet-1' }, securityGroups: [{ id: 'sg-1' }] },
     ]);
   });
 
@@ -1042,12 +1047,11 @@ describe('CatalogProvisionWizard', () => {
     expect(onProvision.mock.calls[0][0]).toMatchObject({
       metadata: { name: 'my-cluster' },
       spec: {
-        catalogItem: clusterCatalogItem.id,
-        releaseImage: '4.17.0',
+        catalogItem: { id: clusterCatalogItem.id },
       },
     });
     expect(onProvision.mock.calls[0][0]).toHaveProperty('spec.nodeSets', {
-      acme_1tb: { hostType: 'acme_1tb', size: 3 },
+      acme_1tb: { hostType: { id: 'acme_1tb' }, size: 3 },
     });
   });
 });

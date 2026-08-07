@@ -66,7 +66,13 @@ export const SecurityGroupCreateModal = ({
         try {
           const body: MessageInitShape<typeof SecurityGroupSchema> = {
             metadata: { name: values.name },
-            spec: { virtualNetwork: values.virtualNetwork, ingress: [], egress: [] },
+            spec: {
+              virtualNetwork: {
+                id: values.virtualNetwork,
+              },
+              ingress: [],
+              egress: [],
+            },
           };
           const sg = await createSecurityGroup.mutateAsync(body);
           navigate(`/networking/security-groups/${sg.id}`);

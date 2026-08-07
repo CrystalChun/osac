@@ -94,12 +94,15 @@ const matchesVirtualNetworkScopeFilter = (
   filter: string | undefined,
   virtualNetwork: string | undefined,
 ): boolean => {
-  if (!filter || !virtualNetwork) {
+  if (!filter) {
     return true;
   }
-  const match = filter.match(/this\.spec\.virtual_network == "([^"]+)"/);
+  const match = filter.match(/this\.spec\.virtual_network\.id == "([^"]+)"/);
   if (!match) {
     return true;
+  }
+  if (!virtualNetwork) {
+    return false;
   }
   return virtualNetwork === match[1];
 };
@@ -216,7 +219,7 @@ export const createMockConnectTransport = (
           items: subnets.filter(
             (item) =>
               matchesReadyStateFilter(req.filter, item.status?.state) &&
-              matchesVirtualNetworkScopeFilter(req.filter, item.spec?.virtualNetwork),
+              matchesVirtualNetworkScopeFilter(req.filter, item.spec?.virtualNetwork?.id),
           ),
         }),
         get: (req) => ({
@@ -229,7 +232,7 @@ export const createMockConnectTransport = (
           items: securityGroups.filter(
             (item) =>
               matchesReadyStateFilter(req.filter, item.status?.state) &&
-              matchesVirtualNetworkScopeFilter(req.filter, item.spec?.virtualNetwork),
+              matchesVirtualNetworkScopeFilter(req.filter, item.spec?.virtualNetwork?.id),
           ),
         }),
       });

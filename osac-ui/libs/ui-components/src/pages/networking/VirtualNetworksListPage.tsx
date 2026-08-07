@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button, SearchInput } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
-import { useCreateVirtualNetwork, useSubnets, useVirtualNetworks } from '../../api/v1/networking';
+import { useSubnets, useVirtualNetworks } from '../../api/v1/networking';
 import { CidrDisplay } from '../../components/networking/CidrDisplay';
 import { VirtualNetworkCreateModal } from '../../components/networking/VirtualNetworkCreateModal';
 import { VirtualNetworkStatusLabel } from '../../components/networking/VirtualNetworkStatusLabel';
@@ -21,12 +21,10 @@ export const VirtualNetworksListPage = () => {
   const { data: virtualNetworks = [], isLoading, error } = useVirtualNetworks();
   const { data: allSubnets = [] } = useSubnets();
 
-  const createVirtualNetwork = useCreateVirtualNetwork();
-
   // Count subnets per VN
   const subnetCountByVN = allSubnets.reduce(
     (acc, subnet) => {
-      const vnId = subnet.spec?.virtualNetwork;
+      const vnId = subnet.spec?.virtualNetwork?.id;
       if (vnId) {
         acc[vnId] = (acc[vnId] || 0) + 1;
       }
@@ -39,16 +37,6 @@ export const VirtualNetworksListPage = () => {
     const name = vn.metadata?.name ?? '';
     return !search || name.toLowerCase().includes(search.toLowerCase());
   });
-
-  const handleCreate = async (input: Parameters<typeof createVirtualNetwork.mutateAsync>[0]) => {
-    const result = await createVirtualNetwork.mutateAsync(input);
-    return result;
-  };
-
-  const handleNavigateToDetail = (id: string) => {
-    setIsCreateModalOpen(false);
-    navigate(`/networking/virtual-networks/${id}`);
-  };
 
   return (
     <>
@@ -118,11 +106,7 @@ export const VirtualNetworksListPage = () => {
       </ListPage>
 
       {isCreateModalOpen && (
-        <VirtualNetworkCreateModal
-          onClose={() => setIsCreateModalOpen(false)}
-          onCreate={handleCreate}
-          onNavigate={handleNavigateToDetail}
-        />
+        <VirtualNetworkCreateModal onClose={() => setIsCreateModalOpen(false)} />
       )}
     </>
   );

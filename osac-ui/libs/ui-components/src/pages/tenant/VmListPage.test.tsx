@@ -40,7 +40,7 @@ const { useInstanceTypes } = await import('@osac/ui-components/api/v1/instance-t
 const vm = {
   id: 'vm-1',
   metadata: { name: 'web-01' },
-  spec: { instanceType: 'standard-4-8' },
+  spec: { instanceType: { id: 'standard-4-8' } },
   status: {
     state: ComputeInstanceState.RUNNING,
     internalIpAddress: '10.0.0.5',

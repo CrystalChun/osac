@@ -29,7 +29,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/public/v1/baremetal_instance_template_type.proto.
  */
 export const file_osac_public_v1_baremetal_instance_template_type: GenFile = /*@__PURE__*/
-  fileDesc("CjVvc2FjL3B1YmxpYy92MS9iYXJlbWV0YWxfaW5zdGFuY2VfdGVtcGxhdGVfdHlwZS5wcm90bxIOb3NhYy5wdWJsaWMudjEiqgIKGUJhcmVNZXRhbEluc3RhbmNlVGVtcGxhdGUSCgoCaWQYASABKAkSKgoIbWV0YWRhdGEYAiABKAsyGC5vc2FjLnB1YmxpYy52MS5NZXRhZGF0YRINCgV0aXRsZRgDIAEoCRITCgtkZXNjcmlwdGlvbhgEIAEoCRJMCg1zcGVjX2RlZmF1bHRzGAUgASgLMjUub3NhYy5wdWJsaWMudjEuQmFyZU1ldGFsSW5zdGFuY2VUZW1wbGF0ZVNwZWNEZWZhdWx0cxJQCgpwYXJhbWV0ZXJzGAYgAygLMjwub3NhYy5wdWJsaWMudjEuQmFyZU1ldGFsSW5zdGFuY2VUZW1wbGF0ZVBhcmFtZXRlckRlZmluaXRpb24SEQoJaG9zdF90eXBlGAcgASgJIqcBCixCYXJlTWV0YWxJbnN0YW5jZVRlbXBsYXRlUGFyYW1ldGVyRGVmaW5pdGlvbhIMCgRuYW1lGAEgASgJEg0KBXRpdGxlGAIgASgJEhMKC2Rlc2NyaXB0aW9uGAMgASgJEhAKCHJlcXVpcmVkGAQgASgIEgwKBHR5cGUYBSABKAkSJQoHZGVmYXVsdBgGIAEoCzIULmdvb2dsZS5wcm90b2J1Zi5BbnkibQolQmFyZU1ldGFsSW5zdGFuY2VUZW1wbGF0ZVNwZWNEZWZhdWx0cxI6CgVpbWFnZRgBIAEoCzImLm9zYWMucHVibGljLnYxLkJhcmVNZXRhbEluc3RhbmNlSW1hZ2VIAIgBAUIICgZfaW1hZ2ViBnByb3RvMw", [file_google_protobuf_any, file_osac_public_v1_baremetal_instance_type, file_osac_public_v1_metadata_type]);
+  fileDesc("CjVvc2FjL3B1YmxpYy92MS9iYXJlbWV0YWxfaW5zdGFuY2VfdGVtcGxhdGVfdHlwZS5wcm90bxIOb3NhYy5wdWJsaWMudjEiqgIKGUJhcmVNZXRhbEluc3RhbmNlVGVtcGxhdGUSCgoCaWQYASABKAkSKgoIbWV0YWRhdGEYAiABKAsyGC5vc2FjLnB1YmxpYy52MS5NZXRhZGF0YRINCgV0aXRsZRgDIAEoCRITCgtkZXNjcmlwdGlvbhgEIAEoCRJMCg1zcGVjX2RlZmF1bHRzGAUgASgLMjUub3NhYy5wdWJsaWMudjEuQmFyZU1ldGFsSW5zdGFuY2VUZW1wbGF0ZVNwZWNEZWZhdWx0cxJQCgpwYXJhbWV0ZXJzGAYgAygLMjwub3NhYy5wdWJsaWMudjEuQmFyZU1ldGFsSW5zdGFuY2VUZW1wbGF0ZVBhcmFtZXRlckRlZmluaXRpb24SEQoJaG9zdF90eXBlGAcgASgJIqcBCixCYXJlTWV0YWxJbnN0YW5jZVRlbXBsYXRlUGFyYW1ldGVyRGVmaW5pdGlvbhIMCgRuYW1lGAEgASgJEg0KBXRpdGxlGAIgASgJEhMKC2Rlc2NyaXB0aW9uGAMgASgJEhAKCHJlcXVpcmVkGAQgASgIEgwKBHR5cGUYBSABKAkSJQoHZGVmYXVsdBgGIAEoCzIULmdvb2dsZS5wcm90b2J1Zi5BbnkibQolQmFyZU1ldGFsSW5zdGFuY2VUZW1wbGF0ZVNwZWNEZWZhdWx0cxI6CgVpbWFnZRgBIAEoCzImLm9zYWMucHVibGljLnYxLkJhcmVNZXRhbEluc3RhbmNlSW1hZ2VIAIgBAUIICgZfaW1hZ2UiXwoiQmFyZU1ldGFsSW5zdGFuY2VUZW1wbGF0ZVJlZmVyZW5jZRIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJEg8KB3Byb2plY3QYAyABKAkSDgoGc2hhcmVkGAQgASgIYgZwcm90bzM", [file_google_protobuf_any, file_osac_public_v1_baremetal_instance_type, file_osac_public_v1_metadata_type]);
 
 /**
  * A bare metal instance template defines a hardware profile (host type, OS image, network configuration)
@@ -204,4 +204,38 @@ export type BareMetalInstanceTemplateSpecDefaults = Message<"osac.public.v1.Bare
  */
 export const BareMetalInstanceTemplateSpecDefaultsSchema: GenMessage<BareMetalInstanceTemplateSpecDefaults> = /*@__PURE__*/
   messageDesc(file_osac_public_v1_baremetal_instance_template_type, 2);
+
+/**
+ * Reference to a BareMetalInstanceTemplate resource.
+ *
+ * @generated from message osac.public.v1.BareMetalInstanceTemplateReference
+ */
+export type BareMetalInstanceTemplateReference = Message<"osac.public.v1.BareMetalInstanceTemplateReference"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string name = 2;
+   */
+  name: string;
+
+  /**
+   * @generated from field: string project = 3;
+   */
+  project: string;
+
+  /**
+   * @generated from field: bool shared = 4;
+   */
+  shared: boolean;
+};
+
+/**
+ * Describes the message osac.public.v1.BareMetalInstanceTemplateReference.
+ * Use `create(BareMetalInstanceTemplateReferenceSchema)` to create a new message.
+ */
+export const BareMetalInstanceTemplateReferenceSchema: GenMessage<BareMetalInstanceTemplateReference> = /*@__PURE__*/
+  messageDesc(file_osac_public_v1_baremetal_instance_template_type, 3);
 

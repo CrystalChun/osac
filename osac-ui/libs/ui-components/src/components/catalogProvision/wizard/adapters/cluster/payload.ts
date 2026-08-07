@@ -25,8 +25,9 @@ export const buildClusterCreatePayload = (
   catalogItem: ClusterCatalogItem,
 ): MessageInitShape<typeof ClusterSchema> => {
   const spec: MessageInitShape<typeof ClusterSchema>['spec'] = {
-    catalogItem: catalogItem.id,
-    releaseImage: values.spec.releaseImage.trim(),
+    catalogItem: {
+      id: catalogItem.id,
+    },
     pullSecret: values.spec.pullSecret.trim(),
   };
 
@@ -35,14 +36,14 @@ export const buildClusterCreatePayload = (
     spec.sshPublicKey = sshPublicKey;
   }
 
-  const nodeSets: Record<string, { hostType: string; size: number }> = {};
+  const nodeSets: Record<string, { hostType: { id: string }; size: number }> = {};
   for (const row of values.spec.nodeSetRows) {
     const hostTypeId = row.hostType;
     const size = Number(row.size);
     if (!hostTypeId || !Number.isFinite(size) || size <= 0) {
       continue;
     }
-    nodeSets[hostTypeId] = { hostType: hostTypeId, size };
+    nodeSets[hostTypeId] = { hostType: { id: hostTypeId }, size };
   }
   if (Object.keys(nodeSets).length > 0) {
     spec.nodeSets = nodeSets;

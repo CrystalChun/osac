@@ -20,13 +20,15 @@ import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_google_api_field_behavior } from "../../../google/api/field_behavior_pb";
 import type { Metadata } from "./metadata_type_pb";
 import { file_osac_public_v1_metadata_type } from "./metadata_type_pb";
+import type { VirtualNetworkLocalReference } from "./virtual_network_type_pb";
+import { file_osac_public_v1_virtual_network_type } from "./virtual_network_type_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file osac/public/v1/security_group_type.proto.
  */
 export const file_osac_public_v1_security_group_type: GenFile = /*@__PURE__*/
-  fileDesc("Cihvc2FjL3B1YmxpYy92MS9zZWN1cml0eV9ncm91cF90eXBlLnByb3RvEg5vc2FjLnB1YmxpYy52MSKtAQoNU2VjdXJpdHlHcm91cBIKCgJpZBgBIAEoCRIqCghtZXRhZGF0YRgCIAEoCzIYLm9zYWMucHVibGljLnYxLk1ldGFkYXRhEi8KBHNwZWMYAyABKAsyIS5vc2FjLnB1YmxpYy52MS5TZWN1cml0eUdyb3VwU3BlYxIzCgZzdGF0dXMYBCABKAsyIy5vc2FjLnB1YmxpYy52MS5TZWN1cml0eUdyb3VwU3RhdHVzIpEBChFTZWN1cml0eUdyb3VwU3BlYxIfCg92aXJ0dWFsX25ldHdvcmsYASABKAlCBuBBAuBBBRItCgdpbmdyZXNzGAIgAygLMhwub3NhYy5wdWJsaWMudjEuU2VjdXJpdHlSdWxlEiwKBmVncmVzcxgDIAMoCzIcLm9zYWMucHVibGljLnYxLlNlY3VyaXR5UnVsZSLOAQoMU2VjdXJpdHlSdWxlEioKCHByb3RvY29sGAEgASgOMhgub3NhYy5wdWJsaWMudjEuUHJvdG9jb2wSFgoJcG9ydF9mcm9tGAIgASgFSACIAQESFAoHcG9ydF90bxgDIAEoBUgBiAEBEhYKCWlwdjRfY2lkchgEIAEoCUgCiAEBEhYKCWlwdjZfY2lkchgFIAEoCUgDiAEBQgwKCl9wb3J0X2Zyb21CCgoIX3BvcnRfdG9CDAoKX2lwdjRfY2lkckIMCgpfaXB2Nl9jaWRyImoKE1NlY3VyaXR5R3JvdXBTdGF0dXMSMQoFc3RhdGUYASABKA4yIi5vc2FjLnB1YmxpYy52MS5TZWN1cml0eUdyb3VwU3RhdGUSFAoHbWVzc2FnZRgCIAEoCUgAiAEBQgoKCF9tZXNzYWdlKm0KCFByb3RvY29sEhgKFFBST1RPQ09MX1VOU1BFQ0lGSUVEEAASEAoMUFJPVE9DT0xfVENQEAESEAoMUFJPVE9DT0xfVURQEAISEQoNUFJPVE9DT0xfSUNNUBADEhAKDFBST1RPQ09MX0FMTBAEKugBChJTZWN1cml0eUdyb3VwU3RhdGUSJAogU0VDVVJJVFlfR1JPVVBfU1RBVEVfVU5TUEVDSUZJRUQQABIgChxTRUNVUklUWV9HUk9VUF9TVEFURV9QRU5ESU5HEAESHgoaU0VDVVJJVFlfR1JPVVBfU1RBVEVfUkVBRFkQAhIfChtTRUNVUklUWV9HUk9VUF9TVEFURV9GQUlMRUQQAxIhCh1TRUNVUklUWV9HUk9VUF9TVEFURV9ERUxFVElORxAEEiYKIlNFQ1VSSVRZX0dST1VQX1NUQVRFX0RFTEVURV9GQUlMRUQQBWIGcHJvdG8z", [file_google_api_field_behavior, file_osac_public_v1_metadata_type]);
+  fileDesc("Cihvc2FjL3B1YmxpYy92MS9zZWN1cml0eV9ncm91cF90eXBlLnByb3RvEg5vc2FjLnB1YmxpYy52MSKtAQoNU2VjdXJpdHlHcm91cBIKCgJpZBgBIAEoCRIqCghtZXRhZGF0YRgCIAEoCzIYLm9zYWMucHVibGljLnYxLk1ldGFkYXRhEi8KBHNwZWMYAyABKAsyIS5vc2FjLnB1YmxpYy52MS5TZWN1cml0eUdyb3VwU3BlYxIzCgZzdGF0dXMYBCABKAsyIy5vc2FjLnB1YmxpYy52MS5TZWN1cml0eUdyb3VwU3RhdHVzIr8BChFTZWN1cml0eUdyb3VwU3BlYxJNCg92aXJ0dWFsX25ldHdvcmsYASABKAsyLC5vc2FjLnB1YmxpYy52MS5WaXJ0dWFsTmV0d29ya0xvY2FsUmVmZXJlbmNlQgbgQQLgQQUSLQoHaW5ncmVzcxgCIAMoCzIcLm9zYWMucHVibGljLnYxLlNlY3VyaXR5UnVsZRIsCgZlZ3Jlc3MYAyADKAsyHC5vc2FjLnB1YmxpYy52MS5TZWN1cml0eVJ1bGUizgEKDFNlY3VyaXR5UnVsZRIqCghwcm90b2NvbBgBIAEoDjIYLm9zYWMucHVibGljLnYxLlByb3RvY29sEhYKCXBvcnRfZnJvbRgCIAEoBUgAiAEBEhQKB3BvcnRfdG8YAyABKAVIAYgBARIWCglpcHY0X2NpZHIYBCABKAlIAogBARIWCglpcHY2X2NpZHIYBSABKAlIA4gBAUIMCgpfcG9ydF9mcm9tQgoKCF9wb3J0X3RvQgwKCl9pcHY0X2NpZHJCDAoKX2lwdjZfY2lkciJqChNTZWN1cml0eUdyb3VwU3RhdHVzEjEKBXN0YXRlGAEgASgOMiIub3NhYy5wdWJsaWMudjEuU2VjdXJpdHlHcm91cFN0YXRlEhQKB21lc3NhZ2UYAiABKAlIAIgBAUIKCghfbWVzc2FnZSI3ChtTZWN1cml0eUdyb3VwTG9jYWxSZWZlcmVuY2USCgoCaWQYASABKAkSDAoEbmFtZRgCIAEoCSptCghQcm90b2NvbBIYChRQUk9UT0NPTF9VTlNQRUNJRklFRBAAEhAKDFBST1RPQ09MX1RDUBABEhAKDFBST1RPQ09MX1VEUBACEhEKDVBST1RPQ09MX0lDTVAQAxIQCgxQUk9UT0NPTF9BTEwQBCroAQoSU2VjdXJpdHlHcm91cFN0YXRlEiQKIFNFQ1VSSVRZX0dST1VQX1NUQVRFX1VOU1BFQ0lGSUVEEAASIAocU0VDVVJJVFlfR1JPVVBfU1RBVEVfUEVORElORxABEh4KGlNFQ1VSSVRZX0dST1VQX1NUQVRFX1JFQURZEAISHwobU0VDVVJJVFlfR1JPVVBfU1RBVEVfRkFJTEVEEAMSIQodU0VDVVJJVFlfR1JPVVBfU1RBVEVfREVMRVRJTkcQBBImCiJTRUNVUklUWV9HUk9VUF9TVEFURV9ERUxFVEVfRkFJTEVEEAViBnByb3RvMw", [file_google_api_field_behavior, file_osac_public_v1_metadata_type, file_osac_public_v1_virtual_network_type]);
 
 /**
  * Represents a virtual firewall controlling network traffic for compute instances.
@@ -99,17 +101,15 @@ export const SecurityGroupSchema: GenMessage<SecurityGroup> = /*@__PURE__*/
  */
 export type SecurityGroupSpec = Message<"osac.public.v1.SecurityGroupSpec"> & {
   /**
-   * Parent VirtualNetwork ID for this security group.
+   * Parent VirtualNetwork reference for this security group.
    *
-   * Must reference the ID of an existing VirtualNetwork in READY state. Security groups are scoped to a
+   * Must reference an existing VirtualNetwork in READY state. Security groups are scoped to a
    * VirtualNetwork and can only be applied to compute instances within that network. This field is required
    * and immutable after creation.
    *
-   * Example: "vnet-12345abc"
-   *
-   * @generated from field: string virtual_network = 1;
+   * @generated from field: osac.public.v1.VirtualNetworkLocalReference virtual_network = 1;
    */
-  virtualNetwork: string;
+  virtualNetwork?: VirtualNetworkLocalReference | undefined;
 
   /**
    * List of rules controlling inbound traffic to compute instances.
@@ -269,6 +269,30 @@ export type SecurityGroupStatus = Message<"osac.public.v1.SecurityGroupStatus"> 
  */
 export const SecurityGroupStatusSchema: GenMessage<SecurityGroupStatus> = /*@__PURE__*/
   messageDesc(file_osac_public_v1_security_group_type, 3);
+
+/**
+ * Local reference to a SecurityGroup resource.
+ *
+ * @generated from message osac.public.v1.SecurityGroupLocalReference
+ */
+export type SecurityGroupLocalReference = Message<"osac.public.v1.SecurityGroupLocalReference"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string name = 2;
+   */
+  name: string;
+};
+
+/**
+ * Describes the message osac.public.v1.SecurityGroupLocalReference.
+ * Use `create(SecurityGroupLocalReferenceSchema)` to create a new message.
+ */
+export const SecurityGroupLocalReferenceSchema: GenMessage<SecurityGroupLocalReference> = /*@__PURE__*/
+  messageDesc(file_osac_public_v1_security_group_type, 4);
 
 /**
  * Network protocol types for SecurityRule matching.

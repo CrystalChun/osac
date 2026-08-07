@@ -44,7 +44,9 @@ export const useAttachExternalIp = () => {
   const qc = useApiQueryClient();
   return useMutation({
     mutationFn: async ({ computeInstanceId, pool }: AttachExternalIpInput) => {
-      const createResp = await externalIpsClient.create({ object: { spec: { pool } } });
+      const createResp = await externalIpsClient.create({
+        object: { spec: { pool: { id: pool } } },
+      });
       if (!createResp.object) {
         throw new Error('External IP not found in response');
       }
@@ -62,8 +64,10 @@ export const useAttachExternalIp = () => {
         const attachResp = await attachmentsClient.create({
           object: {
             spec: {
-              externalIp: allocated.id,
-              target: { case: 'computeInstance', value: computeInstanceId },
+              externalIp: {
+                id: allocated.id,
+              },
+              target: { case: 'computeInstance', value: { id: computeInstanceId } },
             },
           },
         });

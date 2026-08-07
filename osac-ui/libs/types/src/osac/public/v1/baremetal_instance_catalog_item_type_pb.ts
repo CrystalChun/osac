@@ -21,13 +21,15 @@ import type { FieldDefinition } from "./field_definition_type_pb";
 import { file_osac_public_v1_field_definition_type } from "./field_definition_type_pb";
 import type { Metadata } from "./metadata_type_pb";
 import { file_osac_public_v1_metadata_type } from "./metadata_type_pb";
+import type { BareMetalInstanceTemplateReference } from "./baremetal_instance_template_type_pb";
+import { file_osac_public_v1_baremetal_instance_template_type } from "./baremetal_instance_template_type_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file osac/public/v1/baremetal_instance_catalog_item_type.proto.
  */
 export const file_osac_public_v1_baremetal_instance_catalog_item_type: GenFile = /*@__PURE__*/
-  fileDesc("Cjlvc2FjL3B1YmxpYy92MS9iYXJlbWV0YWxfaW5zdGFuY2VfY2F0YWxvZ19pdGVtX3R5cGUucHJvdG8SDm9zYWMucHVibGljLnYxItsBChxCYXJlTWV0YWxJbnN0YW5jZUNhdGFsb2dJdGVtEgoKAmlkGAEgASgJEioKCG1ldGFkYXRhGAIgASgLMhgub3NhYy5wdWJsaWMudjEuTWV0YWRhdGESDQoFdGl0bGUYAyABKAkSEwoLZGVzY3JpcHRpb24YBCABKAkSEAoIdGVtcGxhdGUYBSABKAkSEQoJcHVibGlzaGVkGAYgASgIEjoKEWZpZWxkX2RlZmluaXRpb25zGAggAygLMh8ub3NhYy5wdWJsaWMudjEuRmllbGREZWZpbml0aW9uYgZwcm90bzM", [file_osac_public_v1_field_definition_type, file_osac_public_v1_metadata_type]);
+  fileDesc("Cjlvc2FjL3B1YmxpYy92MS9iYXJlbWV0YWxfaW5zdGFuY2VfY2F0YWxvZ19pdGVtX3R5cGUucHJvdG8SDm9zYWMucHVibGljLnYxIo8CChxCYXJlTWV0YWxJbnN0YW5jZUNhdGFsb2dJdGVtEgoKAmlkGAEgASgJEioKCG1ldGFkYXRhGAIgASgLMhgub3NhYy5wdWJsaWMudjEuTWV0YWRhdGESDQoFdGl0bGUYAyABKAkSEwoLZGVzY3JpcHRpb24YBCABKAkSRAoIdGVtcGxhdGUYBSABKAsyMi5vc2FjLnB1YmxpYy52MS5CYXJlTWV0YWxJbnN0YW5jZVRlbXBsYXRlUmVmZXJlbmNlEhEKCXB1Ymxpc2hlZBgGIAEoCBI6ChFmaWVsZF9kZWZpbml0aW9ucxgIIAMoCzIfLm9zYWMucHVibGljLnYxLkZpZWxkRGVmaW5pdGlvbmIGcHJvdG8z", [file_osac_public_v1_field_definition_type, file_osac_public_v1_metadata_type, file_osac_public_v1_baremetal_instance_template_type]);
 
 /**
  * A bare metal instance catalog item defines a curated hardware offering that references an underlying bare metal
@@ -65,11 +67,11 @@ export type BareMetalInstanceCatalogItem = Message<"osac.public.v1.BareMetalInst
   description: string;
 
   /**
-   * Identifier of the underlying bare metal instance template that this catalog item references.
+   * Reference to the underlying bare metal instance template that this catalog item references.
    *
-   * @generated from field: string template = 5;
+   * @generated from field: osac.public.v1.BareMetalInstanceTemplateReference template = 5;
    */
-  template: string;
+  template?: BareMetalInstanceTemplateReference | undefined;
 
   /**
    * Whether this catalog item is published.

@@ -83,7 +83,7 @@ const VmDetailsCard = ({ vm }: Props) => {
                   {t('catalogProvision.vm.fields.instanceType')}
                 </DescriptionListTerm>
                 <DescriptionListDescription>
-                  {isInstanceTypeLoading && instanceTypeId?.trim() ? (
+                  {isInstanceTypeLoading && instanceTypeId ? (
                     <Skeleton width="150px" />
                   ) : (
                     formatInstanceTypeReviewLabelFromType(

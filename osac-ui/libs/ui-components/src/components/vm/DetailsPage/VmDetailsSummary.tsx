@@ -54,7 +54,7 @@ const VmDetailsSummary = ({
   isInstanceTypeLoading = false,
 }: VmDetailsSummaryProps) => {
   const { t } = useTranslation();
-  const instanceTypeId = vm.spec?.instanceType?.trim();
+  const instanceTypeId = vm.spec?.instanceType?.id;
   const externalIp = vm.status?.externalIpAddress;
   const internalIp = vm.status?.internalIpAddress;
 
