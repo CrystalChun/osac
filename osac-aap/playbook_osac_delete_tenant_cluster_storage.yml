@@ -4,7 +4,6 @@
   gather_facts: false
 
   vars:
-    tenant_name: "{{ osac_job_vars.resource.metadata.annotations['osac.openshift.io/tenant'] }}"
     # This template is triggered from two different call sites in storage_controller.go,
     # sharing the same AAP job template but passing different resource kinds as payload:
     #   - handleClusterStorageDeprovisioning (hub storage) sends a Tenant object, whose own
@@ -14,10 +13,16 @@
     #     metadata.namespace ("osac-devel") is hub-side bookkeeping with no relation to the
     #     guest cluster. For that case we target the fixed OSAC system namespace on the guest
     #     cluster instead (mirrors the create playbook's routing).
+    tenant_name: >-
+      {%- if osac_job_vars.resource.kind == 'ClusterOrder' -%}
+      {{ osac_job_vars.resource.metadata.annotations['osac.openshift.io/tenant'] }}
+      {%- elif osac_job_vars.resource.kind == 'Tenant' -%}
+      {{ osac_job_vars.resource.metadata.name }}
+      {%- endif -%}
     tenant_namespace: >-
       {%- if osac_job_vars.resource.kind == 'ClusterOrder' -%}
       openshift-osac-storage
-      {%- else -%}
+      {%- elif osac_job_vars.resource.kind == 'Tenant' -%}
       {{ osac_job_vars.resource.metadata.namespace }}
       {%- endif -%}
 
