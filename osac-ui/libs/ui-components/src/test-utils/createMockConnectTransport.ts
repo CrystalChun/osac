@@ -1,3 +1,4 @@
+import type { MessageInitShape } from '@bufbuild/protobuf';
 import { Code, ConnectError, type Transport, createRouterTransport } from '@connectrpc/connect';
 
 import type {
@@ -37,16 +38,13 @@ import type {
   StorageBackendsCreateRequest,
   StorageBackendsCreateResponse,
   StorageBackendsListRequest,
-  StorageBackendsListResponse,
   StorageBackendsUpdateRequest,
   StorageBackendsUpdateResponse,
   StorageTier,
   StorageTiersCreateRequest,
   StorageTiersCreateResponse,
   StorageTiersDeleteRequest,
-  StorageTiersDeleteResponse,
   StorageTiersListRequest,
-  StorageTiersListResponse,
   StorageTiersUpdateRequest,
   StorageTiersUpdateResponse,
   TenantsCreateRequest,
@@ -56,8 +54,11 @@ import {
   Tenants as PrivateTenants,
   StorageBackendState,
   StorageBackends,
+  StorageBackendsListResponseSchema,
   StorageTierState,
   StorageTiers,
+  StorageTiersDeleteResponseSchema,
+  StorageTiersListResponseSchema,
 } from '@osac/types/private';
 
 import { UnauthorizedError } from '../utils/unauthorizedError';
@@ -150,13 +151,19 @@ export type MockTransportOverrides = {
     req: IdentityProvidersUpdateRequest,
   ) => IdentityProvidersUpdateResponse;
   onTenantCreate?: (req: TenantsCreateRequest) => TenantsCreateResponse;
-  onStorageBackendList?: (req: StorageBackendsListRequest) => StorageBackendsListResponse;
+  onStorageBackendList?: (
+    req: StorageBackendsListRequest,
+  ) => MessageInitShape<typeof StorageBackendsListResponseSchema>;
   onStorageBackendCreate?: (req: StorageBackendsCreateRequest) => StorageBackendsCreateResponse;
   onStorageBackendUpdate?: (req: StorageBackendsUpdateRequest) => StorageBackendsUpdateResponse;
-  onStorageTierList?: (req: StorageTiersListRequest) => StorageTiersListResponse;
+  onStorageTierList?: (
+    req: StorageTiersListRequest,
+  ) => MessageInitShape<typeof StorageTiersListResponseSchema>;
   onStorageTierCreate?: (req: StorageTiersCreateRequest) => StorageTiersCreateResponse;
   onStorageTierUpdate?: (req: StorageTiersUpdateRequest) => StorageTiersUpdateResponse;
-  onStorageTierDelete?: (req: StorageTiersDeleteRequest) => StorageTiersDeleteResponse;
+  onStorageTierDelete?: (
+    req: StorageTiersDeleteRequest,
+  ) => MessageInitShape<typeof StorageTiersDeleteResponseSchema>;
 };
 
 export const createMockConnectTransport = (
