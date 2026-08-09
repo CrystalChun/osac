@@ -62,7 +62,7 @@ describe('navRowsForRole', () => {
         },
         {
           id: 'instance-types',
-          label: 'Instance Types',
+          label: 'Instance types',
           path: '/admin/infrastructure/instance-types',
         },
       ],

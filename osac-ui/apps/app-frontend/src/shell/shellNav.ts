@@ -40,7 +40,7 @@ const getAdminNav = (t: TFunction): NavSection[] => [
       },
       {
         id: 'instance-types',
-        label: t('Instance Types'),
+        label: t('Instance types'),
         path: '/admin/infrastructure/instance-types',
       },
     ],
