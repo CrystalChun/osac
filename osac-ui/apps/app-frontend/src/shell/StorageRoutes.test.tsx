@@ -1,5 +1,5 @@
 import { Route, Routes } from 'react-router-dom';
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
 import { renderWithProviders } from '@osac/ui-components/test-utils/TestProviders';
@@ -33,9 +33,23 @@ describe('StorageRoutes', () => {
     expect(screen.getByText('Edit storage backend')).toBeInTheDocument();
   });
 
-  it('renders the Tiers tab at /admin/storage/tiers', () => {
+  it('renders the Tiers tab at /admin/storage/tiers', async () => {
     renderAt('/admin/storage/tiers');
 
-    expect(screen.getByRole('tabpanel')).toHaveTextContent('Storage tiers');
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Create tier' })).toBeInTheDocument();
+    });
+  });
+
+  it('renders a placeholder for tiers/create', () => {
+    renderAt('/admin/storage/tiers/create');
+
+    expect(screen.getByText('Create storage tier')).toBeInTheDocument();
+  });
+
+  it('renders a placeholder for tiers/:id/edit', () => {
+    renderAt('/admin/storage/tiers/tier-123/edit');
+
+    expect(screen.getByText('Edit storage tier')).toBeInTheDocument();
   });
 });

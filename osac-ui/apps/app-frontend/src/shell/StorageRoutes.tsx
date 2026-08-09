@@ -20,6 +20,14 @@ export const StorageRoutes = () => {
         element={<StoragePlaceholder title={t('Edit storage backend')} />}
       />
       <Route path="tiers" element={<StorageManagementPage activeTab="tiers" />} />
+      <Route
+        path="tiers/create"
+        element={<StoragePlaceholder title={t('Create storage tier')} />}
+      />
+      <Route
+        path="tiers/:id/edit"
+        element={<StoragePlaceholder title={t('Edit storage tier')} />}
+      />
     </Routes>
   );
 };
