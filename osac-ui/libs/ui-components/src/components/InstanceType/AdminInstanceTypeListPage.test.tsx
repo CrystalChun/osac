@@ -1,3 +1,4 @@
+import { Route, Routes } from 'react-router-dom';
 import { create } from '@bufbuild/protobuf';
 import { screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
@@ -41,6 +42,18 @@ const makeInstanceType = (
   });
 
 const renderPage = () => renderWithProviders(<AdminInstanceTypeListPage />);
+
+const renderPageWithCreateRoute = () =>
+  renderWithProviders(
+    <Routes>
+      <Route path="/admin/infrastructure/instance-types" element={<AdminInstanceTypeListPage />} />
+      <Route
+        path="/admin/infrastructure/instance-types/create"
+        element={<h1>Create instance type page</h1>}
+      />
+    </Routes>,
+    { routerEntries: ['/admin/infrastructure/instance-types'] },
+  );
 
 describe('AdminInstanceTypeListPage', () => {
   it('renders the required columns and lifecycle labels for populated data', () => {
@@ -124,5 +137,19 @@ describe('AdminInstanceTypeListPage', () => {
     expect(screen.getByText('An error occurred')).toBeInTheDocument();
     expect(screen.getByText('Private instance types unavailable')).toBeInTheDocument();
     expect(screen.queryByRole('table')).not.toBeInTheDocument();
+  });
+
+  it('navigates to the create route when the create button is clicked', async () => {
+    vi.mocked(useAdminInstanceTypes).mockReturnValue(
+      mockQueryResult<PrivateInstanceType[]>({
+        data: [],
+      }),
+    );
+
+    const { user } = renderPageWithCreateRoute();
+
+    await user.click(screen.getByRole('button', { name: 'Create instance type' }));
+
+    expect(screen.getByRole('heading', { name: 'Create instance type page' })).toBeInTheDocument();
   });
 });

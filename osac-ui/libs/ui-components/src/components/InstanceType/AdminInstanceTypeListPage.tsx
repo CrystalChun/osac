@@ -1,4 +1,5 @@
-import { Truncate } from '@patternfly/react-core';
+import { useNavigate } from 'react-router-dom';
+import { Button, Truncate } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
 import { InstanceTypeLifecycleLabel } from './InstanceTypeLifecycleLabel';
@@ -20,6 +21,7 @@ const CREATED_COLUMN_WIDTH = 15;
 
 const AdminInstanceTypeListPage = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { data: instanceTypes = [], isLoading, error } = useAdminInstanceTypes();
 
   return (
@@ -27,6 +29,14 @@ const AdminInstanceTypeListPage = () => {
       title={t('Instance types')}
       description={t('Manage provider-defined instance types for this cloud platform.')}
       error={error}
+      actions={
+        <Button
+          variant="primary"
+          onClick={() => navigate('/admin/infrastructure/instance-types/create')}
+        >
+          {t('Create instance type')}
+        </Button>
+      }
     >
       <ListPageBody isLoading={isLoading} error={error}>
         {instanceTypes.length === 0 ? (
