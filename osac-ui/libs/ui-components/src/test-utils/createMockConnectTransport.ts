@@ -36,11 +36,15 @@ import type {
   StorageBackend,
   StorageBackendsCreateRequest,
   StorageBackendsCreateResponse,
+  StorageBackendsListRequest,
+  StorageBackendsListResponse,
   StorageBackendsUpdateRequest,
   StorageBackendsUpdateResponse,
   StorageTier,
   StorageTiersCreateRequest,
   StorageTiersCreateResponse,
+  StorageTiersDeleteRequest,
+  StorageTiersDeleteResponse,
   StorageTiersListRequest,
   StorageTiersListResponse,
   StorageTiersUpdateRequest,
@@ -146,11 +150,13 @@ export type MockTransportOverrides = {
     req: IdentityProvidersUpdateRequest,
   ) => IdentityProvidersUpdateResponse;
   onTenantCreate?: (req: TenantsCreateRequest) => TenantsCreateResponse;
+  onStorageBackendList?: (req: StorageBackendsListRequest) => StorageBackendsListResponse;
   onStorageBackendCreate?: (req: StorageBackendsCreateRequest) => StorageBackendsCreateResponse;
   onStorageBackendUpdate?: (req: StorageBackendsUpdateRequest) => StorageBackendsUpdateResponse;
   onStorageTierList?: (req: StorageTiersListRequest) => StorageTiersListResponse;
   onStorageTierCreate?: (req: StorageTiersCreateRequest) => StorageTiersCreateResponse;
   onStorageTierUpdate?: (req: StorageTiersUpdateRequest) => StorageTiersUpdateResponse;
+  onStorageTierDelete?: (req: StorageTiersDeleteRequest) => StorageTiersDeleteResponse;
 };
 
 export const createMockConnectTransport = (
@@ -292,6 +298,9 @@ export const createMockConnectTransport = (
 
       router.service(StorageBackends, {
         list: (req) => {
+          if (overrides.onStorageBackendList) {
+            return overrides.onStorageBackendList(req);
+          }
           const items = storageBackends.filter((item) =>
             matchesStorageBackendReadyFilter(req.filter, item.status?.state),
           );
@@ -355,7 +364,12 @@ export const createMockConnectTransport = (
           }
           return { object: req.object };
         },
-        delete: () => ({}),
+        delete: (req) => {
+          if (overrides.onStorageTierDelete) {
+            return overrides.onStorageTierDelete(req);
+          }
+          return {};
+        },
       });
 
       router.service(PrivateTenants, {
