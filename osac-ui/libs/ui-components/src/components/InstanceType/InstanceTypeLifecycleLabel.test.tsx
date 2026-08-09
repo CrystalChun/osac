@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 
 import { InstanceTypeState } from '@osac/types/private';
 
-import { InstanceTypeLifecycleLabel } from './InstanceTypeLifecycleLabel';
+import InstanceTypeLifecycleLabel from './InstanceTypeLifecycleLabel';
 
 const expectLabelColor = (text: string, colorClass?: string) => {
   const label = screen.getByText(text).closest('.pf-v6-c-label');
@@ -41,5 +41,11 @@ describe('InstanceTypeLifecycleLabel', () => {
     render(<InstanceTypeLifecycleLabel />);
 
     expectLabelColor('—');
+  });
+
+  it('shows the raw state when it is not one of the known lifecycle states', () => {
+    render(<InstanceTypeLifecycleLabel state={99 as InstanceTypeState} />);
+
+    expectLabelColor('99');
   });
 });

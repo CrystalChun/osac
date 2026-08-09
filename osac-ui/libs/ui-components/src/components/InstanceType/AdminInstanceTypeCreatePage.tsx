@@ -3,9 +3,10 @@ import {
   Breadcrumb,
   BreadcrumbItem,
   Button,
+  EmptyState,
+  EmptyStateBody,
   PageSection,
   Stack,
-  Title,
 } from '@patternfly/react-core';
 
 import { useTranslation } from '../../hooks/useTranslation';
@@ -29,9 +30,9 @@ const AdminInstanceTypeCreatePage = () => {
           </BreadcrumbItem>
           <BreadcrumbItem isActive>{t('Create')}</BreadcrumbItem>
         </Breadcrumb>
-        <Title headingLevel="h1" size="3xl">
-          {t('Create instance type')}
-        </Title>
+        <EmptyState headingLevel="h1" titleText={t('Create instance type')}>
+          <EmptyStateBody>{t('This feature is coming soon.')}</EmptyStateBody>
+        </EmptyState>
       </Stack>
     </PageSection>
   );

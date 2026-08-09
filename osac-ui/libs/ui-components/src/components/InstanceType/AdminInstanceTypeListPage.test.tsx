@@ -73,7 +73,7 @@ describe('AdminInstanceTypeListPage', () => {
     expect(screen.getByRole('heading', { name: 'Instance types' })).toBeInTheDocument();
     expect(screen.getAllByRole('columnheader').map((header) => header.textContent)).toEqual([
       'Name',
-      'Lifecycle State',
+      'Lifecycle state',
       'CPU cores',
       'Memory (GiB)',
       'Description',

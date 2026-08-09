@@ -10,7 +10,7 @@ import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
 import type { InstanceType as PrivateInstanceType } from '@osac/types/private';
 
-import { InstanceTypeLifecycleLabel } from './InstanceTypeLifecycleLabel';
+import InstanceTypeLifecycleLabel from './InstanceTypeLifecycleLabel';
 import { useTranslation } from '../../hooks/useTranslation';
 import { Timestamp } from '../Primitives/Timestamp';
 
@@ -36,7 +36,7 @@ const AdminInstanceTypeTable = ({ instanceTypes }: AdminInstanceTypeTableProps) 
       <Thead>
         <Tr>
           <Th width={NAME_COLUMN_WIDTH}>{t('Name')}</Th>
-          <Th width={LIFECYCLE_STATE_COLUMN_WIDTH}>{t('Lifecycle State')}</Th>
+          <Th width={LIFECYCLE_STATE_COLUMN_WIDTH}>{t('Lifecycle state')}</Th>
           <Th width={CPU_CORES_COLUMN_WIDTH}>{t('CPU cores')}</Th>
           <Th width={MEMORY_COLUMN_WIDTH}>{t('Memory (GiB)')}</Th>
           <Th width={DESCRIPTION_COLUMN_WIDTH}>{t('Description')}</Th>
@@ -73,7 +73,7 @@ const AdminInstanceTypeTable = ({ instanceTypes }: AdminInstanceTypeTableProps) 
                   omissionContent="..."
                 />
               </Td>
-              <Td dataLabel={t('Lifecycle State')} width={LIFECYCLE_STATE_COLUMN_WIDTH}>
+              <Td dataLabel={t('Lifecycle state')} width={LIFECYCLE_STATE_COLUMN_WIDTH}>
                 <InstanceTypeLifecycleLabel state={instanceType.spec?.state} />
               </Td>
               <Td dataLabel={t('CPU cores')} width={CPU_CORES_COLUMN_WIDTH}>
