@@ -31,6 +31,8 @@ export const StorageManagementPage = ({ activeTab }: { activeTab: StorageTab }) 
             }
           }}
           aria-label={t('Storage tabs')}
+          mountOnEnter
+          unmountOnExit
         >
           <Tab eventKey="backends" title={<TabTitleText>{t('Backends')}</TabTitleText>}>
             <StoragePlaceholder title={t('Storage backends')} />

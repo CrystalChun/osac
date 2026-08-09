@@ -1,6 +1,6 @@
 import { Route, Routes } from 'react-router-dom';
 import { screen, waitFor } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { StorageManagementPage } from './StorageManagementPage';
 import { renderWithProviders } from '../../test-utils/TestProviders';
@@ -47,5 +47,27 @@ describe('StorageManagementPage', () => {
     await waitFor(() => {
       expect(screen.getByRole('button', { name: 'Create tier' })).toBeInTheDocument();
     });
+  });
+
+  it('does not mount the Tiers list page (and its data fetches) while the Backends tab is active', async () => {
+    const onStorageTierList = vi.fn(() => ({ items: [], size: 0, total: 0 }));
+
+    renderWithProviders(
+      <Routes>
+        <Route
+          path="/admin/storage/backends"
+          element={<StorageManagementPage activeTab="backends" />}
+        />
+      </Routes>,
+      {
+        routerEntries: ['/admin/storage/backends'],
+        transportOverrides: { onStorageTierList },
+      },
+    );
+
+    await waitFor(() => {
+      expect(screen.getByRole('tabpanel')).toHaveTextContent('Storage backends');
+    });
+    expect(onStorageTierList).not.toHaveBeenCalled();
   });
 });
