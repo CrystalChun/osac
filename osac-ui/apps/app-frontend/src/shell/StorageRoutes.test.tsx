@@ -18,7 +18,7 @@ describe('StorageRoutes', () => {
   it('redirects the bare /admin/infrastructure/storage path to the Backends tab', () => {
     renderAt('/admin/infrastructure/storage');
 
-    expect(screen.getByRole('tabpanel')).toHaveTextContent('Storage backends');
+    expect(screen.getByRole('button', { name: 'Create backend' })).toBeInTheDocument();
   });
 
   it('renders a placeholder for backends/create', () => {
