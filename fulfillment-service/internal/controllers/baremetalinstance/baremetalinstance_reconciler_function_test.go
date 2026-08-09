@@ -1852,6 +1852,23 @@ var _ = Describe("syncStatus", func() {
 		Expect(t.bareMetalInstance.GetStatus().GetNetworkAttachmentStatuses()).To(BeEmpty())
 	})
 
+	It("should clear previously synced network attachment statuses when K8s CR has none", func() {
+		t := newTask(0)
+		t.bareMetalInstance.GetStatus().SetNetworkAttachmentStatuses([]*privatev1.BareMetalNetworkAttachmentStatus{
+			privatev1.BareMetalNetworkAttachmentStatus_builder{
+				Interface: "stale-nic",
+				SubnetRef: "stale-subnet",
+				IpAddress: "10.99.99.99",
+				Primary:   true,
+			}.Build(),
+		})
+		Expect(t.bareMetalInstance.GetStatus().GetNetworkAttachmentStatuses()).To(HaveLen(1))
+
+		object := &bmfov1alpha1.BareMetalInstance{}
+		t.syncStatus(object)
+		Expect(t.bareMetalInstance.GetStatus().GetNetworkAttachmentStatuses()).To(BeEmpty())
+	})
+
 	It("should sync a single network attachment status from K8s CR", func() {
 		t := newTask(0)
 		object := &bmfov1alpha1.BareMetalInstance{
