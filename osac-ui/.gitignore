@@ -55,6 +55,7 @@ proxy/osac-proxy
 # an e2e test suite. Live session state and run output, never committed.
 apps/playwright/.auth/
 apps/playwright/test-results/
+/test-results/
 apps/playwright/playwright-report/
 apps/playwright/blob-report/
 

@@ -9,12 +9,15 @@ const renderPage = (activeTab: 'backends' | 'tiers') =>
   renderWithProviders(
     <Routes>
       <Route
-        path="/admin/storage/backends"
+        path="/admin/infrastructure/storage/backends"
         element={<StorageManagementPage activeTab="backends" />}
       />
-      <Route path="/admin/storage/tiers" element={<StorageManagementPage activeTab="tiers" />} />
+      <Route
+        path="/admin/infrastructure/storage/tiers"
+        element={<StorageManagementPage activeTab="tiers" />}
+      />
     </Routes>,
-    { routerEntries: [`/admin/storage/${activeTab}`] },
+    { routerEntries: [`/admin/infrastructure/storage/${activeTab}`] },
   );
 
 describe('StorageManagementPage', () => {
@@ -37,7 +40,7 @@ describe('StorageManagementPage', () => {
     expect(screen.getByRole('tabpanel')).toHaveTextContent('Storage tiers');
   });
 
-  it('navigates to /admin/storage/tiers when the Tiers tab is clicked', async () => {
+  it('navigates to /admin/infrastructure/storage/tiers when the Tiers tab is clicked', async () => {
     const { user } = renderPage('backends');
 
     await user.click(screen.getByRole('tab', { name: 'Tiers' }));
