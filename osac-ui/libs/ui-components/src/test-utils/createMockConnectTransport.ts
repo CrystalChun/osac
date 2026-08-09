@@ -184,7 +184,7 @@ export const createMockConnectTransport = (
   const securityGroups = fixtures.securityGroups ?? [];
   const instanceTypes = fixtures.instanceTypes ?? [];
   const privateInstanceTypes = fixtures.privateInstanceTypes ?? [];
-  const storageBackends = fixtures.storageBackends ?? [];
+  const storageBackends = [...(fixtures.storageBackends ?? [])];
   const storageTiers = fixtures.storageTiers ?? [];
 
   return wrapWithAuthInterceptor(

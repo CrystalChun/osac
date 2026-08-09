@@ -15,13 +15,15 @@ export const StorageBackendsListPage = () => {
 
   return (
     <>
-      <Flex justifyContent={{ default: 'justifyContentFlexEnd' }}>
-        <FlexItem>
-          <Button variant="primary" onClick={() => navigate('/admin/storage/backends/create')}>
-            {t('Create backend')}
-          </Button>
-        </FlexItem>
-      </Flex>
+      {!error && (
+        <Flex justifyContent={{ default: 'justifyContentFlexEnd' }}>
+          <FlexItem>
+            <Button variant="primary" onClick={() => navigate('/admin/storage/backends/create')}>
+              {t('Create backend')}
+            </Button>
+          </FlexItem>
+        </Flex>
+      )}
       <ListPageBody isLoading={isLoading} error={error}>
         {backends.length === 0 ? (
           <SubtleContent component="p">
