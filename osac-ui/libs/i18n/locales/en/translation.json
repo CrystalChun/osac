@@ -121,6 +121,7 @@
   "Could not load instance types": "Could not load instance types",
   "CPU cores": "CPU cores",
   "Create": "Create",
+  "Create an instance type to start defining provider-managed sizes.": "Create an instance type to start defining provider-managed sizes.",
   "Create cluster": "Create cluster",
   "Create cluster wizard": "Create cluster wizard",
   "Create identity provider": "Create identity provider",

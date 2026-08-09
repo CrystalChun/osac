@@ -26,7 +26,7 @@ export const InstanceTypeLifecycleLabel = ({ state }: InstanceTypeLifecycleLabel
       case InstanceTypeState.OBSOLETE:
         return { color: 'grey', text: t('Obsolete') };
       default:
-        return { color: 'grey', text: t('Unspecified') };
+        return { color: 'grey', text: state || '—' };
     }
   };
 

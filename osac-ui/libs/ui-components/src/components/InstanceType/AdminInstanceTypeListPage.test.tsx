@@ -121,7 +121,10 @@ describe('AdminInstanceTypeListPage', () => {
     renderPage();
 
     expect(screen.getByText('No instance types yet.')).toBeInTheDocument();
-    expect(screen.queryByRole('table')).not.toBeInTheDocument();
+    expect(
+      screen.getByText('Create an instance type to start defining provider-managed sizes.'),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('grid', { name: 'Instance types' })).toBeInTheDocument();
   });
 
   it('uses the page-level error state when the query fails', () => {
