@@ -339,7 +339,13 @@ export const createMockConnectTransport = (
           }
           return { object: req.object };
         },
-        delete: () => ({}),
+        delete: (req) => {
+          const index = storageBackends.findIndex((b) => b.id === req.id);
+          if (index !== -1) {
+            storageBackends.splice(index, 1);
+          }
+          return {};
+        },
       });
 
       router.service(StorageTiers, {
