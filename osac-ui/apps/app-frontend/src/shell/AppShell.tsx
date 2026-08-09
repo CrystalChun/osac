@@ -19,6 +19,7 @@ import { VmListPage } from '@osac/ui-components/pages/tenant/VmListPage';
 import { ShellMasthead } from './ShellMasthead';
 import { defaultRouteForRole } from './shellRoutes';
 import { ShellSidebar } from './ShellSidebar';
+import { StorageRoutes } from './StorageRoutes';
 import { TenantRoutes } from './TenantRoutes';
 
 const ShellRoute = ({ children }: { children: ReactNode }) => {
@@ -44,6 +45,14 @@ export const AppShell = ({ logout }: { logout: () => Promise<void> }) => {
           element={
             <ShellRoute>
               <TenantRoutes />
+            </ShellRoute>
+          }
+        />
+        <Route
+          path="/admin/storage/*"
+          element={
+            <ShellRoute>
+              <StorageRoutes />
             </ShellRoute>
           }
         />

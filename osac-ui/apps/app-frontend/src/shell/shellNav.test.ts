@@ -43,6 +43,13 @@ describe('navRowsForRole', () => {
     }
   });
 
+  it('includes Tenants and Storage under Administration for admin role', () => {
+    expect(findSection('admin', 'nav-administration')?.children).toEqual([
+      { id: 'tenant', label: 'Tenants', path: '/admin/tenants' },
+      { id: 'storage', label: 'Storage', path: '/admin/storage' },
+    ]);
+  });
+
   it('IDP administration shows up only for idp manager', () => {
     expect(findSection('tenant-idp-manager', 'nav-tenant-administration')).toBeDefined();
     for (const role of ['tenant-user', 'tenant-admin', 'admin'] as UserRole[]) {
