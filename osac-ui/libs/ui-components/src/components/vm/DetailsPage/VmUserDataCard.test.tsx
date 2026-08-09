@@ -15,7 +15,7 @@ const { useVmDetailsDisplay } = await import('./useVmDetailsDisplay');
 const catalogVm = {
   id: 'vm-1',
   spec: {
-    catalogItem: 'catalog-rhel-9',
+    catalogItem: { id: 'catalog-rhel-9' },
     userData: '#cloud-config\nusers: []',
   },
 } as ComputeInstance;
@@ -41,7 +41,7 @@ describe('VmUserDataCard', () => {
   it('renders nothing when user data is empty', () => {
     const { container } = renderCard({
       id: 'vm-1',
-      spec: { catalogItem: 'catalog-rhel-9', userData: '   ' },
+      spec: { catalogItem: { id: 'catalog-rhel-9' }, userData: '   ' },
     } as ComputeInstance);
     expect(container).toBeEmptyDOMElement();
   });

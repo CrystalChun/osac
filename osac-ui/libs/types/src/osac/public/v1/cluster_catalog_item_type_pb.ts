@@ -21,13 +21,15 @@ import type { FieldDefinition } from "./field_definition_type_pb";
 import { file_osac_public_v1_field_definition_type } from "./field_definition_type_pb";
 import type { Metadata } from "./metadata_type_pb";
 import { file_osac_public_v1_metadata_type } from "./metadata_type_pb";
+import type { ClusterTemplateReference } from "./cluster_type_pb";
+import { file_osac_public_v1_cluster_type } from "./cluster_type_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file osac/public/v1/cluster_catalog_item_type.proto.
  */
 export const file_osac_public_v1_cluster_catalog_item_type: GenFile = /*@__PURE__*/
-  fileDesc("Ci5vc2FjL3B1YmxpYy92MS9jbHVzdGVyX2NhdGFsb2dfaXRlbV90eXBlLnByb3RvEg5vc2FjLnB1YmxpYy52MSLRAQoSQ2x1c3RlckNhdGFsb2dJdGVtEgoKAmlkGAEgASgJEioKCG1ldGFkYXRhGAIgASgLMhgub3NhYy5wdWJsaWMudjEuTWV0YWRhdGESDQoFdGl0bGUYAyABKAkSEwoLZGVzY3JpcHRpb24YBCABKAkSEAoIdGVtcGxhdGUYBSABKAkSEQoJcHVibGlzaGVkGAYgASgIEjoKEWZpZWxkX2RlZmluaXRpb25zGAggAygLMh8ub3NhYy5wdWJsaWMudjEuRmllbGREZWZpbml0aW9uYgZwcm90bzM", [file_osac_public_v1_field_definition_type, file_osac_public_v1_metadata_type]);
+  fileDesc("Ci5vc2FjL3B1YmxpYy92MS9jbHVzdGVyX2NhdGFsb2dfaXRlbV90eXBlLnByb3RvEg5vc2FjLnB1YmxpYy52MSL7AQoSQ2x1c3RlckNhdGFsb2dJdGVtEgoKAmlkGAEgASgJEioKCG1ldGFkYXRhGAIgASgLMhgub3NhYy5wdWJsaWMudjEuTWV0YWRhdGESDQoFdGl0bGUYAyABKAkSEwoLZGVzY3JpcHRpb24YBCABKAkSOgoIdGVtcGxhdGUYBSABKAsyKC5vc2FjLnB1YmxpYy52MS5DbHVzdGVyVGVtcGxhdGVSZWZlcmVuY2USEQoJcHVibGlzaGVkGAYgASgIEjoKEWZpZWxkX2RlZmluaXRpb25zGAggAygLMh8ub3NhYy5wdWJsaWMudjEuRmllbGREZWZpbml0aW9uYgZwcm90bzM", [file_osac_public_v1_field_definition_type, file_osac_public_v1_metadata_type, file_osac_public_v1_cluster_type]);
 
 /**
  * A cluster catalog item defines a curated infrastructure offering that references an underlying cluster template.
@@ -65,11 +67,11 @@ export type ClusterCatalogItem = Message<"osac.public.v1.ClusterCatalogItem"> & 
   description: string;
 
   /**
-   * Identifier of the underlying cluster template that this catalog item references.
+   * Reference to the underlying cluster template that this catalog item references.
    *
-   * @generated from field: string template = 5;
+   * @generated from field: osac.public.v1.ClusterTemplateReference template = 5;
    */
-  template: string;
+  template?: ClusterTemplateReference | undefined;
 
   /**
    * Whether this catalog item is published.

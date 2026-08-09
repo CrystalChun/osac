@@ -43,7 +43,7 @@ const VmDetails = ({ vm }: Props) => {
     data: instanceType,
     isLoading: isInstanceTypeLoading,
     error: instanceTypeError,
-  } = useInstanceType(vm.spec?.instanceType);
+  } = useInstanceType(vm.spec?.instanceType?.id);
 
   return (
     <>

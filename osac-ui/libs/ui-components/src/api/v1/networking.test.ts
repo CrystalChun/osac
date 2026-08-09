@@ -31,49 +31,49 @@ describe('networking list filters', () => {
 
   it('combines virtual network scope and ready state for subnets', () => {
     expect(virtualNetworkFilterForSubnetList('vn-1')).toBe(
-      `(this.spec.virtual_network == "vn-1") && (this.status.state == ${SubnetState.READY})`,
+      `(this.spec.virtual_network.id == "vn-1") && (this.status.state == ${SubnetState.READY})`,
     );
   });
 
   it('escapes quotes in virtual network id when building subnet filter', () => {
     expect(virtualNetworkFilterForSubnetList('vn-"evil')).toBe(
-      `(this.spec.virtual_network == "vn-\\"evil") && (this.status.state == ${SubnetState.READY})`,
+      `(this.spec.virtual_network.id == "vn-\\"evil") && (this.status.state == ${SubnetState.READY})`,
     );
   });
 
   it('escapes CEL injection characters in virtual network id when building subnet filter', () => {
     expect(virtualNetworkFilterForSubnetList(`"'] || true || this.id in ['`)).toBe(
-      `(this.spec.virtual_network == "\\"'] || true || this.id in ['") && (this.status.state == ${SubnetState.READY})`,
+      `(this.spec.virtual_network.id == "\\"'] || true || this.id in ['") && (this.status.state == ${SubnetState.READY})`,
     );
   });
 
   it('combines virtual network scope and ready state for security groups', () => {
     expect(securityGroupFilterForVirtualNetworkList('vn-1')).toBe(
-      `(this.spec.virtual_network == "vn-1") && (this.status.state == ${SecurityGroupState.READY})`,
+      `(this.spec.virtual_network.id == "vn-1") && (this.status.state == ${SecurityGroupState.READY})`,
     );
   });
 
   it('filters security groups by virtual network id', () => {
     expect(securityGroupFilterForVirtualNetwork('vn-123')).toBe(
-      'this.spec.virtual_network == "vn-123"',
+      'this.spec.virtual_network.id == "vn-123"',
     );
   });
 
   it('escapes quotes in virtual network id for security group filter', () => {
     expect(securityGroupFilterForVirtualNetwork('vn-"evil')).toBe(
-      'this.spec.virtual_network == "vn-\\"evil"',
+      'this.spec.virtual_network.id == "vn-\\"evil"',
     );
   });
 
   it('escapes CEL injection in virtual network id for security group filter', () => {
     expect(securityGroupFilterForVirtualNetwork(`"'] || true || this.id in ['`)).toBe(
-      `this.spec.virtual_network == "\\"'] || true || this.id in ['"`,
+      `this.spec.virtual_network.id == "\\"'] || true || this.id in ['"`,
     );
   });
 
   it('escapes trailing backslash in virtual network id for security group filter', () => {
     expect(securityGroupFilterForVirtualNetwork('vn-\\')).toBe(
-      'this.spec.virtual_network == "vn-\\\\"',
+      'this.spec.virtual_network.id == "vn-\\\\"',
     );
   });
 });

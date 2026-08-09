@@ -27,8 +27,12 @@ export const buildComputeInstanceCreatePayload = (
   catalogItem: ComputeInstanceCatalogItem,
 ): MessageInitShape<typeof ComputeInstanceSchema> => {
   const spec: MessageInitShape<typeof ComputeInstanceSchema>['spec'] = {
-    catalogItem: catalogItem.id,
-    instanceType: values.spec.instanceType,
+    catalogItem: {
+      id: catalogItem.id,
+    },
+    instanceType: {
+      id: values.spec.instanceType,
+    },
     image: {
       sourceType: 'registry',
       sourceRef: values.spec.image.sourceRef.trim(),
@@ -36,8 +40,10 @@ export const buildComputeInstanceCreatePayload = (
     runStrategy: VM_CREATE_RUN_STRATEGY,
     networkAttachments: [
       {
-        subnet: values.spec.networking.subnet,
-        securityGroups: values.spec.networking.securityGroups,
+        subnet: {
+          id: values.spec.networking.subnet,
+        },
+        securityGroups: values.spec.networking.securityGroups.map((id) => ({ id })),
       },
     ],
   };

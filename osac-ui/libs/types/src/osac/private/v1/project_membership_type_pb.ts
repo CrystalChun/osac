@@ -19,13 +19,15 @@ import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2"
 import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import type { Metadata } from "./metadata_type_pb";
 import { file_osac_private_v1_metadata_type } from "./metadata_type_pb";
+import type { UserReference } from "./user_type_pb";
+import { file_osac_private_v1_user_type } from "./user_type_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file osac/private/v1/project_membership_type.proto.
  */
 export const file_osac_private_v1_project_membership_type: GenFile = /*@__PURE__*/
-  fileDesc("Ci1vc2FjL3ByaXZhdGUvdjEvcHJvamVjdF9tZW1iZXJzaGlwX3R5cGUucHJvdG8SD29zYWMucHJpdmF0ZS52MSK8AQoRUHJvamVjdE1lbWJlcnNoaXASCgoCaWQYASABKAkSKwoIbWV0YWRhdGEYAiABKAsyGS5vc2FjLnByaXZhdGUudjEuTWV0YWRhdGESNAoEc3BlYxgDIAEoCzImLm9zYWMucHJpdmF0ZS52MS5Qcm9qZWN0TWVtYmVyc2hpcFNwZWMSOAoGc3RhdHVzGAQgASgLMigub3NhYy5wcml2YXRlLnYxLlByb2plY3RNZW1iZXJzaGlwU3RhdHVzIlwKFVByb2plY3RNZW1iZXJzaGlwU3BlYxI0CgRyb2xlGAIgASgOMiYub3NhYy5wcml2YXRlLnYxLlByb2plY3RNZW1iZXJzaGlwUm9sZRINCgV1c2VycxgDIAMoCSKCAQoXUHJvamVjdE1lbWJlcnNoaXBTdGF0dXMSNgoFc3RhdGUYASABKA4yJy5vc2FjLnByaXZhdGUudjEuUHJvamVjdE1lbWJlcnNoaXBTdGF0ZRIUCgdtZXNzYWdlGAIgASgJSACIAQESDQoFdXNlcnMYAyADKAlCCgoIX21lc3NhZ2UqiQEKFVByb2plY3RNZW1iZXJzaGlwUm9sZRInCiNQUk9KRUNUX01FTUJFUlNISVBfUk9MRV9VTlNQRUNJRklFRBAAEiIKHlBST0pFQ1RfTUVNQkVSU0hJUF9ST0xFX1ZJRVdFUhABEiMKH1BST0pFQ1RfTUVNQkVSU0hJUF9ST0xFX01BTkFHRVIQAiqxAQoWUHJvamVjdE1lbWJlcnNoaXBTdGF0ZRIoCiRQUk9KRUNUX01FTUJFUlNISVBfU1RBVEVfVU5TUEVDSUZJRUQQABIkCiBQUk9KRUNUX01FTUJFUlNISVBfU1RBVEVfUEVORElORxABEiIKHlBST0pFQ1RfTUVNQkVSU0hJUF9TVEFURV9SRUFEWRACEiMKH1BST0pFQ1RfTUVNQkVSU0hJUF9TVEFURV9GQUlMRUQQA2IGcHJvdG8z", [file_osac_private_v1_metadata_type]);
+  fileDesc("Ci1vc2FjL3ByaXZhdGUvdjEvcHJvamVjdF9tZW1iZXJzaGlwX3R5cGUucHJvdG8SD29zYWMucHJpdmF0ZS52MSK8AQoRUHJvamVjdE1lbWJlcnNoaXASCgoCaWQYASABKAkSKwoIbWV0YWRhdGEYAiABKAsyGS5vc2FjLnByaXZhdGUudjEuTWV0YWRhdGESNAoEc3BlYxgDIAEoCzImLm9zYWMucHJpdmF0ZS52MS5Qcm9qZWN0TWVtYmVyc2hpcFNwZWMSOAoGc3RhdHVzGAQgASgLMigub3NhYy5wcml2YXRlLnYxLlByb2plY3RNZW1iZXJzaGlwU3RhdHVzInwKFVByb2plY3RNZW1iZXJzaGlwU3BlYxI0CgRyb2xlGAIgASgOMiYub3NhYy5wcml2YXRlLnYxLlByb2plY3RNZW1iZXJzaGlwUm9sZRItCgV1c2VycxgDIAMoCzIeLm9zYWMucHJpdmF0ZS52MS5Vc2VyUmVmZXJlbmNlIqIBChdQcm9qZWN0TWVtYmVyc2hpcFN0YXR1cxI2CgVzdGF0ZRgBIAEoDjInLm9zYWMucHJpdmF0ZS52MS5Qcm9qZWN0TWVtYmVyc2hpcFN0YXRlEhQKB21lc3NhZ2UYAiABKAlIAIgBARItCgV1c2VycxgDIAMoCzIeLm9zYWMucHJpdmF0ZS52MS5Vc2VyUmVmZXJlbmNlQgoKCF9tZXNzYWdlKokBChVQcm9qZWN0TWVtYmVyc2hpcFJvbGUSJwojUFJPSkVDVF9NRU1CRVJTSElQX1JPTEVfVU5TUEVDSUZJRUQQABIiCh5QUk9KRUNUX01FTUJFUlNISVBfUk9MRV9WSUVXRVIQARIjCh9QUk9KRUNUX01FTUJFUlNISVBfUk9MRV9NQU5BR0VSEAIqsQEKFlByb2plY3RNZW1iZXJzaGlwU3RhdGUSKAokUFJPSkVDVF9NRU1CRVJTSElQX1NUQVRFX1VOU1BFQ0lGSUVEEAASJAogUFJPSkVDVF9NRU1CRVJTSElQX1NUQVRFX1BFTkRJTkcQARIiCh5QUk9KRUNUX01FTUJFUlNISVBfU1RBVEVfUkVBRFkQAhIjCh9QUk9KRUNUX01FTUJFUlNISVBfU1RBVEVfRkFJTEVEEANiBnByb3RvMw", [file_osac_private_v1_metadata_type, file_osac_private_v1_user_type]);
 
 /**
  * ProjectMembership represents a member's association with a project and their role within it.
@@ -83,12 +85,11 @@ export type ProjectMembershipSpec = Message<"osac.private.v1.ProjectMembershipSp
   role: ProjectMembershipRole;
 
   /**
-   * Identifiers of the users that are members of the project. These are user identifiers (the `id` field of User
-   * objects), not usernames or email addresses.
+   * References to the users that are members of the project.
    *
-   * @generated from field: repeated string users = 3;
+   * @generated from field: repeated osac.private.v1.UserReference users = 3;
    */
-  users: string[];
+  users: UserReference[];
 };
 
 /**
@@ -120,13 +121,13 @@ export type ProjectMembershipStatus = Message<"osac.private.v1.ProjectMembership
   message?: string | undefined;
 
   /**
-   * List of user IDs that have been successfully synced to the identity provider. This tracks which users
+   * List of users that have been successfully synced to the identity provider. This tracks which users
    * currently have the role assigned, allowing the controller to detect when users are added or removed from
    * the membership.
    *
-   * @generated from field: repeated string users = 3;
+   * @generated from field: repeated osac.private.v1.UserReference users = 3;
    */
-  users: string[];
+  users: UserReference[];
 };
 
 /**

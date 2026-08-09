@@ -20,7 +20,7 @@ interface ClusterConfigurationCardProps {
 }
 
 export const ClusterConfigurationCard = ({ cluster }: ClusterConfigurationCardProps) => {
-  const catalogItemId = cluster.spec?.catalogItem;
+  const catalogItemId = cluster.spec?.catalogItem?.id;
   const { data: catalogItem, isLoading: isCatalogItemLoading } =
     useClusterCatalogItem(catalogItemId);
   return (
@@ -39,9 +39,9 @@ export const ClusterConfigurationCard = ({ cluster }: ClusterConfigurationCardPr
             </DescriptionListDescription>
           </DescriptionListGroup>
           <DescriptionListGroup>
-            <DescriptionListTerm>Release image</DescriptionListTerm>
+            <DescriptionListTerm>Version</DescriptionListTerm>
             <DescriptionListDescription>
-              {displayValue(cluster.spec?.releaseImage)}
+              {displayValue(cluster.spec?.version?.name)}
             </DescriptionListDescription>
           </DescriptionListGroup>
 

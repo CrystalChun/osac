@@ -1,9 +1,15 @@
 import type { ComponentProps } from 'react';
+import { create } from '@bufbuild/protobuf';
 import { screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 import type { ComputeInstance, InstanceType } from '@osac/types';
-import { ComputeInstanceState } from '@osac/types';
+import {
+  ComputeInstanceCatalogItemReferenceSchema,
+  ComputeInstanceState,
+  ComputeInstanceTemplateReferenceSchema,
+  InstanceTypeReferenceSchema,
+} from '@osac/types';
 
 import { VmTable } from './VmTable';
 import { renderWithProviders } from '../../test-utils/TestProviders';
@@ -48,11 +54,11 @@ const runningVm: ComputeInstance = {
   spec: {
     $typeName: 'osac.public.v1.ComputeInstanceSpec',
     additionalDisks: [],
-    catalogItem: '',
+    catalogItem: create(ComputeInstanceCatalogItemReferenceSchema, { id: '' }),
     networkAttachments: [],
-    template: '',
+    template: create(ComputeInstanceTemplateReferenceSchema, { id: '' }),
     templateParameters: {},
-    instanceType: 'standard-4-8',
+    instanceType: create(InstanceTypeReferenceSchema, { id: 'standard-4-8' }),
   },
   status: {
     $typeName: 'osac.public.v1.ComputeInstanceStatus',

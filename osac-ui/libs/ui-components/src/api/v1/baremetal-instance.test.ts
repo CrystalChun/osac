@@ -13,7 +13,7 @@ const makeBmi = (id: string) => ({
   id,
   metadata: { name: `bmi-${id}` },
   spec: {
-    catalogItem: 'catalog-1',
+    catalogItem: { id: 'catalog-1' },
     runStrategy: BareMetalInstanceRunStrategy.ALWAYS,
     restartTrigger: 0n,
   },

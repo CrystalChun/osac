@@ -1,7 +1,9 @@
+import { create } from '@bufbuild/protobuf';
 import { describe, expect, it } from 'vitest';
 import { ValidationError } from 'yup';
 
 import type { ComputeInstanceCatalogItem } from '@osac/types';
+import { ComputeInstanceTemplateReferenceSchema } from '@osac/types';
 import { tIdentity } from '@osac/ui-components/test-utils/i18n';
 
 import type { ComputeInstanceWizardValues } from './fields';
@@ -22,7 +24,10 @@ const vmCatalogItem: ComputeInstanceCatalogItem = {
   },
   title: 'RHEL 9 catalog',
   description: 'RHEL 9 base image',
-  template: 'tpl-rhel-9',
+  template: create(ComputeInstanceTemplateReferenceSchema, {
+    id: 'tpl-rhel-9',
+    name: 'tpl-rhel-9',
+  }),
   published: true,
   fieldDefinitions: [
     {

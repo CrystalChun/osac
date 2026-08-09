@@ -1,9 +1,15 @@
 import { MemoryRouter } from 'react-router-dom';
+import { create } from '@bufbuild/protobuf';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { Cluster, ClusterState } from '@osac/types';
+import {
+  Cluster,
+  ClusterCatalogItemReferenceSchema,
+  ClusterState,
+  ClusterTemplateReferenceSchema,
+} from '@osac/types';
 
 import ClusterDetailsActionButtons from './ClusterDetailsActionButtons';
 import * as clusterApi from '../../../api/v1/cluster';
@@ -42,10 +48,10 @@ const mockCluster = (state: ClusterState): Cluster => ({
   },
   spec: {
     $typeName: 'osac.public.v1.ClusterSpec',
-    template: '',
+    template: create(ClusterTemplateReferenceSchema, { id: '' }),
     templateParameters: {},
     nodeSets: {},
-    catalogItem: '',
+    catalogItem: create(ClusterCatalogItemReferenceSchema, { id: '' }),
   },
 });
 

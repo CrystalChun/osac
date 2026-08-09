@@ -18,7 +18,7 @@ vi.mock('../VmInstanceTypeLabel', () => ({
 
 const vm = {
   id: 'vm-1',
-  spec: { instanceType: 'standard-4-8' },
+  spec: { instanceType: { id: 'standard-4-8' } },
   status: { externalIpAddress: '203.0.113.1', internalIpAddress: '10.0.0.5' },
 } as ComputeInstance;
 

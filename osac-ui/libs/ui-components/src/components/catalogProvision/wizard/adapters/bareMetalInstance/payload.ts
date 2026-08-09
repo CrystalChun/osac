@@ -13,7 +13,9 @@ export const buildBareMetalInstanceCreatePayload = (
   const bmi = {
     metadata: { name: values.metadata.name.trim() },
     spec: {
-      catalogItem: values.catalogItemId,
+      catalogItem: {
+        id: values.catalogItemId,
+      },
       runStrategy: BareMetalInstanceRunStrategy.ALWAYS,
       ...(sshKey && { sshPublicKey: sshKey }),
       ...(userData && { userData }),

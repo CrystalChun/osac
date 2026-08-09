@@ -1,9 +1,15 @@
 import { Route, Routes } from 'react-router-dom';
+import { create } from '@bufbuild/protobuf';
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { UserEvent } from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 
 import type { Cluster, ClusterCatalogItem, ClustersCreateResponse } from '@osac/types';
+import {
+  ClusterCatalogItemReferenceSchema,
+  ClusterTemplateReferenceSchema,
+  HostTypeReferenceSchema,
+} from '@osac/types';
 
 import { ClusterCreatePage } from './ClusterCreatePage';
 import type { MockApiFixtures } from '../../test-utils/createMockConnectTransport';
@@ -66,7 +72,7 @@ const clusterCatalogItem: ClusterCatalogItem = {
   },
   title: 'OpenShift 4 cluster',
   description: 'Standard OpenShift cluster offering',
-  template: 'tpl-openshift-4',
+  template: create(ClusterTemplateReferenceSchema, { id: 'tpl-openshift-4' }),
   published: true,
   fieldDefinitions: [
     {
@@ -98,9 +104,9 @@ const createdCluster: Cluster = {
   },
   spec: {
     $typeName: 'osac.public.v1.ClusterSpec',
-    catalogItem: clusterCatalogItem.id,
+    catalogItem: create(ClusterCatalogItemReferenceSchema, { id: clusterCatalogItem.id }),
     nodeSets: {},
-    template: '',
+    template: undefined,
     templateParameters: {},
   },
 };
@@ -124,7 +130,7 @@ const apiFixtures: MockApiFixtures = {
       nodeSets: {
         compute: {
           $typeName: 'osac.public.v1.ClusterTemplateNodeSet',
-          hostType: 'acme_1tb',
+          hostType: create(HostTypeReferenceSchema, { id: 'acme_1tb' }),
           size: 3,
         },
       },

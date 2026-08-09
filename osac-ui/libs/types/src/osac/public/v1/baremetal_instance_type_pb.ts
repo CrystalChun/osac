@@ -27,13 +27,17 @@ import type { ConditionStatus } from "./condition_status_type_pb";
 import { file_osac_public_v1_condition_status_type } from "./condition_status_type_pb";
 import type { Metadata } from "./metadata_type_pb";
 import { file_osac_public_v1_metadata_type } from "./metadata_type_pb";
+import type { SecurityGroupLocalReference } from "./security_group_type_pb";
+import { file_osac_public_v1_security_group_type } from "./security_group_type_pb";
+import type { SubnetLocalReference } from "./subnet_type_pb";
+import { file_osac_public_v1_subnet_type } from "./subnet_type_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file osac/public/v1/baremetal_instance_type.proto.
  */
 export const file_osac_public_v1_baremetal_instance_type: GenFile = /*@__PURE__*/
-  fileDesc("Cixvc2FjL3B1YmxpYy92MS9iYXJlbWV0YWxfaW5zdGFuY2VfdHlwZS5wcm90bxIOb3NhYy5wdWJsaWMudjEiQQoWQmFyZU1ldGFsSW5zdGFuY2VJbWFnZRITCgtzb3VyY2VfdHlwZRgBIAEoCRISCgpzb3VyY2VfcmVmGAIgASgJIrkBChFCYXJlTWV0YWxJbnN0YW5jZRIKCgJpZBgBIAEoCRIqCghtZXRhZGF0YRgCIAEoCzIYLm9zYWMucHVibGljLnYxLk1ldGFkYXRhEjMKBHNwZWMYAyABKAsyJS5vc2FjLnB1YmxpYy52MS5CYXJlTWV0YWxJbnN0YW5jZVNwZWMSNwoGc3RhdHVzGAQgASgLMicub3NhYy5wdWJsaWMudjEuQmFyZU1ldGFsSW5zdGFuY2VTdGF0dXMinAEKGkJhcmVNZXRhbE5ldHdvcmtBdHRhY2htZW50EhMKBnN1Ym5ldBgBIAEoCUID4EEFEhcKD3NlY3VyaXR5X2dyb3VwcxgCIAMoCRIbCglpbnRlcmZhY2UYAyABKAlCA+BBBUgAiAEBEhkKB3ByaW1hcnkYBCABKAhCA+BBBUgBiAEBQgwKCl9pbnRlcmZhY2VCCgoIX3ByaW1hcnki7QYKFUJhcmVNZXRhbEluc3RhbmNlU3BlYxIZCgxjYXRhbG9nX2l0ZW0YASABKAlCA+BBBRIgCg5zc2hfcHVibGljX2tleRgCIAEoCUID4EEFSACIAQESGwoJdXNlcl9kYXRhGAMgASgJQgPgQQVIAYgBARJHCgxydW5fc3RyYXRlZ3kYBCABKA4yLC5vc2FjLnB1YmxpYy52MS5CYXJlTWV0YWxJbnN0YW5jZVJ1blN0cmF0ZWd5SAKIAQESFwoPcmVzdGFydF90cmlnZ2VyGAUgASgDEl8KE3RlbXBsYXRlX3BhcmFtZXRlcnMYBiADKAsyPS5vc2FjLnB1YmxpYy52MS5CYXJlTWV0YWxJbnN0YW5jZVNwZWMuVGVtcGxhdGVQYXJhbWV0ZXJzRW50cnlCA+BBBRI/CgVpbWFnZRgHIAEoCzImLm9zYWMucHVibGljLnYxLkJhcmVNZXRhbEluc3RhbmNlSW1hZ2VCA+BBBUgDiAEBEkcKE25ldHdvcmtfYXR0YWNobWVudHMYCCADKAsyKi5vc2FjLnB1YmxpYy52MS5CYXJlTWV0YWxOZXR3b3JrQXR0YWNobWVudBIoChthdXRvX2V4dGVybmFsX2lwX2F0dGFjaG1lbnQYCSABKAhCA+BBBRpPChdUZW1wbGF0ZVBhcmFtZXRlcnNFbnRyeRILCgNrZXkYASABKAkSIwoFdmFsdWUYAiABKAsyFC5nb29nbGUucHJvdG9idWYuQW55OgI4ATr1AbpI8QEa7gEKJWJhcmVtZXRhbF9pbnN0YW5jZV9wcmltYXJ5X2F0dGFjaG1lbnQSWndoZW4gbXVsdGlwbGUgbmV0d29yayBhdHRhY2htZW50cyBhcmUgc3BlY2lmaWVkLCBleGFjdGx5IG9uZSBtdXN0IGhhdmUgcHJpbWFyeSBzZXQgdG8gdHJ1ZRppdGhpcy5uZXR3b3JrX2F0dGFjaG1lbnRzLnNpemUoKSA8PSAxIHx8IHRoaXMubmV0d29ya19hdHRhY2htZW50cy5maWx0ZXIoYSwgYS5wcmltYXJ5ID09IHRydWUpLnNpemUoKSA9PSAxQhEKD19zc2hfcHVibGljX2tleUIMCgpfdXNlcl9kYXRhQg8KDV9ydW5fc3RyYXRlZ3lCCAoGX2ltYWdlIqkBChdCYXJlTWV0YWxJbnN0YW5jZVN0YXR1cxI1CgVzdGF0ZRgBIAEoDjImLm9zYWMucHVibGljLnYxLkJhcmVNZXRhbEluc3RhbmNlU3RhdGUSPgoKY29uZGl0aW9ucxgCIAMoCzIqLm9zYWMucHVibGljLnYxLkJhcmVNZXRhbEluc3RhbmNlQ29uZGl0aW9uEhcKD3Jlc3RhcnRfdHJpZ2dlchgDIAEoAyKHAgoaQmFyZU1ldGFsSW5zdGFuY2VDb25kaXRpb24SPAoEdHlwZRgBIAEoDjIuLm9zYWMucHVibGljLnYxLkJhcmVNZXRhbEluc3RhbmNlQ29uZGl0aW9uVHlwZRIvCgZzdGF0dXMYAiABKA4yHy5vc2FjLnB1YmxpYy52MS5Db25kaXRpb25TdGF0dXMSOAoUbGFzdF90cmFuc2l0aW9uX3RpbWUYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhMKBnJlYXNvbhgEIAEoCUgAiAEBEhQKB21lc3NhZ2UYBSABKAlIAYgBAUIJCgdfcmVhc29uQgoKCF9tZXNzYWdlKqoBChxCYXJlTWV0YWxJbnN0YW5jZVJ1blN0cmF0ZWd5EjAKLEJBUkVfTUVUQUxfSU5TVEFOQ0VfUlVOX1NUUkFURUdZX1VOU1BFQ0lGSUVEEAASKwonQkFSRV9NRVRBTF9JTlNUQU5DRV9SVU5fU1RSQVRFR1lfQUxXQVlTEAESKwonQkFSRV9NRVRBTF9JTlNUQU5DRV9SVU5fU1RSQVRFR1lfSEFMVEVEEAIq2wIKFkJhcmVNZXRhbEluc3RhbmNlU3RhdGUSKQolQkFSRV9NRVRBTF9JTlNUQU5DRV9TVEFURV9VTlNQRUNJRklFRBAAEioKJkJBUkVfTUVUQUxfSU5TVEFOQ0VfU1RBVEVfUFJPVklTSU9OSU5HEAESJQohQkFSRV9NRVRBTF9JTlNUQU5DRV9TVEFURV9SVU5OSU5HEAISJAogQkFSRV9NRVRBTF9JTlNUQU5DRV9TVEFURV9GQUlMRUQQAxImCiJCQVJFX01FVEFMX0lOU1RBTkNFX1NUQVRFX0RFTEVUSU5HEAQSJgoiQkFSRV9NRVRBTF9JTlNUQU5DRV9TVEFURV9TVEFSVElORxAFEiYKIkJBUkVfTUVUQUxfSU5TVEFOQ0VfU1RBVEVfU1RPUFBJTkcQBhIlCiFCQVJFX01FVEFMX0lOU1RBTkNFX1NUQVRFX1NUT1BQRUQQByqgAwoeQmFyZU1ldGFsSW5zdGFuY2VDb25kaXRpb25UeXBlEjIKLkJBUkVfTUVUQUxfSU5TVEFOQ0VfQ09ORElUSU9OX1RZUEVfVU5TUEVDSUZJRUQQABIyCi5CQVJFX01FVEFMX0lOU1RBTkNFX0NPTkRJVElPTl9UWVBFX1BST1ZJU0lPTkVEEAESPAo4QkFSRV9NRVRBTF9JTlNUQU5DRV9DT05ESVRJT05fVFlQRV9DT05GSUdVUkFUSU9OX0FQUExJRUQQAhIsCihCQVJFX01FVEFMX0lOU1RBTkNFX0NPTkRJVElPTl9UWVBFX1JFQURZEAMSOgo2QkFSRV9NRVRBTF9JTlNUQU5DRV9DT05ESVRJT05fVFlQRV9SRVNUQVJUX0lOX1BST0dSRVNTEAQSNQoxQkFSRV9NRVRBTF9JTlNUQU5DRV9DT05ESVRJT05fVFlQRV9SRVNUQVJUX0ZBSUxFRBAFEjcKM0JBUkVfTUVUQUxfSU5TVEFOQ0VfQ09ORElUSU9OX1RZUEVfUkVTVEFSVF9SRVFVSVJFRBAGYgZwcm90bzM", [file_buf_validate_validate, file_google_api_field_behavior, file_google_protobuf_any, file_google_protobuf_timestamp, file_osac_public_v1_condition_status_type, file_osac_public_v1_metadata_type]);
+  fileDesc("Cixvc2FjL3B1YmxpYy92MS9iYXJlbWV0YWxfaW5zdGFuY2VfdHlwZS5wcm90bxIOb3NhYy5wdWJsaWMudjEiQQoWQmFyZU1ldGFsSW5zdGFuY2VJbWFnZRITCgtzb3VyY2VfdHlwZRgBIAEoCRISCgpzb3VyY2VfcmVmGAIgASgJIrkBChFCYXJlTWV0YWxJbnN0YW5jZRIKCgJpZBgBIAEoCRIqCghtZXRhZGF0YRgCIAEoCzIYLm9zYWMucHVibGljLnYxLk1ldGFkYXRhEjMKBHNwZWMYAyABKAsyJS5vc2FjLnB1YmxpYy52MS5CYXJlTWV0YWxJbnN0YW5jZVNwZWMSNwoGc3RhdHVzGAQgASgLMicub3NhYy5wdWJsaWMudjEuQmFyZU1ldGFsSW5zdGFuY2VTdGF0dXMi7wEKGkJhcmVNZXRhbE5ldHdvcmtBdHRhY2htZW50EjkKBnN1Ym5ldBgBIAEoCzIkLm9zYWMucHVibGljLnYxLlN1Ym5ldExvY2FsUmVmZXJlbmNlQgPgQQUSRAoPc2VjdXJpdHlfZ3JvdXBzGAIgAygLMisub3NhYy5wdWJsaWMudjEuU2VjdXJpdHlHcm91cExvY2FsUmVmZXJlbmNlEhsKCWludGVyZmFjZRgDIAEoCUID4EEFSACIAQESGQoHcHJpbWFyeRgEIAEoCEID4EEFSAGIAQFCDAoKX2ludGVyZmFjZUIKCghfcHJpbWFyeSKkBwoVQmFyZU1ldGFsSW5zdGFuY2VTcGVjElAKDGNhdGFsb2dfaXRlbRgBIAEoCzI1Lm9zYWMucHVibGljLnYxLkJhcmVNZXRhbEluc3RhbmNlQ2F0YWxvZ0l0ZW1SZWZlcmVuY2VCA+BBBRIgCg5zc2hfcHVibGljX2tleRgCIAEoCUID4EEFSACIAQESGwoJdXNlcl9kYXRhGAMgASgJQgPgQQVIAYgBARJHCgxydW5fc3RyYXRlZ3kYBCABKA4yLC5vc2FjLnB1YmxpYy52MS5CYXJlTWV0YWxJbnN0YW5jZVJ1blN0cmF0ZWd5SAKIAQESFwoPcmVzdGFydF90cmlnZ2VyGAUgASgDEl8KE3RlbXBsYXRlX3BhcmFtZXRlcnMYBiADKAsyPS5vc2FjLnB1YmxpYy52MS5CYXJlTWV0YWxJbnN0YW5jZVNwZWMuVGVtcGxhdGVQYXJhbWV0ZXJzRW50cnlCA+BBBRI/CgVpbWFnZRgHIAEoCzImLm9zYWMucHVibGljLnYxLkJhcmVNZXRhbEluc3RhbmNlSW1hZ2VCA+BBBUgDiAEBEkcKE25ldHdvcmtfYXR0YWNobWVudHMYCCADKAsyKi5vc2FjLnB1YmxpYy52MS5CYXJlTWV0YWxOZXR3b3JrQXR0YWNobWVudBIoChthdXRvX2V4dGVybmFsX2lwX2F0dGFjaG1lbnQYCSABKAhCA+BBBRpPChdUZW1wbGF0ZVBhcmFtZXRlcnNFbnRyeRILCgNrZXkYASABKAkSIwoFdmFsdWUYAiABKAsyFC5nb29nbGUucHJvdG9idWYuQW55OgI4ATr1AbpI8QEa7gEKJWJhcmVtZXRhbF9pbnN0YW5jZV9wcmltYXJ5X2F0dGFjaG1lbnQSWndoZW4gbXVsdGlwbGUgbmV0d29yayBhdHRhY2htZW50cyBhcmUgc3BlY2lmaWVkLCBleGFjdGx5IG9uZSBtdXN0IGhhdmUgcHJpbWFyeSBzZXQgdG8gdHJ1ZRppdGhpcy5uZXR3b3JrX2F0dGFjaG1lbnRzLnNpemUoKSA8PSAxIHx8IHRoaXMubmV0d29ya19hdHRhY2htZW50cy5maWx0ZXIoYSwgYS5wcmltYXJ5ID09IHRydWUpLnNpemUoKSA9PSAxQhEKD19zc2hfcHVibGljX2tleUIMCgpfdXNlcl9kYXRhQg8KDV9ydW5fc3RyYXRlZ3lCCAoGX2ltYWdlIqkBChdCYXJlTWV0YWxJbnN0YW5jZVN0YXR1cxI1CgVzdGF0ZRgBIAEoDjImLm9zYWMucHVibGljLnYxLkJhcmVNZXRhbEluc3RhbmNlU3RhdGUSPgoKY29uZGl0aW9ucxgCIAMoCzIqLm9zYWMucHVibGljLnYxLkJhcmVNZXRhbEluc3RhbmNlQ29uZGl0aW9uEhcKD3Jlc3RhcnRfdHJpZ2dlchgDIAEoAyKHAgoaQmFyZU1ldGFsSW5zdGFuY2VDb25kaXRpb24SPAoEdHlwZRgBIAEoDjIuLm9zYWMucHVibGljLnYxLkJhcmVNZXRhbEluc3RhbmNlQ29uZGl0aW9uVHlwZRIvCgZzdGF0dXMYAiABKA4yHy5vc2FjLnB1YmxpYy52MS5Db25kaXRpb25TdGF0dXMSOAoUbGFzdF90cmFuc2l0aW9uX3RpbWUYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhMKBnJlYXNvbhgEIAEoCUgAiAEBEhQKB21lc3NhZ2UYBSABKAlIAYgBAUIJCgdfcmVhc29uQgoKCF9tZXNzYWdlIjsKH0JhcmVNZXRhbEluc3RhbmNlTG9jYWxSZWZlcmVuY2USCgoCaWQYASABKAkSDAoEbmFtZRgCIAEoCSJiCiVCYXJlTWV0YWxJbnN0YW5jZUNhdGFsb2dJdGVtUmVmZXJlbmNlEgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkSDwoHcHJvamVjdBgDIAEoCRIOCgZzaGFyZWQYBCABKAgqqgEKHEJhcmVNZXRhbEluc3RhbmNlUnVuU3RyYXRlZ3kSMAosQkFSRV9NRVRBTF9JTlNUQU5DRV9SVU5fU1RSQVRFR1lfVU5TUEVDSUZJRUQQABIrCidCQVJFX01FVEFMX0lOU1RBTkNFX1JVTl9TVFJBVEVHWV9BTFdBWVMQARIrCidCQVJFX01FVEFMX0lOU1RBTkNFX1JVTl9TVFJBVEVHWV9IQUxURUQQAirbAgoWQmFyZU1ldGFsSW5zdGFuY2VTdGF0ZRIpCiVCQVJFX01FVEFMX0lOU1RBTkNFX1NUQVRFX1VOU1BFQ0lGSUVEEAASKgomQkFSRV9NRVRBTF9JTlNUQU5DRV9TVEFURV9QUk9WSVNJT05JTkcQARIlCiFCQVJFX01FVEFMX0lOU1RBTkNFX1NUQVRFX1JVTk5JTkcQAhIkCiBCQVJFX01FVEFMX0lOU1RBTkNFX1NUQVRFX0ZBSUxFRBADEiYKIkJBUkVfTUVUQUxfSU5TVEFOQ0VfU1RBVEVfREVMRVRJTkcQBBImCiJCQVJFX01FVEFMX0lOU1RBTkNFX1NUQVRFX1NUQVJUSU5HEAUSJgoiQkFSRV9NRVRBTF9JTlNUQU5DRV9TVEFURV9TVE9QUElORxAGEiUKIUJBUkVfTUVUQUxfSU5TVEFOQ0VfU1RBVEVfU1RPUFBFRBAHKqADCh5CYXJlTWV0YWxJbnN0YW5jZUNvbmRpdGlvblR5cGUSMgouQkFSRV9NRVRBTF9JTlNUQU5DRV9DT05ESVRJT05fVFlQRV9VTlNQRUNJRklFRBAAEjIKLkJBUkVfTUVUQUxfSU5TVEFOQ0VfQ09ORElUSU9OX1RZUEVfUFJPVklTSU9ORUQQARI8CjhCQVJFX01FVEFMX0lOU1RBTkNFX0NPTkRJVElPTl9UWVBFX0NPTkZJR1VSQVRJT05fQVBQTElFRBACEiwKKEJBUkVfTUVUQUxfSU5TVEFOQ0VfQ09ORElUSU9OX1RZUEVfUkVBRFkQAxI6CjZCQVJFX01FVEFMX0lOU1RBTkNFX0NPTkRJVElPTl9UWVBFX1JFU1RBUlRfSU5fUFJPR1JFU1MQBBI1CjFCQVJFX01FVEFMX0lOU1RBTkNFX0NPTkRJVElPTl9UWVBFX1JFU1RBUlRfRkFJTEVEEAUSNwozQkFSRV9NRVRBTF9JTlNUQU5DRV9DT05ESVRJT05fVFlQRV9SRVNUQVJUX1JFUVVJUkVEEAZiBnByb3RvMw", [file_buf_validate_validate, file_google_api_field_behavior, file_google_protobuf_any, file_google_protobuf_timestamp, file_osac_public_v1_condition_status_type, file_osac_public_v1_metadata_type, file_osac_public_v1_security_group_type, file_osac_public_v1_subnet_type]);
 
 /**
  * Contains the image configuration for a bare metal instance.
@@ -110,19 +114,19 @@ export const BareMetalInstanceSchema: GenMessage<BareMetalInstance> = /*@__PURE_
  */
 export type BareMetalNetworkAttachment = Message<"osac.public.v1.BareMetalNetworkAttachment"> & {
   /**
-   * Fulfillment Subnet ID. Must reference a Subnet in READY state.
+   * Reference to the Subnet. Must reference a Subnet in READY state.
    *
-   * @generated from field: string subnet = 1;
+   * @generated from field: osac.public.v1.SubnetLocalReference subnet = 1;
    */
-  subnet: string;
+  subnet?: SubnetLocalReference | undefined;
 
   /**
-   * Fulfillment SecurityGroup IDs applied on this NIC.
+   * References to the SecurityGroups applied on this NIC.
    * Each must be READY and belong to the same VirtualNetwork as the subnet.
    *
-   * @generated from field: repeated string security_groups = 2;
+   * @generated from field: repeated osac.public.v1.SecurityGroupLocalReference security_groups = 2;
    */
-  securityGroups: string[];
+  securityGroups: SecurityGroupLocalReference[];
 
   /**
    * Physical interface name from the HostType's NetworkInterface list.
@@ -157,9 +161,9 @@ export type BareMetalInstanceSpec = Message<"osac.public.v1.BareMetalInstanceSpe
   /**
    * Reference to the BareMetalInstanceCatalogItem. Required on create; immutable after creation.
    *
-   * @generated from field: string catalog_item = 1;
+   * @generated from field: osac.public.v1.BareMetalInstanceCatalogItemReference catalog_item = 1;
    */
-  catalogItem: string;
+  catalogItem?: BareMetalInstanceCatalogItemReference | undefined;
 
   /**
    * SSH public key injected into the OS at provisioning time. Immutable after creation.
@@ -344,6 +348,64 @@ export type BareMetalInstanceCondition = Message<"osac.public.v1.BareMetalInstan
  */
 export const BareMetalInstanceConditionSchema: GenMessage<BareMetalInstanceCondition> = /*@__PURE__*/
   messageDesc(file_osac_public_v1_baremetal_instance_type, 5);
+
+/**
+ * Local reference to a BareMetalInstance resource.
+ *
+ * @generated from message osac.public.v1.BareMetalInstanceLocalReference
+ */
+export type BareMetalInstanceLocalReference = Message<"osac.public.v1.BareMetalInstanceLocalReference"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string name = 2;
+   */
+  name: string;
+};
+
+/**
+ * Describes the message osac.public.v1.BareMetalInstanceLocalReference.
+ * Use `create(BareMetalInstanceLocalReferenceSchema)` to create a new message.
+ */
+export const BareMetalInstanceLocalReferenceSchema: GenMessage<BareMetalInstanceLocalReference> = /*@__PURE__*/
+  messageDesc(file_osac_public_v1_baremetal_instance_type, 6);
+
+/**
+ * Reference to a BareMetalInstanceCatalogItem resource.
+ *
+ * @generated from message osac.public.v1.BareMetalInstanceCatalogItemReference
+ */
+export type BareMetalInstanceCatalogItemReference = Message<"osac.public.v1.BareMetalInstanceCatalogItemReference"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string name = 2;
+   */
+  name: string;
+
+  /**
+   * @generated from field: string project = 3;
+   */
+  project: string;
+
+  /**
+   * @generated from field: bool shared = 4;
+   */
+  shared: boolean;
+};
+
+/**
+ * Describes the message osac.public.v1.BareMetalInstanceCatalogItemReference.
+ * Use `create(BareMetalInstanceCatalogItemReferenceSchema)` to create a new message.
+ */
+export const BareMetalInstanceCatalogItemReferenceSchema: GenMessage<BareMetalInstanceCatalogItemReference> = /*@__PURE__*/
+  messageDesc(file_osac_public_v1_baremetal_instance_type, 7);
 
 /**
  * Run strategy for the bare metal instance.

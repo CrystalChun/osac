@@ -21,13 +21,15 @@ import type { FieldDefinition } from "./field_definition_type_pb";
 import { file_osac_private_v1_field_definition_type } from "./field_definition_type_pb";
 import type { Metadata } from "./metadata_type_pb";
 import { file_osac_private_v1_metadata_type } from "./metadata_type_pb";
+import type { BareMetalInstanceTemplateReference } from "./baremetal_instance_template_type_pb";
+import { file_osac_private_v1_baremetal_instance_template_type } from "./baremetal_instance_template_type_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file osac/private/v1/baremetal_instance_catalog_item_type.proto.
  */
 export const file_osac_private_v1_baremetal_instance_catalog_item_type: GenFile = /*@__PURE__*/
-  fileDesc("Cjpvc2FjL3ByaXZhdGUvdjEvYmFyZW1ldGFsX2luc3RhbmNlX2NhdGFsb2dfaXRlbV90eXBlLnByb3RvEg9vc2FjLnByaXZhdGUudjEi7QEKHEJhcmVNZXRhbEluc3RhbmNlQ2F0YWxvZ0l0ZW0SCgoCaWQYASABKAkSKwoIbWV0YWRhdGEYAiABKAsyGS5vc2FjLnByaXZhdGUudjEuTWV0YWRhdGESDQoFdGl0bGUYAyABKAkSEwoLZGVzY3JpcHRpb24YBCABKAkSEAoIdGVtcGxhdGUYBSABKAkSEQoJcHVibGlzaGVkGAYgASgIEg4KBnRlbmFudBgHIAEoCRI7ChFmaWVsZF9kZWZpbml0aW9ucxgIIAMoCzIgLm9zYWMucHJpdmF0ZS52MS5GaWVsZERlZmluaXRpb25iBnByb3RvMw", [file_osac_private_v1_field_definition_type, file_osac_private_v1_metadata_type]);
+  fileDesc("Cjpvc2FjL3ByaXZhdGUvdjEvYmFyZW1ldGFsX2luc3RhbmNlX2NhdGFsb2dfaXRlbV90eXBlLnByb3RvEg9vc2FjLnByaXZhdGUudjEiogIKHEJhcmVNZXRhbEluc3RhbmNlQ2F0YWxvZ0l0ZW0SCgoCaWQYASABKAkSKwoIbWV0YWRhdGEYAiABKAsyGS5vc2FjLnByaXZhdGUudjEuTWV0YWRhdGESDQoFdGl0bGUYAyABKAkSEwoLZGVzY3JpcHRpb24YBCABKAkSRQoIdGVtcGxhdGUYBSABKAsyMy5vc2FjLnByaXZhdGUudjEuQmFyZU1ldGFsSW5zdGFuY2VUZW1wbGF0ZVJlZmVyZW5jZRIRCglwdWJsaXNoZWQYBiABKAgSDgoGdGVuYW50GAcgASgJEjsKEWZpZWxkX2RlZmluaXRpb25zGAggAygLMiAub3NhYy5wcml2YXRlLnYxLkZpZWxkRGVmaW5pdGlvbmIGcHJvdG8z", [file_osac_private_v1_field_definition_type, file_osac_private_v1_metadata_type, file_osac_private_v1_baremetal_instance_template_type]);
 
 /**
  * A bare metal instance catalog item defines a curated hardware offering that references an underlying bare metal
@@ -65,11 +67,11 @@ export type BareMetalInstanceCatalogItem = Message<"osac.private.v1.BareMetalIns
   description: string;
 
   /**
-   * Identifier of the underlying bare metal instance template that this catalog item references.
+   * Reference to the underlying bare metal instance template that this catalog item references.
    *
-   * @generated from field: string template = 5;
+   * @generated from field: osac.private.v1.BareMetalInstanceTemplateReference template = 5;
    */
-  template: string;
+  template?: BareMetalInstanceTemplateReference | undefined;
 
   /**
    * Whether this catalog item is published and visible to tenants.

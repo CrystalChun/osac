@@ -1,10 +1,16 @@
 import { Route, Routes } from 'react-router-dom';
+import { create } from '@bufbuild/protobuf';
 import { Code, ConnectError, createRouterTransport } from '@connectrpc/connect';
 import { screen, waitFor } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
 import type { ClusterCatalogItem, ComputeInstanceCatalogItem } from '@osac/types';
-import { ClusterCatalogItems, ComputeInstanceCatalogItems } from '@osac/types';
+import {
+  ClusterCatalogItems,
+  ClusterTemplateReferenceSchema,
+  ComputeInstanceCatalogItems,
+  ComputeInstanceTemplateReferenceSchema,
+} from '@osac/types';
 
 import CatalogPage from './CatalogPage';
 import { wrapWithAuthInterceptor } from '../../test-utils/createMockConnectTransport';
@@ -25,7 +31,7 @@ const vmCatalogItem: ComputeInstanceCatalogItem = {
   },
   title: 'RHEL 9 catalog',
   description: 'RHEL 9 base image',
-  template: 'tpl-rhel-9',
+  template: create(ComputeInstanceTemplateReferenceSchema, { id: 'tpl-rhel-9' }),
   published: true,
   fieldDefinitions: [
     {
@@ -47,6 +53,7 @@ const unpublishedCatalogItem: ClusterCatalogItem = {
   $typeName: 'osac.public.v1.ClusterCatalogItem',
   id: 'catalog-unpublished',
   title: 'Unpublished catalog',
+  template: create(ClusterTemplateReferenceSchema, { id: 'tpl-rhel-9' }),
   published: false,
 };
 
@@ -65,7 +72,7 @@ const clusterCatalogItem: ClusterCatalogItem = {
   },
   title: 'OpenShift 4 cluster',
   description: 'Standard OpenShift cluster offering',
-  template: 'tpl-openshift-4',
+  template: create(ClusterTemplateReferenceSchema, { id: 'tpl-openshift-4' }),
   published: true,
   fieldDefinitions: [],
 };

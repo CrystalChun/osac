@@ -20,13 +20,15 @@ import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_google_api_field_behavior } from "../../../google/api/field_behavior_pb";
 import type { Metadata } from "./metadata_type_pb";
 import { file_osac_private_v1_metadata_type } from "./metadata_type_pb";
+import type { ExternalIPPoolReference } from "./external_ip_pool_type_pb";
+import { file_osac_private_v1_external_ip_pool_type } from "./external_ip_pool_type_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file osac/private/v1/external_ip_type.proto.
  */
 export const file_osac_private_v1_external_ip_type: GenFile = /*@__PURE__*/
-  fileDesc("CiZvc2FjL3ByaXZhdGUvdjEvZXh0ZXJuYWxfaXBfdHlwZS5wcm90bxIPb3NhYy5wcml2YXRlLnYxIqcBCgpFeHRlcm5hbElQEgoKAmlkGAEgASgJEisKCG1ldGFkYXRhGAIgASgLMhkub3NhYy5wcml2YXRlLnYxLk1ldGFkYXRhEi0KBHNwZWMYAyABKAsyHy5vc2FjLnByaXZhdGUudjEuRXh0ZXJuYWxJUFNwZWMSMQoGc3RhdHVzGAQgASgLMiEub3NhYy5wcml2YXRlLnYxLkV4dGVybmFsSVBTdGF0dXMiJgoORXh0ZXJuYWxJUFNwZWMSFAoEcG9vbBgBIAEoCUIG4EEC4EEFIsEBChBFeHRlcm5hbElQU3RhdHVzEjQKBXN0YXRlGAEgASgOMiAub3NhYy5wcml2YXRlLnYxLkV4dGVybmFsSVBTdGF0ZUID4EEDEhkKB21lc3NhZ2UYAiABKAlCA+BBA0gAiAEBEhAKA2h1YhgDIAEoCUID4EEDEhQKB2FkZHJlc3MYBCABKAlCA+BBAxIRCgRwb29sGAUgASgJQgPgQQMSFQoIYXR0YWNoZWQYBiABKAhCA+BBA0IKCghfbWVzc2FnZSqyAQoPRXh0ZXJuYWxJUFN0YXRlEiEKHUVYVEVSTkFMX0lQX1NUQVRFX1VOU1BFQ0lGSUVEEAASHQoZRVhURVJOQUxfSVBfU1RBVEVfUEVORElORxABEh8KG0VYVEVSTkFMX0lQX1NUQVRFX0FMTE9DQVRFRBACEhwKGEVYVEVSTkFMX0lQX1NUQVRFX0ZBSUxFRBADEh4KGkVYVEVSTkFMX0lQX1NUQVRFX0RFTEVUSU5HEARiBnByb3RvMw", [file_google_api_field_behavior, file_osac_private_v1_metadata_type]);
+  fileDesc("CiZvc2FjL3ByaXZhdGUvdjEvZXh0ZXJuYWxfaXBfdHlwZS5wcm90bxIPb3NhYy5wcml2YXRlLnYxIqcBCgpFeHRlcm5hbElQEgoKAmlkGAEgASgJEisKCG1ldGFkYXRhGAIgASgLMhkub3NhYy5wcml2YXRlLnYxLk1ldGFkYXRhEi0KBHNwZWMYAyABKAsyHy5vc2FjLnByaXZhdGUudjEuRXh0ZXJuYWxJUFNwZWMSMQoGc3RhdHVzGAQgASgLMiEub3NhYy5wcml2YXRlLnYxLkV4dGVybmFsSVBTdGF0dXMiUAoORXh0ZXJuYWxJUFNwZWMSPgoEcG9vbBgBIAEoCzIoLm9zYWMucHJpdmF0ZS52MS5FeHRlcm5hbElQUG9vbFJlZmVyZW5jZUIG4EEC4EEFIsEBChBFeHRlcm5hbElQU3RhdHVzEjQKBXN0YXRlGAEgASgOMiAub3NhYy5wcml2YXRlLnYxLkV4dGVybmFsSVBTdGF0ZUID4EEDEhkKB21lc3NhZ2UYAiABKAlCA+BBA0gAiAEBEhAKA2h1YhgDIAEoCUID4EEDEhQKB2FkZHJlc3MYBCABKAlCA+BBAxIRCgRwb29sGAUgASgJQgPgQQMSFQoIYXR0YWNoZWQYBiABKAhCA+BBA0IKCghfbWVzc2FnZSI0ChhFeHRlcm5hbElQTG9jYWxSZWZlcmVuY2USCgoCaWQYASABKAkSDAoEbmFtZRgCIAEoCSqyAQoPRXh0ZXJuYWxJUFN0YXRlEiEKHUVYVEVSTkFMX0lQX1NUQVRFX1VOU1BFQ0lGSUVEEAASHQoZRVhURVJOQUxfSVBfU1RBVEVfUEVORElORxABEh8KG0VYVEVSTkFMX0lQX1NUQVRFX0FMTE9DQVRFRBACEhwKGEVYVEVSTkFMX0lQX1NUQVRFX0ZBSUxFRBADEh4KGkVYVEVSTkFMX0lQX1NUQVRFX0RFTEVUSU5HEARiBnByb3RvMw", [file_google_api_field_behavior, file_osac_private_v1_metadata_type, file_osac_private_v1_external_ip_pool_type]);
 
 /**
  * Represents an external IP address allocated from an ExternalIPPool.
@@ -92,16 +94,14 @@ export const ExternalIPSchema: GenMessage<ExternalIP> = /*@__PURE__*/
  */
 export type ExternalIPSpec = Message<"osac.private.v1.ExternalIPSpec"> & {
   /**
-   * Parent ExternalIPPool ID. Required and immutable after creation.
+   * Parent ExternalIPPool reference. Required and immutable after creation.
    *
-   * Must reference the ID of an existing ExternalIPPool in READY state. The system allocates an
+   * Must reference an existing ExternalIPPool in READY state. The system allocates an
    * available IP address from this pool's CIDR ranges during provisioning.
    *
-   * Example: "pool-abc123"
-   *
-   * @generated from field: string pool = 1;
+   * @generated from field: osac.private.v1.ExternalIPPoolReference pool = 1;
    */
-  pool: string;
+  pool?: ExternalIPPoolReference | undefined;
 };
 
 /**
@@ -184,6 +184,30 @@ export type ExternalIPStatus = Message<"osac.private.v1.ExternalIPStatus"> & {
  */
 export const ExternalIPStatusSchema: GenMessage<ExternalIPStatus> = /*@__PURE__*/
   messageDesc(file_osac_private_v1_external_ip_type, 2);
+
+/**
+ * Local reference to an ExternalIP resource.
+ *
+ * @generated from message osac.private.v1.ExternalIPLocalReference
+ */
+export type ExternalIPLocalReference = Message<"osac.private.v1.ExternalIPLocalReference"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string name = 2;
+   */
+  name: string;
+};
+
+/**
+ * Describes the message osac.private.v1.ExternalIPLocalReference.
+ * Use `create(ExternalIPLocalReferenceSchema)` to create a new message.
+ */
+export const ExternalIPLocalReferenceSchema: GenMessage<ExternalIPLocalReference> = /*@__PURE__*/
+  messageDesc(file_osac_private_v1_external_ip_type, 3);
 
 /**
  * Lifecycle states for ExternalIP resources.

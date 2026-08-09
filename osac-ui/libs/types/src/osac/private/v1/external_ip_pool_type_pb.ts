@@ -28,7 +28,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/private/v1/external_ip_pool_type.proto.
  */
 export const file_osac_private_v1_external_ip_pool_type: GenFile = /*@__PURE__*/
-  fileDesc("Citvc2FjL3ByaXZhdGUvdjEvZXh0ZXJuYWxfaXBfcG9vbF90eXBlLnByb3RvEg9vc2FjLnByaXZhdGUudjEiswEKDkV4dGVybmFsSVBQb29sEgoKAmlkGAEgASgJEisKCG1ldGFkYXRhGAIgASgLMhkub3NhYy5wcml2YXRlLnYxLk1ldGFkYXRhEjEKBHNwZWMYAyABKAsyIy5vc2FjLnByaXZhdGUudjEuRXh0ZXJuYWxJUFBvb2xTcGVjEjUKBnN0YXR1cxgEIAEoCzIlLm9zYWMucHJpdmF0ZS52MS5FeHRlcm5hbElQUG9vbFN0YXR1cyKKAQoSRXh0ZXJuYWxJUFBvb2xTcGVjEhUKBWNpZHJzGAIgAygJQgbgQQLgQQUSNAoJaXBfZmFtaWx5GAMgASgOMhkub3NhYy5wcml2YXRlLnYxLklQRmFtaWx5QgbgQQLgQQUSJwoXaW1wbGVtZW50YXRpb25fc3RyYXRlZ3kYBCABKAlCBuBBA+BBBSLNAQoURXh0ZXJuYWxJUFBvb2xTdGF0dXMSOAoFc3RhdGUYASABKA4yJC5vc2FjLnByaXZhdGUudjEuRXh0ZXJuYWxJUFBvb2xTdGF0ZUID4EEDEhkKB21lc3NhZ2UYAiABKAlCA+BBA0gAiAEBEhAKA2h1YhgDIAEoCUID4EEDEhIKBXRvdGFsGAQgASgDQgPgQQMSFgoJYWxsb2NhdGVkGAUgASgDQgPgQQMSFgoJYXZhaWxhYmxlGAYgASgDQgPgQQNCCgoIX21lc3NhZ2Uq9QEKE0V4dGVybmFsSVBQb29sU3RhdGUSJgoiRVhURVJOQUxfSVBfUE9PTF9TVEFURV9VTlNQRUNJRklFRBAAEiIKHkVYVEVSTkFMX0lQX1BPT0xfU1RBVEVfUEVORElORxABEiAKHEVYVEVSTkFMX0lQX1BPT0xfU1RBVEVfUkVBRFkQAhIhCh1FWFRFUk5BTF9JUF9QT09MX1NUQVRFX0ZBSUxFRBADEiMKH0VYVEVSTkFMX0lQX1BPT0xfU1RBVEVfREVMRVRJTkcQBBIoCiRFWFRFUk5BTF9JUF9QT09MX1NUQVRFX0RFTEVURV9GQUlMRUQQBWIGcHJvdG8z", [file_google_api_field_behavior, file_osac_private_v1_ip_family_type, file_osac_private_v1_metadata_type]);
+  fileDesc("Citvc2FjL3ByaXZhdGUvdjEvZXh0ZXJuYWxfaXBfcG9vbF90eXBlLnByb3RvEg9vc2FjLnByaXZhdGUudjEiswEKDkV4dGVybmFsSVBQb29sEgoKAmlkGAEgASgJEisKCG1ldGFkYXRhGAIgASgLMhkub3NhYy5wcml2YXRlLnYxLk1ldGFkYXRhEjEKBHNwZWMYAyABKAsyIy5vc2FjLnByaXZhdGUudjEuRXh0ZXJuYWxJUFBvb2xTcGVjEjUKBnN0YXR1cxgEIAEoCzIlLm9zYWMucHJpdmF0ZS52MS5FeHRlcm5hbElQUG9vbFN0YXR1cyKKAQoSRXh0ZXJuYWxJUFBvb2xTcGVjEhUKBWNpZHJzGAIgAygJQgbgQQLgQQUSNAoJaXBfZmFtaWx5GAMgASgOMhkub3NhYy5wcml2YXRlLnYxLklQRmFtaWx5QgbgQQLgQQUSJwoXaW1wbGVtZW50YXRpb25fc3RyYXRlZ3kYBCABKAlCBuBBA+BBBSLNAQoURXh0ZXJuYWxJUFBvb2xTdGF0dXMSOAoFc3RhdGUYASABKA4yJC5vc2FjLnByaXZhdGUudjEuRXh0ZXJuYWxJUFBvb2xTdGF0ZUID4EEDEhkKB21lc3NhZ2UYAiABKAlCA+BBA0gAiAEBEhAKA2h1YhgDIAEoCUID4EEDEhIKBXRvdGFsGAQgASgDQgPgQQMSFgoJYWxsb2NhdGVkGAUgASgDQgPgQQMSFgoJYXZhaWxhYmxlGAYgASgDQgPgQQNCCgoIX21lc3NhZ2UiVAoXRXh0ZXJuYWxJUFBvb2xSZWZlcmVuY2USCgoCaWQYASABKAkSDAoEbmFtZRgCIAEoCRIPCgdwcm9qZWN0GAMgASgJEg4KBnNoYXJlZBgEIAEoCCr1AQoTRXh0ZXJuYWxJUFBvb2xTdGF0ZRImCiJFWFRFUk5BTF9JUF9QT09MX1NUQVRFX1VOU1BFQ0lGSUVEEAASIgoeRVhURVJOQUxfSVBfUE9PTF9TVEFURV9QRU5ESU5HEAESIAocRVhURVJOQUxfSVBfUE9PTF9TVEFURV9SRUFEWRACEiEKHUVYVEVSTkFMX0lQX1BPT0xfU1RBVEVfRkFJTEVEEAMSIwofRVhURVJOQUxfSVBfUE9PTF9TVEFURV9ERUxFVElORxAEEigKJEVYVEVSTkFMX0lQX1BPT0xfU1RBVEVfREVMRVRFX0ZBSUxFRBAFYgZwcm90bzM", [file_google_api_field_behavior, file_osac_private_v1_ip_family_type, file_osac_private_v1_metadata_type]);
 
 /**
  * Represents a pool of external IP addresses available for allocation.
@@ -205,6 +205,40 @@ export type ExternalIPPoolStatus = Message<"osac.private.v1.ExternalIPPoolStatus
  */
 export const ExternalIPPoolStatusSchema: GenMessage<ExternalIPPoolStatus> = /*@__PURE__*/
   messageDesc(file_osac_private_v1_external_ip_pool_type, 2);
+
+/**
+ * Reference to an ExternalIPPool resource.
+ *
+ * @generated from message osac.private.v1.ExternalIPPoolReference
+ */
+export type ExternalIPPoolReference = Message<"osac.private.v1.ExternalIPPoolReference"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string name = 2;
+   */
+  name: string;
+
+  /**
+   * @generated from field: string project = 3;
+   */
+  project: string;
+
+  /**
+   * @generated from field: bool shared = 4;
+   */
+  shared: boolean;
+};
+
+/**
+ * Describes the message osac.private.v1.ExternalIPPoolReference.
+ * Use `create(ExternalIPPoolReferenceSchema)` to create a new message.
+ */
+export const ExternalIPPoolReferenceSchema: GenMessage<ExternalIPPoolReference> = /*@__PURE__*/
+  messageDesc(file_osac_private_v1_external_ip_pool_type, 3);
 
 /**
  * Lifecycle states for ExternalIPPool resources.

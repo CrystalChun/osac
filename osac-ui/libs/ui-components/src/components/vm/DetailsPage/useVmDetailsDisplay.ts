@@ -25,8 +25,8 @@ export type VmNetworkingRow = {
 
 export const useVmDetailsDisplay = (vm: ComputeInstance) => {
   const { t } = useTranslation();
-  const catalogItemId = vm.spec?.catalogItem;
-  const instanceTypeId = vm.spec?.instanceType;
+  const catalogItemId = vm.spec?.catalogItem?.id;
+  const instanceTypeId = vm.spec?.instanceType?.id;
 
   const { data: catalogItem, isLoading: isCatalogItemLoading } =
     useComputeInstanceCatalogItem(catalogItemId);
@@ -69,12 +69,15 @@ export const useVmDetailsDisplay = (vm: ComputeInstance) => {
   const networkingRows = useMemo((): VmNetworkingRow[] => {
     const attachments = vm.spec?.networkAttachments ?? [];
     return attachments.map((attachment) => {
-      const subnet = subnets.find((item) => item.id === attachment.subnet);
-      const virtualNetworkId = subnet?.spec?.virtualNetwork ?? '';
+      const subnet = subnets.find((item) => item.id === attachment.subnet?.id);
+      const virtualNetworkId = subnet?.spec?.virtualNetwork?.id ?? '';
       return {
         virtualNetwork: formatResourceIdForReview(virtualNetworkId, virtualNetworks),
-        subnet: formatResourceIdForReview(attachment.subnet ?? '', subnets),
-        securityGroups: formatResourceIdsForReview(attachment.securityGroups ?? [], securityGroups),
+        subnet: formatResourceIdForReview(attachment.subnet?.id ?? '', subnets),
+        securityGroups: formatResourceIdsForReview(
+          attachment.securityGroups?.map(({ id }) => id) ?? [],
+          securityGroups,
+        ),
       };
     });
   }, [vm.spec?.networkAttachments, subnets, virtualNetworks, securityGroups]);

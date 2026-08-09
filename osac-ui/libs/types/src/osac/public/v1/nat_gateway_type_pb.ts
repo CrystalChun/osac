@@ -20,13 +20,17 @@ import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_google_api_field_behavior } from "../../../google/api/field_behavior_pb";
 import type { Metadata } from "./metadata_type_pb";
 import { file_osac_public_v1_metadata_type } from "./metadata_type_pb";
+import type { ExternalIPLocalReference } from "./external_ip_type_pb";
+import { file_osac_public_v1_external_ip_type } from "./external_ip_type_pb";
+import type { VirtualNetworkLocalReference } from "./virtual_network_type_pb";
+import { file_osac_public_v1_virtual_network_type } from "./virtual_network_type_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file osac/public/v1/nat_gateway_type.proto.
  */
 export const file_osac_public_v1_nat_gateway_type: GenFile = /*@__PURE__*/
-  fileDesc("CiVvc2FjL3B1YmxpYy92MS9uYXRfZ2F0ZXdheV90eXBlLnByb3RvEg5vc2FjLnB1YmxpYy52MSKkAQoKTkFUR2F0ZXdheRIKCgJpZBgBIAEoCRIqCghtZXRhZGF0YRgCIAEoCzIYLm9zYWMucHVibGljLnYxLk1ldGFkYXRhEiwKBHNwZWMYAyABKAsyHi5vc2FjLnB1YmxpYy52MS5OQVRHYXRld2F5U3BlYxIwCgZzdGF0dXMYBCABKAsyIC5vc2FjLnB1YmxpYy52MS5OQVRHYXRld2F5U3RhdHVzIk4KDk5BVEdhdGV3YXlTcGVjEh8KD3ZpcnR1YWxfbmV0d29yaxgBIAEoCUIG4EEC4EEFEhsKC2V4dGVybmFsX2lwGAIgASgJQgbgQQLgQQUibgoQTkFUR2F0ZXdheVN0YXR1cxIzCgVzdGF0ZRgBIAEoDjIfLm9zYWMucHVibGljLnYxLk5BVEdhdGV3YXlTdGF0ZUID4EEDEhkKB21lc3NhZ2UYAiABKAlCA+BBA0gAiAEBQgoKCF9tZXNzYWdlKq4BCg9OQVRHYXRld2F5U3RhdGUSIQodTkFUX0dBVEVXQVlfU1RBVEVfVU5TUEVDSUZJRUQQABIdChlOQVRfR0FURVdBWV9TVEFURV9QRU5ESU5HEAESGwoXTkFUX0dBVEVXQVlfU1RBVEVfUkVBRFkQAhIcChhOQVRfR0FURVdBWV9TVEFURV9GQUlMRUQQAxIeChpOQVRfR0FURVdBWV9TVEFURV9ERUxFVElORxAEYgZwcm90bzM", [file_google_api_field_behavior, file_osac_public_v1_metadata_type]);
+  fileDesc("CiVvc2FjL3B1YmxpYy92MS9uYXRfZ2F0ZXdheV90eXBlLnByb3RvEg5vc2FjLnB1YmxpYy52MSKkAQoKTkFUR2F0ZXdheRIKCgJpZBgBIAEoCRIqCghtZXRhZGF0YRgCIAEoCzIYLm9zYWMucHVibGljLnYxLk1ldGFkYXRhEiwKBHNwZWMYAyABKAsyHi5vc2FjLnB1YmxpYy52MS5OQVRHYXRld2F5U3BlYxIwCgZzdGF0dXMYBCABKAsyIC5vc2FjLnB1YmxpYy52MS5OQVRHYXRld2F5U3RhdHVzIqYBCg5OQVRHYXRld2F5U3BlYxJNCg92aXJ0dWFsX25ldHdvcmsYASABKAsyLC5vc2FjLnB1YmxpYy52MS5WaXJ0dWFsTmV0d29ya0xvY2FsUmVmZXJlbmNlQgbgQQLgQQUSRQoLZXh0ZXJuYWxfaXAYAiABKAsyKC5vc2FjLnB1YmxpYy52MS5FeHRlcm5hbElQTG9jYWxSZWZlcmVuY2VCBuBBAuBBBSJuChBOQVRHYXRld2F5U3RhdHVzEjMKBXN0YXRlGAEgASgOMh8ub3NhYy5wdWJsaWMudjEuTkFUR2F0ZXdheVN0YXRlQgPgQQMSGQoHbWVzc2FnZRgCIAEoCUID4EEDSACIAQFCCgoIX21lc3NhZ2UqrgEKD05BVEdhdGV3YXlTdGF0ZRIhCh1OQVRfR0FURVdBWV9TVEFURV9VTlNQRUNJRklFRBAAEh0KGU5BVF9HQVRFV0FZX1NUQVRFX1BFTkRJTkcQARIbChdOQVRfR0FURVdBWV9TVEFURV9SRUFEWRACEhwKGE5BVF9HQVRFV0FZX1NUQVRFX0ZBSUxFRBADEh4KGk5BVF9HQVRFV0FZX1NUQVRFX0RFTEVUSU5HEARiBnByb3RvMw", [file_google_api_field_behavior, file_osac_public_v1_metadata_type, file_osac_public_v1_external_ip_type, file_osac_public_v1_virtual_network_type]);
 
 /**
  * Represents a NAT gateway for outbound traffic (SNAT) from a VirtualNetwork.
@@ -96,31 +100,26 @@ export const NATGatewaySchema: GenMessage<NATGateway> = /*@__PURE__*/
  */
 export type NATGatewaySpec = Message<"osac.public.v1.NATGatewaySpec"> & {
   /**
-   * Parent VirtualNetwork ID. Required and immutable after creation.
+   * Parent VirtualNetwork reference. Required and immutable after creation.
    *
-   * Must reference the ID of an existing VirtualNetwork. All outbound traffic from subnets
-   * within this VirtualNetwork will be source-NATted to the associated ExternalIP address.
-   * Only one NATGateway is allowed per VirtualNetwork.
+   * Must reference an existing VirtualNetwork. All outbound traffic from subnets within this
+   * VirtualNetwork will be source-NATted to the associated ExternalIP address. Only one
+   * NATGateway is allowed per VirtualNetwork.
    *
-   * Example: "019728a4-3f5c-7def-8abc-1234567890ab"
-   *
-   * @generated from field: string virtual_network = 1;
+   * @generated from field: osac.public.v1.VirtualNetworkLocalReference virtual_network = 1;
    */
-  virtualNetwork: string;
+  virtualNetwork?: VirtualNetworkLocalReference | undefined;
 
   /**
-   * ExternalIP ID to use as the SNAT source address. Required and immutable after creation.
+   * ExternalIP reference to use as the SNAT source address. Required and immutable after creation.
    *
-   * Must reference the ID of an existing ExternalIP in ALLOCATED state. The ExternalIP must
-   * not already be consumed by another NATGateway or ExternalIPAttachment. The allocated
-   * address from this ExternalIP becomes the source IP for all egress traffic from the
-   * VirtualNetwork.
+   * Must reference an existing ExternalIP in ALLOCATED state. The ExternalIP must not already be
+   * consumed by another NATGateway or ExternalIPAttachment. The allocated address from this
+   * ExternalIP becomes the source IP for all egress traffic from the VirtualNetwork.
    *
-   * Example: "019728a4-4e6d-7abc-9def-abcdef012345"
-   *
-   * @generated from field: string external_ip = 2;
+   * @generated from field: osac.public.v1.ExternalIPLocalReference external_ip = 2;
    */
-  externalIp: string;
+  externalIp?: ExternalIPLocalReference | undefined;
 };
 
 /**

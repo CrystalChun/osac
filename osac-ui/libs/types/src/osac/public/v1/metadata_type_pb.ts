@@ -26,7 +26,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/public/v1/metadata_type.proto.
  */
 export const file_osac_public_v1_metadata_type: GenFile = /*@__PURE__*/
-  fileDesc("CiJvc2FjL3B1YmxpYy92MS9tZXRhZGF0YV90eXBlLnByb3RvEg5vc2FjLnB1YmxpYy52MSL+AwoITWV0YWRhdGESNgoSY3JlYXRpb25fdGltZXN0YW1wGAEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBI2ChJkZWxldGlvbl90aW1lc3RhbXAYAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEg8KB2NyZWF0b3IYAyABKAkSPgoEbmFtZRgEIAEoCUIwukgtcisYPzInXihbYS16MC05XShbYS16MC05LV17MCw2MX1bYS16MC05XSk/KT8kEg4KBnRlbmFudBgFIAEoCRJLCgZsYWJlbHMYByADKAsyJC5vc2FjLnB1YmxpYy52MS5NZXRhZGF0YS5MYWJlbHNFbnRyeUIVukgSmgEPIgdyBRABGLwCKgRyAhg/Ek8KC2Fubm90YXRpb25zGAggAygLMikub3NhYy5wdWJsaWMudjEuTWV0YWRhdGEuQW5ub3RhdGlvbnNFbnRyeUIPukgMmgEJIgdyBRABGLwCEg8KB3ZlcnNpb24YCSABKAUSDwoHcHJvamVjdBgKIAEoCRotCgtMYWJlbHNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBGjIKEEFubm90YXRpb25zRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4AWIGcHJvdG8z", [file_buf_validate_validate, file_google_protobuf_timestamp]);
+  fileDesc("CiJvc2FjL3B1YmxpYy92MS9tZXRhZGF0YV90eXBlLnByb3RvEg5vc2FjLnB1YmxpYy52MSL9AwoITWV0YWRhdGESNgoSY3JlYXRpb25fdGltZXN0YW1wGAEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBI2ChJkZWxldGlvbl90aW1lc3RhbXAYAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEg8KB2NyZWF0b3IYAyABKAkSPQoEbmFtZRgEIAEoCUIvukgscioQARg/MiReW2EtejAtOV0oW2EtejAtOS1dezAsNjF9W2EtejAtOV0pPyQSDgoGdGVuYW50GAUgASgJEksKBmxhYmVscxgHIAMoCzIkLm9zYWMucHVibGljLnYxLk1ldGFkYXRhLkxhYmVsc0VudHJ5QhW6SBKaAQ8iB3IFEAEYvAIqBHICGD8STwoLYW5ub3RhdGlvbnMYCCADKAsyKS5vc2FjLnB1YmxpYy52MS5NZXRhZGF0YS5Bbm5vdGF0aW9uc0VudHJ5Qg+6SAyaAQkiB3IFEAEYvAISDwoHdmVyc2lvbhgJIAEoBRIPCgdwcm9qZWN0GAogASgJGi0KC0xhYmVsc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEaMgoQQW5ub3RhdGlvbnNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBYgZwcm90bzM", [file_buf_validate_validate, file_google_protobuf_timestamp]);
 
 /**
  * Metadata common to all kinds of objects.
@@ -56,15 +56,13 @@ export type Metadata = Message<"osac.public.v1.Metadata"> & {
   creator: string;
 
   /**
-   * Human friendly name of the object.
+   * Mandatory, immutable, and unique within scope. Must be a valid RFC 1123 DNS label.
    *
-   * Has the same restrictions than DNS labels, as described in RFC 1035:
+   * Has the same restrictions as DNS labels, as described in RFC 1123:
    *
    * - Must be between 1 and 63 characters long.
-   * - Must only contain letters (a-z), digits (0-9) and hyphens (-).
-   * - It isn't case sensitive.
-   *
-   * It is optional and not unique, so multiple objecs, even created by the same user or tenant, can have the same name.
+   * - Must only contain lowercase letters (a-z), digits (0-9) and hyphens (-).
+   * - Must start and end with an alphanumeric character.
    *
    * @generated from field: string name = 4;
    */

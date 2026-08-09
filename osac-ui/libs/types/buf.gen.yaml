@@ -7,9 +7,9 @@ plugins:
     include_imports: true
     include_wkt: true
 inputs:
-  - git_repo: https://github.com/osac-project/fulfillment-service.git
+  - git_repo: https://github.com/osac-project/osac.git
     branch: main
-    subdir: proto/public
-  - git_repo: https://github.com/osac-project/fulfillment-service.git
+    subdir: fulfillment-service/proto/public
+  - git_repo: https://github.com/osac-project/osac.git
     branch: main
-    subdir: proto/private
+    subdir: fulfillment-service/proto/private

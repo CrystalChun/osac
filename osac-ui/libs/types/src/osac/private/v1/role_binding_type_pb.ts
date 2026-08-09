@@ -19,13 +19,15 @@ import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2"
 import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import type { Metadata } from "./metadata_type_pb";
 import { file_osac_private_v1_metadata_type } from "./metadata_type_pb";
+import type { UserReference } from "./user_type_pb";
+import { file_osac_private_v1_user_type } from "./user_type_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file osac/private/v1/role_binding_type.proto.
  */
 export const file_osac_private_v1_role_binding_type: GenFile = /*@__PURE__*/
-  fileDesc("Cidvc2FjL3ByaXZhdGUvdjEvcm9sZV9iaW5kaW5nX3R5cGUucHJvdG8SD29zYWMucHJpdmF0ZS52MSKqAQoLUm9sZUJpbmRpbmcSCgoCaWQYASABKAkSKwoIbWV0YWRhdGEYAiABKAsyGS5vc2FjLnByaXZhdGUudjEuTWV0YWRhdGESLgoEc3BlYxgDIAEoCzIgLm9zYWMucHJpdmF0ZS52MS5Sb2xlQmluZGluZ1NwZWMSMgoGc3RhdHVzGAQgASgLMiIub3NhYy5wcml2YXRlLnYxLlJvbGVCaW5kaW5nU3RhdHVzIi4KD1JvbGVCaW5kaW5nU3BlYxIMCgRyb2xlGAEgASgJEg0KBXVzZXJzGAIgAygJInYKEVJvbGVCaW5kaW5nU3RhdHVzEjAKBXN0YXRlGAEgASgOMiEub3NhYy5wcml2YXRlLnYxLlJvbGVCaW5kaW5nU3RhdGUSFAoHbWVzc2FnZRgCIAEoCUgAiAEBEg0KBXVzZXJzGAMgAygJQgoKCF9tZXNzYWdlKpMBChBSb2xlQmluZGluZ1N0YXRlEiIKHlJPTEVfQklORElOR19TVEFURV9VTlNQRUNJRklFRBAAEh4KGlJPTEVfQklORElOR19TVEFURV9QRU5ESU5HEAESHAoYUk9MRV9CSU5ESU5HX1NUQVRFX1JFQURZEAISHQoZUk9MRV9CSU5ESU5HX1NUQVRFX0ZBSUxFRBADYgZwcm90bzM", [file_osac_private_v1_metadata_type]);
+  fileDesc("Cidvc2FjL3ByaXZhdGUvdjEvcm9sZV9iaW5kaW5nX3R5cGUucHJvdG8SD29zYWMucHJpdmF0ZS52MSKqAQoLUm9sZUJpbmRpbmcSCgoCaWQYASABKAkSKwoIbWV0YWRhdGEYAiABKAsyGS5vc2FjLnByaXZhdGUudjEuTWV0YWRhdGESLgoEc3BlYxgDIAEoCzIgLm9zYWMucHJpdmF0ZS52MS5Sb2xlQmluZGluZ1NwZWMSMgoGc3RhdHVzGAQgASgLMiIub3NhYy5wcml2YXRlLnYxLlJvbGVCaW5kaW5nU3RhdHVzIm4KD1JvbGVCaW5kaW5nU3BlYxIsCgRyb2xlGAEgASgLMh4ub3NhYy5wcml2YXRlLnYxLlJvbGVSZWZlcmVuY2USLQoFdXNlcnMYAiADKAsyHi5vc2FjLnByaXZhdGUudjEuVXNlclJlZmVyZW5jZSKWAQoRUm9sZUJpbmRpbmdTdGF0dXMSMAoFc3RhdGUYASABKA4yIS5vc2FjLnByaXZhdGUudjEuUm9sZUJpbmRpbmdTdGF0ZRIUCgdtZXNzYWdlGAIgASgJSACIAQESLQoFdXNlcnMYAyADKAsyHi5vc2FjLnByaXZhdGUudjEuVXNlclJlZmVyZW5jZUIKCghfbWVzc2FnZSJKCg1Sb2xlUmVmZXJlbmNlEgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkSDwoHcHJvamVjdBgDIAEoCRIOCgZzaGFyZWQYBCABKAgqkwEKEFJvbGVCaW5kaW5nU3RhdGUSIgoeUk9MRV9CSU5ESU5HX1NUQVRFX1VOU1BFQ0lGSUVEEAASHgoaUk9MRV9CSU5ESU5HX1NUQVRFX1BFTkRJTkcQARIcChhST0xFX0JJTkRJTkdfU1RBVEVfUkVBRFkQAhIdChlST0xFX0JJTkRJTkdfU1RBVEVfRkFJTEVEEANiBnByb3RvMw", [file_osac_private_v1_metadata_type, file_osac_private_v1_user_type]);
 
 /**
  * Represents a binding between a role and a set of users.
@@ -82,24 +84,23 @@ export const RoleBindingSchema: GenMessage<RoleBinding> = /*@__PURE__*/
  */
 export type RoleBindingSpec = Message<"osac.private.v1.RoleBindingSpec"> & {
   /**
-   * Identifier of the role that this binding refers to. This determines which permissions are granted to the
+   * Reference to the role that this binding refers to. This determines which permissions are granted to the
    * users listed below.
    *
-   * @generated from field: string role = 1;
+   * @generated from field: osac.private.v1.RoleReference role = 1;
    */
-  role: string;
+  role?: RoleReference | undefined;
 
   /**
-   * Identifiers of the users that are granted the permissions defined by the role. These are user identifiers
-   * (the `id` field of User objects), not usernames or email addresses.
+   * References to the users that are granted the permissions defined by the role.
    *
-   * To grant a role to a user, create a RoleBinding with the desired role and include the user's ID in this list.
+   * To grant a role to a user, create a RoleBinding with the desired role and include the user's reference in this list.
    * To revoke a role from a user, either delete the entire RoleBinding (if the user is the only subject), or
-   * update the RoleBinding to remove the user's ID from this list.
+   * update the RoleBinding to remove the user's reference from this list.
    *
-   * @generated from field: repeated string users = 2;
+   * @generated from field: repeated osac.private.v1.UserReference users = 2;
    */
-  users: string[];
+  users: UserReference[];
 };
 
 /**
@@ -131,13 +132,13 @@ export type RoleBindingStatus = Message<"osac.private.v1.RoleBindingStatus"> & {
   message?: string | undefined;
 
   /**
-   * List of user IDs that have been successfully synced to the authorization system. This tracks which users
+   * List of users that have been successfully synced to the authorization system. This tracks which users
    * currently have the role assigned in Keycloak, allowing the controller to detect when users are added or
    * removed from the binding.
    *
-   * @generated from field: repeated string users = 3;
+   * @generated from field: repeated osac.private.v1.UserReference users = 3;
    */
-  users: string[];
+  users: UserReference[];
 };
 
 /**
@@ -146,6 +147,40 @@ export type RoleBindingStatus = Message<"osac.private.v1.RoleBindingStatus"> & {
  */
 export const RoleBindingStatusSchema: GenMessage<RoleBindingStatus> = /*@__PURE__*/
   messageDesc(file_osac_private_v1_role_binding_type, 2);
+
+/**
+ * Reference to a Role resource.
+ *
+ * @generated from message osac.private.v1.RoleReference
+ */
+export type RoleReference = Message<"osac.private.v1.RoleReference"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string name = 2;
+   */
+  name: string;
+
+  /**
+   * @generated from field: string project = 3;
+   */
+  project: string;
+
+  /**
+   * @generated from field: bool shared = 4;
+   */
+  shared: boolean;
+};
+
+/**
+ * Describes the message osac.private.v1.RoleReference.
+ * Use `create(RoleReferenceSchema)` to create a new message.
+ */
+export const RoleReferenceSchema: GenMessage<RoleReference> = /*@__PURE__*/
+  messageDesc(file_osac_private_v1_role_binding_type, 3);
 
 /**
  * Synchronization states for RoleBinding objects with the underlying authorization system.

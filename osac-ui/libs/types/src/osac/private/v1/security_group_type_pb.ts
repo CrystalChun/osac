@@ -20,13 +20,15 @@ import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_google_api_field_behavior } from "../../../google/api/field_behavior_pb";
 import type { Metadata } from "./metadata_type_pb";
 import { file_osac_private_v1_metadata_type } from "./metadata_type_pb";
+import type { VirtualNetworkLocalReference } from "./virtual_network_type_pb";
+import { file_osac_private_v1_virtual_network_type } from "./virtual_network_type_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file osac/private/v1/security_group_type.proto.
  */
 export const file_osac_private_v1_security_group_type: GenFile = /*@__PURE__*/
-  fileDesc("Cilvc2FjL3ByaXZhdGUvdjEvc2VjdXJpdHlfZ3JvdXBfdHlwZS5wcm90bxIPb3NhYy5wcml2YXRlLnYxIrABCg1TZWN1cml0eUdyb3VwEgoKAmlkGAEgASgJEisKCG1ldGFkYXRhGAIgASgLMhkub3NhYy5wcml2YXRlLnYxLk1ldGFkYXRhEjAKBHNwZWMYAyABKAsyIi5vc2FjLnByaXZhdGUudjEuU2VjdXJpdHlHcm91cFNwZWMSNAoGc3RhdHVzGAQgASgLMiQub3NhYy5wcml2YXRlLnYxLlNlY3VyaXR5R3JvdXBTdGF0dXMivAEKEVNlY3VyaXR5R3JvdXBTcGVjEh8KD3ZpcnR1YWxfbmV0d29yaxgBIAEoCUIG4EEC4EEFEi4KB2luZ3Jlc3MYAiADKAsyHS5vc2FjLnByaXZhdGUudjEuU2VjdXJpdHlSdWxlEi0KBmVncmVzcxgDIAMoCzIdLm9zYWMucHJpdmF0ZS52MS5TZWN1cml0eVJ1bGUSJwoXaW1wbGVtZW50YXRpb25fc3RyYXRlZ3kYBCABKAlCBuBBA+BBBSLPAQoMU2VjdXJpdHlSdWxlEisKCHByb3RvY29sGAEgASgOMhkub3NhYy5wcml2YXRlLnYxLlByb3RvY29sEhYKCXBvcnRfZnJvbRgCIAEoBUgAiAEBEhQKB3BvcnRfdG8YAyABKAVIAYgBARIWCglpcHY0X2NpZHIYBCABKAlIAogBARIWCglpcHY2X2NpZHIYBSABKAlIA4gBAUIMCgpfcG9ydF9mcm9tQgoKCF9wb3J0X3RvQgwKCl9pcHY0X2NpZHJCDAoKX2lwdjZfY2lkciJrChNTZWN1cml0eUdyb3VwU3RhdHVzEjIKBXN0YXRlGAEgASgOMiMub3NhYy5wcml2YXRlLnYxLlNlY3VyaXR5R3JvdXBTdGF0ZRIUCgdtZXNzYWdlGAIgASgJSACIAQFCCgoIX21lc3NhZ2UqbQoIUHJvdG9jb2wSGAoUUFJPVE9DT0xfVU5TUEVDSUZJRUQQABIQCgxQUk9UT0NPTF9UQ1AQARIQCgxQUk9UT0NPTF9VRFAQAhIRCg1QUk9UT0NPTF9JQ01QEAMSEAoMUFJPVE9DT0xfQUxMEAQq6AEKElNlY3VyaXR5R3JvdXBTdGF0ZRIkCiBTRUNVUklUWV9HUk9VUF9TVEFURV9VTlNQRUNJRklFRBAAEiAKHFNFQ1VSSVRZX0dST1VQX1NUQVRFX1BFTkRJTkcQARIeChpTRUNVUklUWV9HUk9VUF9TVEFURV9SRUFEWRACEh8KG1NFQ1VSSVRZX0dST1VQX1NUQVRFX0ZBSUxFRBADEiEKHVNFQ1VSSVRZX0dST1VQX1NUQVRFX0RFTEVUSU5HEAQSJgoiU0VDVVJJVFlfR1JPVVBfU1RBVEVfREVMRVRFX0ZBSUxFRBAFYgZwcm90bzM", [file_google_api_field_behavior, file_osac_private_v1_metadata_type]);
+  fileDesc("Cilvc2FjL3ByaXZhdGUvdjEvc2VjdXJpdHlfZ3JvdXBfdHlwZS5wcm90bxIPb3NhYy5wcml2YXRlLnYxIrABCg1TZWN1cml0eUdyb3VwEgoKAmlkGAEgASgJEisKCG1ldGFkYXRhGAIgASgLMhkub3NhYy5wcml2YXRlLnYxLk1ldGFkYXRhEjAKBHNwZWMYAyABKAsyIi5vc2FjLnByaXZhdGUudjEuU2VjdXJpdHlHcm91cFNwZWMSNAoGc3RhdHVzGAQgASgLMiQub3NhYy5wcml2YXRlLnYxLlNlY3VyaXR5R3JvdXBTdGF0dXMi6wEKEVNlY3VyaXR5R3JvdXBTcGVjEk4KD3ZpcnR1YWxfbmV0d29yaxgBIAEoCzItLm9zYWMucHJpdmF0ZS52MS5WaXJ0dWFsTmV0d29ya0xvY2FsUmVmZXJlbmNlQgbgQQLgQQUSLgoHaW5ncmVzcxgCIAMoCzIdLm9zYWMucHJpdmF0ZS52MS5TZWN1cml0eVJ1bGUSLQoGZWdyZXNzGAMgAygLMh0ub3NhYy5wcml2YXRlLnYxLlNlY3VyaXR5UnVsZRInChdpbXBsZW1lbnRhdGlvbl9zdHJhdGVneRgEIAEoCUIG4EED4EEFIs8BCgxTZWN1cml0eVJ1bGUSKwoIcHJvdG9jb2wYASABKA4yGS5vc2FjLnByaXZhdGUudjEuUHJvdG9jb2wSFgoJcG9ydF9mcm9tGAIgASgFSACIAQESFAoHcG9ydF90bxgDIAEoBUgBiAEBEhYKCWlwdjRfY2lkchgEIAEoCUgCiAEBEhYKCWlwdjZfY2lkchgFIAEoCUgDiAEBQgwKCl9wb3J0X2Zyb21CCgoIX3BvcnRfdG9CDAoKX2lwdjRfY2lkckIMCgpfaXB2Nl9jaWRyImsKE1NlY3VyaXR5R3JvdXBTdGF0dXMSMgoFc3RhdGUYASABKA4yIy5vc2FjLnByaXZhdGUudjEuU2VjdXJpdHlHcm91cFN0YXRlEhQKB21lc3NhZ2UYAiABKAlIAIgBAUIKCghfbWVzc2FnZSI3ChtTZWN1cml0eUdyb3VwTG9jYWxSZWZlcmVuY2USCgoCaWQYASABKAkSDAoEbmFtZRgCIAEoCSptCghQcm90b2NvbBIYChRQUk9UT0NPTF9VTlNQRUNJRklFRBAAEhAKDFBST1RPQ09MX1RDUBABEhAKDFBST1RPQ09MX1VEUBACEhEKDVBST1RPQ09MX0lDTVAQAxIQCgxQUk9UT0NPTF9BTEwQBCroAQoSU2VjdXJpdHlHcm91cFN0YXRlEiQKIFNFQ1VSSVRZX0dST1VQX1NUQVRFX1VOU1BFQ0lGSUVEEAASIAocU0VDVVJJVFlfR1JPVVBfU1RBVEVfUEVORElORxABEh4KGlNFQ1VSSVRZX0dST1VQX1NUQVRFX1JFQURZEAISHwobU0VDVVJJVFlfR1JPVVBfU1RBVEVfRkFJTEVEEAMSIQodU0VDVVJJVFlfR1JPVVBfU1RBVEVfREVMRVRJTkcQBBImCiJTRUNVUklUWV9HUk9VUF9TVEFURV9ERUxFVEVfRkFJTEVEEAViBnByb3RvMw", [file_google_api_field_behavior, file_osac_private_v1_metadata_type, file_osac_private_v1_virtual_network_type]);
 
 /**
  * Represents a virtual firewall controlling network traffic for compute instances.
@@ -102,17 +104,15 @@ export const SecurityGroupSchema: GenMessage<SecurityGroup> = /*@__PURE__*/
  */
 export type SecurityGroupSpec = Message<"osac.private.v1.SecurityGroupSpec"> & {
   /**
-   * Parent VirtualNetwork ID for this security group.
+   * Parent VirtualNetwork reference for this security group.
    *
-   * Must reference the ID of an existing VirtualNetwork in READY state. Security groups are scoped to a
+   * Must reference an existing VirtualNetwork in READY state. Security groups are scoped to a
    * VirtualNetwork and can only be applied to compute instances within that network. This field is required
    * and immutable after creation.
    *
-   * Example: "vnet-12345abc"
-   *
-   * @generated from field: string virtual_network = 1;
+   * @generated from field: osac.private.v1.VirtualNetworkLocalReference virtual_network = 1;
    */
-  virtualNetwork: string;
+  virtualNetwork?: VirtualNetworkLocalReference | undefined;
 
   /**
    * List of rules controlling inbound traffic to compute instances.
@@ -283,6 +283,30 @@ export type SecurityGroupStatus = Message<"osac.private.v1.SecurityGroupStatus">
  */
 export const SecurityGroupStatusSchema: GenMessage<SecurityGroupStatus> = /*@__PURE__*/
   messageDesc(file_osac_private_v1_security_group_type, 3);
+
+/**
+ * Local reference to a SecurityGroup resource.
+ *
+ * @generated from message osac.private.v1.SecurityGroupLocalReference
+ */
+export type SecurityGroupLocalReference = Message<"osac.private.v1.SecurityGroupLocalReference"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string name = 2;
+   */
+  name: string;
+};
+
+/**
+ * Describes the message osac.private.v1.SecurityGroupLocalReference.
+ * Use `create(SecurityGroupLocalReferenceSchema)` to create a new message.
+ */
+export const SecurityGroupLocalReferenceSchema: GenMessage<SecurityGroupLocalReference> = /*@__PURE__*/
+  messageDesc(file_osac_private_v1_security_group_type, 4);
 
 /**
  * Network protocol types for SecurityRule matching.

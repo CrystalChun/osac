@@ -74,7 +74,7 @@ describe('catalog display with wire field_definitions', () => {
       title: 'Workload VM',
       description: '',
       published: true,
-      template: '',
+      template: undefined,
       fieldDefinitions: [
         {
           $typeName: 'osac.public.v1.FieldDefinition',
@@ -136,7 +136,7 @@ describe('catalog display with wire field_definitions', () => {
       title: 'Development Cluster',
       description: '',
       published: true,
-      template: '',
+      template: undefined,
       fieldDefinitions: [
         {
           $typeName: 'osac.public.v1.FieldDefinition',
@@ -197,7 +197,7 @@ describe('filterCatalogItemsBySearch', () => {
       description: 'For testing',
       fieldDefinitions: [],
       published: true,
-      template: '',
+      template: undefined,
     },
     {
       $typeName: 'osac.public.v1.ClusterCatalogItem',
@@ -206,7 +206,7 @@ describe('filterCatalogItemsBySearch', () => {
       description: 'Production workload',
       fieldDefinitions: [],
       published: true,
-      template: '',
+      template: undefined,
     },
   ];
 

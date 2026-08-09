@@ -19,13 +19,15 @@ import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2"
 import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import type { Metadata } from "./metadata_type_pb";
 import { file_osac_public_v1_metadata_type } from "./metadata_type_pb";
+import type { UserReference } from "./user_type_pb";
+import { file_osac_public_v1_user_type } from "./user_type_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file osac/public/v1/project_membership_type.proto.
  */
 export const file_osac_public_v1_project_membership_type: GenFile = /*@__PURE__*/
-  fileDesc("Cixvc2FjL3B1YmxpYy92MS9wcm9qZWN0X21lbWJlcnNoaXBfdHlwZS5wcm90bxIOb3NhYy5wdWJsaWMudjEiuQEKEVByb2plY3RNZW1iZXJzaGlwEgoKAmlkGAEgASgJEioKCG1ldGFkYXRhGAIgASgLMhgub3NhYy5wdWJsaWMudjEuTWV0YWRhdGESMwoEc3BlYxgDIAEoCzIlLm9zYWMucHVibGljLnYxLlByb2plY3RNZW1iZXJzaGlwU3BlYxI3CgZzdGF0dXMYBCABKAsyJy5vc2FjLnB1YmxpYy52MS5Qcm9qZWN0TWVtYmVyc2hpcFN0YXR1cyJbChVQcm9qZWN0TWVtYmVyc2hpcFNwZWMSMwoEcm9sZRgCIAEoDjIlLm9zYWMucHVibGljLnYxLlByb2plY3RNZW1iZXJzaGlwUm9sZRINCgV1c2VycxgDIAMoCSJyChdQcm9qZWN0TWVtYmVyc2hpcFN0YXR1cxI1CgVzdGF0ZRgBIAEoDjImLm9zYWMucHVibGljLnYxLlByb2plY3RNZW1iZXJzaGlwU3RhdGUSFAoHbWVzc2FnZRgCIAEoCUgAiAEBQgoKCF9tZXNzYWdlKokBChVQcm9qZWN0TWVtYmVyc2hpcFJvbGUSJwojUFJPSkVDVF9NRU1CRVJTSElQX1JPTEVfVU5TUEVDSUZJRUQQABIiCh5QUk9KRUNUX01FTUJFUlNISVBfUk9MRV9WSUVXRVIQARIjCh9QUk9KRUNUX01FTUJFUlNISVBfUk9MRV9NQU5BR0VSEAIqsQEKFlByb2plY3RNZW1iZXJzaGlwU3RhdGUSKAokUFJPSkVDVF9NRU1CRVJTSElQX1NUQVRFX1VOU1BFQ0lGSUVEEAASJAogUFJPSkVDVF9NRU1CRVJTSElQX1NUQVRFX1BFTkRJTkcQARIiCh5QUk9KRUNUX01FTUJFUlNISVBfU1RBVEVfUkVBRFkQAhIjCh9QUk9KRUNUX01FTUJFUlNISVBfU1RBVEVfRkFJTEVEEANiBnByb3RvMw", [file_osac_public_v1_metadata_type]);
+  fileDesc("Cixvc2FjL3B1YmxpYy92MS9wcm9qZWN0X21lbWJlcnNoaXBfdHlwZS5wcm90bxIOb3NhYy5wdWJsaWMudjEiuQEKEVByb2plY3RNZW1iZXJzaGlwEgoKAmlkGAEgASgJEioKCG1ldGFkYXRhGAIgASgLMhgub3NhYy5wdWJsaWMudjEuTWV0YWRhdGESMwoEc3BlYxgDIAEoCzIlLm9zYWMucHVibGljLnYxLlByb2plY3RNZW1iZXJzaGlwU3BlYxI3CgZzdGF0dXMYBCABKAsyJy5vc2FjLnB1YmxpYy52MS5Qcm9qZWN0TWVtYmVyc2hpcFN0YXR1cyJ6ChVQcm9qZWN0TWVtYmVyc2hpcFNwZWMSMwoEcm9sZRgCIAEoDjIlLm9zYWMucHVibGljLnYxLlByb2plY3RNZW1iZXJzaGlwUm9sZRIsCgV1c2VycxgDIAMoCzIdLm9zYWMucHVibGljLnYxLlVzZXJSZWZlcmVuY2UicgoXUHJvamVjdE1lbWJlcnNoaXBTdGF0dXMSNQoFc3RhdGUYASABKA4yJi5vc2FjLnB1YmxpYy52MS5Qcm9qZWN0TWVtYmVyc2hpcFN0YXRlEhQKB21lc3NhZ2UYAiABKAlIAIgBAUIKCghfbWVzc2FnZSqJAQoVUHJvamVjdE1lbWJlcnNoaXBSb2xlEicKI1BST0pFQ1RfTUVNQkVSU0hJUF9ST0xFX1VOU1BFQ0lGSUVEEAASIgoeUFJPSkVDVF9NRU1CRVJTSElQX1JPTEVfVklFV0VSEAESIwofUFJPSkVDVF9NRU1CRVJTSElQX1JPTEVfTUFOQUdFUhACKrEBChZQcm9qZWN0TWVtYmVyc2hpcFN0YXRlEigKJFBST0pFQ1RfTUVNQkVSU0hJUF9TVEFURV9VTlNQRUNJRklFRBAAEiQKIFBST0pFQ1RfTUVNQkVSU0hJUF9TVEFURV9QRU5ESU5HEAESIgoeUFJPSkVDVF9NRU1CRVJTSElQX1NUQVRFX1JFQURZEAISIwofUFJPSkVDVF9NRU1CRVJTSElQX1NUQVRFX0ZBSUxFRBADYgZwcm90bzM", [file_osac_public_v1_metadata_type, file_osac_public_v1_user_type]);
 
 /**
  * ProjectMembership represents a member's association with a project and their role within it.
@@ -83,12 +85,11 @@ export type ProjectMembershipSpec = Message<"osac.public.v1.ProjectMembershipSpe
   role: ProjectMembershipRole;
 
   /**
-   * Identifiers of the users that are members of the project. These are user identifiers (the `id` field of User
-   * objects), not usernames or email addresses.
+   * References to the users that are members of the project.
    *
-   * @generated from field: repeated string users = 3;
+   * @generated from field: repeated osac.public.v1.UserReference users = 3;
    */
-  users: string[];
+  users: UserReference[];
 };
 
 /**

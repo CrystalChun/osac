@@ -6,8 +6,10 @@ import {
   SecurityGroupSchema,
   SecurityGroupState,
   SecurityGroups,
+  SubnetSchema,
   SubnetState,
   Subnets,
+  VirtualNetworkSchema,
   VirtualNetworkState,
   VirtualNetworks,
 } from '@osac/types';
@@ -94,7 +96,7 @@ export const escapeCelStringLiteral = (value: string): string =>
   value.replaceAll('\\', '\\\\').replaceAll('"', '\\"');
 
 const virtualNetworkScopeFilter = (virtualNetworkId: string): string =>
-  `this.spec.virtual_network == "${escapeCelStringLiteral(virtualNetworkId)}"`;
+  `this.spec.virtual_network.id == "${escapeCelStringLiteral(virtualNetworkId)}"`;
 
 export const resourceDisplayName = (metadata?: { name?: string }, id?: string): string =>
   metadata?.name?.trim() || id || '—';
@@ -159,39 +161,13 @@ export const invalidateSubnetsQueries = (qc: ApiQueryClient) =>
 export const invalidateSecurityGroupsQueries = (qc: ApiQueryClient) =>
   qc.invalidateQueries({ queryKey: apiQueryKey('v1/security_groups') });
 
-export interface VirtualNetworkInput {
-  name: string;
-  network_class: string;
-  ipv4_cidr?: string;
-  ipv6_cidr?: string;
-}
-
-export interface SubnetInput {
-  name: string;
-  virtual_network: string;
-  ipv4_cidr?: string;
-  ipv6_cidr?: string;
-}
-
 export const useCreateVirtualNetwork = () => {
   const client = useApiFetch(VirtualNetworks);
   const qc = useApiQueryClient();
   return useMutation({
-    mutationFn: async (input: VirtualNetworkInput) => {
+    mutationFn: async (input: MessageInitShape<typeof VirtualNetworkSchema>) => {
       const resp = await client.create({
-        object: {
-          metadata: { name: input.name },
-          spec: {
-            networkClass: input.network_class,
-            ...(input.ipv4_cidr && { ipv4Cidr: input.ipv4_cidr }),
-            ...(input.ipv6_cidr && { ipv6Cidr: input.ipv6_cidr }),
-            capabilities: {
-              enableIpv4: Boolean(input.ipv4_cidr),
-              enableIpv6: Boolean(input.ipv6_cidr),
-              enableDualStack: Boolean(input.ipv4_cidr && input.ipv6_cidr),
-            },
-          },
-        },
+        object: input,
       });
       const vn = resp.object;
       if (!vn?.id) {
@@ -216,16 +192,9 @@ export const useCreateSubnet = () => {
   const client = useApiFetch(Subnets);
   const qc = useApiQueryClient();
   return useMutation({
-    mutationFn: async (input: SubnetInput) => {
+    mutationFn: async (input: MessageInitShape<typeof SubnetSchema>) => {
       const resp = await client.create({
-        object: {
-          metadata: { name: input.name },
-          spec: {
-            virtualNetwork: input.virtual_network,
-            ...(input.ipv4_cidr && { ipv4Cidr: input.ipv4_cidr }),
-            ...(input.ipv6_cidr && { ipv6Cidr: input.ipv6_cidr }),
-          },
-        },
+        object: input,
       });
       const subnet = resp.object;
       if (!subnet?.id) {
@@ -247,7 +216,7 @@ export const useDeleteSubnet = () => {
 };
 
 export const securityGroupFilterForVirtualNetwork = (virtualNetworkId: string): string =>
-  `this.spec.virtual_network == "${escapeCelStringLiteral(virtualNetworkId)}"`;
+  `this.spec.virtual_network.id == "${escapeCelStringLiteral(virtualNetworkId)}"`;
 
 export const useCreateSecurityGroup = () => {
   const client = useApiFetch(SecurityGroups);

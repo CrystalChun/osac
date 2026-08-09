@@ -153,7 +153,7 @@ export const SecurityGroupRuleModal = ({
         id: securityGroup.id,
         metadata: { name: securityGroup.metadata?.name ?? '' },
         spec: {
-          virtualNetwork: securityGroup.spec?.virtualNetwork ?? '',
+          virtualNetwork: securityGroup.spec?.virtualNetwork,
           ingress: newIngress,
           egress: newEgress,
         },

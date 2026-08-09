@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Alert,
   Button,
@@ -9,36 +10,82 @@ import {
   Stack,
   StackItem,
 } from '@patternfly/react-core';
-import { Formik } from 'formik';
+import { Formik, useFormikContext } from 'formik';
 import * as Yup from 'yup';
 
-import type { VirtualNetworkInput } from '../../api/v1/networking';
-import { useNetworkClasses } from '../../api/v1/networking';
+import { useCreateVirtualNetwork, useNetworkClasses } from '../../api/v1/networking';
 import { InputField } from '../../components/Form/InputField';
 import OsacForm from '../../components/Form/OsacForm';
 import { useTranslation } from '../../hooks/useTranslation';
 import { getErrorMessage } from '../../utils/error';
 import { buildCidrSchema } from '../../validation/cidr-validation';
+import { SelectField } from '../Form/SelectField';
+
+type VirtualNetworkCreateFormValues = {
+  name: string;
+  networkClass: string;
+  ipv4Cidr: string;
+  ipv6Cidr: string;
+};
+
+const VirtualNetworkCreateForm = () => {
+  const { values, setFieldValue } = useFormikContext<VirtualNetworkCreateFormValues>();
+  const { t } = useTranslation();
+
+  const { data: networkClasses = [], isLoading: isLoadingNetworkClasses } = useNetworkClasses();
+
+  const defaultNcName = networkClasses.find((nc) => nc.isDefault)?.metadata?.name;
+
+  React.useEffect(() => {
+    if (defaultNcName && values.networkClass === '') {
+      setFieldValue('networkClass', defaultNcName);
+    }
+  }, [defaultNcName, setFieldValue, values.networkClass]);
+
+  return (
+    <OsacForm>
+      <InputField name="name" label={t('Name')} fieldId="vn-name" isRequired />
+      <SelectField
+        fieldId="networkClass"
+        name="networkClass"
+        label={t('Network class')}
+        options={networkClasses.map((nc) => ({
+          label: nc.title || nc.metadata?.name || nc.id,
+          value: nc.metadata?.name || '',
+        }))}
+        isRequired
+        isLoading={isLoadingNetworkClasses}
+      />
+      <InputField
+        name="ipv4Cidr"
+        label={t('IPv4 CIDR')}
+        fieldId="vn-ipv4-cidr"
+        helperText={t('Example: 10.0.0.0/16')}
+      />
+      <InputField
+        name="ipv6Cidr"
+        label={t('IPv6 CIDR (Optional)')}
+        fieldId="vn-ipv6-cidr"
+        helperText={t('Example: 2001:db8::/32')}
+      />
+    </OsacForm>
+  );
+};
 
 interface VirtualNetworkCreateModalProps {
   onClose: () => void;
-  onCreate: (input: VirtualNetworkInput) => Promise<{ id: string }>;
-  onNavigate: (id: string) => void;
 }
 
-export const VirtualNetworkCreateModal = ({
-  onClose,
-  onCreate,
-  onNavigate,
-}: VirtualNetworkCreateModalProps) => {
+export const VirtualNetworkCreateModal = ({ onClose }: VirtualNetworkCreateModalProps) => {
+  const navigate = useNavigate();
   const { t } = useTranslation();
-  const [error, setError] = React.useState<Error | null>(null);
-  const { data: networkClasses = [], isLoading: isLoadingNetworkClasses } = useNetworkClasses();
+  const { mutateAsync: create, error } = useCreateVirtualNetwork();
 
   const validationSchema = useMemo(
     () =>
       Yup.object({
         name: Yup.string().required(t('Name is required')),
+        networkClass: Yup.string().required(t('Network class is required')),
         ipv4Cidr: buildCidrSchema(t, 'ipv4'),
         ipv6Cidr: buildCidrSchema(t, 'ipv6'),
       }).test('at-least-one-cidr', t('At least one CIDR (IPv4 or IPv6) is required'), (values) =>
@@ -47,37 +94,32 @@ export const VirtualNetworkCreateModal = ({
     [t],
   );
 
-  const defaultNetworkClass =
-    networkClasses.find((nc) => nc.title === 'CUDN Network Implementation')?.id ??
-    networkClasses[0]?.id ??
-    '';
-
   return (
-    <Formik
-      initialValues={{ name: '', ipv4Cidr: '', ipv6Cidr: '' }}
+    <Formik<VirtualNetworkCreateFormValues>
+      initialValues={{ name: '', networkClass: '', ipv4Cidr: '', ipv6Cidr: '' }}
       validationSchema={validationSchema}
-      onSubmit={async (values, { setSubmitting }) => {
-        setError(null);
+      onSubmit={async (values) => {
         try {
-          if (!defaultNetworkClass) {
-            throw new Error('No network classes available');
-          }
-          const input: VirtualNetworkInput = {
-            name: values.name,
-            network_class: defaultNetworkClass,
-          };
-          if (values.ipv4Cidr) {
-            input.ipv4_cidr = values.ipv4Cidr;
-          }
-          if (values.ipv6Cidr) {
-            input.ipv6_cidr = values.ipv6Cidr;
-          }
-          const result = await onCreate(input);
-          onNavigate(result.id);
-        } catch (err: unknown) {
-          setError(err instanceof Error ? err : new Error(String(err)));
-        } finally {
-          setSubmitting(false);
+          const result = await create({
+            metadata: {
+              name: values.name,
+            },
+            spec: {
+              networkClass: {
+                name: values.networkClass,
+              },
+              ipv4Cidr: values.ipv4Cidr || undefined,
+              ipv6Cidr: values.ipv6Cidr || undefined,
+              capabilities: {
+                enableDualStack: !!values.ipv4Cidr && !!values.ipv6Cidr,
+                enableIpv4: !!values.ipv4Cidr,
+                enableIpv6: !!values.ipv6Cidr,
+              },
+            },
+          });
+          navigate(`/networking/virtual-networks/${result.id}`);
+        } catch {
+          // tanstack handles the error
         }
       }}
     >
@@ -90,36 +132,18 @@ export const VirtualNetworkCreateModal = ({
         >
           <ModalHeader title={t('Create virtual network')} labelId="vn-create-modal-title" />
           <ModalBody>
-            <OsacForm>
-              <Stack hasGutter>
+            <Stack hasGutter>
+              <StackItem>
+                <VirtualNetworkCreateForm />
+              </StackItem>
+              {!!error && (
                 <StackItem>
-                  <InputField name="name" label={t('Name')} fieldId="vn-name" isRequired />
+                  <Alert variant="danger" title={t('Failed to create virtual network')} isInline>
+                    {getErrorMessage(error)}
+                  </Alert>
                 </StackItem>
-                <StackItem>
-                  <InputField
-                    name="ipv4Cidr"
-                    label={t('IPv4 CIDR')}
-                    fieldId="vn-ipv4-cidr"
-                    helperText={t('Example: 10.0.0.0/16')}
-                  />
-                </StackItem>
-                <StackItem>
-                  <InputField
-                    name="ipv6Cidr"
-                    label={t('IPv6 CIDR (Optional)')}
-                    fieldId="vn-ipv6-cidr"
-                    helperText={t('Example: 2001:db8::/32')}
-                  />
-                </StackItem>
-                {error && (
-                  <StackItem>
-                    <Alert variant="danger" title={t('Failed to create virtual network')} isInline>
-                      {getErrorMessage(error)}
-                    </Alert>
-                  </StackItem>
-                )}
-              </Stack>
-            </OsacForm>
+              )}
+            </Stack>
           </ModalBody>
           <ModalFooter>
             <Button variant="link" onClick={onClose} isDisabled={isSubmitting}>
@@ -128,7 +152,7 @@ export const VirtualNetworkCreateModal = ({
             <Button
               variant="primary"
               onClick={submitForm}
-              isDisabled={isSubmitting || isLoadingNetworkClasses || !defaultNetworkClass}
+              isDisabled={isSubmitting}
               isLoading={isSubmitting}
             >
               {t('Create')}

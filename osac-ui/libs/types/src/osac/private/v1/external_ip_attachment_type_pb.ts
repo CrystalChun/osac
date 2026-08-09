@@ -20,13 +20,21 @@ import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_google_api_field_behavior } from "../../../google/api/field_behavior_pb";
 import type { Metadata } from "./metadata_type_pb";
 import { file_osac_private_v1_metadata_type } from "./metadata_type_pb";
+import type { BareMetalInstanceLocalReference } from "./baremetal_instance_type_pb";
+import { file_osac_private_v1_baremetal_instance_type } from "./baremetal_instance_type_pb";
+import type { ClusterLocalReference } from "./cluster_type_pb";
+import { file_osac_private_v1_cluster_type } from "./cluster_type_pb";
+import type { ComputeInstanceLocalReference } from "./compute_instance_type_pb";
+import { file_osac_private_v1_compute_instance_type } from "./compute_instance_type_pb";
+import type { ExternalIPLocalReference } from "./external_ip_type_pb";
+import { file_osac_private_v1_external_ip_type } from "./external_ip_type_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file osac/private/v1/external_ip_attachment_type.proto.
  */
 export const file_osac_private_v1_external_ip_attachment_type: GenFile = /*@__PURE__*/
-  fileDesc("CjFvc2FjL3ByaXZhdGUvdjEvZXh0ZXJuYWxfaXBfYXR0YWNobWVudF90eXBlLnByb3RvEg9vc2FjLnByaXZhdGUudjEixQEKFEV4dGVybmFsSVBBdHRhY2htZW50EgoKAmlkGAEgASgJEisKCG1ldGFkYXRhGAIgASgLMhkub3NhYy5wcml2YXRlLnYxLk1ldGFkYXRhEjcKBHNwZWMYAyABKAsyKS5vc2FjLnByaXZhdGUudjEuRXh0ZXJuYWxJUEF0dGFjaG1lbnRTcGVjEjsKBnN0YXR1cxgEIAEoCzIrLm9zYWMucHJpdmF0ZS52MS5FeHRlcm5hbElQQXR0YWNobWVudFN0YXR1cyLbAQoYRXh0ZXJuYWxJUEF0dGFjaG1lbnRTcGVjEhsKC2V4dGVybmFsX2lwGAEgASgJQgbgQQLgQQUSGgoQY29tcHV0ZV9pbnN0YW5jZRgCIAEoCUgAEhEKB2NsdXN0ZXIYAyABKAlIABIcChJiYXJlbWV0YWxfaW5zdGFuY2UYBCABKAlIABJLCg90YXJnZXRfZW5kcG9pbnQYBSABKA4yLS5vc2FjLnByaXZhdGUudjEuRXh0ZXJuYWxJUEF0dGFjaG1lbnRFbmRwb2ludEID4EEFQggKBnRhcmdldCK3AQoaRXh0ZXJuYWxJUEF0dGFjaG1lbnRTdGF0dXMSPgoFc3RhdGUYASABKA4yKi5vc2FjLnByaXZhdGUudjEuRXh0ZXJuYWxJUEF0dGFjaG1lbnRTdGF0ZUID4EEDEiAKE2V4dGVybmFsX2lwX2FkZHJlc3MYAiABKAlCA+BBAxIZCgdtZXNzYWdlGAMgASgJQgPgQQNIAIgBARIQCgNodWIYBCABKAlCA+BBA0IKCghfbWVzc2FnZSqlAQocRXh0ZXJuYWxJUEF0dGFjaG1lbnRFbmRwb2ludBIvCitFWFRFUk5BTF9JUF9BVFRBQ0hNRU5UX0VORFBPSU5UX1VOU1BFQ0lGSUVEEAASJwojRVhURVJOQUxfSVBfQVRUQUNITUVOVF9FTkRQT0lOVF9BUEkQARIrCidFWFRFUk5BTF9JUF9BVFRBQ0hNRU5UX0VORFBPSU5UX0lOR1JFU1MQAirvAQoZRXh0ZXJuYWxJUEF0dGFjaG1lbnRTdGF0ZRIsCihFWFRFUk5BTF9JUF9BVFRBQ0hNRU5UX1NUQVRFX1VOU1BFQ0lGSUVEEAASKAokRVhURVJOQUxfSVBfQVRUQUNITUVOVF9TVEFURV9QRU5ESU5HEAESJgoiRVhURVJOQUxfSVBfQVRUQUNITUVOVF9TVEFURV9SRUFEWRACEicKI0VYVEVSTkFMX0lQX0FUVEFDSE1FTlRfU1RBVEVfRkFJTEVEEAMSKQolRVhURVJOQUxfSVBfQVRUQUNITUVOVF9TVEFURV9ERUxFVElORxAEYgZwcm90bzM", [file_google_api_field_behavior, file_osac_private_v1_metadata_type]);
+  fileDesc("CjFvc2FjL3ByaXZhdGUvdjEvZXh0ZXJuYWxfaXBfYXR0YWNobWVudF90eXBlLnByb3RvEg9vc2FjLnByaXZhdGUudjEixQEKFEV4dGVybmFsSVBBdHRhY2htZW50EgoKAmlkGAEgASgJEisKCG1ldGFkYXRhGAIgASgLMhkub3NhYy5wcml2YXRlLnYxLk1ldGFkYXRhEjcKBHNwZWMYAyABKAsyKS5vc2FjLnByaXZhdGUudjEuRXh0ZXJuYWxJUEF0dGFjaG1lbnRTcGVjEjsKBnN0YXR1cxgEIAEoCzIrLm9zYWMucHJpdmF0ZS52MS5FeHRlcm5hbElQQXR0YWNobWVudFN0YXR1cyKQAwoYRXh0ZXJuYWxJUEF0dGFjaG1lbnRTcGVjEkYKC2V4dGVybmFsX2lwGAEgASgLMikub3NhYy5wcml2YXRlLnYxLkV4dGVybmFsSVBMb2NhbFJlZmVyZW5jZUIG4EEC4EEFEkoKEGNvbXB1dGVfaW5zdGFuY2UYAiABKAsyLi5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlTG9jYWxSZWZlcmVuY2VIABI5CgdjbHVzdGVyGAMgASgLMiYub3NhYy5wcml2YXRlLnYxLkNsdXN0ZXJMb2NhbFJlZmVyZW5jZUgAEk4KEmJhcmVtZXRhbF9pbnN0YW5jZRgEIAEoCzIwLm9zYWMucHJpdmF0ZS52MS5CYXJlTWV0YWxJbnN0YW5jZUxvY2FsUmVmZXJlbmNlSAASSwoPdGFyZ2V0X2VuZHBvaW50GAUgASgOMi0ub3NhYy5wcml2YXRlLnYxLkV4dGVybmFsSVBBdHRhY2htZW50RW5kcG9pbnRCA+BBBUIICgZ0YXJnZXQitwEKGkV4dGVybmFsSVBBdHRhY2htZW50U3RhdHVzEj4KBXN0YXRlGAEgASgOMioub3NhYy5wcml2YXRlLnYxLkV4dGVybmFsSVBBdHRhY2htZW50U3RhdGVCA+BBAxIgChNleHRlcm5hbF9pcF9hZGRyZXNzGAIgASgJQgPgQQMSGQoHbWVzc2FnZRgDIAEoCUID4EEDSACIAQESEAoDaHViGAQgASgJQgPgQQNCCgoIX21lc3NhZ2UqpQEKHEV4dGVybmFsSVBBdHRhY2htZW50RW5kcG9pbnQSLworRVhURVJOQUxfSVBfQVRUQUNITUVOVF9FTkRQT0lOVF9VTlNQRUNJRklFRBAAEicKI0VYVEVSTkFMX0lQX0FUVEFDSE1FTlRfRU5EUE9JTlRfQVBJEAESKwonRVhURVJOQUxfSVBfQVRUQUNITUVOVF9FTkRQT0lOVF9JTkdSRVNTEAIq7wEKGUV4dGVybmFsSVBBdHRhY2htZW50U3RhdGUSLAooRVhURVJOQUxfSVBfQVRUQUNITUVOVF9TVEFURV9VTlNQRUNJRklFRBAAEigKJEVYVEVSTkFMX0lQX0FUVEFDSE1FTlRfU1RBVEVfUEVORElORxABEiYKIkVYVEVSTkFMX0lQX0FUVEFDSE1FTlRfU1RBVEVfUkVBRFkQAhInCiNFWFRFUk5BTF9JUF9BVFRBQ0hNRU5UX1NUQVRFX0ZBSUxFRBADEikKJUVYVEVSTkFMX0lQX0FUVEFDSE1FTlRfU1RBVEVfREVMRVRJTkcQBGIGcHJvdG8z", [file_google_api_field_behavior, file_osac_private_v1_metadata_type, file_osac_private_v1_baremetal_instance_type, file_osac_private_v1_cluster_type, file_osac_private_v1_compute_instance_type, file_osac_private_v1_external_ip_type]);
 
 /**
  * Represents a binding between an ExternalIP and a target resource.
@@ -96,16 +104,14 @@ export const ExternalIPAttachmentSchema: GenMessage<ExternalIPAttachment> = /*@_
  */
 export type ExternalIPAttachmentSpec = Message<"osac.private.v1.ExternalIPAttachmentSpec"> & {
   /**
-   * ExternalIP ID to attach. Required and immutable after creation.
+   * ExternalIP reference to attach. Required and immutable after creation.
    *
-   * Must reference the ID of an existing ExternalIP in ALLOCATED state that is not already
+   * Must reference an existing ExternalIP in ALLOCATED state that is not already
    * attached (status.attached == false). Only one ExternalIPAttachment may exist per ExternalIP.
    *
-   * Example: "019728a4-3f5c-7def-8abc-1234567890ab"
-   *
-   * @generated from field: string external_ip = 1;
+   * @generated from field: osac.private.v1.ExternalIPLocalReference external_ip = 1;
    */
-  externalIp: string;
+  externalIp?: ExternalIPLocalReference | undefined;
 
   /**
    * Target resource to attach the external IP to. Exactly one target field must be set.
@@ -115,44 +121,38 @@ export type ExternalIPAttachmentSpec = Message<"osac.private.v1.ExternalIPAttach
    */
   target: {
     /**
-     * ComputeInstance ID to attach this external IP to.
+     * ComputeInstance reference to attach this external IP to.
      *
-     * Must reference the ID of an existing ComputeInstance in RUNNING state. Only one
+     * Must reference an existing ComputeInstance in RUNNING state. Only one
      * ExternalIPAttachment may exist per ComputeInstance.
      *
-     * Example: "01972f1b-a4e9-7c82-9def-abcdef123456"
-     *
-     * @generated from field: string compute_instance = 2;
+     * @generated from field: osac.private.v1.ComputeInstanceLocalReference compute_instance = 2;
      */
-    value: string;
+    value: ComputeInstanceLocalReference;
     case: "computeInstance";
   } | {
     /**
-     * Cluster ID to attach this external IP to.
+     * Cluster reference to attach this external IP to.
      *
-     * Must reference the ID of an existing Cluster. The target_endpoint field is required
+     * Must reference an existing Cluster. The target_endpoint field is required
      * when targeting a cluster to specify which endpoint (API or ingress) receives the
      * external IP. The attachment can be created before the cluster is ready and will
      * activate once the cluster's VIP is available.
      *
-     * Example: "01973a2c-b5f0-7d93-8abc-def012345678"
-     *
-     * @generated from field: string cluster = 3;
+     * @generated from field: osac.private.v1.ClusterLocalReference cluster = 3;
      */
-    value: string;
+    value: ClusterLocalReference;
     case: "cluster";
   } | {
     /**
-     * BareMetalInstance ID to attach this external IP to.
+     * BareMetalInstance reference to attach this external IP to.
      *
-     * Must reference the ID of an existing BareMetalInstance. DNAT rules will be configured
+     * Must reference an existing BareMetalInstance. DNAT rules will be configured
      * to forward traffic from the external IP to the bare-metal instance's internal IP.
      *
-     * Example: "01973b3d-c6e1-7ea4-9bcd-ef0123456789"
-     *
-     * @generated from field: string baremetal_instance = 4;
+     * @generated from field: osac.private.v1.BareMetalInstanceLocalReference baremetal_instance = 4;
      */
-    value: string;
+    value: BareMetalInstanceLocalReference;
     case: "baremetalInstance";
   } | { case: undefined; value?: undefined };
 

@@ -29,7 +29,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/private/v1/cluster_version_type.proto.
  */
 export const file_osac_private_v1_cluster_version_type: GenFile = /*@__PURE__*/
-  fileDesc("Cipvc2FjL3ByaXZhdGUvdjEvY2x1c3Rlcl92ZXJzaW9uX3R5cGUucHJvdG8SD29zYWMucHJpdmF0ZS52MSKcAQoZQ2x1c3RlclZlcnNpb25EZXByZWNhdGlvbhI+ChVkZXByZWNhdGlvbl90aW1lc3RhbXAYASABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgPgQQMSPwoWb2Jzb2xlc2NlbmNlX3RpbWVzdGFtcBgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCA+BBAyJLCh1DbHVzdGVyVmVyc2lvbkFsbG93ZWRVcGdyYWRlcxIqCg12ZXJzaW9uX25hbWVzGAEgAygJQhO6SBCSAQ0Q6AcYASIGcgQQARg/IrMBCg5DbHVzdGVyVmVyc2lvbhIKCgJpZBgBIAEoCRIrCghtZXRhZGF0YRgCIAEoCzIZLm9zYWMucHJpdmF0ZS52MS5NZXRhZGF0YRIxCgRzcGVjGAMgASgLMiMub3NhYy5wcml2YXRlLnYxLkNsdXN0ZXJWZXJzaW9uU3BlYxI1CgZzdGF0dXMYBCABKAsyJS5vc2FjLnByaXZhdGUudjEuQ2x1c3RlclZlcnNpb25TdGF0dXMi5wIKEkNsdXN0ZXJWZXJzaW9uU3BlYxIVCgVpbWFnZRgBIAEoCUIG4EEC4EEFEhkKB2VuYWJsZWQYAiABKAhCA+BBAUgAiAEBEhwKCmlzX2RlZmF1bHQYAyABKAhCA+BBAUgBiAEBEjgKBXN0YXRlGAQgASgOMiQub3NhYy5wcml2YXRlLnYxLkNsdXN0ZXJWZXJzaW9uU3RhdGVCA+BBARJECgtkZXByZWNhdGlvbhgFIAEoCzIqLm9zYWMucHJpdmF0ZS52MS5DbHVzdGVyVmVyc2lvbkRlcHJlY2F0aW9uQgPgQQESFwoHdmVyc2lvbhgGIAEoCUIG4EEC4EEFEk0KEGFsbG93ZWRfdXBncmFkZXMYByABKAsyLi5vc2FjLnByaXZhdGUudjEuQ2x1c3RlclZlcnNpb25BbGxvd2VkVXBncmFkZXNCA+BBAUIKCghfZW5hYmxlZEINCgtfaXNfZGVmYXVsdCIWChRDbHVzdGVyVmVyc2lvblN0YXR1cyqoAQoTQ2x1c3RlclZlcnNpb25TdGF0ZRIlCiFDTFVTVEVSX1ZFUlNJT05fU1RBVEVfVU5TUEVDSUZJRUQQABIgChxDTFVTVEVSX1ZFUlNJT05fU1RBVEVfQUNUSVZFEAESJAogQ0xVU1RFUl9WRVJTSU9OX1NUQVRFX0RFUFJFQ0FURUQQAhIiCh5DTFVTVEVSX1ZFUlNJT05fU1RBVEVfT0JTT0xFVEUQA2IGcHJvdG8z", [file_buf_validate_validate, file_google_api_field_behavior, file_google_protobuf_timestamp, file_osac_private_v1_metadata_type]);
+  fileDesc("Cipvc2FjL3ByaXZhdGUvdjEvY2x1c3Rlcl92ZXJzaW9uX3R5cGUucHJvdG8SD29zYWMucHJpdmF0ZS52MSKcAQoZQ2x1c3RlclZlcnNpb25EZXByZWNhdGlvbhI+ChVkZXByZWNhdGlvbl90aW1lc3RhbXAYASABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgPgQQMSPwoWb2Jzb2xlc2NlbmNlX3RpbWVzdGFtcBgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCA+BBAyKzAQoOQ2x1c3RlclZlcnNpb24SCgoCaWQYASABKAkSKwoIbWV0YWRhdGEYAiABKAsyGS5vc2FjLnByaXZhdGUudjEuTWV0YWRhdGESMQoEc3BlYxgDIAEoCzIjLm9zYWMucHJpdmF0ZS52MS5DbHVzdGVyVmVyc2lvblNwZWMSNQoGc3RhdHVzGAQgASgLMiUub3NhYy5wcml2YXRlLnYxLkNsdXN0ZXJWZXJzaW9uU3RhdHVzIqwCChJDbHVzdGVyVmVyc2lvblNwZWMSHwoFaW1hZ2UYASABKAlCEOBBAuBBBbpIB3IFEAEYgAQSGQoHZW5hYmxlZBgCIAEoCEID4EEBSACIAQESHAoKaXNfZGVmYXVsdBgDIAEoCEID4EEBSAGIAQESOAoFc3RhdGUYBCABKA4yJC5vc2FjLnByaXZhdGUudjEuQ2x1c3RlclZlcnNpb25TdGF0ZUID4EEBEkQKC2RlcHJlY2F0aW9uGAUgASgLMioub3NhYy5wcml2YXRlLnYxLkNsdXN0ZXJWZXJzaW9uRGVwcmVjYXRpb25CA+BBARIhCgd2ZXJzaW9uGAYgASgJQhDgQQLgQQW6SAdyBRABGIACQgoKCF9lbmFibGVkQg0KC19pc19kZWZhdWx0IhYKFENsdXN0ZXJWZXJzaW9uU3RhdHVzIlQKF0NsdXN0ZXJWZXJzaW9uUmVmZXJlbmNlEgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkSDwoHcHJvamVjdBgDIAEoCRIOCgZzaGFyZWQYBCABKAgqqAEKE0NsdXN0ZXJWZXJzaW9uU3RhdGUSJQohQ0xVU1RFUl9WRVJTSU9OX1NUQVRFX1VOU1BFQ0lGSUVEEAASIAocQ0xVU1RFUl9WRVJTSU9OX1NUQVRFX0FDVElWRRABEiQKIENMVVNURVJfVkVSU0lPTl9TVEFURV9ERVBSRUNBVEVEEAISIgoeQ0xVU1RFUl9WRVJTSU9OX1NUQVRFX09CU09MRVRFEANiBnByb3RvMw", [file_buf_validate_validate, file_google_api_field_behavior, file_google_protobuf_timestamp, file_osac_private_v1_metadata_type]);
 
 /**
  * Contains deprecation details for a cluster version.
@@ -64,39 +64,11 @@ export const ClusterVersionDeprecationSchema: GenMessage<ClusterVersionDeprecati
   messageDesc(file_osac_private_v1_cluster_version_type, 0);
 
 /**
- * Constrains which cluster versions are valid upgrade targets from a given version.
- *
- * Three-way semantics apply:
- * - Message absent: no path constraint is enforced (the target must still be enabled and not obsolete).
- * - Message present with empty version_names: no valid targets exist and version change is rejected.
- * - Message present with version_names: only the listed versions are accepted as upgrade targets.
- *
- * @generated from message osac.private.v1.ClusterVersionAllowedUpgrades
- */
-export type ClusterVersionAllowedUpgrades = Message<"osac.private.v1.ClusterVersionAllowedUpgrades"> & {
-  /**
-   * ClusterVersion names (metadata.name). Must reference existing, non-deleted ClusterVersions. When a target
-   * version is deleted, it is automatically removed from all lists.
-   * No duplicate or empty entries are allowed.
-   *
-   * @generated from field: repeated string version_names = 1;
-   */
-  versionNames: string[];
-};
-
-/**
- * Describes the message osac.private.v1.ClusterVersionAllowedUpgrades.
- * Use `create(ClusterVersionAllowedUpgradesSchema)` to create a new message.
- */
-export const ClusterVersionAllowedUpgradesSchema: GenMessage<ClusterVersionAllowedUpgrades> = /*@__PURE__*/
-  messageDesc(file_osac_private_v1_cluster_version_type, 1);
-
-/**
  * Contains the details about the cluster version that are available only for the system.
  *
  * Cluster versions are admin-managed catalog entries that define which OpenShift versions are available. Users
- * select a cluster version by name when creating clusters, either directly via Cluster `spec.version_name` or
- * through a ClusterTemplate `spec_defaults.version_name`. Cloud Provider Admins control the version catalog
+ * select a cluster version when creating clusters, either directly via Cluster `spec.version` or
+ * through a ClusterTemplate `spec_defaults.version`. Cloud Provider Admins control the version catalog
  * through lifecycle-managed cluster versions.
  *
  * If `metadata.name` is omitted on creation, it is auto-generated from `spec.version` by lowercasing and
@@ -145,14 +117,14 @@ export type ClusterVersion = Message<"osac.private.v1.ClusterVersion"> & {
  * Use `create(ClusterVersionSchema)` to create a new message.
  */
 export const ClusterVersionSchema: GenMessage<ClusterVersion> = /*@__PURE__*/
-  messageDesc(file_osac_private_v1_cluster_version_type, 2);
+  messageDesc(file_osac_private_v1_cluster_version_type, 1);
 
 /**
  * Defines the desired configuration for a ClusterVersion.
  *
  * The spec contains admin-specified parameters that define the version catalog entry. The `image` and `version`
- * fields are immutable after creation. The `enabled`, `is_default`, `state`, `deprecation`, and `allowed_upgrades`
- * fields may be updated to manage the version lifecycle.
+ * fields are immutable after creation. The `enabled`, `is_default`, `state`, and `deprecation` fields may be
+ * updated to manage the version lifecycle.
  *
  * @generated from message osac.private.v1.ClusterVersionSpec
  */
@@ -183,7 +155,7 @@ export type ClusterVersionSpec = Message<"osac.private.v1.ClusterVersionSpec"> &
    * the previous default atomically. Auto-cleared when the version becomes OBSOLETE or disabled.
    *
    * When creating a cluster, the version is resolved with the following precedence:
-   * explicit `spec.version_name` > template `spec_defaults.version_name` > system default (`is_default=true`).
+   * explicit `spec.version` > template `spec_defaults.version` > system default (`is_default=true`).
    *
    * @generated from field: optional bool is_default = 3;
    */
@@ -214,16 +186,6 @@ export type ClusterVersionSpec = Message<"osac.private.v1.ClusterVersionSpec"> &
    * @generated from field: string version = 6;
    */
   version: string;
-
-  /**
-   * Constrains which versions are valid upgrade targets from this version.
-   *
-   * When absent, any enabled non-obsolete version is a valid target. When present with an empty list,
-   * version changes are blocked. When present with entries, only the listed versions are accepted.
-   *
-   * @generated from field: osac.private.v1.ClusterVersionAllowedUpgrades allowed_upgrades = 7;
-   */
-  allowedUpgrades?: ClusterVersionAllowedUpgrades | undefined;
 };
 
 /**
@@ -231,7 +193,7 @@ export type ClusterVersionSpec = Message<"osac.private.v1.ClusterVersionSpec"> &
  * Use `create(ClusterVersionSpecSchema)` to create a new message.
  */
 export const ClusterVersionSpecSchema: GenMessage<ClusterVersionSpec> = /*@__PURE__*/
-  messageDesc(file_osac_private_v1_cluster_version_type, 3);
+  messageDesc(file_osac_private_v1_cluster_version_type, 2);
 
 /**
  * Contains the system-provided status of a ClusterVersion.
@@ -248,6 +210,40 @@ export type ClusterVersionStatus = Message<"osac.private.v1.ClusterVersionStatus
  * Use `create(ClusterVersionStatusSchema)` to create a new message.
  */
 export const ClusterVersionStatusSchema: GenMessage<ClusterVersionStatus> = /*@__PURE__*/
+  messageDesc(file_osac_private_v1_cluster_version_type, 3);
+
+/**
+ * Reference to a ClusterVersion resource.
+ *
+ * @generated from message osac.private.v1.ClusterVersionReference
+ */
+export type ClusterVersionReference = Message<"osac.private.v1.ClusterVersionReference"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string name = 2;
+   */
+  name: string;
+
+  /**
+   * @generated from field: string project = 3;
+   */
+  project: string;
+
+  /**
+   * @generated from field: bool shared = 4;
+   */
+  shared: boolean;
+};
+
+/**
+ * Describes the message osac.private.v1.ClusterVersionReference.
+ * Use `create(ClusterVersionReferenceSchema)` to create a new message.
+ */
+export const ClusterVersionReferenceSchema: GenMessage<ClusterVersionReference> = /*@__PURE__*/
   messageDesc(file_osac_private_v1_cluster_version_type, 4);
 
 /**

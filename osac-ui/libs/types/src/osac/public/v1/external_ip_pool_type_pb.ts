@@ -28,7 +28,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/public/v1/external_ip_pool_type.proto.
  */
 export const file_osac_public_v1_external_ip_pool_type: GenFile = /*@__PURE__*/
-  fileDesc("Cipvc2FjL3B1YmxpYy92MS9leHRlcm5hbF9pcF9wb29sX3R5cGUucHJvdG8SDm9zYWMucHVibGljLnYxIrABCg5FeHRlcm5hbElQUG9vbBIKCgJpZBgBIAEoCRIqCghtZXRhZGF0YRgCIAEoCzIYLm9zYWMucHVibGljLnYxLk1ldGFkYXRhEjAKBHNwZWMYAyABKAsyIi5vc2FjLnB1YmxpYy52MS5FeHRlcm5hbElQUG9vbFNwZWMSNAoGc3RhdHVzGAQgASgLMiQub3NhYy5wdWJsaWMudjEuRXh0ZXJuYWxJUFBvb2xTdGF0dXMiTAoSRXh0ZXJuYWxJUFBvb2xTcGVjEjAKCWlwX2ZhbWlseRgDIAEoDjIYLm9zYWMucHVibGljLnYxLklQRmFtaWx5QgPgQQVKBAgCEAMiLgoURXh0ZXJuYWxJUFBvb2xTdGF0dXMSFgoJYXZhaWxhYmxlGAYgASgDQgPgQQNiBnByb3RvMw", [file_google_api_field_behavior, file_osac_public_v1_ip_family_type, file_osac_public_v1_metadata_type]);
+  fileDesc("Cipvc2FjL3B1YmxpYy92MS9leHRlcm5hbF9pcF9wb29sX3R5cGUucHJvdG8SDm9zYWMucHVibGljLnYxIrABCg5FeHRlcm5hbElQUG9vbBIKCgJpZBgBIAEoCRIqCghtZXRhZGF0YRgCIAEoCzIYLm9zYWMucHVibGljLnYxLk1ldGFkYXRhEjAKBHNwZWMYAyABKAsyIi5vc2FjLnB1YmxpYy52MS5FeHRlcm5hbElQUG9vbFNwZWMSNAoGc3RhdHVzGAQgASgLMiQub3NhYy5wdWJsaWMudjEuRXh0ZXJuYWxJUFBvb2xTdGF0dXMiTAoSRXh0ZXJuYWxJUFBvb2xTcGVjEjAKCWlwX2ZhbWlseRgDIAEoDjIYLm9zYWMucHVibGljLnYxLklQRmFtaWx5QgPgQQVKBAgCEAMiLgoURXh0ZXJuYWxJUFBvb2xTdGF0dXMSFgoJYXZhaWxhYmxlGAYgASgDQgPgQQMiVAoXRXh0ZXJuYWxJUFBvb2xSZWZlcmVuY2USCgoCaWQYASABKAkSDAoEbmFtZRgCIAEoCRIPCgdwcm9qZWN0GAMgASgJEg4KBnNoYXJlZBgEIAEoCGIGcHJvdG8z", [file_google_api_field_behavior, file_osac_public_v1_ip_family_type, file_osac_public_v1_metadata_type]);
 
 /**
  * Represents a pool of external IP addresses available for allocation.
@@ -117,4 +117,38 @@ export type ExternalIPPoolStatus = Message<"osac.public.v1.ExternalIPPoolStatus"
  */
 export const ExternalIPPoolStatusSchema: GenMessage<ExternalIPPoolStatus> = /*@__PURE__*/
   messageDesc(file_osac_public_v1_external_ip_pool_type, 2);
+
+/**
+ * Reference to an ExternalIPPool resource.
+ *
+ * @generated from message osac.public.v1.ExternalIPPoolReference
+ */
+export type ExternalIPPoolReference = Message<"osac.public.v1.ExternalIPPoolReference"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string name = 2;
+   */
+  name: string;
+
+  /**
+   * @generated from field: string project = 3;
+   */
+  project: string;
+
+  /**
+   * @generated from field: bool shared = 4;
+   */
+  shared: boolean;
+};
+
+/**
+ * Describes the message osac.public.v1.ExternalIPPoolReference.
+ * Use `create(ExternalIPPoolReferenceSchema)` to create a new message.
+ */
+export const ExternalIPPoolReferenceSchema: GenMessage<ExternalIPPoolReference> = /*@__PURE__*/
+  messageDesc(file_osac_public_v1_external_ip_pool_type, 3);
 

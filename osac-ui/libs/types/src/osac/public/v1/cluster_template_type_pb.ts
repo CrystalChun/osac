@@ -21,15 +21,19 @@ import type { Any } from "../../../google/protobuf/any_pb";
 import { file_google_protobuf_any } from "../../../google/protobuf/any_pb";
 import type { ClusterNetwork } from "./cluster_type_pb";
 import { file_osac_public_v1_cluster_type } from "./cluster_type_pb";
+import type { ClusterVersionReference } from "./cluster_version_type_pb";
+import { file_osac_public_v1_cluster_version_type } from "./cluster_version_type_pb";
 import type { Metadata } from "./metadata_type_pb";
 import { file_osac_public_v1_metadata_type } from "./metadata_type_pb";
+import type { HostTypeReference } from "./host_type_type_pb";
+import { file_osac_public_v1_host_type_type } from "./host_type_type_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file osac/public/v1/cluster_template_type.proto.
  */
 export const file_osac_public_v1_cluster_template_type: GenFile = /*@__PURE__*/
-  fileDesc("Cipvc2FjL3B1YmxpYy92MS9jbHVzdGVyX3RlbXBsYXRlX3R5cGUucHJvdG8SDm9zYWMucHVibGljLnYxIpQDCg9DbHVzdGVyVGVtcGxhdGUSCgoCaWQYASABKAkSKgoIbWV0YWRhdGEYAiABKAsyGC5vc2FjLnB1YmxpYy52MS5NZXRhZGF0YRINCgV0aXRsZRgDIAEoCRITCgtkZXNjcmlwdGlvbhgEIAEoCRJGCgpwYXJhbWV0ZXJzGAUgAygLMjIub3NhYy5wdWJsaWMudjEuQ2x1c3RlclRlbXBsYXRlUGFyYW1ldGVyRGVmaW5pdGlvbhJACglub2RlX3NldHMYBiADKAsyLS5vc2FjLnB1YmxpYy52MS5DbHVzdGVyVGVtcGxhdGUuTm9kZVNldHNFbnRyeRJCCg1zcGVjX2RlZmF1bHRzGAcgASgLMisub3NhYy5wdWJsaWMudjEuQ2x1c3RlclRlbXBsYXRlU3BlY0RlZmF1bHRzGlcKDU5vZGVTZXRzRW50cnkSCwoDa2V5GAEgASgJEjUKBXZhbHVlGAIgASgLMiYub3NhYy5wdWJsaWMudjEuQ2x1c3RlclRlbXBsYXRlTm9kZVNldDoCOAEinQEKIkNsdXN0ZXJUZW1wbGF0ZVBhcmFtZXRlckRlZmluaXRpb24SDAoEbmFtZRgBIAEoCRINCgV0aXRsZRgCIAEoCRITCgtkZXNjcmlwdGlvbhgDIAEoCRIQCghyZXF1aXJlZBgEIAEoCBIMCgR0eXBlGAUgASgJEiUKB2RlZmF1bHQYBiABKAsyFC5nb29nbGUucHJvdG9idWYuQW55IjkKFkNsdXN0ZXJUZW1wbGF0ZU5vZGVTZXQSEQoJaG9zdF90eXBlGAEgASgJEgwKBHNpemUYAiABKAUivQEKG0NsdXN0ZXJUZW1wbGF0ZVNwZWNEZWZhdWx0cxIbCg5zc2hfcHVibGljX2tleRgCIAEoCUgAiAEBEhoKDXJlbGVhc2VfaW1hZ2UYAyABKAlIAYgBARI0CgduZXR3b3JrGAQgASgLMh4ub3NhYy5wdWJsaWMudjEuQ2x1c3Rlck5ldHdvcmtIAogBAUIRCg9fc3NoX3B1YmxpY19rZXlCEAoOX3JlbGVhc2VfaW1hZ2VCCgoIX25ldHdvcmtiBnByb3RvMw", [file_google_protobuf_any, file_osac_public_v1_cluster_type, file_osac_public_v1_metadata_type]);
+  fileDesc("Cipvc2FjL3B1YmxpYy92MS9jbHVzdGVyX3RlbXBsYXRlX3R5cGUucHJvdG8SDm9zYWMucHVibGljLnYxIpQDCg9DbHVzdGVyVGVtcGxhdGUSCgoCaWQYASABKAkSKgoIbWV0YWRhdGEYAiABKAsyGC5vc2FjLnB1YmxpYy52MS5NZXRhZGF0YRINCgV0aXRsZRgDIAEoCRITCgtkZXNjcmlwdGlvbhgEIAEoCRJGCgpwYXJhbWV0ZXJzGAUgAygLMjIub3NhYy5wdWJsaWMudjEuQ2x1c3RlclRlbXBsYXRlUGFyYW1ldGVyRGVmaW5pdGlvbhJACglub2RlX3NldHMYBiADKAsyLS5vc2FjLnB1YmxpYy52MS5DbHVzdGVyVGVtcGxhdGUuTm9kZVNldHNFbnRyeRJCCg1zcGVjX2RlZmF1bHRzGAcgASgLMisub3NhYy5wdWJsaWMudjEuQ2x1c3RlclRlbXBsYXRlU3BlY0RlZmF1bHRzGlcKDU5vZGVTZXRzRW50cnkSCwoDa2V5GAEgASgJEjUKBXZhbHVlGAIgASgLMiYub3NhYy5wdWJsaWMudjEuQ2x1c3RlclRlbXBsYXRlTm9kZVNldDoCOAEinQEKIkNsdXN0ZXJUZW1wbGF0ZVBhcmFtZXRlckRlZmluaXRpb24SDAoEbmFtZRgBIAEoCRINCgV0aXRsZRgCIAEoCRITCgtkZXNjcmlwdGlvbhgDIAEoCRIQCghyZXF1aXJlZBgEIAEoCBIMCgR0eXBlGAUgASgJEiUKB2RlZmF1bHQYBiABKAsyFC5nb29nbGUucHJvdG9idWYuQW55IlwKFkNsdXN0ZXJUZW1wbGF0ZU5vZGVTZXQSNAoJaG9zdF90eXBlGAEgASgLMiEub3NhYy5wdWJsaWMudjEuSG9zdFR5cGVSZWZlcmVuY2USDAoEc2l6ZRgCIAEoBSLJAQobQ2x1c3RlclRlbXBsYXRlU3BlY0RlZmF1bHRzEhsKDnNzaF9wdWJsaWNfa2V5GAIgASgJSACIAQESNAoHbmV0d29yaxgEIAEoCzIeLm9zYWMucHVibGljLnYxLkNsdXN0ZXJOZXR3b3JrSAGIAQESOAoHdmVyc2lvbhgFIAEoCzInLm9zYWMucHVibGljLnYxLkNsdXN0ZXJWZXJzaW9uUmVmZXJlbmNlQhEKD19zc2hfcHVibGljX2tleUIKCghfbmV0d29ya2IGcHJvdG8z", [file_google_protobuf_any, file_osac_public_v1_cluster_type, file_osac_public_v1_cluster_version_type, file_osac_public_v1_metadata_type, file_osac_public_v1_host_type_type]);
 
 /**
  * A cluster template defines a type of cluster that can be created by the user. Note that the user doesn't create these
@@ -193,11 +197,11 @@ export const ClusterTemplateParameterDefinitionSchema: GenMessage<ClusterTemplat
  */
 export type ClusterTemplateNodeSet = Message<"osac.public.v1.ClusterTemplateNodeSet"> & {
   /**
-   * Identifier of the type of hosts that are part of the set.
+   * Reference to the type of hosts that are part of the set.
    *
-   * @generated from field: string host_type = 1;
+   * @generated from field: osac.public.v1.HostTypeReference host_type = 1;
    */
-  hostType: string;
+  hostType?: HostTypeReference | undefined;
 
   /**
    * Number of nodes of the set.
@@ -232,18 +236,21 @@ export type ClusterTemplateSpecDefaults = Message<"osac.public.v1.ClusterTemplat
   sshPublicKey?: string | undefined;
 
   /**
-   * Default OCP release image URL.
-   *
-   * @generated from field: optional string release_image = 3;
-   */
-  releaseImage?: string | undefined;
-
-  /**
    * Default cluster networking configuration.
    *
    * @generated from field: optional osac.public.v1.ClusterNetwork network = 4;
    */
   network?: ClusterNetwork | undefined;
+
+  /**
+   * Default ClusterVersion for clusters created with this template.
+   *
+   * When set, clusters that don't specify an explicit `spec.version` will use this version. The referenced
+   * ClusterVersion must exist, be enabled, and not be in `OBSOLETE` state.
+   *
+   * @generated from field: osac.public.v1.ClusterVersionReference version = 5;
+   */
+  version?: ClusterVersionReference | undefined;
 };
 
 /**
