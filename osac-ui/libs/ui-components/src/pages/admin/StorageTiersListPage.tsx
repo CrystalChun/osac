@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Flex, FlexItem, Stack, StackItem } from '@patternfly/react-core';
+import { Alert, Button, Flex, FlexItem, Stack, StackItem } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 import type { TFunction } from 'i18next';
 
@@ -45,9 +45,10 @@ export const StorageTiersListPage = () => {
 
   const backendIds = useMemo(() => uniqueBackendIds(tiers), [tiers]);
 
-  const { data: backends = [] } = usePrivateStorageBackends({
-    filter: storageBackendIdsFilter(backendIds),
-  });
+  const { data: backends = [], error: backendsError } = usePrivateStorageBackends(
+    { filter: storageBackendIdsFilter(backendIds) },
+    { enabled: backendIds.length > 0 },
+  );
 
   const backendsById = useMemo(
     () => new Map(backends.map((backend) => [backend.id, backend])),
@@ -69,53 +70,66 @@ export const StorageTiersListPage = () => {
       )}
       <StackItem>
         <ListPageBody isLoading={isLoading} error={error}>
-          {tiers.length === 0 ? (
-            <SubtleContent component="p">
-              {t('No storage tiers yet. Create one to get started.')}
-            </SubtleContent>
-          ) : (
-            <Table aria-label={t('Storage tiers')} variant="compact">
-              <Thead>
-                <Tr>
-                  <Th>{t('Name')}</Th>
-                  <Th>{t('Backends')}</Th>
-                  <Th>{t('Protocol(s)')}</Th>
-                  <Th>{t('State')}</Th>
-                  <Th aria-label={t('Actions')} />
-                </Tr>
-              </Thead>
-              <Tbody>
-                {tiers.map((tier) => {
-                  const backendAssociations = tier.spec?.backends ?? [];
-                  return (
-                    <Tr key={tier.id}>
-                      <Td dataLabel={t('Name')}>{tier.metadata?.name || tier.id}</Td>
-                      <Td dataLabel={t('Backends')}>
-                        {backendAssociations
-                          .map(
-                            (association) =>
-                              backendsById.get(association.backendId)?.metadata?.name ??
-                              association.backendId,
-                          )
-                          .join(', ')}
-                      </Td>
-                      <Td dataLabel={t('Protocol(s)')}>
-                        {backendAssociations
-                          .map((association) => protocolLabel(t, association.protocol))
-                          .join(', ')}
-                      </Td>
-                      <Td dataLabel={t('State')}>
-                        <StorageTierStatusLabel state={tier.status?.state} />
-                      </Td>
-                      <Td dataLabel={t('Actions')} isActionCell>
-                        <StorageTierActionsMenu tier={tier} />
-                      </Td>
+          <Stack hasGutter>
+            {Boolean(backendsError) && (
+              <StackItem>
+                <Alert variant="warning" isInline title={t('Unable to resolve backend names')}>
+                  {t(
+                    'Backend IDs are shown in place of names until this recovers. This is separate from the normal fallback shown when a tier references a backend that no longer exists.',
+                  )}
+                </Alert>
+              </StackItem>
+            )}
+            <StackItem>
+              {tiers.length === 0 ? (
+                <SubtleContent component="p">
+                  {t('No storage tiers yet. Create one to get started.')}
+                </SubtleContent>
+              ) : (
+                <Table aria-label={t('Storage tiers')} variant="compact">
+                  <Thead>
+                    <Tr>
+                      <Th>{t('Name')}</Th>
+                      <Th>{t('Backends')}</Th>
+                      <Th>{t('Protocol(s)')}</Th>
+                      <Th>{t('State')}</Th>
+                      <Th aria-label={t('Actions')} />
                     </Tr>
-                  );
-                })}
-              </Tbody>
-            </Table>
-          )}
+                  </Thead>
+                  <Tbody>
+                    {tiers.map((tier) => {
+                      const backendAssociations = tier.spec?.backends ?? [];
+                      return (
+                        <Tr key={tier.id}>
+                          <Td dataLabel={t('Name')}>{tier.metadata?.name || tier.id}</Td>
+                          <Td dataLabel={t('Backends')}>
+                            {backendAssociations
+                              .map(
+                                (association) =>
+                                  backendsById.get(association.backendId)?.metadata?.name ??
+                                  association.backendId,
+                              )
+                              .join(', ')}
+                          </Td>
+                          <Td dataLabel={t('Protocol(s)')}>
+                            {backendAssociations
+                              .map((association) => protocolLabel(t, association.protocol))
+                              .join(', ')}
+                          </Td>
+                          <Td dataLabel={t('State')}>
+                            <StorageTierStatusLabel state={tier.status?.state} />
+                          </Td>
+                          <Td dataLabel={t('Actions')} isActionCell>
+                            <StorageTierActionsMenu tier={tier} />
+                          </Td>
+                        </Tr>
+                      );
+                    })}
+                  </Tbody>
+                </Table>
+              )}
+            </StackItem>
+          </Stack>
         </ListPageBody>
       </StackItem>
     </Stack>

@@ -1,6 +1,7 @@
 import { Route, Routes } from 'react-router-dom';
+import { Code, ConnectError } from '@connectrpc/connect';
 import { screen, waitFor } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import type { StorageBackend, StorageTier } from '@osac/types/private';
 import { StorageBackendState, StorageProtocol, StorageTierState } from '@osac/types/private';
@@ -114,6 +115,38 @@ describe('StorageTiersListPage', () => {
 
     const expectedIds = ['backend-a', 'backend-b', 'missing-backend'].sort();
     expect(capturedFilter).toBe(storageBackendIdsFilter(expectedIds));
+  });
+
+  it('does not request backend names when there are no tiers', async () => {
+    const onStorageBackendList = vi.fn(() => ({ items: [], size: 0, total: 0 }));
+
+    renderWithProviders(<StorageTiersListPage />, {
+      apiFixtures: { storageTiers: [], storageBackends: defaultBackends },
+      transportOverrides: { onStorageBackendList },
+    });
+
+    await waitFor(() => {
+      expect(
+        screen.getByText('No storage tiers yet. Create one to get started.'),
+      ).toBeInTheDocument();
+    });
+    expect(onStorageBackendList).not.toHaveBeenCalled();
+  });
+
+  it('shows a warning banner when the backend-name lookup fails, without breaking the per-row id fallback', async () => {
+    renderWithProviders(<StorageTiersListPage />, {
+      apiFixtures: { storageTiers: defaultTiers, storageBackends: defaultBackends },
+      transportOverrides: {
+        onStorageBackendList: () => {
+          throw new ConnectError('backend service unavailable', Code.Unavailable);
+        },
+      },
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Unable to resolve backend names')).toBeInTheDocument();
+    });
+    expect(screen.getByText('backend-a')).toBeInTheDocument();
   });
 
   it('shows the empty state and no table when there are no tiers', async () => {

@@ -20,12 +20,20 @@ export const STORAGE_BACKEND_READY_LIST_FILTER = `this.status.state == ${Storage
 export const storageBackendIdsFilter = (ids: string[]): string =>
   `this.id in [${ids.map((id) => `"${escapeCelStringLiteral(id)}"`).join(', ')}]`;
 
-export const usePrivateStorageBackends = (params: ListParams = {}) => {
+type StorageBackendsListOptions = {
+  enabled?: boolean;
+};
+
+export const usePrivateStorageBackends = (
+  params: ListParams = {},
+  options: StorageBackendsListOptions = {},
+) => {
   const client = useApiFetch(StorageBackends);
   return useApiQuery({
     queryKey: apiQueryKey('v1/private/storage_backends', undefined, params),
     queryFn: () => client.list(params),
     select: (data) => data.items,
+    enabled: options.enabled ?? true,
   });
 };
 
