@@ -31,10 +31,12 @@ describe('StorageManagementPage', () => {
     expect(screen.getByRole('tabpanel')).toHaveTextContent('Storage backends');
   });
 
-  it('shows the Tiers placeholder when activeTab is tiers', () => {
+  it('renders the Storage Tiers list page when activeTab is tiers', async () => {
     renderPage('tiers');
 
-    expect(screen.getByRole('tabpanel')).toHaveTextContent('Storage tiers');
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Create tier' })).toBeInTheDocument();
+    });
   });
 
   it('navigates to /admin/storage/tiers when the Tiers tab is clicked', async () => {
@@ -43,7 +45,7 @@ describe('StorageManagementPage', () => {
     await user.click(screen.getByRole('tab', { name: 'Tiers' }));
 
     await waitFor(() => {
-      expect(screen.getByRole('tabpanel')).toHaveTextContent('Storage tiers');
+      expect(screen.getByRole('button', { name: 'Create tier' })).toBeInTheDocument();
     });
   });
 });
