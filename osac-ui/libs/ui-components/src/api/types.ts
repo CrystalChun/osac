@@ -29,6 +29,7 @@ export type ApiRoute =
   | 'v1/console_sessions'
   | 'v1/private/tenants'
   | 'v1/private/storage_backends'
+  | 'v1/private/storage_tiers'
   | 'v1/identity_providers';
 
 /**
