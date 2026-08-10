@@ -18,7 +18,7 @@ const AdminInstanceTypeActionsMenu = ({ instanceType }: AdminInstanceTypeActions
   const [deleteOpen, setDeleteOpen] = useState(false);
   const { runLifecycleAction } = useInstanceTypeLifecycleAction();
 
-  const state = instanceType.spec?.state;
+  const state = instanceType.spec?.state || InstanceTypeState.ACTIVE;
   const canDeprecate = state !== InstanceTypeState.DEPRECATED;
   const canObsolete = state !== InstanceTypeState.OBSOLETE;
   const canReactivate = state !== InstanceTypeState.ACTIVE;

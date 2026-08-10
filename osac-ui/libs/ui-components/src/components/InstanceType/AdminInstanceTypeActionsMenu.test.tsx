@@ -61,6 +61,16 @@ describe('AdminInstanceTypeActionsMenu', () => {
     expect(screen.queryByRole('menuitem', { name: 'Obsolete' })).not.toBeInTheDocument();
   });
 
+  it('exposes Deprecate and Obsolete, but not Reactivate or Delete, for an unset (UNSPECIFIED) state, same as ACTIVE', async () => {
+    const { user } = renderMenu(makeInstanceType(InstanceTypeState.UNSPECIFIED));
+    await openMenu(user);
+
+    expect(screen.getByRole('menuitem', { name: 'Deprecate' })).toBeInTheDocument();
+    expect(screen.getByRole('menuitem', { name: 'Obsolete' })).toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', { name: 'Reactivate' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', { name: 'Delete' })).not.toBeInTheDocument();
+  });
+
   it('sends a spec.state update targeting DEPRECATED when Deprecate is clicked', async () => {
     let captured: Record<string, unknown> | undefined;
     const { user } = renderMenu(makeInstanceType(InstanceTypeState.ACTIVE), {
