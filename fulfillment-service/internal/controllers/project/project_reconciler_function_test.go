@@ -1217,9 +1217,9 @@ var _ = Describe("Deletion Cleanup", func() {
 			}
 
 			err := task.delete(ctx)
-			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("project still has 1 project membership(s) pending deletion"))
-			Expect(project.GetMetadata().GetFinalizers()).To(ContainElement(finalizers.Controller))
+			Expect(err).NotTo(HaveOccurred())
+			Expect(project.GetStatus().GetState()).To(Equal(privatev1.ProjectState_PROJECT_STATE_DELETING))
+			Expect(project.GetStatus().GetMessage()).To(Equal("Pending ProjectMembership deletion prior to project deletion"))
 		})
 
 		It("should proceed with deletion when all memberships are gone", func() {
@@ -1301,8 +1301,9 @@ var _ = Describe("Deletion Cleanup", func() {
 			}
 
 			err := task.delete(ctx)
-			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("project still has 1 project membership(s) pending deletion"))
+			Expect(err).NotTo(HaveOccurred())
+			Expect(project.GetStatus().GetState()).To(Equal(privatev1.ProjectState_PROJECT_STATE_DELETING))
+			Expect(project.GetStatus().GetMessage()).To(Equal("Pending ProjectMembership deletion prior to project deletion"))
 		})
 
 		It("should return error when querying for memberships fails", func() {
@@ -1388,8 +1389,9 @@ var _ = Describe("Deletion Cleanup", func() {
 			}
 
 			err := task.delete(ctx)
-			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("project still has 2 project membership(s) pending deletion"))
+			Expect(err).NotTo(HaveOccurred())
+			Expect(project.GetStatus().GetState()).To(Equal(privatev1.ProjectState_PROJECT_STATE_DELETING))
+			Expect(project.GetStatus().GetMessage()).To(Equal("Pending ProjectMembership deletion prior to project deletion"))
 		})
 
 		It("should handle NotFound during membership deletion gracefully", func() {
@@ -1435,8 +1437,9 @@ var _ = Describe("Deletion Cleanup", func() {
 			}
 
 			err := task.delete(ctx)
-			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("project still has 1 project membership(s) pending deletion"))
+			Expect(err).NotTo(HaveOccurred())
+			Expect(project.GetStatus().GetState()).To(Equal(privatev1.ProjectState_PROJECT_STATE_DELETING))
+			Expect(project.GetStatus().GetMessage()).To(Equal("Pending ProjectMembership deletion prior to project deletion"))
 		})
 	})
 })
