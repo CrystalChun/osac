@@ -31,8 +31,7 @@ const VmDetailsActionButtons = ({ vm }: VmDetailsActionButtonsProps) => {
   const canStop = state === ComputeInstanceState.RUNNING || state === ComputeInstanceState.PAUSED;
   const canRestart =
     state === ComputeInstanceState.RUNNING || state === ComputeInstanceState.PAUSED;
-  const canDelete =
-    state !== ComputeInstanceState.DELETING && state !== ComputeInstanceState.STARTING;
+  const canDelete = state !== ComputeInstanceState.DELETING;
   const canAttachExternalIp =
     state === ComputeInstanceState.RUNNING && !vm.status?.externalIpAddress;
 
