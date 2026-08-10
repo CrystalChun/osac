@@ -3,6 +3,12 @@
 This project contains the code for the fulfillment service. For instructions on how to install it
 in a production environment see the [installation guide](docs/INSTALL.md).
 
+The API is defined using protocol buffers in the [`proto`](proto) directory. An OpenAPI
+specification is generated automatically from those definitions and published as raw YAML at
+[openapi/v3/public.yaml](https://osac-project.github.io/osac/openapi/v3/public.yaml).
+The same documentation is also available with a more convenient UI at
+[osac-project.github.io/osac](https://osac-project.github.io/osac/).
+
 ## Required development tools
 
 To work with this project you will need the following tools:
