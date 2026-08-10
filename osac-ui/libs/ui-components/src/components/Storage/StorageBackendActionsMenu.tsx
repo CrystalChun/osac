@@ -37,6 +37,7 @@ const StorageBackendActionsMenu = ({ backend }: StorageBackendActionsMenuProps) 
             ref={ref}
             variant="plain"
             onClick={() => setOpen((o) => !o)}
+            isExpanded={open}
             aria-label={t('Actions for {{name}}', { name: backendName })}
           >
             <EllipsisVIcon />
