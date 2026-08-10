@@ -43,9 +43,9 @@ describe('InstanceTypeLifecycleLabel', () => {
     expectLabelColor('—');
   });
 
-  it('shows the raw state when it is not one of the known lifecycle states', () => {
+  it('falls back to an em dash when the state is not one of the known lifecycle states', () => {
     render(<InstanceTypeLifecycleLabel state={99 as InstanceTypeState} />);
 
-    expectLabelColor('99');
+    expectLabelColor('—');
   });
 });

@@ -1,3 +1,5 @@
+import type { TFunction } from 'i18next';
+
 import { InstanceTypeState } from '@osac/types/private';
 
 import { useTranslation } from '../../hooks/useTranslation';
@@ -10,26 +12,26 @@ export interface InstanceTypeLifecycleLabelProps {
   state?: InstanceTypeState;
 }
 
+const instanceTypeLifecycleMap = (
+  t: TFunction,
+): Record<InstanceTypeState, ResourceLifecycleLabelProps> => ({
+  [InstanceTypeState.ACTIVE]: { lifecycle: 'active', text: t('Active') },
+  [InstanceTypeState.DEPRECATED]: { lifecycle: 'deprecated', text: t('Deprecated') },
+  [InstanceTypeState.OBSOLETE]: { lifecycle: 'obsolete', text: t('Obsolete') },
+  [InstanceTypeState.UNSPECIFIED]: { lifecycle: 'unspecified', text: '—' },
+});
+
 const InstanceTypeLifecycleLabel = ({ state }: InstanceTypeLifecycleLabelProps) => {
   const { t } = useTranslation();
 
-  const props = (): ResourceLifecycleLabelProps => {
-    switch (state) {
-      case InstanceTypeState.ACTIVE:
-        return { lifecycle: 'active', text: t('Active') };
-      case InstanceTypeState.DEPRECATED:
-        return { lifecycle: 'deprecated', text: t('Deprecated') };
-      case InstanceTypeState.OBSOLETE:
-        return { lifecycle: 'obsolete', text: t('Obsolete') };
-      case InstanceTypeState.UNSPECIFIED:
-      case undefined:
-        return { lifecycle: 'unspecified', text: '—' };
-      default:
-        return { lifecycle: 'unspecified', text: String(state) };
-    }
-  };
+  const lifecycleMap = instanceTypeLifecycleMap(t);
 
-  return <ResourceLifecycleLabel {...props()} />;
+  const props =
+    state !== undefined
+      ? (lifecycleMap[state] ?? lifecycleMap[InstanceTypeState.UNSPECIFIED])
+      : lifecycleMap[InstanceTypeState.UNSPECIFIED];
+
+  return <ResourceLifecycleLabel {...props} />;
 };
 
 export default InstanceTypeLifecycleLabel;
