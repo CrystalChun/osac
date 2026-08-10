@@ -12,8 +12,8 @@ import { ComputeInstanceState } from '@osac/types';
 
 import AttachExternalIpModal from './AttachExternalIpModal';
 import VmDeleteConfirmModal from './VmDeleteConfirmModal';
-import { usePatchComputeInstance } from '../../../api/v1/compute-instance';
 import { useTranslation } from '../../../hooks/useTranslation';
+import { useVmPowerAction } from '../useVmPowerAction';
 
 interface VmDetailsActionButtonsProps {
   vm: ComputeInstance;
@@ -24,7 +24,7 @@ const VmDetailsActionButtons = ({ vm }: VmDetailsActionButtonsProps) => {
   const navigate = useNavigate();
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [attachExternalIpOpen, setAttachExternalIpOpen] = useState(false);
-  const patchVm = usePatchComputeInstance();
+  const { runPowerAction } = useVmPowerAction();
 
   const state = vm.status?.state;
   const canStart = state === ComputeInstanceState.STOPPED;
@@ -63,7 +63,7 @@ const VmDetailsActionButtons = ({ vm }: VmDetailsActionButtonsProps) => {
           isDisabled={!canStart}
           onClick={() => {
             if (canStart) {
-              patchVm.mutate({ id: vm.id, powerAction: 'start' });
+              runPowerAction(vm.id, 'start');
             }
           }}
         >
@@ -75,7 +75,7 @@ const VmDetailsActionButtons = ({ vm }: VmDetailsActionButtonsProps) => {
           isDisabled={!canStop}
           onClick={() => {
             if (canStop) {
-              patchVm.mutate({ id: vm.id, powerAction: 'stop' });
+              runPowerAction(vm.id, 'stop');
             }
           }}
         >
@@ -87,7 +87,7 @@ const VmDetailsActionButtons = ({ vm }: VmDetailsActionButtonsProps) => {
           isDisabled={!canRestart}
           onClick={() => {
             if (canRestart) {
-              patchVm.mutate({ id: vm.id, powerAction: 'restart' });
+              runPowerAction(vm.id, 'restart');
             }
           }}
         >
