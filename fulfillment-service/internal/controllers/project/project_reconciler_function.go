@@ -369,8 +369,18 @@ func (t *task) delete(ctx context.Context) error {
 	}
 
 	// Cascade-delete ProjectMemberships scoped to this project
-	if err := t.deleteProjectMemberships(ctx); err != nil {
+	existingMemberships, err := t.deleteProjectMemberships(ctx)
+	if err != nil {
 		return err
+	}
+
+	if existingMemberships {
+		if !t.project.HasStatus() {
+			t.project.SetStatus(&privatev1.ProjectStatus{})
+		}
+		t.project.GetStatus().SetState(privatev1.ProjectState_PROJECT_STATE_DELETING)
+		t.project.GetStatus().SetMessage("Pending ProjectMembership deletion prior to project deletion")
+		return nil
 	}
 
 	// Clean up Keycloak groups
@@ -401,7 +411,7 @@ func (t *task) delete(ctx context.Context) error {
 // deleteProjectMemberships lists all ProjectMemberships scoped to this project, marks each for
 // deletion, and waits for them to be fully removed before returning. This prevents orphaned
 // memberships and ensures the project can complete its own deletion.
-func (t *task) deleteProjectMemberships(ctx context.Context) error {
+func (t *task) deleteProjectMemberships(ctx context.Context) (bool, error) {
 	projectName := t.project.GetMetadata().GetName()
 	tenant := t.project.GetMetadata().GetTenant()
 
@@ -413,7 +423,11 @@ func (t *task) deleteProjectMemberships(ctx context.Context) error {
 		Filter: new(membershipFilter),
 	}.Build())
 	if err != nil {
-		return fmt.Errorf("failed to query for project memberships: %w", err)
+		return false, fmt.Errorf("failed to query for project memberships: %w", err)
+	}
+
+	if listResp.GetTotal() == 0 {
+		return false, nil
 	}
 
 	for _, membership := range listResp.GetItems() {
@@ -428,15 +442,11 @@ func (t *task) deleteProjectMemberships(ctx context.Context) error {
 			Id: membership.GetId(),
 		}.Build())
 		if err != nil && status.Code(err) != codes.NotFound {
-			return fmt.Errorf("failed to delete project membership %s: %w", membership.GetId(), err)
+			return true, fmt.Errorf("failed to delete project membership %s: %w", membership.GetId(), err)
 		}
 	}
 
-	if listResp.GetTotal() > 0 {
-		return fmt.Errorf("project still has %d project membership(s) pending deletion", listResp.GetTotal())
-	}
-
-	return nil
+	return true, nil
 }
 
 // setDefaults sets default values for the project.
