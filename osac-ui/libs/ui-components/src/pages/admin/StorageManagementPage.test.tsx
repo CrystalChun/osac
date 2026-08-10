@@ -70,4 +70,35 @@ describe('StorageManagementPage', () => {
     });
     expect(onStorageTierList).not.toHaveBeenCalled();
   });
+
+  it('unmounts the Tiers list page (and stops its data fetches) after switching away to the Backends tab', async () => {
+    const onStorageTierList = vi.fn(() => ({ items: [], size: 0, total: 0 }));
+
+    const { user } = renderWithProviders(
+      <Routes>
+        <Route
+          path="/admin/storage/backends"
+          element={<StorageManagementPage activeTab="backends" />}
+        />
+        <Route path="/admin/storage/tiers" element={<StorageManagementPage activeTab="tiers" />} />
+      </Routes>,
+      {
+        routerEntries: ['/admin/storage/tiers'],
+        transportOverrides: { onStorageTierList },
+      },
+    );
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Create tier' })).toBeInTheDocument();
+    });
+    expect(onStorageTierList).toHaveBeenCalledTimes(1);
+
+    await user.click(screen.getByRole('tab', { name: 'Backends' }));
+
+    await waitFor(() => {
+      expect(screen.getByRole('tabpanel')).toHaveTextContent('Storage backends');
+    });
+    expect(screen.queryByRole('button', { name: 'Create tier' })).not.toBeInTheDocument();
+    expect(onStorageTierList).toHaveBeenCalledTimes(1);
+  });
 });

@@ -84,7 +84,7 @@ describe('StorageTiersListPage', () => {
     expect(screen.getByText('Block, NFS')).toBeInTheDocument();
   });
 
-  it('renders the STATE column via StorageTierStatusLabel', async () => {
+  it('renders the STATUS column via StorageTierStatusLabel', async () => {
     renderPage();
 
     await waitFor(() => {
@@ -180,6 +180,21 @@ describe('StorageTiersListPage', () => {
 
     await waitFor(() => {
       expect(screen.getByText('navigated-to-create')).toBeInTheDocument();
+    });
+  });
+
+  it('keeps the Create tier action available when the tier list fails to load', async () => {
+    renderWithProviders(<StorageTiersListPage />, {
+      apiFixtures: { storageBackends: defaultBackends },
+      transportOverrides: {
+        onStorageTierList: () => {
+          throw new ConnectError('tier service unavailable', Code.Unavailable);
+        },
+      },
+    });
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Create tier' })).toBeInTheDocument();
     });
   });
 

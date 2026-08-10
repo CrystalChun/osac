@@ -57,17 +57,15 @@ export const StorageTiersListPage = () => {
 
   return (
     <Stack hasGutter>
-      {!error && (
-        <StackItem>
-          <Flex justifyContent={{ default: 'justifyContentFlexEnd' }}>
-            <FlexItem>
-              <Button variant="primary" onClick={() => navigate('/admin/storage/tiers/create')}>
-                {t('Create tier')}
-              </Button>
-            </FlexItem>
-          </Flex>
-        </StackItem>
-      )}
+      <StackItem>
+        <Flex justifyContent={{ default: 'justifyContentFlexEnd' }}>
+          <FlexItem>
+            <Button variant="primary" onClick={() => navigate('/admin/storage/tiers/create')}>
+              {t('Create tier')}
+            </Button>
+          </FlexItem>
+        </Flex>
+      </StackItem>
       <StackItem>
         <ListPageBody isLoading={isLoading} error={error}>
           <Stack hasGutter>
@@ -90,9 +88,9 @@ export const StorageTiersListPage = () => {
                   <Thead>
                     <Tr>
                       <Th>{t('Name')}</Th>
+                      <Th>{t('Status')}</Th>
                       <Th>{t('Backends')}</Th>
                       <Th>{t('Protocol(s)')}</Th>
-                      <Th>{t('State')}</Th>
                       <Th aria-label={t('Actions')} />
                     </Tr>
                   </Thead>
@@ -102,6 +100,9 @@ export const StorageTiersListPage = () => {
                       return (
                         <Tr key={tier.id}>
                           <Td dataLabel={t('Name')}>{tier.metadata?.name || tier.id}</Td>
+                          <Td dataLabel={t('Status')}>
+                            <StorageTierStatusLabel state={tier.status?.state} />
+                          </Td>
                           <Td dataLabel={t('Backends')}>
                             {backendAssociations
                               .map(
@@ -115,9 +116,6 @@ export const StorageTiersListPage = () => {
                             {backendAssociations
                               .map((association) => protocolLabel(t, association.protocol))
                               .join(', ')}
-                          </Td>
-                          <Td dataLabel={t('State')}>
-                            <StorageTierStatusLabel state={tier.status?.state} />
                           </Td>
                           <Td dataLabel={t('Actions')} isActionCell>
                             <StorageTierActionsMenu tier={tier} />
