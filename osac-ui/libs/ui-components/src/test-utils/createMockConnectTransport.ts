@@ -32,6 +32,7 @@ import {
   VirtualNetworks,
 } from '@osac/types';
 import type {
+  InstanceType as PrivateInstanceType,
   Tenant as PrivateTenant,
   StorageBackend,
   StorageBackendsCreateRequest,
@@ -49,6 +50,7 @@ import type {
   TenantsCreateResponse,
 } from '@osac/types/private';
 import {
+  InstanceTypes as PrivateInstanceTypes,
   Tenants as PrivateTenants,
   StorageBackendState,
   StorageBackends,
@@ -69,6 +71,7 @@ export type MockApiFixtures = {
   securityGroups?: SecurityGroup[];
   identityProviders?: IdentityProvider[];
   instanceTypes?: InstanceType[];
+  privateInstanceTypes?: PrivateInstanceType[];
   storageBackends?: StorageBackend[];
   storageTiers?: StorageTier[];
 };
@@ -167,6 +170,7 @@ export const createMockConnectTransport = (
   const subnets = fixtures.subnets ?? [];
   const securityGroups = fixtures.securityGroups ?? [];
   const instanceTypes = fixtures.instanceTypes ?? [];
+  const privateInstanceTypes = fixtures.privateInstanceTypes ?? [];
   const storageBackends = fixtures.storageBackends ?? [];
   const storageTiers = fixtures.storageTiers ?? [];
 
@@ -356,6 +360,17 @@ export const createMockConnectTransport = (
           return { object: req.object };
         },
         delete: () => ({}),
+      });
+
+      router.service(PrivateInstanceTypes, {
+        list: () => ({
+          items: privateInstanceTypes,
+          size: privateInstanceTypes.length,
+          total: privateInstanceTypes.length,
+        }),
+        get: (req) => ({
+          object: privateInstanceTypes.find((item) => item.id === req.id),
+        }),
       });
 
       router.service(PrivateTenants, {

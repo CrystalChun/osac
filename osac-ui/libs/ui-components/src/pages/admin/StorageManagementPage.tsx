@@ -26,7 +26,7 @@ export const StorageManagementPage = ({ activeTab }: { activeTab: StorageTab }) 
           activeKey={activeTab}
           onSelect={(_event, tabKey) => {
             if (isStorageTab(tabKey)) {
-              navigate(`/admin/storage/${tabKey}`, { replace: true });
+              navigate(`/admin/infrastructure/storage/${tabKey}`, { replace: true });
             }
           }}
           aria-label={t('Storage tabs')}
