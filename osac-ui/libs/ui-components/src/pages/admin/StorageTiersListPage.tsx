@@ -60,7 +60,10 @@ export const StorageTiersListPage = () => {
       <StackItem>
         <Flex justifyContent={{ default: 'justifyContentFlexEnd' }}>
           <FlexItem>
-            <Button variant="primary" onClick={() => navigate('/admin/storage/tiers/create')}>
+            <Button
+              variant="primary"
+              onClick={() => navigate('/admin/infrastructure/storage/tiers/create')}
+            >
               {t('Create tier')}
             </Button>
           </FlexItem>

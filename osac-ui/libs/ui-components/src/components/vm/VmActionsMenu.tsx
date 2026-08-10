@@ -6,7 +6,7 @@ import type { ComputeInstance } from '@osac/types';
 import { ComputeInstanceState } from '@osac/types';
 
 import VmDeleteConfirmModal from './DetailsPage/VmDeleteConfirmModal';
-import { usePatchComputeInstance } from '../../api/v1/compute-instance';
+import { useVmPowerAction } from './useVmPowerAction';
 
 interface VmActionsMenuProps {
   vm: ComputeInstance;
@@ -15,7 +15,7 @@ interface VmActionsMenuProps {
 export const VmActionsMenu = ({ vm }: VmActionsMenuProps) => {
   const [open, setOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const patchVm = usePatchComputeInstance();
+  const { runPowerAction } = useVmPowerAction();
 
   const state = vm.status?.state;
   const canStart = state === ComputeInstanceState.STOPPED;
@@ -56,7 +56,7 @@ export const VmActionsMenu = ({ vm }: VmActionsMenuProps) => {
               if (!canStart) {
                 return;
               }
-              patchVm.mutate({ id: vm.id, powerAction: 'start' });
+              runPowerAction(vm.id, 'start');
               setOpen(false);
             }}
           >
@@ -69,7 +69,7 @@ export const VmActionsMenu = ({ vm }: VmActionsMenuProps) => {
               if (!canStop) {
                 return;
               }
-              patchVm.mutate({ id: vm.id, powerAction: 'stop' });
+              runPowerAction(vm.id, 'stop');
               setOpen(false);
             }}
           >
@@ -82,7 +82,7 @@ export const VmActionsMenu = ({ vm }: VmActionsMenuProps) => {
               if (!canRestart) {
                 return;
               }
-              patchVm.mutate({ id: vm.id, powerAction: 'restart' });
+              runPowerAction(vm.id, 'restart');
               setOpen(false);
             }}
           >

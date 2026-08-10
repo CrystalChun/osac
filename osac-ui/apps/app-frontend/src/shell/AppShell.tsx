@@ -16,6 +16,7 @@ import { ClusterRoutes } from '@osac/ui-components/pages/tenant/ClusterRoutes';
 import { VmCreatePage } from '@osac/ui-components/pages/tenant/VmCreatePage';
 import { VmListPage } from '@osac/ui-components/pages/tenant/VmListPage';
 
+import { InstanceTypeRoutes } from './InstanceTypeRoutes';
 import { ShellMasthead } from './ShellMasthead';
 import { defaultRouteForRole } from './shellRoutes';
 import { ShellSidebar } from './ShellSidebar';
@@ -49,10 +50,18 @@ export const AppShell = ({ logout }: { logout: () => Promise<void> }) => {
           }
         />
         <Route
-          path="/admin/storage/*"
+          path="/admin/infrastructure/storage/*"
           element={
             <ShellRoute>
               <StorageRoutes />
+            </ShellRoute>
+          }
+        />
+        <Route
+          path="/admin/infrastructure/instance-types/*"
+          element={
+            <ShellRoute>
+              <InstanceTypeRoutes />
             </ShellRoute>
           }
         />

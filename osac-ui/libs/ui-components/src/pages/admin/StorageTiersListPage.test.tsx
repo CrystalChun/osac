@@ -163,12 +163,15 @@ describe('StorageTiersListPage', () => {
   it('navigates to the create route when Create tier is clicked', async () => {
     const { user } = renderWithProviders(
       <Routes>
-        <Route path="/admin/storage/tiers" element={<StorageTiersListPage />} />
-        <Route path="/admin/storage/tiers/create" element={<div>navigated-to-create</div>} />
+        <Route path="/admin/infrastructure/storage/tiers" element={<StorageTiersListPage />} />
+        <Route
+          path="/admin/infrastructure/storage/tiers/create"
+          element={<div>navigated-to-create</div>}
+        />
       </Routes>,
       {
         apiFixtures: { storageTiers: defaultTiers, storageBackends: defaultBackends },
-        routerEntries: ['/admin/storage/tiers'],
+        routerEntries: ['/admin/infrastructure/storage/tiers'],
       },
     );
 
@@ -201,12 +204,15 @@ describe('StorageTiersListPage', () => {
   it('navigates to the edit route when a row Edit action is clicked', async () => {
     const { user } = renderWithProviders(
       <Routes>
-        <Route path="/admin/storage/tiers" element={<StorageTiersListPage />} />
-        <Route path="/admin/storage/tiers/:id/edit" element={<div>navigated-to-edit</div>} />
+        <Route path="/admin/infrastructure/storage/tiers" element={<StorageTiersListPage />} />
+        <Route
+          path="/admin/infrastructure/storage/tiers/:id/edit"
+          element={<div>navigated-to-edit</div>}
+        />
       </Routes>,
       {
         apiFixtures: { storageTiers: defaultTiers, storageBackends: defaultBackends },
-        routerEntries: ['/admin/storage/tiers'],
+        routerEntries: ['/admin/infrastructure/storage/tiers'],
       },
     );
 

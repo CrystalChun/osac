@@ -15,6 +15,7 @@ import {
 } from './createMockConnectTransport';
 import en from '../../../i18n/locales/en/translation.json';
 import { ApiProvider } from '../api/api-context';
+import ToastProvider from '../components/Toast/ToastProvider';
 
 const createTestI18n = () => {
   const instance = i18n.createInstance();
@@ -56,7 +57,9 @@ export const TestProviders = ({
     <MemoryRouter initialEntries={routerEntries}>
       <I18nextProvider i18n={i18nInstance}>
         <ApiProvider transport={transport}>
-          <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+          <QueryClientProvider client={queryClient}>
+            <ToastProvider>{children}</ToastProvider>
+          </QueryClientProvider>
         </ApiProvider>
       </I18nextProvider>
     </MemoryRouter>

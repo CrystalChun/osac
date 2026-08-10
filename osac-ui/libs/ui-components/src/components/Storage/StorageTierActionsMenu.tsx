@@ -43,7 +43,9 @@ const StorageTierActionsMenu = ({ tier }: StorageTierActionsMenuProps) => {
         popperProps={{ position: 'right' }}
       >
         <DropdownList>
-          <DropdownItem onClick={() => navigate(`/admin/storage/tiers/${tier.id}/edit`)}>
+          <DropdownItem
+            onClick={() => navigate(`/admin/infrastructure/storage/tiers/${tier.id}/edit`)}
+          >
             {t('Edit')}
           </DropdownItem>
           <DropdownItem
