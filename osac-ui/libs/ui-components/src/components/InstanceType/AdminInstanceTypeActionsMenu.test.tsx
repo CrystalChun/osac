@@ -128,11 +128,7 @@ describe('AdminInstanceTypeActionsMenu', () => {
 
     await user.click(screen.getByRole('button', { name: 'Delete' }));
 
-    await waitFor(() =>
-      expect(
-        screen.queryByRole('dialog'),
-      ).not.toBeInTheDocument(),
-    );
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
     expect(deleteCalled).toBe(true);
   });
 

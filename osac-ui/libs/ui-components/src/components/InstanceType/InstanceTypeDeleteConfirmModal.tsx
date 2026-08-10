@@ -70,7 +70,12 @@ const InstanceTypeDeleteConfirmModal = ({
         >
           {t('Delete')}
         </Button>
-        <Button key="cancel" variant="link" onClick={onClose} isDisabled={deleteInstanceType.isPending}>
+        <Button
+          key="cancel"
+          variant="link"
+          onClick={onClose}
+          isDisabled={deleteInstanceType.isPending}
+        >
           {t('Cancel')}
         </Button>
       </ModalFooter>
