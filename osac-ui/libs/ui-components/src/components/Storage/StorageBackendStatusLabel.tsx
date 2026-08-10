@@ -5,7 +5,7 @@ import { StorageBackendState } from '@osac/types/private';
 import { useTranslation } from '../../hooks/useTranslation';
 import { ResourceStatusLabel, StatusLabelProps } from '../Resource/ResourceStatusLabel';
 
-interface StorageBackendStateLabelProps {
+interface StorageBackendStatusLabelProps {
   state?: StorageBackendState;
 }
 
@@ -20,7 +20,7 @@ const storageBackendStatusMap = (t: TFunction): Record<StorageBackendState, Stat
   },
 });
 
-const StorageBackendStateLabel = ({ state }: StorageBackendStateLabelProps) => {
+const StorageBackendStatusLabel = ({ state }: StorageBackendStatusLabelProps) => {
   const { t } = useTranslation();
 
   const statusMap = storageBackendStatusMap(t);
@@ -31,4 +31,4 @@ const StorageBackendStateLabel = ({ state }: StorageBackendStateLabelProps) => {
   return <ResourceStatusLabel {...status} />;
 };
 
-export default StorageBackendStateLabel;
+export default StorageBackendStatusLabel;

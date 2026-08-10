@@ -51,7 +51,7 @@ describe('StorageBackendsListPage', () => {
     });
     expect(screen.getByRole('columnheader', { name: 'Provider' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: 'Endpoint' })).toBeInTheDocument();
-    expect(screen.getByRole('columnheader', { name: 'State' })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: 'Status' })).toBeInTheDocument();
   });
 
   it('renders a row per backend with name, provider, and endpoint', async () => {
@@ -65,7 +65,7 @@ describe('StorageBackendsListPage', () => {
     expect(screen.getByText('ceph-dev')).toBeInTheDocument();
   });
 
-  it('renders state labels for each backend', async () => {
+  it('renders status labels for each backend', async () => {
     renderPage();
 
     await waitFor(() => {

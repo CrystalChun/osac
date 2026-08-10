@@ -388,7 +388,6 @@
   "SSH public key must be in the form \"[TYPE] key [[EMAIL]]\". Supported types are ssh-rsa, ssh-ed25519, and ecdsa-sha2-nistp256/384/521.": "SSH public key must be in the form \"[TYPE] key [[EMAIL]]\". Supported types are ssh-rsa, ssh-ed25519, and ecdsa-sha2-nistp256/384/521.",
   "Start": "Start",
   "Starting": "Starting",
-  "State": "State",
   "Status": "Status",
   "Stop": "Stop",
   "Stopped": "Stopped",

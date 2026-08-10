@@ -3,7 +3,7 @@ import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 import type { StorageBackend } from '@osac/types/private';
 
 import StorageBackendActionsMenu from './StorageBackendActionsMenu';
-import StorageBackendStateLabel from './StorageBackendStateLabel';
+import StorageBackendStatusLabel from './StorageBackendStatusLabel';
 import { useTranslation } from '../../hooks/useTranslation';
 
 interface StorageBackendsTableProps {
@@ -18,9 +18,9 @@ export const StorageBackendsTable = ({ backends }: StorageBackendsTableProps) =>
       <Thead>
         <Tr>
           <Th>{t('Name')}</Th>
+          <Th>{t('Status')}</Th>
           <Th>{t('Provider')}</Th>
           <Th>{t('Endpoint')}</Th>
-          <Th>{t('State')}</Th>
           <Th aria-label={t('Actions')} />
         </Tr>
       </Thead>
@@ -28,11 +28,11 @@ export const StorageBackendsTable = ({ backends }: StorageBackendsTableProps) =>
         {backends.map((backend) => (
           <Tr key={backend.id}>
             <Td dataLabel={t('Name')}>{backend.metadata?.name || backend.id}</Td>
+            <Td dataLabel={t('Status')}>
+              <StorageBackendStatusLabel state={backend.status?.state} />
+            </Td>
             <Td dataLabel={t('Provider')}>{backend.spec?.provider}</Td>
             <Td dataLabel={t('Endpoint')}>{backend.spec?.endpoint}</Td>
-            <Td dataLabel={t('State')}>
-              <StorageBackendStateLabel state={backend.status?.state} />
-            </Td>
             <Td dataLabel={t('Actions')} isActionCell>
               <StorageBackendActionsMenu backend={backend} />
             </Td>
