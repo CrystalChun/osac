@@ -45,7 +45,9 @@ const StorageBackendActionsMenu = ({ backend }: StorageBackendActionsMenuProps) 
         popperProps={{ position: 'right' }}
       >
         <DropdownList>
-          <DropdownItem onClick={() => navigate(`/admin/storage/backends/${backend.id}/edit`)}>
+          <DropdownItem
+            onClick={() => navigate(`/admin/infrastructure/storage/backends/${backend.id}/edit`)}
+          >
             {t('Edit')}
           </DropdownItem>
           <DropdownItem

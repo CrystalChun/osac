@@ -90,7 +90,7 @@ describe('StorageBackendsListPage', () => {
 
     await user.click(screen.getByRole('button', { name: 'Create backend' }));
 
-    expect(mockNavigate).toHaveBeenCalledWith('/admin/storage/backends/create');
+    expect(mockNavigate).toHaveBeenCalledWith('/admin/infrastructure/storage/backends/create');
   });
 
   it('navigates to the edit route with the correct ID when Edit is clicked', async () => {
@@ -103,7 +103,7 @@ describe('StorageBackendsListPage', () => {
     await user.click(screen.getByRole('button', { name: 'Actions for vast-prod' }));
     await user.click(screen.getByText('Edit'));
 
-    expect(mockNavigate).toHaveBeenCalledWith('/admin/storage/backends/b-1/edit');
+    expect(mockNavigate).toHaveBeenCalledWith('/admin/infrastructure/storage/backends/b-1/edit');
   });
 
   it('opens the delete confirmation dialog when Delete is clicked', async () => {

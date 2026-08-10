@@ -18,7 +18,10 @@ export const StorageBackendsListPage = () => {
       {!error && (
         <Flex justifyContent={{ default: 'justifyContentFlexEnd' }}>
           <FlexItem>
-            <Button variant="primary" onClick={() => navigate('/admin/storage/backends/create')}>
+            <Button
+              variant="primary"
+              onClick={() => navigate('/admin/infrastructure/storage/backends/create')}
+            >
               {t('Create backend')}
             </Button>
           </FlexItem>
