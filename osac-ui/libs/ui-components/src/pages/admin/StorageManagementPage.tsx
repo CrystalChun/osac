@@ -6,6 +6,7 @@ import ListPageBody from '@osac/ui-components/components/Page/ListPageBody';
 import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
 
 import { StoragePlaceholder } from './StoragePlaceholder';
+import { StorageTiersListPage } from './StorageTiersListPage';
 
 type StorageTab = 'backends' | 'tiers';
 
@@ -30,12 +31,14 @@ export const StorageManagementPage = ({ activeTab }: { activeTab: StorageTab }) 
             }
           }}
           aria-label={t('Storage tabs')}
+          mountOnEnter
+          unmountOnExit
         >
           <Tab eventKey="backends" title={<TabTitleText>{t('Backends')}</TabTitleText>}>
             <StoragePlaceholder title={t('Storage backends')} />
           </Tab>
           <Tab eventKey="tiers" title={<TabTitleText>{t('Tiers')}</TabTitleText>}>
-            <StoragePlaceholder title={t('Storage tiers')} />
+            <StorageTiersListPage />
           </Tab>
         </Tabs>
       </ListPageBody>

@@ -1,3 +1,4 @@
+import type { MessageInitShape } from '@bufbuild/protobuf';
 import { Code, ConnectError, type Transport, createRouterTransport } from '@connectrpc/connect';
 
 import type {
@@ -37,13 +38,14 @@ import type {
   StorageBackend,
   StorageBackendsCreateRequest,
   StorageBackendsCreateResponse,
+  StorageBackendsListRequest,
   StorageBackendsUpdateRequest,
   StorageBackendsUpdateResponse,
   StorageTier,
   StorageTiersCreateRequest,
   StorageTiersCreateResponse,
+  StorageTiersDeleteRequest,
   StorageTiersListRequest,
-  StorageTiersListResponse,
   StorageTiersUpdateRequest,
   StorageTiersUpdateResponse,
   TenantsCreateRequest,
@@ -54,8 +56,11 @@ import {
   Tenants as PrivateTenants,
   StorageBackendState,
   StorageBackends,
+  StorageBackendsListResponseSchema,
   StorageTierState,
   StorageTiers,
+  StorageTiersDeleteResponseSchema,
+  StorageTiersListResponseSchema,
 } from '@osac/types/private';
 
 import { UnauthorizedError } from '../utils/unauthorizedError';
@@ -149,11 +154,19 @@ export type MockTransportOverrides = {
     req: IdentityProvidersUpdateRequest,
   ) => IdentityProvidersUpdateResponse;
   onTenantCreate?: (req: TenantsCreateRequest) => TenantsCreateResponse;
+  onStorageBackendList?: (
+    req: StorageBackendsListRequest,
+  ) => MessageInitShape<typeof StorageBackendsListResponseSchema>;
   onStorageBackendCreate?: (req: StorageBackendsCreateRequest) => StorageBackendsCreateResponse;
   onStorageBackendUpdate?: (req: StorageBackendsUpdateRequest) => StorageBackendsUpdateResponse;
-  onStorageTierList?: (req: StorageTiersListRequest) => StorageTiersListResponse;
+  onStorageTierList?: (
+    req: StorageTiersListRequest,
+  ) => MessageInitShape<typeof StorageTiersListResponseSchema>;
   onStorageTierCreate?: (req: StorageTiersCreateRequest) => StorageTiersCreateResponse;
   onStorageTierUpdate?: (req: StorageTiersUpdateRequest) => StorageTiersUpdateResponse;
+  onStorageTierDelete?: (
+    req: StorageTiersDeleteRequest,
+  ) => MessageInitShape<typeof StorageTiersDeleteResponseSchema>;
 };
 
 export const createMockConnectTransport = (
@@ -296,6 +309,9 @@ export const createMockConnectTransport = (
 
       router.service(StorageBackends, {
         list: (req) => {
+          if (overrides.onStorageBackendList) {
+            return overrides.onStorageBackendList(req);
+          }
           const items = storageBackends.filter((item) =>
             matchesStorageBackendReadyFilter(req.filter, item.status?.state),
           );
@@ -359,7 +375,12 @@ export const createMockConnectTransport = (
           }
           return { object: req.object };
         },
-        delete: () => ({}),
+        delete: (req) => {
+          if (overrides.onStorageTierDelete) {
+            return overrides.onStorageTierDelete(req);
+          }
+          return {};
+        },
       });
 
       router.service(PrivateInstanceTypes, {
