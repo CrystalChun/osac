@@ -18,7 +18,7 @@ const instanceTypeLifecycleMap = (
   [InstanceTypeState.ACTIVE]: { lifecycle: 'active', text: t('Active') },
   [InstanceTypeState.DEPRECATED]: { lifecycle: 'deprecated', text: t('Deprecated') },
   [InstanceTypeState.OBSOLETE]: { lifecycle: 'obsolete', text: t('Obsolete') },
-  [InstanceTypeState.UNSPECIFIED]: { lifecycle: 'unspecified', text: '—' },
+  [InstanceTypeState.UNSPECIFIED]: { lifecycle: 'unspecified', text: t('Unspecified') },
 });
 
 const InstanceTypeLifecycleLabel = ({ state }: InstanceTypeLifecycleLabelProps) => {

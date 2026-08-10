@@ -37,15 +37,15 @@ describe('InstanceTypeLifecycleLabel', () => {
     expectLabelColor('Obsolete');
   });
 
-  it('falls back to an em dash when the state is missing', () => {
+  it('falls back to unspecified when the state is missing', () => {
     render(<InstanceTypeLifecycleLabel />);
 
-    expectLabelColor('—');
+    expectLabelColor('Unspecified');
   });
 
-  it('falls back to an em dash when the state is not one of the known lifecycle states', () => {
+  it('falls back to unspecified when the state is not one of the known lifecycle states', () => {
     render(<InstanceTypeLifecycleLabel state={99 as InstanceTypeState} />);
 
-    expectLabelColor('—');
+    expectLabelColor('Unspecified');
   });
 });
