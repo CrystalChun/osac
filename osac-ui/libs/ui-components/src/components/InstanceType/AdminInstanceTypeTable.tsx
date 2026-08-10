@@ -4,6 +4,7 @@ import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
 import type { InstanceType as PrivateInstanceType } from '@osac/types/private';
 
+import AdminInstanceTypeActionsMenu from './AdminInstanceTypeActionsMenu';
 import InstanceTypeLifecycleLabel from './InstanceTypeLifecycleLabel';
 import { useTranslation } from '../../hooks/useTranslation';
 import { Timestamp } from '../Primitives/Timestamp';
@@ -17,7 +18,7 @@ const CPU_CORES_COLUMN_WIDTH = 10;
 const MEMORY_COLUMN_WIDTH = 10;
 const DESCRIPTION_COLUMN_WIDTH = 40;
 const CREATED_COLUMN_WIDTH = 15;
-const EMPTY_STATE_COLUMN_SPAN = 6;
+const EMPTY_STATE_COLUMN_SPAN = 7;
 
 interface AdminInstanceTypeTableProps {
   instanceTypes: PrivateInstanceType[];
@@ -36,6 +37,7 @@ const AdminInstanceTypeTable = ({ instanceTypes }: AdminInstanceTypeTableProps) 
           <Th width={MEMORY_COLUMN_WIDTH}>{t('Memory (GiB)')}</Th>
           <Th width={DESCRIPTION_COLUMN_WIDTH}>{t('Description')}</Th>
           <Th width={CREATED_COLUMN_WIDTH}>{t('Created')}</Th>
+          <Th aria-label={t('Actions')} />
         </Tr>
       </Thead>
       <Tbody>
@@ -82,6 +84,9 @@ const AdminInstanceTypeTable = ({ instanceTypes }: AdminInstanceTypeTableProps) 
               </Td>
               <Td dataLabel={t('Created')} width={CREATED_COLUMN_WIDTH}>
                 <Timestamp value={instanceType.metadata?.creationTimestamp} />
+              </Td>
+              <Td dataLabel={t('Actions')} isActionCell>
+                <AdminInstanceTypeActionsMenu instanceType={instanceType} />
               </Td>
             </Tr>
           ))
