@@ -12,6 +12,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createRoot } from 'react-dom/client';
 
 import { ApiProvider, connectErrorInterceptor } from '@osac/ui-components/api/api-context';
+import ToastProvider from '@osac/ui-components/components/Toast/ToastProvider';
 
 import App from './App';
 import './i18n';
@@ -58,7 +59,9 @@ if (rootElement) {
     <React.StrictMode>
       <ApiProvider transport={connectTransport}>
         <QueryClientProvider client={queryClient}>
-          <RouterProvider router={router} />
+          <ToastProvider>
+            <RouterProvider router={router} />
+          </ToastProvider>
         </QueryClientProvider>
       </ApiProvider>
     </React.StrictMode>,
