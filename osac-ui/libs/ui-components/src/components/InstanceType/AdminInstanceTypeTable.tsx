@@ -1,10 +1,4 @@
-import {
-  Bullseye,
-  EmptyState,
-  EmptyStateBody,
-  EmptyStateVariant,
-  Truncate,
-} from '@patternfly/react-core';
+import { Bullseye, EmptyState, EmptyStateBody, EmptyStateVariant } from '@patternfly/react-core';
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
@@ -13,6 +7,7 @@ import type { InstanceType as PrivateInstanceType } from '@osac/types/private';
 import InstanceTypeLifecycleLabel from './InstanceTypeLifecycleLabel';
 import { useTranslation } from '../../hooks/useTranslation';
 import { Timestamp } from '../Primitives/Timestamp';
+import TruncatedText from '../Primitives/TruncatedText';
 
 const INSTANCE_TYPE_DESCRIPTION_PREVIEW_LENGTH = 120;
 const INSTANCE_TYPE_NAME_PREVIEW_LENGTH = 32;
@@ -65,12 +60,9 @@ const AdminInstanceTypeTable = ({ instanceTypes }: AdminInstanceTypeTableProps) 
           instanceTypes.map((instanceType) => (
             <Tr key={instanceType.id}>
               <Td dataLabel={t('Name')} modifier="truncate" width={NAME_COLUMN_WIDTH}>
-                <Truncate
-                  content={(instanceType.metadata?.name || instanceType.id)
-                    .replace(/\s+/g, ' ')
-                    .trim()}
+                <TruncatedText
+                  content={instanceType.metadata?.name || instanceType.id}
                   maxCharsDisplayed={INSTANCE_TYPE_NAME_PREVIEW_LENGTH}
-                  omissionContent="..."
                 />
               </Td>
               <Td dataLabel={t('Lifecycle state')} width={LIFECYCLE_STATE_COLUMN_WIDTH}>
@@ -83,10 +75,9 @@ const AdminInstanceTypeTable = ({ instanceTypes }: AdminInstanceTypeTableProps) 
                 {instanceType.spec?.memoryGib ?? '—'}
               </Td>
               <Td dataLabel={t('Description')} modifier="truncate" width={DESCRIPTION_COLUMN_WIDTH}>
-                <Truncate
-                  content={(instanceType.spec?.description || '—').replace(/\s+/g, ' ').trim()}
+                <TruncatedText
+                  content={instanceType.spec?.description}
                   maxCharsDisplayed={INSTANCE_TYPE_DESCRIPTION_PREVIEW_LENGTH}
-                  omissionContent="..."
                 />
               </Td>
               <Td dataLabel={t('Created')} width={CREATED_COLUMN_WIDTH}>
