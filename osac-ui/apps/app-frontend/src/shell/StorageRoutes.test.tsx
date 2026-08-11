@@ -21,10 +21,11 @@ describe('StorageRoutes', () => {
     expect(screen.getByRole('button', { name: 'Create backend' })).toBeInTheDocument();
   });
 
-  it('renders a placeholder for backends/create', () => {
+  it('renders the real create form for backends/create', () => {
     renderAt('/admin/infrastructure/storage/backends/create');
 
-    expect(screen.getByText('Create storage backend')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Create storage backend' })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'Name' })).toBeInTheDocument();
   });
 
   it('renders a placeholder for backends/:id/edit', () => {
