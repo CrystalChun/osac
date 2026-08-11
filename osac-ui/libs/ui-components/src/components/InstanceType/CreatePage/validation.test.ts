@@ -17,7 +17,10 @@ describe('getInstanceTypeCreateSchema', () => {
 
   it('accepts a non-empty description', async () => {
     await expect(
-      schema.isValid({ ...validValues, spec: { ...validValues.spec, description: 'General purpose' } }),
+      schema.isValid({
+        ...validValues,
+        spec: { ...validValues.spec, description: 'General purpose' },
+      }),
     ).resolves.toBe(true);
   });
 
