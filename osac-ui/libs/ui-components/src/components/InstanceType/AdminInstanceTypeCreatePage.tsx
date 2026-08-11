@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ActionList,
@@ -16,7 +15,6 @@ import {
 } from '@patternfly/react-core';
 import { Formik } from 'formik';
 
-import { mapCreateErrorToField } from './CreatePage/fieldErrorMapping';
 import { getInstanceTypeCreateSchema } from './CreatePage/validation';
 import { instanceTypeCreateValues } from './CreatePage/values';
 import { useCreateInstanceType } from '../../api/v1/private/instance-type';
@@ -31,8 +29,7 @@ const INSTANCE_TYPES_LIST_ROUTE = '/admin/infrastructure/instance-types';
 const AdminInstanceTypeCreatePage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { mutate, isPending } = useCreateInstanceType();
-  const [error, setError] = useState<unknown>();
+  const { mutate, error, isPending, reset } = useCreateInstanceType();
 
   return (
     <>
@@ -55,8 +52,7 @@ const AdminInstanceTypeCreatePage = () => {
         <Formik
           initialValues={instanceTypeCreateValues}
           validationSchema={getInstanceTypeCreateSchema(t)}
-          onSubmit={(values, { setFieldError }) => {
-            setError(undefined);
+          onSubmit={(values) => {
             mutate(
               {
                 metadata: { name: values.metadata.name },
@@ -66,17 +62,7 @@ const AdminInstanceTypeCreatePage = () => {
                   memoryGib: Number(values.spec.memoryGib),
                 },
               },
-              {
-                onSuccess: () => navigate(INSTANCE_TYPES_LIST_ROUTE),
-                onError: (mutationError) => {
-                  const mapped = mapCreateErrorToField(getErrorMessage(mutationError));
-                  if (mapped) {
-                    setFieldError(mapped.field, mapped.message);
-                  } else {
-                    setError(mutationError);
-                  }
-                },
-              },
+              { onSuccess: () => navigate(INSTANCE_TYPES_LIST_ROUTE) },
             );
           }}
         >
@@ -113,7 +99,7 @@ const AdminInstanceTypeCreatePage = () => {
                     variant="danger"
                     title={t('Failed to create instance type')}
                     isInline
-                    actionClose={<AlertActionCloseButton onClose={() => setError(undefined)} />}
+                    actionClose={<AlertActionCloseButton onClose={() => reset()} />}
                   >
                     {getErrorMessage(error)}
                   </Alert>

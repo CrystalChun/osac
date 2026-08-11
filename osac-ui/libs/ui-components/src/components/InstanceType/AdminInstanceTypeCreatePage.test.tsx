@@ -156,27 +156,7 @@ describe('AdminInstanceTypeCreatePage', () => {
       expect(spec?.memoryGib).toBe(16);
     });
 
-    it('shows a dismissible error alert when create fails', async () => {
-      const { user } = renderPage({
-        onInstanceTypeCreate: () => {
-          throw new ConnectError('Instance type name already exists', Code.AlreadyExists);
-        },
-      });
-
-      await fillValidForm(user);
-      await user.click(screen.getByRole('button', { name: 'Create' }));
-
-      await waitFor(() => {
-        expect(screen.getByText('Failed to create instance type')).toBeInTheDocument();
-      });
-      expect(screen.getByText('Instance type name already exists')).toBeInTheDocument();
-
-      await user.click(screen.getByRole('button', { name: /^Close/ }));
-
-      expect(screen.queryByText('Failed to create instance type')).not.toBeInTheDocument();
-    });
-
-    it('maps a spec.cores backend field violation onto the CPU cores input', async () => {
+    it('shows a dismissible error alert when create fails, regardless of the backend message shape', async () => {
       const { user } = renderPage({
         onInstanceTypeCreate: () => {
           throw new ConnectError(
@@ -190,10 +170,12 @@ describe('AdminInstanceTypeCreatePage', () => {
       await user.click(screen.getByRole('button', { name: 'Create' }));
 
       await waitFor(() => {
-        expect(screen.getByRole('spinbutton', { name: 'CPU cores' })).toHaveAccessibleDescription(
-          /field 'spec\.cores' must be greater than zero/,
-        );
+        expect(screen.getByText('Failed to create instance type')).toBeInTheDocument();
       });
+      expect(screen.getByText("field 'spec.cores' must be greater than zero")).toBeInTheDocument();
+
+      await user.click(screen.getByRole('button', { name: /^Close/ }));
+
       expect(screen.queryByText('Failed to create instance type')).not.toBeInTheDocument();
     });
   });
