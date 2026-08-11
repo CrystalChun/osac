@@ -121,6 +121,20 @@ describe('AdminInstanceTypeActionsMenu', () => {
     expect(await screen.findByText('Failed to reactivate instance type')).toBeInTheDocument();
   });
 
+  it('shows a toast with the obsolete failure title when the obsolete update fails', async () => {
+    const { user } = renderMenu(makeInstanceType(InstanceTypeState.ACTIVE), {
+      transportOverrides: {
+        onInstanceTypeUpdate: () => {
+          throw new ConnectError('obsolete rejected', Code.FailedPrecondition);
+        },
+      },
+    });
+    await openMenu(user);
+    await user.click(screen.getByRole('menuitem', { name: 'Obsolete' }));
+
+    expect(await screen.findByText('Failed to mark instance type as obsolete')).toBeInTheDocument();
+  });
+
   it('opens a confirm modal for Delete and deletes the instance type on confirmation', async () => {
     let deleteCalled = false;
     const { user } = renderMenu(makeInstanceType(InstanceTypeState.OBSOLETE), {

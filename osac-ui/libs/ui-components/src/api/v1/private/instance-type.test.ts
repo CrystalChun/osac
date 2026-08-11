@@ -15,7 +15,7 @@ import {
   invalidateInstanceTypesQueries,
   useAdminInstanceTypes,
   useDeleteInstanceType,
-  useUpdateInstanceTypeState,
+  useUpdateInstanceType,
 } from './instance-type';
 import { createMockConnectTransport } from '../../../test-utils/createMockConnectTransport';
 import { ApiProvider } from '../../api-context';
@@ -76,9 +76,9 @@ describe('useAdminInstanceTypes', () => {
   });
 });
 
-describe('useUpdateInstanceTypeState', () => {
+describe('useUpdateInstanceType', () => {
   const mutateAndCaptureUpdate = async (
-    input: Parameters<ReturnType<typeof useUpdateInstanceTypeState>['mutate']>[0],
+    input: Parameters<ReturnType<typeof useUpdateInstanceType>['mutate']>[0],
   ) => {
     let captured: Record<string, unknown> | undefined;
     const transport = createMockConnectTransport(
@@ -93,7 +93,7 @@ describe('useUpdateInstanceTypeState', () => {
       },
     );
     const { wrapper } = makeWrapper(transport);
-    const { result } = renderHook(() => useUpdateInstanceTypeState(), { wrapper });
+    const { result } = renderHook(() => useUpdateInstanceType(), { wrapper });
 
     act(() => {
       result.current.mutate(input);
@@ -104,8 +104,11 @@ describe('useUpdateInstanceTypeState', () => {
     return captured;
   };
 
-  it('sends a spec.state mask with the DEPRECATED target for the deprecate action', async () => {
-    const captured = await mutateAndCaptureUpdate({ id: 'it-1', action: 'deprecate' });
+  it('sends the given body with a matching update mask', async () => {
+    const captured = await mutateAndCaptureUpdate({
+      id: 'it-1',
+      body: { spec: { state: InstanceTypeState.DEPRECATED } },
+    });
 
     expect((captured?.updateMask as { paths?: string[] } | undefined)?.paths).toEqual([
       'spec.state',
@@ -115,15 +118,21 @@ describe('useUpdateInstanceTypeState', () => {
     expect(object.spec?.state).toBe(InstanceTypeState.DEPRECATED);
   });
 
-  it('sends a spec.state mask with the OBSOLETE target for the obsolete action', async () => {
-    const captured = await mutateAndCaptureUpdate({ id: 'it-1', action: 'obsolete' });
+  it('sends a body targeting OBSOLETE', async () => {
+    const captured = await mutateAndCaptureUpdate({
+      id: 'it-1',
+      body: { spec: { state: InstanceTypeState.OBSOLETE } },
+    });
 
     const object = captured?.object as { spec?: { state?: InstanceTypeState } };
     expect(object.spec?.state).toBe(InstanceTypeState.OBSOLETE);
   });
 
-  it('sends a spec.state mask with the ACTIVE target for the reactivate action', async () => {
-    const captured = await mutateAndCaptureUpdate({ id: 'it-1', action: 'reactivate' });
+  it('sends a body targeting ACTIVE', async () => {
+    const captured = await mutateAndCaptureUpdate({
+      id: 'it-1',
+      body: { spec: { state: InstanceTypeState.ACTIVE } },
+    });
 
     const object = captured?.object as { spec?: { state?: InstanceTypeState } };
     expect(object.spec?.state).toBe(InstanceTypeState.ACTIVE);

@@ -1,7 +1,7 @@
 import { type MessageInitShape } from '@bufbuild/protobuf';
 import { useMutation } from '@tanstack/react-query';
 
-import { InstanceTypeSchema, InstanceTypeState, InstanceTypes } from '@osac/types/private';
+import { InstanceTypeSchema, InstanceTypes } from '@osac/types/private';
 
 import { useApiFetch } from '../../api-context';
 import { type ListParams, apiQueryKey } from '../../types';
@@ -20,31 +20,16 @@ export const useAdminInstanceTypes = (params: ListParams = {}) => {
 export const invalidateInstanceTypesQueries = (qc: ApiQueryClient) =>
   qc.invalidateQueries({ queryKey: apiQueryKey('v1/private/instance_types') });
 
-export type InstanceTypeLifecycleAction = 'deprecate' | 'obsolete' | 'reactivate';
-
-const LIFECYCLE_ACTION_STATE: Record<InstanceTypeLifecycleAction, InstanceTypeState> = {
-  deprecate: InstanceTypeState.DEPRECATED,
-  obsolete: InstanceTypeState.OBSOLETE,
-  reactivate: InstanceTypeState.ACTIVE,
-};
-
-const buildLifecycleStateBody = (
-  action: InstanceTypeLifecycleAction,
-): MessageInitShape<typeof InstanceTypeSchema> => ({
-  spec: { state: LIFECYCLE_ACTION_STATE[action] },
-});
-
-export type UpdateInstanceTypeStateInput = {
+export type UpdateInstanceTypeInput = {
   id: string;
-  action: InstanceTypeLifecycleAction;
+  body: MessageInitShape<typeof InstanceTypeSchema>;
 };
 
-export const useUpdateInstanceTypeState = () => {
+export const useUpdateInstanceType = () => {
   const client = useApiFetch(InstanceTypes);
   const qc = useApiQueryClient();
   return useMutation({
-    mutationFn: async ({ id, action }: UpdateInstanceTypeStateInput) => {
-      const body = buildLifecycleStateBody(action);
+    mutationFn: async ({ id, body }: UpdateInstanceTypeInput) => {
       const resp = await client.update({
         object: { id, ...body },
         updateMask: { paths: buildUpdateMaskPaths(body as Record<string, unknown>) },
