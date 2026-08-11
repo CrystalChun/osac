@@ -25,7 +25,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/private/v1/role_type.proto.
  */
 export const file_osac_private_v1_role_type: GenFile = /*@__PURE__*/
-  fileDesc("Ch9vc2FjL3ByaXZhdGUvdjEvcm9sZV90eXBlLnByb3RvEg9vc2FjLnByaXZhdGUudjEilQEKBFJvbGUSCgoCaWQYASABKAkSKwoIbWV0YWRhdGEYAiABKAsyGS5vc2FjLnByaXZhdGUudjEuTWV0YWRhdGESJwoEc3BlYxgDIAEoCzIZLm9zYWMucHJpdmF0ZS52MS5Sb2xlU3BlYxIrCgZzdGF0dXMYBCABKAsyGy5vc2FjLnByaXZhdGUudjEuUm9sZVN0YXR1cyIuCghSb2xlU3BlYxINCgV0aXRsZRgBIAEoCRITCgtkZXNjcmlwdGlvbhgCIAEoCSJZCgpSb2xlU3RhdHVzEikKBXN0YXRlGAEgASgOMhoub3NhYy5wcml2YXRlLnYxLlJvbGVTdGF0ZRIUCgdtZXNzYWdlGAIgASgJSACIAQFCCgoIX21lc3NhZ2UqbAoJUm9sZVN0YXRlEhoKFlJPTEVfU1RBVEVfVU5TUEVDSUZJRUQQABIWChJST0xFX1NUQVRFX1BFTkRJTkcQARIUChBST0xFX1NUQVRFX1JFQURZEAISFQoRUk9MRV9TVEFURV9GQUlMRUQQA2IGcHJvdG8z", [file_osac_private_v1_metadata_type]);
+  fileDesc("Ch9vc2FjL3ByaXZhdGUvdjEvcm9sZV90eXBlLnByb3RvEg9vc2FjLnByaXZhdGUudjEilQEKBFJvbGUSCgoCaWQYASABKAkSKwoIbWV0YWRhdGEYAiABKAsyGS5vc2FjLnByaXZhdGUudjEuTWV0YWRhdGESJwoEc3BlYxgDIAEoCzIZLm9zYWMucHJpdmF0ZS52MS5Sb2xlU3BlYxIrCgZzdGF0dXMYBCABKAsyGy5vc2FjLnByaXZhdGUudjEuUm9sZVN0YXR1cyIuCghSb2xlU3BlYxINCgV0aXRsZRgBIAEoCRITCgtkZXNjcmlwdGlvbhgCIAEoCSJZCgpSb2xlU3RhdHVzEikKBXN0YXRlGAEgASgOMhoub3NhYy5wcml2YXRlLnYxLlJvbGVTdGF0ZRIUCgdtZXNzYWdlGAIgASgJSACIAQFCCgoIX21lc3NhZ2UiSgoNUm9sZVJlZmVyZW5jZRIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJEg8KB3Byb2plY3QYAyABKAkSDgoGc2hhcmVkGAQgASgIKmwKCVJvbGVTdGF0ZRIaChZST0xFX1NUQVRFX1VOU1BFQ0lGSUVEEAASFgoSUk9MRV9TVEFURV9QRU5ESU5HEAESFAoQUk9MRV9TVEFURV9SRUFEWRACEhUKEVJPTEVfU1RBVEVfRkFJTEVEEANiBnByb3RvMw", [file_osac_private_v1_metadata_type]);
 
 /**
  * Represents a role that can be assigned to groups.
@@ -133,6 +133,40 @@ export type RoleStatus = Message<"osac.private.v1.RoleStatus"> & {
  */
 export const RoleStatusSchema: GenMessage<RoleStatus> = /*@__PURE__*/
   messageDesc(file_osac_private_v1_role_type, 2);
+
+/**
+ * Reference to a Role resource.
+ *
+ * @generated from message osac.private.v1.RoleReference
+ */
+export type RoleReference = Message<"osac.private.v1.RoleReference"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string name = 2;
+   */
+  name: string;
+
+  /**
+   * @generated from field: string project = 3;
+   */
+  project: string;
+
+  /**
+   * @generated from field: bool shared = 4;
+   */
+  shared: boolean;
+};
+
+/**
+ * Describes the message osac.private.v1.RoleReference.
+ * Use `create(RoleReferenceSchema)` to create a new message.
+ */
+export const RoleReferenceSchema: GenMessage<RoleReference> = /*@__PURE__*/
+  messageDesc(file_osac_private_v1_role_type, 3);
 
 /**
  * Synchronization states for Role resources with the underlying authorization system.

@@ -20,6 +20,8 @@ import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_google_api_field_behavior } from "../../../google/api/field_behavior_pb";
 import type { Metadata } from "./metadata_type_pb";
 import { file_osac_public_v1_metadata_type } from "./metadata_type_pb";
+import type { SecurityRule } from "./security_rule_type_pb";
+import { file_osac_public_v1_security_rule_type } from "./security_rule_type_pb";
 import type { VirtualNetworkLocalReference } from "./virtual_network_type_pb";
 import { file_osac_public_v1_virtual_network_type } from "./virtual_network_type_pb";
 import type { Message } from "@bufbuild/protobuf";
@@ -28,7 +30,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/public/v1/security_group_type.proto.
  */
 export const file_osac_public_v1_security_group_type: GenFile = /*@__PURE__*/
-  fileDesc("Cihvc2FjL3B1YmxpYy92MS9zZWN1cml0eV9ncm91cF90eXBlLnByb3RvEg5vc2FjLnB1YmxpYy52MSKtAQoNU2VjdXJpdHlHcm91cBIKCgJpZBgBIAEoCRIqCghtZXRhZGF0YRgCIAEoCzIYLm9zYWMucHVibGljLnYxLk1ldGFkYXRhEi8KBHNwZWMYAyABKAsyIS5vc2FjLnB1YmxpYy52MS5TZWN1cml0eUdyb3VwU3BlYxIzCgZzdGF0dXMYBCABKAsyIy5vc2FjLnB1YmxpYy52MS5TZWN1cml0eUdyb3VwU3RhdHVzIr8BChFTZWN1cml0eUdyb3VwU3BlYxJNCg92aXJ0dWFsX25ldHdvcmsYASABKAsyLC5vc2FjLnB1YmxpYy52MS5WaXJ0dWFsTmV0d29ya0xvY2FsUmVmZXJlbmNlQgbgQQLgQQUSLQoHaW5ncmVzcxgCIAMoCzIcLm9zYWMucHVibGljLnYxLlNlY3VyaXR5UnVsZRIsCgZlZ3Jlc3MYAyADKAsyHC5vc2FjLnB1YmxpYy52MS5TZWN1cml0eVJ1bGUizgEKDFNlY3VyaXR5UnVsZRIqCghwcm90b2NvbBgBIAEoDjIYLm9zYWMucHVibGljLnYxLlByb3RvY29sEhYKCXBvcnRfZnJvbRgCIAEoBUgAiAEBEhQKB3BvcnRfdG8YAyABKAVIAYgBARIWCglpcHY0X2NpZHIYBCABKAlIAogBARIWCglpcHY2X2NpZHIYBSABKAlIA4gBAUIMCgpfcG9ydF9mcm9tQgoKCF9wb3J0X3RvQgwKCl9pcHY0X2NpZHJCDAoKX2lwdjZfY2lkciJqChNTZWN1cml0eUdyb3VwU3RhdHVzEjEKBXN0YXRlGAEgASgOMiIub3NhYy5wdWJsaWMudjEuU2VjdXJpdHlHcm91cFN0YXRlEhQKB21lc3NhZ2UYAiABKAlIAIgBAUIKCghfbWVzc2FnZSI3ChtTZWN1cml0eUdyb3VwTG9jYWxSZWZlcmVuY2USCgoCaWQYASABKAkSDAoEbmFtZRgCIAEoCSptCghQcm90b2NvbBIYChRQUk9UT0NPTF9VTlNQRUNJRklFRBAAEhAKDFBST1RPQ09MX1RDUBABEhAKDFBST1RPQ09MX1VEUBACEhEKDVBST1RPQ09MX0lDTVAQAxIQCgxQUk9UT0NPTF9BTEwQBCroAQoSU2VjdXJpdHlHcm91cFN0YXRlEiQKIFNFQ1VSSVRZX0dST1VQX1NUQVRFX1VOU1BFQ0lGSUVEEAASIAocU0VDVVJJVFlfR1JPVVBfU1RBVEVfUEVORElORxABEh4KGlNFQ1VSSVRZX0dST1VQX1NUQVRFX1JFQURZEAISHwobU0VDVVJJVFlfR1JPVVBfU1RBVEVfRkFJTEVEEAMSIQodU0VDVVJJVFlfR1JPVVBfU1RBVEVfREVMRVRJTkcQBBImCiJTRUNVUklUWV9HUk9VUF9TVEFURV9ERUxFVEVfRkFJTEVEEAViBnByb3RvMw", [file_google_api_field_behavior, file_osac_public_v1_metadata_type, file_osac_public_v1_virtual_network_type]);
+  fileDesc("Cihvc2FjL3B1YmxpYy92MS9zZWN1cml0eV9ncm91cF90eXBlLnByb3RvEg5vc2FjLnB1YmxpYy52MSKtAQoNU2VjdXJpdHlHcm91cBIKCgJpZBgBIAEoCRIqCghtZXRhZGF0YRgCIAEoCzIYLm9zYWMucHVibGljLnYxLk1ldGFkYXRhEi8KBHNwZWMYAyABKAsyIS5vc2FjLnB1YmxpYy52MS5TZWN1cml0eUdyb3VwU3BlYxIzCgZzdGF0dXMYBCABKAsyIy5vc2FjLnB1YmxpYy52MS5TZWN1cml0eUdyb3VwU3RhdHVzIr8BChFTZWN1cml0eUdyb3VwU3BlYxJNCg92aXJ0dWFsX25ldHdvcmsYASABKAsyLC5vc2FjLnB1YmxpYy52MS5WaXJ0dWFsTmV0d29ya0xvY2FsUmVmZXJlbmNlQgbgQQLgQQUSLQoHaW5ncmVzcxgCIAMoCzIcLm9zYWMucHVibGljLnYxLlNlY3VyaXR5UnVsZRIsCgZlZ3Jlc3MYAyADKAsyHC5vc2FjLnB1YmxpYy52MS5TZWN1cml0eVJ1bGUiagoTU2VjdXJpdHlHcm91cFN0YXR1cxIxCgVzdGF0ZRgBIAEoDjIiLm9zYWMucHVibGljLnYxLlNlY3VyaXR5R3JvdXBTdGF0ZRIUCgdtZXNzYWdlGAIgASgJSACIAQFCCgoIX21lc3NhZ2UiNwobU2VjdXJpdHlHcm91cExvY2FsUmVmZXJlbmNlEgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkq6AEKElNlY3VyaXR5R3JvdXBTdGF0ZRIkCiBTRUNVUklUWV9HUk9VUF9TVEFURV9VTlNQRUNJRklFRBAAEiAKHFNFQ1VSSVRZX0dST1VQX1NUQVRFX1BFTkRJTkcQARIeChpTRUNVUklUWV9HUk9VUF9TVEFURV9SRUFEWRACEh8KG1NFQ1VSSVRZX0dST1VQX1NUQVRFX0ZBSUxFRBADEiEKHVNFQ1VSSVRZX0dST1VQX1NUQVRFX0RFTEVUSU5HEAQSJgoiU0VDVVJJVFlfR1JPVVBfU1RBVEVfREVMRVRFX0ZBSUxFRBAFYgZwcm90bzM", [file_google_api_field_behavior, file_osac_public_v1_metadata_type, file_osac_public_v1_security_rule_type, file_osac_public_v1_virtual_network_type]);
 
 /**
  * Represents a virtual firewall controlling network traffic for compute instances.
@@ -144,89 +146,6 @@ export const SecurityGroupSpecSchema: GenMessage<SecurityGroupSpec> = /*@__PURE_
   messageDesc(file_osac_public_v1_security_group_type, 1);
 
 /**
- * Defines a single firewall rule for network traffic filtering.
- *
- * SecurityRule specifies which traffic to allow based on protocol, port ranges (for TCP/UDP), and source/
- * destination CIDR blocks. Rules are stateful - return traffic for established connections is automatically
- * allowed.
- *
- * Port ranges apply only to TCP and UDP protocols. For ICMP and ALL protocols, port fields are ignored.
- *
- * CIDR fields support IPv4-only, IPv6-only, or dual-stack configurations:
- * - IPv4-only: Set ipv4_cidr, leave ipv6_cidr empty
- * - IPv6-only: Set ipv6_cidr, leave ipv4_cidr empty
- * - Dual-stack: Set both ipv4_cidr and ipv6_cidr (creates two separate rules internally)
- *
- * @generated from message osac.public.v1.SecurityRule
- */
-export type SecurityRule = Message<"osac.public.v1.SecurityRule"> & {
-  /**
-   * Protocol to match for this rule.
-   *
-   * Use PROTOCOL_ALL to match all protocols (wildcard). Use PROTOCOL_TCP or PROTOCOL_UDP when port ranges
-   * are needed. Use PROTOCOL_ICMP for ping and other ICMP traffic.
-   *
-   * @generated from field: osac.public.v1.Protocol protocol = 1;
-   */
-  protocol: Protocol;
-
-  /**
-   * Starting port number for the rule (1-65535).
-   *
-   * Required for tcp/udp protocols, ignored for icmp/all. For single port, set port_from = port_to.
-   * Must be <= port_to. Validation enforced at service layer.
-   *
-   * Example: 22 (SSH), 80 (HTTP), 443 (HTTPS), 3306 (MySQL)
-   *
-   * @generated from field: optional int32 port_from = 2;
-   */
-  portFrom?: number | undefined;
-
-  /**
-   * Ending port number for the rule (1-65535).
-   *
-   * Required for tcp/udp protocols, ignored for icmp/all. Must be >= port_from. For single port, set
-   * port_from = port_to. Validation enforced at service layer.
-   *
-   * Example: 22 (single port), 8000 (range 8000-9000)
-   *
-   * @generated from field: optional int32 port_to = 3;
-   */
-  portTo?: number | undefined;
-
-  /**
-   * IPv4 CIDR block for source (ingress) or destination (egress) addresses.
-   *
-   * Must be valid CIDR notation. Use '0.0.0.0/0' to match all IPv4 addresses. Validation enforced at
-   * service layer.
-   *
-   * Example: '192.168.1.0/24', '10.0.0.0/8', '0.0.0.0/0' (all IPv4)
-   *
-   * @generated from field: optional string ipv4_cidr = 4;
-   */
-  ipv4Cidr?: string | undefined;
-
-  /**
-   * IPv6 CIDR block for source (ingress) or destination (egress) addresses.
-   *
-   * Must be valid CIDR notation. Use '::/0' to match all IPv6 addresses. Validation enforced at service
-   * layer.
-   *
-   * Example: '2001:db8::/32', 'fd00::/64', '::/0' (all IPv6)
-   *
-   * @generated from field: optional string ipv6_cidr = 5;
-   */
-  ipv6Cidr?: string | undefined;
-};
-
-/**
- * Describes the message osac.public.v1.SecurityRule.
- * Use `create(SecurityRuleSchema)` to create a new message.
- */
-export const SecurityRuleSchema: GenMessage<SecurityRule> = /*@__PURE__*/
-  messageDesc(file_osac_public_v1_security_group_type, 2);
-
-/**
  * Represents the current operational state of a SecurityGroup.
  *
  * Status is system-provided and read-only. Users cannot modify status fields directly; the system updates
@@ -268,7 +187,7 @@ export type SecurityGroupStatus = Message<"osac.public.v1.SecurityGroupStatus"> 
  * Use `create(SecurityGroupStatusSchema)` to create a new message.
  */
 export const SecurityGroupStatusSchema: GenMessage<SecurityGroupStatus> = /*@__PURE__*/
-  messageDesc(file_osac_public_v1_security_group_type, 3);
+  messageDesc(file_osac_public_v1_security_group_type, 2);
 
 /**
  * Local reference to a SecurityGroup resource.
@@ -292,67 +211,7 @@ export type SecurityGroupLocalReference = Message<"osac.public.v1.SecurityGroupL
  * Use `create(SecurityGroupLocalReferenceSchema)` to create a new message.
  */
 export const SecurityGroupLocalReferenceSchema: GenMessage<SecurityGroupLocalReference> = /*@__PURE__*/
-  messageDesc(file_osac_public_v1_security_group_type, 4);
-
-/**
- * Network protocol types for SecurityRule matching.
- *
- * Determines which layer 4 protocol the rule applies to. Protocol affects whether port range fields are
- * applicable (TCP/UDP) or ignored (ICMP/ALL).
- *
- * @generated from enum osac.public.v1.Protocol
- */
-export enum Protocol {
-  /**
-   * Unknown protocol (invalid). This should never be used in actual rules.
-   *
-   * @generated from enum value: PROTOCOL_UNSPECIFIED = 0;
-   */
-  UNSPECIFIED = 0,
-
-  /**
-   * TCP protocol. Port ranges (port_from, port_to) are required for TCP rules.
-   *
-   * Used for connection-oriented protocols like HTTP, HTTPS, SSH, database connections, etc.
-   *
-   * @generated from enum value: PROTOCOL_TCP = 1;
-   */
-  TCP = 1,
-
-  /**
-   * UDP protocol. Port ranges (port_from, port_to) are required for UDP rules.
-   *
-   * Used for connectionless protocols like DNS, NTP, DHCP, VoIP, etc.
-   *
-   * @generated from enum value: PROTOCOL_UDP = 2;
-   */
-  UDP = 2,
-
-  /**
-   * ICMP protocol (ping and other control messages). Port ranges are not applicable.
-   *
-   * Used for network diagnostics (ping), error reporting, and control messages.
-   *
-   * @generated from enum value: PROTOCOL_ICMP = 3;
-   */
-  ICMP = 3,
-
-  /**
-   * All protocols (wildcard). Port ranges are not applicable.
-   *
-   * Matches any protocol. Useful for allowing all traffic from a trusted CIDR block or for egress rules
-   * that permit all outbound traffic.
-   *
-   * @generated from enum value: PROTOCOL_ALL = 4;
-   */
-  ALL = 4,
-}
-
-/**
- * Describes the enum osac.public.v1.Protocol.
- */
-export const ProtocolSchema: GenEnum<Protocol> = /*@__PURE__*/
-  enumDesc(file_osac_public_v1_security_group_type, 0);
+  messageDesc(file_osac_public_v1_security_group_type, 3);
 
 /**
  * Lifecycle states for SecurityGroup resources.
@@ -447,5 +306,5 @@ export enum SecurityGroupState {
  * Describes the enum osac.public.v1.SecurityGroupState.
  */
 export const SecurityGroupStateSchema: GenEnum<SecurityGroupState> = /*@__PURE__*/
-  enumDesc(file_osac_public_v1_security_group_type, 1);
+  enumDesc(file_osac_public_v1_security_group_type, 0);
 

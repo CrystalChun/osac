@@ -29,7 +29,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/public/v1/baremetal_instance_catalog_item_type.proto.
  */
 export const file_osac_public_v1_baremetal_instance_catalog_item_type: GenFile = /*@__PURE__*/
-  fileDesc("Cjlvc2FjL3B1YmxpYy92MS9iYXJlbWV0YWxfaW5zdGFuY2VfY2F0YWxvZ19pdGVtX3R5cGUucHJvdG8SDm9zYWMucHVibGljLnYxIo8CChxCYXJlTWV0YWxJbnN0YW5jZUNhdGFsb2dJdGVtEgoKAmlkGAEgASgJEioKCG1ldGFkYXRhGAIgASgLMhgub3NhYy5wdWJsaWMudjEuTWV0YWRhdGESDQoFdGl0bGUYAyABKAkSEwoLZGVzY3JpcHRpb24YBCABKAkSRAoIdGVtcGxhdGUYBSABKAsyMi5vc2FjLnB1YmxpYy52MS5CYXJlTWV0YWxJbnN0YW5jZVRlbXBsYXRlUmVmZXJlbmNlEhEKCXB1Ymxpc2hlZBgGIAEoCBI6ChFmaWVsZF9kZWZpbml0aW9ucxgIIAMoCzIfLm9zYWMucHVibGljLnYxLkZpZWxkRGVmaW5pdGlvbmIGcHJvdG8z", [file_osac_public_v1_field_definition_type, file_osac_public_v1_metadata_type, file_osac_public_v1_baremetal_instance_template_type]);
+  fileDesc("Cjlvc2FjL3B1YmxpYy92MS9iYXJlbWV0YWxfaW5zdGFuY2VfY2F0YWxvZ19pdGVtX3R5cGUucHJvdG8SDm9zYWMucHVibGljLnYxIo8CChxCYXJlTWV0YWxJbnN0YW5jZUNhdGFsb2dJdGVtEgoKAmlkGAEgASgJEioKCG1ldGFkYXRhGAIgASgLMhgub3NhYy5wdWJsaWMudjEuTWV0YWRhdGESDQoFdGl0bGUYAyABKAkSEwoLZGVzY3JpcHRpb24YBCABKAkSRAoIdGVtcGxhdGUYBSABKAsyMi5vc2FjLnB1YmxpYy52MS5CYXJlTWV0YWxJbnN0YW5jZVRlbXBsYXRlUmVmZXJlbmNlEhEKCXB1Ymxpc2hlZBgGIAEoCBI6ChFmaWVsZF9kZWZpbml0aW9ucxgIIAMoCzIfLm9zYWMucHVibGljLnYxLkZpZWxkRGVmaW5pdGlvbiJiCiVCYXJlTWV0YWxJbnN0YW5jZUNhdGFsb2dJdGVtUmVmZXJlbmNlEgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkSDwoHcHJvamVjdBgDIAEoCRIOCgZzaGFyZWQYBCABKAhiBnByb3RvMw", [file_osac_public_v1_field_definition_type, file_osac_public_v1_metadata_type, file_osac_public_v1_baremetal_instance_template_type]);
 
 /**
  * A bare metal instance catalog item defines a curated hardware offering that references an underlying bare metal
@@ -94,4 +94,38 @@ export type BareMetalInstanceCatalogItem = Message<"osac.public.v1.BareMetalInst
  */
 export const BareMetalInstanceCatalogItemSchema: GenMessage<BareMetalInstanceCatalogItem> = /*@__PURE__*/
   messageDesc(file_osac_public_v1_baremetal_instance_catalog_item_type, 0);
+
+/**
+ * Reference to a BareMetalInstanceCatalogItem resource.
+ *
+ * @generated from message osac.public.v1.BareMetalInstanceCatalogItemReference
+ */
+export type BareMetalInstanceCatalogItemReference = Message<"osac.public.v1.BareMetalInstanceCatalogItemReference"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string name = 2;
+   */
+  name: string;
+
+  /**
+   * @generated from field: string project = 3;
+   */
+  project: string;
+
+  /**
+   * @generated from field: bool shared = 4;
+   */
+  shared: boolean;
+};
+
+/**
+ * Describes the message osac.public.v1.BareMetalInstanceCatalogItemReference.
+ * Use `create(BareMetalInstanceCatalogItemReferenceSchema)` to create a new message.
+ */
+export const BareMetalInstanceCatalogItemReferenceSchema: GenMessage<BareMetalInstanceCatalogItemReference> = /*@__PURE__*/
+  messageDesc(file_osac_public_v1_baremetal_instance_catalog_item_type, 1);
 

@@ -20,13 +20,15 @@ import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_google_api_field_behavior } from "../../../google/api/field_behavior_pb";
 import type { Metadata } from "./metadata_type_pb";
 import { file_osac_private_v1_metadata_type } from "./metadata_type_pb";
+import type { NetworkClassReference } from "./network_class_type_pb";
+import { file_osac_private_v1_network_class_type } from "./network_class_type_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file osac/private/v1/virtual_network_type.proto.
  */
 export const file_osac_private_v1_virtual_network_type: GenFile = /*@__PURE__*/
-  fileDesc("Cipvc2FjL3ByaXZhdGUvdjEvdmlydHVhbF9uZXR3b3JrX3R5cGUucHJvdG8SD29zYWMucHJpdmF0ZS52MSKzAQoOVmlydHVhbE5ldHdvcmsSCgoCaWQYASABKAkSKwoIbWV0YWRhdGEYAiABKAsyGS5vc2FjLnByaXZhdGUudjEuTWV0YWRhdGESMQoEc3BlYxgDIAEoCzIjLm9zYWMucHJpdmF0ZS52MS5WaXJ0dWFsTmV0d29ya1NwZWMSNQoGc3RhdHVzGAQgASgLMiUub3NhYy5wcml2YXRlLnYxLlZpcnR1YWxOZXR3b3JrU3RhdHVzIrUCChJWaXJ0dWFsTmV0d29ya1NwZWMSFgoGcmVnaW9uGAEgASgJQgbgQQLgQQUSRQoNbmV0d29ya19jbGFzcxgCIAEoCzImLm9zYWMucHJpdmF0ZS52MS5OZXR3b3JrQ2xhc3NSZWZlcmVuY2VCBuBBAeBBBRIbCglpcHY0X2NpZHIYAyABKAlCA+BBBUgAiAEBEhsKCWlwdjZfY2lkchgEIAEoCUID4EEFSAGIAQESQQoMY2FwYWJpbGl0aWVzGAUgASgLMisub3NhYy5wcml2YXRlLnYxLlZpcnR1YWxOZXR3b3JrQ2FwYWJpbGl0aWVzEicKF2ltcGxlbWVudGF0aW9uX3N0cmF0ZWd5GAYgASgJQgbgQQPgQQVCDAoKX2lwdjRfY2lkckIMCgpfaXB2Nl9jaWRyImEKGlZpcnR1YWxOZXR3b3JrQ2FwYWJpbGl0aWVzEhMKC2VuYWJsZV9pcHY0GAEgASgIEhMKC2VuYWJsZV9pcHY2GAIgASgIEhkKEWVuYWJsZV9kdWFsX3N0YWNrGAMgASgIInoKFFZpcnR1YWxOZXR3b3JrU3RhdHVzEjMKBXN0YXRlGAEgASgOMiQub3NhYy5wcml2YXRlLnYxLlZpcnR1YWxOZXR3b3JrU3RhdGUSFAoHbWVzc2FnZRgCIAEoCUgAiAEBEgsKA2h1YhgDIAEoCUIKCghfbWVzc2FnZSI4ChxWaXJ0dWFsTmV0d29ya0xvY2FsUmVmZXJlbmNlEgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkiUgoVTmV0d29ya0NsYXNzUmVmZXJlbmNlEgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkSDwoHcHJvamVjdBgDIAEoCRIOCgZzaGFyZWQYBCABKAgqogEKE1ZpcnR1YWxOZXR3b3JrU3RhdGUSJQohVklSVFVBTF9ORVRXT1JLX1NUQVRFX1VOU1BFQ0lGSUVEEAASIQodVklSVFVBTF9ORVRXT1JLX1NUQVRFX1BFTkRJTkcQARIfChtWSVJUVUFMX05FVFdPUktfU1RBVEVfUkVBRFkQAhIgChxWSVJUVUFMX05FVFdPUktfU1RBVEVfRkFJTEVEEANiBnByb3RvMw", [file_google_api_field_behavior, file_osac_private_v1_metadata_type]);
+  fileDesc("Cipvc2FjL3ByaXZhdGUvdjEvdmlydHVhbF9uZXR3b3JrX3R5cGUucHJvdG8SD29zYWMucHJpdmF0ZS52MSKzAQoOVmlydHVhbE5ldHdvcmsSCgoCaWQYASABKAkSKwoIbWV0YWRhdGEYAiABKAsyGS5vc2FjLnByaXZhdGUudjEuTWV0YWRhdGESMQoEc3BlYxgDIAEoCzIjLm9zYWMucHJpdmF0ZS52MS5WaXJ0dWFsTmV0d29ya1NwZWMSNQoGc3RhdHVzGAQgASgLMiUub3NhYy5wcml2YXRlLnYxLlZpcnR1YWxOZXR3b3JrU3RhdHVzIrUCChJWaXJ0dWFsTmV0d29ya1NwZWMSFgoGcmVnaW9uGAEgASgJQgbgQQLgQQUSRQoNbmV0d29ya19jbGFzcxgCIAEoCzImLm9zYWMucHJpdmF0ZS52MS5OZXR3b3JrQ2xhc3NSZWZlcmVuY2VCBuBBAeBBBRIbCglpcHY0X2NpZHIYAyABKAlCA+BBBUgAiAEBEhsKCWlwdjZfY2lkchgEIAEoCUID4EEFSAGIAQESQQoMY2FwYWJpbGl0aWVzGAUgASgLMisub3NhYy5wcml2YXRlLnYxLlZpcnR1YWxOZXR3b3JrQ2FwYWJpbGl0aWVzEicKF2ltcGxlbWVudGF0aW9uX3N0cmF0ZWd5GAYgASgJQgbgQQPgQQVCDAoKX2lwdjRfY2lkckIMCgpfaXB2Nl9jaWRyImEKGlZpcnR1YWxOZXR3b3JrQ2FwYWJpbGl0aWVzEhMKC2VuYWJsZV9pcHY0GAEgASgIEhMKC2VuYWJsZV9pcHY2GAIgASgIEhkKEWVuYWJsZV9kdWFsX3N0YWNrGAMgASgIInoKFFZpcnR1YWxOZXR3b3JrU3RhdHVzEjMKBXN0YXRlGAEgASgOMiQub3NhYy5wcml2YXRlLnYxLlZpcnR1YWxOZXR3b3JrU3RhdGUSFAoHbWVzc2FnZRgCIAEoCUgAiAEBEgsKA2h1YhgDIAEoCUIKCghfbWVzc2FnZSI4ChxWaXJ0dWFsTmV0d29ya0xvY2FsUmVmZXJlbmNlEgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkqogEKE1ZpcnR1YWxOZXR3b3JrU3RhdGUSJQohVklSVFVBTF9ORVRXT1JLX1NUQVRFX1VOU1BFQ0lGSUVEEAASIQodVklSVFVBTF9ORVRXT1JLX1NUQVRFX1BFTkRJTkcQARIfChtWSVJUVUFMX05FVFdPUktfU1RBVEVfUkVBRFkQAhIgChxWSVJUVUFMX05FVFdPUktfU1RBVEVfRkFJTEVEEANiBnByb3RvMw", [file_google_api_field_behavior, file_osac_private_v1_metadata_type, file_osac_private_v1_network_class_type]);
 
 /**
  * Represents a tenant-isolated virtual network.
@@ -287,40 +289,6 @@ export type VirtualNetworkLocalReference = Message<"osac.private.v1.VirtualNetwo
  */
 export const VirtualNetworkLocalReferenceSchema: GenMessage<VirtualNetworkLocalReference> = /*@__PURE__*/
   messageDesc(file_osac_private_v1_virtual_network_type, 4);
-
-/**
- * Reference to a NetworkClass resource.
- *
- * @generated from message osac.private.v1.NetworkClassReference
- */
-export type NetworkClassReference = Message<"osac.private.v1.NetworkClassReference"> & {
-  /**
-   * @generated from field: string id = 1;
-   */
-  id: string;
-
-  /**
-   * @generated from field: string name = 2;
-   */
-  name: string;
-
-  /**
-   * @generated from field: string project = 3;
-   */
-  project: string;
-
-  /**
-   * @generated from field: bool shared = 4;
-   */
-  shared: boolean;
-};
-
-/**
- * Describes the message osac.private.v1.NetworkClassReference.
- * Use `create(NetworkClassReferenceSchema)` to create a new message.
- */
-export const NetworkClassReferenceSchema: GenMessage<NetworkClassReference> = /*@__PURE__*/
-  messageDesc(file_osac_private_v1_virtual_network_type, 5);
 
 /**
  * Lifecycle states for VirtualNetwork resources.

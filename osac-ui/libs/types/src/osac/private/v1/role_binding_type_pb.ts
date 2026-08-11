@@ -19,6 +19,8 @@ import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2"
 import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import type { Metadata } from "./metadata_type_pb";
 import { file_osac_private_v1_metadata_type } from "./metadata_type_pb";
+import type { RoleReference } from "./role_type_pb";
+import { file_osac_private_v1_role_type } from "./role_type_pb";
 import type { UserReference } from "./user_type_pb";
 import { file_osac_private_v1_user_type } from "./user_type_pb";
 import type { Message } from "@bufbuild/protobuf";
@@ -27,7 +29,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/private/v1/role_binding_type.proto.
  */
 export const file_osac_private_v1_role_binding_type: GenFile = /*@__PURE__*/
-  fileDesc("Cidvc2FjL3ByaXZhdGUvdjEvcm9sZV9iaW5kaW5nX3R5cGUucHJvdG8SD29zYWMucHJpdmF0ZS52MSKqAQoLUm9sZUJpbmRpbmcSCgoCaWQYASABKAkSKwoIbWV0YWRhdGEYAiABKAsyGS5vc2FjLnByaXZhdGUudjEuTWV0YWRhdGESLgoEc3BlYxgDIAEoCzIgLm9zYWMucHJpdmF0ZS52MS5Sb2xlQmluZGluZ1NwZWMSMgoGc3RhdHVzGAQgASgLMiIub3NhYy5wcml2YXRlLnYxLlJvbGVCaW5kaW5nU3RhdHVzIm4KD1JvbGVCaW5kaW5nU3BlYxIsCgRyb2xlGAEgASgLMh4ub3NhYy5wcml2YXRlLnYxLlJvbGVSZWZlcmVuY2USLQoFdXNlcnMYAiADKAsyHi5vc2FjLnByaXZhdGUudjEuVXNlclJlZmVyZW5jZSKWAQoRUm9sZUJpbmRpbmdTdGF0dXMSMAoFc3RhdGUYASABKA4yIS5vc2FjLnByaXZhdGUudjEuUm9sZUJpbmRpbmdTdGF0ZRIUCgdtZXNzYWdlGAIgASgJSACIAQESLQoFdXNlcnMYAyADKAsyHi5vc2FjLnByaXZhdGUudjEuVXNlclJlZmVyZW5jZUIKCghfbWVzc2FnZSJKCg1Sb2xlUmVmZXJlbmNlEgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkSDwoHcHJvamVjdBgDIAEoCRIOCgZzaGFyZWQYBCABKAgqkwEKEFJvbGVCaW5kaW5nU3RhdGUSIgoeUk9MRV9CSU5ESU5HX1NUQVRFX1VOU1BFQ0lGSUVEEAASHgoaUk9MRV9CSU5ESU5HX1NUQVRFX1BFTkRJTkcQARIcChhST0xFX0JJTkRJTkdfU1RBVEVfUkVBRFkQAhIdChlST0xFX0JJTkRJTkdfU1RBVEVfRkFJTEVEEANiBnByb3RvMw", [file_osac_private_v1_metadata_type, file_osac_private_v1_user_type]);
+  fileDesc("Cidvc2FjL3ByaXZhdGUvdjEvcm9sZV9iaW5kaW5nX3R5cGUucHJvdG8SD29zYWMucHJpdmF0ZS52MSKqAQoLUm9sZUJpbmRpbmcSCgoCaWQYASABKAkSKwoIbWV0YWRhdGEYAiABKAsyGS5vc2FjLnByaXZhdGUudjEuTWV0YWRhdGESLgoEc3BlYxgDIAEoCzIgLm9zYWMucHJpdmF0ZS52MS5Sb2xlQmluZGluZ1NwZWMSMgoGc3RhdHVzGAQgASgLMiIub3NhYy5wcml2YXRlLnYxLlJvbGVCaW5kaW5nU3RhdHVzIm4KD1JvbGVCaW5kaW5nU3BlYxIsCgRyb2xlGAEgASgLMh4ub3NhYy5wcml2YXRlLnYxLlJvbGVSZWZlcmVuY2USLQoFdXNlcnMYAiADKAsyHi5vc2FjLnByaXZhdGUudjEuVXNlclJlZmVyZW5jZSKWAQoRUm9sZUJpbmRpbmdTdGF0dXMSMAoFc3RhdGUYASABKA4yIS5vc2FjLnByaXZhdGUudjEuUm9sZUJpbmRpbmdTdGF0ZRIUCgdtZXNzYWdlGAIgASgJSACIAQESLQoFdXNlcnMYAyADKAsyHi5vc2FjLnByaXZhdGUudjEuVXNlclJlZmVyZW5jZUIKCghfbWVzc2FnZSqTAQoQUm9sZUJpbmRpbmdTdGF0ZRIiCh5ST0xFX0JJTkRJTkdfU1RBVEVfVU5TUEVDSUZJRUQQABIeChpST0xFX0JJTkRJTkdfU1RBVEVfUEVORElORxABEhwKGFJPTEVfQklORElOR19TVEFURV9SRUFEWRACEh0KGVJPTEVfQklORElOR19TVEFURV9GQUlMRUQQA2IGcHJvdG8z", [file_osac_private_v1_metadata_type, file_osac_private_v1_role_type, file_osac_private_v1_user_type]);
 
 /**
  * Represents a binding between a role and a set of users.
@@ -147,40 +149,6 @@ export type RoleBindingStatus = Message<"osac.private.v1.RoleBindingStatus"> & {
  */
 export const RoleBindingStatusSchema: GenMessage<RoleBindingStatus> = /*@__PURE__*/
   messageDesc(file_osac_private_v1_role_binding_type, 2);
-
-/**
- * Reference to a Role resource.
- *
- * @generated from message osac.private.v1.RoleReference
- */
-export type RoleReference = Message<"osac.private.v1.RoleReference"> & {
-  /**
-   * @generated from field: string id = 1;
-   */
-  id: string;
-
-  /**
-   * @generated from field: string name = 2;
-   */
-  name: string;
-
-  /**
-   * @generated from field: string project = 3;
-   */
-  project: string;
-
-  /**
-   * @generated from field: bool shared = 4;
-   */
-  shared: boolean;
-};
-
-/**
- * Describes the message osac.private.v1.RoleReference.
- * Use `create(RoleReferenceSchema)` to create a new message.
- */
-export const RoleReferenceSchema: GenMessage<RoleReference> = /*@__PURE__*/
-  messageDesc(file_osac_private_v1_role_binding_type, 3);
 
 /**
  * Synchronization states for RoleBinding objects with the underlying authorization system.

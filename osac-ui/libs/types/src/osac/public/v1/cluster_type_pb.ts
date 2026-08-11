@@ -21,6 +21,12 @@ import type { Any } from "../../../google/protobuf/any_pb";
 import { file_google_protobuf_any } from "../../../google/protobuf/any_pb";
 import type { Timestamp } from "../../../google/protobuf/timestamp_pb";
 import { file_google_protobuf_timestamp } from "../../../google/protobuf/timestamp_pb";
+import type { ClusterCatalogItemReference } from "./cluster_catalog_item_type_pb";
+import { file_osac_public_v1_cluster_catalog_item_type } from "./cluster_catalog_item_type_pb";
+import type { ClusterNetwork } from "./cluster_common_type_pb";
+import { file_osac_public_v1_cluster_common_type } from "./cluster_common_type_pb";
+import type { ClusterTemplateReference } from "./cluster_template_type_pb";
+import { file_osac_public_v1_cluster_template_type } from "./cluster_template_type_pb";
 import type { ClusterVersionReference } from "./cluster_version_type_pb";
 import { file_osac_public_v1_cluster_version_type } from "./cluster_version_type_pb";
 import type { ConditionStatus } from "./condition_status_type_pb";
@@ -39,7 +45,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/public/v1/cluster_type.proto.
  */
 export const file_osac_public_v1_cluster_type: GenFile = /*@__PURE__*/
-  fileDesc("CiFvc2FjL3B1YmxpYy92MS9jbHVzdGVyX3R5cGUucHJvdG8SDm9zYWMucHVibGljLnYxIpsBCgdDbHVzdGVyEgoKAmlkGAEgASgJEioKCG1ldGFkYXRhGAIgASgLMhgub3NhYy5wdWJsaWMudjEuTWV0YWRhdGESKQoEc3BlYxgDIAEoCzIbLm9zYWMucHVibGljLnYxLkNsdXN0ZXJTcGVjEi0KBnN0YXR1cxgEIAEoCzIdLm9zYWMucHVibGljLnYxLkNsdXN0ZXJTdGF0dXMi2gUKC0NsdXN0ZXJTcGVjEjoKCHRlbXBsYXRlGAEgASgLMigub3NhYy5wdWJsaWMudjEuQ2x1c3RlclRlbXBsYXRlUmVmZXJlbmNlElAKE3RlbXBsYXRlX3BhcmFtZXRlcnMYAiADKAsyMy5vc2FjLnB1YmxpYy52MS5DbHVzdGVyU3BlYy5UZW1wbGF0ZVBhcmFtZXRlcnNFbnRyeRI8Cglub2RlX3NldHMYAyADKAsyKS5vc2FjLnB1YmxpYy52MS5DbHVzdGVyU3BlYy5Ob2RlU2V0c0VudHJ5EhgKC3B1bGxfc2VjcmV0GAQgASgJSACIAQESGwoOc3NoX3B1YmxpY19rZXkYBSABKAlIAYgBARI4Cgd2ZXJzaW9uGAYgASgLMicub3NhYy5wdWJsaWMudjEuQ2x1c3RlclZlcnNpb25SZWZlcmVuY2USNAoHbmV0d29yaxgHIAEoCzIeLm9zYWMucHVibGljLnYxLkNsdXN0ZXJOZXR3b3JrSAKIAQESQQoMY2F0YWxvZ19pdGVtGAggASgLMisub3NhYy5wdWJsaWMudjEuQ2x1c3RlckNhdGFsb2dJdGVtUmVmZXJlbmNlEkQKEm5ldHdvcmtfYXR0YWNobWVudBgJIAEoCzIoLm9zYWMucHVibGljLnYxLkNsdXN0ZXJOZXR3b3JrQXR0YWNobWVudBpPChdUZW1wbGF0ZVBhcmFtZXRlcnNFbnRyeRILCgNrZXkYASABKAkSIwoFdmFsdWUYAiABKAsyFC5nb29nbGUucHJvdG9idWYuQW55OgI4ARpPCg1Ob2RlU2V0c0VudHJ5EgsKA2tleRgBIAEoCRItCgV2YWx1ZRgCIAEoCzIeLm9zYWMucHVibGljLnYxLkNsdXN0ZXJOb2RlU2V0OgI4AUIOCgxfcHVsbF9zZWNyZXRCEQoPX3NzaF9wdWJsaWNfa2V5QgoKCF9uZXR3b3JrImAKDkNsdXN0ZXJOZXR3b3JrEhUKCHBvZF9jaWRyGAEgASgJSACIAQESGQoMc2VydmljZV9jaWRyGAIgASgJSAGIAQFCCwoJX3BvZF9jaWRyQg8KDV9zZXJ2aWNlX2NpZHIiswMKDUNsdXN0ZXJTdGF0dXMSKwoFc3RhdGUYASABKA4yHC5vc2FjLnB1YmxpYy52MS5DbHVzdGVyU3RhdGUSNAoKY29uZGl0aW9ucxgCIAMoCzIgLm9zYWMucHVibGljLnYxLkNsdXN0ZXJDb25kaXRpb24SDwoHYXBpX3VybBgDIAEoCRITCgtjb25zb2xlX3VybBgEIAEoCRI+Cglub2RlX3NldHMYBSADKAsyKy5vc2FjLnB1YmxpYy52MS5DbHVzdGVyU3RhdHVzLk5vZGVTZXRzRW50cnkSFAoMYXBpX2VuZHBvaW50GAYgASgJEhgKEGluZ3Jlc3NfZW5kcG9pbnQYByABKAkSPgoVc3RhdGVfdHJhbnNpdGlvbl90aW1lGAggASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEgAiAEBGk8KDU5vZGVTZXRzRW50cnkSCwoDa2V5GAEgASgJEi0KBXZhbHVlGAIgASgLMh4ub3NhYy5wdWJsaWMudjEuQ2x1c3Rlck5vZGVTZXQ6AjgBQhgKFl9zdGF0ZV90cmFuc2l0aW9uX3RpbWUi8wEKEENsdXN0ZXJDb25kaXRpb24SMgoEdHlwZRgBIAEoDjIkLm9zYWMucHVibGljLnYxLkNsdXN0ZXJDb25kaXRpb25UeXBlEi8KBnN0YXR1cxgCIAEoDjIfLm9zYWMucHVibGljLnYxLkNvbmRpdGlvblN0YXR1cxI4ChRsYXN0X3RyYW5zaXRpb25fdGltZRgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEwoGcmVhc29uGAQgASgJSACIAQESFAoHbWVzc2FnZRgFIAEoCUgBiAEBQgkKB19yZWFzb25CCgoIX21lc3NhZ2UilgEKGENsdXN0ZXJOZXR3b3JrQXR0YWNobWVudBI0CgZzdWJuZXQYASABKAsyJC5vc2FjLnB1YmxpYy52MS5TdWJuZXRMb2NhbFJlZmVyZW5jZRJECg9zZWN1cml0eV9ncm91cHMYAiADKAsyKy5vc2FjLnB1YmxpYy52MS5TZWN1cml0eUdyb3VwTG9jYWxSZWZlcmVuY2UiVAoOQ2x1c3Rlck5vZGVTZXQSNAoJaG9zdF90eXBlGAEgASgLMiEub3NhYy5wdWJsaWMudjEuSG9zdFR5cGVSZWZlcmVuY2USDAoEc2l6ZRgCIAEoBSIxChVDbHVzdGVyTG9jYWxSZWZlcmVuY2USCgoCaWQYASABKAkSDAoEbmFtZRgCIAEoCSJVChhDbHVzdGVyVGVtcGxhdGVSZWZlcmVuY2USCgoCaWQYASABKAkSDAoEbmFtZRgCIAEoCRIPCgdwcm9qZWN0GAMgASgJEg4KBnNoYXJlZBgEIAEoCCJYChtDbHVzdGVyQ2F0YWxvZ0l0ZW1SZWZlcmVuY2USCgoCaWQYASABKAkSDAoEbmFtZRgCIAEoCRIPCgdwcm9qZWN0GAMgASgJEg4KBnNoYXJlZBgEIAEoCCq8AQoMQ2x1c3RlclN0YXRlEh0KGUNMVVNURVJfU1RBVEVfVU5TUEVDSUZJRUQQABIdChlDTFVTVEVSX1NUQVRFX1BST0dSRVNTSU5HEAESFwoTQ0xVU1RFUl9TVEFURV9SRUFEWRACEhgKFENMVVNURVJfU1RBVEVfRkFJTEVEEAMSGgoWQ0xVU1RFUl9TVEFURV9ERUxFVElORxAEEh8KG0NMVVNURVJfU1RBVEVfREVMRVRFX0ZBSUxFRBAFKtABChRDbHVzdGVyQ29uZGl0aW9uVHlwZRImCiJDTFVTVEVSX0NPTkRJVElPTl9UWVBFX1VOU1BFQ0lGSUVEEAASJgoiQ0xVU1RFUl9DT05ESVRJT05fVFlQRV9QUk9HUkVTU0lORxABEiAKHENMVVNURVJfQ09ORElUSU9OX1RZUEVfUkVBRFkQAhIhCh1DTFVTVEVSX0NPTkRJVElPTl9UWVBFX0ZBSUxFRBADEiMKH0NMVVNURVJfQ09ORElUSU9OX1RZUEVfREVHUkFERUQQBGIGcHJvdG8z", [file_google_protobuf_any, file_google_protobuf_timestamp, file_osac_public_v1_cluster_version_type, file_osac_public_v1_condition_status_type, file_osac_public_v1_metadata_type, file_osac_public_v1_host_type_type, file_osac_public_v1_security_group_type, file_osac_public_v1_subnet_type]);
+  fileDesc("CiFvc2FjL3B1YmxpYy92MS9jbHVzdGVyX3R5cGUucHJvdG8SDm9zYWMucHVibGljLnYxIpsBCgdDbHVzdGVyEgoKAmlkGAEgASgJEioKCG1ldGFkYXRhGAIgASgLMhgub3NhYy5wdWJsaWMudjEuTWV0YWRhdGESKQoEc3BlYxgDIAEoCzIbLm9zYWMucHVibGljLnYxLkNsdXN0ZXJTcGVjEi0KBnN0YXR1cxgEIAEoCzIdLm9zYWMucHVibGljLnYxLkNsdXN0ZXJTdGF0dXMi2gUKC0NsdXN0ZXJTcGVjEjoKCHRlbXBsYXRlGAEgASgLMigub3NhYy5wdWJsaWMudjEuQ2x1c3RlclRlbXBsYXRlUmVmZXJlbmNlElAKE3RlbXBsYXRlX3BhcmFtZXRlcnMYAiADKAsyMy5vc2FjLnB1YmxpYy52MS5DbHVzdGVyU3BlYy5UZW1wbGF0ZVBhcmFtZXRlcnNFbnRyeRI8Cglub2RlX3NldHMYAyADKAsyKS5vc2FjLnB1YmxpYy52MS5DbHVzdGVyU3BlYy5Ob2RlU2V0c0VudHJ5EhgKC3B1bGxfc2VjcmV0GAQgASgJSACIAQESGwoOc3NoX3B1YmxpY19rZXkYBSABKAlIAYgBARI4Cgd2ZXJzaW9uGAYgASgLMicub3NhYy5wdWJsaWMudjEuQ2x1c3RlclZlcnNpb25SZWZlcmVuY2USNAoHbmV0d29yaxgHIAEoCzIeLm9zYWMucHVibGljLnYxLkNsdXN0ZXJOZXR3b3JrSAKIAQESQQoMY2F0YWxvZ19pdGVtGAggASgLMisub3NhYy5wdWJsaWMudjEuQ2x1c3RlckNhdGFsb2dJdGVtUmVmZXJlbmNlEkQKEm5ldHdvcmtfYXR0YWNobWVudBgJIAEoCzIoLm9zYWMucHVibGljLnYxLkNsdXN0ZXJOZXR3b3JrQXR0YWNobWVudBpPChdUZW1wbGF0ZVBhcmFtZXRlcnNFbnRyeRILCgNrZXkYASABKAkSIwoFdmFsdWUYAiABKAsyFC5nb29nbGUucHJvdG9idWYuQW55OgI4ARpPCg1Ob2RlU2V0c0VudHJ5EgsKA2tleRgBIAEoCRItCgV2YWx1ZRgCIAEoCzIeLm9zYWMucHVibGljLnYxLkNsdXN0ZXJOb2RlU2V0OgI4AUIOCgxfcHVsbF9zZWNyZXRCEQoPX3NzaF9wdWJsaWNfa2V5QgoKCF9uZXR3b3JrIrMDCg1DbHVzdGVyU3RhdHVzEisKBXN0YXRlGAEgASgOMhwub3NhYy5wdWJsaWMudjEuQ2x1c3RlclN0YXRlEjQKCmNvbmRpdGlvbnMYAiADKAsyIC5vc2FjLnB1YmxpYy52MS5DbHVzdGVyQ29uZGl0aW9uEg8KB2FwaV91cmwYAyABKAkSEwoLY29uc29sZV91cmwYBCABKAkSPgoJbm9kZV9zZXRzGAUgAygLMisub3NhYy5wdWJsaWMudjEuQ2x1c3RlclN0YXR1cy5Ob2RlU2V0c0VudHJ5EhQKDGFwaV9lbmRwb2ludBgGIAEoCRIYChBpbmdyZXNzX2VuZHBvaW50GAcgASgJEj4KFXN0YXRlX3RyYW5zaXRpb25fdGltZRgIIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBIAIgBARpPCg1Ob2RlU2V0c0VudHJ5EgsKA2tleRgBIAEoCRItCgV2YWx1ZRgCIAEoCzIeLm9zYWMucHVibGljLnYxLkNsdXN0ZXJOb2RlU2V0OgI4AUIYChZfc3RhdGVfdHJhbnNpdGlvbl90aW1lIvMBChBDbHVzdGVyQ29uZGl0aW9uEjIKBHR5cGUYASABKA4yJC5vc2FjLnB1YmxpYy52MS5DbHVzdGVyQ29uZGl0aW9uVHlwZRIvCgZzdGF0dXMYAiABKA4yHy5vc2FjLnB1YmxpYy52MS5Db25kaXRpb25TdGF0dXMSOAoUbGFzdF90cmFuc2l0aW9uX3RpbWUYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhMKBnJlYXNvbhgEIAEoCUgAiAEBEhQKB21lc3NhZ2UYBSABKAlIAYgBAUIJCgdfcmVhc29uQgoKCF9tZXNzYWdlIpYBChhDbHVzdGVyTmV0d29ya0F0dGFjaG1lbnQSNAoGc3VibmV0GAEgASgLMiQub3NhYy5wdWJsaWMudjEuU3VibmV0TG9jYWxSZWZlcmVuY2USRAoPc2VjdXJpdHlfZ3JvdXBzGAIgAygLMisub3NhYy5wdWJsaWMudjEuU2VjdXJpdHlHcm91cExvY2FsUmVmZXJlbmNlIlQKDkNsdXN0ZXJOb2RlU2V0EjQKCWhvc3RfdHlwZRgBIAEoCzIhLm9zYWMucHVibGljLnYxLkhvc3RUeXBlUmVmZXJlbmNlEgwKBHNpemUYAiABKAUiMQoVQ2x1c3RlckxvY2FsUmVmZXJlbmNlEgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkqvAEKDENsdXN0ZXJTdGF0ZRIdChlDTFVTVEVSX1NUQVRFX1VOU1BFQ0lGSUVEEAASHQoZQ0xVU1RFUl9TVEFURV9QUk9HUkVTU0lORxABEhcKE0NMVVNURVJfU1RBVEVfUkVBRFkQAhIYChRDTFVTVEVSX1NUQVRFX0ZBSUxFRBADEhoKFkNMVVNURVJfU1RBVEVfREVMRVRJTkcQBBIfChtDTFVTVEVSX1NUQVRFX0RFTEVURV9GQUlMRUQQBSrQAQoUQ2x1c3RlckNvbmRpdGlvblR5cGUSJgoiQ0xVU1RFUl9DT05ESVRJT05fVFlQRV9VTlNQRUNJRklFRBAAEiYKIkNMVVNURVJfQ09ORElUSU9OX1RZUEVfUFJPR1JFU1NJTkcQARIgChxDTFVTVEVSX0NPTkRJVElPTl9UWVBFX1JFQURZEAISIQodQ0xVU1RFUl9DT05ESVRJT05fVFlQRV9GQUlMRUQQAxIjCh9DTFVTVEVSX0NPTkRJVElPTl9UWVBFX0RFR1JBREVEEARiBnByb3RvMw", [file_google_protobuf_any, file_google_protobuf_timestamp, file_osac_public_v1_cluster_catalog_item_type, file_osac_public_v1_cluster_common_type, file_osac_public_v1_cluster_template_type, file_osac_public_v1_cluster_version_type, file_osac_public_v1_condition_status_type, file_osac_public_v1_metadata_type, file_osac_public_v1_host_type_type, file_osac_public_v1_security_group_type, file_osac_public_v1_subnet_type]);
 
 /**
  * Contains the details of the cluster.
@@ -271,38 +277,6 @@ export const ClusterSpecSchema: GenMessage<ClusterSpec> = /*@__PURE__*/
   messageDesc(file_osac_public_v1_cluster_type, 1);
 
 /**
- * Networking configuration for a cluster.
- *
- * @generated from message osac.public.v1.ClusterNetwork
- */
-export type ClusterNetwork = Message<"osac.public.v1.ClusterNetwork"> & {
-  /**
-   * CIDR for the cluster's pod network.
-   *
-   * Must be valid CIDR notation. If not provided, defaults to `10.128.0.0/14`.
-   *
-   * @generated from field: optional string pod_cidr = 1;
-   */
-  podCidr?: string | undefined;
-
-  /**
-   * CIDR for the cluster's service network.
-   *
-   * Must be valid CIDR notation. If not provided, defaults to `172.30.0.0/16`.
-   *
-   * @generated from field: optional string service_cidr = 2;
-   */
-  serviceCidr?: string | undefined;
-};
-
-/**
- * Describes the message osac.public.v1.ClusterNetwork.
- * Use `create(ClusterNetworkSchema)` to create a new message.
- */
-export const ClusterNetworkSchema: GenMessage<ClusterNetwork> = /*@__PURE__*/
-  messageDesc(file_osac_public_v1_cluster_type, 2);
-
-/**
  * The status contains the details of the cluster provided by the system.
  *
  * @generated from message osac.public.v1.ClusterStatus
@@ -428,7 +402,7 @@ export type ClusterStatus = Message<"osac.public.v1.ClusterStatus"> & {
  * Use `create(ClusterStatusSchema)` to create a new message.
  */
 export const ClusterStatusSchema: GenMessage<ClusterStatus> = /*@__PURE__*/
-  messageDesc(file_osac_public_v1_cluster_type, 3);
+  messageDesc(file_osac_public_v1_cluster_type, 2);
 
 /**
  * Contains the details of a condition that describes the status of a cluster.
@@ -481,7 +455,7 @@ export type ClusterCondition = Message<"osac.public.v1.ClusterCondition"> & {
  * Use `create(ClusterConditionSchema)` to create a new message.
  */
 export const ClusterConditionSchema: GenMessage<ClusterCondition> = /*@__PURE__*/
-  messageDesc(file_osac_public_v1_cluster_type, 4);
+  messageDesc(file_osac_public_v1_cluster_type, 3);
 
 /**
  * Defines the network attachment for a cluster, connecting it to a tenant subnet with optional security groups.
@@ -519,7 +493,7 @@ export type ClusterNetworkAttachment = Message<"osac.public.v1.ClusterNetworkAtt
  * Use `create(ClusterNetworkAttachmentSchema)` to create a new message.
  */
 export const ClusterNetworkAttachmentSchema: GenMessage<ClusterNetworkAttachment> = /*@__PURE__*/
-  messageDesc(file_osac_public_v1_cluster_type, 5);
+  messageDesc(file_osac_public_v1_cluster_type, 4);
 
 /**
  * Defines a set of nodes that are part of the cluster, all of them of the same type of host.
@@ -569,7 +543,7 @@ export type ClusterNodeSet = Message<"osac.public.v1.ClusterNodeSet"> & {
  * Use `create(ClusterNodeSetSchema)` to create a new message.
  */
 export const ClusterNodeSetSchema: GenMessage<ClusterNodeSet> = /*@__PURE__*/
-  messageDesc(file_osac_public_v1_cluster_type, 6);
+  messageDesc(file_osac_public_v1_cluster_type, 5);
 
 /**
  * Local reference to a Cluster resource.
@@ -593,75 +567,7 @@ export type ClusterLocalReference = Message<"osac.public.v1.ClusterLocalReferenc
  * Use `create(ClusterLocalReferenceSchema)` to create a new message.
  */
 export const ClusterLocalReferenceSchema: GenMessage<ClusterLocalReference> = /*@__PURE__*/
-  messageDesc(file_osac_public_v1_cluster_type, 7);
-
-/**
- * Reference to a ClusterTemplate resource.
- *
- * @generated from message osac.public.v1.ClusterTemplateReference
- */
-export type ClusterTemplateReference = Message<"osac.public.v1.ClusterTemplateReference"> & {
-  /**
-   * @generated from field: string id = 1;
-   */
-  id: string;
-
-  /**
-   * @generated from field: string name = 2;
-   */
-  name: string;
-
-  /**
-   * @generated from field: string project = 3;
-   */
-  project: string;
-
-  /**
-   * @generated from field: bool shared = 4;
-   */
-  shared: boolean;
-};
-
-/**
- * Describes the message osac.public.v1.ClusterTemplateReference.
- * Use `create(ClusterTemplateReferenceSchema)` to create a new message.
- */
-export const ClusterTemplateReferenceSchema: GenMessage<ClusterTemplateReference> = /*@__PURE__*/
-  messageDesc(file_osac_public_v1_cluster_type, 8);
-
-/**
- * Reference to a ClusterCatalogItem resource.
- *
- * @generated from message osac.public.v1.ClusterCatalogItemReference
- */
-export type ClusterCatalogItemReference = Message<"osac.public.v1.ClusterCatalogItemReference"> & {
-  /**
-   * @generated from field: string id = 1;
-   */
-  id: string;
-
-  /**
-   * @generated from field: string name = 2;
-   */
-  name: string;
-
-  /**
-   * @generated from field: string project = 3;
-   */
-  project: string;
-
-  /**
-   * @generated from field: bool shared = 4;
-   */
-  shared: boolean;
-};
-
-/**
- * Describes the message osac.public.v1.ClusterCatalogItemReference.
- * Use `create(ClusterCatalogItemReferenceSchema)` to create a new message.
- */
-export const ClusterCatalogItemReferenceSchema: GenMessage<ClusterCatalogItemReference> = /*@__PURE__*/
-  messageDesc(file_osac_public_v1_cluster_type, 9);
+  messageDesc(file_osac_public_v1_cluster_type, 6);
 
 /**
  * Represents the overall state of a cluster.

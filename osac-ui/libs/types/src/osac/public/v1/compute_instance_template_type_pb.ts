@@ -19,8 +19,8 @@ import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import type { Any } from "../../../google/protobuf/any_pb";
 import { file_google_protobuf_any } from "../../../google/protobuf/any_pb";
-import type { ComputeInstanceDisk, ComputeInstanceImage } from "./compute_instance_type_pb";
-import { file_osac_public_v1_compute_instance_type } from "./compute_instance_type_pb";
+import type { ComputeInstanceDisk, ComputeInstanceImage } from "./compute_instance_common_type_pb";
+import { file_osac_public_v1_compute_instance_common_type } from "./compute_instance_common_type_pb";
 import type { Metadata } from "./metadata_type_pb";
 import { file_osac_public_v1_metadata_type } from "./metadata_type_pb";
 import type { InstanceTypeReference } from "./instance_type_type_pb";
@@ -31,7 +31,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/public/v1/compute_instance_template_type.proto.
  */
 export const file_osac_public_v1_compute_instance_template_type: GenFile = /*@__PURE__*/
-  fileDesc("CjNvc2FjL3B1YmxpYy92MS9jb21wdXRlX2luc3RhbmNlX3RlbXBsYXRlX3R5cGUucHJvdG8SDm9zYWMucHVibGljLnYxIpECChdDb21wdXRlSW5zdGFuY2VUZW1wbGF0ZRIKCgJpZBgBIAEoCRIqCghtZXRhZGF0YRgCIAEoCzIYLm9zYWMucHVibGljLnYxLk1ldGFkYXRhEg0KBXRpdGxlGAMgASgJEhMKC2Rlc2NyaXB0aW9uGAQgASgJEk4KCnBhcmFtZXRlcnMYBSADKAsyOi5vc2FjLnB1YmxpYy52MS5Db21wdXRlSW5zdGFuY2VUZW1wbGF0ZVBhcmFtZXRlckRlZmluaXRpb24SSgoNc3BlY19kZWZhdWx0cxgGIAEoCzIzLm9zYWMucHVibGljLnYxLkNvbXB1dGVJbnN0YW5jZVRlbXBsYXRlU3BlY0RlZmF1bHRzIqUBCipDb21wdXRlSW5zdGFuY2VUZW1wbGF0ZVBhcmFtZXRlckRlZmluaXRpb24SDAoEbmFtZRgBIAEoCRINCgV0aXRsZRgCIAEoCRITCgtkZXNjcmlwdGlvbhgDIAEoCRIQCghyZXF1aXJlZBgEIAEoCBIMCgR0eXBlGAUgASgJEiUKB2RlZmF1bHQYBiABKAsyFC5nb29nbGUucHJvdG9idWYuQW55IuUCCiNDb21wdXRlSW5zdGFuY2VUZW1wbGF0ZVNwZWNEZWZhdWx0cxI4CgVpbWFnZRgDIAEoCzIkLm9zYWMucHVibGljLnYxLkNvbXB1dGVJbnN0YW5jZUltYWdlSACIAQESOwoJYm9vdF9kaXNrGAQgASgLMiMub3NhYy5wdWJsaWMudjEuQ29tcHV0ZUluc3RhbmNlRGlza0gBiAEBEhkKDHJ1bl9zdHJhdGVneRgFIAEoCUgCiAEBEjwKDWluc3RhbmNlX3R5cGUYBiABKAsyJS5vc2FjLnB1YmxpYy52MS5JbnN0YW5jZVR5cGVSZWZlcmVuY2USFwoKaXNfd2luZG93cxgHIAEoCEgDiAEBQggKBl9pbWFnZUIMCgpfYm9vdF9kaXNrQg8KDV9ydW5fc3RyYXRlZ3lCDQoLX2lzX3dpbmRvd3NKBAgBEAJKBAgCEANSBWNvcmVzUgptZW1vcnlfZ2liYgZwcm90bzM", [file_google_protobuf_any, file_osac_public_v1_compute_instance_type, file_osac_public_v1_metadata_type, file_osac_public_v1_instance_type_type]);
+  fileDesc("CjNvc2FjL3B1YmxpYy92MS9jb21wdXRlX2luc3RhbmNlX3RlbXBsYXRlX3R5cGUucHJvdG8SDm9zYWMucHVibGljLnYxIpECChdDb21wdXRlSW5zdGFuY2VUZW1wbGF0ZRIKCgJpZBgBIAEoCRIqCghtZXRhZGF0YRgCIAEoCzIYLm9zYWMucHVibGljLnYxLk1ldGFkYXRhEg0KBXRpdGxlGAMgASgJEhMKC2Rlc2NyaXB0aW9uGAQgASgJEk4KCnBhcmFtZXRlcnMYBSADKAsyOi5vc2FjLnB1YmxpYy52MS5Db21wdXRlSW5zdGFuY2VUZW1wbGF0ZVBhcmFtZXRlckRlZmluaXRpb24SSgoNc3BlY19kZWZhdWx0cxgGIAEoCzIzLm9zYWMucHVibGljLnYxLkNvbXB1dGVJbnN0YW5jZVRlbXBsYXRlU3BlY0RlZmF1bHRzIqUBCipDb21wdXRlSW5zdGFuY2VUZW1wbGF0ZVBhcmFtZXRlckRlZmluaXRpb24SDAoEbmFtZRgBIAEoCRINCgV0aXRsZRgCIAEoCRITCgtkZXNjcmlwdGlvbhgDIAEoCRIQCghyZXF1aXJlZBgEIAEoCBIMCgR0eXBlGAUgASgJEiUKB2RlZmF1bHQYBiABKAsyFC5nb29nbGUucHJvdG9idWYuQW55IuUCCiNDb21wdXRlSW5zdGFuY2VUZW1wbGF0ZVNwZWNEZWZhdWx0cxI4CgVpbWFnZRgDIAEoCzIkLm9zYWMucHVibGljLnYxLkNvbXB1dGVJbnN0YW5jZUltYWdlSACIAQESOwoJYm9vdF9kaXNrGAQgASgLMiMub3NhYy5wdWJsaWMudjEuQ29tcHV0ZUluc3RhbmNlRGlza0gBiAEBEhkKDHJ1bl9zdHJhdGVneRgFIAEoCUgCiAEBEjwKDWluc3RhbmNlX3R5cGUYBiABKAsyJS5vc2FjLnB1YmxpYy52MS5JbnN0YW5jZVR5cGVSZWZlcmVuY2USFwoKaXNfd2luZG93cxgHIAEoCEgDiAEBQggKBl9pbWFnZUIMCgpfYm9vdF9kaXNrQg8KDV9ydW5fc3RyYXRlZ3lCDQoLX2lzX3dpbmRvd3NKBAgBEAJKBAgCEANSBWNvcmVzUgptZW1vcnlfZ2liIl0KIENvbXB1dGVJbnN0YW5jZVRlbXBsYXRlUmVmZXJlbmNlEgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkSDwoHcHJvamVjdBgDIAEoCRIOCgZzaGFyZWQYBCABKAhiBnByb3RvMw", [file_google_protobuf_any, file_osac_public_v1_compute_instance_common_type, file_osac_public_v1_metadata_type, file_osac_public_v1_instance_type_type]);
 
 /**
  * A compute instance template defines a type of compute instance that can be created by the user. Note that the user doesn't create these
@@ -230,4 +230,38 @@ export type ComputeInstanceTemplateSpecDefaults = Message<"osac.public.v1.Comput
  */
 export const ComputeInstanceTemplateSpecDefaultsSchema: GenMessage<ComputeInstanceTemplateSpecDefaults> = /*@__PURE__*/
   messageDesc(file_osac_public_v1_compute_instance_template_type, 2);
+
+/**
+ * Reference to a ComputeInstanceTemplate resource.
+ *
+ * @generated from message osac.public.v1.ComputeInstanceTemplateReference
+ */
+export type ComputeInstanceTemplateReference = Message<"osac.public.v1.ComputeInstanceTemplateReference"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string name = 2;
+   */
+  name: string;
+
+  /**
+   * @generated from field: string project = 3;
+   */
+  project: string;
+
+  /**
+   * @generated from field: bool shared = 4;
+   */
+  shared: boolean;
+};
+
+/**
+ * Describes the message osac.public.v1.ComputeInstanceTemplateReference.
+ * Use `create(ComputeInstanceTemplateReferenceSchema)` to create a new message.
+ */
+export const ComputeInstanceTemplateReferenceSchema: GenMessage<ComputeInstanceTemplateReference> = /*@__PURE__*/
+  messageDesc(file_osac_public_v1_compute_instance_template_type, 3);
 

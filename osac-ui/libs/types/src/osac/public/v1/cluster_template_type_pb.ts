@@ -19,8 +19,8 @@ import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import type { Any } from "../../../google/protobuf/any_pb";
 import { file_google_protobuf_any } from "../../../google/protobuf/any_pb";
-import type { ClusterNetwork } from "./cluster_type_pb";
-import { file_osac_public_v1_cluster_type } from "./cluster_type_pb";
+import type { ClusterNetwork } from "./cluster_common_type_pb";
+import { file_osac_public_v1_cluster_common_type } from "./cluster_common_type_pb";
 import type { ClusterVersionReference } from "./cluster_version_type_pb";
 import { file_osac_public_v1_cluster_version_type } from "./cluster_version_type_pb";
 import type { Metadata } from "./metadata_type_pb";
@@ -33,7 +33,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/public/v1/cluster_template_type.proto.
  */
 export const file_osac_public_v1_cluster_template_type: GenFile = /*@__PURE__*/
-  fileDesc("Cipvc2FjL3B1YmxpYy92MS9jbHVzdGVyX3RlbXBsYXRlX3R5cGUucHJvdG8SDm9zYWMucHVibGljLnYxIpQDCg9DbHVzdGVyVGVtcGxhdGUSCgoCaWQYASABKAkSKgoIbWV0YWRhdGEYAiABKAsyGC5vc2FjLnB1YmxpYy52MS5NZXRhZGF0YRINCgV0aXRsZRgDIAEoCRITCgtkZXNjcmlwdGlvbhgEIAEoCRJGCgpwYXJhbWV0ZXJzGAUgAygLMjIub3NhYy5wdWJsaWMudjEuQ2x1c3RlclRlbXBsYXRlUGFyYW1ldGVyRGVmaW5pdGlvbhJACglub2RlX3NldHMYBiADKAsyLS5vc2FjLnB1YmxpYy52MS5DbHVzdGVyVGVtcGxhdGUuTm9kZVNldHNFbnRyeRJCCg1zcGVjX2RlZmF1bHRzGAcgASgLMisub3NhYy5wdWJsaWMudjEuQ2x1c3RlclRlbXBsYXRlU3BlY0RlZmF1bHRzGlcKDU5vZGVTZXRzRW50cnkSCwoDa2V5GAEgASgJEjUKBXZhbHVlGAIgASgLMiYub3NhYy5wdWJsaWMudjEuQ2x1c3RlclRlbXBsYXRlTm9kZVNldDoCOAEinQEKIkNsdXN0ZXJUZW1wbGF0ZVBhcmFtZXRlckRlZmluaXRpb24SDAoEbmFtZRgBIAEoCRINCgV0aXRsZRgCIAEoCRITCgtkZXNjcmlwdGlvbhgDIAEoCRIQCghyZXF1aXJlZBgEIAEoCBIMCgR0eXBlGAUgASgJEiUKB2RlZmF1bHQYBiABKAsyFC5nb29nbGUucHJvdG9idWYuQW55IlwKFkNsdXN0ZXJUZW1wbGF0ZU5vZGVTZXQSNAoJaG9zdF90eXBlGAEgASgLMiEub3NhYy5wdWJsaWMudjEuSG9zdFR5cGVSZWZlcmVuY2USDAoEc2l6ZRgCIAEoBSLJAQobQ2x1c3RlclRlbXBsYXRlU3BlY0RlZmF1bHRzEhsKDnNzaF9wdWJsaWNfa2V5GAIgASgJSACIAQESNAoHbmV0d29yaxgEIAEoCzIeLm9zYWMucHVibGljLnYxLkNsdXN0ZXJOZXR3b3JrSAGIAQESOAoHdmVyc2lvbhgFIAEoCzInLm9zYWMucHVibGljLnYxLkNsdXN0ZXJWZXJzaW9uUmVmZXJlbmNlQhEKD19zc2hfcHVibGljX2tleUIKCghfbmV0d29ya2IGcHJvdG8z", [file_google_protobuf_any, file_osac_public_v1_cluster_type, file_osac_public_v1_cluster_version_type, file_osac_public_v1_metadata_type, file_osac_public_v1_host_type_type]);
+  fileDesc("Cipvc2FjL3B1YmxpYy92MS9jbHVzdGVyX3RlbXBsYXRlX3R5cGUucHJvdG8SDm9zYWMucHVibGljLnYxIpQDCg9DbHVzdGVyVGVtcGxhdGUSCgoCaWQYASABKAkSKgoIbWV0YWRhdGEYAiABKAsyGC5vc2FjLnB1YmxpYy52MS5NZXRhZGF0YRINCgV0aXRsZRgDIAEoCRITCgtkZXNjcmlwdGlvbhgEIAEoCRJGCgpwYXJhbWV0ZXJzGAUgAygLMjIub3NhYy5wdWJsaWMudjEuQ2x1c3RlclRlbXBsYXRlUGFyYW1ldGVyRGVmaW5pdGlvbhJACglub2RlX3NldHMYBiADKAsyLS5vc2FjLnB1YmxpYy52MS5DbHVzdGVyVGVtcGxhdGUuTm9kZVNldHNFbnRyeRJCCg1zcGVjX2RlZmF1bHRzGAcgASgLMisub3NhYy5wdWJsaWMudjEuQ2x1c3RlclRlbXBsYXRlU3BlY0RlZmF1bHRzGlcKDU5vZGVTZXRzRW50cnkSCwoDa2V5GAEgASgJEjUKBXZhbHVlGAIgASgLMiYub3NhYy5wdWJsaWMudjEuQ2x1c3RlclRlbXBsYXRlTm9kZVNldDoCOAEinQEKIkNsdXN0ZXJUZW1wbGF0ZVBhcmFtZXRlckRlZmluaXRpb24SDAoEbmFtZRgBIAEoCRINCgV0aXRsZRgCIAEoCRITCgtkZXNjcmlwdGlvbhgDIAEoCRIQCghyZXF1aXJlZBgEIAEoCBIMCgR0eXBlGAUgASgJEiUKB2RlZmF1bHQYBiABKAsyFC5nb29nbGUucHJvdG9idWYuQW55IlwKFkNsdXN0ZXJUZW1wbGF0ZU5vZGVTZXQSNAoJaG9zdF90eXBlGAEgASgLMiEub3NhYy5wdWJsaWMudjEuSG9zdFR5cGVSZWZlcmVuY2USDAoEc2l6ZRgCIAEoBSLJAQobQ2x1c3RlclRlbXBsYXRlU3BlY0RlZmF1bHRzEhsKDnNzaF9wdWJsaWNfa2V5GAIgASgJSACIAQESNAoHbmV0d29yaxgEIAEoCzIeLm9zYWMucHVibGljLnYxLkNsdXN0ZXJOZXR3b3JrSAGIAQESOAoHdmVyc2lvbhgFIAEoCzInLm9zYWMucHVibGljLnYxLkNsdXN0ZXJWZXJzaW9uUmVmZXJlbmNlQhEKD19zc2hfcHVibGljX2tleUIKCghfbmV0d29yayJVChhDbHVzdGVyVGVtcGxhdGVSZWZlcmVuY2USCgoCaWQYASABKAkSDAoEbmFtZRgCIAEoCRIPCgdwcm9qZWN0GAMgASgJEg4KBnNoYXJlZBgEIAEoCGIGcHJvdG8z", [file_google_protobuf_any, file_osac_public_v1_cluster_common_type, file_osac_public_v1_cluster_version_type, file_osac_public_v1_metadata_type, file_osac_public_v1_host_type_type]);
 
 /**
  * A cluster template defines a type of cluster that can be created by the user. Note that the user doesn't create these
@@ -259,4 +259,38 @@ export type ClusterTemplateSpecDefaults = Message<"osac.public.v1.ClusterTemplat
  */
 export const ClusterTemplateSpecDefaultsSchema: GenMessage<ClusterTemplateSpecDefaults> = /*@__PURE__*/
   messageDesc(file_osac_public_v1_cluster_template_type, 3);
+
+/**
+ * Reference to a ClusterTemplate resource.
+ *
+ * @generated from message osac.public.v1.ClusterTemplateReference
+ */
+export type ClusterTemplateReference = Message<"osac.public.v1.ClusterTemplateReference"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string name = 2;
+   */
+  name: string;
+
+  /**
+   * @generated from field: string project = 3;
+   */
+  project: string;
+
+  /**
+   * @generated from field: bool shared = 4;
+   */
+  shared: boolean;
+};
+
+/**
+ * Describes the message osac.public.v1.ClusterTemplateReference.
+ * Use `create(ClusterTemplateReferenceSchema)` to create a new message.
+ */
+export const ClusterTemplateReferenceSchema: GenMessage<ClusterTemplateReference> = /*@__PURE__*/
+  messageDesc(file_osac_public_v1_cluster_template_type, 4);
 

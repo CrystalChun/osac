@@ -23,6 +23,10 @@ import type { Any } from "../../../google/protobuf/any_pb";
 import { file_google_protobuf_any } from "../../../google/protobuf/any_pb";
 import type { Timestamp } from "../../../google/protobuf/timestamp_pb";
 import { file_google_protobuf_timestamp } from "../../../google/protobuf/timestamp_pb";
+import type { BareMetalInstanceCatalogItemReference } from "./baremetal_instance_catalog_item_type_pb";
+import { file_osac_private_v1_baremetal_instance_catalog_item_type } from "./baremetal_instance_catalog_item_type_pb";
+import type { BareMetalInstanceImage } from "./baremetal_instance_common_type_pb";
+import { file_osac_private_v1_baremetal_instance_common_type } from "./baremetal_instance_common_type_pb";
 import type { ConditionStatus } from "./condition_status_type_pb";
 import { file_osac_private_v1_condition_status_type } from "./condition_status_type_pb";
 import type { Metadata } from "./metadata_type_pb";
@@ -37,35 +41,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/private/v1/baremetal_instance_type.proto.
  */
 export const file_osac_private_v1_baremetal_instance_type: GenFile = /*@__PURE__*/
-  fileDesc("Ci1vc2FjL3ByaXZhdGUvdjEvYmFyZW1ldGFsX2luc3RhbmNlX3R5cGUucHJvdG8SD29zYWMucHJpdmF0ZS52MSJBChZCYXJlTWV0YWxJbnN0YW5jZUltYWdlEhMKC3NvdXJjZV90eXBlGAEgASgJEhIKCnNvdXJjZV9yZWYYAiABKAkivAEKEUJhcmVNZXRhbEluc3RhbmNlEgoKAmlkGAEgASgJEisKCG1ldGFkYXRhGAIgASgLMhkub3NhYy5wcml2YXRlLnYxLk1ldGFkYXRhEjQKBHNwZWMYAyABKAsyJi5vc2FjLnByaXZhdGUudjEuQmFyZU1ldGFsSW5zdGFuY2VTcGVjEjgKBnN0YXR1cxgEIAEoCzIoLm9zYWMucHJpdmF0ZS52MS5CYXJlTWV0YWxJbnN0YW5jZVN0YXR1cyLiAQoaQmFyZU1ldGFsTmV0d29ya0F0dGFjaG1lbnQSNQoGc3VibmV0GAEgASgLMiUub3NhYy5wcml2YXRlLnYxLlN1Ym5ldExvY2FsUmVmZXJlbmNlEkUKD3NlY3VyaXR5X2dyb3VwcxgCIAMoCzIsLm9zYWMucHJpdmF0ZS52MS5TZWN1cml0eUdyb3VwTG9jYWxSZWZlcmVuY2USFgoJaW50ZXJmYWNlGAMgASgJSACIAQESFAoHcHJpbWFyeRgEIAEoCEgBiAEBQgwKCl9pbnRlcmZhY2VCCgoIX3ByaW1hcnkiqQcKFUJhcmVNZXRhbEluc3RhbmNlU3BlYxJRCgxjYXRhbG9nX2l0ZW0YASABKAsyNi5vc2FjLnByaXZhdGUudjEuQmFyZU1ldGFsSW5zdGFuY2VDYXRhbG9nSXRlbVJlZmVyZW5jZUID4EEFEiAKDnNzaF9wdWJsaWNfa2V5GAIgASgJQgPgQQVIAIgBARIbCgl1c2VyX2RhdGEYAyABKAlCA+BBBUgBiAEBEkgKDHJ1bl9zdHJhdGVneRgEIAEoDjItLm9zYWMucHJpdmF0ZS52MS5CYXJlTWV0YWxJbnN0YW5jZVJ1blN0cmF0ZWd5SAKIAQESFwoPcmVzdGFydF90cmlnZ2VyGAUgASgDEmAKE3RlbXBsYXRlX3BhcmFtZXRlcnMYBiADKAsyPi5vc2FjLnByaXZhdGUudjEuQmFyZU1ldGFsSW5zdGFuY2VTcGVjLlRlbXBsYXRlUGFyYW1ldGVyc0VudHJ5QgPgQQUSQAoFaW1hZ2UYByABKAsyJy5vc2FjLnByaXZhdGUudjEuQmFyZU1ldGFsSW5zdGFuY2VJbWFnZUID4EEFSAOIAQESSAoTbmV0d29ya19hdHRhY2htZW50cxgIIAMoCzIrLm9zYWMucHJpdmF0ZS52MS5CYXJlTWV0YWxOZXR3b3JrQXR0YWNobWVudBIoChthdXRvX2V4dGVybmFsX2lwX2F0dGFjaG1lbnQYCSABKAhCA+BBBRpPChdUZW1wbGF0ZVBhcmFtZXRlcnNFbnRyeRILCgNrZXkYASABKAkSIwoFdmFsdWUYAiABKAsyFC5nb29nbGUucHJvdG9idWYuQW55OgI4ATr1AbpI8QEa7gEKJWJhcmVtZXRhbF9pbnN0YW5jZV9wcmltYXJ5X2F0dGFjaG1lbnQSWndoZW4gbXVsdGlwbGUgbmV0d29yayBhdHRhY2htZW50cyBhcmUgc3BlY2lmaWVkLCBleGFjdGx5IG9uZSBtdXN0IGhhdmUgcHJpbWFyeSBzZXQgdG8gdHJ1ZRppdGhpcy5uZXR3b3JrX2F0dGFjaG1lbnRzLnNpemUoKSA8PSAxIHx8IHRoaXMubmV0d29ya19hdHRhY2htZW50cy5maWx0ZXIoYSwgYS5wcmltYXJ5ID09IHRydWUpLnNpemUoKSA9PSAxQhEKD19zc2hfcHVibGljX2tleUIMCgpfdXNlcl9kYXRhQg8KDV9ydW5fc3RyYXRlZ3lCCAoGX2ltYWdlIrgBChdCYXJlTWV0YWxJbnN0YW5jZVN0YXR1cxI2CgVzdGF0ZRgBIAEoDjInLm9zYWMucHJpdmF0ZS52MS5CYXJlTWV0YWxJbnN0YW5jZVN0YXRlEj8KCmNvbmRpdGlvbnMYAiADKAsyKy5vc2FjLnByaXZhdGUudjEuQmFyZU1ldGFsSW5zdGFuY2VDb25kaXRpb24SFwoPcmVzdGFydF90cmlnZ2VyGAMgASgDEgsKA2h1YhgEIAEoCSKJAgoaQmFyZU1ldGFsSW5zdGFuY2VDb25kaXRpb24SPQoEdHlwZRgBIAEoDjIvLm9zYWMucHJpdmF0ZS52MS5CYXJlTWV0YWxJbnN0YW5jZUNvbmRpdGlvblR5cGUSMAoGc3RhdHVzGAIgASgOMiAub3NhYy5wcml2YXRlLnYxLkNvbmRpdGlvblN0YXR1cxI4ChRsYXN0X3RyYW5zaXRpb25fdGltZRgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEwoGcmVhc29uGAQgASgJSACIAQESFAoHbWVzc2FnZRgFIAEoCUgBiAEBQgkKB19yZWFzb25CCgoIX21lc3NhZ2UiOwofQmFyZU1ldGFsSW5zdGFuY2VMb2NhbFJlZmVyZW5jZRIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJImIKJUJhcmVNZXRhbEluc3RhbmNlQ2F0YWxvZ0l0ZW1SZWZlcmVuY2USCgoCaWQYASABKAkSDAoEbmFtZRgCIAEoCRIPCgdwcm9qZWN0GAMgASgJEg4KBnNoYXJlZBgEIAEoCCqqAQocQmFyZU1ldGFsSW5zdGFuY2VSdW5TdHJhdGVneRIwCixCQVJFX01FVEFMX0lOU1RBTkNFX1JVTl9TVFJBVEVHWV9VTlNQRUNJRklFRBAAEisKJ0JBUkVfTUVUQUxfSU5TVEFOQ0VfUlVOX1NUUkFURUdZX0FMV0FZUxABEisKJ0JBUkVfTUVUQUxfSU5TVEFOQ0VfUlVOX1NUUkFURUdZX0hBTFRFRBACKtsCChZCYXJlTWV0YWxJbnN0YW5jZVN0YXRlEikKJUJBUkVfTUVUQUxfSU5TVEFOQ0VfU1RBVEVfVU5TUEVDSUZJRUQQABIqCiZCQVJFX01FVEFMX0lOU1RBTkNFX1NUQVRFX1BST1ZJU0lPTklORxABEiUKIUJBUkVfTUVUQUxfSU5TVEFOQ0VfU1RBVEVfUlVOTklORxACEiQKIEJBUkVfTUVUQUxfSU5TVEFOQ0VfU1RBVEVfRkFJTEVEEAMSJgoiQkFSRV9NRVRBTF9JTlNUQU5DRV9TVEFURV9ERUxFVElORxAEEiYKIkJBUkVfTUVUQUxfSU5TVEFOQ0VfU1RBVEVfU1RBUlRJTkcQBRImCiJCQVJFX01FVEFMX0lOU1RBTkNFX1NUQVRFX1NUT1BQSU5HEAYSJQohQkFSRV9NRVRBTF9JTlNUQU5DRV9TVEFURV9TVE9QUEVEEAcqoAMKHkJhcmVNZXRhbEluc3RhbmNlQ29uZGl0aW9uVHlwZRIyCi5CQVJFX01FVEFMX0lOU1RBTkNFX0NPTkRJVElPTl9UWVBFX1VOU1BFQ0lGSUVEEAASMgouQkFSRV9NRVRBTF9JTlNUQU5DRV9DT05ESVRJT05fVFlQRV9QUk9WSVNJT05FRBABEjwKOEJBUkVfTUVUQUxfSU5TVEFOQ0VfQ09ORElUSU9OX1RZUEVfQ09ORklHVVJBVElPTl9BUFBMSUVEEAISLAooQkFSRV9NRVRBTF9JTlNUQU5DRV9DT05ESVRJT05fVFlQRV9SRUFEWRADEjoKNkJBUkVfTUVUQUxfSU5TVEFOQ0VfQ09ORElUSU9OX1RZUEVfUkVTVEFSVF9JTl9QUk9HUkVTUxAEEjUKMUJBUkVfTUVUQUxfSU5TVEFOQ0VfQ09ORElUSU9OX1RZUEVfUkVTVEFSVF9GQUlMRUQQBRI3CjNCQVJFX01FVEFMX0lOU1RBTkNFX0NPTkRJVElPTl9UWVBFX1JFU1RBUlRfUkVRVUlSRUQQBmIGcHJvdG8z", [file_buf_validate_validate, file_google_api_field_behavior, file_google_protobuf_any, file_google_protobuf_timestamp, file_osac_private_v1_condition_status_type, file_osac_private_v1_metadata_type, file_osac_private_v1_security_group_type, file_osac_private_v1_subnet_type]);
-
-/**
- * Contains the image configuration for a bare metal instance.
- *
- * @generated from message osac.private.v1.BareMetalInstanceImage
- */
-export type BareMetalInstanceImage = Message<"osac.private.v1.BareMetalInstanceImage"> & {
-  /**
-   * Image source type (e.g. "registry").
-   *
-   * @generated from field: string source_type = 1;
-   */
-  sourceType: string;
-
-  /**
-   * Image reference (e.g. OCI image URL).
-   *
-   * @generated from field: string source_ref = 2;
-   */
-  sourceRef: string;
-};
-
-/**
- * Describes the message osac.private.v1.BareMetalInstanceImage.
- * Use `create(BareMetalInstanceImageSchema)` to create a new message.
- */
-export const BareMetalInstanceImageSchema: GenMessage<BareMetalInstanceImage> = /*@__PURE__*/
-  messageDesc(file_osac_private_v1_baremetal_instance_type, 0);
+  fileDesc("Ci1vc2FjL3ByaXZhdGUvdjEvYmFyZW1ldGFsX2luc3RhbmNlX3R5cGUucHJvdG8SD29zYWMucHJpdmF0ZS52MSK8AQoRQmFyZU1ldGFsSW5zdGFuY2USCgoCaWQYASABKAkSKwoIbWV0YWRhdGEYAiABKAsyGS5vc2FjLnByaXZhdGUudjEuTWV0YWRhdGESNAoEc3BlYxgDIAEoCzImLm9zYWMucHJpdmF0ZS52MS5CYXJlTWV0YWxJbnN0YW5jZVNwZWMSOAoGc3RhdHVzGAQgASgLMigub3NhYy5wcml2YXRlLnYxLkJhcmVNZXRhbEluc3RhbmNlU3RhdHVzIuIBChpCYXJlTWV0YWxOZXR3b3JrQXR0YWNobWVudBI1CgZzdWJuZXQYASABKAsyJS5vc2FjLnByaXZhdGUudjEuU3VibmV0TG9jYWxSZWZlcmVuY2USRQoPc2VjdXJpdHlfZ3JvdXBzGAIgAygLMiwub3NhYy5wcml2YXRlLnYxLlNlY3VyaXR5R3JvdXBMb2NhbFJlZmVyZW5jZRIWCglpbnRlcmZhY2UYAyABKAlIAIgBARIUCgdwcmltYXJ5GAQgASgISAGIAQFCDAoKX2ludGVyZmFjZUIKCghfcHJpbWFyeSKpBwoVQmFyZU1ldGFsSW5zdGFuY2VTcGVjElEKDGNhdGFsb2dfaXRlbRgBIAEoCzI2Lm9zYWMucHJpdmF0ZS52MS5CYXJlTWV0YWxJbnN0YW5jZUNhdGFsb2dJdGVtUmVmZXJlbmNlQgPgQQUSIAoOc3NoX3B1YmxpY19rZXkYAiABKAlCA+BBBUgAiAEBEhsKCXVzZXJfZGF0YRgDIAEoCUID4EEFSAGIAQESSAoMcnVuX3N0cmF0ZWd5GAQgASgOMi0ub3NhYy5wcml2YXRlLnYxLkJhcmVNZXRhbEluc3RhbmNlUnVuU3RyYXRlZ3lIAogBARIXCg9yZXN0YXJ0X3RyaWdnZXIYBSABKAMSYAoTdGVtcGxhdGVfcGFyYW1ldGVycxgGIAMoCzI+Lm9zYWMucHJpdmF0ZS52MS5CYXJlTWV0YWxJbnN0YW5jZVNwZWMuVGVtcGxhdGVQYXJhbWV0ZXJzRW50cnlCA+BBBRJACgVpbWFnZRgHIAEoCzInLm9zYWMucHJpdmF0ZS52MS5CYXJlTWV0YWxJbnN0YW5jZUltYWdlQgPgQQVIA4gBARJIChNuZXR3b3JrX2F0dGFjaG1lbnRzGAggAygLMisub3NhYy5wcml2YXRlLnYxLkJhcmVNZXRhbE5ldHdvcmtBdHRhY2htZW50EigKG2F1dG9fZXh0ZXJuYWxfaXBfYXR0YWNobWVudBgJIAEoCEID4EEFGk8KF1RlbXBsYXRlUGFyYW1ldGVyc0VudHJ5EgsKA2tleRgBIAEoCRIjCgV2YWx1ZRgCIAEoCzIULmdvb2dsZS5wcm90b2J1Zi5Bbnk6AjgBOvUBukjxARruAQolYmFyZW1ldGFsX2luc3RhbmNlX3ByaW1hcnlfYXR0YWNobWVudBJad2hlbiBtdWx0aXBsZSBuZXR3b3JrIGF0dGFjaG1lbnRzIGFyZSBzcGVjaWZpZWQsIGV4YWN0bHkgb25lIG11c3QgaGF2ZSBwcmltYXJ5IHNldCB0byB0cnVlGml0aGlzLm5ldHdvcmtfYXR0YWNobWVudHMuc2l6ZSgpIDw9IDEgfHwgdGhpcy5uZXR3b3JrX2F0dGFjaG1lbnRzLmZpbHRlcihhLCBhLnByaW1hcnkgPT0gdHJ1ZSkuc2l6ZSgpID09IDFCEQoPX3NzaF9wdWJsaWNfa2V5QgwKCl91c2VyX2RhdGFCDwoNX3J1bl9zdHJhdGVneUIICgZfaW1hZ2UikAIKF0JhcmVNZXRhbEluc3RhbmNlU3RhdHVzEjYKBXN0YXRlGAEgASgOMicub3NhYy5wcml2YXRlLnYxLkJhcmVNZXRhbEluc3RhbmNlU3RhdGUSPwoKY29uZGl0aW9ucxgCIAMoCzIrLm9zYWMucHJpdmF0ZS52MS5CYXJlTWV0YWxJbnN0YW5jZUNvbmRpdGlvbhIXCg9yZXN0YXJ0X3RyaWdnZXIYAyABKAMSCwoDaHViGAQgASgJElYKG25ldHdvcmtfYXR0YWNobWVudF9zdGF0dXNlcxgFIAMoCzIxLm9zYWMucHJpdmF0ZS52MS5CYXJlTWV0YWxOZXR3b3JrQXR0YWNobWVudFN0YXR1cyJuCiBCYXJlTWV0YWxOZXR3b3JrQXR0YWNobWVudFN0YXR1cxIRCglpbnRlcmZhY2UYASABKAkSEgoKc3VibmV0X3JlZhgCIAEoCRISCgppcF9hZGRyZXNzGAMgASgJEg8KB3ByaW1hcnkYBCABKAgiiQIKGkJhcmVNZXRhbEluc3RhbmNlQ29uZGl0aW9uEj0KBHR5cGUYASABKA4yLy5vc2FjLnByaXZhdGUudjEuQmFyZU1ldGFsSW5zdGFuY2VDb25kaXRpb25UeXBlEjAKBnN0YXR1cxgCIAEoDjIgLm9zYWMucHJpdmF0ZS52MS5Db25kaXRpb25TdGF0dXMSOAoUbGFzdF90cmFuc2l0aW9uX3RpbWUYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhMKBnJlYXNvbhgEIAEoCUgAiAEBEhQKB21lc3NhZ2UYBSABKAlIAYgBAUIJCgdfcmVhc29uQgoKCF9tZXNzYWdlIjsKH0JhcmVNZXRhbEluc3RhbmNlTG9jYWxSZWZlcmVuY2USCgoCaWQYASABKAkSDAoEbmFtZRgCIAEoCSqqAQocQmFyZU1ldGFsSW5zdGFuY2VSdW5TdHJhdGVneRIwCixCQVJFX01FVEFMX0lOU1RBTkNFX1JVTl9TVFJBVEVHWV9VTlNQRUNJRklFRBAAEisKJ0JBUkVfTUVUQUxfSU5TVEFOQ0VfUlVOX1NUUkFURUdZX0FMV0FZUxABEisKJ0JBUkVfTUVUQUxfSU5TVEFOQ0VfUlVOX1NUUkFURUdZX0hBTFRFRBACKtsCChZCYXJlTWV0YWxJbnN0YW5jZVN0YXRlEikKJUJBUkVfTUVUQUxfSU5TVEFOQ0VfU1RBVEVfVU5TUEVDSUZJRUQQABIqCiZCQVJFX01FVEFMX0lOU1RBTkNFX1NUQVRFX1BST1ZJU0lPTklORxABEiUKIUJBUkVfTUVUQUxfSU5TVEFOQ0VfU1RBVEVfUlVOTklORxACEiQKIEJBUkVfTUVUQUxfSU5TVEFOQ0VfU1RBVEVfRkFJTEVEEAMSJgoiQkFSRV9NRVRBTF9JTlNUQU5DRV9TVEFURV9ERUxFVElORxAEEiYKIkJBUkVfTUVUQUxfSU5TVEFOQ0VfU1RBVEVfU1RBUlRJTkcQBRImCiJCQVJFX01FVEFMX0lOU1RBTkNFX1NUQVRFX1NUT1BQSU5HEAYSJQohQkFSRV9NRVRBTF9JTlNUQU5DRV9TVEFURV9TVE9QUEVEEAcqoAMKHkJhcmVNZXRhbEluc3RhbmNlQ29uZGl0aW9uVHlwZRIyCi5CQVJFX01FVEFMX0lOU1RBTkNFX0NPTkRJVElPTl9UWVBFX1VOU1BFQ0lGSUVEEAASMgouQkFSRV9NRVRBTF9JTlNUQU5DRV9DT05ESVRJT05fVFlQRV9QUk9WSVNJT05FRBABEjwKOEJBUkVfTUVUQUxfSU5TVEFOQ0VfQ09ORElUSU9OX1RZUEVfQ09ORklHVVJBVElPTl9BUFBMSUVEEAISLAooQkFSRV9NRVRBTF9JTlNUQU5DRV9DT05ESVRJT05fVFlQRV9SRUFEWRADEjoKNkJBUkVfTUVUQUxfSU5TVEFOQ0VfQ09ORElUSU9OX1RZUEVfUkVTVEFSVF9JTl9QUk9HUkVTUxAEEjUKMUJBUkVfTUVUQUxfSU5TVEFOQ0VfQ09ORElUSU9OX1RZUEVfUkVTVEFSVF9GQUlMRUQQBRI3CjNCQVJFX01FVEFMX0lOU1RBTkNFX0NPTkRJVElPTl9UWVBFX1JFU1RBUlRfUkVRVUlSRUQQBmIGcHJvdG8z", [file_buf_validate_validate, file_google_api_field_behavior, file_google_protobuf_any, file_google_protobuf_timestamp, file_osac_private_v1_baremetal_instance_catalog_item_type, file_osac_private_v1_baremetal_instance_common_type, file_osac_private_v1_condition_status_type, file_osac_private_v1_metadata_type, file_osac_private_v1_security_group_type, file_osac_private_v1_subnet_type]);
 
 /**
  * Contains the details of a bare metal instance.
@@ -104,7 +80,7 @@ export type BareMetalInstance = Message<"osac.private.v1.BareMetalInstance"> & {
  * Use `create(BareMetalInstanceSchema)` to create a new message.
  */
 export const BareMetalInstanceSchema: GenMessage<BareMetalInstance> = /*@__PURE__*/
-  messageDesc(file_osac_private_v1_baremetal_instance_type, 1);
+  messageDesc(file_osac_private_v1_baremetal_instance_type, 0);
 
 /**
  * Network attachment for a bare metal instance NIC.
@@ -150,7 +126,7 @@ export type BareMetalNetworkAttachment = Message<"osac.private.v1.BareMetalNetwo
  * Use `create(BareMetalNetworkAttachmentSchema)` to create a new message.
  */
 export const BareMetalNetworkAttachmentSchema: GenMessage<BareMetalNetworkAttachment> = /*@__PURE__*/
-  messageDesc(file_osac_private_v1_baremetal_instance_type, 2);
+  messageDesc(file_osac_private_v1_baremetal_instance_type, 1);
 
 /**
  * The spec contains the details of a bare metal instance as desired by the user.
@@ -235,7 +211,7 @@ export type BareMetalInstanceSpec = Message<"osac.private.v1.BareMetalInstanceSp
  * Use `create(BareMetalInstanceSpecSchema)` to create a new message.
  */
 export const BareMetalInstanceSpecSchema: GenMessage<BareMetalInstanceSpec> = /*@__PURE__*/
-  messageDesc(file_osac_private_v1_baremetal_instance_type, 3);
+  messageDesc(file_osac_private_v1_baremetal_instance_type, 2);
 
 /**
  * The status contains the details of the bare metal instance provided by the system.
@@ -271,6 +247,14 @@ export type BareMetalInstanceStatus = Message<"osac.private.v1.BareMetalInstance
    * @generated from field: string hub = 4;
    */
   hub: string;
+
+  /**
+   * Runtime networking state for each network attachment.
+   * Populated by the operator after DHCP lease discovery and synced via the feedback controller.
+   *
+   * @generated from field: repeated osac.private.v1.BareMetalNetworkAttachmentStatus network_attachment_statuses = 5;
+   */
+  networkAttachmentStatuses: BareMetalNetworkAttachmentStatus[];
 };
 
 /**
@@ -278,6 +262,48 @@ export type BareMetalInstanceStatus = Message<"osac.private.v1.BareMetalInstance
  * Use `create(BareMetalInstanceStatusSchema)` to create a new message.
  */
 export const BareMetalInstanceStatusSchema: GenMessage<BareMetalInstanceStatus> = /*@__PURE__*/
+  messageDesc(file_osac_private_v1_baremetal_instance_type, 3);
+
+/**
+ * Runtime networking state for a single bare metal network attachment.
+ *
+ * @generated from message osac.private.v1.BareMetalNetworkAttachmentStatus
+ */
+export type BareMetalNetworkAttachmentStatus = Message<"osac.private.v1.BareMetalNetworkAttachmentStatus"> & {
+  /**
+   * Physical interface name from the spec's network attachment.
+   *
+   * @generated from field: string interface = 1;
+   */
+  interface: string;
+
+  /**
+   * Reference to the Subnet associated with this attachment.
+   *
+   * @generated from field: string subnet_ref = 2;
+   */
+  subnetRef: string;
+
+  /**
+   * IP address discovered after DHCP assignment.
+   *
+   * @generated from field: string ip_address = 3;
+   */
+  ipAddress: string;
+
+  /**
+   * Whether this attachment is the primary (default gateway) attachment.
+   *
+   * @generated from field: bool primary = 4;
+   */
+  primary: boolean;
+};
+
+/**
+ * Describes the message osac.private.v1.BareMetalNetworkAttachmentStatus.
+ * Use `create(BareMetalNetworkAttachmentStatusSchema)` to create a new message.
+ */
+export const BareMetalNetworkAttachmentStatusSchema: GenMessage<BareMetalNetworkAttachmentStatus> = /*@__PURE__*/
   messageDesc(file_osac_private_v1_baremetal_instance_type, 4);
 
 /**
@@ -342,40 +368,6 @@ export type BareMetalInstanceLocalReference = Message<"osac.private.v1.BareMetal
  */
 export const BareMetalInstanceLocalReferenceSchema: GenMessage<BareMetalInstanceLocalReference> = /*@__PURE__*/
   messageDesc(file_osac_private_v1_baremetal_instance_type, 6);
-
-/**
- * Reference to a BareMetalInstanceCatalogItem resource.
- *
- * @generated from message osac.private.v1.BareMetalInstanceCatalogItemReference
- */
-export type BareMetalInstanceCatalogItemReference = Message<"osac.private.v1.BareMetalInstanceCatalogItemReference"> & {
-  /**
-   * @generated from field: string id = 1;
-   */
-  id: string;
-
-  /**
-   * @generated from field: string name = 2;
-   */
-  name: string;
-
-  /**
-   * @generated from field: string project = 3;
-   */
-  project: string;
-
-  /**
-   * @generated from field: bool shared = 4;
-   */
-  shared: boolean;
-};
-
-/**
- * Describes the message osac.private.v1.BareMetalInstanceCatalogItemReference.
- * Use `create(BareMetalInstanceCatalogItemReferenceSchema)` to create a new message.
- */
-export const BareMetalInstanceCatalogItemReferenceSchema: GenMessage<BareMetalInstanceCatalogItemReference> = /*@__PURE__*/
-  messageDesc(file_osac_private_v1_baremetal_instance_type, 7);
 
 /**
  * Run strategy for the bare metal instance.
