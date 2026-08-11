@@ -5,7 +5,7 @@ import ListPage from '@osac/ui-components/components/Page/ListPage';
 import ListPageBody from '@osac/ui-components/components/Page/ListPageBody';
 import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
 
-import { StoragePlaceholder } from './StoragePlaceholder';
+import { StorageBackendsListPage } from './StorageBackendsListPage';
 import { StorageTiersListPage } from './StorageTiersListPage';
 
 type StorageTab = 'backends' | 'tiers';
@@ -35,7 +35,7 @@ export const StorageManagementPage = ({ activeTab }: { activeTab: StorageTab }) 
           unmountOnExit
         >
           <Tab eventKey="backends" title={<TabTitleText>{t('Backends')}</TabTitleText>}>
-            <StoragePlaceholder title={t('Storage backends')} />
+            <StorageBackendsListPage />
           </Tab>
           <Tab eventKey="tiers" title={<TabTitleText>{t('Tiers')}</TabTitleText>}>
             <StorageTiersListPage />
