@@ -6,7 +6,6 @@ import ListPageBody from '@osac/ui-components/components/Page/ListPageBody';
 import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
 
 import { StorageBackendsListPage } from './StorageBackendsListPage';
-import { StoragePlaceholder } from './StoragePlaceholder';
 import { StorageTiersListPage } from './StorageTiersListPage';
 
 type StorageTab = 'backends' | 'tiers';

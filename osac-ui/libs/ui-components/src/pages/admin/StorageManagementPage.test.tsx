@@ -73,7 +73,7 @@ describe('StorageManagementPage', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByRole('tabpanel')).toHaveTextContent('Storage backends');
+      expect(screen.getByRole('button', { name: 'Create backend' })).toBeInTheDocument();
     });
     expect(onStorageTierList).not.toHaveBeenCalled();
   });
@@ -106,7 +106,7 @@ describe('StorageManagementPage', () => {
     await user.click(screen.getByRole('tab', { name: 'Backends' }));
 
     await waitFor(() => {
-      expect(screen.getByRole('tabpanel')).toHaveTextContent('Storage backends');
+      expect(screen.getByRole('button', { name: 'Create backend' })).toBeInTheDocument();
     });
     expect(screen.queryByRole('button', { name: 'Create tier' })).not.toBeInTheDocument();
     expect(onStorageTierList).toHaveBeenCalledTimes(1);
