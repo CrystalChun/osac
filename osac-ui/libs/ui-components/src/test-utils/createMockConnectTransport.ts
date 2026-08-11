@@ -39,6 +39,8 @@ import {
   VirtualNetworks,
 } from '@osac/types';
 import type {
+  InstanceTypesCreateRequest,
+  InstanceTypesCreateResponse,
   InstanceTypesDeleteRequest,
   InstanceTypesDeleteResponse,
   InstanceTypesListRequest,
@@ -187,6 +189,7 @@ export type MockTransportOverrides = {
     req: StorageTiersDeleteRequest,
   ) => MessageInitShape<typeof StorageTiersDeleteResponseSchema>;
   onInstanceTypeList?: (req: InstanceTypesListRequest) => InstanceTypesListResponse;
+  onInstanceTypeCreate?: (req: InstanceTypesCreateRequest) => InstanceTypesCreateResponse;
   onInstanceTypeUpdate?: (req: InstanceTypesUpdateRequest) => InstanceTypesUpdateResponse;
   onInstanceTypeDelete?: (req: InstanceTypesDeleteRequest) => InstanceTypesDeleteResponse;
 };
@@ -428,6 +431,12 @@ export const createMockConnectTransport = (
         get: (req) => ({
           object: privateInstanceTypes.find((item) => item.id === req.id),
         }),
+        create: (req) => {
+          if (overrides.onInstanceTypeCreate) {
+            return overrides.onInstanceTypeCreate(req);
+          }
+          return { object: req.object };
+        },
         update: (req) => {
           if (overrides.onInstanceTypeUpdate) {
             return overrides.onInstanceTypeUpdate(req);
