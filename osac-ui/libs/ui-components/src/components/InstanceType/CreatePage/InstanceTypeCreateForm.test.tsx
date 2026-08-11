@@ -141,7 +141,7 @@ describe('InstanceTypeCreateForm', () => {
       expect(spec?.memoryGib).toBe(16);
     });
 
-    it('shows a dismissible error alert when create fails, regardless of the backend message shape', async () => {
+    it('shows an error alert when create fails, regardless of the backend message shape', async () => {
       const { user } = renderForm({
         onInstanceTypeCreate: () => {
           throw new ConnectError(
@@ -158,10 +158,6 @@ describe('InstanceTypeCreateForm', () => {
         expect(screen.getByText('Failed to create instance type')).toBeInTheDocument();
       });
       expect(screen.getByText("field 'spec.cores' must be greater than zero")).toBeInTheDocument();
-
-      await user.click(screen.getByRole('button', { name: /^Close/ }));
-
-      expect(screen.queryByText('Failed to create instance type')).not.toBeInTheDocument();
     });
   });
 });

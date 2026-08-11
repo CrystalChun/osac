@@ -4,7 +4,6 @@ import {
   ActionListGroup,
   ActionListItem,
   Alert,
-  AlertActionCloseButton,
   Button,
   Stack,
   StackItem,
@@ -25,7 +24,7 @@ const INSTANCE_TYPES_LIST_ROUTE = '/admin/infrastructure/instance-types';
 const InstanceTypeCreateForm = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { mutate, error, isPending, reset } = useCreateInstanceType();
+  const { mutate, error, isPending } = useCreateInstanceType();
 
   return (
     <Formik
@@ -74,12 +73,7 @@ const InstanceTypeCreateForm = () => {
           </StackItem>
           {!!error && (
             <StackItem>
-              <Alert
-                variant="danger"
-                title={t('Failed to create instance type')}
-                isInline
-                actionClose={<AlertActionCloseButton onClose={() => reset()} />}
-              >
+              <Alert variant="danger" title={t('Failed to create instance type')} isInline>
                 {getErrorMessage(error)}
               </Alert>
             </StackItem>
