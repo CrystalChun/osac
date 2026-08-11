@@ -1924,7 +1924,7 @@ var _ = Describe("Private compute instances server", func() {
 				defaultSubnet := privatev1.Subnet_builder{
 					Metadata: privatev1.Metadata_builder{
 						Name:   "test-default-subnet",
-						Tenant: auth.SharedTenant,
+						Tenant: auth.SystemTenant,
 						Labels: map[string]string{
 							"osac.openshift.io/default": "true",
 						},
@@ -1950,7 +1950,7 @@ var _ = Describe("Private compute instances server", func() {
 				defaultSG := privatev1.SecurityGroup_builder{
 					Metadata: privatev1.Metadata_builder{
 						Name:   "test-default-sg",
-						Tenant: auth.SharedTenant,
+						Tenant: auth.SystemTenant,
 						Labels: map[string]string{
 							"osac.openshift.io/default": "true",
 						},
@@ -1998,7 +1998,7 @@ var _ = Describe("Private compute instances server", func() {
 				defaultSubnet := privatev1.Subnet_builder{
 					Metadata: privatev1.Metadata_builder{
 						Name:   "test-default-subnet",
-						Tenant: auth.SharedTenant,
+						Tenant: auth.SystemTenant,
 						Labels: map[string]string{
 							"osac.openshift.io/default": "true",
 						},
