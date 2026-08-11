@@ -17,19 +17,19 @@
 
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import type { ComputeInstanceTemplateReference } from "./compute_instance_template_type_pb";
+import { file_osac_public_v1_compute_instance_template_type } from "./compute_instance_template_type_pb";
 import type { FieldDefinition } from "./field_definition_type_pb";
 import { file_osac_public_v1_field_definition_type } from "./field_definition_type_pb";
 import type { Metadata } from "./metadata_type_pb";
 import { file_osac_public_v1_metadata_type } from "./metadata_type_pb";
-import type { ComputeInstanceTemplateReference } from "./compute_instance_type_pb";
-import { file_osac_public_v1_compute_instance_type } from "./compute_instance_type_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file osac/public/v1/compute_instance_catalog_item_type.proto.
  */
 export const file_osac_public_v1_compute_instance_catalog_item_type: GenFile = /*@__PURE__*/
-  fileDesc("Cjdvc2FjL3B1YmxpYy92MS9jb21wdXRlX2luc3RhbmNlX2NhdGFsb2dfaXRlbV90eXBlLnByb3RvEg5vc2FjLnB1YmxpYy52MSKLAgoaQ29tcHV0ZUluc3RhbmNlQ2F0YWxvZ0l0ZW0SCgoCaWQYASABKAkSKgoIbWV0YWRhdGEYAiABKAsyGC5vc2FjLnB1YmxpYy52MS5NZXRhZGF0YRINCgV0aXRsZRgDIAEoCRITCgtkZXNjcmlwdGlvbhgEIAEoCRJCCgh0ZW1wbGF0ZRgFIAEoCzIwLm9zYWMucHVibGljLnYxLkNvbXB1dGVJbnN0YW5jZVRlbXBsYXRlUmVmZXJlbmNlEhEKCXB1Ymxpc2hlZBgGIAEoCBI6ChFmaWVsZF9kZWZpbml0aW9ucxgIIAMoCzIfLm9zYWMucHVibGljLnYxLkZpZWxkRGVmaW5pdGlvbmIGcHJvdG8z", [file_osac_public_v1_field_definition_type, file_osac_public_v1_metadata_type, file_osac_public_v1_compute_instance_type]);
+  fileDesc("Cjdvc2FjL3B1YmxpYy92MS9jb21wdXRlX2luc3RhbmNlX2NhdGFsb2dfaXRlbV90eXBlLnByb3RvEg5vc2FjLnB1YmxpYy52MSKLAgoaQ29tcHV0ZUluc3RhbmNlQ2F0YWxvZ0l0ZW0SCgoCaWQYASABKAkSKgoIbWV0YWRhdGEYAiABKAsyGC5vc2FjLnB1YmxpYy52MS5NZXRhZGF0YRINCgV0aXRsZRgDIAEoCRITCgtkZXNjcmlwdGlvbhgEIAEoCRJCCgh0ZW1wbGF0ZRgFIAEoCzIwLm9zYWMucHVibGljLnYxLkNvbXB1dGVJbnN0YW5jZVRlbXBsYXRlUmVmZXJlbmNlEhEKCXB1Ymxpc2hlZBgGIAEoCBI6ChFmaWVsZF9kZWZpbml0aW9ucxgIIAMoCzIfLm9zYWMucHVibGljLnYxLkZpZWxkRGVmaW5pdGlvbiJgCiNDb21wdXRlSW5zdGFuY2VDYXRhbG9nSXRlbVJlZmVyZW5jZRIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJEg8KB3Byb2plY3QYAyABKAkSDgoGc2hhcmVkGAQgASgIYgZwcm90bzM", [file_osac_public_v1_compute_instance_template_type, file_osac_public_v1_field_definition_type, file_osac_public_v1_metadata_type]);
 
 /**
  * A compute instance catalog item defines a curated infrastructure offering that references an underlying compute
@@ -94,4 +94,38 @@ export type ComputeInstanceCatalogItem = Message<"osac.public.v1.ComputeInstance
  */
 export const ComputeInstanceCatalogItemSchema: GenMessage<ComputeInstanceCatalogItem> = /*@__PURE__*/
   messageDesc(file_osac_public_v1_compute_instance_catalog_item_type, 0);
+
+/**
+ * Reference to a ComputeInstanceCatalogItem resource.
+ *
+ * @generated from message osac.public.v1.ComputeInstanceCatalogItemReference
+ */
+export type ComputeInstanceCatalogItemReference = Message<"osac.public.v1.ComputeInstanceCatalogItemReference"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string name = 2;
+   */
+  name: string;
+
+  /**
+   * @generated from field: string project = 3;
+   */
+  project: string;
+
+  /**
+   * @generated from field: bool shared = 4;
+   */
+  shared: boolean;
+};
+
+/**
+ * Describes the message osac.public.v1.ComputeInstanceCatalogItemReference.
+ * Use `create(ComputeInstanceCatalogItemReferenceSchema)` to create a new message.
+ */
+export const ComputeInstanceCatalogItemReferenceSchema: GenMessage<ComputeInstanceCatalogItemReference> = /*@__PURE__*/
+  messageDesc(file_osac_public_v1_compute_instance_catalog_item_type, 1);
 

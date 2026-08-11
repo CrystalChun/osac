@@ -60,6 +60,7 @@ const catalogVm: ComputeInstance = {
     networkAttachments: [],
     template: create(ComputeInstanceTemplateReferenceSchema, { id: '' }),
     templateParameters: {},
+    autoExternalIpAttachment: false,
   },
 };
 

@@ -19,8 +19,8 @@ import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import type { Any } from "../../../google/protobuf/any_pb";
 import { file_google_protobuf_any } from "../../../google/protobuf/any_pb";
-import type { ComputeInstanceDisk, ComputeInstanceImage } from "./compute_instance_type_pb";
-import { file_osac_private_v1_compute_instance_type } from "./compute_instance_type_pb";
+import type { ComputeInstanceDisk, ComputeInstanceImage } from "./compute_instance_common_type_pb";
+import { file_osac_private_v1_compute_instance_common_type } from "./compute_instance_common_type_pb";
 import type { Metadata } from "./metadata_type_pb";
 import { file_osac_private_v1_metadata_type } from "./metadata_type_pb";
 import type { InstanceTypeReference } from "./instance_type_type_pb";
@@ -31,7 +31,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/private/v1/compute_instance_template_type.proto.
  */
 export const file_osac_private_v1_compute_instance_template_type: GenFile = /*@__PURE__*/
-  fileDesc("CjRvc2FjL3ByaXZhdGUvdjEvY29tcHV0ZV9pbnN0YW5jZV90ZW1wbGF0ZV90eXBlLnByb3RvEg9vc2FjLnByaXZhdGUudjEilAIKF0NvbXB1dGVJbnN0YW5jZVRlbXBsYXRlEgoKAmlkGAEgASgJEisKCG1ldGFkYXRhGAIgASgLMhkub3NhYy5wcml2YXRlLnYxLk1ldGFkYXRhEg0KBXRpdGxlGAMgASgJEhMKC2Rlc2NyaXB0aW9uGAQgASgJEk8KCnBhcmFtZXRlcnMYBSADKAsyOy5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlVGVtcGxhdGVQYXJhbWV0ZXJEZWZpbml0aW9uEksKDXNwZWNfZGVmYXVsdHMYBiABKAsyNC5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlVGVtcGxhdGVTcGVjRGVmYXVsdHMipQEKKkNvbXB1dGVJbnN0YW5jZVRlbXBsYXRlUGFyYW1ldGVyRGVmaW5pdGlvbhIMCgRuYW1lGAEgASgJEg0KBXRpdGxlGAIgASgJEhMKC2Rlc2NyaXB0aW9uGAMgASgJEhAKCHJlcXVpcmVkGAQgASgIEgwKBHR5cGUYBSABKAkSJQoHZGVmYXVsdBgGIAEoCzIULmdvb2dsZS5wcm90b2J1Zi5Bbnki6AIKI0NvbXB1dGVJbnN0YW5jZVRlbXBsYXRlU3BlY0RlZmF1bHRzEjkKBWltYWdlGAMgASgLMiUub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZUltYWdlSACIAQESPAoJYm9vdF9kaXNrGAQgASgLMiQub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZURpc2tIAYgBARIZCgxydW5fc3RyYXRlZ3kYBSABKAlIAogBARI9Cg1pbnN0YW5jZV90eXBlGAYgASgLMiYub3NhYy5wcml2YXRlLnYxLkluc3RhbmNlVHlwZVJlZmVyZW5jZRIXCgppc193aW5kb3dzGAcgASgISAOIAQFCCAoGX2ltYWdlQgwKCl9ib290X2Rpc2tCDwoNX3J1bl9zdHJhdGVneUINCgtfaXNfd2luZG93c0oECAEQAkoECAIQA1IFY29yZXNSCm1lbW9yeV9naWJiBnByb3RvMw", [file_google_protobuf_any, file_osac_private_v1_compute_instance_type, file_osac_private_v1_metadata_type, file_osac_private_v1_instance_type_type]);
+  fileDesc("CjRvc2FjL3ByaXZhdGUvdjEvY29tcHV0ZV9pbnN0YW5jZV90ZW1wbGF0ZV90eXBlLnByb3RvEg9vc2FjLnByaXZhdGUudjEilAIKF0NvbXB1dGVJbnN0YW5jZVRlbXBsYXRlEgoKAmlkGAEgASgJEisKCG1ldGFkYXRhGAIgASgLMhkub3NhYy5wcml2YXRlLnYxLk1ldGFkYXRhEg0KBXRpdGxlGAMgASgJEhMKC2Rlc2NyaXB0aW9uGAQgASgJEk8KCnBhcmFtZXRlcnMYBSADKAsyOy5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlVGVtcGxhdGVQYXJhbWV0ZXJEZWZpbml0aW9uEksKDXNwZWNfZGVmYXVsdHMYBiABKAsyNC5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlVGVtcGxhdGVTcGVjRGVmYXVsdHMipQEKKkNvbXB1dGVJbnN0YW5jZVRlbXBsYXRlUGFyYW1ldGVyRGVmaW5pdGlvbhIMCgRuYW1lGAEgASgJEg0KBXRpdGxlGAIgASgJEhMKC2Rlc2NyaXB0aW9uGAMgASgJEhAKCHJlcXVpcmVkGAQgASgIEgwKBHR5cGUYBSABKAkSJQoHZGVmYXVsdBgGIAEoCzIULmdvb2dsZS5wcm90b2J1Zi5Bbnki6AIKI0NvbXB1dGVJbnN0YW5jZVRlbXBsYXRlU3BlY0RlZmF1bHRzEjkKBWltYWdlGAMgASgLMiUub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZUltYWdlSACIAQESPAoJYm9vdF9kaXNrGAQgASgLMiQub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZURpc2tIAYgBARIZCgxydW5fc3RyYXRlZ3kYBSABKAlIAogBARI9Cg1pbnN0YW5jZV90eXBlGAYgASgLMiYub3NhYy5wcml2YXRlLnYxLkluc3RhbmNlVHlwZVJlZmVyZW5jZRIXCgppc193aW5kb3dzGAcgASgISAOIAQFCCAoGX2ltYWdlQgwKCl9ib290X2Rpc2tCDwoNX3J1bl9zdHJhdGVneUINCgtfaXNfd2luZG93c0oECAEQAkoECAIQA1IFY29yZXNSCm1lbW9yeV9naWIiXQogQ29tcHV0ZUluc3RhbmNlVGVtcGxhdGVSZWZlcmVuY2USCgoCaWQYASABKAkSDAoEbmFtZRgCIAEoCRIPCgdwcm9qZWN0GAMgASgJEg4KBnNoYXJlZBgEIAEoCGIGcHJvdG8z", [file_google_protobuf_any, file_osac_private_v1_compute_instance_common_type, file_osac_private_v1_metadata_type, file_osac_private_v1_instance_type_type]);
 
 /**
  * buf:lint:ignore OSAC_OBJECT_SHAPE
@@ -175,4 +175,38 @@ export type ComputeInstanceTemplateSpecDefaults = Message<"osac.private.v1.Compu
  */
 export const ComputeInstanceTemplateSpecDefaultsSchema: GenMessage<ComputeInstanceTemplateSpecDefaults> = /*@__PURE__*/
   messageDesc(file_osac_private_v1_compute_instance_template_type, 2);
+
+/**
+ * Reference to a ComputeInstanceTemplate resource.
+ *
+ * @generated from message osac.private.v1.ComputeInstanceTemplateReference
+ */
+export type ComputeInstanceTemplateReference = Message<"osac.private.v1.ComputeInstanceTemplateReference"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string name = 2;
+   */
+  name: string;
+
+  /**
+   * @generated from field: string project = 3;
+   */
+  project: string;
+
+  /**
+   * @generated from field: bool shared = 4;
+   */
+  shared: boolean;
+};
+
+/**
+ * Describes the message osac.private.v1.ComputeInstanceTemplateReference.
+ * Use `create(ComputeInstanceTemplateReferenceSchema)` to create a new message.
+ */
+export const ComputeInstanceTemplateReferenceSchema: GenMessage<ComputeInstanceTemplateReference> = /*@__PURE__*/
+  messageDesc(file_osac_private_v1_compute_instance_template_type, 3);
 

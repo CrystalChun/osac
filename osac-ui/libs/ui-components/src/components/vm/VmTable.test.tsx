@@ -59,6 +59,7 @@ const runningVm: ComputeInstance = {
     template: create(ComputeInstanceTemplateReferenceSchema, { id: '' }),
     templateParameters: {},
     instanceType: create(InstanceTypeReferenceSchema, { id: 'standard-4-8' }),
+    autoExternalIpAttachment: false,
   },
   status: {
     $typeName: 'osac.public.v1.ComputeInstanceStatus',

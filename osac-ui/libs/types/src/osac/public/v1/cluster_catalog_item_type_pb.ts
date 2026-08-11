@@ -17,19 +17,19 @@
 
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import type { ClusterTemplateReference } from "./cluster_template_type_pb";
+import { file_osac_public_v1_cluster_template_type } from "./cluster_template_type_pb";
 import type { FieldDefinition } from "./field_definition_type_pb";
 import { file_osac_public_v1_field_definition_type } from "./field_definition_type_pb";
 import type { Metadata } from "./metadata_type_pb";
 import { file_osac_public_v1_metadata_type } from "./metadata_type_pb";
-import type { ClusterTemplateReference } from "./cluster_type_pb";
-import { file_osac_public_v1_cluster_type } from "./cluster_type_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file osac/public/v1/cluster_catalog_item_type.proto.
  */
 export const file_osac_public_v1_cluster_catalog_item_type: GenFile = /*@__PURE__*/
-  fileDesc("Ci5vc2FjL3B1YmxpYy92MS9jbHVzdGVyX2NhdGFsb2dfaXRlbV90eXBlLnByb3RvEg5vc2FjLnB1YmxpYy52MSL7AQoSQ2x1c3RlckNhdGFsb2dJdGVtEgoKAmlkGAEgASgJEioKCG1ldGFkYXRhGAIgASgLMhgub3NhYy5wdWJsaWMudjEuTWV0YWRhdGESDQoFdGl0bGUYAyABKAkSEwoLZGVzY3JpcHRpb24YBCABKAkSOgoIdGVtcGxhdGUYBSABKAsyKC5vc2FjLnB1YmxpYy52MS5DbHVzdGVyVGVtcGxhdGVSZWZlcmVuY2USEQoJcHVibGlzaGVkGAYgASgIEjoKEWZpZWxkX2RlZmluaXRpb25zGAggAygLMh8ub3NhYy5wdWJsaWMudjEuRmllbGREZWZpbml0aW9uYgZwcm90bzM", [file_osac_public_v1_field_definition_type, file_osac_public_v1_metadata_type, file_osac_public_v1_cluster_type]);
+  fileDesc("Ci5vc2FjL3B1YmxpYy92MS9jbHVzdGVyX2NhdGFsb2dfaXRlbV90eXBlLnByb3RvEg5vc2FjLnB1YmxpYy52MSL7AQoSQ2x1c3RlckNhdGFsb2dJdGVtEgoKAmlkGAEgASgJEioKCG1ldGFkYXRhGAIgASgLMhgub3NhYy5wdWJsaWMudjEuTWV0YWRhdGESDQoFdGl0bGUYAyABKAkSEwoLZGVzY3JpcHRpb24YBCABKAkSOgoIdGVtcGxhdGUYBSABKAsyKC5vc2FjLnB1YmxpYy52MS5DbHVzdGVyVGVtcGxhdGVSZWZlcmVuY2USEQoJcHVibGlzaGVkGAYgASgIEjoKEWZpZWxkX2RlZmluaXRpb25zGAggAygLMh8ub3NhYy5wdWJsaWMudjEuRmllbGREZWZpbml0aW9uIlgKG0NsdXN0ZXJDYXRhbG9nSXRlbVJlZmVyZW5jZRIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJEg8KB3Byb2plY3QYAyABKAkSDgoGc2hhcmVkGAQgASgIYgZwcm90bzM", [file_osac_public_v1_cluster_template_type, file_osac_public_v1_field_definition_type, file_osac_public_v1_metadata_type]);
 
 /**
  * A cluster catalog item defines a curated infrastructure offering that references an underlying cluster template.
@@ -94,4 +94,38 @@ export type ClusterCatalogItem = Message<"osac.public.v1.ClusterCatalogItem"> & 
  */
 export const ClusterCatalogItemSchema: GenMessage<ClusterCatalogItem> = /*@__PURE__*/
   messageDesc(file_osac_public_v1_cluster_catalog_item_type, 0);
+
+/**
+ * Reference to a ClusterCatalogItem resource.
+ *
+ * @generated from message osac.public.v1.ClusterCatalogItemReference
+ */
+export type ClusterCatalogItemReference = Message<"osac.public.v1.ClusterCatalogItemReference"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string name = 2;
+   */
+  name: string;
+
+  /**
+   * @generated from field: string project = 3;
+   */
+  project: string;
+
+  /**
+   * @generated from field: bool shared = 4;
+   */
+  shared: boolean;
+};
+
+/**
+ * Describes the message osac.public.v1.ClusterCatalogItemReference.
+ * Use `create(ClusterCatalogItemReferenceSchema)` to create a new message.
+ */
+export const ClusterCatalogItemReferenceSchema: GenMessage<ClusterCatalogItemReference> = /*@__PURE__*/
+  messageDesc(file_osac_public_v1_cluster_catalog_item_type, 1);
 

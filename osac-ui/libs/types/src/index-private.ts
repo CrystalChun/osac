@@ -22,6 +22,7 @@ export * from './osac/private/v1/subnet_type_pb.js'
 export * from './osac/private/v1/subnets_service_pb.js'
 export * from './osac/private/v1/security_group_type_pb.js'
 export * from './osac/private/v1/security_groups_service_pb.js'
+export * from './osac/private/v1/security_rule_type_pb.js'
 
 export * from './osac/private/v1/ip_family_type_pb.js'
 export * from './osac/private/v1/external_ip_pool_type_pb.js'
