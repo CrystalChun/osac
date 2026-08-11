@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
   type StorageBackendsCreateRequest,
+  type StorageBackendsCreateResponse,
   StorageBackendsCreateResponseSchema,
 } from '@osac/types/private';
 
@@ -18,8 +19,15 @@ vi.mock('react-router-dom', async (importOriginal) => {
   return {
     ...actual,
     useNavigate: () => mockNavigate,
+    // useBlocker requires a data router; this test harness renders under a plain
+    // MemoryRouter, so LeaveFormConfirmation's blocking behavior is stubbed out
+    // rather than exercised here (its only other caller has no test coverage
+    // for it either).
+    useBlocker: () => ({ state: 'unblocked' as const }),
   };
 });
+
+const testBackendPassword = 'test-password';
 
 const renderPage = (overrides?: MockTransportOverrides) =>
   renderWithProviders(<StorageBackendCreatePage />, {
@@ -37,7 +45,7 @@ describe('StorageBackendCreatePage', () => {
     await user.click(screen.getByRole('option', { name: 'VAST' }));
     await user.type(screen.getByRole('textbox', { name: 'Endpoint' }), 'vast.example.com:443');
     await user.type(screen.getByLabelText(/^Username/), 'admin');
-    await user.type(screen.getByLabelText(/^Password/), 'super-secret');
+    await user.type(screen.getByLabelText(/^Password/), testBackendPassword);
   };
 
   it('renders the page title, breadcrumb, and all fields', () => {
@@ -107,6 +115,54 @@ describe('StorageBackendCreatePage', () => {
     expect(onStorageBackendCreate).not.toHaveBeenCalled();
   });
 
+  it('shows a required error for provider when nothing is selected, not the removed oneOf message', async () => {
+    const onStorageBackendCreate = vi.fn();
+    const { user } = renderPage({ onStorageBackendCreate });
+
+    await user.type(screen.getByRole('textbox', { name: 'Name' }), 'vast-prod-1');
+    await user.type(screen.getByRole('textbox', { name: 'Endpoint' }), 'vast.example.com:443');
+    await user.type(screen.getByLabelText(/^Username/), 'admin');
+    await user.type(screen.getByLabelText(/^Password/), testBackendPassword);
+    await user.click(screen.getByRole('button', { name: 'Create' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Provider is required')).toBeInTheDocument();
+    });
+    expect(
+      screen.queryByText('Provider must be one of vast, ceph, or pure'),
+    ).not.toBeInTheDocument();
+    expect(onStorageBackendCreate).not.toHaveBeenCalled();
+  });
+
+  it('disables Create while the submission is pending, to prevent duplicate submissions', async () => {
+    let resolveCreate: (() => void) | undefined;
+    const onStorageBackendCreate = () =>
+      new Promise<StorageBackendsCreateResponse>((resolve) => {
+        resolveCreate = () =>
+          resolve(create(StorageBackendsCreateResponseSchema, { object: { id: 'new-backend-1' } }));
+      });
+
+    const { user } = renderPage({ onStorageBackendCreate });
+
+    await fillValidForm(user);
+    await user.click(screen.getByRole('button', { name: 'Create' }));
+
+    // Once isLoading is true, PatternFly's Spinner contributes its own
+    // "Contents" accessible name to the button, so an exact "Create" match
+    // no longer resolves — match by substring instead (same pattern already
+    // used elsewhere in this file for accessible-name additions).
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /Create/ })).toBeDisabled();
+    });
+    expect(screen.getByRole('button', { name: 'Cancel' })).toBeDisabled();
+
+    resolveCreate?.();
+
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith('/admin/infrastructure/storage/backends');
+    });
+  }, 15000);
+
   it('submits the expected payload and navigates to the backends list on success', async () => {
     let capturedRequest: StorageBackendsCreateRequest | undefined;
     const { user } = renderPage({
@@ -129,7 +185,7 @@ describe('StorageBackendCreatePage', () => {
     expect(capturedRequest?.object?.spec?.provider).toBe('vast');
     expect(capturedRequest?.object?.spec?.endpoint).toBe('vast.example.com:443');
     expect(capturedRequest?.object?.spec?.credentials?.username).toBe('admin');
-    expect(capturedRequest?.object?.spec?.credentials?.password).toBe('super-secret');
+    expect(capturedRequest?.object?.spec?.credentials?.password).toBe(testBackendPassword);
   }, 15000);
 
   it('shows a form-level error and does not navigate when the name already exists', async () => {

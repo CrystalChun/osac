@@ -17,7 +17,9 @@ import type { TFunction } from 'i18next';
 import * as Yup from 'yup';
 
 import { useCreateStorageBackend } from '@osac/ui-components/api/v1/private/storage-backends';
+import NameField from '@osac/ui-components/components/catalogProvision/wizard/fields/NameField';
 import { InputField } from '@osac/ui-components/components/Form/InputField';
+import LeaveFormConfirmation from '@osac/ui-components/components/Form/LeaveFormConfirmation';
 import OsacForm from '@osac/ui-components/components/Form/OsacForm';
 import {
   SelectField,
@@ -29,10 +31,8 @@ import { resourceNameSchema } from '@osac/ui-components/validation/resource-name
 
 const BACKENDS_LIST_PATH = '/admin/infrastructure/storage/backends';
 
-const PROVIDERS = ['vast', 'ceph', 'pure'] as const;
-
 interface StorageBackendFormValues {
-  name: string;
+  metadata: { name: string };
   provider: string;
   endpoint: string;
   description: string;
@@ -40,7 +40,7 @@ interface StorageBackendFormValues {
 }
 
 const initialValues: StorageBackendFormValues = {
-  name: '',
+  metadata: { name: '' },
   provider: '',
   endpoint: '',
   description: '',
@@ -49,10 +49,8 @@ const initialValues: StorageBackendFormValues = {
 
 const getStorageBackendSchema = (t: TFunction) =>
   Yup.object({
-    name: resourceNameSchema(t),
-    provider: Yup.string()
-      .oneOf([...PROVIDERS], t('Provider must be one of vast, ceph, or pure'))
-      .required(t('Provider is required')),
+    metadata: Yup.object({ name: resourceNameSchema(t) }),
+    provider: Yup.string().required(t('Provider is required')),
     endpoint: Yup.string().required(t('Endpoint is required')),
     description: Yup.string(),
     credentials: Yup.object({
@@ -64,7 +62,7 @@ const getStorageBackendSchema = (t: TFunction) =>
 export const StorageBackendCreatePage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { mutate, error, isPending } = useCreateStorageBackend();
+  const { mutateAsync, error, isPending } = useCreateStorageBackend();
 
   const providerOptions: SelectFieldOption[] = [
     { value: 'vast', label: t('VAST') },
@@ -93,10 +91,10 @@ export const StorageBackendCreatePage = () => {
         <Formik
           initialValues={initialValues}
           validationSchema={getStorageBackendSchema(t)}
-          onSubmit={(values) =>
-            mutate(
-              {
-                metadata: { name: values.name },
+          onSubmit={async (values) => {
+            try {
+              await mutateAsync({
+                metadata: values.metadata,
                 spec: {
                   provider: values.provider,
                   endpoint: values.endpoint,
@@ -106,21 +104,19 @@ export const StorageBackendCreatePage = () => {
                     password: values.credentials.password,
                   },
                 },
-              },
-              { onSuccess: () => navigate(BACKENDS_LIST_PATH) },
-            )
-          }
+              });
+              navigate(BACKENDS_LIST_PATH);
+            } catch {
+              // Surfaced via the mutation's own `error` state below; nothing further to do here.
+            }
+          }}
         >
-          {({ submitForm }) => (
+          {({ submitForm, isSubmitting }) => (
             <Stack hasGutter>
+              <LeaveFormConfirmation />
               <StackItem>
                 <OsacForm>
-                  <InputField
-                    name="name"
-                    label={t('Name')}
-                    fieldId="storage-backend-name"
-                    isRequired
-                  />
+                  <NameField />
                   <SelectField
                     name="provider"
                     label={t('Provider')}
@@ -169,8 +165,8 @@ export const StorageBackendCreatePage = () => {
                       <Button
                         variant="primary"
                         onClick={submitForm}
-                        isDisabled={isPending}
-                        isLoading={isPending}
+                        isDisabled={isSubmitting || isPending}
+                        isLoading={isSubmitting || isPending}
                       >
                         {t('Create')}
                       </Button>
@@ -179,7 +175,7 @@ export const StorageBackendCreatePage = () => {
                       <Button
                         variant="link"
                         onClick={() => navigate(BACKENDS_LIST_PATH)}
-                        isDisabled={isPending}
+                        isDisabled={isSubmitting || isPending}
                       >
                         {t('Cancel')}
                       </Button>

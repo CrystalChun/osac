@@ -172,7 +172,9 @@ export type MockTransportOverrides = {
   onStorageBackendList?: (
     req: StorageBackendsListRequest,
   ) => MessageInitShape<typeof StorageBackendsListResponseSchema>;
-  onStorageBackendCreate?: (req: StorageBackendsCreateRequest) => StorageBackendsCreateResponse;
+  onStorageBackendCreate?: (
+    req: StorageBackendsCreateRequest,
+  ) => StorageBackendsCreateResponse | Promise<StorageBackendsCreateResponse>;
   onStorageBackendUpdate?: (req: StorageBackendsUpdateRequest) => StorageBackendsUpdateResponse;
   onStorageTierList?: (
     req: StorageTiersListRequest,
