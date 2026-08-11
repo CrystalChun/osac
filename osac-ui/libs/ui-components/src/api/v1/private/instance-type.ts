@@ -43,6 +43,21 @@ export const useUpdateInstanceType = () => {
   });
 };
 
+export const useCreateInstanceType = () => {
+  const client = useApiFetch(InstanceTypes);
+  const qc = useApiQueryClient();
+  return useMutation({
+    mutationFn: async (body: MessageInitShape<typeof InstanceTypeSchema>) => {
+      const resp = await client.create({ object: body });
+      if (!resp.object) {
+        throw new Error('Create response missing instance type object');
+      }
+      return resp.object;
+    },
+    onSuccess: () => invalidateInstanceTypesQueries(qc),
+  });
+};
+
 export const useDeleteInstanceType = () => {
   const client = useApiFetch(InstanceTypes);
   const qc = useApiQueryClient();

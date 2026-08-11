@@ -7,6 +7,7 @@ import { describe, expect, it } from 'vitest';
 import {
   InstanceTypeSchema,
   InstanceTypeState,
+  InstanceTypesCreateResponseSchema,
   InstanceTypesUpdateResponseSchema,
   type InstanceType as PrivateInstanceType,
 } from '@osac/types/private';
@@ -14,6 +15,7 @@ import {
 import {
   invalidateInstanceTypesQueries,
   useAdminInstanceTypes,
+  useCreateInstanceType,
   useDeleteInstanceType,
   useUpdateInstanceType,
 } from './instance-type';
@@ -73,6 +75,59 @@ describe('useAdminInstanceTypes', () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(queryClient.getQueryData(['v1/private/instance_types'])).toBeDefined();
     expect(queryClient.getQueryData(['v1/instance_types'])).toBeUndefined();
+  });
+});
+
+describe('useCreateInstanceType', () => {
+  it('creates an instance type and invalidates the list query', async () => {
+    let captured: Record<string, unknown> | undefined;
+    const transport = createMockConnectTransport(
+      {},
+      {
+        onInstanceTypeCreate: (req) => {
+          captured = req as unknown as Record<string, unknown>;
+          return create(InstanceTypesCreateResponseSchema, {
+            object: makeInstanceType('new-it'),
+          });
+        },
+      },
+    );
+    const { wrapper, queryClient } = makeWrapper(transport);
+    queryClient.setQueryData(['v1/private/instance_types'], { items: [] });
+    const { result } = renderHook(() => useCreateInstanceType(), { wrapper });
+
+    act(() => {
+      result.current.mutate({
+        metadata: { name: 'new-it' },
+        spec: { cores: 4, memoryGib: 16, description: 'new-it description' },
+      });
+    });
+
+    await waitFor(() => expect(result.current.isSuccess || result.current.isError).toBe(true));
+    expect(result.current.isSuccess).toBe(true);
+    expect(result.current.data?.id).toBe('new-it');
+    const object = captured?.object as { metadata?: { name?: string } };
+    expect(object.metadata?.name).toBe('new-it');
+    expect(queryClient.getQueryState(['v1/private/instance_types'])?.isInvalidated).toBe(true);
+  });
+
+  it('rejects when the create response is missing an object', async () => {
+    const transport = createMockConnectTransport(
+      {},
+      { onInstanceTypeCreate: () => create(InstanceTypesCreateResponseSchema, {}) },
+    );
+    const { wrapper } = makeWrapper(transport);
+    const { result } = renderHook(() => useCreateInstanceType(), { wrapper });
+
+    act(() => {
+      result.current.mutate({
+        metadata: { name: 'new-it' },
+        spec: { cores: 4, memoryGib: 16 },
+      });
+    });
+
+    await waitFor(() => expect(result.current.isSuccess || result.current.isError).toBe(true));
+    expect(result.current.isError).toBe(true);
   });
 });
 
