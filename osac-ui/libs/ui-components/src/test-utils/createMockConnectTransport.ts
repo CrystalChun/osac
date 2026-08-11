@@ -33,6 +33,12 @@ import {
   VirtualNetworks,
 } from '@osac/types';
 import type {
+  InstanceTypesDeleteRequest,
+  InstanceTypesDeleteResponse,
+  InstanceTypesListRequest,
+  InstanceTypesListResponse,
+  InstanceTypesUpdateRequest,
+  InstanceTypesUpdateResponse,
   InstanceType as PrivateInstanceType,
   Tenant as PrivateTenant,
   StorageBackend,
@@ -167,6 +173,9 @@ export type MockTransportOverrides = {
   onStorageTierDelete?: (
     req: StorageTiersDeleteRequest,
   ) => MessageInitShape<typeof StorageTiersDeleteResponseSchema>;
+  onInstanceTypeList?: (req: InstanceTypesListRequest) => InstanceTypesListResponse;
+  onInstanceTypeUpdate?: (req: InstanceTypesUpdateRequest) => InstanceTypesUpdateResponse;
+  onInstanceTypeDelete?: (req: InstanceTypesDeleteRequest) => InstanceTypesDeleteResponse;
 };
 
 export const createMockConnectTransport = (
@@ -390,14 +399,31 @@ export const createMockConnectTransport = (
       });
 
       router.service(PrivateInstanceTypes, {
-        list: () => ({
-          items: privateInstanceTypes,
-          size: privateInstanceTypes.length,
-          total: privateInstanceTypes.length,
-        }),
+        list: (req) => {
+          if (overrides.onInstanceTypeList) {
+            return overrides.onInstanceTypeList(req);
+          }
+          return {
+            items: privateInstanceTypes,
+            size: privateInstanceTypes.length,
+            total: privateInstanceTypes.length,
+          };
+        },
         get: (req) => ({
           object: privateInstanceTypes.find((item) => item.id === req.id),
         }),
+        update: (req) => {
+          if (overrides.onInstanceTypeUpdate) {
+            return overrides.onInstanceTypeUpdate(req);
+          }
+          return { object: req.object };
+        },
+        delete: (req) => {
+          if (overrides.onInstanceTypeDelete) {
+            return overrides.onInstanceTypeDelete(req);
+          }
+          return {};
+        },
       });
 
       router.service(PrivateTenants, {

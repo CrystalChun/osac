@@ -1,11 +1,14 @@
 import { Route, Routes } from 'react-router-dom';
 import { create } from '@bufbuild/protobuf';
-import { screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { screen, waitFor } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import {
   InstanceTypeSchema,
   InstanceTypeState,
+  InstanceTypesDeleteResponseSchema,
+  InstanceTypesListResponseSchema,
+  InstanceTypesUpdateResponseSchema,
   type InstanceType as PrivateInstanceType,
 } from '@osac/types/private';
 import { mockQueryResult } from '@osac/ui-components/test-utils/query';
@@ -13,11 +16,16 @@ import { mockQueryResult } from '@osac/ui-components/test-utils/query';
 import AdminInstanceTypeListPage from './AdminInstanceTypeListPage';
 import { renderWithProviders } from '../../test-utils/TestProviders';
 
-vi.mock('@osac/ui-components/api/v1/private/instance-type', () => ({
-  useAdminInstanceTypes: vi.fn(),
-}));
+vi.mock('@osac/ui-components/api/v1/private/instance-type', async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import('@osac/ui-components/api/v1/private/instance-type')>();
+  return { ...actual, useAdminInstanceTypes: vi.fn() };
+});
 
 const { useAdminInstanceTypes } = await import('@osac/ui-components/api/v1/private/instance-type');
+const { useAdminInstanceTypes: useAdminInstanceTypesActual } = await vi.importActual<
+  typeof import('@osac/ui-components/api/v1/private/instance-type')
+>('@osac/ui-components/api/v1/private/instance-type');
 
 const longDescription =
   'A provider-curated general-purpose instance type for sustained workloads that need predictable CPU and memory capacity, room for sidecar processes, and enough headroom for bursty background tasks without immediately resizing the virtual machine.';
@@ -56,6 +64,10 @@ const renderPageWithCreateRoute = () =>
   );
 
 describe('AdminInstanceTypeListPage', () => {
+  afterEach(() => {
+    vi.mocked(useAdminInstanceTypes).mockReset();
+  });
+
   it('renders the required columns and lifecycle labels for populated data', () => {
     vi.mocked(useAdminInstanceTypes).mockReturnValue(
       mockQueryResult<PrivateInstanceType[]>({
@@ -78,6 +90,7 @@ describe('AdminInstanceTypeListPage', () => {
       'Memory (GiB)',
       'Description',
       'Created',
+      '',
     ]);
     expect(screen.getByText('instance-type-active-1')).toBeInTheDocument();
     expect(screen.getByText('active-1 description')).toBeInTheDocument();
@@ -154,5 +167,75 @@ describe('AdminInstanceTypeListPage', () => {
     await user.click(screen.getByRole('button', { name: 'Create instance type' }));
 
     expect(screen.getByRole('heading', { name: 'Create instance type page' })).toBeInTheDocument();
+  });
+
+  it('sends the deprecate request and re-fetches the list to reflect the new state', async () => {
+    vi.mocked(useAdminInstanceTypes).mockImplementation(useAdminInstanceTypesActual);
+    const items = [makeInstanceType('active-1', InstanceTypeState.ACTIVE)];
+    let captured: Record<string, unknown> | undefined;
+    let listCalls = 0;
+
+    const { user } = renderWithProviders(<AdminInstanceTypeListPage />, {
+      apiFixtures: { privateInstanceTypes: items },
+      transportOverrides: {
+        onInstanceTypeList: () => {
+          listCalls += 1;
+          return create(InstanceTypesListResponseSchema, {
+            items,
+            size: items.length,
+            total: items.length,
+          });
+        },
+        onInstanceTypeUpdate: (req) => {
+          captured = req as unknown as Record<string, unknown>;
+          items[0] = makeInstanceType('active-1', InstanceTypeState.DEPRECATED);
+          return create(InstanceTypesUpdateResponseSchema, { object: items[0] });
+        },
+      },
+    });
+
+    await screen.findByText('instance-type-active-1');
+    const listCallsBeforeAction = listCalls;
+
+    await user.click(screen.getByRole('button', { name: 'Actions for instance-type-active-1' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Deprecate' }));
+
+    await waitFor(() => expect(screen.getByText('Deprecated')).toBeInTheDocument());
+    const object = captured?.object as { id?: string; spec?: { state?: InstanceTypeState } };
+    expect(object.id).toBe('active-1');
+    expect(object.spec?.state).toBe(InstanceTypeState.DEPRECATED);
+    expect(listCalls).toBeGreaterThan(listCallsBeforeAction);
+  });
+
+  it('sends the delete request and removes the row after the list re-fetches', async () => {
+    vi.mocked(useAdminInstanceTypes).mockImplementation(useAdminInstanceTypesActual);
+    const items = [makeInstanceType('obsolete-1', InstanceTypeState.OBSOLETE)];
+    let deleteCalled = false;
+
+    const { user } = renderWithProviders(<AdminInstanceTypeListPage />, {
+      apiFixtures: { privateInstanceTypes: items },
+      transportOverrides: {
+        onInstanceTypeDelete: (req) => {
+          deleteCalled = true;
+          const index = items.findIndex((item) => item.id === req.id);
+          if (index >= 0) {
+            items.splice(index, 1);
+          }
+          return create(InstanceTypesDeleteResponseSchema);
+        },
+      },
+    });
+
+    await screen.findByText('instance-type-obsolete-1');
+
+    await user.click(screen.getByRole('button', { name: 'Actions for instance-type-obsolete-1' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Delete' }));
+    await user.click(screen.getByRole('button', { name: 'Delete' }));
+
+    await waitFor(() =>
+      expect(screen.queryByText('instance-type-obsolete-1')).not.toBeInTheDocument(),
+    );
+    expect(deleteCalled).toBe(true);
+    expect(screen.getByText('No instance types yet.')).toBeInTheDocument();
   });
 });
