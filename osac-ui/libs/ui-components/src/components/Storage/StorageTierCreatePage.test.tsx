@@ -2,6 +2,7 @@ import { Code, ConnectError } from '@connectrpc/connect';
 import { screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import type { StorageBackend } from '@osac/types/private';
 import { StorageBackendState, StorageProtocol } from '@osac/types/private';
 
 import StorageTierCreatePage from './StorageTierCreatePage';
@@ -21,14 +22,14 @@ const readyBackend = {
   metadata: { name: 'fast-nvme' },
   spec: { provider: 'vast', endpoint: 'vast.example.com' },
   status: { state: StorageBackendState.READY },
-};
+} as StorageBackend;
 
 const notReadyBackend = {
   id: 'backend-2',
   metadata: { name: 'not-ready-backend' },
   spec: { provider: 'ceph', endpoint: 'ceph.example.com' },
   status: { state: StorageBackendState.UNSPECIFIED },
-};
+} as StorageBackend;
 
 const fillValidForm = async (user: ReturnType<typeof renderWithProviders>['user']) => {
   await user.type(screen.getByRole('textbox', { name: 'Name' }), 'fast-tier');
