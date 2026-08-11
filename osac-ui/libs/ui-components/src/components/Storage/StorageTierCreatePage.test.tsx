@@ -121,6 +121,19 @@ describe('StorageTierCreatePage', () => {
     });
   });
 
+  it('rejects a quota above Number.MAX_SAFE_INTEGER to avoid silent float rounding', async () => {
+    const { user } = renderWithProviders(<StorageTierCreatePage />, {
+      apiFixtures: { storageBackends: [readyBackend] },
+    });
+
+    await user.type(screen.getByRole('spinbutton', { name: 'Quota (GiB)' }), '9007199254740993');
+    await user.click(screen.getByRole('button', { name: 'Create' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Must be at most 9007199254740991')).toBeInTheDocument();
+    });
+  });
+
   it('rejects a name that is not a valid DNS label', async () => {
     const { user } = renderWithProviders(<StorageTierCreatePage />, {
       apiFixtures: { storageBackends: [readyBackend] },

@@ -101,7 +101,10 @@ const StorageTierCreatePage = () => {
             INT32_MAX,
             t('Must be at most {{max}}', { max: INT32_MAX }),
           ),
-          quotaGib: positiveIntegerSchema(t),
+          quotaGib: positiveIntegerSchema(t).max(
+            Number.MAX_SAFE_INTEGER,
+            t('Must be at most {{max}}', { max: Number.MAX_SAFE_INTEGER }),
+          ),
           encryptionEnabled: Yup.boolean().required(),
         }),
       )
