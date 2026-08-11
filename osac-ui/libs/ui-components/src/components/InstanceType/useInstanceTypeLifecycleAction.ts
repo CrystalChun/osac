@@ -7,21 +7,15 @@ import { useTranslation } from '../../hooks/useTranslation';
 import { getErrorMessage } from '../../utils/error';
 import { useToast } from '../Toast/useToast';
 
-export type InstanceTypeLifecycleAction = 'deprecate' | 'obsolete' | 'reactivate';
-
-const LIFECYCLE_ACTION_STATE: Record<InstanceTypeLifecycleAction, InstanceTypeState> = {
-  deprecate: InstanceTypeState.DEPRECATED,
-  obsolete: InstanceTypeState.OBSOLETE,
-  reactivate: InstanceTypeState.ACTIVE,
-};
+export type InstanceTypeLifecycleAction = Exclude<InstanceTypeState, InstanceTypeState.UNSPECIFIED>;
 
 const getLifecycleErrorTitle = (t: TFunction, action: InstanceTypeLifecycleAction): string => {
   switch (action) {
-    case 'deprecate':
+    case InstanceTypeState.DEPRECATED:
       return t('Failed to deprecate instance type');
-    case 'obsolete':
+    case InstanceTypeState.OBSOLETE:
       return t('Failed to mark instance type as obsolete');
-    case 'reactivate':
+    case InstanceTypeState.ACTIVE:
       return t('Failed to reactivate instance type');
   }
 };
@@ -34,7 +28,7 @@ export const useInstanceTypeLifecycleAction = () => {
 
   const runLifecycleAction = (instanceTypeId: string, action: InstanceTypeLifecycleAction) => {
     updateInstanceType.mutate(
-      { id: instanceTypeId, body: { spec: { state: LIFECYCLE_ACTION_STATE[action] } } },
+      { id: instanceTypeId, body: { spec: { state: action } } },
       {
         onError: (error) => {
           addToast({

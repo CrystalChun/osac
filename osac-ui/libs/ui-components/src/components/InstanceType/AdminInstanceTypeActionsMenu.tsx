@@ -55,7 +55,7 @@ const AdminInstanceTypeActionsMenu = ({ instanceType }: AdminInstanceTypeActions
             <DropdownItem
               value="deprecate"
               onClick={() => {
-                runLifecycleAction(instanceType.id, 'deprecate');
+                runLifecycleAction(instanceType.id, InstanceTypeState.DEPRECATED);
                 setOpen(false);
               }}
             >
@@ -66,7 +66,7 @@ const AdminInstanceTypeActionsMenu = ({ instanceType }: AdminInstanceTypeActions
             <DropdownItem
               value="obsolete"
               onClick={() => {
-                runLifecycleAction(instanceType.id, 'obsolete');
+                runLifecycleAction(instanceType.id, InstanceTypeState.OBSOLETE);
                 setOpen(false);
               }}
             >
@@ -77,7 +77,7 @@ const AdminInstanceTypeActionsMenu = ({ instanceType }: AdminInstanceTypeActions
             <DropdownItem
               value="reactivate"
               onClick={() => {
-                runLifecycleAction(instanceType.id, 'reactivate');
+                runLifecycleAction(instanceType.id, InstanceTypeState.ACTIVE);
                 setOpen(false);
               }}
             >
