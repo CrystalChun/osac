@@ -93,18 +93,9 @@ const StorageTierCreatePage = () => {
           protocol: Yup.string()
             .oneOf(['NFS', 'BLOCK'], t('Protocol is required'))
             .required(t('Protocol is required')),
-          maxReadBandwidthMbs: positiveIntegerSchema(t).max(
-            INT32_MAX,
-            t('Must be at most {{max}}', { max: INT32_MAX }),
-          ),
-          maxWriteBandwidthMbs: positiveIntegerSchema(t).max(
-            INT32_MAX,
-            t('Must be at most {{max}}', { max: INT32_MAX }),
-          ),
-          quotaGib: positiveIntegerSchema(t).max(
-            Number.MAX_SAFE_INTEGER,
-            t('Must be at most {{max}}', { max: Number.MAX_SAFE_INTEGER }),
-          ),
+          maxReadBandwidthMbs: positiveIntegerSchema(t, INT32_MAX),
+          maxWriteBandwidthMbs: positiveIntegerSchema(t, INT32_MAX),
+          quotaGib: positiveIntegerSchema(t, Number.MAX_SAFE_INTEGER),
           encryptionEnabled: Yup.boolean().required(),
         }),
       )
