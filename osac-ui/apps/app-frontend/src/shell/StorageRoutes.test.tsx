@@ -41,10 +41,12 @@ describe('StorageRoutes', () => {
     });
   });
 
-  it('renders a placeholder for tiers/create', () => {
+  it('renders the create storage tier page for tiers/create', () => {
     renderAt('/admin/infrastructure/storage/tiers/create');
 
-    expect(screen.getByText('Create storage tier')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Create storage tier' })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'Name' })).toBeInTheDocument();
+    expect(screen.queryByText('This feature is coming soon.')).not.toBeInTheDocument();
   });
 
   it('renders a placeholder for tiers/:id/edit', () => {
