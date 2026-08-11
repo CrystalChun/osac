@@ -51,6 +51,26 @@ var _ = DescribeMigration("Create volumes tables", func() {
 		Entry("volumes", "volumes"),
 	)
 
+	It("Creates the archived_volumes table", func(ctx context.Context) {
+		err := tool.Migrate(ctx, 95)
+		Expect(err).ToNot(HaveOccurred())
+
+		_, err = conn.Exec(ctx,
+			`insert into archived_volumes (id, tenant, creation_timestamp, deletion_timestamp, data)
+			 values ($1, $2, now(), now(), $3)`,
+			"test-id", "system", `{}`,
+		)
+		Expect(err).ToNot(HaveOccurred())
+
+		var count int
+		err = conn.QueryRow(ctx,
+			`select count(*) from archived_volumes where id = $1`,
+			"test-id",
+		).Scan(&count)
+		Expect(err).ToNot(HaveOccurred())
+		Expect(count).To(Equal(1))
+	})
+
 	It("Rejects invalid tenant reference", func(ctx context.Context) {
 		err := tool.Migrate(ctx, 95)
 		Expect(err).ToNot(HaveOccurred())
