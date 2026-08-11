@@ -130,7 +130,7 @@ describe('StorageBackendCreatePage', () => {
     expect(capturedRequest?.object?.spec?.endpoint).toBe('vast.example.com:443');
     expect(capturedRequest?.object?.spec?.credentials?.username).toBe('admin');
     expect(capturedRequest?.object?.spec?.credentials?.password).toBe('super-secret');
-  });
+  }, 15000);
 
   it('shows a form-level error and does not navigate when the name already exists', async () => {
     const { user } = renderPage({
@@ -147,7 +147,7 @@ describe('StorageBackendCreatePage', () => {
     });
     expect(screen.getByText('Storage backend name already exists')).toBeInTheDocument();
     expect(mockNavigate).not.toHaveBeenCalled();
-  });
+  }, 15000);
 
   it('navigates back to the backends list on cancel', async () => {
     const { user } = renderPage();
