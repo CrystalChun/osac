@@ -1,8 +1,12 @@
 import { Route, Routes } from 'react-router-dom';
+import { create } from '@bufbuild/protobuf';
 import { screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
+import { InstanceTypesCreateResponseSchema } from '@osac/types/private';
+
 import InstanceTypeCreateForm from './InstanceTypeCreateForm';
+import type { MockTransportOverrides } from '../../../test-utils/createMockConnectTransport';
 import { renderWithProviders } from '../../../test-utils/TestProviders';
 
 // A separate file from InstanceTypeCreateForm.test.tsx because that file mocks
@@ -12,13 +16,13 @@ import { renderWithProviders } from '../../../test-utils/TestProviders';
 const CREATE_ROUTE = '/admin/infrastructure/instance-types/create';
 const LIST_ROUTE = '/admin/infrastructure/instance-types';
 
-const renderForm = () =>
+const renderForm = (overrides?: MockTransportOverrides) =>
   renderWithProviders(
     <Routes>
       <Route path={CREATE_ROUTE} element={<InstanceTypeCreateForm />} />
       <Route path={LIST_ROUTE} element={<div>Instance types list</div>} />
     </Routes>,
-    { routerEntries: [CREATE_ROUTE] },
+    { routerEntries: [CREATE_ROUTE], transportOverrides: overrides },
   );
 
 describe('InstanceTypeCreateForm leave confirmation', () => {
@@ -56,5 +60,23 @@ describe('InstanceTypeCreateForm leave confirmation', () => {
       screen.queryByRole('heading', { name: /Discard unsaved changes\?/ }),
     ).not.toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: 'Name' })).toHaveValue('gp-small');
+  });
+
+  it('does not show the discard confirmation when a dirty form is submitted successfully', async () => {
+    const { user } = renderForm({
+      onInstanceTypeCreate: (req) =>
+        create(InstanceTypesCreateResponseSchema, { object: req.object }),
+    });
+
+    await user.type(screen.getByRole('textbox', { name: 'Name' }), 'gp-small');
+    await user.click(screen.getByRole('spinbutton', { name: 'CPU cores' }));
+    await user.type(screen.getByRole('spinbutton', { name: 'CPU cores' }), '4');
+    await user.type(screen.getByRole('spinbutton', { name: 'Memory (GiB)' }), '16');
+    await user.click(screen.getByRole('button', { name: 'Create' }));
+
+    expect(await screen.findByText('Instance types list')).toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { name: /Discard unsaved changes\?/ }),
+    ).not.toBeInTheDocument();
   });
 });

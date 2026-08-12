@@ -57,4 +57,22 @@ describe('getInstanceTypeCreateSchema', () => {
       schema.isValid({ ...validValues, spec: { ...validValues.spec, cores: '1', memoryGib: '1' } }),
     ).resolves.toBe(true);
   });
+
+  it('accepts cores and memoryGib at the int32 max boundary', async () => {
+    await expect(
+      schema.isValid({
+        ...validValues,
+        spec: { ...validValues.spec, cores: '2147483647', memoryGib: '2147483647' },
+      }),
+    ).resolves.toBe(true);
+  });
+
+  it('rejects cores and memoryGib exceeding the int32 max', async () => {
+    await expect(
+      schema.isValid({
+        ...validValues,
+        spec: { ...validValues.spec, cores: '2147483648', memoryGib: '2147483648' },
+      }),
+    ).resolves.toBe(false);
+  });
 });
