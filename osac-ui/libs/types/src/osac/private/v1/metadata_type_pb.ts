@@ -26,7 +26,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/private/v1/metadata_type.proto.
  */
 export const file_osac_private_v1_metadata_type: GenFile = /*@__PURE__*/
-  fileDesc("CiNvc2FjL3ByaXZhdGUvdjEvbWV0YWRhdGFfdHlwZS5wcm90bxIPb3NhYy5wcml2YXRlLnYxIusDCghNZXRhZGF0YRI2ChJjcmVhdGlvbl90aW1lc3RhbXAYASABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjYKEmRlbGV0aW9uX3RpbWVzdGFtcBgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEgoKZmluYWxpemVycxgDIAMoCRIPCgdjcmVhdG9yGAQgASgJEg4KBnRlbmFudBgFIAEoCRI9CgRuYW1lGAYgASgJQi+6SCxyKhABGD8yJF5bYS16MC05XShbYS16MC05LV17MCw2MX1bYS16MC05XSk/JBI1CgZsYWJlbHMYByADKAsyJS5vc2FjLnByaXZhdGUudjEuTWV0YWRhdGEuTGFiZWxzRW50cnkSPwoLYW5ub3RhdGlvbnMYCCADKAsyKi5vc2FjLnByaXZhdGUudjEuTWV0YWRhdGEuQW5ub3RhdGlvbnNFbnRyeRIPCgd2ZXJzaW9uGAkgASgFEg8KB3Byb2plY3QYCiABKAkaLQoLTGFiZWxzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ARoyChBBbm5vdGF0aW9uc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAFiBnByb3RvMw", [file_buf_validate_validate, file_google_protobuf_timestamp]);
+  fileDesc("CiNvc2FjL3ByaXZhdGUvdjEvbWV0YWRhdGFfdHlwZS5wcm90bxIPb3NhYy5wcml2YXRlLnYxIqkECghNZXRhZGF0YRI2ChJjcmVhdGlvbl90aW1lc3RhbXAYASABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjYKEmRlbGV0aW9uX3RpbWVzdGFtcBgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEgoKZmluYWxpemVycxgDIAMoCRIPCgdjcmVhdG9yGAQgASgJEg4KBnRlbmFudBgFIAEoCRI9CgRuYW1lGAYgASgJQi+6SCxyKhABGD8yJF5bYS16MC05XShbYS16MC05LV17MCw2MX1bYS16MC05XSk/JBI1CgZsYWJlbHMYByADKAsyJS5vc2FjLnByaXZhdGUudjEuTWV0YWRhdGEuTGFiZWxzRW50cnkSPwoLYW5ub3RhdGlvbnMYCCADKAsyKi5vc2FjLnByaXZhdGUudjEuTWV0YWRhdGEuQW5ub3RhdGlvbnNFbnRyeRIPCgd2ZXJzaW9uGAkgASgFEg8KB3Byb2plY3QYCiABKAkSHQoMZGlzcGxheV9uYW1lGAsgASgJQge6SARyAhg/Eh0KC2Rlc2NyaXB0aW9uGAwgASgJQgi6SAVyAxiAAhotCgtMYWJlbHNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBGjIKEEFubm90YXRpb25zRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4AWIGcHJvdG8z", [file_buf_validate_validate, file_google_protobuf_timestamp]);
 
 /**
  * Metadata common to all kinds of objects.
@@ -140,6 +140,22 @@ export type Metadata = Message<"osac.private.v1.Metadata"> & {
    * @generated from field: string project = 10;
    */
   project: string;
+
+  /**
+   * Human-friendly display name. Optional, not unique, mutable.
+   * Not constrained to DNS-label format.
+   *
+   * @generated from field: string display_name = 11;
+   */
+  displayName: string;
+
+  /**
+   * Optional human-friendly description. Opaque string; clients may
+   * treat content as Markdown. Not unique, mutable.
+   *
+   * @generated from field: string description = 12;
+   */
+  description: string;
 };
 
 /**

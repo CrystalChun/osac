@@ -10,6 +10,8 @@ const clusterCatalogItem: ClusterCatalogItem = {
   id: 'catalog-openshift-4',
   metadata: {
     $typeName: 'osac.public.v1.Metadata',
+    displayName: '',
+    description: '',
     name: 'catalog-openshift-4',
     annotations: {},
     creator: 'foo',

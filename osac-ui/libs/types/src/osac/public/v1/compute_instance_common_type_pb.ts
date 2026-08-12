@@ -23,7 +23,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/public/v1/compute_instance_common_type.proto.
  */
 export const file_osac_public_v1_compute_instance_common_type: GenFile = /*@__PURE__*/
-  fileDesc("CjFvc2FjL3B1YmxpYy92MS9jb21wdXRlX2luc3RhbmNlX2NvbW1vbl90eXBlLnByb3RvEg5vc2FjLnB1YmxpYy52MSI/ChRDb21wdXRlSW5zdGFuY2VJbWFnZRITCgtzb3VyY2VfdHlwZRgBIAEoCRISCgpzb3VyY2VfcmVmGAIgASgJIicKE0NvbXB1dGVJbnN0YW5jZURpc2sSEAoIc2l6ZV9naWIYASABKAViBnByb3RvMw");
+  fileDesc("CjFvc2FjL3B1YmxpYy92MS9jb21wdXRlX2luc3RhbmNlX2NvbW1vbl90eXBlLnByb3RvEg5vc2FjLnB1YmxpYy52MSI/ChRDb21wdXRlSW5zdGFuY2VJbWFnZRITCgtzb3VyY2VfdHlwZRgBIAEoCRISCgpzb3VyY2VfcmVmGAIgASgJIlMKE0NvbXB1dGVJbnN0YW5jZURpc2sSEAoIc2l6ZV9naWIYASABKAUSGQoMc3RvcmFnZV90aWVyGAIgASgJSACIAQFCDwoNX3N0b3JhZ2VfdGllcmIGcHJvdG8z");
 
 /**
  * Contains the image configuration for a compute instance.
@@ -65,6 +65,13 @@ export type ComputeInstanceDisk = Message<"osac.public.v1.ComputeInstanceDisk"> 
    * @generated from field: int32 size_gib = 1;
    */
   sizeGib: number;
+
+  /**
+   * Storage tier name (e.g., "standard", "fast", "archive").
+   *
+   * @generated from field: optional string storage_tier = 2;
+   */
+  storageTier?: string | undefined;
 };
 
 /**

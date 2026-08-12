@@ -25,6 +25,8 @@ const mockCluster: Cluster = {
   id: 'cluster-456',
   metadata: {
     $typeName: 'osac.public.v1.Metadata',
+    displayName: '',
+    description: '',
     name: 'test-cluster',
     annotations: {},
     creator: 'foo',

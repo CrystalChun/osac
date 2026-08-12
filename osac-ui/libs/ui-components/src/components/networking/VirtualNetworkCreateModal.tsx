@@ -110,11 +110,6 @@ export const VirtualNetworkCreateModal = ({ onClose }: VirtualNetworkCreateModal
               },
               ipv4Cidr: values.ipv4Cidr || undefined,
               ipv6Cidr: values.ipv6Cidr || undefined,
-              capabilities: {
-                enableDualStack: !!values.ipv4Cidr && !!values.ipv6Cidr,
-                enableIpv4: !!values.ipv4Cidr,
-                enableIpv6: !!values.ipv6Cidr,
-              },
             },
           });
           navigate(`/networking/virtual-networks/${result.id}`);
