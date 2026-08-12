@@ -1,10 +1,21 @@
 import { Route, Routes } from 'react-router-dom';
 import { screen, waitFor } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { renderWithProviders } from '@osac/ui-components/test-utils/TestProviders';
 
 import { StorageRoutes } from './StorageRoutes';
+
+vi.mock('react-router-dom', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('react-router-dom')>();
+  return {
+    ...actual,
+    // useBlocker requires a data router; this test harness renders under a
+    // plain MemoryRouter, so StorageBackendCreatePage's LeaveFormConfirmation
+    // is stubbed out here rather than exercised (see its own test file).
+    useBlocker: () => ({ state: 'unblocked' as const }),
+  };
+});
 
 const renderAt = (path: string) =>
   renderWithProviders(
@@ -21,10 +32,11 @@ describe('StorageRoutes', () => {
     expect(screen.getByRole('button', { name: 'Create backend' })).toBeInTheDocument();
   });
 
-  it('renders a placeholder for backends/create', () => {
+  it('renders the real create form for backends/create', () => {
     renderAt('/admin/infrastructure/storage/backends/create');
 
-    expect(screen.getByText('Create storage backend')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Create storage backend' })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'Name' })).toBeInTheDocument();
   });
 
   it('renders a placeholder for backends/:id/edit', () => {

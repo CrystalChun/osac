@@ -31,13 +31,13 @@ const LeaveFormConfirmation = () => {
   return (
     <Modal isOpen variant="small" aria-labelledby="leave-form-title">
       <ModalHeader
-        title={t('Discard wizard progress?')}
+        title={t('Discard unsaved changes?')}
         titleIconVariant="warning"
         labelId="leave-form-title"
       />
       <ModalBody>
         <Content component="p">
-          {t('Are you sure you want to cancel? Your selections and entered data will be lost.')}
+          {t('Are you sure you want to leave? Your entered data will be lost.')}
         </Content>
       </ModalBody>
       <ModalFooter>

@@ -26,8 +26,10 @@ import { useTranslation } from '../../hooks/useTranslation';
 import { getErrorMessage } from '../../utils/error';
 import { positiveIntegerSchema } from '../../validation/positive-integer';
 import { resourceNameSchema } from '../../validation/resource-name';
+import NameField from '../catalogProvision/wizard/fields/NameField';
 import { CheckboxField } from '../Form/CheckboxField';
 import { InputField } from '../Form/InputField';
+import LeaveFormConfirmation from '../Form/LeaveFormConfirmation';
 import OsacForm from '../Form/OsacForm';
 import { RadioButtonField } from '../Form/RadioButtonField';
 import { SelectField } from '../Form/SelectField';
@@ -50,13 +52,13 @@ interface BackendAssociationValues {
 }
 
 interface StorageTierCreateFormValues {
-  name: string;
+  metadata: { name: string };
   description: string;
   backends: [BackendAssociationValues];
 }
 
 const initialValues: StorageTierCreateFormValues = {
-  name: '',
+  metadata: { name: '' },
   description: '',
   backends: [
     {
@@ -73,7 +75,7 @@ const initialValues: StorageTierCreateFormValues = {
 const StorageTierCreatePage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { mutate, error, isPending } = useCreateStorageTier();
+  const { mutateAsync, error } = useCreateStorageTier();
   const { data: backends = [], isLoading: backendsLoading } = usePrivateStorageBackends({
     filter: STORAGE_BACKEND_READY_LIST_FILTER,
   });
@@ -84,7 +86,7 @@ const StorageTierCreatePage = () => {
   }));
 
   const schema = Yup.object({
-    name: resourceNameSchema(t),
+    metadata: Yup.object({ name: resourceNameSchema(t) }),
     description: Yup.string(),
     backends: Yup.array()
       .of(
@@ -124,11 +126,11 @@ const StorageTierCreatePage = () => {
         <Formik
           initialValues={initialValues}
           validationSchema={schema}
-          onSubmit={(values) => {
-            const backend = values.backends[0];
-            mutate(
-              {
-                metadata: { name: values.name },
+          onSubmit={async (values) => {
+            try {
+              const backend = values.backends[0];
+              await mutateAsync({
+                metadata: values.metadata,
                 spec: {
                   description: values.description,
                   backends: [
@@ -142,16 +144,19 @@ const StorageTierCreatePage = () => {
                     },
                   ],
                 },
-              },
-              { onSuccess: () => navigate(TIERS_LIST_PATH) },
-            );
+              });
+              navigate(TIERS_LIST_PATH);
+            } catch {
+              // Surfaced via the mutation's own `error` state below; nothing further to do here.
+            }
           }}
         >
-          {({ submitForm }) => (
+          {({ submitForm, isSubmitting }) => (
             <Stack hasGutter>
+              <LeaveFormConfirmation />
               <StackItem>
                 <OsacForm>
-                  <InputField name="name" label={t('Name')} fieldId="tier-name" isRequired />
+                  <NameField />
                   <InputField
                     name="description"
                     label={t('Description')}
@@ -220,8 +225,8 @@ const StorageTierCreatePage = () => {
                       <Button
                         variant="primary"
                         onClick={submitForm}
-                        isDisabled={isPending}
-                        isLoading={isPending}
+                        isDisabled={isSubmitting}
+                        isLoading={isSubmitting}
                       >
                         {t('Create')}
                       </Button>
@@ -230,7 +235,7 @@ const StorageTierCreatePage = () => {
                       <Button
                         variant="link"
                         onClick={() => navigate(TIERS_LIST_PATH)}
-                        isDisabled={isPending}
+                        isDisabled={isSubmitting}
                       >
                         {t('Cancel')}
                       </Button>

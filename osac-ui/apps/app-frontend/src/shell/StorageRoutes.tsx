@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 
 import StorageTierCreatePage from '@osac/ui-components/components/Storage/StorageTierCreatePage';
 import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
+import { StorageBackendCreatePage } from '@osac/ui-components/pages/admin/StorageBackendCreatePage';
 import { StorageManagementPage } from '@osac/ui-components/pages/admin/StorageManagementPage';
 import { StoragePlaceholder } from '@osac/ui-components/pages/admin/StoragePlaceholder';
 
@@ -12,10 +13,7 @@ export const StorageRoutes = () => {
     <Routes>
       <Route index element={<Navigate to="backends" replace />} />
       <Route path="backends" element={<StorageManagementPage activeTab="backends" />} />
-      <Route
-        path="backends/create"
-        element={<StoragePlaceholder title={t('Create storage backend')} />}
-      />
+      <Route path="backends/create" element={<StorageBackendCreatePage />} />
       <Route
         path="backends/:id/edit"
         element={<StoragePlaceholder title={t('Edit storage backend')} />}
