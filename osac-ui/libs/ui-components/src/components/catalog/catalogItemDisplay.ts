@@ -1,3 +1,5 @@
+import type { TFunction } from 'i18next';
+
 import type {
   BareMetalInstanceCatalogItem,
   ClusterCatalogItem,
@@ -22,6 +24,19 @@ export type CatalogItem =
   | ComputeInstanceCatalogItem;
 
 export type CatalogItemKind = 'vm' | 'cluster' | 'bm';
+
+export type CatalogItemWithType = CatalogItem & { type: CatalogItemKind };
+
+export const catalogItemTypeBadgeLabel = (kind: CatalogItemKind, t: TFunction): string => {
+  switch (kind) {
+    case 'vm':
+      return t('Virtual Machine');
+    case 'bm':
+      return t('Bare Metal');
+    default:
+      return t('Cluster');
+  }
+};
 
 export const catalogFieldDefault = (item: CatalogItem, path: string): unknown => {
   const def = catalogItemFieldDefinitions(item).find((entry) => entry.path === path);
@@ -139,6 +154,13 @@ export const filterCatalogItemsBySearch = (items: CatalogItem[], search: string)
     return items;
   }
   return items.filter((item) => searchableCatalogItemText(item).includes(searchTerm));
+};
+
+export const filterCatalogItemsByTypes = (items: CatalogItemWithType[], types: CatalogItemKind[]): CatalogItem[] => {
+  if (!types?.length) {
+    return [];
+  }
+  return items.filter((item) => types.includes(item.type));
 };
 
 export const formatCatalogFieldDefault = (def: CatalogFieldDefinition): string => {

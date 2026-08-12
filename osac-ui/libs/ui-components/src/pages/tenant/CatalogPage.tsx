@@ -1,71 +1,170 @@
-import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Button,
   EmptyState,
   EmptyStateBody,
   Flex,
   FlexItem,
+  Label,
   SearchInput,
   Stack,
   StackItem,
   ToggleGroup,
   ToggleGroupItem,
 } from '@patternfly/react-core';
-import type { TFunction } from 'i18next';
 
 import { useBareMetalInstanceCatalogItems } from '@osac/ui-components/api/v1/baremetal-instance';
 import { useClusterCatalogItems } from '@osac/ui-components/api/v1/cluster-catalog-item';
 import { useComputeInstanceCatalogItems } from '@osac/ui-components/api/v1/compute-instance-catalog-item';
-import { CatalogItemDetailDrawer } from '@osac/ui-components/components/catalog/CatalogItemDetailDrawer';
-import type {
+import {
+  CatalogItemDetailDrawer
+} from '@osac/ui-components/components/catalog/CatalogItemDetailDrawer.tsx';
+import {
   CatalogItem,
   CatalogItemKind,
+  CatalogItemWithType,
+  filterCatalogItemsBySearch,
+  filterCatalogItemsByTypes,
 } from '@osac/ui-components/components/catalog/catalogItemDisplay';
-import { filterCatalogItemsBySearch } from '@osac/ui-components/components/catalog/catalogItemDisplay';
 import { CatalogItemListSection } from '@osac/ui-components/components/catalog/CatalogItemListSection';
 import ListPage from '@osac/ui-components/components/Page/ListPage';
 import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
 
-type CatalogTypeFilter = 'vm' | 'cluster' | 'bm';
+type CatalogTypeFilter = CatalogItemKind;
 
-interface SelectedCatalogItem {
-  kind: CatalogItemKind;
-  item: CatalogItem;
-}
+const TYPE_FILTER_PARAM = 'types';
+const SEARCH_PARAM = 'search';
+const CATALOG_TYPE_FILTER_VALUES: readonly CatalogTypeFilter[] = ['vm', 'cluster', 'bm'];
 
-const getTypeLabel = (typeFilter: CatalogTypeFilter, t: TFunction) => {
-  switch (typeFilter) {
-    case 'vm':
-      return t('Virtual Machines');
-    case 'bm':
-      return t('Bare Metal Machines');
-    default:
-      return t('Clusters');
+const isCatalogTypeFilter = (value: string): value is CatalogTypeFilter =>
+  value === 'vm' || value === 'cluster' || value === 'bm';
+
+const parseTypeFilters = (searchParams: URLSearchParams): CatalogTypeFilter[] => {
+  const raw = searchParams.get(TYPE_FILTER_PARAM);
+  if (!raw) {
+    return [];
   }
+  const seen = new Set<CatalogTypeFilter>();
+  const filters: CatalogTypeFilter[] = [];
+  for (const value of raw.split(',')) {
+    const trimmed = value.trim();
+    if (isCatalogTypeFilter(trimmed) && !seen.has(trimmed)) {
+      seen.add(trimmed);
+      filters.push(trimmed);
+    }
+  }
+  return filters;
 };
 
-const useCatalogItems = (typeFilter: CatalogTypeFilter) => {
-  const vms = useComputeInstanceCatalogItems(undefined, typeFilter === 'vm');
-  const clusters = useClusterCatalogItems(undefined, typeFilter === 'cluster');
-  const bms = useBareMetalInstanceCatalogItems(typeFilter === 'bm');
+const serializeTypeFilters = (filters: CatalogTypeFilter[]): string | null =>
+  filters.length > 0 ? filters.join(',') : null;
 
-  switch (typeFilter) {
-    case 'vm':
-      return vms;
-    case 'bm':
-      return bms;
-    default:
-      return clusters;
+const parseSearch = (searchParams: URLSearchParams): string => searchParams.get(SEARCH_PARAM) ?? '';
+
+const typesWithItems = (items: CatalogItemWithType[]): CatalogTypeFilter[] =>
+  CATALOG_TYPE_FILTER_VALUES.filter((type) => items.some((item) => item.type === type));
+
+const mapToItemWithType = (items: CatalogItem[] | undefined, itemType: CatalogTypeFilter): CatalogItemWithType[] => {
+  if (!items || !items.length) {
+    return [];
   }
+  return items.map((item: CatalogItem) => ({ ...item, type: itemType }));
+};
+
+const useCatalogItems = () => {
+  const vms = useComputeInstanceCatalogItems(undefined);
+  const clusters = useClusterCatalogItems(undefined);
+  const bms = useBareMetalInstanceCatalogItems();
+
+  const isLoading = vms.isLoading || clusters.isLoading || bms.isLoading;
+  const error = vms.error || clusters.error || bms.error;
+
+  const data: CatalogItemWithType[] = useMemo(() => {
+    if (error || isLoading) {
+      return [];
+    }
+    return [
+      ...mapToItemWithType(vms.data, 'vm'),
+      ...mapToItemWithType(clusters.data, 'cluster'),
+      ...mapToItemWithType(bms.data, 'bm'),
+    ];
+  }, [isLoading, error, vms.data, clusters.data, bms.data]);
+
+  return { error, isLoading, data };
 };
 
 const CatalogPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [search, setSearch] = useState('');
-  const [typeFilter, setTypeFilter] = useState<CatalogTypeFilter>('vm');
-  const [selectedCatalogItem, setSelectedCatalogItem] = useState<SelectedCatalogItem>();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [selectedCatalogItem, setSelectedCatalogItem] = useState<CatalogItemWithType>();
+  const hasInitializedTypeFilters = useRef(false);
+
+  const typeFilters = useMemo(() => parseTypeFilters(searchParams), [searchParams]);
+  const search = useMemo(() => parseSearch(searchParams), [searchParams]);
+  const { data = [], isLoading, error } = useCatalogItems();
+
+  useEffect(() => {
+    if (hasInitializedTypeFilters.current || isLoading || error) {
+      return;
+    }
+    hasInitializedTypeFilters.current = true;
+
+    if (searchParams.has(TYPE_FILTER_PARAM)) {
+      return;
+    }
+
+    const serialized = serializeTypeFilters(typesWithItems(data));
+    if (!serialized) {
+      return;
+    }
+
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.set(TYPE_FILTER_PARAM, serialized);
+        return next;
+      },
+      { replace: true },
+    );
+  }, [data, error, isLoading, searchParams, setSearchParams]);
+
+  const toggleTypeFilter = (value: CatalogTypeFilter) => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        const current = parseTypeFilters(next);
+        const updated = current.includes(value)
+          ? current.filter((option) => option !== value)
+          : [...current, value];
+        const serialized = serializeTypeFilters(updated);
+        if (serialized) {
+          next.set(TYPE_FILTER_PARAM, serialized);
+        } else {
+          next.delete(TYPE_FILTER_PARAM);
+        }
+        return next;
+      },
+      { replace: true },
+    );
+  };
+
+  const setSearch = (value: string) => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        const trimmed = value.trim();
+        if (!trimmed) {
+          next.delete(SEARCH_PARAM);
+        } else {
+          next.set(SEARCH_PARAM, value);
+        }
+        return next;
+      },
+      { replace: true },
+    );
+  };
 
   const catalogTypeFilters = useMemo<ReadonlyArray<{ value: CatalogTypeFilter; label: string }>>(
     () => [
@@ -76,9 +175,15 @@ const CatalogPage = () => {
     [t],
   );
 
-  const { data = [], isLoading, error } = useCatalogItems(typeFilter);
+  const typeCounts = useMemo(() => ({
+    vm: data.filter((d) => d.type === 'vm').length,
+    cluster: data.filter((d) => d.type === 'cluster').length,
+    bm: data.filter((d) => d.type === 'bm').length,
+  }), [data]);
 
-  const filteredItems = useMemo(() => filterCatalogItemsBySearch(data, search), [search, data]);
+  const filteredItems = useMemo(() =>
+    filterCatalogItemsBySearch(filterCatalogItemsByTypes(data, typeFilters), search),
+    [search, data, typeFilters]);
 
   const searchTerm = search.trim();
   const showEmptyState = !isLoading && !error && filteredItems.length === 0;
@@ -87,31 +192,26 @@ const CatalogPage = () => {
     'Browse catalog items and launch virtual machines, clusters, or bare metal machines from published offerings.',
   );
 
-  const handleTypeFilterChange = (value: CatalogTypeFilter) => {
-    setTypeFilter(value);
-    setSelectedCatalogItem(undefined);
-  };
-
   const catalogCreateAction = useMemo(() => {
     if (!selectedCatalogItem) {
       return null;
     }
-    if (selectedCatalogItem.kind === 'vm') {
+    if (selectedCatalogItem.type === 'vm') {
       return {
         label: t('Create virtual machine'),
-        path: `/vms/create/${selectedCatalogItem.item.id}`,
+        path: `/vms/create/${selectedCatalogItem.id}`,
       };
     }
-    if (selectedCatalogItem.kind === 'cluster') {
+    if (selectedCatalogItem.type === 'cluster') {
       return {
         label: t('Create cluster'),
-        path: `/clusters/create/${selectedCatalogItem.item.id}`,
+        path: `/clusters/create/${selectedCatalogItem.id}`,
       };
     }
-    if (selectedCatalogItem.kind === 'bm') {
+    if (selectedCatalogItem.type === 'bm') {
       return {
         label: t('Provision bare metal'),
-        path: `/bare-metal/create/${selectedCatalogItem.item.id}`,
+        path: `/bare-metal/create/${selectedCatalogItem.id}`,
       };
     }
     return null;
@@ -120,7 +220,7 @@ const CatalogPage = () => {
   return (
     <ListPage title={t('Catalog')} description={pageDescription}>
       <CatalogItemDetailDrawer
-        item={selectedCatalogItem?.item}
+        item={selectedCatalogItem}
         onClose={() => setSelectedCatalogItem(undefined)}
         actions={
           catalogCreateAction ? (
@@ -138,6 +238,26 @@ const CatalogPage = () => {
               flexWrap={{ default: 'wrap' }}
             >
               <FlexItem>
+                <ToggleGroup aria-label={t('Filter catalog by resource type')}>
+                  {catalogTypeFilters.map((option) => (
+                    <ToggleGroupItem
+                      key={option.value}
+                      text={(
+                        <Flex spaceItems={{ default: 'spaceItemsSm' }} flexWrap={{ default: 'nowrap' }}>
+                          <FlexItem>{option.label}</FlexItem>
+                          <FlexItem>
+                            <Label isCompact>{typeCounts[option.value]}</Label>
+                          </FlexItem>
+                        </Flex>
+                      )}
+                      buttonId={`catalog-type-filter-${option.value}`}
+                      isSelected={typeFilters.includes(option.value)}
+                      onChange={() => toggleTypeFilter(option.value)}
+                    />
+                  ))}
+                </ToggleGroup>
+              </FlexItem>
+              <FlexItem>
                 <SearchInput
                   placeholder={t('Search catalog items')}
                   value={search}
@@ -147,40 +267,34 @@ const CatalogPage = () => {
                   isDisabled={isLoading || !!error}
                 />
               </FlexItem>
-              <FlexItem>
-                <ToggleGroup aria-label={t('Filter catalog by resource type')}>
-                  {catalogTypeFilters.map((option) => (
-                    <ToggleGroupItem
-                      key={option.value}
-                      text={option.label}
-                      buttonId={`catalog-type-filter-${option.value}`}
-                      isSelected={typeFilter === option.value}
-                      onChange={() => handleTypeFilterChange(option.value)}
-                    />
-                  ))}
-                </ToggleGroup>
-              </FlexItem>
             </Flex>
           </StackItem>
 
           {showEmptyState ? (
             <StackItem>
-              <EmptyState titleText={t('No catalog items found')} headingLevel="h2">
-                <EmptyStateBody>
-                  {searchTerm
-                    ? t('No catalog items match your search.')
-                    : t('No published catalog items are available yet.')}
-                </EmptyStateBody>
-              </EmptyState>
+              {typeFilters.length === 0 ? (
+                <EmptyState titleText={t('Select a service to view catalog items')} headingLevel="h2">
+                  <EmptyStateBody>
+                    {t('Choose one or more services above to filter the catalog.')}
+                  </EmptyStateBody>
+                </EmptyState>
+              ) : (
+                <EmptyState titleText={t('No catalog items found')} headingLevel="h2">
+                  <EmptyStateBody>
+                    {searchTerm
+                      ? t('No catalog items match your search.')
+                      : t('No published catalog items are available yet.')}
+                  </EmptyStateBody>
+                </EmptyState>
+              )}
             </StackItem>
           ) : (
             <CatalogItemListSection
-              title={getTypeLabel(typeFilter, t)}
-              items={filteredItems}
+              items={filteredItems as CatalogItemWithType[]}
               isLoading={isLoading}
               error={error}
-              selectedItemId={selectedCatalogItem?.item.id ?? null}
-              onSelectItem={(item) => setSelectedCatalogItem({ kind: typeFilter, item })}
+              selectedItemId={selectedCatalogItem?.id ?? null}
+              onSelectItem={(item) => setSelectedCatalogItem(item)}
             />
           )}
         </Stack>

@@ -1,4 +1,6 @@
+import { useNavigate } from 'react-router-dom';
 import {
+  Button,
   Card,
   CardBody,
   CardHeader,
@@ -11,8 +13,10 @@ import {
   Stack,
   StackItem,
 } from '@patternfly/react-core';
+import RocketIcon from '@patternfly/react-icons/dist/esm/icons/rocket-icon';
 
-import type { CatalogItem } from './catalogItemDisplay';
+import type { CatalogItem, CatalogItemKind } from './catalogItemDisplay';
+import { catalogItemTypeBadgeLabel } from './catalogItemDisplay';
 import {
   catalogItemMetadataLabelEntries,
   catalogItemResourceParts,
@@ -27,8 +31,22 @@ export interface CatalogItemCardSelection {
   onSelect: () => void;
 }
 
+const catalogItemCreatePath = (type: CatalogItemKind, id: string) => {
+  if (type === 'vm') {
+    return `/vms/create/${id}`;
+  }
+  if (type === 'cluster') {
+    return `/clusters/create/${id}`;
+  }
+  if (type === 'bm') {
+    return `/bare-metal/create/${id}`;
+  }
+  return '#';
+};
+
 interface CatalogItemCardProps {
   item: CatalogItem;
+  type?: CatalogItemKind;
   ouiaId?: string;
   selection?: CatalogItemCardSelection;
   onOpenDetails?: () => void;
@@ -37,12 +55,14 @@ interface CatalogItemCardProps {
 
 const CatalogItemCard = ({
   item,
+  type,
   ouiaId,
   selection,
   onOpenDetails,
   isSelected,
 }: CatalogItemCardProps) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const resources = catalogItemResourceParts(item);
   const metadataLabels = catalogItemMetadataLabelEntries(item);
   const subtitle = catalogItemSubtitle(item);
@@ -50,6 +70,12 @@ const CatalogItemCard = ({
   const isWizardMode = Boolean(selection);
   const cardId = `catalog-item-card-${item.id}`;
   const titleId = `${cardId}-title`;
+
+  const handleLaunch = () => {
+    if (type) {
+      navigate(catalogItemCreatePath(type, item.id));
+    }
+  };
 
   return (
     <Card
@@ -62,6 +88,13 @@ const CatalogItemCard = ({
       isFullHeight
     >
       <CardHeader
+        actions={{
+          actions: type ? (
+            <Label color="blue" isCompact>
+              {catalogItemTypeBadgeLabel(type, t)}
+            </Label>
+          ) : null,
+        }}
         selectableActions={
           isWizardMode && selection
             ? {
@@ -116,27 +149,38 @@ const CatalogItemCard = ({
               </Flex>
             </StackItem>
           ) : null}
+          <StackItem>
+            <Divider />
+          </StackItem>
           {metadataLabels.length > 0 ? (
-            <>
-              {resources.length > 0 ? (
-                <StackItem>
-                  <Divider />
-                </StackItem>
-              ) : null}
-              <StackItem>
-                <Flex flexWrap={{ default: 'wrap' }} gap={{ default: 'gapSm' }}>
-                  {metadataLabels.map(({ key, value }) => (
-                    <FlexItem key={`${item.id}-label-${key}`}>
-                      <Label variant="outline" color="grey" isCompact>
-                        <b>{key}</b>
-                        {': '}
-                        {value}
-                      </Label>
-                    </FlexItem>
-                  ))}
-                </Flex>
-              </StackItem>
-            </>
+            <StackItem>
+              <Flex flexWrap={{ default: 'wrap' }} gap={{ default: 'gapSm' }}>
+                {metadataLabels.map(({ key, value }) => (
+                  <FlexItem key={`${item.id}-label-${key}`}>
+                    <Label variant="outline" color="grey" isCompact>
+                      <b>{key}</b>
+                      {': '}
+                      {value}
+                    </Label>
+                  </FlexItem>
+                ))}
+              </Flex>
+            </StackItem>
+          ) : null}
+          {type ? (
+            <StackItem>
+              <Button
+                variant="primary"
+                isBlock
+                icon={<RocketIcon />}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  handleLaunch();
+                }}
+              >
+                {t('Launch instance')}
+              </Button>
+            </StackItem>
           ) : null}
         </Stack>
       </CardBody>
