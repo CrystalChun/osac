@@ -14,8 +14,11 @@ import type {
   IdentityProvidersUpdateRequest,
   IdentityProvidersUpdateResponse,
   InstanceType,
+  Role,
+  RoleBinding,
   SecurityGroup,
   Subnet,
+  User,
   VirtualNetwork,
 } from '@osac/types';
 import {
@@ -27,8 +30,11 @@ import {
   IdentityProviders,
   InstanceTypeState,
   InstanceTypes,
+  RoleBindings,
+  Roles,
   SecurityGroups,
   Subnets,
+  Users,
   VirtualNetworkState,
   VirtualNetworks,
 } from '@osac/types';
@@ -85,6 +91,9 @@ export type MockApiFixtures = {
   privateInstanceTypes?: PrivateInstanceType[];
   storageBackends?: StorageBackend[];
   storageTiers?: StorageTier[];
+  roles?: Role[];
+  roleBindings?: RoleBinding[];
+  users?: User[];
 };
 
 export const wrapWithAuthInterceptor = (transport: Transport): Transport => {
@@ -195,6 +204,9 @@ export const createMockConnectTransport = (
   const privateInstanceTypes = fixtures.privateInstanceTypes ?? [];
   const storageBackends = [...(fixtures.storageBackends ?? [])];
   const storageTiers = fixtures.storageTiers ?? [];
+  const roles = fixtures.roles ?? [];
+  const roleBindingsFixtures = fixtures.roleBindings ?? [];
+  const usersFixtures = fixtures.users ?? [];
 
   return wrapWithAuthInterceptor(
     createRouterTransport((router) => {
@@ -463,6 +475,43 @@ export const createMockConnectTransport = (
           }
           return { object: { id: 'cluster-1', ...req.object } };
         },
+      });
+
+      router.service(Roles, {
+        list: () => ({
+          items: roles,
+          size: roles.length,
+          total: roles.length,
+        }),
+        get: (req) => ({
+          object: roles.find((r) => r.id === req.id),
+        }),
+      });
+
+      router.service(RoleBindings, {
+        list: () => ({
+          items: roleBindingsFixtures,
+          size: roleBindingsFixtures.length,
+          total: roleBindingsFixtures.length,
+        }),
+        get: (req) => ({
+          object: roleBindingsFixtures.find((rb) => rb.id === req.id),
+        }),
+        create: (req) => ({
+          object: { id: 'new-rb-1', ...req.object },
+        }),
+        delete: () => ({}),
+      });
+
+      router.service(Users, {
+        list: () => ({
+          items: usersFixtures,
+          size: usersFixtures.length,
+          total: usersFixtures.length,
+        }),
+        get: (req) => ({
+          object: usersFixtures.find((u) => u.id === req.id),
+        }),
       });
     }),
   );

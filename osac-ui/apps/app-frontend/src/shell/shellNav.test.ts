@@ -72,10 +72,13 @@ describe('navRowsForRole', () => {
     }
   });
 
-  it('IDP administration shows up only for idp manager', () => {
-    expect(findSection('tenant-idp-manager', 'nav-tenant-administration')).toBeDefined();
-    for (const role of ['tenant-user', 'tenant-admin', 'admin'] as UserRole[]) {
-      expect(findSection(role, 'nav-tenant-administration')).toBeUndefined();
+  it('Tenant section shows up for admin, tenant-admin, and tenant-idp-manager', () => {
+    for (const role of ['admin', 'tenant-admin', 'tenant-idp-manager'] as UserRole[]) {
+      const section = findSection(role, 'nav-tenant-administration');
+      expect(section).toBeDefined();
+      expect(section?.children.map((c) => c.id)).toContain('idp');
+      expect(section?.children.map((c) => c.id)).toContain('role-bindings');
     }
+    expect(findSection('tenant-user', 'nav-tenant-administration')).toBeUndefined();
   });
 });
