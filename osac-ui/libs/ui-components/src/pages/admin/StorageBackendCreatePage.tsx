@@ -18,6 +18,7 @@ import * as Yup from 'yup';
 
 import { useCreateStorageBackend } from '@osac/ui-components/api/v1/private/storage-backends';
 import NameField from '@osac/ui-components/components/catalogProvision/wizard/fields/NameField';
+import { CheckboxField } from '@osac/ui-components/components/Form/CheckboxField';
 import { InputField } from '@osac/ui-components/components/Form/InputField';
 import LeaveFormConfirmation from '@osac/ui-components/components/Form/LeaveFormConfirmation';
 import OsacForm from '@osac/ui-components/components/Form/OsacForm';
@@ -36,6 +37,7 @@ interface StorageBackendFormValues {
   provider: string;
   endpoint: string;
   description: string;
+  useCredentials: boolean;
   credentials: { username: string; password: string };
 }
 
@@ -44,6 +46,7 @@ const initialValues: StorageBackendFormValues = {
   provider: '',
   endpoint: '',
   description: '',
+  useCredentials: true,
   credentials: { username: '', password: '' },
 };
 
@@ -53,9 +56,22 @@ const getStorageBackendSchema = (t: TFunction) =>
     provider: Yup.string().required(t('Provider is required')),
     endpoint: Yup.string().required(t('Endpoint is required')),
     description: Yup.string(),
-    credentials: Yup.object({
-      username: Yup.string().required(t('Username is required')),
-      password: Yup.string().required(t('Password is required')),
+    useCredentials: Yup.boolean(),
+    // Credentials are optional on the backend. When "Use credentials" is checked,
+    // both username and password are required; when unchecked they are omitted
+    // from the request entirely (see onSubmit), so there is no "only one set" state.
+    credentials: Yup.object().when('useCredentials', {
+      is: true,
+      then: (schema) =>
+        schema.shape({
+          username: Yup.string().required(t('Username is required')),
+          password: Yup.string().required(t('Password is required')),
+        }),
+      otherwise: (schema) =>
+        schema.shape({
+          username: Yup.string(),
+          password: Yup.string(),
+        }),
     }),
   });
 
@@ -99,10 +115,15 @@ export const StorageBackendCreatePage = () => {
                   provider: values.provider,
                   endpoint: values.endpoint,
                   description: values.description,
-                  credentials: {
-                    username: values.credentials.username,
-                    password: values.credentials.password,
-                  },
+                  // Omit credentials entirely when the user opts out — the backend
+                  // does not require them, and a partial credentials object is never
+                  // sent (username/password are all-or-nothing via the checkbox).
+                  ...(values.useCredentials && {
+                    credentials: {
+                      username: values.credentials.username,
+                      password: values.credentials.password,
+                    },
+                  }),
                 },
               });
               navigate(BACKENDS_LIST_PATH);
@@ -111,7 +132,7 @@ export const StorageBackendCreatePage = () => {
             }
           }}
         >
-          {({ submitForm, isSubmitting }) => (
+          {({ submitForm, isSubmitting, values }) => (
             <Stack hasGutter>
               <LeaveFormConfirmation />
               <StackItem>
@@ -135,19 +156,28 @@ export const StorageBackendCreatePage = () => {
                     label={t('Description')}
                     fieldId="storage-backend-description"
                   />
-                  <InputField
-                    name="credentials.username"
-                    label={t('Username')}
-                    fieldId="storage-backend-username"
-                    isRequired
+                  <CheckboxField
+                    name="useCredentials"
+                    label={t('Use credentials')}
+                    fieldId="storage-backend-use-credentials"
                   />
-                  <InputField
-                    name="credentials.password"
-                    label={t('Password')}
-                    fieldId="storage-backend-password"
-                    type="password"
-                    isRequired
-                  />
+                  {values.useCredentials && (
+                    <>
+                      <InputField
+                        name="credentials.username"
+                        label={t('Username')}
+                        fieldId="storage-backend-username"
+                        isRequired
+                      />
+                      <InputField
+                        name="credentials.password"
+                        label={t('Password')}
+                        fieldId="storage-backend-password"
+                        type="password"
+                        isRequired
+                      />
+                    </>
+                  )}
                 </OsacForm>
               </StackItem>
 
