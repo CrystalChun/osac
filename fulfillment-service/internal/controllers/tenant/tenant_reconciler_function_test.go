@@ -909,10 +909,15 @@ var _ = Describe("Deletion", func() {
 		gomock.InOrder(
 			mockProjectsClient.EXPECT().
 				List(gomock.Any(), gomock.Any()).
-				Return(privatev1.ProjectsListResponse_builder{
-					Items: []*privatev1.Project{rootProject},
-					Total: 1,
-				}.Build(), nil),
+				DoAndReturn(func(_ context.Context, req *privatev1.ProjectsListRequest, _ ...grpc.CallOption) (*privatev1.ProjectsListResponse, error) {
+					filter := req.GetFilter()
+					Expect(filter).To(ContainSubstring(`this.metadata.tenant == "test-org"`))
+					Expect(filter).To(ContainSubstring(`this.metadata.name == ""`))
+					return privatev1.ProjectsListResponse_builder{
+						Items: []*privatev1.Project{rootProject},
+						Total: 1,
+					}.Build(), nil
+				}),
 			mockProjectsClient.EXPECT().
 				Delete(gomock.Any(), gomock.Any()).
 				DoAndReturn(func(_ context.Context, req *privatev1.ProjectsDeleteRequest, _ ...grpc.CallOption) (*privatev1.ProjectsDeleteResponse, error) {
@@ -1010,6 +1015,7 @@ var _ = Describe("Deletion", func() {
 		err := task.delete(ctx)
 		Expect(err).To(HaveOccurred())
 		Expect(err.Error()).To(ContainSubstring("failed to query root project"))
+		Expect(tenant.GetMetadata().GetFinalizers()).To(ContainElement(finalizers.Controller))
 	})
 
 	It("should return error when root project deletion fails", func() {
@@ -1056,6 +1062,7 @@ var _ = Describe("Deletion", func() {
 		err := task.delete(ctx)
 		Expect(err).To(HaveOccurred())
 		Expect(err.Error()).To(ContainSubstring("failed to delete root project"))
+		Expect(tenant.GetMetadata().GetFinalizers()).To(ContainElement(finalizers.Controller))
 	})
 
 	It("should remove finalizer when called", func() {

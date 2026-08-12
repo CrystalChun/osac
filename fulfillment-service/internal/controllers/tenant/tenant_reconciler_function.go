@@ -361,8 +361,9 @@ func (t *task) delete(ctx context.Context) error {
 }
 
 // countRemainingProjects returns the number of projects that still belong to
-// this tenant. The tenant reconciler blocks deletion until this returns 0 —
-// it is the administrator's responsibility to delete all projects first.
+// this tenant. The tenant reconciler blocks deletion until this returns 0.
+// The root project is deleted automatically by deleteRootProject; other
+// projects must be deleted by the administrator before the tenant can be removed.
 func (t *task) countRemainingProjects(ctx context.Context) (int32, error) {
 	listFilter := fmt.Sprintf("this.metadata.tenant == %q", t.tenant.GetMetadata().GetName())
 	listResp, err := t.r.projectsClient.List(ctx, privatev1.ProjectsListRequest_builder{
