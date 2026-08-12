@@ -179,7 +179,9 @@ export type MockTransportOverrides = {
   onStorageTierList?: (
     req: StorageTiersListRequest,
   ) => MessageInitShape<typeof StorageTiersListResponseSchema>;
-  onStorageTierCreate?: (req: StorageTiersCreateRequest) => StorageTiersCreateResponse;
+  onStorageTierCreate?: (
+    req: StorageTiersCreateRequest,
+  ) => StorageTiersCreateResponse | Promise<StorageTiersCreateResponse>;
   onStorageTierUpdate?: (req: StorageTiersUpdateRequest) => StorageTiersUpdateResponse;
   onStorageTierDelete?: (
     req: StorageTiersDeleteRequest,

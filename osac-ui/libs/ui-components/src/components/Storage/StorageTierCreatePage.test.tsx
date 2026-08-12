@@ -1,9 +1,14 @@
+import { create } from '@bufbuild/protobuf';
 import { Code, ConnectError } from '@connectrpc/connect';
 import { screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { StorageBackend } from '@osac/types/private';
-import { StorageBackendState, StorageProtocol } from '@osac/types/private';
+import type { StorageBackend, StorageTiersCreateResponse } from '@osac/types/private';
+import {
+  StorageBackendState,
+  StorageProtocol,
+  StorageTiersCreateResponseSchema,
+} from '@osac/types/private';
 
 import StorageTierCreatePage from './StorageTierCreatePage';
 import { renderWithProviders } from '../../test-utils/TestProviders';
@@ -14,6 +19,11 @@ vi.mock('react-router-dom', async (importOriginal) => {
   return {
     ...actual,
     useNavigate: () => mockNavigate,
+    // useBlocker requires a data router; this test harness renders under a plain
+    // MemoryRouter, so LeaveFormConfirmation's blocking behavior is stubbed out
+    // rather than exercised here (see StorageBackendCreatePage.test.tsx for the
+    // same pattern).
+    useBlocker: () => ({ state: 'unblocked' as const }),
   };
 });
 
@@ -244,6 +254,37 @@ describe('StorageTierCreatePage', () => {
       expect(mockNavigate).toHaveBeenCalledWith('/admin/infrastructure/storage/tiers');
     });
   });
+
+  it('disables Create while the submission is pending, to prevent duplicate submissions', async () => {
+    let resolveCreate: (() => void) | undefined;
+    const onStorageTierCreate = () =>
+      new Promise<StorageTiersCreateResponse>((resolve) => {
+        resolveCreate = () =>
+          resolve(create(StorageTiersCreateResponseSchema, { object: { id: 'new-tier-1' } }));
+      });
+
+    const { user } = renderWithProviders(<StorageTierCreatePage />, {
+      apiFixtures: { storageBackends: [readyBackend] },
+      transportOverrides: { onStorageTierCreate },
+    });
+
+    await fillValidForm(user);
+    await user.click(screen.getByRole('button', { name: 'Create' }));
+
+    // Once isLoading is true, PatternFly's Spinner contributes its own "Contents"
+    // accessible name to the button, so an exact "Create" match no longer
+    // resolves — match by substring instead.
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /Create/ })).toBeDisabled();
+    });
+    expect(screen.getByRole('button', { name: 'Cancel' })).toBeDisabled();
+
+    resolveCreate?.();
+
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith('/admin/infrastructure/storage/tiers');
+    });
+  }, 15000);
 
   it('shows the ALREADY_EXISTS error as a form-level error without navigating away', async () => {
     const { user } = renderWithProviders(<StorageTierCreatePage />, {
