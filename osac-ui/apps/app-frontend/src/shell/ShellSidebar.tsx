@@ -35,7 +35,7 @@ export const ShellSidebar = () => {
 
   return (
     <PageSidebar>
-      <PageSidebarBody isFilled>
+      <PageSidebarBody usePageInsets isFilled>
         <Nav aria-label="Primary navigation">
           {navRows.map((row) => {
             if (isNavSection(row)) {

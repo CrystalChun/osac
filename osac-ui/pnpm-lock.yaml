@@ -57,20 +57,20 @@ importers:
         specifier: workspace:*
         version: link:../../libs/ui-components
       '@patternfly/patternfly':
-        specifier: ^6.4.0
-        version: 6.4.0
+        specifier: ^6.6.1
+        version: 6.6.1
       '@patternfly/react-charts':
-        specifier: ^8.0.0
-        version: 8.4.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(victory-area@37.3.6(react@19.2.5))(victory-axis@37.3.6(react@19.2.5))(victory-bar@37.3.6(react@19.2.5))(victory-box-plot@37.3.6(react@19.2.5))(victory-chart@37.3.6(react@19.2.5))(victory-core@37.3.6(react@19.2.5))(victory-create-container@37.3.6(react@19.2.5))(victory-cursor-container@37.3.6(react@19.2.5))(victory-group@37.3.6(react@19.2.5))(victory-legend@37.3.6(react@19.2.5))(victory-line@37.3.6(react@19.2.5))(victory-pie@37.3.6(react@19.2.5))(victory-scatter@37.3.6(react@19.2.5))(victory-stack@37.3.6(react@19.2.5))(victory-tooltip@37.3.6(react@19.2.5))(victory-voronoi-container@37.3.6(react@19.2.5))(victory-zoom-container@37.3.6(react@19.2.5))
+        specifier: ^8.6.1
+        version: 8.6.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(victory-area@37.3.6(react@19.2.5))(victory-axis@37.3.6(react@19.2.5))(victory-bar@37.3.6(react@19.2.5))(victory-box-plot@37.3.6(react@19.2.5))(victory-chart@37.3.6(react@19.2.5))(victory-core@37.3.6(react@19.2.5))(victory-create-container@37.3.6(react@19.2.5))(victory-cursor-container@37.3.6(react@19.2.5))(victory-group@37.3.6(react@19.2.5))(victory-legend@37.3.6(react@19.2.5))(victory-line@37.3.6(react@19.2.5))(victory-pie@37.3.6(react@19.2.5))(victory-scatter@37.3.6(react@19.2.5))(victory-stack@37.3.6(react@19.2.5))(victory-tooltip@37.3.6(react@19.2.5))(victory-voronoi-container@37.3.6(react@19.2.5))(victory-zoom-container@37.3.6(react@19.2.5))
       '@patternfly/react-core':
-        specifier: ^6.4.1
-        version: 6.4.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^6.6.1
+        version: 6.6.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@patternfly/react-icons':
-        specifier: ^6.4.0
-        version: 6.4.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^6.6.1
+        version: 6.6.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@patternfly/react-table':
-        specifier: ^6.4.0
-        version: 6.4.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^6.6.1
+        version: 6.6.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@tanstack/react-query':
         specifier: ^5.0.0
         version: 5.99.2(react@19.2.5)
@@ -820,8 +820,72 @@ packages:
   '@patternfly/patternfly@6.4.0':
     resolution: {integrity: sha512-4drFhg74sEc/fftark5wZevODIog17qR4pwLCdB3j5iK3Uu5oMA2SdLhsEeEQggalfnFzve/Km87MdVR0ghhvQ==}
 
+  '@patternfly/patternfly@6.6.1':
+    resolution: {integrity: sha512-8P9C1TmFk5y5s2/1XVjmP9JmSyDXDiNBwPZewhPizULtqlaRu+Evljx/X1HTSFrCNY0qgI1uDKy+NXiorIniyA==}
+
   '@patternfly/react-charts@8.4.1':
     resolution: {integrity: sha512-kqP5TFr9F/SDTp+nXfcX8gMuZIQ6Uxl55qqiWYgR2zflo0UZWnyL/d2s1fI6Bfi5IuycNdlvJJ/i8QdOsLr5mw==}
+    peerDependencies:
+      echarts: ^5.6.0 || ^6.0.0
+      react: ^17 || ^18 || ^19
+      react-dom: ^17 || ^18 || ^19
+      victory-area: ^37.3.6
+      victory-axis: ^37.3.6
+      victory-bar: ^37.3.6
+      victory-box-plot: ^37.3.6
+      victory-chart: ^37.3.6
+      victory-core: ^37.3.6
+      victory-create-container: ^37.3.6
+      victory-cursor-container: ^37.3.6
+      victory-group: ^37.3.6
+      victory-legend: ^37.3.6
+      victory-line: ^37.3.6
+      victory-pie: ^37.3.6
+      victory-scatter: ^37.3.6
+      victory-stack: ^37.3.6
+      victory-tooltip: ^37.3.6
+      victory-voronoi-container: ^37.3.6
+      victory-zoom-container: ^37.3.6
+    peerDependenciesMeta:
+      echarts:
+        optional: true
+      victory-area:
+        optional: true
+      victory-axis:
+        optional: true
+      victory-bar:
+        optional: true
+      victory-box-plot:
+        optional: true
+      victory-chart:
+        optional: true
+      victory-core:
+        optional: true
+      victory-create-container:
+        optional: true
+      victory-cursor-container:
+        optional: true
+      victory-group:
+        optional: true
+      victory-legend:
+        optional: true
+      victory-line:
+        optional: true
+      victory-pie:
+        optional: true
+      victory-scatter:
+        optional: true
+      victory-stack:
+        optional: true
+      victory-tooltip:
+        optional: true
+      victory-voronoi-container:
+        optional: true
+      victory-zoom-container:
+        optional: true
+
+  '@patternfly/react-charts@8.6.1':
+    resolution: {integrity: sha512-HkYmBanA3KmP/+dw3sbCGITjCif+r1EDzYcfjzLUUshllp55zBMv4UraEpV+pSwSv3fz1SfMQm7Dt5UXL0CWzA==}
     peerDependencies:
       echarts: ^5.6.0 || ^6.0.0
       react: ^17 || ^18 || ^19
@@ -887,8 +951,8 @@ packages:
       react: ^17 || ^18 || ^19
       react-dom: ^17 || ^18 || ^19
 
-  '@patternfly/react-core@6.5.1':
-    resolution: {integrity: sha512-fFZ0hcIyHJO27hxbf53W3m2R11l0O9WxR7CusJXuCEaNMP31ULrhf5Pv6ROdTrrs39Kl/yPv+2QuxQfe/4e72g==}
+  '@patternfly/react-core@6.6.1':
+    resolution: {integrity: sha512-1XEBj+RllMnx+nQNaQaEH08umNdW1/HoqiNiZVBrVACI7GAGqjNR/NOWCbfl3p/o6OggD3M3mlJPhCMmcoOaGg==}
     peerDependencies:
       react: ^17 || ^18 || ^19
       react-dom: ^17 || ^18 || ^19
@@ -899,8 +963,8 @@ packages:
       react: ^17 || ^18 || ^19
       react-dom: ^17 || ^18 || ^19
 
-  '@patternfly/react-icons@6.5.1':
-    resolution: {integrity: sha512-CnuPvTTs4MMWx8CAUkmnY690ouN1bbHjunsyXu3QxvGOmzbztP+wS4BdiLS8TIXOIH80Yb7KPhnF8VkA+CduOA==}
+  '@patternfly/react-icons@6.6.1':
+    resolution: {integrity: sha512-EUHnTliMlUMNfaueyGTaNcdCDGN4CjLtQpNdSg6iWcl5oloHtUDEAIltP0nbCWnepMJDoM2YgjMlyjwWlkNzXg==}
     peerDependencies:
       react: ^17 || ^18 || ^19
       react-dom: ^17 || ^18 || ^19
@@ -911,8 +975,17 @@ packages:
   '@patternfly/react-styles@6.5.1':
     resolution: {integrity: sha512-yQMzUbbf6qYM/v3JbPvaCJTgxRbOKoEw229XZmnnM8gDvp8ECiI7LqihrAOK/NA6T6M3DDgsRMd2JurUBhPDEw==}
 
+  '@patternfly/react-styles@6.6.1':
+    resolution: {integrity: sha512-hwByXA4wSpOIBJFtrYUdkFDIqvzHRP5yzvip/NHDlG0y/kXausOh5Z4m00SbTA6t7Hzudw5eU1lf+IOPCm5C6Q==}
+
   '@patternfly/react-table@6.4.1':
     resolution: {integrity: sha512-dceS5X1I5gmhRfEf6gsLIdFhrQd5hY+SWRIYzEvI19rrdN9VwCVWg+bhSsNv05pQnGs8uOlzYVBI25p7PJtFeA==}
+    peerDependencies:
+      react: ^17 || ^18 || ^19
+      react-dom: ^17 || ^18 || ^19
+
+  '@patternfly/react-table@6.6.1':
+    resolution: {integrity: sha512-owyLpkhFg28nQWkTA3jnhmbe8FOX5vXqZntbrjse4BfdaBTOzsBxPqtBzbf6o214Q8OQBzC2Atgz9C3j0yFscQ==}
     peerDependencies:
       react: ^17 || ^18 || ^19
       react-dom: ^17 || ^18 || ^19
@@ -928,6 +1001,9 @@ packages:
 
   '@patternfly/react-tokens@6.5.1':
     resolution: {integrity: sha512-zwepLsIQTL0Lf4R2/PIBOk1m+pm0hYVT3lktf2H4+Y87eRIifwMRb19c+pr4hj4ckGvHs+WxwjTfTj2Qqwn5rw==}
+
+  '@patternfly/react-tokens@6.6.1':
+    resolution: {integrity: sha512-t7dDEJMnO3QkdIKyjbyKJznVYki9ONZG27Cn/9RXwaM0lDGCrgQEJXy2XoVUCdYhIdXZu+TGSEqXeNFYUyZECg==}
 
   '@playwright/test@1.62.0':
     resolution: {integrity: sha512-9zOJ6ZQRAena31MpOH9VSzIz8Ou3YJ/wtY/eQm5T2uhfhG7/U3COrMS8xOtUrZrp9OgdmzEnIYODye3nY1VqzA==}
@@ -4037,6 +4113,8 @@ snapshots:
 
   '@patternfly/patternfly@6.4.0': {}
 
+  '@patternfly/patternfly@6.6.1': {}
+
   '@patternfly/react-charts@8.4.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(victory-area@37.3.6(react@19.2.5))(victory-axis@37.3.6(react@19.2.5))(victory-bar@37.3.6(react@19.2.5))(victory-box-plot@37.3.6(react@19.2.5))(victory-chart@37.3.6(react@19.2.5))(victory-core@37.3.6(react@19.2.5))(victory-create-container@37.3.6(react@19.2.5))(victory-cursor-container@37.3.6(react@19.2.5))(victory-group@37.3.6(react@19.2.5))(victory-legend@37.3.6(react@19.2.5))(victory-line@37.3.6(react@19.2.5))(victory-pie@37.3.6(react@19.2.5))(victory-scatter@37.3.6(react@19.2.5))(victory-stack@37.3.6(react@19.2.5))(victory-tooltip@37.3.6(react@19.2.5))(victory-voronoi-container@37.3.6(react@19.2.5))(victory-zoom-container@37.3.6(react@19.2.5))':
     dependencies:
       '@patternfly/react-styles': 6.4.0
@@ -4065,9 +4143,37 @@ snapshots:
       victory-voronoi-container: 37.3.6(react@19.2.5)
       victory-zoom-container: 37.3.6(react@19.2.5)
 
+  '@patternfly/react-charts@8.6.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(victory-area@37.3.6(react@19.2.5))(victory-axis@37.3.6(react@19.2.5))(victory-bar@37.3.6(react@19.2.5))(victory-box-plot@37.3.6(react@19.2.5))(victory-chart@37.3.6(react@19.2.5))(victory-core@37.3.6(react@19.2.5))(victory-create-container@37.3.6(react@19.2.5))(victory-cursor-container@37.3.6(react@19.2.5))(victory-group@37.3.6(react@19.2.5))(victory-legend@37.3.6(react@19.2.5))(victory-line@37.3.6(react@19.2.5))(victory-pie@37.3.6(react@19.2.5))(victory-scatter@37.3.6(react@19.2.5))(victory-stack@37.3.6(react@19.2.5))(victory-tooltip@37.3.6(react@19.2.5))(victory-voronoi-container@37.3.6(react@19.2.5))(victory-zoom-container@37.3.6(react@19.2.5))':
+    dependencies:
+      '@patternfly/react-styles': 6.6.1
+      '@patternfly/react-tokens': 6.6.1
+      hoist-non-react-statics: 3.3.2
+      lodash: 4.18.1
+      react: 19.2.5
+      react-dom: 19.2.5(react@19.2.5)
+      tslib: 2.8.1
+    optionalDependencies:
+      victory-area: 37.3.6(react@19.2.5)
+      victory-axis: 37.3.6(react@19.2.5)
+      victory-bar: 37.3.6(react@19.2.5)
+      victory-box-plot: 37.3.6(react@19.2.5)
+      victory-chart: 37.3.6(react@19.2.5)
+      victory-core: 37.3.6(react@19.2.5)
+      victory-create-container: 37.3.6(react@19.2.5)
+      victory-cursor-container: 37.3.6(react@19.2.5)
+      victory-group: 37.3.6(react@19.2.5)
+      victory-legend: 37.3.6(react@19.2.5)
+      victory-line: 37.3.6(react@19.2.5)
+      victory-pie: 37.3.6(react@19.2.5)
+      victory-scatter: 37.3.6(react@19.2.5)
+      victory-stack: 37.3.6(react@19.2.5)
+      victory-tooltip: 37.3.6(react@19.2.5)
+      victory-voronoi-container: 37.3.6(react@19.2.5)
+      victory-zoom-container: 37.3.6(react@19.2.5)
+
   '@patternfly/react-core@6.4.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
     dependencies:
-      '@patternfly/react-icons': 6.4.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@patternfly/react-icons': 6.6.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@patternfly/react-styles': 6.4.0
       '@patternfly/react-tokens': 6.4.0
       focus-trap: 7.6.4
@@ -4076,11 +4182,11 @@ snapshots:
       react-dropzone: 14.4.1(react@19.2.5)
       tslib: 2.8.1
 
-  '@patternfly/react-core@6.5.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
+  '@patternfly/react-core@6.6.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
     dependencies:
-      '@patternfly/react-icons': 6.5.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
-      '@patternfly/react-styles': 6.5.1
-      '@patternfly/react-tokens': 6.5.1
+      '@patternfly/react-icons': 6.6.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@patternfly/react-styles': 6.6.1
+      '@patternfly/react-tokens': 6.6.1
       focus-trap: 7.6.6
       react: 19.2.5
       react-dom: 19.2.5(react@19.2.5)
@@ -4092,19 +4198,22 @@ snapshots:
       react: 19.2.5
       react-dom: 19.2.5(react@19.2.5)
 
-  '@patternfly/react-icons@6.5.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
+  '@patternfly/react-icons@6.6.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
     dependencies:
       react: 19.2.5
       react-dom: 19.2.5(react@19.2.5)
+      tslib: 2.8.1
 
   '@patternfly/react-styles@6.4.0': {}
 
   '@patternfly/react-styles@6.5.1': {}
 
+  '@patternfly/react-styles@6.6.1': {}
+
   '@patternfly/react-table@6.4.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
     dependencies:
-      '@patternfly/react-core': 6.4.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
-      '@patternfly/react-icons': 6.4.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@patternfly/react-core': 6.6.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@patternfly/react-icons': 6.6.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@patternfly/react-styles': 6.4.0
       '@patternfly/react-tokens': 6.4.0
       lodash: 4.18.1
@@ -4112,10 +4221,21 @@ snapshots:
       react-dom: 19.2.5(react@19.2.5)
       tslib: 2.8.1
 
+  '@patternfly/react-table@6.6.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
+    dependencies:
+      '@patternfly/react-core': 6.6.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@patternfly/react-icons': 6.6.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@patternfly/react-styles': 6.6.1
+      '@patternfly/react-tokens': 6.6.1
+      lodash: 4.18.1
+      react: 19.2.5
+      react-dom: 19.2.5(react@19.2.5)
+      tslib: 2.8.1
+
   '@patternfly/react-templates@6.5.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
     dependencies:
-      '@patternfly/react-core': 6.5.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
-      '@patternfly/react-icons': 6.5.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@patternfly/react-core': 6.6.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@patternfly/react-icons': 6.6.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@patternfly/react-styles': 6.5.1
       '@patternfly/react-tokens': 6.5.1
       react: 19.2.5
@@ -4125,6 +4245,8 @@ snapshots:
   '@patternfly/react-tokens@6.4.0': {}
 
   '@patternfly/react-tokens@6.5.1': {}
+
+  '@patternfly/react-tokens@6.6.1': {}
 
   '@playwright/test@1.62.0':
     dependencies:

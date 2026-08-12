@@ -1,6 +1,6 @@
 import { type ReactNode } from 'react';
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
-import { Page } from '@patternfly/react-core';
+import { Page, SkipToContent } from '@patternfly/react-core';
 
 import ErrorBoundary from '@osac/ui-components/components/ErrorBoundary/ErrorBoundary';
 import IdentityProviderRoutes from '@osac/ui-components/components/IdentityProvider/IdentityProviderRoutes';
@@ -8,6 +8,7 @@ import ProjectRoutes from '@osac/ui-components/components/Project/ProjectRoutes'
 import RoleBindingRoutes from '@osac/ui-components/components/RoleBinding/RoleBindingRoutes';
 import { VmDetailsPage } from '@osac/ui-components/components/vm/VmDetailsPage';
 import { useSession } from '@osac/ui-components/hooks/use-session';
+import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
 import { SecurityGroupDetailPage } from '@osac/ui-components/pages/networking/SecurityGroupDetailPage';
 import { SecurityGroupsListPage } from '@osac/ui-components/pages/networking/SecurityGroupsListPage';
 import { VirtualNetworkDetailPage } from '@osac/ui-components/pages/networking/VirtualNetworkDetailPage';
@@ -25,6 +26,8 @@ import { ShellSidebar } from './ShellSidebar';
 import { StorageRoutes } from './StorageRoutes';
 import { TenantRoutes } from './TenantRoutes';
 
+const MAIN_CONTENT_ID = 'osac-main-content';
+
 const ShellRoute = ({ children }: { children: ReactNode }) => {
   const { pathname } = useLocation();
 
@@ -33,6 +36,7 @@ const ShellRoute = ({ children }: { children: ReactNode }) => {
 
 export const AppShell = ({ logout }: { logout: () => Promise<void> }) => {
   const { role } = useSession();
+  const { t } = useTranslation();
 
   const defaultRoute = defaultRouteForRole(role);
 
@@ -41,6 +45,11 @@ export const AppShell = ({ logout }: { logout: () => Promise<void> }) => {
       masthead={<ShellMasthead onLogout={logout} />}
       sidebar={<ShellSidebar />}
       isManagedSidebar
+      mainContainerId={MAIN_CONTENT_ID}
+      skipToContent={
+        <SkipToContent href={`#${MAIN_CONTENT_ID}`}>{t('Skip to content')}</SkipToContent>
+      }
+      isContentFilled
     >
       <Routes>
         <Route
