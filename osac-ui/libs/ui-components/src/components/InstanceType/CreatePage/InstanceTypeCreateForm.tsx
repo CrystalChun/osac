@@ -20,7 +20,7 @@ import { InputField } from '../../Form/InputField';
 import LeaveFormConfirmation from '../../Form/LeaveFormConfirmation';
 import OsacForm from '../../Form/OsacForm';
 
-const INSTANCE_TYPES_LIST_ROUTE = '/admin/infrastructure/instance-types';
+export const INSTANCE_TYPES_LIST_ROUTE = '/admin/infrastructure/instance-types';
 
 const InstanceTypeCreateForm = () => {
   const { t } = useTranslation();

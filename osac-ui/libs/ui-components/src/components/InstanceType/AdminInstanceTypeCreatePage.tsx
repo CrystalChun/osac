@@ -8,7 +8,9 @@ import {
   Title,
 } from '@patternfly/react-core';
 
-import InstanceTypeCreateForm from './CreatePage/InstanceTypeCreateForm';
+import InstanceTypeCreateForm, {
+  INSTANCE_TYPES_LIST_ROUTE,
+} from './CreatePage/InstanceTypeCreateForm';
 import { useTranslation } from '../../hooks/useTranslation';
 
 const AdminInstanceTypeCreatePage = () => {
@@ -21,11 +23,7 @@ const AdminInstanceTypeCreatePage = () => {
         <Stack hasGutter>
           <Breadcrumb>
             <BreadcrumbItem>
-              <Button
-                variant="link"
-                isInline
-                onClick={() => navigate('/admin/infrastructure/instance-types')}
-              >
+              <Button variant="link" isInline onClick={() => navigate(INSTANCE_TYPES_LIST_ROUTE)}>
                 {t('Instance types')}
               </Button>
             </BreadcrumbItem>
