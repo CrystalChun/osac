@@ -14,6 +14,7 @@ import type {
   IdentityProvidersUpdateRequest,
   IdentityProvidersUpdateResponse,
   InstanceType,
+  Project,
   Role,
   RoleBinding,
   SecurityGroup,
@@ -30,6 +31,7 @@ import {
   IdentityProviders,
   InstanceTypeState,
   InstanceTypes,
+  Projects,
   RoleBindings,
   Roles,
   SecurityGroups,
@@ -90,6 +92,7 @@ export type MockApiFixtures = {
   securityGroups?: SecurityGroup[];
   identityProviders?: IdentityProvider[];
   instanceTypes?: InstanceType[];
+  projects?: Project[];
   privateInstanceTypes?: PrivateInstanceType[];
   storageBackends?: StorageBackend[];
   storageTiers?: StorageTier[];
@@ -204,6 +207,7 @@ export const createMockConnectTransport = (
   const hostTypes = fixtures.hostTypes ?? [];
   const tenants = fixtures.tenants ?? [];
   const identityProviders = fixtures.identityProviders ?? [];
+  const projects = fixtures.projects ?? [];
   const virtualNetworks = fixtures.virtualNetworks ?? [];
   const subnets = fixtures.subnets ?? [];
   const securityGroups = fixtures.securityGroups ?? [];
@@ -488,6 +492,21 @@ export const createMockConnectTransport = (
           }
           return { object: { id: 'cluster-1', ...req.object } };
         },
+      });
+
+      router.service(Projects, {
+        list: () => ({
+          items: projects,
+          size: projects.length,
+          total: projects.length,
+        }),
+        get: (req) => ({
+          object: projects.find((p) => p.id === req.id),
+        }),
+        create: (req) => ({
+          object: { id: 'new-project-1', ...req.object },
+        }),
+        delete: () => ({}),
       });
 
       router.service(Roles, {
