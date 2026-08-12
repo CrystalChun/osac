@@ -69,10 +69,10 @@ describe('InstanceTypeCreateForm', () => {
   });
 
   it.each([
-    ['blank', '', 'CPU cores is required'],
-    ['decimal', '1.5', 'CPU cores must be a positive integer'],
-    ['zero', '0', 'CPU cores must be a positive integer'],
-    ['negative', '-1', 'CPU cores must be a positive integer'],
+    ['blank', '', 'This field is required'],
+    ['decimal', '1.5', 'Must be a whole number'],
+    ['zero', '0', 'Must be greater than zero'],
+    ['negative', '-1', 'Must be greater than zero'],
   ])('shows a validation error for %s CPU cores', async (_label, cores, expectedMessage) => {
     const { user } = renderForm();
 
@@ -91,10 +91,10 @@ describe('InstanceTypeCreateForm', () => {
   });
 
   it.each([
-    ['blank', '', 'Memory (GiB) is required'],
-    ['decimal', '1.5', 'Memory (GiB) must be a positive integer'],
-    ['zero', '0', 'Memory (GiB) must be a positive integer'],
-    ['negative', '-1', 'Memory (GiB) must be a positive integer'],
+    ['blank', '', 'This field is required'],
+    ['decimal', '1.5', 'Must be a whole number'],
+    ['zero', '0', 'Must be greater than zero'],
+    ['negative', '-1', 'Must be greater than zero'],
   ])('shows a validation error for %s Memory (GiB)', async (_label, memoryGib, expectedMessage) => {
     const { user } = renderForm();
 
