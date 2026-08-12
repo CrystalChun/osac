@@ -62,7 +62,7 @@ const getStorageBackendSchema = (t: TFunction) =>
 export const StorageBackendCreatePage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { mutateAsync, error, isPending } = useCreateStorageBackend();
+  const { mutateAsync, error } = useCreateStorageBackend();
 
   const providerOptions: SelectFieldOption[] = [
     { value: 'vast', label: t('VAST') },
@@ -165,8 +165,8 @@ export const StorageBackendCreatePage = () => {
                       <Button
                         variant="primary"
                         onClick={submitForm}
-                        isDisabled={isSubmitting || isPending}
-                        isLoading={isSubmitting || isPending}
+                        isDisabled={isSubmitting}
+                        isLoading={isSubmitting}
                       >
                         {t('Create')}
                       </Button>
@@ -175,7 +175,7 @@ export const StorageBackendCreatePage = () => {
                       <Button
                         variant="link"
                         onClick={() => navigate(BACKENDS_LIST_PATH)}
-                        isDisabled={isSubmitting || isPending}
+                        isDisabled={isSubmitting}
                       >
                         {t('Cancel')}
                       </Button>

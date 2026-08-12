@@ -75,7 +75,7 @@ const initialValues: StorageTierCreateFormValues = {
 const StorageTierCreatePage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { mutateAsync, error, isPending } = useCreateStorageTier();
+  const { mutateAsync, error } = useCreateStorageTier();
   const { data: backends = [], isLoading: backendsLoading } = usePrivateStorageBackends({
     filter: STORAGE_BACKEND_READY_LIST_FILTER,
   });
@@ -225,8 +225,8 @@ const StorageTierCreatePage = () => {
                       <Button
                         variant="primary"
                         onClick={submitForm}
-                        isDisabled={isSubmitting || isPending}
-                        isLoading={isSubmitting || isPending}
+                        isDisabled={isSubmitting}
+                        isLoading={isSubmitting}
                       >
                         {t('Create')}
                       </Button>
@@ -235,7 +235,7 @@ const StorageTierCreatePage = () => {
                       <Button
                         variant="link"
                         onClick={() => navigate(TIERS_LIST_PATH)}
-                        isDisabled={isSubmitting || isPending}
+                        isDisabled={isSubmitting}
                       >
                         {t('Cancel')}
                       </Button>
