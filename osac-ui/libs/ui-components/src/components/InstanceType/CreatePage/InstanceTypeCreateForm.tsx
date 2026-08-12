@@ -11,12 +11,13 @@ import {
 import { Formik } from 'formik';
 
 import { getInstanceTypeCreateSchema } from './validation';
-import { instanceTypeCreateValues } from './values';
+import { InstanceTypeCreateFormValues, instanceTypeCreateValues } from './values';
 import { useCreateInstanceType } from '../../../api/v1/private/instance-type';
 import { useTranslation } from '../../../hooks/useTranslation';
 import { getErrorMessage } from '../../../utils/error';
 import NameField from '../../catalogProvision/wizard/fields/NameField';
 import { InputField } from '../../Form/InputField';
+import LeaveFormConfirmation from '../../Form/LeaveFormConfirmation';
 import OsacForm from '../../Form/OsacForm';
 
 const INSTANCE_TYPES_LIST_ROUTE = '/admin/infrastructure/instance-types';
@@ -24,86 +25,91 @@ const INSTANCE_TYPES_LIST_ROUTE = '/admin/infrastructure/instance-types';
 const InstanceTypeCreateForm = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { mutate, error, isPending } = useCreateInstanceType();
+  const { mutateAsync: create, error } = useCreateInstanceType();
+
+  const navigateToList = () => navigate(INSTANCE_TYPES_LIST_ROUTE);
+
+  const onSubmit = async (values: InstanceTypeCreateFormValues) => {
+    try {
+      await create({
+        metadata: { name: values.metadata.name },
+        spec: {
+          description: values.spec.description,
+          cores: Number(values.spec.cores),
+          memoryGib: Number(values.spec.memoryGib),
+        },
+      });
+      navigateToList();
+    } catch {
+      // tanstack handles the error
+    }
+  };
 
   return (
     <Formik
       initialValues={instanceTypeCreateValues}
       validationSchema={getInstanceTypeCreateSchema(t)}
-      onSubmit={(values) => {
-        mutate(
-          {
-            metadata: { name: values.metadata.name },
-            spec: {
-              description: values.spec.description,
-              cores: Number(values.spec.cores),
-              memoryGib: Number(values.spec.memoryGib),
-            },
-          },
-          { onSuccess: () => navigate(INSTANCE_TYPES_LIST_ROUTE) },
-        );
-      }}
+      onSubmit={onSubmit}
     >
-      {({ submitForm }) => (
-        <Stack hasGutter>
-          <StackItem>
-            <OsacForm>
-              <NameField />
-              <InputField
-                name="spec.description"
-                label={t('Description')}
-                fieldId="instance-type-description"
-                multiline
-              />
-              <InputField
-                name="spec.cores"
-                label={t('CPU cores')}
-                fieldId="instance-type-cores"
-                type="number"
-                isRequired
-              />
-              <InputField
-                name="spec.memoryGib"
-                label={t('Memory (GiB)')}
-                fieldId="instance-type-memory-gib"
-                type="number"
-                isRequired
-              />
-            </OsacForm>
-          </StackItem>
-          {!!error && (
+      {({ submitForm, isSubmitting }) => (
+        <>
+          <LeaveFormConfirmation />
+          <Stack hasGutter>
             <StackItem>
-              <Alert variant="danger" title={t('Failed to create instance type')} isInline>
-                {getErrorMessage(error)}
-              </Alert>
+              <OsacForm>
+                <NameField />
+                <InputField
+                  name="spec.description"
+                  label={t('Description')}
+                  fieldId="instance-type-description"
+                  multiline
+                />
+                <InputField
+                  name="spec.cores"
+                  label={t('CPU cores')}
+                  fieldId="instance-type-cores"
+                  type="number"
+                  isRequired
+                />
+                <InputField
+                  name="spec.memoryGib"
+                  label={t('Memory (GiB)')}
+                  fieldId="instance-type-memory-gib"
+                  type="number"
+                  isRequired
+                />
+              </OsacForm>
             </StackItem>
-          )}
-          <StackItem>
-            <ActionList>
-              <ActionListGroup>
-                <ActionListItem>
-                  <Button
-                    variant="primary"
-                    onClick={submitForm}
-                    isDisabled={isPending}
-                    isLoading={isPending}
-                  >
-                    {t('Create')}
-                  </Button>
-                </ActionListItem>
-                <ActionListItem>
-                  <Button
-                    variant="link"
-                    onClick={() => navigate(INSTANCE_TYPES_LIST_ROUTE)}
-                    isDisabled={isPending}
-                  >
-                    {t('Cancel')}
-                  </Button>
-                </ActionListItem>
-              </ActionListGroup>
-            </ActionList>
-          </StackItem>
-        </Stack>
+            {!!error && (
+              <StackItem>
+                <Alert variant="danger" title={t('Failed to create instance type')} isInline>
+                  {getErrorMessage(error)}
+                </Alert>
+              </StackItem>
+            )}
+            <StackItem>
+              <ActionList>
+                <ActionListGroup>
+                  <ActionListItem>
+                    <Button
+                      variant="primary"
+                      onClick={submitForm}
+                      isDisabled={isSubmitting}
+                      isLoading={isSubmitting}
+                    >
+                      {t('Create')}
+                    </Button>
+                  </ActionListItem>
+                  <ActionListItem>
+                    <Button variant="link" onClick={navigateToList} isDisabled={isSubmitting}>
+                      {t('Cancel')}
+                    </Button>
+                  </ActionListItem>
+                </ActionListGroup>
+              </ActionList>
+            </StackItem>
+          </Stack>
+        </>
       )}
     </Formik>
   );
