@@ -313,7 +313,14 @@ func (t *task) isBuiltin() bool {
 
 // delete performs the deletion cleanup for a tenant.
 func (t *task) delete(ctx context.Context) error {
-	// Block until all projects are deleted by the administrator.
+	// Initiate deletion of the root project (empty-name project auto-created
+	// with the tenant). This project is system-managed and cannot be deleted
+	// by the administrator, so the tenant reconciler must handle it.
+	if err := t.deleteRootProject(ctx); err != nil {
+		return err
+	}
+
+	// Block until all projects (including the root project) are fully removed.
 	remaining, err := t.countRemainingProjects(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to query remaining projects: %w", err)
@@ -366,6 +373,45 @@ func (t *task) countRemainingProjects(ctx context.Context) (int32, error) {
 		return 0, err
 	}
 	return listResp.GetTotal(), nil
+}
+
+// deleteRootProject finds the auto-created root project (empty name) for this
+// tenant and initiates its deletion if it has not already been marked for
+// deletion. The project reconciler will handle the actual cleanup and signal
+// the tenant when done.
+func (t *task) deleteRootProject(ctx context.Context) error {
+	tenantName := t.tenant.GetMetadata().GetName()
+	listFilter := fmt.Sprintf(
+		"this.metadata.tenant == %q && this.metadata.name == %q",
+		tenantName, "",
+	)
+	listResp, err := t.r.projectsClient.List(ctx, privatev1.ProjectsListRequest_builder{
+		Filter: new(listFilter),
+		Limit:  new(int32(1)),
+	}.Build())
+	if err != nil {
+		return fmt.Errorf("failed to query root project: %w", err)
+	}
+	for _, project := range listResp.GetItems() {
+		if project.HasMetadata() && project.GetMetadata().HasDeletionTimestamp() {
+			continue
+		}
+		t.r.logger.InfoContext(ctx, "Initiating deletion of root project",
+			slog.String("tenant_id", t.tenant.GetId()),
+			slog.String("project_id", project.GetId()),
+		)
+		_, err := t.r.projectsClient.Delete(ctx, privatev1.ProjectsDeleteRequest_builder{
+			Id: project.GetId(),
+		}.Build())
+		if err != nil {
+			st, ok := grpcstatus.FromError(err)
+			if ok && st.Code() == grpccodes.NotFound {
+				continue
+			}
+			return fmt.Errorf("failed to delete root project: %w", err)
+		}
+	}
+	return nil
 }
 
 var tenantConditionTypes = []privatev1.TenantConditionType{

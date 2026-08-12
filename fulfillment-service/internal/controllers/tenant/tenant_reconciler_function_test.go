@@ -675,10 +675,14 @@ var _ = Describe("Deletion", func() {
 			}.Build(),
 		}.Build()
 
-		mockProjectsClient.EXPECT().
-			List(gomock.Any(), gomock.Any()).
-			Return(privatev1.ProjectsListResponse_builder{Total: 0}.Build(), nil).
-			Times(1)
+		gomock.InOrder(
+			mockProjectsClient.EXPECT().
+				List(gomock.Any(), gomock.Any()).
+				Return(privatev1.ProjectsListResponse_builder{}.Build(), nil),
+			mockProjectsClient.EXPECT().
+				List(gomock.Any(), gomock.Any()).
+				Return(privatev1.ProjectsListResponse_builder{Total: 0}.Build(), nil),
+		)
 
 		mockClient.EXPECT().
 			DeleteTenant(gomock.Any(), "test-org").
@@ -709,10 +713,14 @@ var _ = Describe("Deletion", func() {
 			}.Build(),
 		}.Build()
 
-		mockProjectsClient.EXPECT().
-			List(gomock.Any(), gomock.Any()).
-			Return(privatev1.ProjectsListResponse_builder{Total: 0}.Build(), nil).
-			Times(1)
+		gomock.InOrder(
+			mockProjectsClient.EXPECT().
+				List(gomock.Any(), gomock.Any()).
+				Return(privatev1.ProjectsListResponse_builder{}.Build(), nil),
+			mockProjectsClient.EXPECT().
+				List(gomock.Any(), gomock.Any()).
+				Return(privatev1.ProjectsListResponse_builder{Total: 0}.Build(), nil),
+		)
 
 		task := &task{
 			r:      reconciler,
@@ -739,10 +747,14 @@ var _ = Describe("Deletion", func() {
 			}.Build(),
 		}.Build()
 
-		mockProjectsClient.EXPECT().
-			List(gomock.Any(), gomock.Any()).
-			Return(privatev1.ProjectsListResponse_builder{Total: 0}.Build(), nil).
-			Times(1)
+		gomock.InOrder(
+			mockProjectsClient.EXPECT().
+				List(gomock.Any(), gomock.Any()).
+				Return(privatev1.ProjectsListResponse_builder{}.Build(), nil),
+			mockProjectsClient.EXPECT().
+				List(gomock.Any(), gomock.Any()).
+				Return(privatev1.ProjectsListResponse_builder{Total: 0}.Build(), nil),
+		)
 
 		task := &task{
 			r:      reconciler,
@@ -770,10 +782,14 @@ var _ = Describe("Deletion", func() {
 			}.Build(),
 		}.Build()
 
-		mockProjectsClient.EXPECT().
-			List(gomock.Any(), gomock.Any()).
-			Return(privatev1.ProjectsListResponse_builder{Total: 0}.Build(), nil).
-			Times(1)
+		gomock.InOrder(
+			mockProjectsClient.EXPECT().
+				List(gomock.Any(), gomock.Any()).
+				Return(privatev1.ProjectsListResponse_builder{}.Build(), nil),
+			mockProjectsClient.EXPECT().
+				List(gomock.Any(), gomock.Any()).
+				Return(privatev1.ProjectsListResponse_builder{Total: 0}.Build(), nil),
+		)
 
 		mockClient.EXPECT().
 			DeleteTenant(gomock.Any(), "test-org").
@@ -808,12 +824,16 @@ var _ = Describe("Deletion", func() {
 			}.Build(),
 		}.Build()
 
-		mockProjectsClient.EXPECT().
-			List(gomock.Any(), gomock.Any()).
-			Return(privatev1.ProjectsListResponse_builder{
-				Total: 2,
-			}.Build(), nil).
-			Times(1)
+		gomock.InOrder(
+			mockProjectsClient.EXPECT().
+				List(gomock.Any(), gomock.Any()).
+				Return(privatev1.ProjectsListResponse_builder{}.Build(), nil),
+			mockProjectsClient.EXPECT().
+				List(gomock.Any(), gomock.Any()).
+				Return(privatev1.ProjectsListResponse_builder{
+					Total: 2,
+				}.Build(), nil),
+		)
 
 		task := &task{
 			r:      reconciler,
@@ -842,10 +862,14 @@ var _ = Describe("Deletion", func() {
 			}.Build(),
 		}.Build()
 
-		mockProjectsClient.EXPECT().
-			List(gomock.Any(), gomock.Any()).
-			Return(nil, fmt.Errorf("connection refused")).
-			Times(1)
+		gomock.InOrder(
+			mockProjectsClient.EXPECT().
+				List(gomock.Any(), gomock.Any()).
+				Return(privatev1.ProjectsListResponse_builder{}.Build(), nil),
+			mockProjectsClient.EXPECT().
+				List(gomock.Any(), gomock.Any()).
+				Return(nil, fmt.Errorf("connection refused")),
+		)
 
 		task := &task{
 			r:      reconciler,
@@ -856,6 +880,182 @@ var _ = Describe("Deletion", func() {
 		Expect(err).To(HaveOccurred())
 		Expect(err.Error()).To(ContainSubstring("failed to query remaining projects"))
 		Expect(tenant.GetMetadata().GetFinalizers()).To(ContainElement(finalizers.Controller))
+	})
+
+	It("should initiate deletion of root project during tenant deletion", func() {
+		deletionTimestamp := timestamppb.New(time.Now())
+		tenant := privatev1.Tenant_builder{
+			Id: "org-123",
+			Metadata: privatev1.Metadata_builder{
+				Name:              "test-org",
+				Finalizers:        []string{finalizers.Controller},
+				DeletionTimestamp: deletionTimestamp,
+			}.Build(),
+			Status: privatev1.TenantStatus_builder{
+				State:            privatev1.TenantState_TENANT_STATE_SYNCED,
+				IdpTenantName:    "test-org",
+				BreakGlassUserId: "user-123",
+			}.Build(),
+		}.Build()
+
+		rootProject := privatev1.Project_builder{
+			Id: "proj-root",
+			Metadata: privatev1.Metadata_builder{
+				Name:   "",
+				Tenant: "test-org",
+			}.Build(),
+		}.Build()
+
+		gomock.InOrder(
+			mockProjectsClient.EXPECT().
+				List(gomock.Any(), gomock.Any()).
+				Return(privatev1.ProjectsListResponse_builder{
+					Items: []*privatev1.Project{rootProject},
+					Total: 1,
+				}.Build(), nil),
+			mockProjectsClient.EXPECT().
+				Delete(gomock.Any(), gomock.Any()).
+				DoAndReturn(func(_ context.Context, req *privatev1.ProjectsDeleteRequest, _ ...grpc.CallOption) (*privatev1.ProjectsDeleteResponse, error) {
+					Expect(req.GetId()).To(Equal("proj-root"))
+					return privatev1.ProjectsDeleteResponse_builder{}.Build(), nil
+				}),
+			mockProjectsClient.EXPECT().
+				List(gomock.Any(), gomock.Any()).
+				Return(privatev1.ProjectsListResponse_builder{Total: 1}.Build(), nil),
+		)
+
+		task := &task{
+			r:      reconciler,
+			tenant: tenant,
+		}
+
+		err := task.delete(ctx)
+		Expect(err).To(HaveOccurred())
+		Expect(err.Error()).To(ContainSubstring("project(s) pending deletion"))
+	})
+
+	It("should skip root project already marked for deletion", func() {
+		deletionTimestamp := timestamppb.New(time.Now())
+		tenant := privatev1.Tenant_builder{
+			Id: "org-123",
+			Metadata: privatev1.Metadata_builder{
+				Name:              "test-org",
+				Finalizers:        []string{finalizers.Controller},
+				DeletionTimestamp: deletionTimestamp,
+			}.Build(),
+			Status: privatev1.TenantStatus_builder{
+				State:            privatev1.TenantState_TENANT_STATE_SYNCED,
+				IdpTenantName:    "test-org",
+				BreakGlassUserId: "user-123",
+			}.Build(),
+		}.Build()
+
+		rootProject := privatev1.Project_builder{
+			Id: "proj-root",
+			Metadata: privatev1.Metadata_builder{
+				Name:              "",
+				Tenant:            "test-org",
+				DeletionTimestamp: deletionTimestamp,
+			}.Build(),
+		}.Build()
+
+		gomock.InOrder(
+			mockProjectsClient.EXPECT().
+				List(gomock.Any(), gomock.Any()).
+				Return(privatev1.ProjectsListResponse_builder{
+					Items: []*privatev1.Project{rootProject},
+					Total: 1,
+				}.Build(), nil),
+			mockProjectsClient.EXPECT().
+				List(gomock.Any(), gomock.Any()).
+				Return(privatev1.ProjectsListResponse_builder{Total: 1}.Build(), nil),
+		)
+
+		task := &task{
+			r:      reconciler,
+			tenant: tenant,
+		}
+
+		err := task.delete(ctx)
+		Expect(err).To(HaveOccurred())
+		Expect(err.Error()).To(ContainSubstring("project(s) pending deletion"))
+	})
+
+	It("should return error when root project query fails", func() {
+		deletionTimestamp := timestamppb.New(time.Now())
+		tenant := privatev1.Tenant_builder{
+			Id: "org-123",
+			Metadata: privatev1.Metadata_builder{
+				Name:              "test-org",
+				Finalizers:        []string{finalizers.Controller},
+				DeletionTimestamp: deletionTimestamp,
+			}.Build(),
+			Status: privatev1.TenantStatus_builder{
+				State:            privatev1.TenantState_TENANT_STATE_SYNCED,
+				IdpTenantName:    "test-org",
+				BreakGlassUserId: "user-123",
+			}.Build(),
+		}.Build()
+
+		mockProjectsClient.EXPECT().
+			List(gomock.Any(), gomock.Any()).
+			Return(nil, fmt.Errorf("database unavailable")).
+			Times(1)
+
+		task := &task{
+			r:      reconciler,
+			tenant: tenant,
+		}
+
+		err := task.delete(ctx)
+		Expect(err).To(HaveOccurred())
+		Expect(err.Error()).To(ContainSubstring("failed to query root project"))
+	})
+
+	It("should return error when root project deletion fails", func() {
+		deletionTimestamp := timestamppb.New(time.Now())
+		tenant := privatev1.Tenant_builder{
+			Id: "org-123",
+			Metadata: privatev1.Metadata_builder{
+				Name:              "test-org",
+				Finalizers:        []string{finalizers.Controller},
+				DeletionTimestamp: deletionTimestamp,
+			}.Build(),
+			Status: privatev1.TenantStatus_builder{
+				State:            privatev1.TenantState_TENANT_STATE_SYNCED,
+				IdpTenantName:    "test-org",
+				BreakGlassUserId: "user-123",
+			}.Build(),
+		}.Build()
+
+		rootProject := privatev1.Project_builder{
+			Id: "proj-root",
+			Metadata: privatev1.Metadata_builder{
+				Name:   "",
+				Tenant: "test-org",
+			}.Build(),
+		}.Build()
+
+		gomock.InOrder(
+			mockProjectsClient.EXPECT().
+				List(gomock.Any(), gomock.Any()).
+				Return(privatev1.ProjectsListResponse_builder{
+					Items: []*privatev1.Project{rootProject},
+					Total: 1,
+				}.Build(), nil),
+			mockProjectsClient.EXPECT().
+				Delete(gomock.Any(), gomock.Any()).
+				Return(nil, fmt.Errorf("permission denied")),
+		)
+
+		task := &task{
+			r:      reconciler,
+			tenant: tenant,
+		}
+
+		err := task.delete(ctx)
+		Expect(err).To(HaveOccurred())
+		Expect(err.Error()).To(ContainSubstring("failed to delete root project"))
 	})
 
 	It("should remove finalizer when called", func() {
