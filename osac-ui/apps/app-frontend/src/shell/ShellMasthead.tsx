@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ReactSVG } from 'react-svg';
 import {
   Alert,
   Button,
@@ -19,7 +20,6 @@ import {
   ModalFooter,
   ModalHeader,
   PageToggleButton,
-  Title,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
@@ -27,6 +27,7 @@ import {
 } from '@patternfly/react-core';
 import { UserIcon } from '@patternfly/react-icons/dist/esm/icons/user-icon';
 
+import osacIcon from '@osac/ui-components/assets/RH-OSAC.svg';
 import { SubtleContent } from '@osac/ui-components/components/SubtleContent/SubtleContent';
 import UserPreferencesModal from '@osac/ui-components/components/UserPreferences/UserPreferencesModal';
 import { useSession } from '@osac/ui-components/hooks/use-session';
@@ -68,16 +69,16 @@ export const ShellMasthead = ({ onLogout }: ShellMastheadProps) => {
           <MastheadToggle>
             <PageToggleButton isHamburgerButton aria-label={t('Global navigation')} />
           </MastheadToggle>
-          <MastheadBrand>
-            <MastheadLogo>
-              <Title headingLevel="h4" size="lg">
-                {t('Red Hat OSAC')}
-              </Title>
-              {tenantId && (
-                <SubtleContent>{t('Tenant: {{ tenantId }}', { tenantId })}</SubtleContent>
-              )}
-            </MastheadLogo>
-          </MastheadBrand>
+          <div>
+            <MastheadBrand>
+              <MastheadLogo aria-label={t('Red Hat OSAC')} component={(props) => <a {...props} href="#" />}>
+                <ReactSVG src={osacIcon} aria-hidden className="pf-v6-c-brand" />
+              </MastheadLogo>
+            </MastheadBrand>
+            {tenantId ? (
+              <SubtleContent className="pf-v6-u-mt-sm">{t('Tenant: {{ tenantId }}', { tenantId })}</SubtleContent>
+            ) : null}
+          </div>
         </MastheadMain>
 
         <MastheadContent>
