@@ -1,4 +1,6 @@
 {
+  "{{count}} user_one": "{{count}} user",
+  "{{count}} user_other": "{{count}} users",
   "Actions": "Actions",
   "Actions for {{name}}": "Actions for {{name}}",
   "Active": "Active",
@@ -291,8 +293,6 @@
   "Max write bandwidth (MB/s)": "Max write bandwidth (MB/s)",
   "Memory (GiB)": "Memory (GiB)",
   "Message": "Message",
-  "Multiple users": "Multiple users",
-  "Multiple users popover": "Multiple users popover",
   "Must be a valid domain (e.g. example.com)": "Must be a valid domain (e.g. example.com)",
   "Must be a valid URL (e.g. https://example.com)": "Must be a valid URL (e.g. https://example.com)",
   "Must be a whole number": "Must be a whole number",

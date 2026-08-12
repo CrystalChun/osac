@@ -105,14 +105,14 @@ describe('RoleBindingsPage', () => {
     });
   });
 
-  it('renders role binding rows with resolved role and user names', async () => {
+  it('renders role binding rows with resolved role and user count', async () => {
     renderPage();
 
     await waitFor(() => {
       expect(screen.getByText('Viewer')).toBeInTheDocument();
-      expect(screen.getByText('charlie')).toBeInTheDocument();
+      expect(screen.getByText('2 users')).toBeInTheDocument();
     });
-    expect(screen.getByText('Multiple users')).toBeInTheDocument();
+    expect(screen.getByText('1 user')).toBeInTheDocument();
     expect(screen.getByText('Editor')).toBeInTheDocument();
   });
 
