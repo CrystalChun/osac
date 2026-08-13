@@ -203,6 +203,10 @@ func (s *PrivateProjectsServer) Create(ctx context.Context,
 			ctx,
 			"Post-create tenant validation skipped: response missing expected object or metadata",
 		)
+		err = grpcstatus.Errorf(
+			grpccodes.Internal,
+			"post-create tenant validation failed: response missing expected object or metadata",
+		)
 		return
 	}
 	if tenant := response.Object.GetMetadata().GetTenant(); tenant == auth.SharedTenant || tenant == auth.SystemTenant {
