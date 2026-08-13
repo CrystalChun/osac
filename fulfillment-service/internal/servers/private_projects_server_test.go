@@ -277,42 +277,62 @@ var _ = Describe("Private projects server", func() {
 		Expect(project.GetMetadata().GetProject()).To(BeEmpty())
 	})
 
-	It("Rejects creation when tenant is explicitly set to 'shared'", func() {
-		_, err := privateServer.Create(ctx, privatev1.ProjectsCreateRequest_builder{
-			Object: privatev1.Project_builder{
-				Metadata: privatev1.Metadata_builder{
-					Name:   "my-project",
-					Tenant: "shared",
+	Describe("Tenant Validation", func() {
+		It("Rejects creation when tenant is explicitly set to 'shared'", func() {
+			_, err := privateServer.Create(ctx, privatev1.ProjectsCreateRequest_builder{
+				Object: privatev1.Project_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name:   "my-project",
+						Tenant: "shared",
+					}.Build(),
+					Spec: privatev1.ProjectSpec_builder{
+						Title: "My Project",
+					}.Build(),
 				}.Build(),
-				Spec: privatev1.ProjectSpec_builder{
-					Title: "My Project",
-				}.Build(),
-			}.Build(),
-		}.Build())
-		Expect(err).To(HaveOccurred())
-		status, ok := grpcstatus.FromError(err)
-		Expect(ok).To(BeTrue())
-		Expect(status.Code()).To(Equal(grpccodes.InvalidArgument))
-		Expect(status.Message()).To(ContainSubstring("cannot belong to 'shared' tenant"))
-	})
+			}.Build())
+			Expect(err).To(HaveOccurred())
+			status, ok := grpcstatus.FromError(err)
+			Expect(ok).To(BeTrue())
+			Expect(status.Code()).To(Equal(grpccodes.InvalidArgument))
+			Expect(status.Message()).To(ContainSubstring("cannot belong to 'shared' tenant"))
+		})
 
-	It("Rejects creation when tenant is explicitly set to 'system'", func() {
-		_, err := privateServer.Create(ctx, privatev1.ProjectsCreateRequest_builder{
-			Object: privatev1.Project_builder{
-				Metadata: privatev1.Metadata_builder{
-					Name:   "my-project",
-					Tenant: "system",
+		It("Rejects creation when tenant is explicitly set to 'system'", func() {
+			_, err := privateServer.Create(ctx, privatev1.ProjectsCreateRequest_builder{
+				Object: privatev1.Project_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name:   "my-project",
+						Tenant: "system",
+					}.Build(),
+					Spec: privatev1.ProjectSpec_builder{
+						Title: "My Project",
+					}.Build(),
 				}.Build(),
-				Spec: privatev1.ProjectSpec_builder{
-					Title: "My Project",
+			}.Build())
+			Expect(err).To(HaveOccurred())
+			status, ok := grpcstatus.FromError(err)
+			Expect(ok).To(BeTrue())
+			Expect(status.Code()).To(Equal(grpccodes.InvalidArgument))
+			Expect(status.Message()).To(ContainSubstring("cannot belong to 'system' tenant"))
+		})
+
+		It("Rejects creation when no tenant is specified and default tenant is invalid", func() {
+			_, err := privateServer.Create(ctx, privatev1.ProjectsCreateRequest_builder{
+				Object: privatev1.Project_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name: "my-project",
+					}.Build(),
+					Spec: privatev1.ProjectSpec_builder{
+						Title: "My Project",
+					}.Build(),
 				}.Build(),
-			}.Build(),
-		}.Build())
-		Expect(err).To(HaveOccurred())
-		status, ok := grpcstatus.FromError(err)
-		Expect(ok).To(BeTrue())
-		Expect(status.Code()).To(Equal(grpccodes.InvalidArgument))
-		Expect(status.Message()).To(ContainSubstring("cannot belong to 'system' tenant"))
+			}.Build())
+			Expect(err).To(HaveOccurred())
+			status, ok := grpcstatus.FromError(err)
+			Expect(ok).To(BeTrue())
+			Expect(status.Code()).To(Equal(grpccodes.InvalidArgument))
+			Expect(status.Message()).To(ContainSubstring("must be assigned to a specific tenant"))
+		})
 	})
 
 	It("Rejects a project that references itself as the parent", func() {

@@ -204,6 +204,9 @@ func (s *PrivateProjectsServer) Create(ctx context.Context,
 				grpccodes.InvalidArgument,
 				"project must be assigned to a specific tenant - please specify metadata.tenant in the request",
 			)
+			if tx, txErr := database.TxFromContext(ctx); txErr == nil {
+				tx.ReportError(&err)
+			}
 			return
 		}
 	}

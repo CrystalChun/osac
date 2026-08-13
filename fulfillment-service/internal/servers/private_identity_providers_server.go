@@ -24,6 +24,7 @@ import (
 
 	privatev1 "github.com/osac-project/osac/fulfillment-service/internal/api/osac/private/v1"
 	"github.com/osac-project/osac/fulfillment-service/internal/auth"
+	"github.com/osac-project/osac/fulfillment-service/internal/database"
 	"github.com/osac-project/osac/fulfillment-service/internal/database/dao"
 	"github.com/osac-project/osac/fulfillment-service/internal/events"
 )
@@ -169,6 +170,9 @@ func (s *PrivateIdentityProvidersServer) Create(ctx context.Context,
 				grpccodes.InvalidArgument,
 				"identity provider must be assigned to a specific tenant - please specify metadata.tenant in the request",
 			)
+			if tx, txErr := database.TxFromContext(ctx); txErr == nil {
+				tx.ReportError(&err)
+			}
 			return
 		}
 	}
