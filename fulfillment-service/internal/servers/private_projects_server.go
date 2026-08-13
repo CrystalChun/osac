@@ -198,19 +198,24 @@ func (s *PrivateProjectsServer) Create(ctx context.Context,
 
 	// Check if the assigned tenant is 'shared' or 'system' and reject if so.
 	// This can happen if the user is an admin and didn't specify a tenant explicitly.
-	if response != nil && response.Object != nil && response.Object.HasMetadata() {
-		if tenant := response.Object.GetMetadata().GetTenant(); tenant == auth.SharedTenant || tenant == auth.SystemTenant {
-			s.logger.WarnContext(
-				ctx,
-				"Attempted to create project with invalid tenant",
-				slog.String("tenant", tenant),
-			)
-			err = grpcstatus.Errorf(
-				grpccodes.InvalidArgument,
-				"project must be assigned to a specific tenant - please specify metadata.tenant in the request",
-			)
-			return
-		}
+	if response == nil || response.Object == nil || !response.Object.HasMetadata() {
+		s.logger.WarnContext(
+			ctx,
+			"Post-create tenant validation skipped: response missing expected object or metadata",
+		)
+		return
+	}
+	if tenant := response.Object.GetMetadata().GetTenant(); tenant == auth.SharedTenant || tenant == auth.SystemTenant {
+		s.logger.WarnContext(
+			ctx,
+			"Attempted to create project with invalid tenant",
+			slog.String("tenant", tenant),
+		)
+		err = grpcstatus.Errorf(
+			grpccodes.InvalidArgument,
+			"project must be assigned to a specific tenant - please specify metadata.tenant in the request",
+		)
+		return
 	}
 
 	return

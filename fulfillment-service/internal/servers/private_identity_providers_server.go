@@ -163,20 +163,24 @@ func (s *PrivateIdentityProvidersServer) Create(ctx context.Context,
 
 	// Check if the assigned tenant is 'shared' or 'system' and reject if so.
 	// This can happen if the user is an admin and didn't specify a tenant explicitly.
-	if response != nil && response.Object != nil && response.Object.HasMetadata() {
-		tenant := response.Object.GetMetadata().GetTenant()
-		if tenant == auth.SharedTenant || tenant == auth.SystemTenant {
-			s.logger.WarnContext(
-				ctx,
-				"Attempted to create identity provider with invalid tenant",
-				slog.String("tenant", tenant),
-			)
-			err = grpcstatus.Errorf(
-				grpccodes.InvalidArgument,
-				"identity provider must be assigned to a specific tenant - please specify metadata.tenant in the request",
-			)
-			return
-		}
+	if response == nil || response.Object == nil || !response.Object.HasMetadata() {
+		s.logger.WarnContext(
+			ctx,
+			"Post-create tenant validation skipped: response missing expected object or metadata",
+		)
+		return
+	}
+	if tenant := response.Object.GetMetadata().GetTenant(); tenant == auth.SharedTenant || tenant == auth.SystemTenant {
+		s.logger.WarnContext(
+			ctx,
+			"Attempted to create identity provider with invalid tenant",
+			slog.String("tenant", tenant),
+		)
+		err = grpcstatus.Errorf(
+			grpccodes.InvalidArgument,
+			"identity provider must be assigned to a specific tenant - please specify metadata.tenant in the request",
+		)
+		return
 	}
 
 	return

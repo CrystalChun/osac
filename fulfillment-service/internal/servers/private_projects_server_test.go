@@ -14,6 +14,7 @@ language governing permissions and limitations under the License.
 package servers
 
 import (
+	"context"
 	"fmt"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -23,6 +24,7 @@ import (
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 
 	privatev1 "github.com/osac-project/osac/fulfillment-service/internal/api/osac/private/v1"
+	"github.com/osac-project/osac/fulfillment-service/internal/database"
 	"github.com/osac-project/osac/fulfillment-service/internal/database/dao"
 )
 
@@ -317,7 +319,12 @@ var _ = Describe("Private projects server", func() {
 		})
 
 		It("Rejects creation when no tenant is specified and default tenant is invalid", func() {
-			_, err := privateServer.Create(ctx, privatev1.ProjectsCreateRequest_builder{
+			// Use a dedicated transaction to verify the write is rolled back
+			createTx, err := tm.Begin(context.Background())
+			Expect(err).ToNot(HaveOccurred())
+			createCtx := database.TxIntoContext(context.Background(), createTx)
+
+			_, err = privateServer.Create(createCtx, privatev1.ProjectsCreateRequest_builder{
 				Object: privatev1.Project_builder{
 					Metadata: privatev1.Metadata_builder{
 						Name: "my-project",
@@ -332,6 +339,24 @@ var _ = Describe("Private projects server", func() {
 			Expect(ok).To(BeTrue())
 			Expect(status.Code()).To(Equal(grpccodes.InvalidArgument))
 			Expect(status.Message()).To(ContainSubstring("must be assigned to a specific tenant"))
+
+			// End the transaction — the reported error triggers rollback
+			err = createTx.End(createCtx)
+			Expect(err).ToNot(HaveOccurred())
+
+			// Verify the project was not persisted after rollback
+			verifyTx, err := tm.Begin(context.Background())
+			Expect(err).ToNot(HaveOccurred())
+			verifyCtx := database.TxIntoContext(context.Background(), verifyTx)
+			DeferCleanup(func() {
+				_ = verifyTx.End(verifyCtx)
+			})
+
+			listResp, err := privateServer.List(verifyCtx, privatev1.ProjectsListRequest_builder{
+				Filter: new("this.metadata.name == 'my-project'"),
+			}.Build())
+			Expect(err).ToNot(HaveOccurred())
+			Expect(listResp.GetItems()).To(BeEmpty())
 		})
 	})
 
