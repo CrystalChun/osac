@@ -191,6 +191,11 @@ func (s *PrivateProjectsServer) Create(ctx context.Context,
 		return
 	}
 
+	// Report any post-create errors to the transaction so the write is rolled back.
+	if tx, txErr := database.TxFromContext(ctx); txErr == nil {
+		defer tx.ReportError(&err)
+	}
+
 	// Check if the assigned tenant is 'shared' or 'system' and reject if so.
 	// This can happen if the user is an admin and didn't specify a tenant explicitly.
 	if response != nil && response.Object != nil && response.Object.HasMetadata() {
@@ -204,9 +209,6 @@ func (s *PrivateProjectsServer) Create(ctx context.Context,
 				grpccodes.InvalidArgument,
 				"project must be assigned to a specific tenant - please specify metadata.tenant in the request",
 			)
-			if tx, txErr := database.TxFromContext(ctx); txErr == nil {
-				tx.ReportError(&err)
-			}
 			return
 		}
 	}
