@@ -428,6 +428,32 @@ var _ = Describe("Private identity providers server", func() {
 		})
 
 		Describe("Tenant Validation", func() {
+			It("Rejects creation when no tenant is specified and default tenant is invalid", func() {
+				_, err := server.Create(ctx, privatev1.IdentityProvidersCreateRequest_builder{
+					Object: privatev1.IdentityProvider_builder{
+						Metadata: privatev1.Metadata_builder{
+							Name: "test-oidc",
+						}.Build(),
+						Spec: privatev1.IdentityProviderSpec_builder{
+							Title:   "Test OIDC",
+							Enabled: true,
+							Oidc: privatev1.OidcConfig_builder{
+								AuthorizationUrl: "https://example.com/auth",
+								TokenUrl:         "https://example.com/token",
+								ClientId:         "client-id",
+								ClientSecret:     testOidcClientSecret,
+								Issuer:           "https://example.com",
+							}.Build(),
+						}.Build(),
+					}.Build(),
+				}.Build())
+				Expect(err).To(HaveOccurred())
+				status, ok := grpcstatus.FromError(err)
+				Expect(ok).To(BeTrue())
+				Expect(status.Code()).To(Equal(grpccodes.InvalidArgument))
+				Expect(status.Message()).To(ContainSubstring("must be assigned to a specific tenant"))
+			})
+
 			It("Rejects creation when tenant is explicitly set to 'shared'", func() {
 				request := privatev1.IdentityProvidersCreateRequest_builder{
 					Object: privatev1.IdentityProvider_builder{
