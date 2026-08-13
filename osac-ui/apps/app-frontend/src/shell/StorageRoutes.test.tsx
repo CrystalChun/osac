@@ -4,8 +4,12 @@ import { screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 import { StorageBackendSchema } from '@osac/types/private';
-import type { MockApiFixtures } from '@osac/ui-components/test-utils/createMockConnectTransport';
-import { renderWithProviders } from '@osac/ui-components/test-utils/TestProviders';
+import type { StorageTier } from '@osac/types/private';
+import { StorageProtocol, StorageTierState } from '@osac/types/private';
+import {
+  type RenderWithProvidersOptions,
+  renderWithProviders,
+} from '@osac/ui-components/test-utils/TestProviders';
 
 import { StorageRoutes } from './StorageRoutes';
 
@@ -20,12 +24,12 @@ vi.mock('react-router-dom', async (importOriginal) => {
   };
 });
 
-const renderAt = (path: string, apiFixtures?: MockApiFixtures) =>
+const renderAt = (path: string, options: RenderWithProvidersOptions = {}) =>
   renderWithProviders(
     <Routes>
       <Route path="/admin/infrastructure/storage/*" element={<StorageRoutes />} />
     </Routes>,
-    { routerEntries: [path], apiFixtures },
+    { routerEntries: [path], ...options },
   );
 
 describe('StorageRoutes', () => {
@@ -44,13 +48,15 @@ describe('StorageRoutes', () => {
 
   it('renders the real edit form for backends/:id/edit', async () => {
     renderAt('/admin/infrastructure/storage/backends/abc-123/edit', {
-      storageBackends: [
-        create(StorageBackendSchema, {
-          id: 'abc-123',
-          metadata: { name: 'vast-prod-1' },
-          spec: { provider: 'vast', endpoint: 'vast.example.com:443', description: '' },
-        }),
-      ],
+      apiFixtures: {
+        storageBackends: [
+          create(StorageBackendSchema, {
+            id: 'abc-123',
+            metadata: { name: 'vast-prod-1' },
+            spec: { provider: 'vast', endpoint: 'vast.example.com:443', description: '' },
+          }),
+        ],
+      },
     });
 
     await waitFor(() => {
@@ -76,9 +82,31 @@ describe('StorageRoutes', () => {
     expect(screen.queryByText('This feature is coming soon.')).not.toBeInTheDocument();
   });
 
-  it('renders a placeholder for tiers/:id/edit', () => {
-    renderAt('/admin/infrastructure/storage/tiers/tier-123/edit');
+  it('renders the real edit form for tiers/:id/edit', async () => {
+    const tier = {
+      id: 'tier-123',
+      metadata: { name: 'fast-tier', version: 1 },
+      spec: {
+        description: '',
+        backends: [
+          {
+            backendId: 'backend-1',
+            protocol: StorageProtocol.NFS,
+            maxReadBandwidthMbs: 100,
+            maxWriteBandwidthMbs: 100,
+            quotaGib: 500n,
+            encryptionEnabled: false,
+          },
+        ],
+      },
+      status: { state: StorageTierState.ACTIVE },
+    } as StorageTier;
 
-    expect(screen.getByText('Edit storage tier')).toBeInTheDocument();
+    renderAt('/admin/infrastructure/storage/tiers/tier-123/edit', {
+      apiFixtures: { storageTiers: [tier] },
+    });
+
+    expect(await screen.findByRole('heading', { name: 'Edit storage tier' })).toBeInTheDocument();
+    expect(await screen.findByRole('textbox', { name: 'Name' })).toBeDisabled();
   });
 });
