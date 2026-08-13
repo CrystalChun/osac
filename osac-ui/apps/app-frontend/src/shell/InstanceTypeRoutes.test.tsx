@@ -10,6 +10,10 @@ vi.mock('@osac/ui-components/components/InstanceType/AdminInstanceTypeCreatePage
   default: () => <h1>Create instance type</h1>,
 }));
 
+vi.mock('@osac/ui-components/components/InstanceType/AdminInstanceTypeDetailPage', () => ({
+  default: () => <h1>Instance type details</h1>,
+}));
+
 import { InstanceTypeRoutes } from './InstanceTypeRoutes';
 
 const renderRoutes = (initialEntry: string) => (
@@ -31,5 +35,11 @@ describe('InstanceTypeRoutes', () => {
     render(renderRoutes('/admin/infrastructure/instance-types/create'));
 
     expect(screen.getByRole('heading', { name: 'Create instance type' })).toBeInTheDocument();
+  });
+
+  it('renders the detail page shell on the id route', () => {
+    render(renderRoutes('/admin/infrastructure/instance-types/gp-small'));
+
+    expect(screen.getByRole('heading', { name: 'Instance type details' })).toBeInTheDocument();
   });
 });
