@@ -83,7 +83,17 @@ export const StorageTiersListPage = () => {
                       const backendAssociations = tier.spec?.backends ?? [];
                       return (
                         <Tr key={tier.id}>
-                          <Td dataLabel={t('Name')}>{tier.metadata?.name || tier.id}</Td>
+                          <Td dataLabel={t('Name')}>
+                            <Button
+                              variant="link"
+                              isInline
+                              onClick={() =>
+                                navigate(`/admin/infrastructure/storage/tiers/${tier.id}`)
+                              }
+                            >
+                              {tier.metadata?.name || tier.id}
+                            </Button>
+                          </Td>
                           <Td dataLabel={t('Status')}>
                             <StorageTierStatusLabel state={tier.status?.state} />
                           </Td>
