@@ -66,6 +66,22 @@ describe('StorageRoutes', () => {
     expect(screen.queryByText('This feature is coming soon.')).not.toBeInTheDocument();
   });
 
+  it('renders the details page for backends/:id', async () => {
+    renderAt('/admin/infrastructure/storage/backends/abc-123', {
+      apiFixtures: {
+        storageBackends: [
+          create(StorageBackendSchema, {
+            id: 'abc-123',
+            metadata: { name: 'vast-prod-1' },
+            spec: { provider: 'vast', endpoint: 'vast.example.com:443', description: '' },
+          }),
+        ],
+      },
+    });
+
+    expect(await screen.findByRole('heading', { name: 'vast-prod-1' })).toBeInTheDocument();
+  });
+
   it('renders the Tiers tab at /admin/infrastructure/storage/tiers', async () => {
     renderAt('/admin/infrastructure/storage/tiers');
 
