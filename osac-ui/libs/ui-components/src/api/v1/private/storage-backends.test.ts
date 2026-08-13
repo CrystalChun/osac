@@ -214,6 +214,15 @@ describe('useUpdateStorageBackend', () => {
       password: 'test-updated-secret',
     });
   });
+
+  it('sends lock: true for optimistic concurrency', async () => {
+    const captured = await mutateAndCaptureUpdate({
+      id: 'b-1',
+      spec: { endpoint: 'new.example.com' },
+    });
+
+    expect(captured?.lock).toBe(true);
+  });
 });
 
 describe('useDeleteStorageBackend', () => {

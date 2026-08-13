@@ -83,6 +83,7 @@ export const useUpdateStorageBackend = () => {
       const resp = await client.update({
         object: { id: input.id, spec },
         updateMask: { paths: buildUpdateMaskPaths({ spec } as Record<string, unknown>) },
+        lock: true,
       });
       if (!resp.object) {
         throw new Error('Update response missing object');
