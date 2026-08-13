@@ -59,6 +59,7 @@ import type {
   StorageTiersCreateRequest,
   StorageTiersCreateResponse,
   StorageTiersDeleteRequest,
+  StorageTiersGetRequest,
   StorageTiersListRequest,
   StorageTiersUpdateRequest,
   StorageTiersUpdateResponse,
@@ -74,6 +75,7 @@ import {
   StorageTierState,
   StorageTiers,
   StorageTiersDeleteResponseSchema,
+  StorageTiersGetResponseSchema,
   StorageTiersListResponseSchema,
 } from '@osac/types/private';
 
@@ -181,6 +183,11 @@ export type MockTransportOverrides = {
   onStorageTierList?: (
     req: StorageTiersListRequest,
   ) => MessageInitShape<typeof StorageTiersListResponseSchema>;
+  onStorageTierGet?: (
+    req: StorageTiersGetRequest,
+  ) =>
+    | MessageInitShape<typeof StorageTiersGetResponseSchema>
+    | Promise<MessageInitShape<typeof StorageTiersGetResponseSchema>>;
   onStorageTierCreate?: (
     req: StorageTiersCreateRequest,
   ) => StorageTiersCreateResponse | Promise<StorageTiersCreateResponse>;
@@ -387,9 +394,12 @@ export const createMockConnectTransport = (
             total: storageTiers.length,
           };
         },
-        get: (req) => ({
-          object: storageTiers.find((t) => t.id === req.id),
-        }),
+        get: (req) => {
+          if (overrides.onStorageTierGet) {
+            return overrides.onStorageTierGet(req);
+          }
+          return { object: storageTiers.find((t) => t.id === req.id) };
+        },
         create: (req) => {
           if (overrides.onStorageTierCreate) {
             return overrides.onStorageTierCreate(req);
