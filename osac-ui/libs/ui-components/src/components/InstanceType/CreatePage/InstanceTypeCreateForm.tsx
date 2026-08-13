@@ -28,8 +28,6 @@ const InstanceTypeCreateForm = () => {
   const navigate = useNavigate();
   const { mutateAsync: create, error } = useCreateInstanceType();
 
-  const navigateToList = () => navigate(INSTANCE_TYPES_LIST_ROUTE);
-
   const onSubmit = async (values: InstanceTypeCreateFormValues) => {
     const { gpu } = values.spec;
     const hasGpu = Boolean(gpu.pciDeviceSelector || gpu.resourceName || gpu.count);
@@ -137,7 +135,11 @@ const InstanceTypeCreateForm = () => {
                     </Button>
                   </ActionListItem>
                   <ActionListItem>
-                    <Button variant="link" onClick={navigateToList} isDisabled={isSubmitting}>
+                    <Button
+                      variant="link"
+                      onClick={() => navigate(INSTANCE_TYPES_LIST_ROUTE)}
+                      isDisabled={isSubmitting}
+                    >
                       {t('Cancel')}
                     </Button>
                   </ActionListItem>
