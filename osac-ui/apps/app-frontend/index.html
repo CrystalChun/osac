@@ -5,27 +5,8 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>OSAC</title>
-    <script>
-      // Apply PatternFly theme/contrast before React boots to avoid a flash of the wrong theme.
-      (function () {
-        const html = document.documentElement;
-        // Felt brand tokens — always on
-        html.classList.add('pf-v6-theme-felt');
-
-        let theme = localStorage.getItem('osac/theme') || 'system';
-        if (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-          theme = 'dark';
-        }
-        html.classList.toggle('pf-v6-theme-dark', theme === 'dark');
-
-        let contrast = localStorage.getItem('osac/contrast') || 'system';
-        if (contrast === 'system') {
-          contrast = window.matchMedia('(prefers-contrast: more)').matches ? 'contrast' : 'glass';
-        }
-        html.classList.toggle('pf-v6-theme-high-contrast', contrast === 'contrast');
-        html.classList.toggle('pf-v6-theme-glass', contrast === 'glass');
-      })();
-    </script>
+    <!-- External (not inline) so a strict script-src CSP can allow 'self' without unsafe-inline. -->
+    <script src="/theme-boot.js"></script>
   </head>
   <body>
     <div id="root"></div>

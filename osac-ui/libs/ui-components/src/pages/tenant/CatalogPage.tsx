@@ -137,7 +137,7 @@ const CatalogPage = () => {
         if (serialized) {
           next.set(TYPE_FILTER_PARAM, serialized);
         } else {
-          next.delete(TYPE_FILTER_PARAM);
+          next.set(TYPE_FILTER_PARAM, '');
         }
         return next;
       },
@@ -180,7 +180,6 @@ const CatalogPage = () => {
     filterCatalogItemsBySearch(filterCatalogItemsByTypes(data, typeFilters), search) as CatalogItemWithType[],
     [search, data, typeFilters]);
 
-  const searchTerm = search.trim();
   const showEmptyState = !isLoading && !error && filteredItems.length === 0;
 
   const pageDescription = t(
@@ -231,7 +230,7 @@ const CatalogPage = () => {
 
         {showEmptyState ? (
           <StackItem>
-            {typeFilters?.length === 0 ? (
+            {typeFilters.length === 0 && data.length > 0 ? (
               <EmptyState titleText={t('Select a service to view catalog items')} headingLevel="h2">
                 <EmptyStateBody>
                   {t('Choose one or more services above to filter the catalog.')}
@@ -240,8 +239,8 @@ const CatalogPage = () => {
             ) : (
               <EmptyState titleText={t('No catalog items found')} headingLevel="h2">
                 <EmptyStateBody>
-                  {searchTerm
-                    ? t('No catalog items match your search.')
+                  {data?.length
+                    ? t('No catalog items match your filters.')
                     : t('No published catalog items are available yet.')}
                 </EmptyStateBody>
               </EmptyState>

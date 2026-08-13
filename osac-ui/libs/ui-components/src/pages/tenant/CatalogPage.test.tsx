@@ -292,13 +292,11 @@ describe('CatalogPage', () => {
 
     await waitFor(() => {
       expect(
-        screen.getByRole('heading', { name: 'Select a service to view catalog items', level: 2 }),
+        screen.getByRole('heading', { name: 'No catalog items found', level: 2 }),
       ).toBeInTheDocument();
     });
 
-    expect(
-      screen.getByText('Choose one or more services above to filter the catalog.'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('No published catalog items are available yet.')).toBeInTheDocument();
   });
 
   it('filters catalog items by the search keyword', async () => {
@@ -355,7 +353,7 @@ describe('CatalogPage', () => {
         screen.getByRole('heading', { name: 'No catalog items found', level: 2 }),
       ).toBeInTheDocument();
     });
-    expect(screen.getByText('No catalog items match your search.')).toBeInTheDocument();
+    expect(screen.getByText('No catalog items match your filters.')).toBeInTheDocument();
   });
 
   it('navigates to cluster create from the catalog item detail page', async () => {

@@ -1,36 +1,15 @@
 import { useNavigate } from 'react-router-dom';
 import { Button, Flex, FlexItem, PageSection, Stack, StackItem } from '@patternfly/react-core';
-import type { TFunction } from 'i18next';
 
 import { useTranslation } from '../../../hooks/useTranslation';
 import { ResourceDetailHeader } from '../../Resource/ResourceDetailHeader';
-import type { CatalogItem, CatalogItemKind } from '../catalogItemDisplay';
+import { CatalogItem, CatalogItemKind, getCatalogCreateAction } from '../catalogItemDisplay';
 import { CatalogItemDetailContent } from './CatalogItemDetailContent.tsx';
 
 interface CatalogItemDetailsProps {
   kind: CatalogItemKind;
   item: CatalogItem;
 }
-
-const getCatalogCreateAction = (kind: CatalogItemKind, id: string, t: TFunction) => {
-  switch (kind) {
-    case 'vm':
-      return {
-        label: t('Create virtual machine'),
-        path: `/vms/create/${id}`,
-      };
-    case 'cluster':
-      return {
-        label: t('Create cluster'),
-        path: `/clusters/create/${id}`,
-      };
-    case 'bm':
-      return {
-        label: t('Provision bare metal'),
-        path: `/bare-metal/create/${id}`,
-      };
-  }
-};
 
 const CatalogItemDetails = ({ kind, item }: CatalogItemDetailsProps) => {
   const { t } = useTranslation();

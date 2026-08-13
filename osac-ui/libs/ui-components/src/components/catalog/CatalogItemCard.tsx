@@ -15,7 +15,7 @@ import {
 } from '@patternfly/react-core';
 import RocketIcon from '@patternfly/react-icons/dist/esm/icons/rocket-icon';
 
-import type { CatalogItem, CatalogItemKind } from './catalogItemDisplay';
+import { CatalogItem, CatalogItemKind, getCatalogCreateAction } from './catalogItemDisplay';
 import { catalogItemTypeBadgeLabel } from './catalogItemDisplay';
 import {
   catalogItemMetadataLabelEntries,
@@ -30,19 +30,6 @@ export interface CatalogItemCardSelection {
   radioName: string;
   onSelect: () => void;
 }
-
-const catalogItemCreatePath = (type: CatalogItemKind, id: string) => {
-  if (type === 'vm') {
-    return `/vms/create/${id}`;
-  }
-  if (type === 'cluster') {
-    return `/clusters/create/${id}`;
-  }
-  if (type === 'bm') {
-    return `/bare-metal/create/${id}`;
-  }
-  return '#';
-};
 
 interface CatalogItemCardProps {
   item: CatalogItem;
@@ -73,7 +60,8 @@ const CatalogItemCard = ({
 
   const handleLaunch = () => {
     if (type) {
-      navigate(catalogItemCreatePath(type, item.id));
+      const createAction = getCatalogCreateAction(type, item.id, t);
+      navigate(createAction.path);
     }
   };
 

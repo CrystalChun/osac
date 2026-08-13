@@ -14,7 +14,7 @@ const isCatalogItemKind = (value: string | undefined): value is CatalogItemKind 
 
 const useCatalogItemByKind = (kind: CatalogItemKind | undefined, id: string | undefined) => {
   const vm = useComputeInstanceCatalogItem(kind === 'vm' ? id : undefined);
-  const cluster = useClusterCatalogItem(kind === 'cluster' ? id : undefined);
+  const cluster = useClusterCatalogItem(kind === 'cluster' ? id?.trim() : undefined);
   const bm = useBareMetalInstanceCatalogItem(kind === 'bm' ? id : undefined);
 
   switch (kind) {

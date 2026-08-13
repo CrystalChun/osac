@@ -16,6 +16,8 @@ const vmItem: ComputeInstanceCatalogItem = {
   id: 'catalog-rhel-9',
   metadata: {
     $typeName: 'osac.public.v1.Metadata',
+    displayName: '',
+    description: '',
     name: 'catalog-rhel-9',
     annotations: {},
     creator: 'foo',

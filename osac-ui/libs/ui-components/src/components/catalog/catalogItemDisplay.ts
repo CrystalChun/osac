@@ -183,3 +183,28 @@ export const formatCatalogFieldDefault = (def: CatalogFieldDefinition): string =
   }
   return fieldDefinitionDefaultToInputString(defaultValue) || '—';
 };
+
+export const getCatalogCreateAction = (kind: CatalogItemKind, id: string, t: TFunction) => {
+  switch (kind) {
+    case 'vm':
+      return {
+        label: t('Create virtual machine'),
+        path: `/vms/create/${id}`,
+      };
+    case 'cluster':
+      return {
+        label: t('Create cluster'),
+        path: `/clusters/create/${id}`,
+      };
+    case 'bm':
+      return {
+        label: t('Provision bare metal'),
+        path: `/bare-metal/create/${id}`,
+      };
+    default:
+      return {
+        label: '',
+        path: '#',
+      };
+  }
+};

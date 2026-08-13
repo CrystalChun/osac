@@ -118,7 +118,7 @@ export const VmListPage = () => {
         if (serialized) {
           next.set(STATUS_FILTER_PARAM, serialized);
         } else {
-          next.delete(STATUS_FILTER_PARAM);
+          next.set(STATUS_FILTER_PARAM, '');
         }
         return next;
       },
@@ -168,7 +168,6 @@ export const VmListPage = () => {
     });
   }, [search, statusFilters, vms]);
 
-  const searchTerm = search.trim();
   const showEmptyState = !isLoading && !error && filteredVms.length === 0;
 
   return (
@@ -234,7 +233,7 @@ export const VmListPage = () => {
               <SubtleContent component="p">
                 {statusFilters.length === 0
                   ? t('Choose one or more statuses above to filter virtual machines.')
-                  : searchTerm
+                  : vms?.length
                     ? t('No virtual machines match your filters.')
                     : t('No virtual machines yet. Create one to get started.')}
               </SubtleContent>

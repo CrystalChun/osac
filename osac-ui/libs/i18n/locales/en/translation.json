@@ -362,7 +362,7 @@
   "No bare metal instances match your search.": "No bare metal instances match your search.",
   "No bare metal instances yet.": "No bare metal instances yet.",
   "No catalog items found": "No catalog items found",
-  "No catalog items match your search.": "No catalog items match your search.",
+  "No catalog items match your filters.": "No catalog items match your filters.",
   "No external IP pools available": "No external IP pools available",
   "No identity providers match your search.": "No identity providers match your search.",
   "No identity providers yet. Create one to get started.": "No identity providers yet. Create one to get started.",
