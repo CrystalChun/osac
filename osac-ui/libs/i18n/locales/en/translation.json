@@ -176,6 +176,8 @@
   "Domains": "Domains",
   "Domains must be unique": "Domains must be unique",
   "Download kubeconfig": "Download kubeconfig",
+  "e.g 10DE:20B0": "e.g 10DE:20B0",
+  "e.g nvidia.com/A100": "e.g nvidia.com/A100",
   "Each host type can only be selected once": "Each host type can only be selected once",
   "Edit": "Edit",
   "Edit Identity provider": "Edit Identity provider",

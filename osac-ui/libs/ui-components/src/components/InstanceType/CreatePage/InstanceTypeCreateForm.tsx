@@ -103,14 +103,14 @@ const InstanceTypeCreateForm = () => {
                     name="spec.gpu.resourceName"
                     label={t('Resource name')}
                     fieldId="instance-type-gpu-resource-name"
-                    placeholder="e.g nvidia.com/A100"
+                    placeholder={t('e.g nvidia.com/A100')}
                     helperText={t('Kubernetes device plugin resource name.')}
                   />
                   <InputField
                     name="spec.gpu.pciDeviceSelector"
                     label={t('PCI device selector')}
                     fieldId="instance-type-gpu-pci-device-selector"
-                    placeholder="e.g 10DE:20B0"
+                    placeholder={t('e.g 10DE:20B0')}
                     helperText={t('PCI device selector identifying the GPU hardware.')}
                   />
                 </FormSection>

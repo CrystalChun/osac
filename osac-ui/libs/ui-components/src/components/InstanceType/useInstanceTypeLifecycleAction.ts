@@ -20,7 +20,8 @@ export type InstanceTypeLifecycleActions = {
 export const getInstanceTypeLifecycleActions = (
   state: InstanceTypeState | undefined,
 ): InstanceTypeLifecycleActions => {
-  const resolvedState = state || InstanceTypeState.ACTIVE;
+  const resolvedState = state ?? InstanceTypeState.UNSPECIFIED;
+
   return {
     canDeprecate: resolvedState !== InstanceTypeState.DEPRECATED,
     canObsolete: resolvedState !== InstanceTypeState.OBSOLETE,
