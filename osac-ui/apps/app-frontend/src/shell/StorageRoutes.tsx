@@ -14,10 +14,7 @@ export const StorageRoutes = () => {
       <Route index element={<Navigate to="backends" replace />} />
       <Route path="backends" element={<StorageManagementPage activeTab="backends" />} />
       <Route path="backends/create" element={<StorageBackendCreatePage />} />
-      <Route
-        path="backends/:id/edit"
-        element={<StoragePlaceholder title={t('Edit storage backend')} />}
-      />
+      <Route path="backends/:id/edit" element={<StorageBackendCreatePage />} />
       <Route path="tiers" element={<StorageManagementPage activeTab="tiers" />} />
       <Route path="tiers/create" element={<StorageTierCreatePage />} />
       <Route

@@ -67,6 +67,8 @@ export const useCreateStorageBackend = () => {
 
 export type UpdateStorageBackendInput = {
   id: string;
+  /** The `metadata.version` of the record the caller last fetched — required so the server can enforce the lock below; a request with no metadata is exempt from the optimistic-lock check regardless of `lock: true`. */
+  version: number;
   spec: MessageInitShape<typeof StorageBackendSpecSchema>;
 };
 
@@ -81,8 +83,9 @@ export const useUpdateStorageBackend = () => {
       }
 
       const resp = await client.update({
-        object: { id: input.id, spec },
+        object: { id: input.id, metadata: { version: input.version }, spec },
         updateMask: { paths: buildUpdateMaskPaths({ spec } as Record<string, unknown>) },
+        lock: true,
       });
       if (!resp.object) {
         throw new Error('Update response missing object');

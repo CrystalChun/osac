@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
   ActionList,
   ActionListGroup,
@@ -6,8 +6,10 @@ import {
   Alert,
   Breadcrumb,
   BreadcrumbItem,
+  Bullseye,
   Button,
   PageSection,
+  Spinner,
   Stack,
   StackItem,
   Title,
@@ -16,7 +18,12 @@ import { Formik } from 'formik';
 import type { TFunction } from 'i18next';
 import * as Yup from 'yup';
 
-import { useCreateStorageBackend } from '@osac/ui-components/api/v1/private/storage-backends';
+import type { StorageBackend } from '@osac/types/private';
+import {
+  useCreateStorageBackend,
+  usePrivateStorageBackend,
+  useUpdateStorageBackend,
+} from '@osac/ui-components/api/v1/private/storage-backends';
 import NameField from '@osac/ui-components/components/catalogProvision/wizard/fields/NameField';
 import { InputField } from '@osac/ui-components/components/Form/InputField';
 import LeaveFormConfirmation from '@osac/ui-components/components/Form/LeaveFormConfirmation';
@@ -39,36 +46,94 @@ interface StorageBackendFormValues {
   credentials: { username: string; password: string };
 }
 
-const initialValues: StorageBackendFormValues = {
-  metadata: { name: '' },
-  provider: '',
-  endpoint: '',
-  description: '',
+const getInitialValues = (backend?: StorageBackend): StorageBackendFormValues => ({
+  metadata: { name: backend?.metadata?.name ?? '' },
+  provider: backend?.spec?.provider ?? '',
+  endpoint: backend?.spec?.endpoint ?? '',
+  description: backend?.spec?.description ?? '',
   credentials: { username: '', password: '' },
-};
+});
 
-const getStorageBackendSchema = (t: TFunction) =>
-  Yup.object({
+const getStorageBackendSchema = (t: TFunction, isEdit: boolean) => {
+  const pairError = t('Enter both username and password, or leave both blank');
+  return Yup.object({
     metadata: Yup.object({ name: resourceNameSchema(t) }),
     provider: Yup.string().required(t('Provider is required')),
     endpoint: Yup.string().required(t('Endpoint is required')),
     description: Yup.string(),
-    credentials: Yup.object({
-      username: Yup.string().required(t('Username is required')),
-      password: Yup.string().required(t('Password is required')),
-    }),
+    // On edit, credentials start blank and are all-or-nothing: both blank keeps them
+    // unchanged, both filled replaces them, exactly one filled is invalid (there's no
+    // server-side way to update just one). On create they're always required.
+    credentials: isEdit
+      ? Yup.object({
+          username: Yup.string().test('credentials-pair', pairError, function (value) {
+            const parent = this.parent as { username?: string; password?: string } | undefined;
+            return !!value === !!parent?.password;
+          }),
+          password: Yup.string().test('credentials-pair', pairError, function (value) {
+            const parent = this.parent as { username?: string; password?: string } | undefined;
+            return !!value === !!parent?.username;
+          }),
+        })
+      : Yup.object({
+          username: Yup.string().required(t('Username is required')),
+          password: Yup.string().required(t('Password is required')),
+        }),
   });
+};
 
-export const StorageBackendCreatePage = () => {
+const StorageBackendForm = ({ backend }: { backend?: StorageBackend }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { mutateAsync, error } = useCreateStorageBackend();
+  const isEdit = !!backend;
+  const { mutateAsync: create, error: createError } = useCreateStorageBackend();
+  const { mutateAsync: update, error: updateError } = useUpdateStorageBackend();
+  const error = isEdit ? updateError : createError;
 
   const providerOptions: SelectFieldOption[] = [
     { value: 'vast', label: t('VAST') },
     { value: 'ceph', label: t('Ceph') },
     { value: 'pure', label: t('Pure') },
   ];
+
+  const onSubmit = async (values: StorageBackendFormValues) => {
+    try {
+      if (backend) {
+        await update({
+          id: backend.id,
+          version: backend.metadata?.version ?? 0,
+          spec: {
+            endpoint: values.endpoint,
+            description: values.description,
+            ...(values.credentials.username && values.credentials.password
+              ? {
+                  credentials: {
+                    username: values.credentials.username,
+                    password: values.credentials.password,
+                  },
+                }
+              : {}),
+          },
+        });
+      } else {
+        await create({
+          metadata: values.metadata,
+          spec: {
+            provider: values.provider,
+            endpoint: values.endpoint,
+            description: values.description,
+            credentials: {
+              username: values.credentials.username,
+              password: values.credentials.password,
+            },
+          },
+        });
+      }
+      navigate(BACKENDS_LIST_PATH);
+    } catch {
+      // Surfaced via the mutation's own `error` state below; nothing further to do here.
+    }
+  };
 
   return (
     <>
@@ -80,48 +145,31 @@ export const StorageBackendCreatePage = () => {
                 {t('Storage backends')}
               </Button>
             </BreadcrumbItem>
-            <BreadcrumbItem isActive>{t('Create')}</BreadcrumbItem>
+            <BreadcrumbItem isActive>{isEdit ? t('Edit') : t('Create')}</BreadcrumbItem>
           </Breadcrumb>
           <Title headingLevel="h1" size="3xl">
-            {t('Create storage backend')}
+            {isEdit ? t('Edit storage backend') : t('Create storage backend')}
           </Title>
         </Stack>
       </PageSection>
       <PageSection hasBodyWrapper={false}>
         <Formik
-          initialValues={initialValues}
-          validationSchema={getStorageBackendSchema(t)}
-          onSubmit={async (values) => {
-            try {
-              await mutateAsync({
-                metadata: values.metadata,
-                spec: {
-                  provider: values.provider,
-                  endpoint: values.endpoint,
-                  description: values.description,
-                  credentials: {
-                    username: values.credentials.username,
-                    password: values.credentials.password,
-                  },
-                },
-              });
-              navigate(BACKENDS_LIST_PATH);
-            } catch {
-              // Surfaced via the mutation's own `error` state below; nothing further to do here.
-            }
-          }}
+          initialValues={getInitialValues(backend)}
+          validationSchema={getStorageBackendSchema(t, isEdit)}
+          onSubmit={onSubmit}
         >
           {({ submitForm, isSubmitting }) => (
             <Stack hasGutter>
               <LeaveFormConfirmation />
               <StackItem>
                 <OsacForm>
-                  <NameField />
+                  <NameField isDisabled={isEdit} />
                   <SelectField
                     name="provider"
                     label={t('Provider')}
                     fieldId="storage-backend-provider"
                     isRequired
+                    isDisabled={isEdit}
                     options={providerOptions}
                   />
                   <InputField
@@ -139,21 +187,32 @@ export const StorageBackendCreatePage = () => {
                     name="credentials.username"
                     label={t('Username')}
                     fieldId="storage-backend-username"
-                    isRequired
+                    isRequired={!isEdit}
+                    helperText={
+                      isEdit ? t('Leave blank to keep the current credentials.') : undefined
+                    }
                   />
                   <InputField
                     name="credentials.password"
                     label={t('Password')}
                     fieldId="storage-backend-password"
                     type="password"
-                    isRequired
+                    isRequired={!isEdit}
                   />
                 </OsacForm>
               </StackItem>
 
               {!!error && (
                 <StackItem>
-                  <Alert variant="danger" title={t('Failed to create storage backend')} isInline>
+                  <Alert
+                    variant="danger"
+                    title={
+                      isEdit
+                        ? t('Failed to update storage backend')
+                        : t('Failed to create storage backend')
+                    }
+                    isInline
+                  >
                     {getErrorMessage(error)}
                   </Alert>
                 </StackItem>
@@ -168,7 +227,7 @@ export const StorageBackendCreatePage = () => {
                         isDisabled={isSubmitting}
                         isLoading={isSubmitting}
                       >
-                        {t('Create')}
+                        {isEdit ? t('Save') : t('Create')}
                       </Button>
                     </ActionListItem>
                     <ActionListItem>
@@ -189,4 +248,30 @@ export const StorageBackendCreatePage = () => {
       </PageSection>
     </>
   );
+};
+
+export const StorageBackendCreatePage = () => {
+  const { t } = useTranslation();
+  const { id } = useParams<{ id: string }>();
+  const { data, isLoading, error } = usePrivateStorageBackend(id ?? '');
+
+  if (id) {
+    if (isLoading) {
+      return (
+        <Bullseye>
+          <Spinner />
+        </Bullseye>
+      );
+    }
+
+    if (error) {
+      return (
+        <Alert variant="danger" isInline title={t('Failed to fetch storage backend')}>
+          {getErrorMessage(error)}
+        </Alert>
+      );
+    }
+  }
+
+  return <StorageBackendForm backend={data} />;
 };
