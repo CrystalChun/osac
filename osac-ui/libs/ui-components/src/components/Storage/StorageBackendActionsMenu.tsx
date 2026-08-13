@@ -10,9 +10,10 @@ import { useTranslation } from '../../hooks/useTranslation';
 
 interface StorageBackendActionsMenuProps {
   backend: StorageBackend;
+  onDeleteSuccess?: () => void;
 }
 
-const StorageBackendActionsMenu = ({ backend }: StorageBackendActionsMenuProps) => {
+const StorageBackendActionsMenu = ({ backend, onDeleteSuccess }: StorageBackendActionsMenuProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
@@ -26,7 +27,10 @@ const StorageBackendActionsMenu = ({ backend }: StorageBackendActionsMenuProps) 
         <StorageBackendDeleteConfirmModal
           backend={backend}
           onClose={() => setDeleteOpen(false)}
-          onSuccess={() => setDeleteOpen(false)}
+          onSuccess={() => {
+            setDeleteOpen(false);
+            onDeleteSuccess?.();
+          }}
         />
       )}
       <Dropdown
