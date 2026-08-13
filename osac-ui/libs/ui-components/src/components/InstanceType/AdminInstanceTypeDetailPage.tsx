@@ -14,6 +14,8 @@ import {
   DescriptionListDescription,
   DescriptionListGroup,
   DescriptionListTerm,
+  Stack,
+  StackItem,
 } from '@patternfly/react-core';
 
 import { InstanceTypeState, type InstanceType as PrivateInstanceType } from '@osac/types/private';
@@ -136,77 +138,83 @@ const AdminInstanceTypeDetailPage = () => {
       }
     >
       <ListPageBody isLoading={isLoading} error={error}>
-        <Card style={{ marginBottom: '1rem' }}>
-          <CardTitle>{t('Details')}</CardTitle>
-          <CardBody>
-            <DescriptionList isCompact columnModifier={{ default: '2Col' }}>
-              <DescriptionListGroup>
-                <DescriptionListTerm>{t('Name')}</DescriptionListTerm>
-                <DescriptionListDescription>
-                  <code>{instanceType?.metadata?.name ?? id}</code>
-                </DescriptionListDescription>
-              </DescriptionListGroup>
+        <Stack hasGutter>
+          <StackItem>
+            <Card>
+              <CardTitle>{t('Details')}</CardTitle>
+              <CardBody>
+                <DescriptionList isCompact columnModifier={{ default: '2Col' }}>
+                  <DescriptionListGroup>
+                    <DescriptionListTerm>{t('Name')}</DescriptionListTerm>
+                    <DescriptionListDescription>
+                      <code>{instanceType?.metadata?.name ?? id}</code>
+                    </DescriptionListDescription>
+                  </DescriptionListGroup>
 
-              <DescriptionListGroup>
-                <DescriptionListTerm>{t('CPU cores')}</DescriptionListTerm>
-                <DescriptionListDescription>
-                  {instanceType?.spec?.cores ?? '—'}
-                </DescriptionListDescription>
-              </DescriptionListGroup>
+                  <DescriptionListGroup>
+                    <DescriptionListTerm>{t('CPU cores')}</DescriptionListTerm>
+                    <DescriptionListDescription>
+                      {instanceType?.spec?.cores ?? '—'}
+                    </DescriptionListDescription>
+                  </DescriptionListGroup>
 
-              <DescriptionListGroup>
-                <DescriptionListTerm>{t('Lifecycle state')}</DescriptionListTerm>
-                <DescriptionListDescription>
-                  <InstanceTypeLifecycleLabel state={instanceType?.spec?.state} />
-                </DescriptionListDescription>
-              </DescriptionListGroup>
+                  <DescriptionListGroup>
+                    <DescriptionListTerm>{t('Lifecycle state')}</DescriptionListTerm>
+                    <DescriptionListDescription>
+                      <InstanceTypeLifecycleLabel state={instanceType?.spec?.state} />
+                    </DescriptionListDescription>
+                  </DescriptionListGroup>
 
-              <DescriptionListGroup>
-                <DescriptionListTerm>{t('Memory (GiB)')}</DescriptionListTerm>
-                <DescriptionListDescription>
-                  {instanceType?.spec?.memoryGib ?? '—'}
-                </DescriptionListDescription>
-              </DescriptionListGroup>
+                  <DescriptionListGroup>
+                    <DescriptionListTerm>{t('Memory (GiB)')}</DescriptionListTerm>
+                    <DescriptionListDescription>
+                      {instanceType?.spec?.memoryGib ?? '—'}
+                    </DescriptionListDescription>
+                  </DescriptionListGroup>
 
-              <DescriptionListGroup>
-                <DescriptionListTerm>{t('Created')}</DescriptionListTerm>
-                <DescriptionListDescription>
-                  <Timestamp value={instanceType?.metadata?.creationTimestamp} />
-                </DescriptionListDescription>
-              </DescriptionListGroup>
-            </DescriptionList>
-          </CardBody>
-        </Card>
+                  <DescriptionListGroup>
+                    <DescriptionListTerm>{t('Created')}</DescriptionListTerm>
+                    <DescriptionListDescription>
+                      <Timestamp value={instanceType?.metadata?.creationTimestamp} />
+                    </DescriptionListDescription>
+                  </DescriptionListGroup>
+                </DescriptionList>
+              </CardBody>
+            </Card>
+          </StackItem>
 
-        <Card>
-          <CardTitle>{t('GPU')}</CardTitle>
-          <CardBody>
-            {gpu ? (
-              <DescriptionList isCompact isFillColumns columnModifier={{ default: '2Col' }}>
-                <DescriptionListGroup>
-                  <DescriptionListTerm>{t('Count')}</DescriptionListTerm>
-                  <DescriptionListDescription>{gpu.count}</DescriptionListDescription>
-                </DescriptionListGroup>
+          <StackItem>
+            <Card>
+              <CardTitle>{t('GPU')}</CardTitle>
+              <CardBody>
+                {gpu ? (
+                  <DescriptionList isCompact isFillColumns columnModifier={{ default: '2Col' }}>
+                    <DescriptionListGroup>
+                      <DescriptionListTerm>{t('Count')}</DescriptionListTerm>
+                      <DescriptionListDescription>{gpu.count}</DescriptionListDescription>
+                    </DescriptionListGroup>
 
-                <DescriptionListGroup>
-                  <DescriptionListTerm>{t('Resource name')}</DescriptionListTerm>
-                  <DescriptionListDescription>{gpu.resourceName}</DescriptionListDescription>
-                </DescriptionListGroup>
+                    <DescriptionListGroup>
+                      <DescriptionListTerm>{t('Resource name')}</DescriptionListTerm>
+                      <DescriptionListDescription>{gpu.resourceName}</DescriptionListDescription>
+                    </DescriptionListGroup>
 
-                <DescriptionListGroup>
-                  <DescriptionListTerm>{t('PCI device selector')}</DescriptionListTerm>
-                  <DescriptionListDescription>
-                    <code>{gpu.pciDeviceSelector}</code>
-                  </DescriptionListDescription>
-                </DescriptionListGroup>
-              </DescriptionList>
-            ) : (
-              <SubtleContent component="p">
-                {t('This instance type has no GPU attached.')}
-              </SubtleContent>
-            )}
-          </CardBody>
-        </Card>
+                    <DescriptionListGroup>
+                      <DescriptionListTerm>{t('PCI device selector')}</DescriptionListTerm>
+                      <DescriptionListDescription>
+                        <code>{gpu.pciDeviceSelector}</code>
+                      </DescriptionListDescription>
+                    </DescriptionListGroup>
+                  </DescriptionList>
+                ) : (
+                  <SubtleContent component="p">
+                    {t('This instance type has no GPU attached.')}
+                  </SubtleContent>
+                )}
+              </CardBody>
+            </Card>
+          </StackItem>
+        </Stack>
       </ListPageBody>
     </ListPage>
   );
