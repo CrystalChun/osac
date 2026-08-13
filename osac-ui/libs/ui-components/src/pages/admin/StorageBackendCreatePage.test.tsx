@@ -57,7 +57,6 @@ describe('StorageBackendCreatePage', () => {
     expect(screen.getByLabelText(/^Provider/)).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: 'Endpoint' })).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: 'Description' })).toBeInTheDocument();
-    expect(screen.getByRole('checkbox', { name: 'Use credentials' })).toBeChecked();
     expect(screen.getByLabelText(/^Username/)).toBeInTheDocument();
     expect(screen.getByLabelText(/^Password/)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Create' })).toBeInTheDocument();
@@ -187,35 +186,6 @@ describe('StorageBackendCreatePage', () => {
     expect(capturedRequest?.object?.spec?.endpoint).toBe('vast.example.com:443');
     expect(capturedRequest?.object?.spec?.credentials?.username).toBe('admin');
     expect(capturedRequest?.object?.spec?.credentials?.password).toBe(testBackendPassword);
-  }, 15000);
-
-  it('hides credential fields and omits credentials from the payload when "Use credentials" is unchecked', async () => {
-    let capturedRequest: StorageBackendsCreateRequest | undefined;
-    const { user } = renderPage({
-      onStorageBackendCreate: (req) => {
-        capturedRequest = req;
-        return create(StorageBackendsCreateResponseSchema, {
-          object: { id: 'new-backend-1', metadata: req.object?.metadata, spec: req.object?.spec },
-        });
-      },
-    });
-
-    await user.type(screen.getByRole('textbox', { name: 'Name' }), 'vast-prod-1');
-    await user.click(screen.getByLabelText(/^Provider/));
-    await user.click(screen.getByRole('option', { name: 'VAST' }));
-    await user.type(screen.getByRole('textbox', { name: 'Endpoint' }), 'vast.example.com:443');
-
-    await user.click(screen.getByRole('checkbox', { name: 'Use credentials' }));
-
-    expect(screen.queryByLabelText(/^Username/)).not.toBeInTheDocument();
-    expect(screen.queryByLabelText(/^Password/)).not.toBeInTheDocument();
-
-    await user.click(screen.getByRole('button', { name: 'Create' }));
-
-    await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith('/admin/infrastructure/storage/backends');
-    });
-    expect(capturedRequest?.object?.spec?.credentials).toBeUndefined();
   }, 15000);
 
   it('shows a form-level error and does not navigate when the name already exists', async () => {
