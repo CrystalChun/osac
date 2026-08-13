@@ -1,6 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import { I18nextProvider } from 'react-i18next';
-import { MemoryRouter } from 'react-router-dom';
+import { RouterProvider, createMemoryRouter } from 'react-router-dom';
 import type { Transport } from '@connectrpc/connect';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { type RenderOptions, type RenderResult, render } from '@testing-library/react';
@@ -52,17 +52,22 @@ export const TestProviders = ({
       queries: { retry: false, refetchOnWindowFocus: false, refetchInterval: false },
     },
   });
+  // A data router (rather than a plain <MemoryRouter>) is required so that
+  // data-router-only hooks like useBlocker (used by LeaveFormConfirmation) work in tests.
+  const router = createMemoryRouter([{ path: '*', element: children }], {
+    initialEntries: routerEntries,
+  });
 
   return (
-    <MemoryRouter initialEntries={routerEntries}>
-      <I18nextProvider i18n={i18nInstance}>
-        <ApiProvider transport={transport}>
-          <QueryClientProvider client={queryClient}>
-            <ToastProvider>{children}</ToastProvider>
-          </QueryClientProvider>
-        </ApiProvider>
-      </I18nextProvider>
-    </MemoryRouter>
+    <I18nextProvider i18n={i18nInstance}>
+      <ApiProvider transport={transport}>
+        <QueryClientProvider client={queryClient}>
+          <ToastProvider>
+            <RouterProvider router={router} />
+          </ToastProvider>
+        </QueryClientProvider>
+      </ApiProvider>
+    </I18nextProvider>
   );
 };
 

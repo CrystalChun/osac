@@ -9,6 +9,27 @@ import { useToast } from '../Toast/useToast';
 
 export type InstanceTypeLifecycleAction = Exclude<InstanceTypeState, InstanceTypeState.UNSPECIFIED>;
 
+export type InstanceTypeLifecycleActions = {
+  canDeprecate: boolean;
+  canObsolete: boolean;
+  canReactivate: boolean;
+  canDelete: boolean;
+};
+
+/** Determines which lifecycle transitions are valid from the instance type's current state. */
+export const getInstanceTypeLifecycleActions = (
+  state: InstanceTypeState | undefined,
+): InstanceTypeLifecycleActions => {
+  const resolvedState = state ?? InstanceTypeState.UNSPECIFIED;
+
+  return {
+    canDeprecate: resolvedState !== InstanceTypeState.DEPRECATED,
+    canObsolete: resolvedState !== InstanceTypeState.OBSOLETE,
+    canReactivate: resolvedState !== InstanceTypeState.ACTIVE,
+    canDelete: resolvedState === InstanceTypeState.OBSOLETE,
+  };
+};
+
 const getLifecycleErrorTitle = (t: TFunction, action: InstanceTypeLifecycleAction): string => {
   switch (action) {
     case InstanceTypeState.DEPRECATED:

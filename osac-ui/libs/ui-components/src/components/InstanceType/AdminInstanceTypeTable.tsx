@@ -1,4 +1,11 @@
-import { Bullseye, EmptyState, EmptyStateBody, EmptyStateVariant } from '@patternfly/react-core';
+import { useNavigate } from 'react-router-dom';
+import {
+  Bullseye,
+  Button,
+  EmptyState,
+  EmptyStateBody,
+  EmptyStateVariant,
+} from '@patternfly/react-core';
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
@@ -10,13 +17,12 @@ import { useTranslation } from '../../hooks/useTranslation';
 import { Timestamp } from '../Primitives/Timestamp';
 import TruncatedText from '../Primitives/TruncatedText';
 
-const INSTANCE_TYPE_DESCRIPTION_PREVIEW_LENGTH = 120;
 const INSTANCE_TYPE_NAME_PREVIEW_LENGTH = 32;
 const NAME_COLUMN_WIDTH = 15;
-const LIFECYCLE_STATE_COLUMN_WIDTH = 10;
-const CPU_CORES_COLUMN_WIDTH = 10;
-const MEMORY_COLUMN_WIDTH = 10;
-const DESCRIPTION_COLUMN_WIDTH = 40;
+const LIFECYCLE_STATE_COLUMN_WIDTH = 15;
+const CPU_CORES_COLUMN_WIDTH = 15;
+const MEMORY_COLUMN_WIDTH = 15;
+const GPU_COLUMN_WIDTH = 15;
 const CREATED_COLUMN_WIDTH = 15;
 const EMPTY_STATE_COLUMN_SPAN = 7;
 
@@ -26,6 +32,7 @@ interface AdminInstanceTypeTableProps {
 
 const AdminInstanceTypeTable = ({ instanceTypes }: AdminInstanceTypeTableProps) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   return (
     <Table aria-label={t('Instance types')} variant="compact">
@@ -35,7 +42,7 @@ const AdminInstanceTypeTable = ({ instanceTypes }: AdminInstanceTypeTableProps) 
           <Th width={LIFECYCLE_STATE_COLUMN_WIDTH}>{t('Lifecycle state')}</Th>
           <Th width={CPU_CORES_COLUMN_WIDTH}>{t('CPU cores')}</Th>
           <Th width={MEMORY_COLUMN_WIDTH}>{t('Memory (GiB)')}</Th>
-          <Th width={DESCRIPTION_COLUMN_WIDTH}>{t('Description')}</Th>
+          <Th width={GPU_COLUMN_WIDTH}>{t('GPUs')}</Th>
           <Th width={CREATED_COLUMN_WIDTH}>{t('Created')}</Th>
           <Th aria-label={t('Actions')} />
         </Tr>
@@ -59,37 +66,45 @@ const AdminInstanceTypeTable = ({ instanceTypes }: AdminInstanceTypeTableProps) 
             </Td>
           </Tr>
         ) : (
-          instanceTypes.map((instanceType) => (
-            <Tr key={instanceType.id}>
-              <Td dataLabel={t('Name')} modifier="truncate" width={NAME_COLUMN_WIDTH}>
-                <TruncatedText
-                  content={instanceType.metadata?.name || instanceType.id}
-                  maxCharsDisplayed={INSTANCE_TYPE_NAME_PREVIEW_LENGTH}
-                />
-              </Td>
-              <Td dataLabel={t('Lifecycle state')} width={LIFECYCLE_STATE_COLUMN_WIDTH}>
-                <InstanceTypeLifecycleLabel state={instanceType.spec?.state} />
-              </Td>
-              <Td dataLabel={t('CPU cores')} width={CPU_CORES_COLUMN_WIDTH}>
-                {instanceType.spec?.cores ?? '—'}
-              </Td>
-              <Td dataLabel={t('Memory (GiB)')} width={MEMORY_COLUMN_WIDTH}>
-                {instanceType.spec?.memoryGib ?? '—'}
-              </Td>
-              <Td dataLabel={t('Description')} modifier="truncate" width={DESCRIPTION_COLUMN_WIDTH}>
-                <TruncatedText
-                  content={instanceType.spec?.description}
-                  maxCharsDisplayed={INSTANCE_TYPE_DESCRIPTION_PREVIEW_LENGTH}
-                />
-              </Td>
-              <Td dataLabel={t('Created')} width={CREATED_COLUMN_WIDTH}>
-                <Timestamp value={instanceType.metadata?.creationTimestamp} />
-              </Td>
-              <Td dataLabel={t('Actions')} isActionCell>
-                <AdminInstanceTypeActionsMenu instanceType={instanceType} />
-              </Td>
-            </Tr>
-          ))
+          instanceTypes.map((instanceType) => {
+            const gpu = instanceType.spec?.gpu;
+            return (
+              <Tr key={instanceType.id}>
+                <Td dataLabel={t('Name')} modifier="truncate" width={NAME_COLUMN_WIDTH}>
+                  <Button
+                    variant="link"
+                    isInline
+                    onClick={() =>
+                      navigate(`/admin/infrastructure/instance-types/${instanceType.id}`)
+                    }
+                  >
+                    <TruncatedText
+                      content={instanceType.metadata?.name || instanceType.id}
+                      maxCharsDisplayed={INSTANCE_TYPE_NAME_PREVIEW_LENGTH}
+                    />
+                  </Button>
+                </Td>
+                <Td dataLabel={t('Lifecycle state')} width={LIFECYCLE_STATE_COLUMN_WIDTH}>
+                  <InstanceTypeLifecycleLabel state={instanceType.spec?.state} />
+                </Td>
+                <Td dataLabel={t('CPU cores')} width={CPU_CORES_COLUMN_WIDTH}>
+                  {instanceType.spec?.cores ?? '—'}
+                </Td>
+                <Td dataLabel={t('Memory (GiB)')} width={MEMORY_COLUMN_WIDTH}>
+                  {instanceType.spec?.memoryGib ?? '—'}
+                </Td>
+                <Td dataLabel={t('GPUs')} width={GPU_COLUMN_WIDTH}>
+                  {gpu?.count ?? '—'}
+                </Td>
+                <Td dataLabel={t('Created')} width={CREATED_COLUMN_WIDTH}>
+                  <Timestamp value={instanceType.metadata?.creationTimestamp} />
+                </Td>
+                <Td dataLabel={t('Actions')} isActionCell>
+                  <AdminInstanceTypeActionsMenu instanceType={instanceType} />
+                </Td>
+              </Tr>
+            );
+          })
         )}
       </Tbody>
     </Table>

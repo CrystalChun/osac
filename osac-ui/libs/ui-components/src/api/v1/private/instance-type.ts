@@ -17,6 +17,16 @@ export const useAdminInstanceTypes = (params: ListParams = {}) => {
   });
 };
 
+export const useAdminInstanceType = (id: string) => {
+  const client = useApiFetch(InstanceTypes);
+  return useApiQuery({
+    queryKey: apiQueryKey('v1/private/instance_types', [id]),
+    queryFn: () => client.get({ id }),
+    select: (data) => data.object,
+    enabled: Boolean(id),
+  });
+};
+
 export const invalidateInstanceTypesQueries = (qc: ApiQueryClient) =>
   qc.invalidateQueries({ queryKey: apiQueryKey('v1/private/instance_types') });
 
@@ -36,6 +46,21 @@ export const useUpdateInstanceType = () => {
       });
       if (!resp.object) {
         throw new Error('Update response missing object');
+      }
+      return resp.object;
+    },
+    onSuccess: () => invalidateInstanceTypesQueries(qc),
+  });
+};
+
+export const useCreateInstanceType = () => {
+  const client = useApiFetch(InstanceTypes);
+  const qc = useApiQueryClient();
+  return useMutation({
+    mutationFn: async (body: MessageInitShape<typeof InstanceTypeSchema>) => {
+      const resp = await client.create({ object: body });
+      if (!resp.object) {
+        throw new Error('Create response missing instance type object');
       }
       return resp.object;
     },

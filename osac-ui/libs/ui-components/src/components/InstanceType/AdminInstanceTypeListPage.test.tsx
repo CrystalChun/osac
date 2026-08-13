@@ -27,13 +27,10 @@ const { useAdminInstanceTypes: useAdminInstanceTypesActual } = await vi.importAc
   typeof import('@osac/ui-components/api/v1/private/instance-type')
 >('@osac/ui-components/api/v1/private/instance-type');
 
-const longDescription =
-  'A provider-curated general-purpose instance type for sustained workloads that need predictable CPU and memory capacity, room for sidecar processes, and enough headroom for bursty background tasks without immediately resizing the virtual machine.';
-
 const makeInstanceType = (
   id: string,
   state: InstanceTypeState,
-  description = `${id} description`,
+  gpu?: { pciDeviceSelector: string; resourceName: string; count: number },
 ): PrivateInstanceType =>
   create(InstanceTypeSchema, {
     id,
@@ -44,8 +41,9 @@ const makeInstanceType = (
     spec: {
       cores: 4,
       memoryGib: 16,
-      description,
+      description: `${id} description`,
       state,
+      gpu,
     },
   });
 
@@ -72,10 +70,13 @@ describe('AdminInstanceTypeListPage', () => {
     vi.mocked(useAdminInstanceTypes).mockReturnValue(
       mockQueryResult<PrivateInstanceType[]>({
         data: [
-          makeInstanceType('active-1', InstanceTypeState.ACTIVE),
+          makeInstanceType('active-1', InstanceTypeState.ACTIVE, {
+            pciDeviceSelector: '10DE:20B0',
+            resourceName: 'nvidia.com/A100',
+            count: 2,
+          }),
           makeInstanceType('deprecated-1', InstanceTypeState.DEPRECATED),
           makeInstanceType('obsolete-1', InstanceTypeState.OBSOLETE),
-          makeInstanceType('long-description-1', InstanceTypeState.ACTIVE, longDescription),
         ],
       }),
     );
@@ -88,25 +89,14 @@ describe('AdminInstanceTypeListPage', () => {
       'Lifecycle state',
       'CPU cores',
       'Memory (GiB)',
-      'Description',
+      'GPUs',
       'Created',
       '',
     ]);
-    expect(screen.getByText('instance-type-active-1')).toBeInTheDocument();
-    expect(screen.getByText('active-1 description')).toBeInTheDocument();
-    const truncatedDescription = Array.from(
-      document.querySelectorAll<HTMLElement>('.pf-v6-c-truncate__text'),
-    ).find((element) => element.textContent?.startsWith('A provider-curated general-purpose'));
-    expect(truncatedDescription).toBeDefined();
-    expect(truncatedDescription).not.toBeNull();
-    expect(truncatedDescription?.textContent).toContain('A provider-curated');
-    expect(truncatedDescription?.closest('.pf-v6-c-truncate')).toHaveClass('pf-m-fixed');
-    expect(
-      Array.from(document.querySelectorAll<HTMLElement>('.pf-v6-c-truncate__omission')).some(
-        (element) => element.textContent === '...',
-      ),
-    ).toBe(true);
-    expect(screen.getAllByText('Active')).toHaveLength(2);
+    expect(screen.getByRole('button', { name: 'instance-type-active-1' })).toBeInTheDocument();
+    expect(screen.getByText('2')).toBeInTheDocument();
+    expect(screen.getAllByText('—').length).toBeGreaterThanOrEqual(2);
+    expect(screen.getByText('Active')).toBeInTheDocument();
     expect(screen.getByText('Deprecated')).toBeInTheDocument();
     expect(screen.getByText('Obsolete')).toBeInTheDocument();
   });
