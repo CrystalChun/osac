@@ -51,7 +51,7 @@ const existingBackend = create(StorageBackendSchema, {
     provider: 'vast',
     endpoint: 'vast.example.com:443',
     description: 'primary array',
-    credentials: { username: 'existing-admin', password: 'existing-secret' },
+    credentials: { username: 'test-existing-admin', password: 'test-existing-secret' },
   },
 });
 
@@ -78,7 +78,7 @@ describe('StorageBackendCreatePage', () => {
       await user.click(screen.getByLabelText(/^Provider/));
       await user.click(screen.getByRole('option', { name: 'VAST' }));
       await user.type(screen.getByRole('textbox', { name: 'Endpoint' }), 'vast.example.com:443');
-      await user.type(screen.getByLabelText(/^Username/), 'admin');
+      await user.type(screen.getByLabelText(/^Username/), 'test-admin');
       await user.type(screen.getByLabelText(/^Password/), testBackendPassword);
     };
 
@@ -162,7 +162,7 @@ describe('StorageBackendCreatePage', () => {
 
       await user.type(screen.getByRole('textbox', { name: 'Name' }), 'vast-prod-1');
       await user.type(screen.getByRole('textbox', { name: 'Endpoint' }), 'vast.example.com:443');
-      await user.type(screen.getByLabelText(/^Username/), 'admin');
+      await user.type(screen.getByLabelText(/^Username/), 'test-admin');
       await user.type(screen.getByLabelText(/^Password/), testBackendPassword);
       await user.click(screen.getByRole('button', { name: 'Create' }));
 
@@ -231,7 +231,7 @@ describe('StorageBackendCreatePage', () => {
       expect(capturedRequest?.object?.metadata?.name).toBe('vast-prod-1');
       expect(capturedRequest?.object?.spec?.provider).toBe('vast');
       expect(capturedRequest?.object?.spec?.endpoint).toBe('vast.example.com:443');
-      expect(capturedRequest?.object?.spec?.credentials?.username).toBe('admin');
+      expect(capturedRequest?.object?.spec?.credentials?.username).toBe('test-admin');
       expect(capturedRequest?.object?.spec?.credentials?.password).toBe(testBackendPassword);
     }, 15000);
 
@@ -315,7 +315,7 @@ describe('StorageBackendCreatePage', () => {
       await waitFor(() => {
         expect(screen.getByLabelText(/^Username/)).toBeInTheDocument();
       });
-      await user.type(screen.getByLabelText(/^Username/), 'new-admin');
+      await user.type(screen.getByLabelText(/^Username/), 'test-new-admin');
       await user.click(screen.getByRole('button', { name: 'Save' }));
 
       await waitFor(() => {
@@ -334,7 +334,7 @@ describe('StorageBackendCreatePage', () => {
       await waitFor(() => {
         expect(screen.getByLabelText(/^Password/)).toBeInTheDocument();
       });
-      await user.type(screen.getByLabelText(/^Password/), 'new-secret');
+      await user.type(screen.getByLabelText(/^Password/), 'test-new-secret');
       await user.click(screen.getByRole('button', { name: 'Save' }));
 
       await waitFor(() => {
@@ -389,16 +389,16 @@ describe('StorageBackendCreatePage', () => {
       await waitFor(() => {
         expect(screen.getByLabelText(/^Username/)).toBeInTheDocument();
       });
-      await user.type(screen.getByLabelText(/^Username/), 'new-admin');
-      await user.type(screen.getByLabelText(/^Password/), 'new-secret');
+      await user.type(screen.getByLabelText(/^Username/), 'test-new-admin');
+      await user.type(screen.getByLabelText(/^Password/), 'test-new-secret');
       await user.click(screen.getByRole('button', { name: 'Save' }));
 
       await waitFor(() => {
         expect(mockNavigate).toHaveBeenCalledWith('/admin/infrastructure/storage/backends');
       });
       expect(capturedRequest?.object?.spec?.credentials).toMatchObject({
-        username: 'new-admin',
-        password: 'new-secret',
+        username: 'test-new-admin',
+        password: 'test-new-secret',
       });
     });
 
