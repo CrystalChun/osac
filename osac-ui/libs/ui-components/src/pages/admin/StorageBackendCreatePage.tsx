@@ -142,7 +142,7 @@ const StorageBackendForm = ({ backend }: { backend?: StorageBackend }) => {
           <Breadcrumb>
             <BreadcrumbItem>
               <Button variant="link" isInline onClick={() => navigate(BACKENDS_LIST_PATH)}>
-                {t('Storage backends')}
+                {t('Storage Backends')}
               </Button>
             </BreadcrumbItem>
             <BreadcrumbItem isActive>{isEdit ? t('Edit') : t('Create')}</BreadcrumbItem>

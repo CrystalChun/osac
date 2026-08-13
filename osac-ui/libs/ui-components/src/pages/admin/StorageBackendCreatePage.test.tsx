@@ -86,7 +86,7 @@ describe('StorageBackendCreatePage', () => {
       renderCreatePage();
 
       expect(screen.getByRole('heading', { name: 'Create storage backend' })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: 'Storage backends' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Storage Backends' })).toBeInTheDocument();
       expect(screen.getByRole('textbox', { name: 'Name' })).toBeInTheDocument();
       expect(screen.getByLabelText(/^Provider/)).toBeInTheDocument();
       expect(screen.getByRole('textbox', { name: 'Endpoint' })).toBeInTheDocument();
@@ -263,7 +263,7 @@ describe('StorageBackendCreatePage', () => {
     it('navigates back to the backends list via breadcrumb', async () => {
       const { user } = renderCreatePage();
 
-      await user.click(screen.getByRole('button', { name: 'Storage backends' }));
+      await user.click(screen.getByRole('button', { name: 'Storage Backends' }));
 
       expect(mockNavigate).toHaveBeenCalledWith('/admin/infrastructure/storage/backends');
     });
