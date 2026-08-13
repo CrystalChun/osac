@@ -5,6 +5,7 @@ import {
   ActionListItem,
   Alert,
   Button,
+  FormSection,
   Stack,
   StackItem,
 } from '@patternfly/react-core';
@@ -30,16 +31,28 @@ const InstanceTypeCreateForm = () => {
   const navigateToList = () => navigate(INSTANCE_TYPES_LIST_ROUTE);
 
   const onSubmit = async (values: InstanceTypeCreateFormValues) => {
+    const { gpu } = values.spec;
+    const hasGpu = Boolean(gpu.pciDeviceSelector || gpu.resourceName || gpu.count);
+
     try {
-      await create({
+      const created = await create({
         metadata: { name: values.metadata.name },
         spec: {
           description: values.spec.description,
           cores: Number(values.spec.cores),
           memoryGib: Number(values.spec.memoryGib),
+          ...(hasGpu
+            ? {
+                gpu: {
+                  pciDeviceSelector: gpu.pciDeviceSelector,
+                  resourceName: gpu.resourceName,
+                  count: Number(gpu.count),
+                },
+              }
+            : {}),
         },
       });
-      navigateToList();
+      navigate(`${INSTANCE_TYPES_LIST_ROUTE}/${created.id}`);
     } catch {
       // tanstack handles the error
     }
@@ -78,6 +91,29 @@ const InstanceTypeCreateForm = () => {
                   type="number"
                   isRequired
                 />
+                <FormSection title={t('GPU')}>
+                  <InputField
+                    name="spec.gpu.count"
+                    label={t('GPU count')}
+                    fieldId="instance-type-gpu-count"
+                    type="number"
+                    helperText={t('Number of GPU devices of this type.')}
+                  />
+                  <InputField
+                    name="spec.gpu.resourceName"
+                    label={t('Resource name')}
+                    fieldId="instance-type-gpu-resource-name"
+                    placeholder="e.g nvidia.com/A100"
+                    helperText={t('Kubernetes device plugin resource name.')}
+                  />
+                  <InputField
+                    name="spec.gpu.pciDeviceSelector"
+                    label={t('PCI device selector')}
+                    fieldId="instance-type-gpu-pci-device-selector"
+                    placeholder="e.g 10DE:20B0"
+                    helperText={t('PCI device selector identifying the GPU hardware.')}
+                  />
+                </FormSection>
               </OsacForm>
             </StackItem>
             {!!error && (

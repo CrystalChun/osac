@@ -16,6 +16,7 @@ interface InputFieldProps {
   resizeOrientation?: 'vertical' | 'horizontal' | 'both' | 'none';
   type?: 'text' | 'number' | 'password';
   helperText?: string;
+  placeholder?: string;
   onBlur?: () => void;
 }
 
@@ -30,6 +31,7 @@ export const InputField = ({
   resizeOrientation,
   type = 'text',
   helperText,
+  placeholder,
   onBlur,
   children,
 }: React.PropsWithChildren<InputFieldProps>) => {
@@ -46,6 +48,7 @@ export const InputField = ({
           id={fieldId}
           name={name}
           value={field.value ?? ''}
+          placeholder={placeholder}
           rows={rows}
           resizeOrientation={resizeOrientation}
           onChange={(_event, value) => {
@@ -68,6 +71,7 @@ export const InputField = ({
               name={name}
               type={type}
               value={field.value ?? ''}
+              placeholder={placeholder}
               onChange={(_event, value) => {
                 void field.onChange({ target: { name, value } });
               }}

@@ -435,7 +435,7 @@ export const createMockConnectTransport = (
           if (overrides.onInstanceTypeCreate) {
             return overrides.onInstanceTypeCreate(req);
           }
-          return { object: req.object };
+          return { object: { id: 'new-instance-type-1', ...req.object } };
         },
         update: (req) => {
           if (overrides.onInstanceTypeUpdate) {

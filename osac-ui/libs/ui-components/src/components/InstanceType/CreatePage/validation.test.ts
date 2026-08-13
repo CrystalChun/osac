@@ -75,4 +75,70 @@ describe('getInstanceTypeCreateSchema', () => {
       }),
     ).resolves.toBe(false);
   });
+
+  describe('gpu', () => {
+    it('accepts values with no gpu fields at all', async () => {
+      await expect(schema.isValid(validValues)).resolves.toBe(true);
+    });
+
+    it('accepts a fully populated gpu', async () => {
+      await expect(
+        schema.isValid({
+          ...validValues,
+          spec: {
+            ...validValues.spec,
+            gpu: { pciDeviceSelector: '10DE:20B0', resourceName: 'nvidia.com/A100', count: '2' },
+          },
+        }),
+      ).resolves.toBe(true);
+    });
+
+    it.each([
+      ['pciDeviceSelector', { pciDeviceSelector: '', resourceName: 'nvidia.com/A100', count: '2' }],
+      ['resourceName', { pciDeviceSelector: '10DE:20B0', resourceName: '', count: '2' }],
+      ['count', { pciDeviceSelector: '10DE:20B0', resourceName: 'nvidia.com/A100', count: '' }],
+    ])('rejects a partially filled gpu missing %s', async (_label, gpu) => {
+      await expect(
+        schema.isValid({ ...validValues, spec: { ...validValues.spec, gpu } }),
+      ).resolves.toBe(false);
+    });
+
+    it.each([
+      ['zero', '0'],
+      ['negative', '-1'],
+      ['above max', '17'],
+      ['decimal', '1.5'],
+    ])('rejects an out-of-range gpu count of %s', async (_label, count) => {
+      await expect(
+        schema.isValid({
+          ...validValues,
+          spec: {
+            ...validValues.spec,
+            gpu: { pciDeviceSelector: '10DE:20B0', resourceName: 'nvidia.com/A100', count },
+          },
+        }),
+      ).resolves.toBe(false);
+    });
+
+    it('accepts gpu count at the boundaries of 1 and 16', async () => {
+      await expect(
+        schema.isValid({
+          ...validValues,
+          spec: {
+            ...validValues.spec,
+            gpu: { pciDeviceSelector: '10DE:20B0', resourceName: 'nvidia.com/A100', count: '1' },
+          },
+        }),
+      ).resolves.toBe(true);
+      await expect(
+        schema.isValid({
+          ...validValues,
+          spec: {
+            ...validValues.spec,
+            gpu: { pciDeviceSelector: '10DE:20B0', resourceName: 'nvidia.com/A100', count: '16' },
+          },
+        }),
+      ).resolves.toBe(true);
+    });
+  });
 });

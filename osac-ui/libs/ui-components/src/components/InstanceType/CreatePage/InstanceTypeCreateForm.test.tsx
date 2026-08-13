@@ -47,6 +47,10 @@ describe('InstanceTypeCreateForm', () => {
     expect(screen.getByRole('textbox', { name: 'Description' })).toBeInTheDocument();
     expect(screen.getByRole('spinbutton', { name: 'CPU cores' })).toBeInTheDocument();
     expect(screen.getByRole('spinbutton', { name: 'Memory (GiB)' })).toBeInTheDocument();
+    expect(screen.getByText('GPU')).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'PCI device selector' })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'Resource name' })).toBeInTheDocument();
+    expect(screen.getByRole('spinbutton', { name: 'GPU count' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Create' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
   });
@@ -121,12 +125,16 @@ describe('InstanceTypeCreateForm', () => {
   });
 
   describe('submission', () => {
-    it('creates the instance type with integer-converted cores/memory and navigates to the list', async () => {
+    const CREATED_ID = 'instance-type-created-1';
+
+    it('creates the instance type with integer-converted cores/memory and navigates to its detail page', async () => {
       let captured: Record<string, unknown> | undefined;
       const { user } = renderForm({
         onInstanceTypeCreate: (req) => {
           captured = req as unknown as Record<string, unknown>;
-          return create(InstanceTypesCreateResponseSchema, { object: req.object });
+          return create(InstanceTypesCreateResponseSchema, {
+            object: { ...req.object, id: CREATED_ID },
+          });
         },
       });
 
@@ -134,11 +142,78 @@ describe('InstanceTypeCreateForm', () => {
       await user.click(screen.getByRole('button', { name: 'Create' }));
 
       await waitFor(() => {
-        expect(mockNavigate).toHaveBeenCalledWith(LIST_ROUTE);
+        expect(mockNavigate).toHaveBeenCalledWith(`${LIST_ROUTE}/${CREATED_ID}`);
       });
       const spec = (captured?.object as { spec?: { cores?: number; memoryGib?: number } })?.spec;
       expect(spec?.cores).toBe(4);
       expect(spec?.memoryGib).toBe(16);
+    });
+
+    it('omits gpu from the request when the GPU fields are left blank', async () => {
+      let captured: Record<string, unknown> | undefined;
+      const { user } = renderForm({
+        onInstanceTypeCreate: (req) => {
+          captured = req as unknown as Record<string, unknown>;
+          return create(InstanceTypesCreateResponseSchema, {
+            object: { ...req.object, id: CREATED_ID },
+          });
+        },
+      });
+
+      await fillValidForm(user);
+      await user.click(screen.getByRole('button', { name: 'Create' }));
+
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith(`${LIST_ROUTE}/${CREATED_ID}`);
+      });
+      const spec = captured?.object as { spec?: { gpu?: unknown } };
+      expect(spec?.spec?.gpu).toBeUndefined();
+    });
+
+    it('includes gpu in the request when all three GPU fields are filled in', async () => {
+      let captured: Record<string, unknown> | undefined;
+      const { user } = renderForm({
+        onInstanceTypeCreate: (req) => {
+          captured = req as unknown as Record<string, unknown>;
+          return create(InstanceTypesCreateResponseSchema, {
+            object: { ...req.object, id: CREATED_ID },
+          });
+        },
+      });
+
+      await fillValidForm(user);
+      await user.type(screen.getByRole('textbox', { name: 'PCI device selector' }), '10DE:20B0');
+      await user.type(screen.getByRole('textbox', { name: 'Resource name' }), 'nvidia.com/A100');
+      fireEvent.change(screen.getByRole('spinbutton', { name: 'GPU count' }), {
+        target: { value: '2' },
+      });
+      await user.click(screen.getByRole('button', { name: 'Create' }));
+
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith(`${LIST_ROUTE}/${CREATED_ID}`);
+      });
+      const spec = (
+        captured?.object as {
+          spec?: { gpu?: { pciDeviceSelector?: string; resourceName?: string; count?: number } };
+        }
+      )?.spec;
+      expect(spec?.gpu).toMatchObject({
+        pciDeviceSelector: '10DE:20B0',
+        resourceName: 'nvidia.com/A100',
+        count: 2,
+      });
+    });
+
+    it('shows a validation error when only some GPU fields are filled in', async () => {
+      const { user } = renderForm();
+
+      await fillValidForm(user);
+      await user.type(screen.getByRole('textbox', { name: 'PCI device selector' }), '10DE:20B0');
+      await user.click(screen.getByRole('button', { name: 'Create' }));
+
+      await waitFor(() => {
+        expect(screen.getAllByText('Required when configuring a GPU').length).toBeGreaterThan(0);
+      });
     });
 
     it('shows an error alert when create fails, regardless of the backend message shape', async () => {
