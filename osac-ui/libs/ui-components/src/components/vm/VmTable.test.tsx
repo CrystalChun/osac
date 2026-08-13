@@ -39,6 +39,8 @@ const runningVm: ComputeInstance = {
   metadata: {
     name: 'web-01',
     $typeName: 'osac.public.v1.Metadata',
+    displayName: '',
+    description: '',
     annotations: {},
     creator: 'foo',
     labels: {},

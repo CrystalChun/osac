@@ -22,6 +22,8 @@ describe('SubnetCreateModal', () => {
     id: 'vn-123',
     metadata: {
       $typeName: 'osac.public.v1.Metadata',
+      displayName: '',
+      description: '',
       name: 'prod-vn',
       annotations: {},
       creator: 'foo',
@@ -45,6 +47,8 @@ describe('SubnetCreateModal', () => {
       id: 'subnet-1',
       metadata: {
         $typeName: 'osac.public.v1.Metadata',
+        displayName: '',
+        description: '',
         name: 'subnet-web',
         annotations: {},
         creator: 'foo',

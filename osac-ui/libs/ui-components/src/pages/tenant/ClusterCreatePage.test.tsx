@@ -62,6 +62,8 @@ const clusterCatalogItem: ClusterCatalogItem = {
   id: 'catalog-openshift-4',
   metadata: {
     $typeName: 'osac.public.v1.Metadata',
+    displayName: '',
+    description: '',
     name: 'catalog-openshift-4',
     annotations: {},
     creator: 'foo',
@@ -94,6 +96,8 @@ const createdCluster: Cluster = {
   id: 'cluster-1',
   metadata: {
     $typeName: 'osac.public.v1.Metadata',
+    displayName: '',
+    description: '',
     name: 'my-cluster',
     annotations: {},
     creator: 'foo',
@@ -119,6 +123,8 @@ const apiFixtures: MockApiFixtures = {
       id: 'tpl-openshift-4',
       metadata: {
         $typeName: 'osac.public.v1.Metadata',
+        displayName: '',
+        description: '',
         name: 'tpl-openshift-4',
         annotations: {},
         creator: 'foo',
@@ -145,6 +151,8 @@ const apiFixtures: MockApiFixtures = {
       id: 'acme_1tb',
       metadata: {
         $typeName: 'osac.public.v1.Metadata',
+        displayName: '',
+        description: '',
         name: 'acme_1tb',
         annotations: {},
         creator: 'foo',
@@ -162,6 +170,8 @@ const apiFixtures: MockApiFixtures = {
       id: 'acme_1tb_h100',
       metadata: {
         $typeName: 'osac.public.v1.Metadata',
+        displayName: '',
+        description: '',
         name: 'acme_1tb_h100',
         annotations: {},
         creator: 'foo',

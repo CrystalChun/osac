@@ -216,6 +216,8 @@ const vmCatalogItem: ComputeInstanceCatalogItem = {
   id: 'catalog-rhel-9',
   metadata: {
     $typeName: 'osac.public.v1.Metadata',
+    displayName: '',
+    description: '',
     name: 'catalog-rhel-9',
     annotations: {},
     creator: 'foo',
@@ -248,6 +250,8 @@ const clusterCatalogItem: ClusterCatalogItem = {
   id: 'catalog-openshift-4',
   metadata: {
     $typeName: 'osac.public.v1.Metadata',
+    displayName: '',
+    description: '',
     name: 'catalog-openshift-4',
     annotations: {},
     creator: 'foo',
@@ -297,6 +301,8 @@ const multiFieldCatalogItem: ComputeInstanceCatalogItem = {
   id: 'catalog-rhel-9',
   metadata: {
     $typeName: 'osac.public.v1.Metadata',
+    displayName: '',
+    description: '',
     name: 'catalog-rhel-9',
     annotations: {},
     creator: 'foo',
@@ -341,6 +347,8 @@ const apiFixtures: MockApiFixtures = {
       id: 'tpl-openshift-4',
       metadata: {
         $typeName: 'osac.public.v1.Metadata',
+        displayName: '',
+        description: '',
         name: 'tpl-openshift-4',
         annotations: {},
         creator: 'foo',
@@ -367,6 +375,8 @@ const apiFixtures: MockApiFixtures = {
       id: 'acme_1tb',
       metadata: {
         $typeName: 'osac.public.v1.Metadata',
+        displayName: '',
+        description: '',
         name: 'acme_1tb',
         annotations: {},
         creator: 'foo',
@@ -384,6 +394,8 @@ const apiFixtures: MockApiFixtures = {
       id: 'acme_1tb_h100',
       metadata: {
         $typeName: 'osac.public.v1.Metadata',
+        displayName: '',
+        description: '',
         name: 'acme_1tb_h100',
         annotations: {},
         creator: 'foo',
@@ -403,6 +415,8 @@ const apiFixtures: MockApiFixtures = {
       id: 'vn-1',
       metadata: {
         $typeName: 'osac.public.v1.Metadata',
+        displayName: '',
+        description: '',
         name: 'tenant-vn',
         annotations: {},
         creator: 'foo',
@@ -423,6 +437,8 @@ const apiFixtures: MockApiFixtures = {
       id: 'subnet-1',
       metadata: {
         $typeName: 'osac.public.v1.Metadata',
+        displayName: '',
+        description: '',
         name: 'tenant-subnet',
         annotations: {},
         creator: 'foo',
@@ -447,6 +463,8 @@ const apiFixtures: MockApiFixtures = {
       id: 'sg-1',
       metadata: {
         $typeName: 'osac.public.v1.Metadata',
+        displayName: '',
+        description: '',
         name: 'default-sg',
         annotations: {},
         creator: 'foo',
@@ -473,6 +491,8 @@ const apiFixtures: MockApiFixtures = {
       id: 'standard-4-8',
       metadata: {
         $typeName: 'osac.public.v1.Metadata',
+        displayName: '',
+        description: '',
         name: 'standard-4-8',
         annotations: {},
         creator: 'foo',
@@ -764,6 +784,8 @@ describe('CatalogProvisionWizard', () => {
             id: 'standard-deprecated',
             metadata: {
               $typeName: 'osac.public.v1.Metadata',
+              displayName: '',
+              description: '',
               name: 'standard-4-8',
               annotations: {},
               creator: 'foo',
@@ -785,6 +807,8 @@ describe('CatalogProvisionWizard', () => {
             id: 'standard-active',
             metadata: {
               $typeName: 'osac.public.v1.Metadata',
+              displayName: '',
+              description: '',
               name: 'standard-4-8',
               annotations: {},
               creator: 'foo',
@@ -829,6 +853,8 @@ describe('CatalogProvisionWizard', () => {
             id: 'vn-pending',
             metadata: {
               $typeName: 'osac.public.v1.Metadata',
+              displayName: '',
+              description: '',
               name: 'tenant-vn',
               annotations: {},
               creator: 'foo',
@@ -847,6 +873,8 @@ describe('CatalogProvisionWizard', () => {
             id: 'vn-ready',
             metadata: {
               $typeName: 'osac.public.v1.Metadata',
+              displayName: '',
+              description: '',
               name: 'tenant-vn',
               annotations: {},
               creator: 'foo',
@@ -867,6 +895,8 @@ describe('CatalogProvisionWizard', () => {
             id: 'subnet-1',
             metadata: {
               $typeName: 'osac.public.v1.Metadata',
+              displayName: '',
+              description: '',
               name: 'tenant-subnet',
               annotations: {},
               creator: 'foo',
@@ -891,6 +921,8 @@ describe('CatalogProvisionWizard', () => {
             id: 'sg-1',
             metadata: {
               $typeName: 'osac.public.v1.Metadata',
+              displayName: '',
+              description: '',
               name: 'default-sg',
               annotations: {},
               creator: 'foo',

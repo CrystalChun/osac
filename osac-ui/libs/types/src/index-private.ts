@@ -60,10 +60,13 @@ export * from './osac/private/v1/baremetal_instance_templates_service_pb.js'
 export * from './osac/private/v1/hub_type_pb.js'
 export * from './osac/private/v1/hubs_service_pb.js'
 
+export * from './osac/private/v1/storage_common_type_pb.js'
 export * from './osac/private/v1/storage_backend_type_pb.js'
 export * from './osac/private/v1/storage_backends_service_pb.js'
 export * from './osac/private/v1/storage_tier_type_pb.js'
 export * from './osac/private/v1/storage_tiers_service_pb.js'
+export * from './osac/private/v1/volume_type_pb.js'
+export * from './osac/private/v1/volumes_service_pb.js'
 
 export * from './osac/private/v1/identity_provider_type_pb.js'
 export * from './osac/private/v1/identity_providers_service_pb.js'

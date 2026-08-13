@@ -21,6 +21,8 @@ const vmCatalogItem: ComputeInstanceCatalogItem = {
   id: 'catalog-rhel-9',
   metadata: {
     $typeName: 'osac.public.v1.Metadata',
+    displayName: '',
+    description: '',
     name: 'catalog-rhel-9',
     annotations: {},
     creator: 'foo',
@@ -62,6 +64,8 @@ const clusterCatalogItem: ClusterCatalogItem = {
   id: 'catalog-openshift-4',
   metadata: {
     $typeName: 'osac.public.v1.Metadata',
+    displayName: '',
+    description: '',
     name: 'catalog-openshift-4',
     creator: 'admin',
     annotations: {},
@@ -300,6 +304,8 @@ describe('CatalogPage', () => {
       id: 'catalog-fedora-40',
       metadata: {
         $typeName: 'osac.public.v1.Metadata',
+        displayName: '',
+        description: '',
         name: 'catalog-fedora-40',
         annotations: {},
         creator: 'foo',

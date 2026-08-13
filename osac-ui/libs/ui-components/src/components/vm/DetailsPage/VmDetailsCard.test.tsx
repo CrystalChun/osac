@@ -28,6 +28,8 @@ const catalogVm: ComputeInstance = {
   id: 'vm-1',
   metadata: {
     $typeName: 'osac.public.v1.Metadata',
+    displayName: '',
+    description: '',
     name: 'web-01',
     creator: 'alice',
     creationTimestamp: {
@@ -78,6 +80,8 @@ describe('VmDetailsCard', () => {
         id: 'standard-4-8',
         metadata: {
           $typeName: 'osac.public.v1.Metadata',
+          displayName: '',
+          description: '',
           name: 'Standard 4 vCPU / 8 GiB',
           annotations: {},
           creator: 'foo',

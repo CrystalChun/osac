@@ -36,6 +36,8 @@ describe('VirtualNetworkDetailPage', () => {
     id: 'vn-1',
     metadata: {
       $typeName: 'osac.public.v1.Metadata',
+      displayName: '',
+      description: '',
       name: 'vn-prod',
       annotations: {},
       creator: 'foo',
@@ -61,6 +63,8 @@ describe('VirtualNetworkDetailPage', () => {
       id: 'sg-1',
       metadata: {
         $typeName: 'osac.public.v1.Metadata',
+        displayName: '',
+        description: '',
         name: 'sg-web',
         annotations: {},
         creator: 'foo',
@@ -106,6 +110,8 @@ describe('VirtualNetworkDetailPage', () => {
             id: 'subnet-1',
             metadata: {
               $typeName: 'osac.public.v1.Metadata',
+              displayName: '',
+              description: '',
               name: 'subnet-a',
               annotations: {},
               creator: 'foo',

@@ -26,7 +26,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/public/v1/metadata_type.proto.
  */
 export const file_osac_public_v1_metadata_type: GenFile = /*@__PURE__*/
-  fileDesc("CiJvc2FjL3B1YmxpYy92MS9tZXRhZGF0YV90eXBlLnByb3RvEg5vc2FjLnB1YmxpYy52MSL9AwoITWV0YWRhdGESNgoSY3JlYXRpb25fdGltZXN0YW1wGAEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBI2ChJkZWxldGlvbl90aW1lc3RhbXAYAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEg8KB2NyZWF0b3IYAyABKAkSPQoEbmFtZRgEIAEoCUIvukgscioQARg/MiReW2EtejAtOV0oW2EtejAtOS1dezAsNjF9W2EtejAtOV0pPyQSDgoGdGVuYW50GAUgASgJEksKBmxhYmVscxgHIAMoCzIkLm9zYWMucHVibGljLnYxLk1ldGFkYXRhLkxhYmVsc0VudHJ5QhW6SBKaAQ8iB3IFEAEYvAIqBHICGD8STwoLYW5ub3RhdGlvbnMYCCADKAsyKS5vc2FjLnB1YmxpYy52MS5NZXRhZGF0YS5Bbm5vdGF0aW9uc0VudHJ5Qg+6SAyaAQkiB3IFEAEYvAISDwoHdmVyc2lvbhgJIAEoBRIPCgdwcm9qZWN0GAogASgJGi0KC0xhYmVsc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEaMgoQQW5ub3RhdGlvbnNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBYgZwcm90bzM", [file_buf_validate_validate, file_google_protobuf_timestamp]);
+  fileDesc("CiJvc2FjL3B1YmxpYy92MS9tZXRhZGF0YV90eXBlLnByb3RvEg5vc2FjLnB1YmxpYy52MSK7BAoITWV0YWRhdGESNgoSY3JlYXRpb25fdGltZXN0YW1wGAEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBI2ChJkZWxldGlvbl90aW1lc3RhbXAYAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEg8KB2NyZWF0b3IYAyABKAkSPQoEbmFtZRgEIAEoCUIvukgscioQARg/MiReW2EtejAtOV0oW2EtejAtOS1dezAsNjF9W2EtejAtOV0pPyQSDgoGdGVuYW50GAUgASgJEksKBmxhYmVscxgHIAMoCzIkLm9zYWMucHVibGljLnYxLk1ldGFkYXRhLkxhYmVsc0VudHJ5QhW6SBKaAQ8iB3IFEAEYvAIqBHICGD8STwoLYW5ub3RhdGlvbnMYCCADKAsyKS5vc2FjLnB1YmxpYy52MS5NZXRhZGF0YS5Bbm5vdGF0aW9uc0VudHJ5Qg+6SAyaAQkiB3IFEAEYvAISDwoHdmVyc2lvbhgJIAEoBRIPCgdwcm9qZWN0GAogASgJEh0KDGRpc3BsYXlfbmFtZRgLIAEoCUIHukgEcgIYPxIdCgtkZXNjcmlwdGlvbhgMIAEoCUIIukgFcgMYgAIaLQoLTGFiZWxzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ARoyChBBbm5vdGF0aW9uc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAFiBnByb3RvMw", [file_buf_validate_validate, file_google_protobuf_timestamp]);
 
 /**
  * Metadata common to all kinds of objects.
@@ -132,6 +132,22 @@ export type Metadata = Message<"osac.public.v1.Metadata"> & {
    * @generated from field: string project = 10;
    */
   project: string;
+
+  /**
+   * Human-friendly display name. Optional, not unique, mutable.
+   * Not constrained to DNS-label format.
+   *
+   * @generated from field: string display_name = 11;
+   */
+  displayName: string;
+
+  /**
+   * Optional human-friendly description. Opaque string; clients may
+   * treat content as Markdown. Not unique, mutable.
+   *
+   * @generated from field: string description = 12;
+   */
+  description: string;
 };
 
 /**
