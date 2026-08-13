@@ -5,7 +5,10 @@ import { EllipsisVIcon } from '@patternfly/react-icons/dist/esm/icons/ellipsis-v
 import { InstanceTypeState, type InstanceType as PrivateInstanceType } from '@osac/types/private';
 
 import InstanceTypeDeleteConfirmModal from './InstanceTypeDeleteConfirmModal';
-import { useInstanceTypeLifecycleAction } from './useInstanceTypeLifecycleAction';
+import {
+  getInstanceTypeLifecycleActions,
+  useInstanceTypeLifecycleAction,
+} from './useInstanceTypeLifecycleAction';
 import { useTranslation } from '../../hooks/useTranslation';
 
 interface AdminInstanceTypeActionsMenuProps {
@@ -18,11 +21,9 @@ const AdminInstanceTypeActionsMenu = ({ instanceType }: AdminInstanceTypeActions
   const [deleteOpen, setDeleteOpen] = useState(false);
   const { runLifecycleAction } = useInstanceTypeLifecycleAction();
 
-  const state = instanceType.spec?.state || InstanceTypeState.ACTIVE;
-  const canDeprecate = state !== InstanceTypeState.DEPRECATED;
-  const canObsolete = state !== InstanceTypeState.OBSOLETE;
-  const canReactivate = state !== InstanceTypeState.ACTIVE;
-  const canDelete = state === InstanceTypeState.OBSOLETE;
+  const { canDeprecate, canObsolete, canReactivate, canDelete } = getInstanceTypeLifecycleActions(
+    instanceType.spec?.state,
+  );
 
   const name = instanceType.metadata?.name || instanceType.id;
 
