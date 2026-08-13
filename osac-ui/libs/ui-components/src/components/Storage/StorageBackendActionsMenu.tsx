@@ -13,7 +13,10 @@ interface StorageBackendActionsMenuProps {
   onDeleteSuccess?: () => void;
 }
 
-const StorageBackendActionsMenu = ({ backend, onDeleteSuccess }: StorageBackendActionsMenuProps) => {
+const StorageBackendActionsMenu = ({
+  backend,
+  onDeleteSuccess,
+}: StorageBackendActionsMenuProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
