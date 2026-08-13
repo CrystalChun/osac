@@ -3,8 +3,8 @@ import { create } from '@bufbuild/protobuf';
 import { screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
-import { StorageBackendSchema } from '@osac/types/private';
 import type { StorageTier } from '@osac/types/private';
+import { StorageBackendSchema } from '@osac/types/private';
 import { StorageProtocol, StorageTierState } from '@osac/types/private';
 import {
   type RenderWithProvidersOptions,
