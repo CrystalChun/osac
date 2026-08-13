@@ -75,7 +75,7 @@ The `Metadata` message is shared by all object types and contains the following 
 | `creation_timestamp`   | `google.protobuf.Timestamp`  | Time the object was created.                     |
 | `deletion_timestamp`   | `google.protobuf.Timestamp`  | Time the object was marked for deletion.         |
 | `creator`              | `string`                     | Identity that created the object.                |
-| `name`                 | `string`                     | Human-friendly name (DNS label rules, optional). |
+| `name`                 | `string`                     | Required, immutable identifier (RFC 1123 DNS label format). |
 | `tenant`               | `string`                     | Tenant that owns the object.                     |
 | `labels`               | `map<string, string>`        | Indexed key-value pairs for organizing objects.  |
 | `annotations`          | `map<string, string>`        | Arbitrary user-controlled metadata.              |
@@ -84,6 +84,53 @@ The `Metadata` message is shared by all object types and contains the following 
 | `description`          | `string`                     | Optional description (max 256, not unique).      |
 
 The private API adds a `finalizers` field (`repeated string`) that is not exposed in the public API.
+
+### Resource names
+
+Every object must have a `metadata.name`. The name is **mandatory** at creation time, **immutable**
+after creation, and **unique** within its scope.
+
+#### Format
+
+Names follow the RFC 1123 DNS label format:
+
+- Lowercase letters (`a`–`z`), digits (`0`–`9`), and hyphens (`-`) only
+- Must start and end with an alphanumeric character
+- 1 to 63 characters long
+
+The proto validation rule is:
+
+```
+min_len: 1, max_len: 63, pattern: "^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$"
+```
+
+Valid names: `my-cluster`, `prod-net-01`, `a`, `web-3`
+
+Invalid names: `My-Cluster` (uppercase), `-starts-with-hyphen` (leading hyphen),
+`ends-with-hyphen-` (trailing hyphen), `has_underscores` (underscores),
+`name-that-is-way-too-long-and-exceeds-the-sixty-three-character-maximum-allowed` (too long),
+`""` (empty)
+
+#### Uniqueness
+
+Names are unique per (tenant, project, resource type). Two different resource types may have objects
+with the same name within the same tenant and project, but two objects of the same type cannot.
+A name remains reserved while the object exists, including while deletion is pending (between
+`deletion_timestamp` being set and archival completing).
+
+#### Immutability
+
+Once an object is created, its `metadata.name` cannot be changed. Updates that include
+`metadata.name` in the field mask are accepted only if the value is identical to the existing name.
+
+#### Error responses
+
+| Scenario | gRPC code | Example message |
+|---|---|---|
+| Name missing or empty on create | `InvalidArgument` | Validation error on `metadata.name` (protovalidate) |
+| Name fails RFC 1123 format | `InvalidArgument` | Validation error on `metadata.name` (protovalidate) |
+| Name already taken in scope | `AlreadyExists` | `virtual network 'prod-net' already exists` |
+| Update attempts to change name | `InvalidArgument` | `field 'metadata.name' is immutable` |
 
 ### Spec and status ownership
 
@@ -140,7 +187,7 @@ This ensures validation always runs on the actual final state, not partial input
 Common validation patterns:
 
 - **Required string fields**: `[(buf.validate.field).string.min_len = 1]`
-- **DNS labels** (like `metadata.name`): `max_len: 63`, `pattern: "^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)?$"`
+- **DNS labels** (like `metadata.name`): `min_len: 1`, `max_len: 63`, `pattern: "^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$"`
 - **Enum fields**: `[(buf.validate.field).enum.defined_only = true]` to reject unknown values
 - **Numeric ranges**: `[(buf.validate.field).int32.gte = 0]`
 - **Map constraints**: Use `[(buf.validate.field).map.keys...]` and `[(buf.validate.field).map.values...]`
@@ -200,7 +247,8 @@ expressed in proto annotations and must be implemented in server logic. Examples
 - Custom business rules that depend on multiple objects or system state
 
 For these cases, implement validation in the server's `Create` or `Update` methods and return
-`InvalidArgument` errors with descriptive messages.
+appropriate gRPC errors (`AlreadyExists` for uniqueness violations, `InvalidArgument` for other
+constraint failures) with descriptive messages.
 
 ## Declarative, intent-based design
 
