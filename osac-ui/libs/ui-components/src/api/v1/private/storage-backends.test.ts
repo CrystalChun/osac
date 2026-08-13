@@ -176,6 +176,7 @@ describe('useUpdateStorageBackend', () => {
   it('sends a single spec.endpoint mask entry and never masks metadata.name or spec.provider', async () => {
     const captured = await mutateAndCaptureUpdate({
       id: 'b-1',
+      version: 3,
       spec: { endpoint: 'new.example.com' },
     });
 
@@ -183,13 +184,14 @@ describe('useUpdateStorageBackend', () => {
     expect(paths).toEqual(['spec.endpoint']);
     expect(paths).not.toContain('metadata.name');
     expect(paths).not.toContain('spec.provider');
-    const object = captured?.object as { metadata?: unknown };
-    expect(object.metadata).toBeUndefined();
+    const object = captured?.object as { metadata?: { name?: string } };
+    expect(object.metadata?.name).toBe('');
   });
 
   it('sends spec.endpoint and spec.description as separate mask entries when both change', async () => {
     const captured = await mutateAndCaptureUpdate({
       id: 'b-1',
+      version: 3,
       spec: { endpoint: 'new.example.com', description: 'updated description' },
     });
 
@@ -202,6 +204,7 @@ describe('useUpdateStorageBackend', () => {
   it('sends a single spec.credentials mask entry, never split into username/password leaves', async () => {
     const captured = await mutateAndCaptureUpdate({
       id: 'b-1',
+      version: 3,
       spec: { credentials: { username: 'test-updated-admin', password: 'test-updated-secret' } },
     });
 
@@ -218,10 +221,22 @@ describe('useUpdateStorageBackend', () => {
   it('sends lock: true for optimistic concurrency', async () => {
     const captured = await mutateAndCaptureUpdate({
       id: 'b-1',
+      version: 3,
       spec: { endpoint: 'new.example.com' },
     });
 
     expect(captured?.lock).toBe(true);
+  });
+
+  it('sends the current version in object.metadata so the server can enforce the lock', async () => {
+    const captured = await mutateAndCaptureUpdate({
+      id: 'b-1',
+      version: 7,
+      spec: { endpoint: 'new.example.com' },
+    });
+
+    const object = captured?.object as { metadata?: { version?: number } };
+    expect(object.metadata?.version).toBe(7);
   });
 });
 

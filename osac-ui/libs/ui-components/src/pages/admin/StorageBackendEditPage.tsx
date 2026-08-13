@@ -106,6 +106,7 @@ const StorageBackendEditForm = ({ backend }: { backend: StorageBackend }) => {
             try {
               await mutateAsync({
                 id: backend.id,
+                version: backend.metadata?.version ?? 0,
                 spec: {
                   endpoint: values.endpoint,
                   description: values.description,

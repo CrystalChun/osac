@@ -35,7 +35,7 @@ const EDIT_PATH = '/admin/infrastructure/storage/backends/b-1/edit';
 
 const existingBackend = create(StorageBackendSchema, {
   id: 'b-1',
-  metadata: { name: 'vast-prod-1' },
+  metadata: { name: 'vast-prod-1', version: 7 },
   spec: {
     provider: 'vast',
     endpoint: 'vast.example.com:443',
@@ -158,11 +158,12 @@ describe('StorageBackendEditPage', () => {
     });
     expect(capturedRequest?.object?.spec?.endpoint).toBe('new.example.com:443');
     expect(capturedRequest?.object?.spec?.credentials).toBeUndefined();
-    expect(capturedRequest?.object?.metadata).toBeUndefined();
+    expect(capturedRequest?.object?.metadata?.name).toBe('');
     expect(capturedRequest?.updateMask?.paths).not.toContain('spec.provider');
     expect(capturedRequest?.updateMask?.paths).not.toContain('metadata.name');
     expect(capturedRequest?.updateMask?.paths).not.toContain('spec.credentials');
     expect(capturedRequest?.lock).toBe(true);
+    expect(capturedRequest?.object?.metadata?.version).toBe(7);
   });
 
   it('submits a complete credentials object when both fields are filled', async () => {
