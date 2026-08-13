@@ -4,22 +4,11 @@ import * as Yup from 'yup';
 import { positiveIntegerSchema } from '@osac/ui-components/validation/positive-integer';
 import { resourceNameSchema } from '@osac/ui-components/validation/resource-name';
 
+import type { InstanceTypeCreateFormValues } from './values';
+
 const MAX_INT32 = 2147483647;
-const GPU_COUNT_MIN = 1;
-const GPU_COUNT_MAX = 16;
 
-const isGpuFieldProvided = (value?: string | number) => Boolean(value);
 const requiredForGpu = (t: TFunction) => t('Required when configuring a GPU');
-
-const getGpuCountSchema = (t: TFunction) =>
-  Yup.number()
-    .transform((value: number, originalValue: unknown) =>
-      originalValue === '' ? undefined : value,
-    )
-    .typeError(t('Must be a whole number'))
-    .integer(t('Must be a whole number'))
-    .min(GPU_COUNT_MIN, t('Must be at least {{min}}', { min: GPU_COUNT_MIN }))
-    .max(GPU_COUNT_MAX, t('Must be at most {{max}}', { max: GPU_COUNT_MAX }));
 
 export const getInstanceTypeCreateSchema = (t: TFunction) =>
   Yup.object({
@@ -30,23 +19,19 @@ export const getInstanceTypeCreateSchema = (t: TFunction) =>
       description: Yup.string(),
       cores: positiveIntegerSchema(t, MAX_INT32),
       memoryGib: positiveIntegerSchema(t, MAX_INT32),
-      gpu: Yup.lazy(
-        (gpu: { pciDeviceSelector?: string; resourceName?: string; count?: number } = {}) => {
-          const anyProvided =
-            isGpuFieldProvided(gpu.pciDeviceSelector) ||
-            isGpuFieldProvided(gpu.resourceName) ||
-            isGpuFieldProvided(gpu.count);
+      gpu: Yup.lazy((gpu: InstanceTypeCreateFormValues['spec']['gpu'] | undefined) => {
+        const anyProvided = !!gpu?.pciDeviceSelector || !!gpu?.resourceName || !!gpu?.count;
 
-          return Yup.object({
-            pciDeviceSelector: anyProvided
-              ? Yup.string().required(requiredForGpu(t))
-              : Yup.string(),
-            resourceName: anyProvided ? Yup.string().required(requiredForGpu(t)) : Yup.string(),
-            count: anyProvided
-              ? getGpuCountSchema(t).required(requiredForGpu(t))
-              : getGpuCountSchema(t),
-          });
-        },
-      ),
+        if (!anyProvided) {
+          return Yup.mixed();
+        }
+
+        return Yup.object({
+          pciDeviceSelector: Yup.string().required(requiredForGpu(t)),
+          resourceName: Yup.string().required(requiredForGpu(t)),
+          // No GPU-specific upper bound here; the backend enforces count <= 16.
+          count: positiveIntegerSchema(t, MAX_INT32).required(requiredForGpu(t)),
+        });
+      }),
     }),
   });

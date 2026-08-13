@@ -106,7 +106,6 @@ describe('getInstanceTypeCreateSchema', () => {
     it.each([
       ['zero', '0'],
       ['negative', '-1'],
-      ['above max', '17'],
       ['decimal', '1.5'],
     ])('rejects an out-of-range gpu count of %s', async (_label, count) => {
       await expect(
@@ -120,7 +119,7 @@ describe('getInstanceTypeCreateSchema', () => {
       ).resolves.toBe(false);
     });
 
-    it('accepts gpu count at the boundaries of 1 and 16', async () => {
+    it('accepts a large gpu count, deferring the upper bound to the backend', async () => {
       await expect(
         schema.isValid({
           ...validValues,
@@ -135,7 +134,7 @@ describe('getInstanceTypeCreateSchema', () => {
           ...validValues,
           spec: {
             ...validValues.spec,
-            gpu: { pciDeviceSelector: '10DE:20B0', resourceName: 'nvidia.com/A100', count: '16' },
+            gpu: { pciDeviceSelector: '10DE:20B0', resourceName: 'nvidia.com/A100', count: '9999' },
           },
         }),
       ).resolves.toBe(true);
