@@ -47,6 +47,7 @@ export const useCreateStorageTier = () => {
 
 export type UpdateStorageTierInput = {
   id: string;
+  metadata: { version: number };
   spec: MessageInitShape<typeof StorageTierSpecSchema>;
 };
 
@@ -56,10 +57,11 @@ export const useUpdateStorageTier = () => {
   return useMutation({
     mutationFn: async (input: UpdateStorageTierInput) => {
       const resp = await client.update({
-        object: { id: input.id, spec: input.spec },
+        object: { id: input.id, metadata: input.metadata, spec: input.spec },
         updateMask: {
           paths: buildUpdateMaskPaths({ spec: input.spec } as Record<string, unknown>),
         },
+        lock: true,
       });
       if (!resp.object) {
         throw new Error('Update response missing object');

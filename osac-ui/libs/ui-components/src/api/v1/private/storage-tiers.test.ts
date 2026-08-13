@@ -1,5 +1,6 @@
 import React, { type ReactNode, createElement } from 'react';
 import { create } from '@bufbuild/protobuf';
+import { Code, ConnectError } from '@connectrpc/connect';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
@@ -203,9 +204,10 @@ describe('useUpdateStorageTier', () => {
     return captured;
   };
 
-  it('sends a single spec.description mask entry and never masks metadata.name', async () => {
+  it('sends a single spec.description mask entry, never masks metadata.name, and locks on the given version', async () => {
     const captured = await mutateAndCaptureUpdate({
       id: 't-1',
+      metadata: { version: 3 },
       spec: { description: 'updated description' },
     });
 
@@ -213,8 +215,8 @@ describe('useUpdateStorageTier', () => {
     expect(paths).toEqual(['spec.description']);
     expect(paths).not.toContain('metadata.name');
     const object = captured?.object as { metadata?: unknown };
-    expect(object.metadata).toBeUndefined();
-    expect(captured?.lock).not.toBe(true);
+    expect(object.metadata).toMatchObject({ version: 3 });
+    expect(captured?.lock).toBe(true);
   });
 
   it('sends a single spec.backends mask entry with the complete array, never an indexed sub-path', async () => {
@@ -230,6 +232,7 @@ describe('useUpdateStorageTier', () => {
     ];
     const captured = await mutateAndCaptureUpdate({
       id: 't-1',
+      metadata: { version: 1 },
       spec: { backends },
     });
 
@@ -243,6 +246,7 @@ describe('useUpdateStorageTier', () => {
   it('sends spec.description and spec.backends as separate mask entries when both change', async () => {
     const captured = await mutateAndCaptureUpdate({
       id: 't-1',
+      metadata: { version: 1 },
       spec: {
         description: 'updated description',
         backends: [
@@ -262,6 +266,33 @@ describe('useUpdateStorageTier', () => {
       'spec.description',
       'spec.backends',
     ]);
+  });
+
+  it('surfaces a stale-version conflict as a mutation error', async () => {
+    const transport = createMockConnectTransport(
+      { storageTiers: [makeStorageTier('t-1')] },
+      {
+        onStorageTierUpdate: () => {
+          throw new ConnectError(
+            'Storage tier has been modified since it was read',
+            Code.FailedPrecondition,
+          );
+        },
+      },
+    );
+    const { wrapper } = makeWrapper(transport);
+    const { result } = renderHook(() => useUpdateStorageTier(), { wrapper });
+
+    act(() => {
+      result.current.mutate({
+        id: 't-1',
+        metadata: { version: 1 },
+        spec: { description: 'updated description' },
+      });
+    });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(result.current.error?.message).toContain('modified since it was read');
   });
 });
 
