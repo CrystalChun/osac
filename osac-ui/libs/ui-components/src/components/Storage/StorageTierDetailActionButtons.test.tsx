@@ -13,7 +13,7 @@ const tier = {
   id: 'tier-1',
   metadata: { name: 'fast' },
   spec: { description: '', backends: [] },
-} as StorageTier;
+} as unknown as StorageTier;
 
 const renderAt = (path: string, transportOverrides?: MockTransportOverrides) =>
   renderWithProviders(

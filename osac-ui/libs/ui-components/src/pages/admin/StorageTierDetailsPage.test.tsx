@@ -95,7 +95,9 @@ describe('StorageTierDetailsPage', () => {
 
   it('shows the status message when present', async () => {
     renderAt('/admin/infrastructure/storage/tiers/tier-1', {
-      storageTiers: [{ ...tier, status: { ...tier.status, message: 'Degraded backend' } }],
+      storageTiers: [
+        { ...tier, status: { ...tier.status, message: 'Degraded backend' } } as StorageTier,
+      ],
       storageBackends: [backendA],
     });
 
@@ -106,7 +108,7 @@ describe('StorageTierDetailsPage', () => {
 
   it('omits the description field when the tier has none', async () => {
     renderAt('/admin/infrastructure/storage/tiers/tier-1', {
-      storageTiers: [{ ...tier, spec: { ...tier.spec, description: '' } }],
+      storageTiers: [{ ...tier, spec: { ...tier.spec, description: '' } } as StorageTier],
       storageBackends: [backendA],
     });
 
