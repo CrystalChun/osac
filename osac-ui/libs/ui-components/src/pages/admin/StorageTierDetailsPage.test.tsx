@@ -79,6 +79,10 @@ describe('StorageTierDetailsPage', () => {
     await waitFor(() => {
       expect(screen.getByRole('heading', { name: 'fast' })).toBeInTheDocument();
     });
+    expect(screen.getByRole('link', { name: 'Storage tiers' })).toHaveAttribute(
+      'href',
+      '/admin/infrastructure/storage/tiers',
+    );
     expect(screen.getByText('Fast tier for latency-sensitive workloads')).toBeInTheDocument();
     expect(screen.getAllByText('Active')).not.toHaveLength(0);
     expect(screen.getByText('Fast NVMe')).toBeInTheDocument();
