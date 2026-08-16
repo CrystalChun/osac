@@ -71,7 +71,6 @@ export const StorageTierDetails = ({
 
       <PageSection hasBodyWrapper={false}>
         <Card>
-          <CardTitle>{t('Details')}</CardTitle>
           <CardBody>
             <DescriptionList isHorizontal>
               <DescriptionListGroup>
@@ -85,13 +84,6 @@ export const StorageTierDetails = ({
                   <DescriptionListDescription>{tier.spec.description}</DescriptionListDescription>
                 </DescriptionListGroup>
               )}
-
-              <DescriptionListGroup>
-                <DescriptionListTerm>{t('Status')}</DescriptionListTerm>
-                <DescriptionListDescription>
-                  <StorageTierStatusLabel state={tier.status?.state} />
-                </DescriptionListDescription>
-              </DescriptionListGroup>
 
               {tier.status?.message && (
                 <DescriptionListGroup>
