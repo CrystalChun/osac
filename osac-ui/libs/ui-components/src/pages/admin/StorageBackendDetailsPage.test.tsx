@@ -1,5 +1,5 @@
 import { Route, Routes } from 'react-router-dom';
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { StorageBackend } from '@osac/types/private';
@@ -110,8 +110,7 @@ describe('StorageBackendDetailsPage', () => {
 
     const { user } = renderPage();
 
-    await user.click(screen.getByRole('button', { name: 'Actions for vast-prod' }));
-    await user.click(screen.getByText('Edit'));
+    await user.click(screen.getByRole('button', { name: /^Edit$/i }));
 
     expect(mockNavigate).toHaveBeenCalledWith(
       '/admin/infrastructure/storage/backends/backend-1/edit',
@@ -123,9 +122,8 @@ describe('StorageBackendDetailsPage', () => {
 
     const { user } = renderPage();
 
-    await user.click(screen.getByRole('button', { name: 'Actions for vast-prod' }));
-    await user.click(screen.getByText('Delete'));
     await user.click(screen.getByRole('button', { name: /^Delete$/i }));
+    await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: /^Delete$/i }));
 
     await waitFor(() => {
       expect(mockNavigate).toHaveBeenCalledWith('/admin/infrastructure/storage/backends');

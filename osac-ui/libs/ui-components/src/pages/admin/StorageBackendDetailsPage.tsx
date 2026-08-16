@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import {
   Card,
   CardBody,
@@ -18,7 +18,7 @@ import { usePrivateStorageBackend } from '../../api/v1/private/storage-backends'
 import { ResourceDetailHeader } from '../../components/Resource/ResourceDetailHeader';
 import { ResourceDetailsPageError } from '../../components/Resource/ResourceDetailsPageError';
 import { ResourceDetailsPageLoading } from '../../components/Resource/ResourceDetailsPageLoading';
-import StorageBackendActionsMenu from '../../components/Storage/StorageBackendActionsMenu';
+import StorageBackendDetailsActionButtons from '../../components/Storage/StorageBackendDetailsActionButtons';
 import StorageBackendStatusLabel from '../../components/Storage/StorageBackendStatusLabel';
 import { useTranslation } from '../../hooks/useTranslation';
 import { displayValue } from '../../utils/detailFormatters';
@@ -27,7 +27,6 @@ const BACKENDS_LIST_PATH = '/admin/infrastructure/storage/backends';
 
 export const StorageBackendDetailsPage = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const { id = '' } = useParams<{ id: string }>();
   const { data: backend, isLoading, isError, error, refetch } = usePrivateStorageBackend(id);
 
@@ -79,10 +78,7 @@ export const StorageBackendDetailsPage = () => {
                 />
               </FlexItem>
               <FlexItem>
-                <StorageBackendActionsMenu
-                  backend={backend}
-                  onDeleteSuccess={() => navigate(BACKENDS_LIST_PATH)}
-                />
+                <StorageBackendDetailsActionButtons backend={backend} />
               </FlexItem>
             </Flex>
           </StackItem>
