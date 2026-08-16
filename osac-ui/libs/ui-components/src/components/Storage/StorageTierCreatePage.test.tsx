@@ -256,7 +256,7 @@ describe('StorageTierCreatePage', () => {
       expect(backends?.[0].quotaGib).toBe(100n);
     });
 
-    it('submits spec.backends as a one-element array and navigates on success', async () => {
+    it('submits spec.backends as a one-element array and navigates to the created tier details page on success', async () => {
       const onStorageTierCreate = vi.fn(
         (req: { object?: { metadata?: unknown; spec?: unknown } }) => ({
           object: {
@@ -296,7 +296,7 @@ describe('StorageTierCreatePage', () => {
       });
 
       await waitFor(() => {
-        expect(mockNavigate).toHaveBeenCalledWith('/admin/infrastructure/storage/tiers');
+        expect(mockNavigate).toHaveBeenCalledWith('/admin/infrastructure/storage/tiers/new-tier-1');
       });
     });
 
@@ -327,7 +327,7 @@ describe('StorageTierCreatePage', () => {
       resolveCreate?.();
 
       await waitFor(() => {
-        expect(mockNavigate).toHaveBeenCalledWith('/admin/infrastructure/storage/tiers');
+        expect(mockNavigate).toHaveBeenCalledWith('/admin/infrastructure/storage/tiers/new-tier-1');
       });
     }, 15000);
 
