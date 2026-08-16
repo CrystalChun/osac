@@ -20,7 +20,7 @@ export const StorageTierDetailsPage = () => {
   const { data: tier, isLoading, isError, error, refetch } = usePrivateStorageTier(id);
 
   const backendIds = useMemo(() => uniqueBackendIds(tier ? [tier] : []), [tier]);
-  const { data: backends = [] } = usePrivateStorageBackends(
+  const { data: backends = [], error: backendsError } = usePrivateStorageBackends(
     { filter: storageBackendIdsFilter(backendIds) },
     { enabled: backendIds.length > 0 },
   );
@@ -62,5 +62,7 @@ export const StorageTierDetailsPage = () => {
     );
   }
 
-  return <StorageTierDetails tier={tier} backendsById={backendsById} />;
+  return (
+    <StorageTierDetails tier={tier} backendsById={backendsById} backendsError={backendsError} />
+  );
 };

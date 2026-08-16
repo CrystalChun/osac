@@ -1,4 +1,5 @@
 import {
+  Alert,
   Card,
   CardBody,
   CardTitle,
@@ -27,9 +28,14 @@ const TIERS_LIST_PATH = '/admin/infrastructure/storage/tiers';
 interface StorageTierDetailsProps {
   tier: StorageTier;
   backendsById: Map<string, StorageBackend>;
+  backendsError?: unknown;
 }
 
-export const StorageTierDetails = ({ tier, backendsById }: StorageTierDetailsProps) => {
+export const StorageTierDetails = ({
+  tier,
+  backendsById,
+  backendsError,
+}: StorageTierDetailsProps) => {
   const { t } = useTranslation();
   const tierName = tier.metadata?.name ?? tier.id;
 
@@ -102,10 +108,23 @@ export const StorageTierDetails = ({ tier, backendsById }: StorageTierDetailsPro
         <Card>
           <CardTitle>{t('Backend associations')}</CardTitle>
           <CardBody>
-            <StorageTierBackendAssociationsTable
-              backends={tier.spec?.backends ?? []}
-              backendsById={backendsById}
-            />
+            <Stack hasGutter>
+              {Boolean(backendsError) && (
+                <StackItem>
+                  <Alert variant="warning" isInline title={t('Unable to resolve backend names')}>
+                    {t(
+                      'Backend IDs are shown in place of names until this recovers. This is separate from the normal fallback shown when a tier references a backend that no longer exists.',
+                    )}
+                  </Alert>
+                </StackItem>
+              )}
+              <StackItem>
+                <StorageTierBackendAssociationsTable
+                  backends={tier.spec?.backends ?? []}
+                  backendsById={backendsById}
+                />
+              </StackItem>
+            </Stack>
           </CardBody>
         </Card>
       </PageSection>

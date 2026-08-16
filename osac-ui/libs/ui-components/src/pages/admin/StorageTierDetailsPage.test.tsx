@@ -123,6 +123,31 @@ describe('StorageTierDetailsPage', () => {
     });
   });
 
+  it('shows a warning banner when the backend-name lookup fails, without breaking the id fallback', async () => {
+    renderWithProviders(
+      <Routes>
+        <Route
+          path="/admin/infrastructure/storage/tiers/:id"
+          element={<StorageTierDetailsPage />}
+        />
+      </Routes>,
+      {
+        routerEntries: ['/admin/infrastructure/storage/tiers/tier-1'],
+        apiFixtures: { storageTiers: [tier] },
+        transportOverrides: {
+          onStorageBackendList: () => {
+            throw new ConnectError('backend service unavailable', Code.Unavailable);
+          },
+        },
+      },
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Unable to resolve backend names')).toBeInTheDocument();
+    });
+    expect(screen.getByText('backend-a')).toBeInTheDocument();
+  });
+
   it('renders an error state when the tier fails to load', async () => {
     renderWithProviders(
       <Routes>
