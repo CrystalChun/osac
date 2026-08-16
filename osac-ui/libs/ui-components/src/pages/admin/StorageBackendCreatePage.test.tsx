@@ -202,11 +202,13 @@ describe('StorageBackendCreatePage', () => {
       resolveCreate?.();
 
       await waitFor(() => {
-        expect(mockNavigate).toHaveBeenCalledWith('/admin/infrastructure/storage/backends');
+        expect(mockNavigate).toHaveBeenCalledWith(
+          '/admin/infrastructure/storage/backends/new-backend-1',
+        );
       });
     }, 15000);
 
-    it('submits the expected payload and navigates to the backends list on success', async () => {
+    it('submits the expected payload and navigates to the created backend details page on success', async () => {
       let capturedRequest: StorageBackendsCreateRequest | undefined;
       const { user } = renderCreatePage({
         onStorageBackendCreate: (req) => {
@@ -225,7 +227,9 @@ describe('StorageBackendCreatePage', () => {
       await user.click(screen.getByRole('button', { name: 'Create' }));
 
       await waitFor(() => {
-        expect(mockNavigate).toHaveBeenCalledWith('/admin/infrastructure/storage/backends');
+        expect(mockNavigate).toHaveBeenCalledWith(
+          '/admin/infrastructure/storage/backends/new-backend-1',
+        );
       });
 
       expect(capturedRequest?.object?.metadata?.name).toBe('vast-prod-1');
