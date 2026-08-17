@@ -2,10 +2,11 @@ import { useMemo } from 'react';
 import { Alert, Button, FormSection, Stack, StackItem } from '@patternfly/react-core';
 import { useField } from 'formik';
 
-import { type ClusterCatalogItem, ClusterVersionState } from '@osac/types';
+import { type ClusterCatalogItem } from '@osac/types';
 
 import ClusterNodeSetsArrayField from './ClusterNodeSetsArrayField';
 import { CLUSTER_VERSION_WIRE_PATH } from './fields';
+import { findVersionByName, isDeprecatedVersion, versionDisplayName } from './versionUtils';
 import {
   CLUSTER_VERSION_ACTIVE_LIST_FILTER,
   useClusterVersions,
@@ -30,18 +31,18 @@ const ClusterConfigurationStep = ({ catalogItem }: Props) => {
   } = useClusterVersions({ filter: CLUSTER_VERSION_ACTIVE_LIST_FILTER });
 
   const [versionField] = useField<string>('spec.versionName');
-  const selectedVersion = versions.find((version) => version.metadata?.name === versionField.value);
-  const isSelectedDeprecated = selectedVersion?.spec?.state === ClusterVersionState.DEPRECATED;
+  const isSelectedDeprecated = isDeprecatedVersion(findVersionByName(versions, versionField.value));
 
   const versionOptions = useMemo(
     () =>
       versions.map((version) => {
         const name = version.metadata?.name ?? '';
-        const label = version.spec?.version || name;
-        const deprecated = version.spec?.state === ClusterVersionState.DEPRECATED;
+        const label = versionDisplayName(version, name);
         return {
           value: name,
-          label: deprecated ? t('{{version}} (deprecated)', { version: label }) : label,
+          label: isDeprecatedVersion(version)
+            ? t('{{version}} (deprecated)', { version: label })
+            : label,
         };
       }),
     [versions, t],

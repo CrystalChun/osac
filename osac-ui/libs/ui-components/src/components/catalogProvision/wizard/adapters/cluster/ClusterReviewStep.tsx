@@ -21,6 +21,7 @@ import { CatalogItem } from '@osac/ui-components/components/catalog/catalogItemD
 import { getErrorMessage } from '@osac/ui-components/utils/error';
 
 import { ClusterWizardValues } from './fields';
+import { findVersionByName, versionDisplayName } from './versionUtils';
 import { useTranslation } from '../../../../../hooks/useTranslation';
 import { formatReviewScalar } from '../../catalogOverlay';
 
@@ -59,8 +60,10 @@ export const ClusterReviewStep = ({ catalogItem }: Props) => {
   const { data: versions = [] } = useClusterVersions({
     filter: CLUSTER_VERSION_ACTIVE_LIST_FILTER,
   });
-  const selectedVersion = versions.find((v) => v.metadata?.name === values.spec.versionName);
-  const versionDisplay = selectedVersion?.spec?.version || values.spec.versionName;
+  const versionDisplay = versionDisplayName(
+    findVersionByName(versions, values.spec.versionName),
+    values.spec.versionName,
+  );
 
   if (isLoading) {
     return (
