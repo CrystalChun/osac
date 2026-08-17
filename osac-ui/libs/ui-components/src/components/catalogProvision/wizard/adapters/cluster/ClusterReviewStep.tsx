@@ -102,9 +102,9 @@ export const ClusterReviewStep = ({ catalogItem }: Props) => {
           </DescriptionListGroup>
 
           <DescriptionListGroup>
-            <DescriptionListTerm>{t('Release image')}</DescriptionListTerm>
+            <DescriptionListTerm>{t('Version')}</DescriptionListTerm>
             <DescriptionListDescription>
-              {formatReviewScalar(values.spec.releaseImage)}
+              {formatReviewScalar(values.spec.versionName)}
             </DescriptionListDescription>
           </DescriptionListGroup>
           <DescriptionListGroup>

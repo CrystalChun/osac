@@ -33,14 +33,10 @@ const clusterCatalogItem: ClusterCatalogItem = {
   fieldDefinitions: [
     {
       $typeName: 'osac.public.v1.FieldDefinition',
-      path: 'release_image',
-      displayName: 'Release image',
+      path: 'version',
+      displayName: 'Version',
       editable: true,
       validationSchema: '',
-      default: {
-        $typeName: 'google.protobuf.Value',
-        kind: { case: 'stringValue', value: '4.17.0' },
-      },
     },
   ],
 };
@@ -56,7 +52,7 @@ describe('buildClusterCreatePayload', () => {
         ...createEmptyClusterValues().spec,
         sshPublicKey: 'ssh-rsa AAAA',
         pullSecret: '{"auths":{}}',
-        releaseImage: '4.17.0',
+        versionName: '4-17-0',
         nodeSetRows: [
           {
             ...row,
@@ -77,6 +73,7 @@ describe('buildClusterCreatePayload', () => {
         catalogItem: { id: clusterCatalogItem.id },
         sshPublicKey: 'ssh-rsa AAAA',
         pullSecret: '{"auths":{}}',
+        version: { name: '4-17-0' },
         nodeSets: {
           acme_1tb: { hostType: { id: 'acme_1tb' }, size: 3 },
         },
@@ -87,7 +84,7 @@ describe('buildClusterCreatePayload', () => {
     });
   });
 
-  it('omits blank optional fields and node sets when no valid rows exist', () => {
+  it('omits blank optional fields, version, and node sets when no valid rows exist', () => {
     const values = {
       ...createEmptyClusterValues(),
       catalogItemId: clusterCatalogItem.id,
@@ -95,7 +92,7 @@ describe('buildClusterCreatePayload', () => {
       spec: {
         ...createEmptyClusterValues().spec,
         pullSecret: 'secret',
-        releaseImage: '4.17.0',
+        versionName: '',
         nodeSetRows: [],
         network: { podCidr: '', serviceCidr: '' },
       },
@@ -106,6 +103,7 @@ describe('buildClusterCreatePayload', () => {
       catalogItem: { id: clusterCatalogItem.id },
       pullSecret: 'secret',
     });
+    expect(payload.spec).not.toHaveProperty('version');
     expect(payload.spec).not.toHaveProperty('nodeSets');
     expect(payload.spec).not.toHaveProperty('network');
   });
@@ -119,7 +117,7 @@ describe('buildClusterCreatePayload', () => {
       spec: {
         ...createEmptyClusterValues().spec,
         pullSecret: 'secret',
-        releaseImage: '4.17.0',
+        versionName: '4-17-0',
         nodeSetRows: [
           { ...row, hostType: '', size: '3' },
           { ...row, hostType: 'acme_1tb', size: '0' },

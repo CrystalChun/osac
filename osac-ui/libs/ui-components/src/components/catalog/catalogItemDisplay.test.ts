@@ -168,14 +168,14 @@ describe('catalog display with wire field_definitions', () => {
         },
         {
           $typeName: 'osac.public.v1.FieldDefinition',
-          path: 'release_image',
-          displayName: 'Release Image',
+          path: 'version',
+          displayName: 'Version',
           editable: true,
           default: {
             $typeName: 'google.protobuf.Value',
             kind: {
               case: 'stringValue',
-              value: 'quay.io/openshift-release-dev/ocp-release:4.17.0-multi',
+              value: '4.17.0',
             },
           },
           validationSchema: '',

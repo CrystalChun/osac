@@ -36,14 +36,10 @@ const clusterCatalogItem: ClusterCatalogItem = {
   fieldDefinitions: [
     {
       $typeName: 'osac.public.v1.FieldDefinition',
-      path: 'release_image',
-      displayName: 'Release image',
+      path: 'version',
+      displayName: 'Version',
       editable: true,
       validationSchema: '',
-      default: {
-        $typeName: 'google.protobuf.Value',
-        kind: { case: 'stringValue', value: '4.17.0' },
-      },
     },
   ],
 };
@@ -54,7 +50,7 @@ const emptyValues: ClusterWizardValues = {
   spec: {
     sshPublicKey: '',
     pullSecret: '',
-    releaseImage: '',
+    versionName: '',
     nodeSetRows: [],
     network: {
       podCidr: '',
@@ -170,6 +166,28 @@ describe('buildClusterStepSchema', () => {
     });
   });
 
+  it('requires a version on configuration step', async () => {
+    const row = createEmptyNodeSetRow();
+    const errors = await validateStep(
+      'configuration',
+      {
+        ...emptyValues,
+        catalogItemId: clusterCatalogItem.id,
+        metadata: { name: 'my-cluster' },
+        spec: {
+          ...emptyValues.spec,
+          pullSecret: '{"auths": {}}',
+          versionName: '',
+          nodeSetRows: [{ ...row, hostType: 'acme_1tb', size: '3' }],
+        },
+      },
+      clusterCatalogItem,
+    );
+    expect(errors).toEqual({
+      spec: { versionName: 'Version is required' },
+    });
+  });
+
   it('requires at least one node set on configuration step', async () => {
     const errors = await validateStep(
       'configuration',
@@ -180,7 +198,7 @@ describe('buildClusterStepSchema', () => {
         spec: {
           ...emptyValues.spec,
           pullSecret: '{"auths": {}}',
-          releaseImage: '4.17.0',
+          versionName: '4-17-0',
           nodeSetRows: [],
         },
       },
@@ -202,7 +220,7 @@ describe('buildClusterStepSchema', () => {
         spec: {
           ...emptyValues.spec,
           pullSecret: '{"auths": {}}',
-          releaseImage: '4.17.0',
+          versionName: '4-17-0',
           nodeSetRows: [
             {
               ...row,
@@ -232,7 +250,7 @@ describe('buildClusterStepSchema', () => {
         spec: {
           ...emptyValues.spec,
           pullSecret: '{"auths": {}}',
-          releaseImage: '4.17.0',
+          versionName: '4-17-0',
           nodeSetRows: [
             {
               ...row,

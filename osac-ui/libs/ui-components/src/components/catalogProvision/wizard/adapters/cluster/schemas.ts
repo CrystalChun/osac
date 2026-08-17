@@ -8,9 +8,9 @@ import type { ClusterNodeSetRow } from './fields';
 import {
   CLUSTER_POD_CIDR_WIRE_PATH,
   CLUSTER_PULL_SECRET_WIRE_PATH,
-  CLUSTER_RELEASE_IMAGE_WIRE_PATH,
   CLUSTER_SERVICE_CIDR_WIRE_PATH,
   CLUSTER_SSH_KEY_WIRE_PATH,
+  CLUSTER_VERSION_WIRE_PATH,
 } from './fields';
 import {
   buildCidrSchema,
@@ -52,10 +52,10 @@ const buildClusterFieldDefinitions = (catalogItem: unknown, t: TFunction) => {
     definitions,
     t('Pull secret'),
   );
-  const releaseImageOverlay = getCatalogFieldOverlay(
-    CLUSTER_RELEASE_IMAGE_WIRE_PATH,
+  const versionOverlay = getCatalogFieldOverlay(
+    CLUSTER_VERSION_WIRE_PATH,
     definitions,
-    t('Release image'),
+    t('Version'),
   );
   const podCidrOverlay = getCatalogFieldOverlay(
     CLUSTER_POD_CIDR_WIRE_PATH,
@@ -103,11 +103,11 @@ const buildClusterFieldDefinitions = (catalogItem: unknown, t: TFunction) => {
       true,
       t('Pull secret is required'),
     ),
-    specReleaseImage: mergeCatalogValidation(
+    specVersionName: mergeCatalogValidation(
       yup.string().trim(),
-      releaseImageOverlay,
+      versionOverlay,
       true,
-      t('Release image is required'),
+      t('Version is required'),
     ),
     specNodeSetRows: yup
       .array()
@@ -177,7 +177,7 @@ export const buildClusterStepSchema = (
     case 'configuration':
       return yup.object({
         spec: yup.object({
-          releaseImage: fields.specReleaseImage,
+          versionName: fields.specVersionName,
           nodeSetRows: fields.specNodeSetRows,
         }),
       });

@@ -11,7 +11,7 @@ export const createEmptyClusterValues = (): ClusterWizardValues => ({
   spec: {
     sshPublicKey: '',
     pullSecret: '',
-    releaseImage: '',
+    versionName: '',
     nodeSetRows: [createEmptyNodeSetRow()],
     network: {
       podCidr: '',
@@ -34,6 +34,11 @@ export const buildClusterCreatePayload = (
   const sshPublicKey = values.spec.sshPublicKey.trim();
   if (sshPublicKey) {
     spec.sshPublicKey = sshPublicKey;
+  }
+
+  const versionName = values.spec.versionName.trim();
+  if (versionName) {
+    spec.version = { name: versionName };
   }
 
   const nodeSets: Record<string, { hostType: { id: string }; size: number }> = {};
