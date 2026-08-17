@@ -56,10 +56,7 @@ export const CatalogItemListSection = ({
         ) : null}
         {items.length > 0 ? (
           <StackItem>
-            <Gallery
-              hasGutter
-              minWidths={{ default: '400px' }}
-              maxWidths={{ default: '400px' }}>
+            <Gallery hasGutter minWidths={{ default: '400px' }} maxWidths={{ default: '400px' }}>
               {items.map((item) => (
                 <GalleryItem key={item.id}>
                   <CatalogItemCard

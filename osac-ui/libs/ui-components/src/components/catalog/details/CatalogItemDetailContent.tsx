@@ -114,8 +114,7 @@ export const CatalogItemDetailContent = ({ item }: CatalogItemDetailContentProps
                     {configurationFields.map((def) => (
                       <DescriptionListGroup key={def.path}>
                         <DescriptionListTerm>
-                          {def.displayName}{' '}
-                          <CatalogFieldEditabilityLabel editable={def.editable} />
+                          {def.displayName} <CatalogFieldEditabilityLabel editable={def.editable} />
                         </DescriptionListTerm>
                         <DescriptionListDescription>
                           {formatCatalogFieldDefault(def)}

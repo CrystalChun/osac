@@ -61,7 +61,10 @@ const parseSearch = (searchParams: URLSearchParams): string => searchParams.get(
 const typesWithItems = (items: CatalogItemWithType[]): CatalogTypeFilter[] =>
   CATALOG_TYPE_FILTER_VALUES.filter((type) => items.some((item) => item.type === type));
 
-const mapToItemWithType = (items: CatalogItem[] | undefined, itemType: CatalogTypeFilter): CatalogItemWithType[] => {
+const mapToItemWithType = (
+  items: CatalogItem[] | undefined,
+  itemType: CatalogTypeFilter,
+): CatalogItemWithType[] => {
   if (!items || !items.length) {
     return [];
   }
@@ -170,15 +173,23 @@ const CatalogPage = () => {
     [t],
   );
 
-  const typeCounts = useMemo(() => ({
-    vm: data.filter((d) => d.type === 'vm').length,
-    cluster: data.filter((d) => d.type === 'cluster').length,
-    bm: data.filter((d) => d.type === 'bm').length,
-  }), [data]);
+  const typeCounts = useMemo(
+    () => ({
+      vm: data.filter((d) => d.type === 'vm').length,
+      cluster: data.filter((d) => d.type === 'cluster').length,
+      bm: data.filter((d) => d.type === 'bm').length,
+    }),
+    [data],
+  );
 
-  const filteredItems = useMemo(() =>
-    filterCatalogItemsBySearch(filterCatalogItemsByTypes(data, typeFilters), search) as CatalogItemWithType[],
-    [search, data, typeFilters]);
+  const filteredItems = useMemo(
+    () =>
+      filterCatalogItemsBySearch(
+        filterCatalogItemsByTypes(data, typeFilters),
+        search,
+      ) as CatalogItemWithType[],
+    [search, data, typeFilters],
+  );
 
   const showEmptyState = !isLoading && !error && filteredItems.length === 0;
 
@@ -200,14 +211,17 @@ const CatalogPage = () => {
                 {catalogTypeFilters.map((option) => (
                   <ToggleGroupItem
                     key={option.value}
-                    text={(
-                      <Flex spaceItems={{ default: 'spaceItemsSm' }} flexWrap={{ default: 'nowrap' }}>
+                    text={
+                      <Flex
+                        spaceItems={{ default: 'spaceItemsSm' }}
+                        flexWrap={{ default: 'nowrap' }}
+                      >
                         <FlexItem>{option.label}</FlexItem>
                         <FlexItem>
                           <Label isCompact>{typeCounts[option.value]}</Label>
                         </FlexItem>
                       </Flex>
-                    )}
+                    }
                     buttonId={`catalog-type-filter-${option.value}`}
                     isSelected={typeFilters.includes(option.value)}
                     onChange={() => toggleTypeFilter(option.value)}

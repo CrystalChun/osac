@@ -150,10 +150,13 @@ export const VmListPage = () => {
     [t],
   );
 
-  const statusCounts = useMemo(() => ({
-    running: vms.filter((vm) => vmMatchesStatusFilter(vm, 'running')).length,
-    stopped: vms.filter((vm) => vmMatchesStatusFilter(vm, 'stopped')).length,
-  }), [vms]);
+  const statusCounts = useMemo(
+    () => ({
+      running: vms.filter((vm) => vmMatchesStatusFilter(vm, 'running')).length,
+      stopped: vms.filter((vm) => vmMatchesStatusFilter(vm, 'stopped')).length,
+    }),
+    [vms],
+  );
 
   const filteredVms = useMemo(() => {
     if (statusFilters.length === 0) {
@@ -194,14 +197,17 @@ export const VmListPage = () => {
                   {statusFilterOptions.map((option) => (
                     <ToggleGroupItem
                       key={option.value}
-                      text={(
-                        <Flex spaceItems={{ default: 'spaceItemsSm' }} flexWrap={{ default: 'nowrap' }}>
+                      text={
+                        <Flex
+                          spaceItems={{ default: 'spaceItemsSm' }}
+                          flexWrap={{ default: 'nowrap' }}
+                        >
                           <FlexItem>{option.label}</FlexItem>
                           <FlexItem>
                             <Label isCompact>{statusCounts[option.value]}</Label>
                           </FlexItem>
                         </Flex>
-                      )}
+                      }
                       buttonId={`vm-filter-status-${option.value}`}
                       isSelected={statusFilters.includes(option.value)}
                       onChange={() => toggleStatusFilter(option.value)}

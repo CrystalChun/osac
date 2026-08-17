@@ -71,12 +71,17 @@ export const ShellMasthead = ({ onLogout }: ShellMastheadProps) => {
           </MastheadToggle>
           <div>
             <MastheadBrand>
-              <MastheadLogo aria-label={t('Red Hat OSAC')} component={(props) => <a {...props} href="#" />}>
+              <MastheadLogo
+                aria-label={t('Red Hat OSAC')}
+                component={(props) => <a {...props} href="#" />}
+              >
                 <ReactSVG src={osacIcon} aria-hidden className="pf-v6-c-brand" />
               </MastheadLogo>
             </MastheadBrand>
             {tenantId ? (
-              <SubtleContent className="pf-v6-u-mt-sm">{t('Tenant: {{ tenantId }}', { tenantId })}</SubtleContent>
+              <SubtleContent className="pf-v6-u-mt-sm">
+                {t('Tenant: {{ tenantId }}', { tenantId })}
+              </SubtleContent>
             ) : null}
           </div>
         </MastheadMain>

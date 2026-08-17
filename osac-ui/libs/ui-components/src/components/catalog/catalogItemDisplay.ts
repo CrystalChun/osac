@@ -120,8 +120,7 @@ const formatCatalogResourcePart = (def: CatalogFieldDefinition): string | null =
   }
   const normalizedPath = normalizeCatalogFieldPath(def.path);
   const label = isCatalogItemResourceFieldPath(def.path)
-    ? def.displayName ||
-      FALLBACK_RESOURCE_LABELS[normalizedPath as CatalogItemResourceFieldPath]
+    ? def.displayName || FALLBACK_RESOURCE_LABELS[normalizedPath as CatalogItemResourceFieldPath]
     : def.displayName;
   if (!label) {
     return null;
@@ -169,7 +168,10 @@ export const filterCatalogItemsBySearch = (items: CatalogItem[], search: string)
   return items.filter((item) => searchableCatalogItemText(item).includes(searchTerm));
 };
 
-export const filterCatalogItemsByTypes = (items: CatalogItemWithType[], types: CatalogItemKind[]): CatalogItemWithType[] => {
+export const filterCatalogItemsByTypes = (
+  items: CatalogItemWithType[],
+  types: CatalogItemKind[],
+): CatalogItemWithType[] => {
   if (!types?.length) {
     return [];
   }
