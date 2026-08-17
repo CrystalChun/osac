@@ -1,10 +1,11 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Alert,
   Button,
   Flex,
   FlexItem,
+  Label,
   SearchInput,
   Stack,
   StackItem,
@@ -12,7 +13,7 @@ import {
   ToggleGroupItem,
 } from '@patternfly/react-core';
 
-import { ComputeInstanceState } from '@osac/types';
+import { ComputeInstance, ComputeInstanceState } from '@osac/types';
 import { useComputeInstances } from '@osac/ui-components/api/v1/compute-instance';
 import { useInstanceTypes } from '@osac/ui-components/api/v1/instance-types';
 import ListPage from '@osac/ui-components/components/Page/ListPage';
@@ -22,32 +23,56 @@ import { VmTable } from '@osac/ui-components/components/vm/VmTable';
 import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
 import { getErrorMessage } from '@osac/ui-components/utils/error';
 
-import './VmListPage.css';
+type VmStatusFilter = 'running' | 'stopped';
 
-const POWER_FILTERS = [
-  { value: 'all', label: 'All' },
-  { value: 'running', label: 'Running' },
-  { value: 'stopped', label: 'Stopped' },
-] as const;
+const STATUS_FILTER_PARAM = 'status';
+const SEARCH_PARAM = 'search';
+const VM_STATUS_FILTER_VALUES: readonly VmStatusFilter[] = ['running', 'stopped'];
 
-type VmPowerFilter = (typeof POWER_FILTERS)[number]['value'];
+const isVmStatusFilter = (value: string): value is VmStatusFilter =>
+  value === 'running' || value === 'stopped';
 
-const normalizePowerFilter = (value: string | null): VmPowerFilter => {
-  if (!value) {
-    return 'all';
+const parseStatusFilters = (searchParams: URLSearchParams): VmStatusFilter[] => {
+  const raw = searchParams.get(STATUS_FILTER_PARAM);
+  if (!raw) {
+    return [];
   }
-  return POWER_FILTERS.some((option) => option.value === value) ? (value as VmPowerFilter) : 'all';
+  const seen = new Set<VmStatusFilter>();
+  const filters: VmStatusFilter[] = [];
+  for (const value of raw.split(',')) {
+    const trimmed = value.trim();
+    if (isVmStatusFilter(trimmed) && !seen.has(trimmed)) {
+      seen.add(trimmed);
+      filters.push(trimmed);
+    }
+  }
+  return filters;
 };
+
+const serializeStatusFilters = (filters: VmStatusFilter[]): string | null =>
+  filters.length > 0 ? filters.join(',') : null;
+
+const parseSearch = (searchParams: URLSearchParams): string => searchParams.get(SEARCH_PARAM) ?? '';
+
+const vmMatchesStatusFilter = (vm: ComputeInstance, filter: VmStatusFilter): boolean => {
+  const state = vm.status?.state;
+  if (filter === 'running') {
+    return state === ComputeInstanceState.RUNNING;
+  }
+  return state === ComputeInstanceState.STOPPED;
+};
+
+const statusesWithItems = (vms: ComputeInstance[]): VmStatusFilter[] =>
+  VM_STATUS_FILTER_VALUES.filter((status) => vms.some((vm) => vmMatchesStatusFilter(vm, status)));
 
 export const VmListPage = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const hasInitializedStatusFilters = useRef(false);
 
-  const [search, setSearch] = useState('');
-  const [powerFilter, setPowerFilter] = useState<VmPowerFilter>(() =>
-    normalizePowerFilter(searchParams.get('power')),
-  );
+  const statusFilters = useMemo(() => parseStatusFilters(searchParams), [searchParams]);
+  const search = useMemo(() => parseSearch(searchParams), [searchParams]);
 
   const { data: vms = [], isLoading, error } = useComputeInstances();
   const {
@@ -56,27 +81,106 @@ export const VmListPage = () => {
     error: instanceTypesError,
   } = useInstanceTypes();
 
+  useEffect(() => {
+    if (hasInitializedStatusFilters.current || isLoading || error) {
+      return;
+    }
+    hasInitializedStatusFilters.current = true;
+
+    if (searchParams.has(STATUS_FILTER_PARAM)) {
+      return;
+    }
+
+    const serialized = serializeStatusFilters(statusesWithItems(vms));
+    if (!serialized) {
+      return;
+    }
+
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.set(STATUS_FILTER_PARAM, serialized);
+        return next;
+      },
+      { replace: true },
+    );
+  }, [error, isLoading, searchParams, setSearchParams, vms]);
+
+  const toggleStatusFilter = (value: VmStatusFilter) => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        const current = parseStatusFilters(next);
+        const updated = current.includes(value)
+          ? current.filter((option) => option !== value)
+          : [...current, value];
+        const serialized = serializeStatusFilters(updated);
+        if (serialized) {
+          next.set(STATUS_FILTER_PARAM, serialized);
+        } else {
+          next.set(STATUS_FILTER_PARAM, '');
+        }
+        return next;
+      },
+      { replace: true },
+    );
+  };
+
+  const setSearch = (value: string) => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        const trimmed = value.trim();
+        if (!trimmed) {
+          next.delete(SEARCH_PARAM);
+        } else {
+          next.set(SEARCH_PARAM, value);
+        }
+        return next;
+      },
+      { replace: true },
+    );
+  };
+
+  const statusFilterOptions = useMemo<ReadonlyArray<{ value: VmStatusFilter; label: string }>>(
+    () => [
+      { value: 'running', label: t('Running') },
+      { value: 'stopped', label: t('Stopped') },
+    ],
+    [t],
+  );
+
+  const statusCounts = useMemo(
+    () => ({
+      running: vms.filter((vm) => vmMatchesStatusFilter(vm, 'running')).length,
+      stopped: vms.filter((vm) => vmMatchesStatusFilter(vm, 'stopped')).length,
+    }),
+    [vms],
+  );
+
   const filteredVms = useMemo(() => {
+    if (statusFilters.length === 0) {
+      return [];
+    }
+    const searchTerm = search.trim().toLowerCase();
     return vms.filter((vm) => {
       const name = vm.metadata?.name ?? '';
-      const matchesSearch = !search || name.toLowerCase().includes(search.toLowerCase());
-      const state = vm.status?.state;
-      const matchesPower =
-        powerFilter === 'all' ||
-        (powerFilter === 'running' && state === ComputeInstanceState.RUNNING) ||
-        (powerFilter === 'stopped' && state === ComputeInstanceState.STOPPED);
-      return matchesSearch && matchesPower;
+      const matchesSearch = !searchTerm || name.toLowerCase().includes(searchTerm);
+      const matchesStatus = statusFilters.some((filter) => vmMatchesStatusFilter(vm, filter));
+      return matchesSearch && matchesStatus;
     });
-  }, [powerFilter, search, vms]);
+  }, [search, statusFilters, vms]);
+
+  const showEmptyState = !isLoading && !error && filteredVms.length === 0;
 
   return (
     <ListPage
-      title="Virtual machines"
-      description="View and filter your virtual machines."
+      title={t('Virtual machines')}
+      description={t('View and filter your virtual machines.')}
       error={error}
       actions={
         <Button variant="primary" onClick={() => navigate('/vms/create')}>
-          Create virtual machine
+          {t('Create virtual machine')}
         </Button>
       }
     >
@@ -87,32 +191,39 @@ export const VmListPage = () => {
               spaceItems={{ default: 'spaceItemsSm' }}
               alignItems={{ default: 'alignItemsCenter' }}
               flexWrap={{ default: 'wrap' }}
-              className="osac-vm-list__toolbar"
             >
               <FlexItem>
-                <SearchInput
-                  placeholder="Search VMs by name…"
-                  value={search}
-                  onChange={(_e, v) => setSearch(v)}
-                  onClear={() => setSearch('')}
-                  className="osac-vm-list__search"
-                />
-              </FlexItem>
-              <FlexItem>
-                <ToggleGroup
-                  aria-label="Filter virtual machines by status"
-                  className="osac-vm-list__status-toggle"
-                >
-                  {POWER_FILTERS.map((option) => (
+                <ToggleGroup aria-label={t('Filter virtual machines by status')}>
+                  {statusFilterOptions.map((option) => (
                     <ToggleGroupItem
                       key={option.value}
-                      text={option.label}
+                      text={
+                        <Flex
+                          spaceItems={{ default: 'spaceItemsSm' }}
+                          flexWrap={{ default: 'nowrap' }}
+                        >
+                          <FlexItem>{option.label}</FlexItem>
+                          <FlexItem>
+                            <Label isCompact>{statusCounts[option.value]}</Label>
+                          </FlexItem>
+                        </Flex>
+                      }
                       buttonId={`vm-filter-status-${option.value}`}
-                      isSelected={powerFilter === option.value}
-                      onChange={() => setPowerFilter(option.value)}
+                      isSelected={statusFilters.includes(option.value)}
+                      onChange={() => toggleStatusFilter(option.value)}
                     />
                   ))}
                 </ToggleGroup>
+              </FlexItem>
+              <FlexItem>
+                <SearchInput
+                  placeholder={t('Search VMs by name…')}
+                  value={search}
+                  onChange={(_event, value) => setSearch(value)}
+                  onClear={() => setSearch('')}
+                  aria-label={t('Filter virtual machines by name')}
+                  isDisabled={isLoading || !!error}
+                />
               </FlexItem>
             </Flex>
           </StackItem>
@@ -124,11 +235,13 @@ export const VmListPage = () => {
             </StackItem>
           ) : null}
           <StackItem>
-            {filteredVms.length === 0 ? (
-              <SubtleContent component="p" className="osac-vm-list__empty">
-                {search || powerFilter !== 'all'
-                  ? 'No virtual machines match your filters.'
-                  : 'No virtual machines yet. Create one to get started.'}
+            {showEmptyState ? (
+              <SubtleContent component="p">
+                {statusFilters.length === 0
+                  ? t('Choose one or more statuses above to filter virtual machines.')
+                  : vms?.length
+                    ? t('No virtual machines match your filters.')
+                    : t('No virtual machines yet. Create one to get started.')}
               </SubtleContent>
             ) : (
               <VmTable

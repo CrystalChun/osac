@@ -94,6 +94,9 @@ describe('RoleBindingsPage', () => {
       userTheme: 'system',
       resolvedTheme: 'light',
       setUserTheme: vi.fn(),
+      userContrast: 'system',
+      resolvedContrast: 'glass',
+      setUserContrast: vi.fn(),
     });
   });
 

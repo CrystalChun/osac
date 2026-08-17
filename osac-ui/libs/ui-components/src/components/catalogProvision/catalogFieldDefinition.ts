@@ -152,10 +152,13 @@ export type CatalogItemResourceFieldPath = (typeof CATALOG_ITEM_RESOURCE_FIELD_P
 
 const catalogItemResourceFieldPathSet = new Set<string>(CATALOG_ITEM_RESOURCE_FIELD_PATHS);
 
+/** Catalog field_definitions paths are often spec-relative; accept optional `spec.` prefix. */
+export const normalizeCatalogFieldPath = (path: string): string => path.replace(/^spec\./, '');
+
 export const isCatalogItemResourceFieldPath = (
   path: string,
 ): path is CatalogItemResourceFieldPath => {
-  return catalogItemResourceFieldPathSet.has(path);
+  return catalogItemResourceFieldPathSet.has(normalizeCatalogFieldPath(path));
 };
 
 /** Node-set host type and worker count paths on cluster catalog cards (node set id varies). */
@@ -163,7 +166,7 @@ export const CLUSTER_CATALOG_ITEM_RESOURCE_FIELD_PATH_PATTERN =
   /^node_sets\.[^.]+\.(host_type|size)$/;
 
 export const isClusterCatalogItemResourceFieldPath = (path: string): boolean => {
-  return CLUSTER_CATALOG_ITEM_RESOURCE_FIELD_PATH_PATTERN.test(path);
+  return CLUSTER_CATALOG_ITEM_RESOURCE_FIELD_PATH_PATTERN.test(normalizeCatalogFieldPath(path));
 };
 
 export const isCatalogCardResourceFieldPath = (path: string): boolean => {

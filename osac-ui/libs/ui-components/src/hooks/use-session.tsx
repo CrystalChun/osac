@@ -1,7 +1,13 @@
 import { createContext, useContext } from 'react';
 
 import type { UserRole } from '../shellTypes';
-import { type ResolvedTheme, type Theme, useTheme } from './use-theme';
+import {
+  type Contrast,
+  type ResolvedContrast,
+  type ResolvedTheme,
+  type Theme,
+  useTheme,
+} from './use-theme';
 
 interface SessionContextValue {
   role: UserRole;
@@ -10,6 +16,9 @@ interface SessionContextValue {
   userTheme: Theme;
   resolvedTheme: ResolvedTheme;
   setUserTheme: (theme: Theme) => void;
+  userContrast: Contrast;
+  resolvedContrast: ResolvedContrast;
+  setUserContrast: (contrast: Contrast) => void;
 }
 
 const SessionContext = createContext<SessionContextValue | null>(null);

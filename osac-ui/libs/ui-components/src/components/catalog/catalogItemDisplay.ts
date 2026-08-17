@@ -1,3 +1,5 @@
+import type { TFunction } from 'i18next';
+
 import type {
   BareMetalInstanceCatalogItem,
   ClusterCatalogItem,
@@ -13,8 +15,10 @@ import {
   isCatalogCardResourceFieldPath,
   isCatalogItemResourceFieldPath,
   isClusterCatalogItemResourceFieldPath,
+  normalizeCatalogFieldPath,
   resolvedFieldDefault,
 } from '../catalogProvision/catalogFieldDefinition';
+import { findCatalogFieldDefinition } from '../catalogProvision/wizard/catalogOverlay';
 
 export type CatalogItem =
   | ClusterCatalogItem
@@ -23,8 +27,21 @@ export type CatalogItem =
 
 export type CatalogItemKind = 'vm' | 'cluster' | 'bm';
 
+export type CatalogItemWithType = CatalogItem & { type: CatalogItemKind };
+
+export const catalogItemTypeBadgeLabel = (kind: CatalogItemKind, t: TFunction): string => {
+  switch (kind) {
+    case 'vm':
+      return t('Virtual Machine');
+    case 'bm':
+      return t('Bare Metal');
+    default:
+      return t('Cluster');
+  }
+};
+
 export const catalogFieldDefault = (item: CatalogItem, path: string): unknown => {
-  const def = catalogItemFieldDefinitions(item).find((entry) => entry.path === path);
+  const def = findCatalogFieldDefinition(path, catalogItemFieldDefinitions(item));
   return def ? resolvedFieldDefault(def) : undefined;
 };
 
@@ -53,7 +70,7 @@ export const catalogFieldDefinitionForPath = (
   item: CatalogItem,
   path: string,
 ): CatalogFieldDefinition | undefined => {
-  return catalogItemFieldDefinitions(item).find((def) => def.path === path);
+  return findCatalogFieldDefinition(path, catalogItemFieldDefinitions(item));
 };
 
 const FALLBACK_RESOURCE_LABELS: Record<CatalogItemResourceFieldPath, string> = {
@@ -67,10 +84,10 @@ export const catalogItemResourceFieldDefinitions = (
   item: CatalogItem,
 ): CatalogFieldDefinition[] => {
   const defs = catalogItemFieldDefinitions(item);
-  const byPath = new Map(defs.map((def) => [def.path, def]));
+  const byNormalizedPath = new Map(defs.map((def) => [normalizeCatalogFieldPath(def.path), def]));
 
   const vmResourceDefs = CATALOG_ITEM_RESOURCE_FIELD_PATHS.flatMap((path) => {
-    const def = byPath.get(path);
+    const def = byNormalizedPath.get(path);
     return def ? [def] : [];
   });
   if (vmResourceDefs.length > 0) {
@@ -78,6 +95,15 @@ export const catalogItemResourceFieldDefinitions = (
   }
 
   return defs.filter((def) => isClusterCatalogItemResourceFieldPath(def.path));
+};
+
+/** Configuration defaults shown on the detail page (excludes resource chips already listed above). */
+export const catalogItemConfigurationFieldDefinitions = (
+  item: CatalogItem,
+): CatalogFieldDefinition[] => {
+  return catalogItemFieldDefinitions(item).filter(
+    (def) => !isCatalogCardResourceFieldPath(def.path),
+  );
 };
 
 const formatCatalogResourcePart = (def: CatalogFieldDefinition): string | null => {
@@ -92,8 +118,9 @@ const formatCatalogResourcePart = (def: CatalogFieldDefinition): string | null =
   if (!value) {
     return null;
   }
+  const normalizedPath = normalizeCatalogFieldPath(def.path);
   const label = isCatalogItemResourceFieldPath(def.path)
-    ? def.displayName || FALLBACK_RESOURCE_LABELS[def.path]
+    ? def.displayName || FALLBACK_RESOURCE_LABELS[normalizedPath as CatalogItemResourceFieldPath]
     : def.displayName;
   if (!label) {
     return null;
@@ -141,10 +168,45 @@ export const filterCatalogItemsBySearch = (items: CatalogItem[], search: string)
   return items.filter((item) => searchableCatalogItemText(item).includes(searchTerm));
 };
 
+export const filterCatalogItemsByTypes = (
+  items: CatalogItemWithType[],
+  types: CatalogItemKind[],
+): CatalogItemWithType[] => {
+  if (!types?.length) {
+    return [];
+  }
+  return items.filter((item) => types.includes(item.type));
+};
+
 export const formatCatalogFieldDefault = (def: CatalogFieldDefinition): string => {
   const defaultValue = resolvedFieldDefault(def);
   if (defaultValue === undefined) {
     return '—';
   }
   return fieldDefinitionDefaultToInputString(defaultValue) || '—';
+};
+
+export const getCatalogCreateAction = (kind: CatalogItemKind, id: string, t: TFunction) => {
+  switch (kind) {
+    case 'vm':
+      return {
+        label: t('Create virtual machine'),
+        path: `/vms/create/${id}`,
+      };
+    case 'cluster':
+      return {
+        label: t('Create cluster'),
+        path: `/clusters/create/${id}`,
+      };
+    case 'bm':
+      return {
+        label: t('Provision bare metal'),
+        path: `/bare-metal/create/${id}`,
+      };
+    default:
+      return {
+        label: '',
+        path: '#',
+      };
+  }
 };

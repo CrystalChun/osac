@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ReactSVG } from 'react-svg';
 import {
   Alert,
   Button,
@@ -19,16 +20,14 @@ import {
   ModalFooter,
   ModalHeader,
   PageToggleButton,
-  Stack,
-  Title,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
 } from '@patternfly/react-core';
-import { BarsIcon } from '@patternfly/react-icons/dist/esm/icons/bars-icon';
 import { UserIcon } from '@patternfly/react-icons/dist/esm/icons/user-icon';
 
+import osacIcon from '@osac/ui-components/assets/RH-OSAC.svg';
 import { SubtleContent } from '@osac/ui-components/components/SubtleContent/SubtleContent';
 import UserPreferencesModal from '@osac/ui-components/components/UserPreferences/UserPreferencesModal';
 import { useSession } from '@osac/ui-components/hooks/use-session';
@@ -47,19 +46,19 @@ export const ShellMasthead = ({ onLogout }: ShellMastheadProps) => {
   const [logoutError, setLogoutError] = React.useState<string>();
   const navigate = useNavigate();
   const { role, username, tenantId } = useSession();
-  const displayName = username || 'User';
+  const displayName = username || t('User');
 
   return (
     <>
       {logoutError && (
         <Modal variant="small" isOpen onClose={() => setLogoutError(undefined)}>
-          <ModalHeader title="Logout failed" titleIconVariant="danger" />
+          <ModalHeader title={t('Logout failed')} titleIconVariant="danger" />
           <ModalBody>
             <Alert variant="danger" isInline title={logoutError ?? ''} />
           </ModalBody>
           <ModalFooter>
             <Button variant="primary" onClick={() => setLogoutError(undefined)}>
-              Close
+              {t('Close')}
             </Button>
           </ModalFooter>
         </Modal>
@@ -68,22 +67,23 @@ export const ShellMasthead = ({ onLogout }: ShellMastheadProps) => {
       <Masthead display={{ default: 'inline' }}>
         <MastheadMain>
           <MastheadToggle>
-            <PageToggleButton variant="plain" aria-label="Global navigation">
-              <BarsIcon />
-            </PageToggleButton>
+            <PageToggleButton isHamburgerButton aria-label={t('Global navigation')} />
           </MastheadToggle>
-          <MastheadLogo>
+          <div>
             <MastheadBrand>
-              <Stack>
-                <Title headingLevel="h4" size="lg">
-                  Red Hat OSAC
-                </Title>
-                {tenantId && (
-                  <SubtleContent>{t('Tenant: {{ tenantId }}', { tenantId })}</SubtleContent>
-                )}
-              </Stack>
+              <MastheadLogo
+                aria-label={t('Red Hat OSAC')}
+                component={(props) => <a {...props} href="#" />}
+              >
+                <ReactSVG src={osacIcon} aria-hidden className="pf-v6-c-brand" />
+              </MastheadLogo>
             </MastheadBrand>
-          </MastheadLogo>
+            {tenantId ? (
+              <SubtleContent className="pf-v6-u-mt-sm">
+                {t('Tenant: {{ tenantId }}', { tenantId })}
+              </SubtleContent>
+            ) : null}
+          </div>
         </MastheadMain>
 
         <MastheadContent>
@@ -106,7 +106,7 @@ export const ShellMasthead = ({ onLogout }: ShellMastheadProps) => {
                         isExpanded={isUserMenuOpen}
                         onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                         icon={<UserIcon />}
-                        aria-label="Account menu"
+                        aria-label={t('Account menu')}
                       >
                         {displayName}{' '}
                         <Label color="grey" variant="outline" isCompact>
@@ -117,7 +117,7 @@ export const ShellMasthead = ({ onLogout }: ShellMastheadProps) => {
                   >
                     <DropdownList>
                       <DropdownItem onClick={() => setPreferencesOpen(true)}>
-                        Preferences
+                        {t('Preferences')}
                       </DropdownItem>
                       <DropdownItem
                         onClick={async () => {
@@ -129,7 +129,7 @@ export const ShellMasthead = ({ onLogout }: ShellMastheadProps) => {
                           }
                         }}
                       >
-                        Log out
+                        {t('Log out')}
                       </DropdownItem>
                     </DropdownList>
                   </Dropdown>

@@ -42,6 +42,20 @@ export const useBareMetalInstanceCatalogItems = (enabled = true) => {
   });
 };
 
+export const useBareMetalInstanceCatalogItem = (id: string | undefined) => {
+  const client = useApiFetch(BareMetalInstanceCatalogItems);
+  const trimmedId = id?.trim() ?? '';
+  return useApiQuery({
+    queryKey: apiQueryKey(
+      'v1/baremetal_instance_catalog_items',
+      trimmedId ? [trimmedId] : undefined,
+    ),
+    queryFn: () => client.get({ id: trimmedId }),
+    select: (data) => data.object,
+    enabled: Boolean(trimmedId),
+  });
+};
+
 export const invalidateBareMetalInstancesQueries = async (qc: ApiQueryClient) => {
   await qc.invalidateQueries({ queryKey: apiQueryKey('v1/baremetal_instances') });
 };

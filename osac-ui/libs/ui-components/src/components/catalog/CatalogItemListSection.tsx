@@ -9,15 +9,14 @@ import {
 } from '@patternfly/react-core';
 
 import CatalogItemCard from './CatalogItemCard';
-import type { CatalogItem } from './catalogItemDisplay';
+import type { CatalogItemWithType } from './catalogItemDisplay';
 import { getErrorMessage } from '../../utils/error';
 import QueryErrorState from '../Resource/QueryErrorState';
 
 interface CatalogItemListSectionProps {
-  title: string;
-  items: CatalogItem[];
-  selectedItemId?: string | null;
-  onSelectItem: (item: CatalogItem) => void;
+  title?: string;
+  items: CatalogItemWithType[];
+  onSelectItem: (item: CatalogItemWithType) => void;
   isLoading?: boolean;
   error?: unknown;
 }
@@ -25,7 +24,6 @@ interface CatalogItemListSectionProps {
 export const CatalogItemListSection = ({
   title,
   items,
-  selectedItemId = null,
   onSelectItem,
   isLoading = false,
   error = null,
@@ -37,11 +35,13 @@ export const CatalogItemListSection = ({
   return (
     <StackItem>
       <Stack hasGutter>
-        <StackItem>
-          <Title headingLevel="h2" size="lg">
-            {title}
-          </Title>
-        </StackItem>
+        {title ? (
+          <StackItem>
+            <Title headingLevel="h2" size="lg">
+              {title}
+            </Title>
+          </StackItem>
+        ) : null}
         {isLoading ? (
           <StackItem>
             <Bullseye>
@@ -56,12 +56,12 @@ export const CatalogItemListSection = ({
         ) : null}
         {items.length > 0 ? (
           <StackItem>
-            <Gallery hasGutter>
+            <Gallery hasGutter minWidths={{ default: '400px' }} maxWidths={{ default: '400px' }}>
               {items.map((item) => (
                 <GalleryItem key={item.id}>
                   <CatalogItemCard
                     item={item}
-                    isSelected={selectedItemId === item.id}
+                    type={item.type}
                     onOpenDetails={() => onSelectItem(item)}
                   />
                 </GalleryItem>
