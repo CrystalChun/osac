@@ -3,24 +3,25 @@ import { describe, expect, it } from 'vitest';
 import type { UserRole } from '@osac/ui-components/shellTypes';
 import { tIdentity } from '@osac/ui-components/test-utils/i18n';
 
-import { navRowsForRole } from './shellNav';
+import { NavSection, isNavSection, navRowsForRole } from './shellNav';
 
 const roles: UserRole[] = ['tenant-user', 'tenant-admin', 'admin'];
 
-const findSection = (role: UserRole, sectionId: string) =>
-  navRowsForRole(role, tIdentity).find((row) => row.sectionId === sectionId);
+const findSection = (role: UserRole, sectionId: string): NavSection | undefined =>
+  navRowsForRole(role, tIdentity).find((row) => isNavSection(row) && row.id === sectionId) as
+    | NavSection
+    | undefined;
 
 const servicesChildren = (role: UserRole) =>
   findSection(role, 'nav-tenant-services')?.children ?? [];
 
 describe('navRowsForRole', () => {
-  it('includes Catalog, Virtual Machines, Clusters, and Bare Metal under Services for all roles', () => {
+  it('includes Virtual Machines, Clusters, and Bare Metal under Services for all roles', () => {
     for (const role of roles) {
       expect(servicesChildren(role)).toEqual([
-        { id: 'catalog', label: 'Catalog', path: '/catalog' },
-        { id: 'compute-vms', label: 'Virtual Machines', path: '/vms' },
-        { id: 'clusters', label: 'Clusters', path: '/clusters' },
-        { id: 'bare-metal', label: 'Bare Metal', path: '/bare-metal' },
+        { kind: 'link', id: 'compute-vms', label: 'Virtual Machines', path: '/vms' },
+        { kind: 'link', id: 'clusters', label: 'Clusters', path: '/clusters' },
+        { kind: 'link', id: 'bare-metal', label: 'Bare Metal', path: '/bare-metal' },
       ]);
     }
   });
@@ -30,8 +31,18 @@ describe('navRowsForRole', () => {
       const networking = findSection(role, 'nav-tenant-networking');
       expect(networking).toBeDefined();
       expect(networking?.children).toEqual([
-        { id: 'virtual-networks', label: 'Virtual networks', path: '/networking/virtual-networks' },
-        { id: 'security-groups', label: 'Security groups', path: '/networking/security-groups' },
+        {
+          kind: 'link',
+          id: 'virtual-networks',
+          label: 'Virtual networks',
+          path: '/networking/virtual-networks',
+        },
+        {
+          kind: 'link',
+          id: 'security-groups',
+          label: 'Security groups',
+          path: '/networking/security-groups',
+        },
       ]);
     }
   });
@@ -45,22 +56,24 @@ describe('navRowsForRole', () => {
 
   it('includes only Tenants under Administration for admin role', () => {
     expect(findSection('admin', 'nav-administration')?.children).toEqual([
-      { id: 'tenant', label: 'Tenants', path: '/admin/tenants' },
+      { kind: 'link', id: 'tenant', label: 'Tenants', path: '/admin/tenants' },
     ]);
   });
 
   it('Infrastructure section shows up only for admin role and contains storage and instance types', () => {
     expect(findSection('admin', 'nav-infrastructure')).toEqual({
       kind: 'section',
-      sectionId: 'nav-infrastructure',
+      id: 'nav-infrastructure',
       label: 'Infrastructure',
       children: [
         {
+          kind: 'link',
           id: 'storage',
           label: 'Storage',
           path: '/admin/infrastructure/storage',
         },
         {
+          kind: 'link',
           id: 'instance-types',
           label: 'Instance types',
           path: '/admin/infrastructure/instance-types',

@@ -6,7 +6,7 @@ import { useSession } from '@osac/ui-components/hooks/use-session';
 import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
 import { shellNavIcon } from '@osac/ui-components/icons';
 
-import { type NavLink, navRowsForRole } from './shellNav';
+import { type NavLink, isNavSection, navRowsForRole } from './shellNav';
 
 const ShellNavItem = ({ item }: { item: NavLink }) => {
   const location = useLocation();
@@ -37,13 +37,18 @@ export const ShellSidebar = () => {
     <PageSidebar>
       <PageSidebarBody isFilled>
         <Nav aria-label="Primary navigation">
-          {navRows.map((section) => (
-            <NavGroup key={section.sectionId} title={section.label}>
-              {section.children.map((item) => (
-                <ShellNavItem key={item.id} item={item} />
-              ))}
-            </NavGroup>
-          ))}
+          {navRows.map((row) => {
+            if (isNavSection(row)) {
+              return (
+                <NavGroup key={row.id} title={row.label}>
+                  {row.children.map((item) => (
+                    <ShellNavItem key={item.id} item={item} />
+                  ))}
+                </NavGroup>
+              );
+            }
+            return <ShellNavItem key={row.id} item={row} />;
+          })}
         </Nav>
       </PageSidebarBody>
     </PageSidebar>

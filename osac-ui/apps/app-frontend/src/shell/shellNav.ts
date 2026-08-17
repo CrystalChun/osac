@@ -3,45 +3,51 @@ import type { TFunction } from 'i18next';
 
 import type { UserRole } from '@osac/ui-components/shellTypes';
 
-export type NavLink = { id: string; label: string; path: string };
+export const isNavSection = (row: NavRow): row is NavSection => row.kind === 'section';
 
-type NavSection = {
+export type NavLink = { kind: 'link'; id: string; label: string; path: string };
+
+export type NavSection = {
   kind: 'section';
-  sectionId: string;
+  id: string;
   label: string;
   children: NavLink[];
 };
 
-const getTenantAdminSection = (t: TFunction): NavSection => ({
+type NavRow = NavSection | NavLink;
+
+const getTenantAdminSection = (t: TFunction): NavRow => ({
   kind: 'section',
-  sectionId: 'nav-tenant-administration',
+  id: 'nav-tenant-administration',
   label: t('Tenant'),
   children: [
-    { id: 'idp', label: t('Identity providers'), path: '/tenant/identity-provider' },
-    { id: 'role-bindings', label: t('Role Bindings'), path: '/tenant/role-binding' },
+    { kind: 'link', id: 'idp', label: t('Identity providers'), path: '/tenant/identity-provider' },
+    { kind: 'link', id: 'role-bindings', label: t('Role Bindings'), path: '/tenant/role-binding' },
   ],
 });
 
-const getIdpManagerNav = (t: TFunction): NavSection[] => [getTenantAdminSection(t)];
+const getIdpManagerNav = (t: TFunction): NavRow[] => [getTenantAdminSection(t)];
 
-const getAdminNav = (t: TFunction): NavSection[] => [
+const getAdminNav = (t: TFunction): NavRow[] => [
   {
     kind: 'section',
-    sectionId: 'nav-administration',
+    id: 'nav-administration',
     label: t('Administration'),
-    children: [{ id: 'tenant', label: t('Tenants'), path: '/admin/tenants' }],
+    children: [{ kind: 'link', id: 'tenant', label: t('Tenants'), path: '/admin/tenants' }],
   },
   {
     kind: 'section',
-    sectionId: 'nav-infrastructure',
+    id: 'nav-infrastructure',
     label: t('Infrastructure'),
     children: [
       {
+        kind: 'link',
         id: 'storage',
         label: t('Storage'),
         path: '/admin/infrastructure/storage',
       },
       {
+        kind: 'link',
         id: 'instance-types',
         label: t('Instance types'),
         path: '/admin/infrastructure/instance-types',
@@ -52,34 +58,34 @@ const getAdminNav = (t: TFunction): NavSection[] => [
   ...getBaseNav(t),
 ];
 
-const getTenantAdminNav = (t: TFunction): NavSection[] => [
-  getTenantAdminSection(t),
-  ...getBaseNav(t),
-];
+const getTenantAdminNav = (t: TFunction): NavRow[] => [getTenantAdminSection(t), ...getBaseNav(t)];
 
-const getBaseNav = (t: TFunction): NavSection[] => [
+const getBaseNav = (t: TFunction): NavRow[] => [
+  { kind: 'link', id: 'catalog', label: t('Catalog'), path: '/catalog' },
   {
     kind: 'section',
-    sectionId: 'nav-tenant-services',
+    id: 'nav-tenant-services',
     label: t('Services'),
     children: [
-      { id: 'catalog', label: t('Catalog'), path: '/catalog' },
-      { id: 'compute-vms', label: t('Virtual Machines'), path: '/vms' },
-      { id: 'clusters', label: t('Clusters'), path: '/clusters' },
-      { id: 'bare-metal', label: t('Bare Metal'), path: '/bare-metal' },
+      { kind: 'link', id: 'compute-vms', label: t('Virtual Machines'), path: '/vms' },
+      { kind: 'link', id: 'clusters', label: t('Clusters'), path: '/clusters' },
+      { kind: 'link', id: 'bare-metal', label: t('Bare Metal'), path: '/bare-metal' },
     ],
   },
+  { kind: 'link', id: 'projects', label: t('Projects'), path: '/projects' },
   {
     kind: 'section',
-    sectionId: 'nav-tenant-networking',
+    id: 'nav-tenant-networking',
     label: t('Networking'),
     children: [
       {
+        kind: 'link',
         id: 'virtual-networks',
         label: t('Virtual networks'),
         path: '/networking/virtual-networks',
       },
       {
+        kind: 'link',
         id: 'security-groups',
         label: t('Security groups'),
         path: '/networking/security-groups',
@@ -88,7 +94,7 @@ const getBaseNav = (t: TFunction): NavSection[] => [
   },
 ];
 
-export const navRowsForRole = (role: UserRole, t: TFunction): NavSection[] => {
+export const navRowsForRole = (role: UserRole, t: TFunction): NavRow[] => {
   if (role === 'admin') {
     return getAdminNav(t);
   }
