@@ -25,6 +25,7 @@ import NameField from '../../catalogProvision/wizard/fields/NameField';
 import { InputField } from '../../Form/InputField';
 import OsacForm from '../../Form/OsacForm';
 import { SelectField } from '../../Form/SelectField';
+import { getProjectName } from '../utils';
 
 const ProjectCreatePage = () => {
   const { t } = useTranslation();
@@ -71,7 +72,7 @@ const ProjectCreatePage = () => {
                     label={t('Parent project')}
                     name="metadata.project"
                     options={projects.map((p) => ({
-                      label: p.spec?.title || p.metadata?.name || t('Default'),
+                      label: getProjectName(p, t),
                       value: p.metadata?.project
                         ? `${p.metadata.project}.${p.metadata.name}`
                         : p.metadata?.name || 'default',
