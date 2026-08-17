@@ -1,4 +1,5 @@
 import { create } from '@bufbuild/protobuf';
+import { Code, ConnectError } from '@connectrpc/connect';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { Formik } from 'formik';
 import { describe, expect, it } from 'vitest';
@@ -123,6 +124,24 @@ describe('ClusterConfigurationStep', () => {
     );
     // The deprecated version stays selected — it is a warning, not a validation error.
     expect(screen.getByLabelText(/^Version/)).toHaveTextContent('4.16.0 (deprecated)');
+  });
+
+  it('surfaces a load error with a retry action when versions fail to load', async () => {
+    renderWithProviders(
+      <Formik initialValues={createEmptyClusterValues()} onSubmit={() => undefined}>
+        <ClusterConfigurationStep catalogItem={clusterCatalogItem} />
+      </Formik>,
+      {
+        transportOverrides: {
+          onClusterVersionList: () => {
+            throw new ConnectError('versions unavailable', Code.Unavailable);
+          },
+        },
+      },
+    );
+
+    expect(await screen.findByText('Could not load cluster versions')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Retry' })).toBeInTheDocument();
   });
 
   it('starts with one node set and add action', async () => {
