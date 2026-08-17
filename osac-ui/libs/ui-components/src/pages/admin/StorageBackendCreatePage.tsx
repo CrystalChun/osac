@@ -115,8 +115,9 @@ const StorageBackendForm = ({ backend }: { backend?: StorageBackend }) => {
               : {}),
           },
         });
+        navigate(BACKENDS_LIST_PATH);
       } else {
-        await create({
+        const created = await create({
           metadata: values.metadata,
           spec: {
             provider: values.provider,
@@ -128,8 +129,8 @@ const StorageBackendForm = ({ backend }: { backend?: StorageBackend }) => {
             },
           },
         });
+        navigate(`${BACKENDS_LIST_PATH}/${created.id}`);
       }
-      navigate(BACKENDS_LIST_PATH);
     } catch {
       // Surfaced via the mutation's own `error` state below; nothing further to do here.
     }
@@ -142,7 +143,7 @@ const StorageBackendForm = ({ backend }: { backend?: StorageBackend }) => {
           <Breadcrumb>
             <BreadcrumbItem>
               <Button variant="link" isInline onClick={() => navigate(BACKENDS_LIST_PATH)}>
-                {t('Storage backends')}
+                {t('Storage Backends')}
               </Button>
             </BreadcrumbItem>
             <BreadcrumbItem isActive>{isEdit ? t('Edit') : t('Create')}</BreadcrumbItem>

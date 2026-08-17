@@ -86,7 +86,7 @@ describe('StorageBackendCreatePage', () => {
       renderCreatePage();
 
       expect(screen.getByRole('heading', { name: 'Create storage backend' })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: 'Storage backends' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Storage Backends' })).toBeInTheDocument();
       expect(screen.getByRole('textbox', { name: 'Name' })).toBeInTheDocument();
       expect(screen.getByLabelText(/^Provider/)).toBeInTheDocument();
       expect(screen.getByRole('textbox', { name: 'Endpoint' })).toBeInTheDocument();
@@ -202,11 +202,13 @@ describe('StorageBackendCreatePage', () => {
       resolveCreate?.();
 
       await waitFor(() => {
-        expect(mockNavigate).toHaveBeenCalledWith('/admin/infrastructure/storage/backends');
+        expect(mockNavigate).toHaveBeenCalledWith(
+          '/admin/infrastructure/storage/backends/new-backend-1',
+        );
       });
     }, 15000);
 
-    it('submits the expected payload and navigates to the backends list on success', async () => {
+    it('submits the expected payload and navigates to the created backend details page on success', async () => {
       let capturedRequest: StorageBackendsCreateRequest | undefined;
       const { user } = renderCreatePage({
         onStorageBackendCreate: (req) => {
@@ -225,7 +227,9 @@ describe('StorageBackendCreatePage', () => {
       await user.click(screen.getByRole('button', { name: 'Create' }));
 
       await waitFor(() => {
-        expect(mockNavigate).toHaveBeenCalledWith('/admin/infrastructure/storage/backends');
+        expect(mockNavigate).toHaveBeenCalledWith(
+          '/admin/infrastructure/storage/backends/new-backend-1',
+        );
       });
 
       expect(capturedRequest?.object?.metadata?.name).toBe('vast-prod-1');
@@ -263,7 +267,7 @@ describe('StorageBackendCreatePage', () => {
     it('navigates back to the backends list via breadcrumb', async () => {
       const { user } = renderCreatePage();
 
-      await user.click(screen.getByRole('button', { name: 'Storage backends' }));
+      await user.click(screen.getByRole('button', { name: 'Storage Backends' }));
 
       expect(mockNavigate).toHaveBeenCalledWith('/admin/infrastructure/storage/backends');
     });

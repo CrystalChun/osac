@@ -65,6 +65,18 @@ describe('StorageBackendsListPage', () => {
     expect(screen.getByText('ceph-dev')).toBeInTheDocument();
   });
 
+  it('links the backend name to its details page', async () => {
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByRole('link', { name: 'vast-prod' })).toBeInTheDocument();
+    });
+    expect(screen.getByRole('link', { name: 'vast-prod' })).toHaveAttribute(
+      'href',
+      '/admin/infrastructure/storage/backends/b-1',
+    );
+  });
+
   it('renders status labels for each backend', async () => {
     renderPage();
 

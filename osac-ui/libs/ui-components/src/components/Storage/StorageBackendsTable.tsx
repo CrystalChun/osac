@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
 import type { StorageBackend } from '@osac/types/private';
@@ -27,7 +28,11 @@ export const StorageBackendsTable = ({ backends }: StorageBackendsTableProps) =>
       <Tbody>
         {backends.map((backend) => (
           <Tr key={backend.id}>
-            <Td dataLabel={t('Name')}>{backend.metadata?.name || backend.id}</Td>
+            <Td dataLabel={t('Name')}>
+              <Link to={`/admin/infrastructure/storage/backends/${encodeURIComponent(backend.id)}`}>
+                {backend.metadata?.name || backend.id}
+              </Link>
+            </Td>
             <Td dataLabel={t('Status')}>
               <StorageBackendStatusLabel state={backend.status?.state} />
             </Td>
