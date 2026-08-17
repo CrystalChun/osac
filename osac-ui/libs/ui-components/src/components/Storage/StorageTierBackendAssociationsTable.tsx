@@ -15,6 +15,7 @@ export const StorageTierBackendAssociationsTable = ({
   backendsById,
 }: StorageTierBackendAssociationsTableProps) => {
   const { t } = useTranslation();
+  const protocolLabels = protocolLabel(t);
 
   return (
     <Table aria-label={t('Backend associations')} variant="compact">
@@ -34,7 +35,7 @@ export const StorageTierBackendAssociationsTable = ({
             <Td dataLabel={t('Backend')}>
               {backendsById.get(association.backendId)?.metadata?.name ?? association.backendId}
             </Td>
-            <Td dataLabel={t('Protocol')}>{protocolLabel(t, association.protocol)}</Td>
+            <Td dataLabel={t('Protocol')}>{protocolLabels[association.protocol]}</Td>
             <Td dataLabel={t('Max read bandwidth')}>{`${association.maxReadBandwidthMbs} MB/s`}</Td>
             <Td
               dataLabel={t('Max write bandwidth')}

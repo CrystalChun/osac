@@ -36,6 +36,8 @@ export const StorageTiersListPage = () => {
     [backends],
   );
 
+  const protocolLabels = protocolLabel(t);
+
   return (
     <Stack hasGutter>
       <StackItem>
@@ -108,7 +110,7 @@ export const StorageTiersListPage = () => {
                           </Td>
                           <Td dataLabel={t('Protocol(s)')}>
                             {backendAssociations
-                              .map((association) => protocolLabel(t, association.protocol))
+                              .map((association) => protocolLabels[association.protocol])
                               .join(', ')}
                           </Td>
                           <Td dataLabel={t('Actions')} isActionCell>

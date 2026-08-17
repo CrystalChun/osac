@@ -15,16 +15,16 @@ const makeTier = (id: string, backendIds: string[]): StorageTier =>
   }) as StorageTier;
 
 describe('protocolLabel', () => {
-  it('returns NFS for the NFS protocol', () => {
-    expect(protocolLabel(t, StorageProtocol.NFS)).toBe('NFS');
+  it('maps NFS to its label', () => {
+    expect(protocolLabel(t)[StorageProtocol.NFS]).toBe('NFS');
   });
 
-  it('returns Block for the BLOCK protocol', () => {
-    expect(protocolLabel(t, StorageProtocol.BLOCK)).toBe('Block');
+  it('maps BLOCK to its label', () => {
+    expect(protocolLabel(t)[StorageProtocol.BLOCK]).toBe('Block');
   });
 
-  it('returns an em dash for an unrecognized protocol value', () => {
-    expect(protocolLabel(t, StorageProtocol.UNSPECIFIED)).toBe('—');
+  it('maps UNSPECIFIED to an em dash', () => {
+    expect(protocolLabel(t)[StorageProtocol.UNSPECIFIED]).toBe('—');
   });
 });
 
