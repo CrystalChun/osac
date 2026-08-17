@@ -85,7 +85,9 @@ describe('StorageTierDetailsPage', () => {
     );
     expect(screen.getByText('Fast tier for latency-sensitive workloads')).toBeInTheDocument();
     expect(screen.getAllByText('Active')).not.toHaveLength(0);
-    expect(screen.getByText('Fast NVMe')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('Fast NVMe')).toBeInTheDocument();
+    });
     expect(screen.getByText('NFS')).toBeInTheDocument();
     expect(screen.getByText('100 MB/s')).toBeInTheDocument();
     expect(screen.getByText('80 MB/s')).toBeInTheDocument();
@@ -129,7 +131,7 @@ describe('StorageTierDetailsPage', () => {
     });
   });
 
-  it('shows a warning banner when the backend-name lookup fails, without breaking the id fallback', async () => {
+  it('shows the backend-fetch error verbatim when the backend-name lookup fails, without breaking the id fallback', async () => {
     renderWithProviders(
       <Routes>
         <Route
@@ -149,8 +151,9 @@ describe('StorageTierDetailsPage', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText('Unable to resolve backend names')).toBeInTheDocument();
+      expect(screen.getByText('Failed to fetch storage backends')).toBeInTheDocument();
     });
+    expect(screen.getByText('backend service unavailable')).toBeInTheDocument();
     expect(screen.getByText('backend-a')).toBeInTheDocument();
   });
 

@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import {
   Alert,
   Card,
@@ -15,29 +16,39 @@ import {
   StackItem,
 } from '@patternfly/react-core';
 
-import type { StorageBackend, StorageTier } from '@osac/types/private';
+import type { StorageTier } from '@osac/types/private';
 
 import { StorageTierBackendAssociationsTable } from './StorageTierBackendAssociationsTable';
+import { uniqueBackendIds } from './storageTierBackendResolution';
 import { StorageTierDetailActionButtons } from './StorageTierDetailActionButtons';
 import { StorageTierStatusLabel } from './StorageTierStatusLabel';
+import {
+  storageBackendIdsFilter,
+  usePrivateStorageBackends,
+} from '../../api/v1/private/storage-backends';
 import { useTranslation } from '../../hooks/useTranslation';
+import { getErrorMessage } from '../../utils/error';
 import { ResourceDetailHeader } from '../Resource/ResourceDetailHeader';
 
 const TIERS_LIST_PATH = '/admin/infrastructure/storage/tiers';
 
 interface StorageTierDetailsProps {
   tier: StorageTier;
-  backendsById: Map<string, StorageBackend>;
-  backendsError?: unknown;
 }
 
-export const StorageTierDetails = ({
-  tier,
-  backendsById,
-  backendsError,
-}: StorageTierDetailsProps) => {
+export const StorageTierDetails = ({ tier }: StorageTierDetailsProps) => {
   const { t } = useTranslation();
   const tierName = tier.metadata?.name ?? tier.id;
+
+  const backendIds = useMemo(() => uniqueBackendIds([tier]), [tier]);
+  const { data: backends = [], error: backendsError } = usePrivateStorageBackends(
+    { filter: storageBackendIdsFilter(backendIds) },
+    { enabled: backendIds.length > 0 },
+  );
+  const backendsById = useMemo(
+    () => new Map(backends.map((backend) => [backend.id, backend])),
+    [backends],
+  );
 
   return (
     <>
@@ -103,10 +114,8 @@ export const StorageTierDetails = ({
             <Stack hasGutter>
               {Boolean(backendsError) && (
                 <StackItem>
-                  <Alert variant="warning" isInline title={t('Unable to resolve backend names')}>
-                    {t(
-                      'Backend IDs are shown in place of names until this recovers. This is separate from the normal fallback shown when a tier references a backend that no longer exists.',
-                    )}
+                  <Alert variant="danger" isInline title={t('Failed to fetch storage backends')}>
+                    {getErrorMessage(backendsError)}
                   </Alert>
                 </StackItem>
               )}
