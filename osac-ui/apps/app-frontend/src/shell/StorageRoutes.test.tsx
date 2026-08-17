@@ -98,6 +98,33 @@ describe('StorageRoutes', () => {
     expect(screen.queryByText('This feature is coming soon.')).not.toBeInTheDocument();
   });
 
+  it('renders the real details page for tiers/:id', async () => {
+    const tier = {
+      id: 'tier-123',
+      metadata: { name: 'fast-tier', version: 1 },
+      spec: {
+        description: '',
+        backends: [
+          {
+            backendId: 'backend-1',
+            protocol: StorageProtocol.NFS,
+            maxReadBandwidthMbs: 100,
+            maxWriteBandwidthMbs: 100,
+            quotaGib: 500n,
+            encryptionEnabled: false,
+          },
+        ],
+      },
+      status: { state: StorageTierState.ACTIVE },
+    } as StorageTier;
+
+    renderAt('/admin/infrastructure/storage/tiers/tier-123', {
+      apiFixtures: { storageTiers: [tier] },
+    });
+
+    expect(await screen.findByRole('heading', { name: 'fast-tier' })).toBeInTheDocument();
+  });
+
   it('renders the real edit form for tiers/:id/edit', async () => {
     const tier = {
       id: 'tier-123',

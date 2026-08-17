@@ -201,6 +201,32 @@ describe('StorageTiersListPage', () => {
     });
   });
 
+  it('navigates to the details route when a tier name is clicked', async () => {
+    const { user } = renderWithProviders(
+      <Routes>
+        <Route path="/admin/infrastructure/storage/tiers" element={<StorageTiersListPage />} />
+        <Route
+          path="/admin/infrastructure/storage/tiers/:id"
+          element={<div>navigated-to-details</div>}
+        />
+      </Routes>,
+      {
+        apiFixtures: { storageTiers: defaultTiers, storageBackends: defaultBackends },
+        routerEntries: ['/admin/infrastructure/storage/tiers'],
+      },
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('fast')).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole('button', { name: 'fast' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('navigated-to-details')).toBeInTheDocument();
+    });
+  });
+
   it('navigates to the edit route when a row Edit action is clicked', async () => {
     const { user } = renderWithProviders(
       <Routes>

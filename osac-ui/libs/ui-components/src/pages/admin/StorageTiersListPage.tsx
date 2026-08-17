@@ -2,10 +2,6 @@ import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Alert, Button, Flex, FlexItem, Stack, StackItem } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
-import type { TFunction } from 'i18next';
-
-import type { StorageTier } from '@osac/types/private';
-import { StorageProtocol } from '@osac/types/private';
 
 import {
   storageBackendIdsFilter,
@@ -14,28 +10,13 @@ import {
 import { usePrivateStorageTiers } from '../../api/v1/private/storage-tiers';
 import ListPageBody from '../../components/Page/ListPageBody';
 import StorageTierActionsMenu from '../../components/Storage/StorageTierActionsMenu';
+import {
+  protocolLabel,
+  uniqueBackendIds,
+} from '../../components/Storage/storageTierBackendResolution';
 import { StorageTierStatusLabel } from '../../components/Storage/StorageTierStatusLabel';
 import { SubtleContent } from '../../components/SubtleContent/SubtleContent';
 import { useTranslation } from '../../hooks/useTranslation';
-
-const protocolLabel = (t: TFunction, protocol: StorageProtocol): string => {
-  switch (protocol) {
-    case StorageProtocol.NFS:
-      return t('NFS');
-    case StorageProtocol.BLOCK:
-      return t('Block');
-    default:
-      return '—';
-  }
-};
-
-const uniqueBackendIds = (tiers: StorageTier[]): string[] => {
-  const ids = new Set<string>();
-  tiers.forEach((tier) => {
-    tier.spec?.backends.forEach((backend) => ids.add(backend.backendId));
-  });
-  return Array.from(ids).sort();
-};
 
 export const StorageTiersListPage = () => {
   const { t } = useTranslation();
@@ -54,6 +35,8 @@ export const StorageTiersListPage = () => {
     () => new Map(backends.map((backend) => [backend.id, backend])),
     [backends],
   );
+
+  const protocolLabels = protocolLabel(t);
 
   return (
     <Stack hasGutter>
@@ -102,7 +85,17 @@ export const StorageTiersListPage = () => {
                       const backendAssociations = tier.spec?.backends ?? [];
                       return (
                         <Tr key={tier.id}>
-                          <Td dataLabel={t('Name')}>{tier.metadata?.name || tier.id}</Td>
+                          <Td dataLabel={t('Name')}>
+                            <Button
+                              variant="link"
+                              isInline
+                              onClick={() =>
+                                navigate(`/admin/infrastructure/storage/tiers/${tier.id}`)
+                              }
+                            >
+                              {tier.metadata?.name || tier.id}
+                            </Button>
+                          </Td>
                           <Td dataLabel={t('Status')}>
                             <StorageTierStatusLabel state={tier.status?.state} />
                           </Td>
@@ -117,7 +110,7 @@ export const StorageTiersListPage = () => {
                           </Td>
                           <Td dataLabel={t('Protocol(s)')}>
                             {backendAssociations
-                              .map((association) => protocolLabel(t, association.protocol))
+                              .map((association) => protocolLabels[association.protocol])
                               .join(', ')}
                           </Td>
                           <Td dataLabel={t('Actions')} isActionCell>

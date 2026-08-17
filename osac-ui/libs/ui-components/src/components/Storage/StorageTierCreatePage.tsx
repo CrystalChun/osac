@@ -162,13 +162,14 @@ const StorageTierForm = ({ tier, backendOptions, backendsLoading }: StorageTierF
           spec.description = values.description;
         }
         await update({ id: tier.id, metadata: { version: tier.metadata?.version ?? 0 }, spec });
+        navigate(TIERS_LIST_PATH);
       } else {
-        await create({
+        const created = await create({
           metadata: values.metadata,
           spec: { description: values.description, backends: [backendPayload] },
         });
+        navigate(`${TIERS_LIST_PATH}/${created.id}`);
       }
-      navigate(TIERS_LIST_PATH);
     } catch {
       // Surfaced via the mutation's own `error` state below; nothing further to do here.
     }
