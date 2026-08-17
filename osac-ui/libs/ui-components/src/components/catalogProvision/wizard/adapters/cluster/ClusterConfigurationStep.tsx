@@ -33,16 +33,18 @@ const ClusterConfigurationStep = ({ catalogItem }: Props) => {
   const selectedVersion = versions.find((version) => version.metadata?.name === versionField.value);
   const isSelectedDeprecated = selectedVersion?.spec?.state === ClusterVersionState.DEPRECATED;
 
-  const deprecatedSuffix = t('catalogProvision.clusterVersions.deprecatedSuffix');
   const versionOptions = useMemo(
     () =>
       versions.map((version) => {
         const name = version.metadata?.name ?? '';
         const label = version.spec?.version || name;
         const deprecated = version.spec?.state === ClusterVersionState.DEPRECATED;
-        return { value: name, label: deprecated ? `${label}${deprecatedSuffix}` : label };
+        return {
+          value: name,
+          label: deprecated ? t('{{version}} (deprecated)', { version: label }) : label,
+        };
       }),
-    [versions, deprecatedSuffix],
+    [versions, t],
   );
 
   const definitions = useMemo(() => readCatalogFieldDefinitions(catalogItem), [catalogItem]);
