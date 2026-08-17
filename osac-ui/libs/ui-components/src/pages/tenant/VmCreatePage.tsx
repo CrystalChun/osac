@@ -12,8 +12,6 @@ import {
 } from '@patternfly/react-core';
 
 import { ComputeInstanceSchema } from '@osac/types';
-import { apiQueryKey } from '@osac/ui-components/api/types';
-import { useApiQueryClient } from '@osac/ui-components/api/use-api-query';
 import { useProvisionComputeInstance } from '@osac/ui-components/api/v1/compute-instance';
 import {
   type CatalogProvisionPayload,
@@ -27,7 +25,6 @@ export const VmCreatePage = () => {
   const navigate = useNavigate();
   const { catalogItemId } = useParams<{ catalogItemId?: string }>();
   const provisionVm = useProvisionComputeInstance();
-  const qc = useApiQueryClient();
   const [closeHandler, setCloseHandler] = useState<CatalogProvisionWizardCloseHandler | null>(null);
 
   const handleCloseHandlerChange = useCallback((handler: CatalogProvisionWizardCloseHandler) => {
@@ -46,10 +43,9 @@ export const VmCreatePage = () => {
       if (!instance?.id) {
         throw new Error('Create response missing id');
       }
-      qc.setQueryData(apiQueryKey('v1/compute_instances', [instance.id]), { object: instance });
       navigate(`/vms/${instance.id}`);
     },
-    [navigate, provisionVm, qc],
+    [navigate, provisionVm],
   );
 
   return (
