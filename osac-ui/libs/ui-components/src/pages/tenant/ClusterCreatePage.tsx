@@ -12,8 +12,6 @@ import {
 } from '@patternfly/react-core';
 
 import { ClusterSchema } from '@osac/types';
-import { apiQueryKey } from '@osac/ui-components/api/types';
-import { useApiQueryClient } from '@osac/ui-components/api/use-api-query';
 import { useProvisionCluster } from '@osac/ui-components/api/v1/cluster';
 import {
   type CatalogProvisionPayload,
@@ -27,7 +25,6 @@ export const ClusterCreatePage = () => {
   const navigate = useNavigate();
   const { catalogItemId } = useParams<{ catalogItemId?: string }>();
   const provisionCluster = useProvisionCluster();
-  const qc = useApiQueryClient();
   const [closeHandler, setCloseHandler] = useState<CatalogProvisionWizardCloseHandler | null>(null);
 
   const handleCloseHandlerChange = useCallback((handler: CatalogProvisionWizardCloseHandler) => {
@@ -46,10 +43,9 @@ export const ClusterCreatePage = () => {
       if (!created?.id) {
         throw new Error('Create response missing id');
       }
-      qc.setQueryData(apiQueryKey('v1/clusters', [created.id]), created);
       navigate(`/clusters/${created.id}`);
     },
-    [navigate, provisionCluster, qc],
+    [navigate, provisionCluster],
   );
 
   return (
