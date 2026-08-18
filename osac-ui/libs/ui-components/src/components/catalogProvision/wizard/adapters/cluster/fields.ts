@@ -12,7 +12,8 @@ export interface ClusterWizardValues {
   spec: {
     sshPublicKey: string;
     pullSecret: string;
-    releaseImage: string;
+    /** Selected ClusterVersion metadata.name (e.g. "4-17-0"); wrapped into spec.version at payload build. */
+    versionName: string;
     nodeSetRows: ClusterNodeSetRow[];
     network: {
       podCidr: string;
@@ -25,15 +26,15 @@ export const CLUSTER_SSH_KEY_WIRE_PATH = 'ssh_public_key';
 export const CLUSTER_SSH_KEY_FORM_PATH = 'spec.sshPublicKey';
 export const CLUSTER_PULL_SECRET_WIRE_PATH = 'pull_secret';
 export const CLUSTER_PULL_SECRET_FORM_PATH = 'spec.pullSecret';
-export const CLUSTER_RELEASE_IMAGE_WIRE_PATH = 'release_image';
+export const CLUSTER_VERSION_WIRE_PATH = 'version';
 export const CLUSTER_POD_CIDR_WIRE_PATH = 'network.pod_cidr';
 export const CLUSTER_SERVICE_CIDR_WIRE_PATH = 'network.service_cidr';
 
 export const clusterSshKeyWirePath = CLUSTER_SSH_KEY_WIRE_PATH;
 
 export const CLUSTER_CONFIGURATION_CATALOG_PATHS = [
-  CLUSTER_RELEASE_IMAGE_WIRE_PATH,
-  'spec.release_image',
+  CLUSTER_VERSION_WIRE_PATH,
+  'spec.version',
 ] as const;
 
 export const CLUSTER_NETWORKING_CATALOG_PATHS = [

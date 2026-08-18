@@ -1,8 +1,15 @@
+import { create } from '@bufbuild/protobuf';
+import { Code, ConnectError } from '@connectrpc/connect';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { Formik } from 'formik';
 import { describe, expect, it } from 'vitest';
 
-import type { ClusterCatalogItem } from '@osac/types';
+import {
+  type ClusterCatalogItem,
+  type ClusterVersion,
+  ClusterVersionSchema,
+  ClusterVersionState,
+} from '@osac/types';
 import { tIdentity } from '@osac/ui-components/test-utils/i18n';
 
 import ClusterConfigurationStep from './ClusterConfigurationStep';
@@ -40,24 +47,109 @@ const clusterCatalogItem: ClusterCatalogItem = {
   fieldDefinitions: [
     {
       $typeName: 'osac.public.v1.FieldDefinition',
-      path: 'release_image',
-      displayName: 'Release image',
+      path: 'version',
+      displayName: 'Version',
       editable: true,
       validationSchema: '',
-      default: {
-        $typeName: 'google.protobuf.Value',
-        kind: { case: 'stringValue', value: '4.17.0' },
-      },
     },
   ],
 };
 
+const makeClusterVersion = (
+  name: string,
+  version: string,
+  state: ClusterVersionState,
+  enabled = true,
+): ClusterVersion =>
+  create(ClusterVersionSchema, {
+    id: name,
+    metadata: { name },
+    spec: { version, state, enabled },
+  });
+
+// Active + deprecated (enabled) are selectable; obsolete and disabled must be excluded by the filter.
+const clusterVersions: ClusterVersion[] = [
+  makeClusterVersion('4-17-0', '4.17.0', ClusterVersionState.ACTIVE),
+  makeClusterVersion('4-16-0', '4.16.0', ClusterVersionState.DEPRECATED),
+  makeClusterVersion('4-15-0', '4.15.0', ClusterVersionState.OBSOLETE),
+  makeClusterVersion('4-14-0', '4.14.0', ClusterVersionState.ACTIVE, false),
+];
+
 describe('ClusterConfigurationStep', () => {
+  it('renders a version select rather than a release-image text field', async () => {
+    renderWithProviders(
+      <Formik initialValues={createEmptyClusterValues()} onSubmit={() => undefined}>
+        <ClusterConfigurationStep catalogItem={clusterCatalogItem} />
+      </Formik>,
+      { apiFixtures: { clusterVersions } },
+    );
+
+    await waitFor(() =>
+      expect(screen.getByLabelText(/^Version/)).toHaveTextContent('Select a version'),
+    );
+    expect(screen.queryByRole('textbox', { name: 'Release image' })).not.toBeInTheDocument();
+  });
+
+  it('offers only active and deprecated enabled versions', async () => {
+    const { user } = renderWithProviders(
+      <Formik initialValues={createEmptyClusterValues()} onSubmit={() => undefined}>
+        <ClusterConfigurationStep catalogItem={clusterCatalogItem} />
+      </Formik>,
+      { apiFixtures: { clusterVersions } },
+    );
+
+    await user.click(await screen.findByLabelText(/^Version/));
+
+    expect(screen.getByRole('option', { name: '4.17.0' })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: '4.16.0 (deprecated)' })).toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: /4\.15\.0/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: /4\.14\.0/ })).not.toBeInTheDocument();
+  });
+
+  it('warns when a deprecated version is selected without blocking selection', async () => {
+    const { user } = renderWithProviders(
+      <Formik initialValues={createEmptyClusterValues()} onSubmit={() => undefined}>
+        <ClusterConfigurationStep catalogItem={clusterCatalogItem} />
+      </Formik>,
+      { apiFixtures: { clusterVersions } },
+    );
+
+    await user.click(await screen.findByLabelText(/^Version/));
+    await user.click(screen.getByRole('option', { name: '4.16.0 (deprecated)' }));
+
+    await waitFor(() =>
+      expect(
+        screen.getByText('This version is deprecated and may be removed in a future release.'),
+      ).toBeInTheDocument(),
+    );
+    // The deprecated version stays selected — it is a warning, not a validation error.
+    expect(screen.getByLabelText(/^Version/)).toHaveTextContent('4.16.0 (deprecated)');
+  });
+
+  it('surfaces a load error with a retry action when versions fail to load', async () => {
+    renderWithProviders(
+      <Formik initialValues={createEmptyClusterValues()} onSubmit={() => undefined}>
+        <ClusterConfigurationStep catalogItem={clusterCatalogItem} />
+      </Formik>,
+      {
+        transportOverrides: {
+          onClusterVersionList: () => {
+            throw new ConnectError('versions unavailable', Code.Unavailable);
+          },
+        },
+      },
+    );
+
+    expect(await screen.findByText('Could not load cluster versions')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Retry' })).toBeInTheDocument();
+  });
+
   it('starts with one node set and add action', async () => {
     renderWithProviders(
       <Formik initialValues={createEmptyClusterValues()} onSubmit={() => undefined}>
         <ClusterConfigurationStep catalogItem={clusterCatalogItem} />
       </Formik>,
+      { apiFixtures: { clusterVersions } },
     );
 
     await waitFor(() => {
@@ -74,6 +166,7 @@ describe('ClusterConfigurationStep', () => {
       <Formik initialValues={createEmptyClusterValues()} onSubmit={() => undefined}>
         <ClusterConfigurationStep catalogItem={clusterCatalogItem} />
       </Formik>,
+      { apiFixtures: { clusterVersions } },
     );
 
     await user.click(screen.getByRole('button', { name: 'Add node set' }));
@@ -94,7 +187,7 @@ describe('ClusterConfigurationStep', () => {
             catalogItemId: clusterCatalogItem.id,
             spec: {
               ...createEmptyClusterValues().spec,
-              releaseImage: '4.17.0',
+              versionName: '4-17-0',
               nodeSetRows: [
                 {
                   ...row,
@@ -111,6 +204,7 @@ describe('ClusterConfigurationStep', () => {
           <ClusterConfigurationStep catalogItem={clusterCatalogItem} />
         </Formik>
       </FieldValidationProvider>,
+      { apiFixtures: { clusterVersions } },
     );
 
     await waitFor(() => {

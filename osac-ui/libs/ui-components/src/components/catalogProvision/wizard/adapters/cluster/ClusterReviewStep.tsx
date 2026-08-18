@@ -12,11 +12,16 @@ import {
 import { useFormikContext } from 'formik';
 
 import { HostType } from '@osac/types';
+import {
+  CLUSTER_VERSION_ACTIVE_LIST_FILTER,
+  useClusterVersions,
+} from '@osac/ui-components/api/v1/cluster-versions';
 import { useHostTypes } from '@osac/ui-components/api/v1/host-types';
 import { CatalogItem } from '@osac/ui-components/components/catalog/catalogItemDisplay';
 import { getErrorMessage } from '@osac/ui-components/utils/error';
 
 import { ClusterWizardValues } from './fields';
+import { findVersionByName, versionDisplayName } from './versionUtils';
 import { useTranslation } from '../../../../../hooks/useTranslation';
 import { formatReviewScalar } from '../../catalogOverlay';
 
@@ -51,6 +56,14 @@ export const ClusterReviewStep = ({ catalogItem }: Props) => {
   } = useHostTypes({
     filter: `this.id in [${values.spec.nodeSetRows.map(({ hostType }) => `"${hostType}"`).join(',')}]`,
   });
+
+  const { data: versions = [] } = useClusterVersions({
+    filter: CLUSTER_VERSION_ACTIVE_LIST_FILTER,
+  });
+  const versionDisplay = versionDisplayName(
+    findVersionByName(versions, values.spec.versionName),
+    values.spec.versionName,
+  );
 
   if (isLoading) {
     return (
@@ -102,9 +115,9 @@ export const ClusterReviewStep = ({ catalogItem }: Props) => {
           </DescriptionListGroup>
 
           <DescriptionListGroup>
-            <DescriptionListTerm>{t('Release image')}</DescriptionListTerm>
+            <DescriptionListTerm>{t('Version')}</DescriptionListTerm>
             <DescriptionListDescription>
-              {formatReviewScalar(values.spec.releaseImage)}
+              {formatReviewScalar(versionDisplay)}
             </DescriptionListDescription>
           </DescriptionListGroup>
           <DescriptionListGroup>

@@ -4,6 +4,8 @@ import { Code, ConnectError, type Transport, createRouterTransport } from '@conn
 import type {
   ClusterCatalogItem,
   ClusterTemplate,
+  ClusterVersion,
+  ClusterVersionsListRequest,
   ClustersCreateRequest,
   ClustersCreateResponse,
   ComputeInstanceCatalogItem,
@@ -25,6 +27,9 @@ import type {
 import {
   ClusterCatalogItems,
   ClusterTemplates,
+  ClusterVersionState,
+  ClusterVersions,
+  ClusterVersionsListResponseSchema,
   Clusters,
   ComputeInstanceCatalogItems,
   HostTypes,
@@ -87,6 +92,7 @@ export type MockApiFixtures = {
   catalogItems?: ComputeInstanceCatalogItem[];
   clusterCatalogItems?: ClusterCatalogItem[];
   clusterTemplates?: ClusterTemplate[];
+  clusterVersions?: ClusterVersion[];
   hostTypes?: HostType[];
   tenants?: PrivateTenant[];
   virtualNetworks?: VirtualNetwork[];
@@ -157,6 +163,29 @@ const matchesInstanceTypeActiveFilter = (
   return state === InstanceTypeState.ACTIVE;
 };
 
+const matchesClusterVersionActiveFilter = (
+  filter: string | undefined,
+  state: number | undefined,
+  enabled: boolean | undefined,
+): boolean => {
+  if (!filter) {
+    return true;
+  }
+  // The all-states filter enumerates every state via `state in [...]` — no filtering applied.
+  if (filter.includes(' in [')) {
+    return true;
+  }
+  if (!filter.includes('this.spec.state')) {
+    return true;
+  }
+  const stateAllowed =
+    state === ClusterVersionState.ACTIVE || state === ClusterVersionState.DEPRECATED;
+  if (filter.includes('this.spec.enabled')) {
+    return stateAllowed && enabled === true;
+  }
+  return stateAllowed;
+};
+
 const matchesStorageBackendReadyFilter = (
   filter: string | undefined,
   state: number | undefined,
@@ -169,6 +198,9 @@ const matchesStorageBackendReadyFilter = (
 
 export type MockTransportOverrides = {
   onClusterCreate?: (req: ClustersCreateRequest) => ClustersCreateResponse;
+  onClusterVersionList?: (
+    req: ClusterVersionsListRequest,
+  ) => MessageInitShape<typeof ClusterVersionsListResponseSchema>;
   onIdentityProviderCreate?: (
     req: IdentityProvidersCreateRequest,
   ) => IdentityProvidersCreateResponse;
@@ -211,6 +243,7 @@ export const createMockConnectTransport = (
   const catalogItems = fixtures.catalogItems ?? [];
   const clusterCatalogItems = fixtures.clusterCatalogItems ?? [];
   const clusterTemplates = fixtures.clusterTemplates ?? [];
+  const clusterVersions = fixtures.clusterVersions ?? [];
   const hostTypes = fixtures.hostTypes ?? [];
   const tenants = fixtures.tenants ?? [];
   const identityProviders = fixtures.identityProviders ?? [];
@@ -252,6 +285,22 @@ export const createMockConnectTransport = (
             object: template,
           };
         },
+      });
+
+      router.service(ClusterVersions, {
+        list: (req) => {
+          if (overrides.onClusterVersionList) {
+            return overrides.onClusterVersionList(req);
+          }
+          return {
+            items: clusterVersions.filter((item) =>
+              matchesClusterVersionActiveFilter(req.filter, item.spec?.state, item.spec?.enabled),
+            ),
+          };
+        },
+        get: (req) => ({
+          object: clusterVersions.find((i) => i.id === req.id),
+        }),
       });
 
       router.service(HostTypes, {

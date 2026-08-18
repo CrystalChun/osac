@@ -191,7 +191,7 @@ const advanceToClusterConfigurationStep = async (
   await fillClusterGeneralStep(user, name);
   await clickWizardNext(user);
   await waitFor(() => {
-    expect(screen.getByLabelText(/Release image/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/^Version/)).toBeInTheDocument();
   });
   await waitFor(() => {
     expect(screen.getByRole('button', { name: 'Add node set' })).toBeInTheDocument();
@@ -267,8 +267,8 @@ const clusterCatalogItem: ClusterCatalogItem = {
   fieldDefinitions: [
     {
       $typeName: 'osac.public.v1.FieldDefinition',
-      path: 'release_image',
-      displayName: 'Release image',
+      path: 'version',
+      displayName: 'Version',
       editable: true,
       validationSchema: '',
       default: {

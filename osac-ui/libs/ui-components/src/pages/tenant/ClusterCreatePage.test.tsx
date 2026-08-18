@@ -79,8 +79,8 @@ const clusterCatalogItem: ClusterCatalogItem = {
   fieldDefinitions: [
     {
       $typeName: 'osac.public.v1.FieldDefinition',
-      path: 'release_image',
-      displayName: 'Release image',
+      path: 'version',
+      displayName: 'Version',
       editable: true,
       validationSchema: '',
       default: {
@@ -216,7 +216,7 @@ describe('ClusterCreatePage', () => {
     await fillClusterGeneralStep(user, 'my-cluster');
     await clickWizardNext(user);
     await waitFor(() => {
-      expect(screen.getByLabelText(/Release image/)).toBeInTheDocument();
+      expect(screen.getByLabelText(/^Version/)).toBeInTheDocument();
     });
     await fillClusterNodeSetRow(user);
     await clickWizardNext(user);
