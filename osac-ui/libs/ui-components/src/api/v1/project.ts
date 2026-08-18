@@ -28,7 +28,12 @@ export const useProject = (id?: string) => {
   return useApiQuery({
     queryKey: apiQueryKey('v1/projects', [id]),
     queryFn: () => client.get({ id }),
-    select: (data) => data.object,
+    select: (data) => {
+      if (!data.object) {
+        throw new Error('Get response missing project object');
+      }
+      return data.object;
+    },
     enabled: !!id,
   });
 };

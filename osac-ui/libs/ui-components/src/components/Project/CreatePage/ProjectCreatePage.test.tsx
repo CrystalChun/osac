@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, useParams } from 'react-router-dom';
 import { screen, waitFor } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
@@ -7,6 +7,11 @@ import { ProjectState } from '@osac/types';
 
 import ProjectCreatePage from './ProjectCreatePage';
 import { renderWithProviders } from '../../../test-utils/TestProviders';
+
+const ProjectDetailsStub = () => {
+  const { id } = useParams() as { id: string };
+  return <h1>{id}</h1>;
+};
 
 const makeProject = (id: string, name: string, project = ''): Project =>
   ({
@@ -22,6 +27,7 @@ const renderPage = (projects: Project[] = defaultProjects) =>
   renderWithProviders(
     <Routes>
       <Route path="/projects/create" element={<ProjectCreatePage />} />
+      <Route path="/projects/:id" element={<ProjectDetailsStub />} />
       <Route path="/projects" element={<div>Project list</div>} />
     </Routes>,
     {
@@ -74,7 +80,7 @@ describe('ProjectCreatePage', () => {
     });
   });
 
-  it('navigates to project list after successful create', async () => {
+  it('navigates to created project details after successful create', async () => {
     const { user } = renderPage();
 
     await waitFor(() => {
@@ -85,7 +91,7 @@ describe('ProjectCreatePage', () => {
     await user.click(screen.getByRole('button', { name: 'Create' }));
 
     await waitFor(() => {
-      expect(screen.getByText('Project list')).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'new-project-1' })).toBeInTheDocument();
     });
   });
 });

@@ -8,3 +8,9 @@ export const getProjectName = (project: Project, t: TFunction): string => {
   }
   return project.spec?.title || project.metadata?.name || project.id;
 };
+
+export const getFullProjectPath = (project: Project | undefined) => {
+  return project?.metadata?.project
+    ? `${project.metadata.project}.${project.metadata?.name}`
+    : project?.metadata?.name || '';
+};

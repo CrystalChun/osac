@@ -23,6 +23,7 @@ import { getProjectValidationSchema } from './validation';
 import { initialValues } from './values';
 import NameField from '../../catalogProvision/wizard/fields/NameField';
 import { InputField } from '../../Form/InputField';
+import LeaveFormConfirmation from '../../Form/LeaveFormConfirmation';
 import OsacForm from '../../Form/OsacForm';
 import { SelectField } from '../../Form/SelectField';
 import { getProjectName } from '../utils';
@@ -64,64 +65,67 @@ const ProjectCreatePage = () => {
           }}
         >
           {({ submitForm, isSubmitting }) => (
-            <Stack hasGutter>
-              <StackItem>
-                <OsacForm>
-                  <SelectField
-                    fieldId="metadata.project"
-                    label={t('Parent project')}
-                    name="metadata.project"
-                    options={projects.map((p) => ({
-                      label: getProjectName(p, t),
-                      value: p.metadata?.project
-                        ? `${p.metadata.project}.${p.metadata.name}`
-                        : p.metadata?.name || 'default',
-                    }))}
-                    isRequired
-                  />
-                  <NameField />
-                  <InputField name="title" label={t('Title')} fieldId="project-title" />
-                  <InputField
-                    name="description"
-                    label={t('Description')}
-                    fieldId="project-description"
-                  />
-                </OsacForm>
-              </StackItem>
-
-              {!!error && (
+            <>
+              <LeaveFormConfirmation />
+              <Stack hasGutter>
                 <StackItem>
-                  <Alert variant="danger" title={t('Failed to create project')} isInline>
-                    {getErrorMessage(error)}
-                  </Alert>
+                  <OsacForm>
+                    <SelectField
+                      fieldId="metadata.project"
+                      label={t('Parent project')}
+                      name="metadata.project"
+                      options={projects.map((p) => ({
+                        label: getProjectName(p, t),
+                        value: p.metadata?.project
+                          ? `${p.metadata.project}.${p.metadata.name}`
+                          : p.metadata?.name || 'default',
+                      }))}
+                      isRequired
+                    />
+                    <NameField />
+                    <InputField name="title" label={t('Title')} fieldId="project-title" />
+                    <InputField
+                      name="description"
+                      label={t('Description')}
+                      fieldId="project-description"
+                    />
+                  </OsacForm>
                 </StackItem>
-              )}
-              <StackItem>
-                <ActionList>
-                  <ActionListGroup>
-                    <ActionListItem>
-                      <Button
-                        variant="primary"
-                        onClick={submitForm}
-                        isDisabled={isSubmitting}
-                        isLoading={isSubmitting}
-                      >
-                        {t('Create')}
-                      </Button>
-                    </ActionListItem>
-                    <ActionListItem>
-                      <Button
-                        variant="link"
-                        onClick={() => navigate('/projects')}
-                        isDisabled={isSubmitting}
-                      >
-                        {t('Cancel')}
-                      </Button>
-                    </ActionListItem>
-                  </ActionListGroup>
-                </ActionList>
-              </StackItem>
-            </Stack>
+
+                {!!error && (
+                  <StackItem>
+                    <Alert variant="danger" title={t('Failed to create project')} isInline>
+                      {getErrorMessage(error)}
+                    </Alert>
+                  </StackItem>
+                )}
+                <StackItem>
+                  <ActionList>
+                    <ActionListGroup>
+                      <ActionListItem>
+                        <Button
+                          variant="primary"
+                          onClick={submitForm}
+                          isDisabled={isSubmitting}
+                          isLoading={isSubmitting}
+                        >
+                          {t('Create')}
+                        </Button>
+                      </ActionListItem>
+                      <ActionListItem>
+                        <Button
+                          variant="link"
+                          onClick={() => navigate('/projects')}
+                          isDisabled={isSubmitting}
+                        >
+                          {t('Cancel')}
+                        </Button>
+                      </ActionListItem>
+                    </ActionListGroup>
+                  </ActionList>
+                </StackItem>
+              </Stack>
+            </>
           )}
         </Formik>
       </PageSection>
