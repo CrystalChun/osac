@@ -56,8 +56,8 @@ const ProjectCreatePage = () => {
           validationSchema={getProjectValidationSchema(t)}
           onSubmit={async (values) => {
             try {
-              await mutateAsync(getCreateProjectPayload(values));
-              navigate('/projects');
+              const res = await mutateAsync(getCreateProjectPayload(values));
+              navigate(`/projects/${res.id}`);
             } catch {
               // tanstack handles the err
             }

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Button,
   SearchInput,
@@ -91,7 +91,9 @@ const ProjectListPage = () => {
             <Tbody>
               {filteredProjects.map((project) => (
                 <Tr key={project.id}>
-                  <Td dataLabel={t('Name')}>{getProjectName(project, t)}</Td>
+                  <Td dataLabel={t('Name')}>
+                    <Link to={`/projects/${project.id}`}>{getProjectName(project, t)}</Link>
+                  </Td>
                   <Td dataLabel={t('Status')}>
                     <ProjectStatusLabel project={project} />
                   </Td>

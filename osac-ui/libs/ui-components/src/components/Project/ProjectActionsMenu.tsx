@@ -3,11 +3,10 @@ import { Dropdown, DropdownItem, DropdownList, MenuToggle } from '@patternfly/re
 import { EllipsisVIcon } from '@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon';
 
 import type { Project } from '@osac/types';
-import { useDeleteProject } from '@osac/ui-components/api/v1/project';
 
+import ProjectDeleteModal from './ProjectDeleteModal';
 import { getProjectName } from './utils';
 import { useTranslation } from '../../hooks/useTranslation';
-import DeleteResourceModal from '../Resource/DeleteResourceModal';
 
 interface ProjectActionsMenuProps {
   project: Project;
@@ -18,16 +17,11 @@ const ProjectActionsMenu = ({ project }: ProjectActionsMenuProps) => {
   const [open, setOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
-  const { mutateAsync: deleteProject } = useDeleteProject();
-
   return (
     <>
       {deleteOpen && (
-        <DeleteResourceModal
-          resourceName={getProjectName(project, t)}
-          onDelete={() => deleteProject(project.id)}
-          label={t('This permanently deletes the Project. This action cannot be undone.')}
-          errorLabel={t('Failed to delete Project')}
+        <ProjectDeleteModal
+          project={project}
           onClose={() => setDeleteOpen(false)}
           onSuccess={() => setDeleteOpen(false)}
         />
