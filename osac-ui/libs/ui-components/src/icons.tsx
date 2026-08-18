@@ -1,23 +1,6 @@
-import type { ComponentType } from 'react';
-import type { SVGIconProps } from '@patternfly/react-icons/dist/esm/createIcon';
 import CloudIcon from '@patternfly/react-icons/dist/esm/icons/cloud-icon';
-import CubeIcon from '@patternfly/react-icons/dist/esm/icons/cube-icon';
-import NetworkIcon from '@patternfly/react-icons/dist/esm/icons/network-icon';
 import ServerIcon from '@patternfly/react-icons/dist/esm/icons/server-icon';
 import VirtualMachineIcon from '@patternfly/react-icons/dist/esm/icons/virtual-machine-icon';
-
-const SHELL_NAV_ICONS: Record<string, ComponentType<SVGIconProps>> = {
-  'compute-vms': VirtualMachineIcon,
-  catalog: CubeIcon,
-  clusters: CloudIcon,
-  'bare-metal': ServerIcon,
-  'virtual-networks': NetworkIcon,
-};
-
-export const shellNavIcon = (itemId: string) => {
-  const Icon = SHELL_NAV_ICONS[itemId];
-  return Icon ? <Icon aria-hidden /> : undefined;
-};
 
 interface CatalogItemIconProps {
   kind:
