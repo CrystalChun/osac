@@ -8,6 +8,7 @@ import { type ClusterVersion, ClusterVersionSchema, ClusterVersionState } from '
 
 import {
   CLUSTER_VERSION_ACTIVE_LIST_FILTER,
+  CLUSTER_VERSION_ALL_STATES_LIST_FILTER,
   useClusterVersion,
   useClusterVersions,
 } from './cluster-versions';
@@ -43,6 +44,14 @@ describe('cluster version list filters', () => {
     expect(CLUSTER_VERSION_ACTIVE_LIST_FILTER).toBe(
       `(this.spec.state == ${ClusterVersionState.ACTIVE} || this.spec.state == ${ClusterVersionState.DEPRECATED}) && this.spec.enabled == true`,
     );
+  });
+
+  it('references spec.state and spec.enabled so the all-states filter returns every state', () => {
+    // Both fields must be referenced to defeat the public List RPC's default
+    // hiding of obsolete/disabled versions (see cluster_versions_server.go).
+    expect(CLUSTER_VERSION_ALL_STATES_LIST_FILTER).toContain('this.spec.state');
+    expect(CLUSTER_VERSION_ALL_STATES_LIST_FILTER).toContain('this.spec.enabled');
+    expect(CLUSTER_VERSION_ALL_STATES_LIST_FILTER).toContain(`${ClusterVersionState.OBSOLETE}`);
   });
 });
 
