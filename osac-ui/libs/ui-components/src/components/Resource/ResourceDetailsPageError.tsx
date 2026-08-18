@@ -11,7 +11,7 @@ type ResourceDetailsPageErrorVariant = 'load-error' | 'not-found' | 'unauthorize
 type ResourceDetailsPageErrorProps = {
   parentTo: string;
   parentLabel: string;
-  resourceLabel: string;
+  resourceLabel?: string;
   onRetry?: () => void;
 } & ({ error: unknown; variant?: never } | { variant: 'not-found'; error?: never });
 
@@ -46,7 +46,7 @@ const variantConfig = (
 export const ResourceDetailsPageError = ({
   parentTo,
   parentLabel,
-  resourceLabel,
+  resourceLabel = 'resource',
   onRetry,
   ...props
 }: ResourceDetailsPageErrorProps) => {
