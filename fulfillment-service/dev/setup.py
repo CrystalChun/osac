@@ -35,6 +35,7 @@ def setup() -> None:
     Prepares the development environment.
     """
     install_golangci_lint()
+    install_protoc_gen_cleanapi()
 
 
 def install_golangci_lint() -> None:
@@ -42,6 +43,13 @@ def install_golangci_lint() -> None:
     Installs the 'golangci-lint' tool.
     """
     install_tool(tool=tools.GOLANGCI_LINT)
+
+
+def install_protoc_gen_cleanapi() -> None:
+    """
+    Installs the 'protoc-gen-cleanapi' tool.
+    """
+    install_tool(tool=tools.PROTOC_GEN_CLEANAPI)
 
 
 def install_tool(tool: tools.Tool) -> None:

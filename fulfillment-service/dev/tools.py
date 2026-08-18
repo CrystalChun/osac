@@ -131,3 +131,19 @@ GOLANGCI_LINT = Tool(
         "golangci-lint-{version}-checksums.txt": "9accc7943a5b4be44416a7d4efa7efb3d18c7f1919d6581cc3536e185301a2d4",
     },
 )
+
+PROTOC_GEN_CLEANAPI = Tool(
+    name="protoc-gen-cleanapi",
+    version="0.0.7",
+    github_repo="jhernand/protoc-gen-cleanapi",
+    version_command=["protoc-gen-cleanapi", "--version"],
+    version_pattern=r"^(?P<version>\S+)",
+    checksums={
+        "protoc-gen-cleanapi_{version}_checksums.txt":
+        "af25eaa156208b1c69f9459dad198dc709de9a6f1124eb8cacb429cfd2f71ffe",
+    },
+    # Override defaults - this tool uses underscores and no version in artifact name
+    checksums_artifact="protoc-gen-cleanapi_{version}_checksums.txt",
+    compressed_artifact_name="protoc-gen-cleanapi_{sys_os}_{sys_arch}.tar.gz",
+    extracted_name="protoc-gen-cleanapi",  # Binary extracted directly, not in versioned dir
+)
