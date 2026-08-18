@@ -53,6 +53,16 @@ describe('cluster version list filters', () => {
     expect(CLUSTER_VERSION_ALL_STATES_LIST_FILTER).toContain('this.spec.enabled');
     expect(CLUSTER_VERSION_ALL_STATES_LIST_FILTER).toContain(`${ClusterVersionState.OBSOLETE}`);
   });
+
+  it('compares the enum spec.state with == and never list membership', () => {
+    // The backend filter translator only resolves enum int literals to their stored
+    // string name for ==/!=; `state in [...]` produces a text-vs-int SQL clause that
+    // Postgres rejects with "failed to list". Guard against reintroducing it.
+    expect(CLUSTER_VERSION_ALL_STATES_LIST_FILTER).toContain(
+      `this.spec.state == ${ClusterVersionState.OBSOLETE}`,
+    );
+    expect(CLUSTER_VERSION_ALL_STATES_LIST_FILTER).not.toContain('this.spec.state in');
+  });
 });
 
 describe('useClusterVersions', () => {

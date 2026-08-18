@@ -14,7 +14,12 @@ export const CLUSTER_VERSION_ACTIVE_LIST_FILTER = `(this.spec.state == ${Cluster
 // every version — including obsolete and disabled ones. The server injects
 // per-field default predicates (active/deprecated + enabled) only for fields the
 // caller's filter does not reference, so touching both fields defeats that hiding.
-export const CLUSTER_VERSION_ALL_STATES_LIST_FILTER = `this.spec.state in [${ClusterVersionState.UNSPECIFIED}, ${ClusterVersionState.ACTIVE}, ${ClusterVersionState.DEPRECATED}, ${ClusterVersionState.OBSOLETE}] && this.spec.enabled in [true, false]`;
+//
+// The enum field spec.state must be compared with `==` (enumerated per state),
+// NOT `in [...]`: the backend filter translator only resolves enum int literals
+// to their stored string name for `==`/`!=`, so `state in [0,1,2,3]` becomes a
+// `text in (0,1,2,3)` SQL clause that Postgres rejects ("failed to list").
+export const CLUSTER_VERSION_ALL_STATES_LIST_FILTER = `(this.spec.state == ${ClusterVersionState.UNSPECIFIED} || this.spec.state == ${ClusterVersionState.ACTIVE} || this.spec.state == ${ClusterVersionState.DEPRECATED} || this.spec.state == ${ClusterVersionState.OBSOLETE}) && (this.spec.enabled == true || this.spec.enabled == false)`;
 
 export const useClusterVersions = (
   params: ListParams = {},

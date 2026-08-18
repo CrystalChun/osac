@@ -173,11 +173,12 @@ const matchesClusterVersionActiveFilter = (
   if (!filter) {
     return true;
   }
-  // The all-states filter enumerates every state via `state in [...]` — no filtering applied.
-  if (filter.includes(' in [')) {
+  if (!filter.includes('this.spec.state')) {
     return true;
   }
-  if (!filter.includes('this.spec.state')) {
+  // The all-states filter enumerates every state, including OBSOLETE — no filtering
+  // applied (mirrors the backend: referencing every state defeats the default hiding).
+  if (filter.includes(`== ${ClusterVersionState.OBSOLETE}`) || filter.includes(' in [')) {
     return true;
   }
   const stateAllowed =
