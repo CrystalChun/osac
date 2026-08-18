@@ -323,6 +323,7 @@
   "Labels": "Labels",
   "Launch instance": "Launch instance",
   "Leave blank to keep the current credentials.": "Leave blank to keep the current credentials.",
+  "Lifecycle": "Lifecycle",
   "Lifecycle state": "Lifecycle state",
   "Light": "Light",
   "Loading cluster password": "Loading cluster password",

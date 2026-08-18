@@ -2,6 +2,10 @@ import { useNavigate } from 'react-router-dom';
 import { Alert, Button } from '@patternfly/react-core';
 
 import { useClusters } from '@osac/ui-components/api/v1/cluster';
+import {
+  CLUSTER_VERSION_ALL_STATES_LIST_FILTER,
+  useClusterVersions,
+} from '@osac/ui-components/api/v1/cluster-versions';
 
 import { ClustersTable } from './ClustersTable';
 import { useTranslation } from '../../hooks/useTranslation';
@@ -12,6 +16,11 @@ export const ClustersPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { data: clusters = [], isLoading, error } = useClusters();
+  // One List call for the whole catalog (all states, incl. obsolete/disabled),
+  // joined per-row in ClustersTable — never one fetch per cluster.
+  const { data: clusterVersions = [], isLoading: isClusterVersionsLoading } = useClusterVersions({
+    filter: CLUSTER_VERSION_ALL_STATES_LIST_FILTER,
+  });
 
   return (
     <ListPage
@@ -30,7 +39,11 @@ export const ClustersPage = () => {
             No clusters are provisioned for your organization yet.
           </Alert>
         ) : (
-          <ClustersTable clusters={clusters} />
+          <ClustersTable
+            clusters={clusters}
+            clusterVersions={clusterVersions}
+            isClusterVersionsLoading={isClusterVersionsLoading}
+          />
         )}
       </ListPageBody>
     </ListPage>

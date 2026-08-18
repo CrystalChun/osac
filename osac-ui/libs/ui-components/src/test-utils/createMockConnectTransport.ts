@@ -2,6 +2,7 @@ import type { MessageInitShape } from '@bufbuild/protobuf';
 import { Code, ConnectError, type Transport, createRouterTransport } from '@connectrpc/connect';
 
 import type {
+  Cluster,
   ClusterCatalogItem,
   ClusterTemplate,
   ClusterVersion,
@@ -90,6 +91,7 @@ import { UnauthorizedError } from '../utils/unauthorizedError';
 
 export type MockApiFixtures = {
   catalogItems?: ComputeInstanceCatalogItem[];
+  clusters?: Cluster[];
   clusterCatalogItems?: ClusterCatalogItem[];
   clusterTemplates?: ClusterTemplate[];
   clusterVersions?: ClusterVersion[];
@@ -241,6 +243,7 @@ export const createMockConnectTransport = (
   overrides: MockTransportOverrides = {},
 ) => {
   const catalogItems = fixtures.catalogItems ?? [];
+  const clusters = fixtures.clusters ?? [];
   const clusterCatalogItems = fixtures.clusterCatalogItems ?? [];
   const clusterTemplates = fixtures.clusterTemplates ?? [];
   const clusterVersions = fixtures.clusterVersions ?? [];
@@ -545,6 +548,10 @@ export const createMockConnectTransport = (
       });
 
       router.service(Clusters, {
+        list: () => ({ items: clusters, size: clusters.length, total: clusters.length }),
+        get: (req) => ({
+          object: clusters.find((c) => c.id === req.id),
+        }),
         create: (req) => {
           if (overrides.onClusterCreate) {
             return overrides.onClusterCreate(req);
