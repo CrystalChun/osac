@@ -93,6 +93,7 @@ install-osac: helm-deps install-secrets check-postgres ## Phase 3: Install OSAC
 		--set service.externalHostname=fulfillment-api-$(INSTALLER_NAMESPACE).$(DOMAIN) \
 		--set service.internalHostname=fulfillment-internal-api-$(INSTALLER_NAMESPACE).$(DOMAIN) \
 		--set service.auth.issuerUrl=https://keycloak-keycloak.$(DOMAIN)/realms/osac \
+		--set service.idp.url=https://keycloak-keycloak.$(DOMAIN) \
 		$(EXTRA_HELM_ARGS) \
 		--timeout 40m --wait
 
