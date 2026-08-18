@@ -64,7 +64,15 @@ const ClusterVersionLifecycleLabel = ({
   }
 
   const label = <ResourceLifecycleLabel {...props} />;
-  return tooltip ? <Tooltip content={tooltip}>{label}</Tooltip> : label;
+  // PatternFly Label renders a non-focusable span, so wrap it in a focusable
+  // element to make the tooltip reachable by keyboard/screen reader, not just hover.
+  return tooltip ? (
+    <Tooltip content={tooltip}>
+      <span tabIndex={0}>{label}</span>
+    </Tooltip>
+  ) : (
+    label
+  );
 };
 
 export default ClusterVersionLifecycleLabel;

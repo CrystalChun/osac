@@ -57,7 +57,25 @@ describe('ClusterConfigurationCard version join', () => {
     );
 
     expect(await screen.findByText('4.99.0-missing')).toBeInTheDocument();
-    const versionGroup = screen.getByText('4.99.0-missing').closest('.pf-v6-c-description-list__group');
+    const versionGroup = screen
+      .getByText('4.99.0-missing')
+      .closest('.pf-v6-c-description-list__group');
+    expect(versionGroup?.querySelector('.pf-v6-c-label')).toBeNull();
+  });
+
+  it('falls back to the raw reference name with no label when the version id is empty (legacy cluster)', async () => {
+    renderCard(
+      create(ClusterSchema, {
+        id: 'cl-3',
+        spec: { version: { id: '', name: '4.14.0-legacy' } },
+      }),
+    );
+
+    // Empty id disables the Get query; no skeleton, straight to the raw name.
+    expect(await screen.findByText('4.14.0-legacy')).toBeInTheDocument();
+    const versionGroup = screen
+      .getByText('4.14.0-legacy')
+      .closest('.pf-v6-c-description-list__group');
     expect(versionGroup?.querySelector('.pf-v6-c-label')).toBeNull();
   });
 });

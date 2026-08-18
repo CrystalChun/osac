@@ -91,9 +91,10 @@ describe('ClustersTable version join', () => {
     });
 
     expect(screen.getByText('v-deleted')).toBeInTheDocument();
-    const lifecycleCell = screen.getByText('v-deleted').closest('tr')?.querySelector(
-      '[data-label="Lifecycle"]',
-    );
+    const lifecycleCell = screen
+      .getByText('v-deleted')
+      .closest('tr')
+      ?.querySelector('[data-label="Lifecycle"]');
     expect(lifecycleCell?.querySelector('.pf-v6-c-label')).toBeNull();
   });
 

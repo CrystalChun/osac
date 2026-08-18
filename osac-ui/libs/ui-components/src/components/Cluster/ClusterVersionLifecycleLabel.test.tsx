@@ -89,6 +89,21 @@ describe('ClusterVersionLifecycleLabel', () => {
     expect(await screen.findByText(/Obsolete since/)).toBeInTheDocument();
   });
 
+  it('exposes the deprecation tooltip on keyboard focus, not just hover', async () => {
+    const user = userEvent.setup();
+    render(
+      <ClusterVersionLifecycleLabel
+        state={ClusterVersionState.DEPRECATED}
+        deprecation={create(ClusterVersionDeprecationSchema, {
+          deprecationTimestamp: timestampFor('2026-03-15T12:00:00Z'),
+        })}
+      />,
+    );
+
+    await user.tab();
+    expect(await screen.findByText(/Deprecated since/)).toBeInTheDocument();
+  });
+
   it('renders deprecated without a tooltip when no timestamp is present', async () => {
     const user = userEvent.setup();
     render(<ClusterVersionLifecycleLabel state={ClusterVersionState.DEPRECATED} />);
