@@ -36,9 +36,8 @@ export const buildClusterCreatePayload = (
     spec.sshPublicKey = sshPublicKey;
   }
 
-  const versionName = values.spec.versionName.trim();
-  if (versionName) {
-    spec.version = { name: versionName };
+  if (values.spec.versionName) {
+    spec.version = { name: values.spec.versionName };
   }
 
   const nodeSets: Record<string, { hostType: { id: string }; size: number }> = {};

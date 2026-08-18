@@ -25,11 +25,10 @@ export const useClusterVersions = (
 
 export const useClusterVersion = (id: string | undefined) => {
   const client = useApiFetch(ClusterVersions);
-  const trimmedId = id?.trim() ?? '';
   return useApiQuery({
-    queryKey: apiQueryKey('v1/cluster_versions', trimmedId ? [trimmedId] : undefined),
-    queryFn: () => client.get({ id: trimmedId }),
+    queryKey: apiQueryKey('v1/cluster_versions', id ? [id] : undefined),
+    queryFn: () => client.get({ id: id ?? '' }),
     select: (data) => data.object,
-    enabled: Boolean(trimmedId),
+    enabled: Boolean(id),
   });
 };

@@ -12,6 +12,7 @@ import {
   useClusterVersions,
 } from '../../../../../api/v1/cluster-versions';
 import { useTranslation } from '../../../../../hooks/useTranslation';
+import { getErrorMessage } from '../../../../../utils/error';
 import OsacForm from '../../../../Form/OsacForm';
 import { SelectField } from '../../../../Form/SelectField';
 import { getCatalogFieldOverlay, readCatalogFieldDefinitions } from '../../catalogOverlay';
@@ -25,8 +26,8 @@ const ClusterConfigurationStep = ({ catalogItem }: Props) => {
 
   const {
     data: versions = [],
-    isPending: versionsLoading,
-    isError: versionsError,
+    isLoading: versionsLoading,
+    error: versionsError,
     refetch: refetchVersions,
   } = useClusterVersions({ filter: CLUSTER_VERSION_ACTIVE_LIST_FILTER });
 
@@ -62,10 +63,15 @@ const ClusterConfigurationStep = ({ catalogItem }: Props) => {
     <Stack hasGutter>
       {versionsError ? (
         <StackItem>
-          <Alert variant="danger" isInline title={t('catalogProvision.clusterVersions.loadError')}>
-            <Button variant="link" isInline onClick={() => void refetchVersions()}>
-              {t('catalogProvision.actions.retry')}
-            </Button>
+          <Alert variant="danger" isInline title={t('Could not load cluster versions')}>
+            <Stack hasGutter>
+              <StackItem>{getErrorMessage(versionsError)}</StackItem>
+              <StackItem>
+                <Button variant="link" isInline onClick={() => void refetchVersions()}>
+                  {t('Retry')}
+                </Button>
+              </StackItem>
+            </Stack>
           </Alert>
         </StackItem>
       ) : null}
@@ -78,14 +84,14 @@ const ClusterConfigurationStep = ({ catalogItem }: Props) => {
             isRequired
             isLoading={versionsLoading}
             isDisabled={!versionOverlay.editable}
-            placeholder={t('catalogProvision.clusterVersions.selectVersion')}
+            placeholder={t('Select a version')}
             options={versionOptions}
           />
           {isSelectedDeprecated ? (
             <Alert
               variant="warning"
               isInline
-              title={t('catalogProvision.clusterVersions.deprecationWarning')}
+              title={t('This version is deprecated and may be removed in a future release.')}
             />
           ) : null}
           <FormSection title={t('Node Sets')} titleElement="h2">
