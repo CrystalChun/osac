@@ -10,8 +10,6 @@ type ClusterVersionsQueryOptions = {
 
 export const CLUSTER_VERSION_ACTIVE_LIST_FILTER = `(this.spec.state == ${ClusterVersionState.ACTIVE} || this.spec.state == ${ClusterVersionState.DEPRECATED}) && this.spec.enabled == true`;
 
-export const CLUSTER_VERSION_ALL_STATES_LIST_FILTER = `this.spec.state in [${ClusterVersionState.UNSPECIFIED}, ${ClusterVersionState.ACTIVE}, ${ClusterVersionState.DEPRECATED}, ${ClusterVersionState.OBSOLETE}] && (this.spec.enabled == true || this.spec.enabled == false)`;
-
 export const useClusterVersions = (
   params: ListParams = {},
   options: ClusterVersionsQueryOptions = {},

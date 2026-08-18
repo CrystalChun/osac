@@ -8,7 +8,6 @@ import { type ClusterVersion, ClusterVersionSchema, ClusterVersionState } from '
 
 import {
   CLUSTER_VERSION_ACTIVE_LIST_FILTER,
-  CLUSTER_VERSION_ALL_STATES_LIST_FILTER,
   useClusterVersion,
   useClusterVersions,
 } from './cluster-versions';
@@ -43,12 +42,6 @@ describe('cluster version list filters', () => {
   it('restricts the active filter to ACTIVE/DEPRECATED enabled versions', () => {
     expect(CLUSTER_VERSION_ACTIVE_LIST_FILTER).toBe(
       `(this.spec.state == ${ClusterVersionState.ACTIVE} || this.spec.state == ${ClusterVersionState.DEPRECATED}) && this.spec.enabled == true`,
-    );
-  });
-
-  it('matches every state and both enabled values in the all-states filter', () => {
-    expect(CLUSTER_VERSION_ALL_STATES_LIST_FILTER).toBe(
-      `this.spec.state in [${ClusterVersionState.UNSPECIFIED}, ${ClusterVersionState.ACTIVE}, ${ClusterVersionState.DEPRECATED}, ${ClusterVersionState.OBSOLETE}] && (this.spec.enabled == true || this.spec.enabled == false)`,
     );
   });
 });
