@@ -144,7 +144,7 @@ describe('ProjectListPage', () => {
     renderPage([emptyNameProject]);
 
     await waitFor(() => {
-      expect(screen.getByText('default')).toBeInTheDocument();
+      expect(screen.getByText('Default')).toBeInTheDocument();
     });
   });
 });

@@ -10,7 +10,6 @@ import {
 } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
-import type { Project } from '@osac/types';
 import { useProjects } from '@osac/ui-components/api/v1/project';
 import ListPage from '@osac/ui-components/components/Page/ListPage';
 import ListPageBody from '@osac/ui-components/components/Page/ListPageBody';
@@ -19,14 +18,9 @@ import { SubtleContent } from '@osac/ui-components/components/SubtleContent/Subt
 import { useSession } from '@osac/ui-components/hooks/use-session';
 import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
 
+import ProjectActionsMenu from './ProjectActionsMenu';
 import ProjectStatusLabel from './ProjectStatusLabel';
-
-const getProjectName = (project: Project): string => {
-  if (project.metadata?.name === '') {
-    return 'default';
-  }
-  return project.metadata?.name || project.id;
-};
+import { getProjectName } from './utils';
 
 const ProjectListPage = () => {
   const { t } = useTranslation();
@@ -44,10 +38,10 @@ const ProjectListPage = () => {
     }
     const lowerSearch = search.toLowerCase();
     return projects.filter((project) => {
-      const fullName = getProjectName(project);
+      const fullName = getProjectName(project, t);
       return fullName.toLowerCase().includes(lowerSearch);
     });
-  }, [search, projects]);
+  }, [search, projects, t]);
 
   return (
     <ListPage
@@ -91,17 +85,21 @@ const ProjectListPage = () => {
                 <Th>{t('Name')}</Th>
                 <Th>{t('Status')}</Th>
                 <Th>{t('Created')}</Th>
+                <Th aria-label={t('Actions')} />
               </Tr>
             </Thead>
             <Tbody>
               {filteredProjects.map((project) => (
                 <Tr key={project.id}>
-                  <Td dataLabel={t('Name')}>{getProjectName(project)}</Td>
+                  <Td dataLabel={t('Name')}>{getProjectName(project, t)}</Td>
                   <Td dataLabel={t('Status')}>
                     <ProjectStatusLabel project={project} />
                   </Td>
                   <Td dataLabel={t('Created')}>
                     <Timestamp value={project.metadata?.creationTimestamp} />
+                  </Td>
+                  <Td dataLabel={t('Actions')} isActionCell>
+                    <ProjectActionsMenu project={project} />
                   </Td>
                 </Tr>
               ))}
