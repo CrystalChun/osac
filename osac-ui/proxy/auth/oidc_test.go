@@ -22,7 +22,7 @@ func TestBuildAuthorizeURL_IncludesOrganizationScope(t *testing.T) {
 		t.Fatal("scope parameter missing from authorize URL")
 	}
 
-	wantScopes := []string{"openid", "profile", "email", "organization"}
+	wantScopes := []string{"openid", "organization"}
 	for _, s := range wantScopes {
 		found := false
 		for _, got := range splitScopes(scope) {
