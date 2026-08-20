@@ -116,6 +116,32 @@ These are top-level values, disabled by default. Enable only in CI/dev:
 | `hubAccess.enabled` | Creates hub-access SA/RBAC and registers local cluster as a hub. Only for environments where fulfillment-service and hub are the same cluster. |
 | `bundledPostgres.enabled` | Deploys a single-pod ephemeral PostgreSQL. Uses `fsync=off` and `emptyDir` — data lost on restart. Not for production. |
 
+## Infrastructure Configuration
+
+### Keycloak Route with Public Ingress Certificates
+
+For clusters with publicly-trusted wildcard ingress certificates (e.g., production OpenShift clusters with Let's Encrypt), you can configure Keycloak's Route to use `reencrypt` termination instead of `passthrough`:
+
+```yaml
+# values/<profile>/infra.yaml
+keycloak:
+  route:
+    publicIngress: true  # Switches Route from passthrough to reencrypt
+    hostname: keycloak.apps.example.com  # Optional: custom hostname
+```
+
+**How it works:**
+- `passthrough` (default): Browser connects directly to Keycloak's internal TLS cert (self-signed CA)
+- `reencrypt`: Router presents the cluster's public ingress cert to browsers, then re-encrypts traffic to Keycloak's internal TLS endpoint using the CA cert
+
+**Requirements:**
+- `caIssuer.enabled: true` (default) — The hook depends on cert-manager's CA bundle
+- The `osac-infra-patch-keycloak-route` hook Job automatically sets `destinationCACertificate` at install/upgrade time
+
+**When to use:**
+- Production clusters where browser cert warnings are unacceptable
+- Environments with corporate CA or Let's Encrypt ingress certs
+
 ## Makefile Targets
 
 All targets require `PLATFORM=kind|openshift PROFILE=dev|vmaas-ci|... NS=<namespace>`.

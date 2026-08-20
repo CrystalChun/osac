@@ -502,7 +502,12 @@ spec:
   port:
     targetPort: https
   tls:
-    termination: passthrough
+    {{- if .Values.keycloak.route.publicIngress }}
+    # reencrypt mode presents the cluster's public ingress cert to browsers while re-encrypting
+    # traffic to Keycloak's internal TLS endpoint. The destinationCACertificate (required for
+    # reencrypt) is set by the osac-infra-patch-keycloak-route hook Job at install/upgrade time.
+    {{- end }}
+    termination: {{ if .Values.keycloak.route.publicIngress }}reencrypt{{ else }}passthrough{{ end }}
 {{- end }}
 {{- if .Values.keycloak.devFixtures.enabled }}
 ---
