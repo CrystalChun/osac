@@ -1,33 +1,19 @@
 import { Tooltip } from '@patternfly/react-core';
 import type { TFunction } from 'i18next';
 
-import { type ClusterVersionDeprecation, ClusterVersionState } from '@osac/types';
+import { type ClusterVersion, ClusterVersionState } from '@osac/types';
 
 import { useTranslation } from '../../hooks/useTranslation';
+import { Timestamp } from '../Primitives/Timestamp';
 import {
   ResourceLifecycleLabel,
   ResourceLifecycleLabelProps,
 } from '../Resource/ResourceLifecycleLabel';
 
 export interface ClusterVersionLifecycleLabelProps {
-  /** Lifecycle state from ClusterVersionSpec.state; undefined/unknown → UNSPECIFIED (grey, no tooltip). */
-  state?: ClusterVersionState;
-  /** Deprecation/obsolescence timestamps; drive the tooltip for DEPRECATED/OBSOLETE. */
-  deprecation?: ClusterVersionDeprecation;
+  /** The resolved cluster version; the label derives state and deprecation timestamps from its spec. */
+  clusterVersion?: ClusterVersion;
 }
-
-type ProtoTimestamp = { seconds?: bigint; nanos?: number };
-
-const DATE_FORMAT = new Intl.DateTimeFormat('en-US', { dateStyle: 'medium' });
-
-const formatTimestamp = (value?: ProtoTimestamp): string | undefined => {
-  if (!value || value.seconds === undefined) {
-    return undefined;
-  }
-  const ms = Number(value.seconds) * 1000 + Math.floor((value.nanos ?? 0) / 1_000_000);
-  const date = new Date(ms);
-  return Number.isNaN(date.getTime()) ? undefined : DATE_FORMAT.format(date);
-};
 
 const clusterVersionLifecycleMap = (
   t: TFunction,
@@ -35,14 +21,14 @@ const clusterVersionLifecycleMap = (
   [ClusterVersionState.ACTIVE]: { lifecycle: 'active', text: t('Active') },
   [ClusterVersionState.DEPRECATED]: { lifecycle: 'deprecated', text: t('Deprecated') },
   [ClusterVersionState.OBSOLETE]: { lifecycle: 'obsolete', text: t('Obsolete') },
-  [ClusterVersionState.UNSPECIFIED]: { lifecycle: 'unspecified', text: t('Unknown') },
+  [ClusterVersionState.UNSPECIFIED]: { lifecycle: 'unspecified', text: t('Unspecified') },
 });
 
-const ClusterVersionLifecycleLabel = ({
-  state,
-  deprecation,
-}: ClusterVersionLifecycleLabelProps) => {
+const ClusterVersionLifecycleLabel = ({ clusterVersion }: ClusterVersionLifecycleLabelProps) => {
   const { t } = useTranslation();
+
+  const state = clusterVersion?.spec?.state;
+  const deprecation = clusterVersion?.spec?.deprecation;
 
   const lifecycleMap = clusterVersionLifecycleMap(t);
   const props =
@@ -50,18 +36,20 @@ const ClusterVersionLifecycleLabel = ({
       ? (lifecycleMap[state] ?? lifecycleMap[ClusterVersionState.UNSPECIFIED])
       : lifecycleMap[ClusterVersionState.UNSPECIFIED];
 
-  let tooltip: string | undefined;
-  if (state === ClusterVersionState.DEPRECATED) {
-    const date = formatTimestamp(deprecation?.deprecationTimestamp);
-    if (date) {
-      tooltip = t('Deprecated since {{date}}', { date });
-    }
-  } else if (state === ClusterVersionState.OBSOLETE) {
-    const date = formatTimestamp(deprecation?.obsolescenceTimestamp);
-    if (date) {
-      tooltip = t('Obsolete since {{date}}', { date });
-    }
-  }
+  // Only DEPRECATED/OBSOLETE carry a lifecycle timestamp worth surfacing.
+  const timestamp =
+    state === ClusterVersionState.DEPRECATED
+      ? deprecation?.deprecationTimestamp
+      : state === ClusterVersionState.OBSOLETE
+        ? deprecation?.obsolescenceTimestamp
+        : undefined;
+
+  const tooltip = timestamp ? (
+    <>
+      {state === ClusterVersionState.OBSOLETE ? t('Obsolete since') : t('Deprecated since')}{' '}
+      <Timestamp value={timestamp} />
+    </>
+  ) : undefined;
 
   const label = <ResourceLifecycleLabel {...props} />;
   // PatternFly Label renders a non-focusable span, so wrap it in a focusable

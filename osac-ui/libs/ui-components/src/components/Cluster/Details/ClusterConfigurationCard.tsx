@@ -57,10 +57,7 @@ export const ClusterConfigurationCard = ({ cluster }: ClusterConfigurationCardPr
                 >
                   <FlexItem>{displayValue(clusterVersion.spec?.version)}</FlexItem>
                   <FlexItem>
-                    <ClusterVersionLifecycleLabel
-                      state={clusterVersion.spec?.state}
-                      deprecation={clusterVersion.spec?.deprecation}
-                    />
+                    <ClusterVersionLifecycleLabel clusterVersion={clusterVersion} />
                   </FlexItem>
                 </Flex>
               ) : (

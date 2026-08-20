@@ -2,7 +2,7 @@ import React, { type ReactNode, createElement } from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { create } from '@bufbuild/protobuf';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
 import {
@@ -36,8 +36,26 @@ const makeClusterVersion = (
     spec: { version, state, enabled },
   });
 
-const renderTable = (props: React.ComponentProps<typeof ClustersTable>) => {
-  const transport = createMockConnectTransport();
+const clusterVersions = [
+  makeClusterVersion('v4.17', '4.17.0', ClusterVersionState.ACTIVE),
+  makeClusterVersion('v4.16', '4.16.0', ClusterVersionState.DEPRECATED),
+  makeClusterVersion('v4.15', '4.15.0', ClusterVersionState.OBSOLETE),
+  makeClusterVersion('v4.14', '4.14.0', ClusterVersionState.ACTIVE, false),
+];
+
+const renderTable = (clusters: Cluster[], versions: ClusterVersion[] = clusterVersions) => {
+  let callCount = 0;
+  let capturedFilter: string | undefined;
+  const transport = createMockConnectTransport(
+    {},
+    {
+      onClusterVersionList: (req) => {
+        callCount += 1;
+        capturedFilter = req.filter;
+        return { items: versions };
+      },
+    },
+  );
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   });
@@ -51,29 +69,24 @@ const renderTable = (props: React.ComponentProps<typeof ClustersTable>) => {
         createElement(MemoryRouter, null, children),
       ),
     );
-  return render(<ClustersTable {...props} />, { wrapper });
+  const result = render(<ClustersTable clusters={clusters} />, { wrapper });
+  return {
+    ...result,
+    getCallCount: () => callCount,
+    getCapturedFilter: () => capturedFilter,
+  };
 };
 
-const clusterVersions = [
-  makeClusterVersion('v4.17', '4.17.0', ClusterVersionState.ACTIVE),
-  makeClusterVersion('v4.16', '4.16.0', ClusterVersionState.DEPRECATED),
-  makeClusterVersion('v4.15', '4.15.0', ClusterVersionState.OBSOLETE),
-  makeClusterVersion('v4.14', '4.14.0', ClusterVersionState.ACTIVE, false),
-];
-
 describe('ClustersTable version join', () => {
-  it('renders the resolved version string and lifecycle label for every state', () => {
-    renderTable({
-      clusters: [
-        makeCluster('c-active', 'v4.17'),
-        makeCluster('c-deprecated', 'v4.16'),
-        makeCluster('c-obsolete', 'v4.15'),
-        makeCluster('c-disabled', 'v4.14'),
-      ],
-      clusterVersions,
-    });
+  it('renders the resolved version string and lifecycle label for every state', async () => {
+    renderTable([
+      makeCluster('c-active', 'v4.17'),
+      makeCluster('c-deprecated', 'v4.16'),
+      makeCluster('c-obsolete', 'v4.15'),
+      makeCluster('c-disabled', 'v4.14'),
+    ]);
 
-    expect(screen.getByText('4.17.0')).toBeInTheDocument();
+    expect(await screen.findByText('4.17.0')).toBeInTheDocument();
     expect(screen.getByText('4.16.0')).toBeInTheDocument();
     expect(screen.getByText('4.15.0')).toBeInTheDocument();
     expect(screen.getByText('4.14.0')).toBeInTheDocument();
@@ -84,13 +97,35 @@ describe('ClustersTable version join', () => {
     expect(screen.getByText('Obsolete')).toBeInTheDocument();
   });
 
-  it('falls back to the raw reference name with a blank lifecycle when unresolved', () => {
-    renderTable({
-      clusters: [makeCluster('c-missing', 'v-deleted')],
-      clusterVersions,
-    });
+  it('issues a single scoped List referencing the version names plus all states', async () => {
+    const { getCallCount, getCapturedFilter } = renderTable([
+      makeCluster('c-active', 'v4.17'),
+      makeCluster('c-obsolete', 'v4.15'),
+    ]);
 
-    expect(screen.getByText('v-deleted')).toBeInTheDocument();
+    expect(await screen.findByText('4.17.0')).toBeInTheDocument();
+    expect(getCallCount()).toBe(1);
+    const filter = getCapturedFilter() ?? '';
+    expect(filter).toContain('this.metadata.name in ["v4.17", "v4.15"]');
+    expect(filter).toContain('this.spec.state');
+    expect(filter).toContain('this.spec.enabled');
+    // Enum spec.state must never use list membership (see OSAC-4206).
+    expect(filter).not.toContain('this.spec.state in');
+  });
+
+  it('does not issue a versions List when no cluster references a version', async () => {
+    const { getCallCount } = renderTable([
+      create(ClusterSchema, { id: 'c-none', metadata: { name: 'c-none' } }),
+    ]);
+
+    expect(await screen.findByText('c-none')).toBeInTheDocument();
+    await waitFor(() => expect(getCallCount()).toBe(0));
+  });
+
+  it('falls back to the raw reference name with a blank lifecycle when unresolved', async () => {
+    renderTable([makeCluster('c-missing', 'v-deleted')], []);
+
+    expect(await screen.findByText('v-deleted')).toBeInTheDocument();
     const lifecycleCell = screen
       .getByText('v-deleted')
       .closest('tr')
@@ -99,11 +134,7 @@ describe('ClustersTable version join', () => {
   });
 
   it('shows skeletons while cluster versions are loading', () => {
-    const { container } = renderTable({
-      clusters: [makeCluster('c-active', 'v4.17')],
-      clusterVersions: [],
-      isClusterVersionsLoading: true,
-    });
+    const { container } = renderTable([makeCluster('c-active', 'v4.17')]);
 
     expect(container.querySelectorAll('.pf-v6-c-skeleton').length).toBeGreaterThan(0);
     expect(screen.queryByText('4.17.0')).toBeNull();

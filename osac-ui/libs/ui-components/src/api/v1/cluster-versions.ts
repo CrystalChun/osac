@@ -21,6 +21,15 @@ export const CLUSTER_VERSION_ACTIVE_LIST_FILTER = `(this.spec.state == ${Cluster
 // `text in (0,1,2,3)` SQL clause that Postgres rejects ("failed to list").
 export const CLUSTER_VERSION_ALL_STATES_LIST_FILTER = `(this.spec.state == ${ClusterVersionState.UNSPECIFIED} || this.spec.state == ${ClusterVersionState.ACTIVE} || this.spec.state == ${ClusterVersionState.DEPRECATED} || this.spec.state == ${ClusterVersionState.OBSOLETE}) && (this.spec.enabled == true || this.spec.enabled == false)`;
 
+// Scopes the all-states catalog fetch to just the versions referenced by the
+// given names, so the join stays correct once the List RPC paginates — a plain
+// all-states fetch could page past the version a cluster references. The name
+// list uses `metadata.name in [...]` (a string field — safe for `in`, unlike
+// enum fields; see OSAC-4206), AND-ed with the all-states predicates so
+// obsolete/disabled versions still resolve.
+export const clusterVersionNamesFilter = (names: string[]): string =>
+  `this.metadata.name in [${names.map((name) => `"${name}"`).join(', ')}] && ${CLUSTER_VERSION_ALL_STATES_LIST_FILTER}`;
+
 export const useClusterVersions = (
   params: ListParams = {},
   options: ClusterVersionsQueryOptions = {},

@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 
-import { ClusterVersionDeprecationSchema, ClusterVersionState } from '@osac/types';
+import { type ClusterVersion, ClusterVersionSchema, ClusterVersionState } from '@osac/types';
 
 import ClusterVersionLifecycleLabel from './ClusterVersionLifecycleLabel';
 
@@ -25,10 +25,25 @@ const timestampFor = (iso: string) => ({
   nanos: 0,
 });
 
+const makeVersion = (
+  state?: ClusterVersionState,
+  deprecation?: {
+    deprecationTimestamp?: ReturnType<typeof timestampFor>;
+    obsolescenceTimestamp?: ReturnType<typeof timestampFor>;
+  },
+): ClusterVersion =>
+  create(ClusterVersionSchema, {
+    id: 'v',
+    metadata: { name: 'v' },
+    spec: { version: '4.0.0', state, deprecation },
+  });
+
 describe('ClusterVersionLifecycleLabel', () => {
   it('renders active versions in green with no tooltip', async () => {
     const user = userEvent.setup();
-    render(<ClusterVersionLifecycleLabel state={ClusterVersionState.ACTIVE} />);
+    render(
+      <ClusterVersionLifecycleLabel clusterVersion={makeVersion(ClusterVersionState.ACTIVE)} />,
+    );
 
     expectLabelColor('Active', 'pf-m-green');
     await user.hover(screen.getByText('Active'));
@@ -36,35 +51,40 @@ describe('ClusterVersionLifecycleLabel', () => {
   });
 
   it('renders deprecated versions in orange', () => {
-    render(<ClusterVersionLifecycleLabel state={ClusterVersionState.DEPRECATED} />);
+    render(
+      <ClusterVersionLifecycleLabel clusterVersion={makeVersion(ClusterVersionState.DEPRECATED)} />,
+    );
 
     expectLabelColor('Deprecated', 'pf-m-orange');
   });
 
   it('renders obsolete versions in grey', () => {
-    render(<ClusterVersionLifecycleLabel state={ClusterVersionState.OBSOLETE} />);
+    render(
+      <ClusterVersionLifecycleLabel clusterVersion={makeVersion(ClusterVersionState.OBSOLETE)} />,
+    );
 
     expectLabelColor('Obsolete');
   });
 
-  it('falls back to unknown when the state is missing', () => {
+  it('falls back to unspecified when the version is missing', () => {
     render(<ClusterVersionLifecycleLabel />);
 
-    expectLabelColor('Unknown');
+    expectLabelColor('Unspecified');
   });
 
-  it('falls back to unknown when the state is not a known lifecycle state', () => {
-    render(<ClusterVersionLifecycleLabel state={99 as ClusterVersionState} />);
+  it('falls back to unspecified when the state is not a known lifecycle state', () => {
+    render(
+      <ClusterVersionLifecycleLabel clusterVersion={makeVersion(99 as ClusterVersionState)} />,
+    );
 
-    expectLabelColor('Unknown');
+    expectLabelColor('Unspecified');
   });
 
   it('shows a deprecation tooltip when the deprecation timestamp is present', async () => {
     const user = userEvent.setup();
     render(
       <ClusterVersionLifecycleLabel
-        state={ClusterVersionState.DEPRECATED}
-        deprecation={create(ClusterVersionDeprecationSchema, {
+        clusterVersion={makeVersion(ClusterVersionState.DEPRECATED, {
           deprecationTimestamp: timestampFor('2026-03-15T12:00:00Z'),
         })}
       />,
@@ -78,8 +98,7 @@ describe('ClusterVersionLifecycleLabel', () => {
     const user = userEvent.setup();
     render(
       <ClusterVersionLifecycleLabel
-        state={ClusterVersionState.OBSOLETE}
-        deprecation={create(ClusterVersionDeprecationSchema, {
+        clusterVersion={makeVersion(ClusterVersionState.OBSOLETE, {
           obsolescenceTimestamp: timestampFor('2026-06-01T12:00:00Z'),
         })}
       />,
@@ -93,8 +112,7 @@ describe('ClusterVersionLifecycleLabel', () => {
     const user = userEvent.setup();
     render(
       <ClusterVersionLifecycleLabel
-        state={ClusterVersionState.DEPRECATED}
-        deprecation={create(ClusterVersionDeprecationSchema, {
+        clusterVersion={makeVersion(ClusterVersionState.DEPRECATED, {
           deprecationTimestamp: timestampFor('2026-03-15T12:00:00Z'),
         })}
       />,
@@ -106,7 +124,9 @@ describe('ClusterVersionLifecycleLabel', () => {
 
   it('renders deprecated without a tooltip when no timestamp is present', async () => {
     const user = userEvent.setup();
-    render(<ClusterVersionLifecycleLabel state={ClusterVersionState.DEPRECATED} />);
+    render(
+      <ClusterVersionLifecycleLabel clusterVersion={makeVersion(ClusterVersionState.DEPRECATED)} />,
+    );
 
     expectLabelColor('Deprecated', 'pf-m-orange');
     await user.hover(screen.getByText('Deprecated'));

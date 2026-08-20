@@ -3,27 +3,39 @@ import { Link } from 'react-router-dom';
 import { Skeleton } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
-import type { Cluster, ClusterVersion } from '@osac/types';
+import type { Cluster } from '@osac/types';
 
 import ClusterActionsMenu from './ClusterActionsMenu';
 import { ClusterStatusLabel } from './ClusterStatusLabel';
 import ClusterVersionLifecycleLabel from './ClusterVersionLifecycleLabel';
+import { clusterVersionNamesFilter, useClusterVersions } from '../../api/v1/cluster-versions';
 import { useTranslation } from '../../hooks/useTranslation';
 import ExternalLink from '../Primitives/ExternalLink';
 import { Timestamp } from '../Primitives/Timestamp';
 
 interface ClustersTableProps {
   clusters: Cluster[];
-  clusterVersions?: ClusterVersion[];
-  isClusterVersionsLoading?: boolean;
 }
 
-export const ClustersTable = ({
-  clusters,
-  clusterVersions = [],
-  isClusterVersionsLoading = false,
-}: ClustersTableProps) => {
+export const ClustersTable = ({ clusters }: ClustersTableProps) => {
   const { t } = useTranslation();
+
+  // Only fetch the versions these clusters reference (by spec.version.name),
+  // in one List call — scales as the catalog grows and paginates.
+  const versionNames = useMemo(
+    () => [
+      ...new Set(
+        clusters
+          .map((cluster) => cluster.spec?.version?.name)
+          .filter((name): name is string => !!name),
+      ),
+    ],
+    [clusters],
+  );
+  const { data: clusterVersions = [], isLoading: isClusterVersionsLoading } = useClusterVersions(
+    { filter: clusterVersionNamesFilter(versionNames) },
+    { enabled: versionNames.length > 0 },
+  );
 
   // Clusters reference versions by spec.version.name, so key the catalog by name.
   const clusterVersionByName = useMemo(
@@ -73,10 +85,7 @@ export const ClustersTable = ({
                 {isClusterVersionsLoading ? (
                   <Skeleton width="80px" />
                 ) : clusterVersion ? (
-                  <ClusterVersionLifecycleLabel
-                    state={clusterVersion.spec?.state}
-                    deprecation={clusterVersion.spec?.deprecation}
-                  />
+                  <ClusterVersionLifecycleLabel clusterVersion={clusterVersion} />
                 ) : null}
               </Td>
               <Td dataLabel={t('API URL')}>

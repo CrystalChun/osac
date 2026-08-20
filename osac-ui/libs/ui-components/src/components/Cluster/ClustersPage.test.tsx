@@ -70,7 +70,7 @@ const renderPage = (clusters: Cluster[]) => {
 };
 
 describe('ClustersPage version join', () => {
-  it('resolves versions with exactly one all-states List call for multiple clusters', async () => {
+  it('resolves versions with exactly one scoped List call for multiple clusters', async () => {
     const { getCallCount, getCapturedFilter } = renderPage([
       makeCluster('c-active', 'v4.17'),
       makeCluster('c-obsolete', 'v4.15'),
@@ -83,14 +83,15 @@ describe('ClustersPage version join', () => {
 
     expect(getCallCount()).toBe(1);
     const filter = getCapturedFilter() ?? '';
+    expect(filter).toContain('this.metadata.name in');
     expect(filter).toContain('this.spec.state');
     expect(filter).toContain('this.spec.enabled');
   });
 
-  it('issues the versions List even when there are no clusters', async () => {
+  it('does not fetch versions when there are no clusters', async () => {
     const { getCallCount } = renderPage([]);
 
     expect(await screen.findByText('No clusters found')).toBeInTheDocument();
-    await waitFor(() => expect(getCallCount()).toBe(1));
+    await waitFor(() => expect(getCallCount()).toBe(0));
   });
 });
