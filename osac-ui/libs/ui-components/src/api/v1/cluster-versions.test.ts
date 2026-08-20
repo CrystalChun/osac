@@ -8,6 +8,8 @@ import { type ClusterVersion, ClusterVersionSchema, ClusterVersionState } from '
 
 import {
   CLUSTER_VERSION_ACTIVE_LIST_FILTER,
+  CLUSTER_VERSION_ALL_STATES_LIST_FILTER,
+  clusterVersionNamesFilter,
   useClusterVersion,
   useClusterVersions,
 } from './cluster-versions';
@@ -43,6 +45,36 @@ describe('cluster version list filters', () => {
     expect(CLUSTER_VERSION_ACTIVE_LIST_FILTER).toBe(
       `(this.spec.state == ${ClusterVersionState.ACTIVE} || this.spec.state == ${ClusterVersionState.DEPRECATED}) && this.spec.enabled == true`,
     );
+  });
+
+  it('references spec.state and spec.enabled so the all-states filter returns every state', () => {
+    // Both fields must be referenced to defeat the public List RPC's default
+    // hiding of obsolete/disabled versions (see cluster_versions_server.go).
+    expect(CLUSTER_VERSION_ALL_STATES_LIST_FILTER).toContain('this.spec.state');
+    expect(CLUSTER_VERSION_ALL_STATES_LIST_FILTER).toContain('this.spec.enabled');
+    expect(CLUSTER_VERSION_ALL_STATES_LIST_FILTER).toContain(`${ClusterVersionState.OBSOLETE}`);
+  });
+
+  it('compares the enum spec.state with == and never list membership', () => {
+    // The backend filter translator only resolves enum int literals to their stored
+    // string name for ==/!=; `state in [...]` produces a text-vs-int SQL clause that
+    // Postgres rejects with "failed to list". Guard against reintroducing it.
+    expect(CLUSTER_VERSION_ALL_STATES_LIST_FILTER).toContain(
+      `this.spec.state == ${ClusterVersionState.OBSOLETE}`,
+    );
+    expect(CLUSTER_VERSION_ALL_STATES_LIST_FILTER).not.toContain('this.spec.state in');
+  });
+
+  it('scopes the name filter to the given versions while keeping all-states predicates', () => {
+    const filter = clusterVersionNamesFilter(['v4.17', 'v4.15']);
+
+    // metadata.name is a string field, so `in [...]` is safe (unlike enum spec.state).
+    expect(filter).toContain('this.metadata.name in ["v4.17", "v4.15"]');
+    // All-states predicates remain so obsolete/disabled versions still resolve.
+    expect(filter).toContain('this.spec.state');
+    expect(filter).toContain('this.spec.enabled');
+    expect(filter).toContain(`this.spec.state == ${ClusterVersionState.OBSOLETE}`);
+    expect(filter).not.toContain('this.spec.state in');
   });
 });
 
