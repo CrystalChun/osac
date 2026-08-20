@@ -18,6 +18,9 @@ package osac.private.v1;
 import "google/api/annotations.proto";
 import "google/protobuf/field_mask.proto";
 import "osac/private/v1/storage_tier_type.proto";
+import "cleanapi/cleanapi.proto";
+
+option (cleanapi.file).private = true;
 
 message StorageTiersListRequest {
   // Index of the first result. If not specified the default value will be zero.

@@ -17,6 +17,9 @@ package osac.private.v1;
 
 import "buf/validate/validate.proto";
 import "osac/private/v1/metadata_type.proto";
+import "cleanapi/cleanapi.proto";
+
+option (cleanapi.file).private = true;
 
 // Represents a registered storage backend in the OSAC platform.
 //

@@ -16,6 +16,9 @@ syntax = "proto3";
 package osac.private.v1;
 
 import "osac/private/v1/metadata_type.proto";
+import "cleanapi/cleanapi.proto";
+
+option (cleanapi.file).private = true;
 
 // Contains the details of a hub.
 message Hub {
