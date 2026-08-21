@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import {
   Bullseye,
   Gallery,
@@ -9,14 +10,19 @@ import {
 } from '@patternfly/react-core';
 
 import CatalogItemCard from './CatalogItemCard';
-import type { CatalogItemWithType } from './catalogItemDisplay';
+import type { CatalogItem } from './catalogItemDisplay';
 import { getErrorMessage } from '../../utils/error';
 import QueryErrorState from '../Resource/QueryErrorState';
 
+const itemRoute: Record<CatalogItem['$typeName'], string> = {
+  'osac.public.v1.ClusterCatalogItem': 'cluster',
+  'osac.public.v1.BareMetalInstanceCatalogItem': 'bm',
+  'osac.public.v1.ComputeInstanceCatalogItem': 'vm',
+};
+
 interface CatalogItemListSectionProps {
   title?: string;
-  items: CatalogItemWithType[];
-  onSelectItem: (item: CatalogItemWithType) => void;
+  items: CatalogItem[];
   isLoading?: boolean;
   error?: unknown;
 }
@@ -24,10 +30,10 @@ interface CatalogItemListSectionProps {
 export const CatalogItemListSection = ({
   title,
   items,
-  onSelectItem,
   isLoading = false,
   error = null,
 }: CatalogItemListSectionProps) => {
+  const navigate = useNavigate();
   if (!isLoading && !error && items.length === 0) {
     return null;
   }
@@ -61,8 +67,9 @@ export const CatalogItemListSection = ({
                 <GalleryItem key={item.id}>
                   <CatalogItemCard
                     item={item}
-                    type={item.type}
-                    onOpenDetails={() => onSelectItem(item)}
+                    onOpenDetails={() =>
+                      navigate(`/catalog/${itemRoute[item.$typeName]}/${item.id}`)
+                    }
                   />
                 </GalleryItem>
               ))}

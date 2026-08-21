@@ -20,20 +20,18 @@ import {
 } from '../catalogProvision/catalogFieldDefinition';
 import { findCatalogFieldDefinition } from '../catalogProvision/wizard/catalogOverlay';
 
+export type CatalogItemKind = 'vm' | 'bm' | 'cluster';
+
 export type CatalogItem =
   | ClusterCatalogItem
   | BareMetalInstanceCatalogItem
   | ComputeInstanceCatalogItem;
 
-export type CatalogItemKind = 'vm' | 'cluster' | 'bm';
-
-export type CatalogItemWithType = CatalogItem & { type: CatalogItemKind };
-
-export const catalogItemTypeBadgeLabel = (kind: CatalogItemKind, t: TFunction): string => {
-  switch (kind) {
-    case 'vm':
+export const catalogItemTypeBadgeLabel = (kind: CatalogItem, t: TFunction): string => {
+  switch (kind.$typeName) {
+    case 'osac.public.v1.ComputeInstanceCatalogItem':
       return t('Virtual Machine');
-    case 'bm':
+    case 'osac.public.v1.BareMetalInstanceCatalogItem':
       return t('Bare Metal');
     default:
       return t('Cluster');
@@ -168,16 +166,6 @@ export const filterCatalogItemsBySearch = (items: CatalogItem[], search: string)
   return items.filter((item) => searchableCatalogItemText(item).includes(searchTerm));
 };
 
-export const filterCatalogItemsByTypes = (
-  items: CatalogItemWithType[],
-  types: CatalogItemKind[],
-): CatalogItemWithType[] => {
-  if (!types?.length) {
-    return [];
-  }
-  return items.filter((item) => types.includes(item.type));
-};
-
 export const formatCatalogFieldDefault = (def: CatalogFieldDefinition): string => {
   const defaultValue = resolvedFieldDefault(def);
   if (defaultValue === undefined) {
@@ -186,22 +174,22 @@ export const formatCatalogFieldDefault = (def: CatalogFieldDefinition): string =
   return fieldDefinitionDefaultToInputString(defaultValue) || '—';
 };
 
-export const getCatalogCreateAction = (kind: CatalogItemKind, id: string, t: TFunction) => {
-  switch (kind) {
-    case 'vm':
+export const getCatalogCreateAction = (item: CatalogItem, t: TFunction) => {
+  switch (item.$typeName) {
+    case 'osac.public.v1.ComputeInstanceCatalogItem':
       return {
         label: t('Create virtual machine'),
-        path: `/vms/create/${id}`,
+        path: `/vms/create/${item.id}`,
       };
-    case 'cluster':
+    case 'osac.public.v1.ClusterCatalogItem':
       return {
         label: t('Create cluster'),
-        path: `/clusters/create/${id}`,
+        path: `/clusters/create/${item.id}`,
       };
-    case 'bm':
+    case 'osac.public.v1.BareMetalInstanceCatalogItem':
       return {
         label: t('Provision bare metal'),
-        path: `/bare-metal/create/${id}`,
+        path: `/bare-metal/create/${item.id}`,
       };
     default:
       return {

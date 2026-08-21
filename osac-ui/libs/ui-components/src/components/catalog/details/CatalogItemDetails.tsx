@@ -3,18 +3,17 @@ import { Button, Flex, FlexItem, PageSection, Stack, StackItem } from '@patternf
 
 import { useTranslation } from '../../../hooks/useTranslation';
 import { ResourceDetailHeader } from '../../Resource/ResourceDetailHeader';
-import { CatalogItem, CatalogItemKind, getCatalogCreateAction } from '../catalogItemDisplay';
+import { CatalogItem, getCatalogCreateAction } from '../catalogItemDisplay';
 import { CatalogItemDetailContent } from './CatalogItemDetailContent.tsx';
 
 interface CatalogItemDetailsProps {
-  kind: CatalogItemKind;
   item: CatalogItem;
 }
 
-const CatalogItemDetails = ({ kind, item }: CatalogItemDetailsProps) => {
+const CatalogItemDetails = ({ item }: CatalogItemDetailsProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const createAction = getCatalogCreateAction(kind, item.id, t);
+  const createAction = getCatalogCreateAction(item, t);
 
   return (
     <>

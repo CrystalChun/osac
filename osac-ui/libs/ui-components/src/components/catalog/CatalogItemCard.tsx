@@ -15,7 +15,7 @@ import {
 } from '@patternfly/react-core';
 import RocketIcon from '@patternfly/react-icons/dist/esm/icons/rocket-icon';
 
-import { CatalogItem, CatalogItemKind, getCatalogCreateAction } from './catalogItemDisplay';
+import { CatalogItem, getCatalogCreateAction } from './catalogItemDisplay';
 import { catalogItemTypeBadgeLabel } from './catalogItemDisplay';
 import {
   catalogItemMetadataLabelEntries,
@@ -27,27 +27,16 @@ import { CatalogItemIcon } from '../../icons';
 
 export interface CatalogItemCardSelection {
   selected: boolean;
-  radioName: string;
   onSelect: () => void;
 }
 
 interface CatalogItemCardProps {
   item: CatalogItem;
-  type?: CatalogItemKind;
-  ouiaId?: string;
   selection?: CatalogItemCardSelection;
   onOpenDetails?: () => void;
-  isSelected?: boolean;
 }
 
-const CatalogItemCard = ({
-  item,
-  type,
-  ouiaId,
-  selection,
-  onOpenDetails,
-  isSelected,
-}: CatalogItemCardProps) => {
+const CatalogItemCard = ({ item, selection, onOpenDetails }: CatalogItemCardProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const resources = catalogItemResourceParts(item);
@@ -58,28 +47,22 @@ const CatalogItemCard = ({
   const cardId = `catalog-item-card-${item.id}`;
   const titleId = `${cardId}-title`;
 
-  const handleLaunch = () => {
-    if (type) {
-      const createAction = getCatalogCreateAction(type, item.id, t);
-      navigate(createAction.path);
-    }
-  };
+  const createAction = getCatalogCreateAction(item, t);
 
   return (
     <Card
       id={cardId}
-      ouiaId={ouiaId}
+      ouiaId={`catalog-item-option-${item.id}`}
       isSelectable={isWizardMode}
       isClickable={isBrowseMode}
       isSelected={selection?.selected}
-      isClicked={isBrowseMode && isSelected}
       isFullHeight
     >
       <CardHeader
         actions={{
-          actions: type ? (
+          actions: !isWizardMode ? (
             <Label color="blue" isCompact>
-              {catalogItemTypeBadgeLabel(type, t)}
+              {catalogItemTypeBadgeLabel(item, t)}
             </Label>
           ) : null,
         }}
@@ -87,8 +70,8 @@ const CatalogItemCard = ({
           isWizardMode && selection
             ? {
                 variant: 'single',
-                name: selection.radioName,
-                selectableActionId: `${selection.radioName}-${item.id}`,
+                name: 'selectedCatalogItem',
+                selectableActionId: `selectedCatalogItem-${item.id}`,
                 selectableActionAriaLabel: item.title,
                 hasNoOffset: true,
                 onChange: () => {
@@ -155,7 +138,7 @@ const CatalogItemCard = ({
               </Flex>
             </StackItem>
           ) : null}
-          {type ? (
+          {!isWizardMode && (
             <StackItem>
               <Button
                 variant="primary"
@@ -163,13 +146,13 @@ const CatalogItemCard = ({
                 icon={<RocketIcon />}
                 onClick={(event) => {
                   event.stopPropagation();
-                  handleLaunch();
+                  navigate(createAction.path);
                 }}
               >
-                {t('Launch instance')}
+                {createAction.label}
               </Button>
             </StackItem>
-          ) : null}
+          )}
         </Stack>
       </CardBody>
     </Card>

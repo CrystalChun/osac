@@ -9,7 +9,7 @@ import { ResourceDetailsPageError } from '../../Resource/ResourceDetailsPageErro
 import { ResourceDetailsPageLoading } from '../../Resource/ResourceDetailsPageLoading.tsx';
 import type { CatalogItemKind } from '../catalogItemDisplay.ts';
 
-const isCatalogItemKind = (value: string | undefined): value is CatalogItemKind =>
+export const isCatalogItemKind = (value: string | undefined): value is CatalogItemKind =>
   value === 'vm' || value === 'cluster' || value === 'bm';
 
 const useCatalogItemByKind = (kind: CatalogItemKind | undefined, id: string | undefined) => {
@@ -81,5 +81,5 @@ export const CatalogItemDetailPage = () => {
     );
   }
 
-  return <CatalogItemDetails kind={kind} item={item} />;
+  return <CatalogItemDetails item={item} />;
 };

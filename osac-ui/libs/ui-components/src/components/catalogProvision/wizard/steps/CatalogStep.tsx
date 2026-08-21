@@ -132,10 +132,8 @@ export const CatalogStep = <TValues extends { catalogItemId: string }, TPayload>
                 <GalleryItem key={item.id}>
                   <CatalogItemCard
                     item={item}
-                    ouiaId={`catalog-item-option-${item.id}`}
                     selection={{
                       selected,
-                      radioName: 'selectedCatalogItem',
                       onSelect: () => {
                         void handleSelect(item);
                       },
