@@ -6,6 +6,7 @@ import { CatalogItemDetailPage } from '@osac/ui-components/components/catalog/de
 import ErrorBoundary from '@osac/ui-components/components/ErrorBoundary/ErrorBoundary';
 import IdentityProviderRoutes from '@osac/ui-components/components/IdentityProvider/IdentityProviderRoutes';
 import ProjectRoutes from '@osac/ui-components/components/Project/ProjectRoutes';
+import ProjectMembershipRoutes from '@osac/ui-components/components/ProjectMembership/ProjectMembershipRoutes';
 import RoleBindingRoutes from '@osac/ui-components/components/RoleBinding/RoleBindingRoutes';
 import { VmDetailsPage } from '@osac/ui-components/components/vm/VmDetailsPage';
 import { useSession } from '@osac/ui-components/hooks/use-session';
@@ -74,6 +75,14 @@ export const AppShell = ({ logout }: { logout: () => Promise<void> }) => {
           element={
             <ShellRoute>
               <ProjectRoutes />
+            </ShellRoute>
+          }
+        />
+        <Route
+          path="/project-membership/*"
+          element={
+            <ShellRoute>
+              <ProjectMembershipRoutes />
             </ShellRoute>
           }
         />

@@ -18,6 +18,7 @@ import type {
   IdentityProvidersUpdateResponse,
   InstanceType,
   Project,
+  ProjectMembership,
   Role,
   RoleBinding,
   SecurityGroup,
@@ -37,6 +38,7 @@ import {
   IdentityProviders,
   InstanceTypeState,
   InstanceTypes,
+  ProjectMemberships,
   Projects,
   RoleBindings,
   Roles,
@@ -103,6 +105,7 @@ export type MockApiFixtures = {
   identityProviders?: IdentityProvider[];
   instanceTypes?: InstanceType[];
   projects?: Project[];
+  projectMemberships?: ProjectMembership[];
   privateInstanceTypes?: PrivateInstanceType[];
   storageBackends?: StorageBackend[];
   storageTiers?: StorageTier[];
@@ -252,6 +255,7 @@ export const createMockConnectTransport = (
   const tenants = fixtures.tenants ?? [];
   const identityProviders = fixtures.identityProviders ?? [];
   const projects = fixtures.projects ?? [];
+  const projectMemberships = fixtures.projectMemberships ?? [];
   const virtualNetworks = fixtures.virtualNetworks ?? [];
   const subnets = fixtures.subnets ?? [];
   const securityGroups = fixtures.securityGroups ?? [];
@@ -571,7 +575,22 @@ export const createMockConnectTransport = (
           object: projects.find((p) => p.id === req.id),
         }),
         create: (req) => ({
-          object: { id: 'new-project-1', ...req.object },
+          object: { ...req.object, id: 'new-project-1' },
+        }),
+        delete: () => ({}),
+      });
+
+      router.service(ProjectMemberships, {
+        list: () => ({
+          items: projectMemberships,
+          size: projectMemberships.length,
+          total: projectMemberships.length,
+        }),
+        get: (req) => ({
+          object: projectMemberships.find((pm) => pm.id === req.id),
+        }),
+        create: (req) => ({
+          object: { ...req.object, id: 'new-pm-1' },
         }),
         delete: () => ({}),
       });

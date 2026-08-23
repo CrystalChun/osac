@@ -25,6 +25,7 @@ import ProjectStatusLabel from '../ProjectStatusLabel';
 import { getProjectName } from '../utils';
 import ProjectDetailsActionButtons from './ProjectDetailsActionButtons';
 import { Timestamp } from '../../Primitives/Timestamp';
+import ProjectMembership from '../../ProjectMembership/ProjectMembershipTable';
 
 interface ProjectDetailsPageContentProps {
   project: Project;
@@ -87,6 +88,9 @@ const ProjectDetailsPageContent = ({ project }: ProjectDetailsPageContentProps) 
                 </DescriptionList>
               </StackItem>
             </Stack>
+          </GridItem>
+          <GridItem md={6}>
+            <ProjectMembership project={project} />
           </GridItem>
         </Grid>
       </PageSection>
