@@ -45,6 +45,7 @@ inputs:
 - directory: proto/public
 - directory: proto/private
 - directory: proto/tests
+- module: buf.build/cleanapi/cleanapi:v0.0.8
 
 plugins:
 

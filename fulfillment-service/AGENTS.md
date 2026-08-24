@@ -127,7 +127,7 @@ Generated code lands in `internal/api/` (never edit manually).
 **Proto Workflow**:
 - **Private protos** (`proto/private/`): Full API with internal implementation details. Some resources have `[(cleanapi.field).private = true]` annotations to filter sensitive fields from the public API.
 - **Public protos** (`proto/public/`): Generated from private protos using protoc-gen-cleanapi. Private fields/messages are removed. This is the API published to buf.build.
-- **cleanapi**: The proto file defining annotations is exported from `buf.build/cleanapi/cleanapi:v0.0.7` to `.buf/deps/cleanapi` when running `uv run dev.py build protos`. This directory is gitignored and not committed.
+- **cleanapi**: The proto file defining annotations is exported from `buf.build/cleanapi/cleanapi:v0.0.8` to `.buf/deps/cleanapi` when running `uv run dev.py build protos`. This directory is gitignored and not committed.
 
 Buf and protoc are installed separately - see the [buf installation guide](https://buf.build/docs/installation) and install protoc with `brew install protobuf` on macOS.
 

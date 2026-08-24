@@ -124,7 +124,7 @@ def protos() -> None:
     for dep in ["buf.build/bufbuild/protovalidate",
         "buf.build/googleapis/googleapis",
         "buf.build/grpc-ecosystem/grpc-gateway",
-        "buf.build/cleanapi/cleanapi:v0.0.7"]:
+        "buf.build/cleanapi/cleanapi:v0.0.8"]:
         dep_name = dep.split("/")[-1].split(":")[0]
         dep_path = deps_dir / dep_name
         if not dep_path.exists():
