@@ -7,6 +7,12 @@ export interface ComputeInstanceNetworkingValues {
   securityGroups: string[];
 }
 
+export interface ComputeInstanceDiskValues {
+  sizeGib: string;
+  /** Storage tier name; empty means "let the server or template default apply". */
+  storageTier: string;
+}
+
 export interface ComputeInstanceWizardValues {
   catalogItemId: string;
   metadata: {
@@ -20,9 +26,8 @@ export interface ComputeInstanceWizardValues {
     };
     instanceType: string;
     userData: string;
-    bootDisk: {
-      sizeGib: string;
-    };
+    bootDisk: ComputeInstanceDiskValues;
+    additionalDisks: ComputeInstanceDiskValues[];
     networking: ComputeInstanceNetworkingValues;
   };
 }

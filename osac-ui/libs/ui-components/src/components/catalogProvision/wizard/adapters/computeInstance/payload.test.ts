@@ -48,6 +48,21 @@ const buildValues = (project: string) => ({
   },
 });
 
+const baseValues = () => {
+  const values = createEmptyComputeInstanceValues();
+  return {
+    ...values,
+    catalogItemId: vmCatalogItem.id,
+    metadata: { name: 'web-01', project: '' },
+    spec: {
+      ...values.spec,
+      image: { sourceRef: 'quay.io/example/rhel9' },
+      instanceType: 'standard-4-8',
+      networking: { virtualNetwork: 'vnet', subnet: 'subnet-1', securityGroups: ['sg-1'] },
+    },
+  };
+};
+
 describe('buildComputeInstanceCreatePayload', () => {
   it('builds a catalog-item create payload', () => {
     expect(buildComputeInstanceCreatePayload(buildValues(''), vmCatalogItem)).toEqual({
@@ -78,5 +93,59 @@ describe('buildComputeInstanceCreatePayload', () => {
         project,
       },
     );
+  });
+});
+
+describe('buildComputeInstanceCreatePayload — disk storage tiers', () => {
+  it('sends the boot disk tier by name, not id', () => {
+    const values = baseValues();
+    values.spec.bootDisk = { sizeGib: '20', storageTier: 'balanced' };
+
+    const payload = buildComputeInstanceCreatePayload(values, vmCatalogItem);
+
+    expect(payload.spec?.bootDisk).toEqual({ sizeGib: 20, storageTier: 'balanced' });
+  });
+
+  it('omits storage_tier from the boot disk when no tier is selected', () => {
+    const values = baseValues();
+    values.spec.bootDisk = { sizeGib: '20', storageTier: '' };
+
+    const payload = buildComputeInstanceCreatePayload(values, vmCatalogItem);
+
+    expect(payload.spec?.bootDisk).toEqual({ sizeGib: 20 });
+    expect(payload.spec?.bootDisk).not.toHaveProperty('storageTier');
+  });
+
+  it('carries both the boot disk tier and each additional disk tier', () => {
+    const values = baseValues();
+    values.spec.bootDisk = { sizeGib: '20', storageTier: 'fast' };
+    values.spec.additionalDisks = [{ sizeGib: '100', storageTier: 'bulk' }];
+
+    const payload = buildComputeInstanceCreatePayload(values, vmCatalogItem);
+
+    expect(payload.spec?.bootDisk).toEqual({ sizeGib: 20, storageTier: 'fast' });
+    expect(payload.spec?.additionalDisks).toEqual([{ sizeGib: 100, storageTier: 'bulk' }]);
+  });
+
+  it('drops additional disk rows that have no size', () => {
+    const values = baseValues();
+    values.spec.bootDisk = { sizeGib: '20', storageTier: '' };
+    values.spec.additionalDisks = [
+      { sizeGib: '100', storageTier: 'bulk' },
+      { sizeGib: '', storageTier: 'fast' },
+    ];
+
+    const payload = buildComputeInstanceCreatePayload(values, vmCatalogItem);
+
+    expect(payload.spec?.additionalDisks).toEqual([{ sizeGib: 100, storageTier: 'bulk' }]);
+  });
+
+  it('omits additional_disks entirely when no rows have a size', () => {
+    const values = baseValues();
+    values.spec.additionalDisks = [{ sizeGib: '', storageTier: 'fast' }];
+
+    const payload = buildComputeInstanceCreatePayload(values, vmCatalogItem);
+
+    expect(payload.spec).not.toHaveProperty('additionalDisks');
   });
 });

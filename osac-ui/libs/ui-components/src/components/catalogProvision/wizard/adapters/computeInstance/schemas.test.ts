@@ -54,7 +54,8 @@ const emptyValues: ComputeInstanceWizardValues = {
     image: { sourceRef: '' },
     instanceType: '',
     userData: '',
-    bootDisk: { sizeGib: '' },
+    bootDisk: { sizeGib: '', storageTier: '' },
+    additionalDisks: [],
     networking: {
       virtualNetwork: '',
       subnet: '',
@@ -147,7 +148,7 @@ describe('buildComputeInstanceStepSchema', () => {
           ...emptyValues.spec,
           image: { sourceRef: 'quay.io/example/rhel9' },
           instanceType: 'standard-4-8',
-          bootDisk: { sizeGib: 'not-a-number' },
+          bootDisk: { sizeGib: 'not-a-number', storageTier: '' },
         },
       },
       vmCatalogItem,
