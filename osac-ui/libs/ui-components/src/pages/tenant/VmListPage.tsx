@@ -11,6 +11,10 @@ import {
   StackItem,
   ToggleGroup,
   ToggleGroupItem,
+  Toolbar,
+  ToolbarContent,
+  ToolbarGroup,
+  ToolbarItem,
 } from '@patternfly/react-core';
 
 import { ComputeInstance, ComputeInstanceState } from '@osac/types';
@@ -18,6 +22,7 @@ import { useComputeInstances } from '@osac/ui-components/api/v1/compute-instance
 import { useInstanceTypes } from '@osac/ui-components/api/v1/instance-types';
 import ListPage from '@osac/ui-components/components/Page/ListPage';
 import ListPageBody from '@osac/ui-components/components/Page/ListPageBody';
+import ProjectFilter from '@osac/ui-components/components/Page/ProjectFilter';
 import { SubtleContent } from '@osac/ui-components/components/SubtleContent/SubtleContent';
 import { VmTable } from '@osac/ui-components/components/vm/VmTable';
 import {
@@ -105,45 +110,48 @@ export const VmListPage = () => {
       <ListPageBody isLoading={isLoading} error={error}>
         <Stack hasGutter>
           <StackItem>
-            <Flex
-              spaceItems={{ default: 'spaceItemsSm' }}
-              alignItems={{ default: 'alignItemsCenter' }}
-              flexWrap={{ default: 'wrap' }}
-            >
-              <FlexItem>
-                <ToggleGroup aria-label={t('Filter virtual machines by status')}>
-                  {statusFilterOptions.map((option) => (
-                    <ToggleGroupItem
-                      key={option.value}
-                      text={
-                        <Flex
-                          spaceItems={{ default: 'spaceItemsSm' }}
-                          flexWrap={{ default: 'nowrap' }}
-                        >
-                          <FlexItem>{option.label}</FlexItem>
-                          <FlexItem>
-                            <Label isCompact>{statusCounts[option.value]}</Label>
-                          </FlexItem>
-                        </Flex>
-                      }
-                      buttonId={`vm-filter-status-${option.value}`}
-                      isSelected={statusFilters.includes(option.value)}
-                      onChange={() => setStatusFilters(option.value)}
-                    />
-                  ))}
-                </ToggleGroup>
-              </FlexItem>
-              <FlexItem>
-                <SearchInput
-                  placeholder={t('Search VMs by name…')}
-                  value={search}
-                  onChange={(_event, value) => setSearch(value)}
-                  onClear={() => setSearch('')}
-                  aria-label={t('Filter virtual machines by name')}
-                  isDisabled={isLoading || !!error}
-                />
-              </FlexItem>
-            </Flex>
+            <Toolbar>
+              <ToolbarContent>
+                <ToolbarGroup>
+                  <ToolbarItem>
+                    <ProjectFilter />
+                  </ToolbarItem>
+                </ToolbarGroup>
+                <ToolbarItem>
+                  <ToggleGroup aria-label={t('Filter virtual machines by status')}>
+                    {statusFilterOptions.map((option) => (
+                      <ToggleGroupItem
+                        key={option.value}
+                        text={
+                          <Flex
+                            spaceItems={{ default: 'spaceItemsSm' }}
+                            flexWrap={{ default: 'nowrap' }}
+                          >
+                            <FlexItem>{option.label}</FlexItem>
+                            <FlexItem>
+                              <Label isCompact>{statusCounts[option.value]}</Label>
+                            </FlexItem>
+                          </Flex>
+                        }
+                        buttonId={`vm-filter-status-${option.value}`}
+                        isSelected={statusFilters.includes(option.value)}
+                        onChange={() => setStatusFilters(option.value)}
+                      />
+                    ))}
+                  </ToggleGroup>
+                </ToolbarItem>
+                <ToolbarItem>
+                  <SearchInput
+                    placeholder={t('Search VMs by name…')}
+                    value={search}
+                    onChange={(_event, value) => setSearch(value)}
+                    onClear={() => setSearch('')}
+                    aria-label={t('Filter virtual machines by name')}
+                    isDisabled={isLoading || !!error}
+                  />
+                </ToolbarItem>
+              </ToolbarContent>
+            </Toolbar>
           </StackItem>
           {instanceTypesError ? (
             <StackItem>

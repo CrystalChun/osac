@@ -97,6 +97,8 @@ describe('RoleBindingsPage', () => {
       userContrast: 'system',
       resolvedContrast: 'glass',
       setUserContrast: vi.fn(),
+      projects: [],
+      setProjects: vi.fn(),
     });
   });
 

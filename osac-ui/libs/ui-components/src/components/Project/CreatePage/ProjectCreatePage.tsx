@@ -26,7 +26,7 @@ import { InputField } from '../../Form/InputField';
 import LeaveFormConfirmation from '../../Form/LeaveFormConfirmation';
 import OsacForm from '../../Form/OsacForm';
 import { SelectField } from '../../Form/SelectField';
-import { getProjectName } from '../utils';
+import { getFullProjectPath, getProjectName } from '../utils';
 
 const ProjectCreatePage = () => {
   const { t } = useTranslation();
@@ -76,9 +76,7 @@ const ProjectCreatePage = () => {
                       name="metadata.project"
                       options={projects.map((p) => ({
                         label: getProjectName(p, t),
-                        value: p.metadata?.project
-                          ? `${p.metadata.project}.${p.metadata.name}`
-                          : p.metadata?.name || 'default',
+                        value: getFullProjectPath(p),
                       }))}
                       isRequired
                     />
@@ -91,7 +89,6 @@ const ProjectCreatePage = () => {
                     />
                   </OsacForm>
                 </StackItem>
-
                 {!!error && (
                   <StackItem>
                     <Alert variant="danger" title={t('Failed to create project')} isInline>

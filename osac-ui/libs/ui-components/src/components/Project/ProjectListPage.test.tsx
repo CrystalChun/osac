@@ -50,6 +50,8 @@ describe('ProjectListPage', () => {
       userContrast: 'system',
       resolvedContrast: 'glass',
       setUserContrast: vi.fn(),
+      projects: [],
+      setProjects: vi.fn(),
     });
   });
 
@@ -92,6 +94,8 @@ describe('ProjectListPage', () => {
       userContrast: 'system',
       resolvedContrast: 'glass',
       setUserContrast: vi.fn(),
+      projects: [],
+      setProjects: vi.fn(),
     });
 
     renderPage();
