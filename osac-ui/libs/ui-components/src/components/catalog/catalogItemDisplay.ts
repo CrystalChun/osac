@@ -20,6 +20,9 @@ import {
 } from '../catalogProvision/catalogFieldDefinition';
 import { findCatalogFieldDefinition } from '../catalogProvision/wizard/catalogOverlay';
 
+export const isCatalogItemKind = (value: string | undefined): value is CatalogItemKind =>
+  value === 'vm' || value === 'cluster' || value === 'bm';
+
 export type CatalogItemKind = 'vm' | 'bm' | 'cluster';
 
 export type CatalogItem =
@@ -33,8 +36,10 @@ export const catalogItemTypeBadgeLabel = (kind: CatalogItem, t: TFunction): stri
       return t('Virtual Machine');
     case 'osac.public.v1.BareMetalInstanceCatalogItem':
       return t('Bare Metal');
-    default:
+    case 'osac.public.v1.ClusterCatalogItem':
       return t('Cluster');
+    default:
+      return t('Unknown');
   }
 };
 

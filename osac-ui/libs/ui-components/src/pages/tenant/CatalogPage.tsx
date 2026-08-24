@@ -18,9 +18,9 @@ import { useComputeInstanceCatalogItems } from '@osac/ui-components/api/v1/compu
 import {
   CatalogItemKind,
   filterCatalogItemsBySearch,
+  isCatalogItemKind,
 } from '@osac/ui-components/components/catalog/catalogItemDisplay';
 import { CatalogItemListSection } from '@osac/ui-components/components/catalog/CatalogItemListSection';
-import { isCatalogItemKind } from '@osac/ui-components/components/catalog/details/CatalogItemDetailPage';
 import ListPage from '@osac/ui-components/components/Page/ListPage';
 import {
   SEARCH_PARAM,

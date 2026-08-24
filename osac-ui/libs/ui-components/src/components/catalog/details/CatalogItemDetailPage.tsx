@@ -7,10 +7,7 @@ import { useComputeInstanceCatalogItem } from '../../../api/v1/compute-instance-
 import { useTranslation } from '../../../hooks/useTranslation.ts';
 import { ResourceDetailsPageError } from '../../Resource/ResourceDetailsPageError.tsx';
 import { ResourceDetailsPageLoading } from '../../Resource/ResourceDetailsPageLoading.tsx';
-import type { CatalogItemKind } from '../catalogItemDisplay.ts';
-
-export const isCatalogItemKind = (value: string | undefined): value is CatalogItemKind =>
-  value === 'vm' || value === 'cluster' || value === 'bm';
+import { type CatalogItemKind, isCatalogItemKind } from '../catalogItemDisplay.ts';
 
 const useCatalogItemByKind = (kind: CatalogItemKind | undefined, id: string | undefined) => {
   const vm = useComputeInstanceCatalogItem(kind === 'vm' ? id : undefined);
