@@ -18,12 +18,7 @@ export const VmStorageStep = ({ catalogItem }: Props) => {
   const definitions = useMemo(() => readCatalogFieldDefinitions(catalogItem), [catalogItem]);
 
   const bootDiskOverlay = useMemo(
-    () =>
-      getCatalogFieldOverlay(
-        'spec.boot_disk.size_gib',
-        definitions,
-        t('catalogProvision.vm.fields.bootDisk'),
-      ),
+    () => getCatalogFieldOverlay('spec.boot_disk.size_gib', definitions, t('Boot disk')),
     [definitions, t],
   );
 
@@ -39,7 +34,7 @@ export const VmStorageStep = ({ catalogItem }: Props) => {
         fieldId="vm-boot-disk-size"
         type="number"
         isRequired
-        helperText={t('catalogProvision.vm.fields.bootDiskDescription')}
+        helperText={t('Size in GiB')}
         isDisabled={!bootDiskOverlay.editable}
       />
       <StorageTierSelectField

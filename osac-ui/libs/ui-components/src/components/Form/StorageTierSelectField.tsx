@@ -1,14 +1,12 @@
 import { useMemo } from 'react';
 import { Alert, Button, FormGroup, HelperText, HelperTextItem } from '@patternfly/react-core';
-import { TypeaheadSelect, type TypeaheadSelectOption } from '@patternfly/react-templates';
-import { useField } from 'formik';
+import { type TypeaheadSelectOption } from '@patternfly/react-templates';
 
-import { StorageTierState } from '@osac/types/private';
-
-import { getVisibleFieldError } from './fieldError';
-import { useShowFieldValidationErrors } from './FieldValidationContext';
-import { FormFieldHelper } from './FormFieldHelper';
-import { usePrivateStorageTiers } from '../../api/v1/private/storage-tiers';
+import { TypeaheadSelectField } from './TypeaheadSelectField';
+import {
+  STORAGE_TIER_ACTIVE_LIST_FILTER,
+  usePrivateStorageTiers,
+} from '../../api/v1/private/storage-tiers';
 import { useTranslation } from '../../hooks/useTranslation';
 
 interface StorageTierSelectFieldProps {
@@ -25,29 +23,27 @@ export const StorageTierSelectField = ({
   isRequired = false,
 }: StorageTierSelectFieldProps) => {
   const { t } = useTranslation();
-  const [field, meta, helpers] = useField<string>(name);
-  const showValidationErrors = useShowFieldValidationErrors();
-  const error = getVisibleFieldError(meta, showValidationErrors);
-
-  const { data: tiers = [], isPending, isError, refetch } = usePrivateStorageTiers();
+  const {
+    data: tiers = [],
+    isLoading,
+    error: loadError,
+    refetch,
+  } = usePrivateStorageTiers({ filter: STORAGE_TIER_ACTIVE_LIST_FILTER });
 
   const options = useMemo<TypeaheadSelectOption[]>(
     () =>
-      tiers
-        .filter((tier) => tier.status?.state === StorageTierState.ACTIVE)
-        .map((tier, index) => {
-          const displayName = tier.metadata?.displayName || tier.metadata?.name || '';
-          return {
-            value: tier.metadata?.name ?? '',
-            content: index === 0 ? t('{{name}} (default)', { name: displayName }) : displayName,
-            description: tier.spec?.description || undefined,
-            selected: field.value === tier.metadata?.name,
-          };
-        }),
-    [tiers, field.value, t],
+      tiers.map((tier, index) => {
+        const displayName = tier.metadata?.displayName || tier.metadata?.name || '';
+        return {
+          value: tier.metadata?.name ?? '',
+          content: index === 0 ? t('{{name}} (default)', { name: displayName }) : displayName,
+          description: tier.spec?.description || undefined,
+        };
+      }),
+    [tiers, t],
   );
 
-  if (isError) {
+  if (loadError) {
     return (
       <FormGroup label={label} fieldId={fieldId} isRequired={isRequired}>
         <Alert variant="danger" isInline title={t('Failed to load storage tiers')}>
@@ -59,7 +55,7 @@ export const StorageTierSelectField = ({
     );
   }
 
-  if (!isPending && options.length === 0) {
+  if (!isLoading && options.length === 0) {
     return (
       <FormGroup label={label} fieldId={fieldId} isRequired={isRequired}>
         <HelperText>
@@ -72,28 +68,15 @@ export const StorageTierSelectField = ({
   }
 
   return (
-    <FormGroup label={label} fieldId={fieldId} isRequired={isRequired}>
-      <TypeaheadSelect
-        id={fieldId}
-        initialOptions={options}
-        isDisabled={isPending}
-        placeholder={isPending ? t('Loading...') : t('Select a storage tier')}
-        noOptionsFoundMessage={(filter) => t('No storage tiers found for "{{filter}}"', { filter })}
-        onSelect={(_event, value) => {
-          void helpers.setValue(String(value), true);
-          void helpers.setTouched(true);
-        }}
-        onClearSelection={() => {
-          void helpers.setValue('', true);
-        }}
-        toggleProps={{
-          id: fieldId,
-          'aria-label': label,
-          isFullWidth: true,
-          status: error ? 'danger' : undefined,
-        }}
-      />
-      <FormFieldHelper error={error} fieldId={fieldId} />
-    </FormGroup>
+    <TypeaheadSelectField
+      name={name}
+      label={label}
+      fieldId={fieldId}
+      isRequired={isRequired}
+      options={options}
+      isDisabled={isLoading}
+      placeholder={isLoading ? t('Loading...') : t('Select a storage tier')}
+      noOptionsFoundMessage={(filter) => t('No storage tiers found for "{{filter}}"', { filter })}
+    />
   );
 };

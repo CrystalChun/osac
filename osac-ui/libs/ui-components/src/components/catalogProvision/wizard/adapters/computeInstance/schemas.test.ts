@@ -143,7 +143,7 @@ describe('buildComputeInstanceStepSchema', () => {
       {
         ...emptyValues,
         catalogItemId: vmCatalogItem.id,
-        metadata: { name: 'web-01' },
+        metadata: { name: 'web-01', project: '' },
         spec: {
           ...emptyValues.spec,
           bootDisk: { sizeGib: 'not-a-number', storageTier: '' },
@@ -181,7 +181,7 @@ describe('buildComputeInstanceStepSchema', () => {
       {
         ...emptyValues,
         catalogItemId: vmCatalogItem.id,
-        metadata: { name: 'web-01' },
+        metadata: { name: 'web-01', project: '' },
         spec: {
           ...emptyValues.spec,
           bootDisk: { sizeGib: '30', storageTier: '' },
@@ -244,7 +244,7 @@ describe('buildComputeInstanceStepSchema', () => {
       {
         ...emptyValues,
         catalogItemId: vmCatalogItem.id,
-        metadata: { name: 'web-01' },
+        metadata: { name: 'web-01', project: '' },
       },
       vmCatalogItem,
     );

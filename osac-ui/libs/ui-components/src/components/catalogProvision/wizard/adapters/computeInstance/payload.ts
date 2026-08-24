@@ -23,10 +23,9 @@ export const createEmptyComputeInstanceValues = (): ComputeInstanceWizardValues 
   },
 });
 
-const tierField = (storageTier: string): { storageTier?: string } => {
-  const trimmed = storageTier.trim();
-  return trimmed ? { storageTier: trimmed } : {};
-};
+// Tier is picked from a dropdown (a tier name), so it needs no trimming.
+const tierField = (storageTier: string): { storageTier?: string } =>
+  storageTier ? { storageTier } : {};
 
 export const buildComputeInstanceCreatePayload = (
   values: ComputeInstanceWizardValues,

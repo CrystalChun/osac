@@ -202,6 +202,16 @@ const matchesStorageBackendReadyFilter = (
   return state === StorageBackendState.READY;
 };
 
+const matchesStorageTierActiveFilter = (
+  filter: string | undefined,
+  state: number | undefined,
+): boolean => {
+  if (!filter?.includes('this.status.state ==')) {
+    return true;
+  }
+  return state === StorageTierState.ACTIVE;
+};
+
 export type MockTransportOverrides = {
   onClusterCreate?: (req: ClustersCreateRequest) => ClustersCreateResponse;
   onClusterVersionList?: (
@@ -449,10 +459,13 @@ export const createMockConnectTransport = (
           if (overrides.onStorageTierList) {
             return overrides.onStorageTierList(req);
           }
+          const items = storageTiers.filter((item) =>
+            matchesStorageTierActiveFilter(req.filter, item.status?.state),
+          );
           return {
-            items: storageTiers,
-            size: storageTiers.length,
-            total: storageTiers.length,
+            items,
+            size: items.length,
+            total: items.length,
           };
         },
         get: (req) => {
