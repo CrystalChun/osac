@@ -15,9 +15,13 @@ syntax = "proto3";
 
 package osac.private.v1;
 
+import "cleanapi/cleanapi.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/field_mask.proto";
 import "osac/private/v1/baremetal_instance_catalog_item_type.proto";
+
+option (cleanapi.file).package = "osac.public.v1";
+option (cleanapi.file).remove_http_options = true;
 
 message BareMetalInstanceCatalogItemsListRequest {
   optional int32 offset = 1;
@@ -33,7 +37,6 @@ message BareMetalInstanceCatalogItemsListResponse {
 }
 
 message BareMetalInstanceCatalogItemsGetRequest {
-  // Unique identifier of the catalog item.
   string id = 1;
 }
 
@@ -55,7 +58,7 @@ message BareMetalInstanceCatalogItemsUpdateRequest {
 
   // Lock enables optimistic locking. When set to true, the server verifies that the current version of the object
   // matches the value of the metadata.version field of the submitted object. If they differ the update will be
-  // rejected. This is useful to prevent lost updates when multiple clients are modifying the same object concurrently.
+  // rejected.
   bool lock = 3;
 }
 
@@ -64,18 +67,20 @@ message BareMetalInstanceCatalogItemsUpdateResponse {
 }
 
 message BareMetalInstanceCatalogItemsDeleteRequest {
-  // Unique identifier of the catalog item.
   string id = 1;
 }
 
 message BareMetalInstanceCatalogItemsDeleteResponse {}
 
 message BareMetalInstanceCatalogItemsSignalRequest {
+  option (cleanapi.message).private = true;
   // Unique identifier of the catalog item.
   string id = 1;
 }
 
-message BareMetalInstanceCatalogItemsSignalResponse {}
+message BareMetalInstanceCatalogItemsSignalResponse {
+  option (cleanapi.message).private = true;
+}
 
 service BareMetalInstanceCatalogItems {
   rpc List(BareMetalInstanceCatalogItemsListRequest) returns (BareMetalInstanceCatalogItemsListResponse) {
@@ -106,5 +111,7 @@ service BareMetalInstanceCatalogItems {
   }
 
   // Indicates that something changed in the object or the system that may require reconciling the object.
-  rpc Signal(BareMetalInstanceCatalogItemsSignalRequest) returns (BareMetalInstanceCatalogItemsSignalResponse) {}
+  rpc Signal(BareMetalInstanceCatalogItemsSignalRequest) returns (BareMetalInstanceCatalogItemsSignalResponse) {
+    option (cleanapi.method).private = true;
+  }
 }

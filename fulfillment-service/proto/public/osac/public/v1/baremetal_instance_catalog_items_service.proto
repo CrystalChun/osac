@@ -15,7 +15,6 @@ syntax = "proto3";
 
 package osac.public.v1;
 
-import "google/api/annotations.proto";
 import "google/protobuf/field_mask.proto";
 import "osac/public/v1/baremetal_instance_catalog_item_type.proto";
 
@@ -70,29 +69,13 @@ message BareMetalInstanceCatalogItemsDeleteResponse {}
 
 service BareMetalInstanceCatalogItems {
   rpc List(BareMetalInstanceCatalogItemsListRequest) returns (BareMetalInstanceCatalogItemsListResponse) {
-    option (google.api.http) = {get: "/api/fulfillment/v1/baremetal_instance_catalog_items"};
   }
   rpc Get(BareMetalInstanceCatalogItemsGetRequest) returns (BareMetalInstanceCatalogItemsGetResponse) {
-    option (google.api.http) = {
-      get: "/api/fulfillment/v1/baremetal_instance_catalog_items/{id}"
-      response_body: "object"
-    };
   }
   rpc Create(BareMetalInstanceCatalogItemsCreateRequest) returns (BareMetalInstanceCatalogItemsCreateResponse) {
-    option (google.api.http) = {
-      post: "/api/fulfillment/v1/baremetal_instance_catalog_items"
-      body: "object"
-      response_body: "object"
-    };
   }
   rpc Update(BareMetalInstanceCatalogItemsUpdateRequest) returns (BareMetalInstanceCatalogItemsUpdateResponse) {
-    option (google.api.http) = {
-      patch: "/api/fulfillment/v1/baremetal_instance_catalog_items/{object.id}"
-      body: "object"
-      response_body: "object"
-    };
   }
   rpc Delete(BareMetalInstanceCatalogItemsDeleteRequest) returns (BareMetalInstanceCatalogItemsDeleteResponse) {
-    option (google.api.http) = {delete: "/api/fulfillment/v1/baremetal_instance_catalog_items/{id}"};
   }
 }
