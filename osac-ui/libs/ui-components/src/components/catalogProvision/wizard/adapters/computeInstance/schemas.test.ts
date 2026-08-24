@@ -137,7 +137,26 @@ describe('buildComputeInstanceStepSchema', () => {
     expect(errors).toEqual({});
   });
 
-  it('validates boot disk as numeric on configuration step only', async () => {
+  it('validates boot disk as numeric on storage step', async () => {
+    const errors = await validateStep(
+      'storage',
+      {
+        ...emptyValues,
+        catalogItemId: vmCatalogItem.id,
+        metadata: { name: 'web-01' },
+        spec: {
+          ...emptyValues.spec,
+          bootDisk: { sizeGib: 'not-a-number', storageTier: '' },
+        },
+      },
+      vmCatalogItem,
+    );
+    expect(errors).toEqual({
+      spec: { bootDisk: { sizeGib: 'catalogProvision.validation.bootDiskNumber' } },
+    });
+  });
+
+  it('does not validate boot disk on configuration step', async () => {
     const errors = await validateStep(
       'configuration',
       {
@@ -153,9 +172,24 @@ describe('buildComputeInstanceStepSchema', () => {
       },
       vmCatalogItem,
     );
-    expect(errors).toEqual({
-      spec: { bootDisk: { sizeGib: 'catalogProvision.validation.bootDiskNumber' } },
-    });
+    expect(errors).toEqual({});
+  });
+
+  it('does not require networking when leaving the storage step', async () => {
+    const errors = await validateStep(
+      'storage',
+      {
+        ...emptyValues,
+        catalogItemId: vmCatalogItem.id,
+        metadata: { name: 'web-01' },
+        spec: {
+          ...emptyValues.spec,
+          bootDisk: { sizeGib: '30', storageTier: '' },
+        },
+      },
+      vmCatalogItem,
+    );
+    expect(errors).toEqual({});
   });
 
   it('requires networking pickers on networking step', async () => {
@@ -183,7 +217,7 @@ describe('buildComputeInstanceStepSchema', () => {
     });
   });
 
-  it('requires instance type and boot disk on configuration step', async () => {
+  it('requires instance type on configuration step', async () => {
     const errors = await validateStep(
       'configuration',
       {
@@ -200,6 +234,22 @@ describe('buildComputeInstanceStepSchema', () => {
     expect(errors).toEqual({
       spec: {
         instanceType: 'catalogProvision.validation.instanceTypeRequired',
+      },
+    });
+  });
+
+  it('requires boot disk on storage step', async () => {
+    const errors = await validateStep(
+      'storage',
+      {
+        ...emptyValues,
+        catalogItemId: vmCatalogItem.id,
+        metadata: { name: 'web-01' },
+      },
+      vmCatalogItem,
+    );
+    expect(errors).toEqual({
+      spec: {
         bootDisk: { sizeGib: 'catalogProvision.validation.required' },
       },
     });

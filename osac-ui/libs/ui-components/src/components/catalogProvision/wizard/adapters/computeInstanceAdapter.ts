@@ -15,6 +15,7 @@ import { VmConfigurationStep } from './computeInstance/VmConfigurationStep';
 import VmGeneralStep from './computeInstance/VmGeneralStep';
 import { VmNetworkingStep } from './computeInstance/VmNetworkingStep';
 import { VmReviewStep } from './computeInstance/VmReviewStep';
+import { VmStorageStep } from './computeInstance/VmStorageStep';
 import type { CatalogProvisionAdapter } from './types';
 import { useComputeInstanceCatalogItems } from '../../../../api/v1/compute-instance-catalog-item';
 import { useTranslation } from '../../../../hooks/useTranslation';
@@ -48,6 +49,7 @@ export const useComputeInstanceAdapter = (): CatalogProvisionAdapter<
       getInitialValues: (_catalogItem) => createEmptyComputeInstanceValues(),
       buildCreatePayload: buildComputeInstanceCreatePayload,
       ConfigurationStep: VmConfigurationStep,
+      StorageStep: VmStorageStep,
       NetworkingStep: VmNetworkingStep,
       GeneralStep: VmGeneralStep,
       getStepValidationSchema: (catalogItem, stepId) =>

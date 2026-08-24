@@ -131,6 +131,11 @@ export const buildComputeInstanceStepSchema = (
           image: fields.specImage,
           instanceType: fields.specInstanceType,
           userData: fields.specUserData,
+        }),
+      });
+    case 'storage':
+      return yup.object({
+        spec: yup.object({
           bootDisk: fields.specBootDisk,
         }),
       });

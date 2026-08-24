@@ -59,11 +59,6 @@ export const VmConfigurationStep = ({ catalogItem }: Props) => {
         definitions,
         t('catalogProvision.vm.fields.userData'),
       ),
-      bootDisk: getCatalogFieldOverlay(
-        'spec.boot_disk.size_gib',
-        definitions,
-        t('catalogProvision.vm.fields.bootDisk'),
-      ),
       userDataRequired: hasCatalogFieldDefinition('spec.user_data', definitions),
     }),
     [definitions, t],
@@ -103,15 +98,6 @@ export const VmConfigurationStep = ({ catalogItem }: Props) => {
             isLoading={instanceTypesLoading}
             placeholder={t('catalogProvision.vm.placeholders.selectInstanceType')}
             options={instanceTypeOptions}
-          />
-          <InputField
-            name="spec.bootDisk.sizeGib"
-            label={overlays.bootDisk.label}
-            fieldId="vm-boot-disk-size"
-            type="number"
-            isRequired
-            helperText={t('catalogProvision.vm.fields.bootDiskDescription')}
-            isDisabled={!overlays.bootDisk.editable}
           />
           <UserDataField catalogItem={catalogItem} name="spec.userData" wirePath="spec.user_data" />
         </OsacForm>

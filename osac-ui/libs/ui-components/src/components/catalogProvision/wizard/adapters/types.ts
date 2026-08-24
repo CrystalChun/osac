@@ -32,6 +32,8 @@ export interface CatalogProvisionAdapter<TItem extends CatalogItem, TValues, TPa
   getInitialValues: (catalogItem: TItem | null) => TValues;
   buildCreatePayload: (values: TValues, catalogItem: TItem) => TPayload;
   ConfigurationStep: ComponentType<{ catalogItem: TItem | null }>;
+  /** Optional — only kinds whose ordered steps include 'storage' (compute instances) set this. */
+  StorageStep?: ComponentType<{ catalogItem: TItem | null }>;
   NetworkingStep: ComponentType<{ catalogItem: TItem | null }>;
   GeneralStep: ComponentType<{ catalogItem: TItem | null }>;
   ReviewStep: ComponentType<{ catalogItem: TItem | null }>;

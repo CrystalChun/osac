@@ -229,6 +229,7 @@ const WizardStepBody = ({
 }: WizardBodyProps) => {
   const { t } = useTranslation();
   const ConfigurationStep = adapter.ConfigurationStep;
+  const StorageStep = adapter.StorageStep;
   const NetworkingStep = adapter.NetworkingStep;
   const GeneralStepComponent = adapter.GeneralStep;
   const ReviewStepComponent = adapter.ReviewStep;
@@ -251,6 +252,7 @@ const WizardStepBody = ({
         {stepId === 'catalog' ? <CatalogStep adapter={adapter} /> : null}
         {stepId === 'general' ? <GeneralStepComponent catalogItem={catalogItem} /> : null}
         {stepId === 'configuration' ? <ConfigurationStep catalogItem={catalogItem} /> : null}
+        {stepId === 'storage' && StorageStep ? <StorageStep catalogItem={catalogItem} /> : null}
         {stepId === 'networking' ? <NetworkingStep catalogItem={catalogItem} /> : null}
         {stepId === 'review' ? <ReviewStepComponent catalogItem={catalogItem} /> : null}
       </Stack>

@@ -115,25 +115,33 @@ const advanceToConfigurationStep = async (
   });
 };
 
-const waitForConfigurationReady = async (user?: UserEvent) => {
+const waitForConfigurationReady = async () => {
   await waitFor(() => {
     expect(screen.getByLabelText(/^Instance type/)).not.toBeDisabled();
     expect(screen.getByLabelText(/^Instance type/)).toHaveTextContent('standard-4-8');
   });
+};
 
-  const bootDisk = screen.queryByLabelText<HTMLInputElement>(/Boot disk/);
-  if (bootDisk && !bootDisk.value) {
-    if (!user) {
-      throw new Error('Boot disk must be filled before leaving configuration');
-    }
+const advanceToStorageStep = async (user: UserEvent, catalogItemTitle: string) => {
+  await advanceToConfigurationStep(user, 'web-01', catalogItemTitle);
+  await waitForConfigurationReady();
+  await clickWizardNext(user);
+  await waitFor(() => {
+    expect(screen.getByLabelText(/Boot disk/)).toBeInTheDocument();
+  });
+};
+
+const fillStorageStep = async (user: UserEvent) => {
+  const bootDisk = screen.getByLabelText<HTMLInputElement>(/Boot disk/);
+  if (!bootDisk.value) {
     await user.clear(bootDisk);
     await user.type(bootDisk, '40');
   }
 };
 
 const advanceToNetworkingStep = async (user: UserEvent, catalogItemTitle: string) => {
-  await advanceToConfigurationStep(user, 'web-01', catalogItemTitle);
-  await waitForConfigurationReady(user);
+  await advanceToStorageStep(user, catalogItemTitle);
+  await fillStorageStep(user);
   await clickWizardNext(user);
   await waitFor(() => {
     expect(screen.getByLabelText(/^Virtual network/)).toBeInTheDocument();
@@ -549,13 +557,6 @@ const expectConfigurationDefaults = async () => {
   });
 };
 
-const expectMultiFieldConfigurationDefaults = async () => {
-  await expectConfigurationDefaults();
-  await waitFor(() => {
-    const bootDisk = screen.getByLabelText<HTMLInputElement>(/Boot disk/);
-    expect(bootDisk.value).toBe('40');
-  });
-};
 
 describe('CatalogProvisionWizard', () => {
   it('blocks Next on catalog step when no catalog item is selected', async () => {
@@ -611,8 +612,13 @@ describe('CatalogProvisionWizard', () => {
     await fillGeneralStep(user, 'web-01');
     await clickWizardNext(user);
 
-    await expectMultiFieldConfigurationDefaults();
-    await waitForConfigurationReady(user);
+    await expectConfigurationDefaults();
+    await waitForConfigurationReady();
+
+    await clickWizardNext(user);
+    await waitFor(() => {
+      expect(screen.getByLabelText<HTMLInputElement>(/Boot disk/).value).toBe('40');
+    });
 
     await clickWizardNext(user);
     await selectNetworkingPickers(user);
@@ -767,6 +773,10 @@ describe('CatalogProvisionWizard', () => {
     const { user } = renderWizard();
 
     await advanceToNetworkingStep(user, vmCatalogItem.title);
+    await clickWizardBack(user);
+    await waitFor(() => {
+      expect(screen.getByLabelText(/Boot disk/)).toBeInTheDocument();
+    });
     await clickWizardBack(user);
 
     await waitFor(() => {
@@ -1029,6 +1039,34 @@ describe('CatalogProvisionWizard', () => {
       expect(screen.getByText('provision failed')).toBeInTheDocument();
     });
     expect(screen.getByRole('button', { name: 'Create' })).toBeInTheDocument();
+  });
+
+  it('includes a Storage step in the compute instance wizard and omits it for clusters', async () => {
+    const { unmount } = renderWizard();
+    await expectCatalogItemVisible('RHEL 9 catalog');
+    expect(screen.getByText('Storage')).toBeInTheDocument();
+    unmount();
+
+    renderWizard({ kind: 'cluster' });
+    await expectCatalogItemVisible('OpenShift 4 cluster');
+    expect(screen.queryByText('Storage')).not.toBeInTheDocument();
+  });
+
+  it('moves boot disk controls off Configuration and onto the Storage step', async () => {
+    const { user } = renderWizard();
+
+    await advanceToConfigurationStep(user, 'web-01', vmCatalogItem.title);
+    expect(screen.getByLabelText(/VM image/)).toBeInTheDocument();
+    expect(screen.queryByLabelText(/Boot disk/)).not.toBeInTheDocument();
+
+    await waitForConfigurationReady();
+    await clickWizardNext(user);
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(/Boot disk/)).toBeInTheDocument();
+    });
+    expect(screen.getByText('Storage tier')).toBeInTheDocument();
+    expect(screen.queryByLabelText(/VM image/)).not.toBeInTheDocument();
   });
 
   it('blocks Next on cluster general step when name is invalid', async () => {
