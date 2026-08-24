@@ -11,7 +11,7 @@ export const buildBareMetalInstanceCreatePayload = (
   const userData = values.spec.userData.trim();
 
   const bmi = {
-    metadata: { name: values.metadata.name.trim() },
+    metadata: { name: values.metadata.name.trim(), project: values.metadata.project },
     spec: {
       catalogItem: {
         id: values.catalogItemId,

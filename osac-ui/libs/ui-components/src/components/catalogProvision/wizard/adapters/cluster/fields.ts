@@ -8,6 +8,7 @@ export interface ClusterWizardValues {
   catalogItemId: string;
   metadata: {
     name: string;
+    project: string;
   };
   spec: {
     sshPublicKey: string;

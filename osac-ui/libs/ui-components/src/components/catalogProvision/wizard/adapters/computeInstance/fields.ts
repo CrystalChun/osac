@@ -11,6 +11,7 @@ export interface ComputeInstanceWizardValues {
   catalogItemId: string;
   metadata: {
     name: string;
+    project: string;
   };
   spec: {
     sshPublicKey: string;

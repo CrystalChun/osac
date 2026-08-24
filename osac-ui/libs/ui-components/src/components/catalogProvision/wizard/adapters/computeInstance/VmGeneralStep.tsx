@@ -1,4 +1,5 @@
 import type { ComputeInstanceCatalogItem } from '@osac/types';
+import ProjectField from '@osac/ui-components/components/Form/ProjectField';
 
 import { VM_SSH_KEY_FORM_PATH, VM_SSH_KEY_WIRE_PATH } from './fields';
 import OsacForm from '../../../../Form/OsacForm';
@@ -11,6 +12,7 @@ interface VmGeneralStepProps {
 
 const VmGeneralStep = ({ catalogItem }: VmGeneralStepProps) => (
   <OsacForm>
+    <ProjectField />
     <NameField />
     <SshKeyField
       catalogItem={catalogItem}

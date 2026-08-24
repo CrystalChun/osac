@@ -41,7 +41,7 @@ export const SelectField = ({
   isRequired = false,
   isDisabled = false,
   isLoading = false,
-  placeholder,
+  placeholder = '',
   loadingPlaceholder = 'Loading...',
   autoSelectSingleOption = false,
 }: SelectFieldProps) => {
@@ -67,10 +67,7 @@ export const SelectField = ({
   }, [autoSelectSingleOption, field.value, helpers, isDisabled, isLoading, options]);
 
   const toggleLabel = useMemo(() => {
-    if (field.value === '') {
-      return effectivePlaceholder ?? '';
-    }
-    return options.find(({ value }) => value === field.value)?.label || field.value;
+    return options.find(({ value }) => value === field.value)?.label ?? effectivePlaceholder;
   }, [effectivePlaceholder, field.value, options]);
 
   const onSelect = (_event: MouseEvent<Element> | undefined, value: string | number) => {

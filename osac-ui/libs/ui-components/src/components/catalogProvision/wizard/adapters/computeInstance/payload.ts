@@ -7,7 +7,7 @@ import { VM_CREATE_RUN_STRATEGY } from './fields';
 
 export const createEmptyComputeInstanceValues = (): ComputeInstanceWizardValues => ({
   catalogItemId: '',
-  metadata: { name: '' },
+  metadata: { name: '', project: '' },
   spec: {
     sshPublicKey: '',
     image: { sourceRef: '' },
@@ -64,7 +64,7 @@ export const buildComputeInstanceCreatePayload = (
   }
 
   return {
-    metadata: { name: values.metadata.name.trim() },
+    metadata: { name: values.metadata.name.trim(), project: values.metadata.project },
     spec,
   };
 };

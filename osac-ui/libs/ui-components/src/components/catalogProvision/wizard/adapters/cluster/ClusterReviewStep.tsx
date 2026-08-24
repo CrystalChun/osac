@@ -17,7 +17,12 @@ import {
   useClusterVersions,
 } from '@osac/ui-components/api/v1/cluster-versions';
 import { useHostTypes } from '@osac/ui-components/api/v1/host-types';
+import { useProjects } from '@osac/ui-components/api/v1/project';
 import { CatalogItem } from '@osac/ui-components/components/catalog/catalogItemDisplay';
+import {
+  fullProjectPathToQueryFilter,
+  getProjectName,
+} from '@osac/ui-components/components/Project/utils';
 import { getErrorMessage } from '@osac/ui-components/utils/error';
 
 import { ClusterWizardValues } from './fields';
@@ -60,12 +65,19 @@ export const ClusterReviewStep = ({ catalogItem }: Props) => {
   const { data: versions = [] } = useClusterVersions({
     filter: CLUSTER_VERSION_ACTIVE_LIST_FILTER,
   });
+
+  const {
+    data: projects,
+    isLoading: projectsLoading,
+    error: projectsError,
+  } = useProjects({ filter: fullProjectPathToQueryFilter(values.metadata.project) });
+
   const versionDisplay = versionDisplayName(
     findVersionByName(versions, values.spec.versionName),
     values.spec.versionName,
   );
 
-  if (isLoading) {
+  if (isLoading || projectsLoading) {
     return (
       <Bullseye>
         <Spinner />
@@ -82,6 +94,13 @@ export const ClusterReviewStep = ({ catalogItem }: Props) => {
           </Alert>
         </StackItem>
       )}
+      {!!projectsError && (
+        <StackItem>
+          <Alert variant="warning" isInline title={t('Failed to fetch project')}>
+            {getErrorMessage(projectsError)}
+          </Alert>
+        </StackItem>
+      )}
       <StackItem>
         <DescriptionList
           isHorizontal
@@ -95,6 +114,12 @@ export const ClusterReviewStep = ({ catalogItem }: Props) => {
             </DescriptionListDescription>
           </DescriptionListGroup>
 
+          <DescriptionListGroup>
+            <DescriptionListTerm>{t('Project')}</DescriptionListTerm>
+            <DescriptionListDescription>
+              {projects?.length === 1 ? getProjectName(projects[0], t) : values.metadata.project}
+            </DescriptionListDescription>
+          </DescriptionListGroup>
           <DescriptionListGroup>
             <DescriptionListTerm>{t('Name')}</DescriptionListTerm>
             <DescriptionListDescription>

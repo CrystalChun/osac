@@ -30,6 +30,7 @@ import {
   hasSubnetOverlap,
   isSubnetWithinVN,
 } from '../../validation/cidr-validation';
+import NameField from '../catalogProvision/wizard/fields/NameField';
 
 interface SubnetCreateModalProps {
   onClose: () => void;
@@ -53,7 +54,9 @@ export const SubnetCreateModal = ({
   const validationSchema = useMemo(
     () =>
       Yup.object({
-        name: Yup.string().required(t('Name is required')),
+        metadata: Yup.object({
+          name: Yup.string().required(t('Name is required')),
+        }),
         ipv4Cidr: hasIPv4
           ? buildCidrSchema(t, 'ipv4')
               .required(t('IPv4 CIDR is required'))
@@ -120,12 +123,12 @@ export const SubnetCreateModal = ({
 
   return (
     <Formik
-      initialValues={{ name: '', ipv4Cidr: '', ipv6Cidr: '' }}
+      initialValues={{ metadata: { name: '' }, ipv4Cidr: '', ipv6Cidr: '' }}
       validationSchema={validationSchema}
       onSubmit={async (values) => {
         try {
           await create({
-            metadata: { name: values.name },
+            metadata: { name: values.metadata.name, project: parentVN.metadata?.project },
             spec: {
               virtualNetwork: {
                 name: parentVN.metadata?.name,
@@ -156,24 +159,7 @@ export const SubnetCreateModal = ({
                     {t('Parent virtual network')}: <strong>{parentVN.metadata?.name}</strong>
                   </p>
                   <CidrDisplay ipv4Cidr={parentIPv4CIDR} ipv6Cidr={parentIPv6CIDR} />
-                  <FormGroup label={t('Name')} isRequired fieldId="subnet-name">
-                    <TextInput
-                      id="subnet-name"
-                      name="name"
-                      value={values.name}
-                      onChange={(_, value) => handleChange({ target: { name: 'name', value } })}
-                      onBlur={handleBlur}
-                      validated={touched.name && errors.name ? 'error' : 'default'}
-                      aria-describedby={getFormFieldHelperDescribedBy(
-                        'subnet-name',
-                        touched.name ? errors.name : undefined,
-                      )}
-                    />
-                    <FormFieldHelper
-                      fieldId="subnet-name"
-                      error={touched.name ? errors.name : undefined}
-                    />
-                  </FormGroup>
+                  <NameField />
                   {hasIPv4 && (
                     <FormGroup label={t('IPv4 CIDR')} isRequired fieldId="subnet-ipv4-cidr">
                       <TextInput

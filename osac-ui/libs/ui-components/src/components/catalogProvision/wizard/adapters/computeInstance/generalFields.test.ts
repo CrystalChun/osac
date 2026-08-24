@@ -51,7 +51,7 @@ describe('buildComputeInstanceCreatePayload ssh key', () => {
     const values = {
       ...createEmptyComputeInstanceValues(),
       catalogItemId: 'cat-locked',
-      metadata: { name: 'web-01' },
+      metadata: { name: 'web-01', project: '' },
       spec: {
         ...createEmptyComputeInstanceValues().spec,
         sshPublicKey: 'ssh-ed25519 locked',
@@ -74,7 +74,7 @@ describe('buildComputeInstanceCreatePayload ssh key', () => {
     const values = {
       ...createEmptyComputeInstanceValues(),
       catalogItemId: 'cat-editable',
-      metadata: { name: 'web-02' },
+      metadata: { name: 'web-02', project: '' },
       spec: {
         ...createEmptyComputeInstanceValues().spec,
         sshPublicKey: 'ssh-ed25519 default',
@@ -97,7 +97,7 @@ describe('buildComputeInstanceCreatePayload ssh key', () => {
     const values = {
       ...createEmptyComputeInstanceValues(),
       catalogItemId: 'cat-editable',
-      metadata: { name: 'web-02' },
+      metadata: { name: 'web-02', project: '' },
       spec: {
         ...createEmptyComputeInstanceValues().spec,
         image: { sourceRef: 'quay.io/example/rhel9' },

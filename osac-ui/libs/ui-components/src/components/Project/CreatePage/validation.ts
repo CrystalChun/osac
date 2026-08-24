@@ -7,7 +7,6 @@ export const getProjectValidationSchema = (t: TFunction) =>
   Yup.object({
     metadata: Yup.object({
       name: resourceNameSchema(t),
-      project: Yup.string().required(t('Project is required')),
     }),
     title: Yup.string(),
     description: Yup.string(),

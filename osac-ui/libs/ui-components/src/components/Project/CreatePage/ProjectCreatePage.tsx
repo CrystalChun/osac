@@ -14,7 +14,7 @@ import {
 } from '@patternfly/react-core';
 import { Formik } from 'formik';
 
-import { useCreateProject, useProjects } from '@osac/ui-components/api/v1/project';
+import { useCreateProject } from '@osac/ui-components/api/v1/project';
 import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
 import { getErrorMessage } from '@osac/ui-components/utils/error';
 
@@ -25,14 +25,12 @@ import NameField from '../../catalogProvision/wizard/fields/NameField';
 import { InputField } from '../../Form/InputField';
 import LeaveFormConfirmation from '../../Form/LeaveFormConfirmation';
 import OsacForm from '../../Form/OsacForm';
-import { SelectField } from '../../Form/SelectField';
-import { getFullProjectPath, getProjectName } from '../utils';
+import ProjectField from '../../Form/ProjectField';
 
 const ProjectCreatePage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { mutateAsync, error } = useCreateProject();
-  const { data: projects = [] } = useProjects();
 
   return (
     <>
@@ -70,16 +68,7 @@ const ProjectCreatePage = () => {
               <Stack hasGutter>
                 <StackItem>
                   <OsacForm>
-                    <SelectField
-                      fieldId="metadata.project"
-                      label={t('Parent project')}
-                      name="metadata.project"
-                      options={projects.map((p) => ({
-                        label: getProjectName(p, t),
-                        value: getFullProjectPath(p),
-                      }))}
-                      isRequired
-                    />
+                    <ProjectField label={t('Parent project')} />
                     <NameField />
                     <InputField name="title" label={t('Title')} fieldId="project-title" />
                     <InputField
