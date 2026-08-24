@@ -66,7 +66,10 @@ export const buildComputeInstanceCreatePayload = (
 
   const bootDiskRaw = values.spec.bootDisk.sizeGib.trim();
   if (bootDiskRaw) {
-    spec.bootDisk = { sizeGib: Number(bootDiskRaw), ...tierField(values.spec.bootDisk.storageTier) };
+    spec.bootDisk = {
+      sizeGib: Number(bootDiskRaw),
+      ...tierField(values.spec.bootDisk.storageTier),
+    };
   }
 
   const additionalDisks = values.spec.additionalDisks

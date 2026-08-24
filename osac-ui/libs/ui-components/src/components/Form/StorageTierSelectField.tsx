@@ -1,11 +1,5 @@
 import { useMemo } from 'react';
-import {
-  Alert,
-  Button,
-  FormGroup,
-  HelperText,
-  HelperTextItem,
-} from '@patternfly/react-core';
+import { Alert, Button, FormGroup, HelperText, HelperTextItem } from '@patternfly/react-core';
 import { TypeaheadSelect, type TypeaheadSelectOption } from '@patternfly/react-templates';
 import { useField } from 'formik';
 

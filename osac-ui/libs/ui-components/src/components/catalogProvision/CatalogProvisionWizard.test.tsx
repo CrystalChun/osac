@@ -557,7 +557,6 @@ const expectConfigurationDefaults = async () => {
   });
 };
 
-
 describe('CatalogProvisionWizard', () => {
   it('blocks Next on catalog step when no catalog item is selected', async () => {
     const { user } = renderWizard();

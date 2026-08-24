@@ -26,10 +26,7 @@ const makeTier = (
     status: { state },
   });
 
-const renderField = (
-  options: Parameters<typeof renderWithProviders>[1],
-  initialTier = '',
-) =>
+const renderField = (options: Parameters<typeof renderWithProviders>[1], initialTier = '') =>
   renderWithProviders(
     <Formik initialValues={{ tier: initialTier, other: 'keep-me' }} onSubmit={() => undefined}>
       {({ values }) => (
@@ -47,7 +44,10 @@ describe('StorageTierSelectField', () => {
   it('renders inline and sets the field to the selected tier name', async () => {
     const { user } = renderField({
       apiFixtures: {
-        storageTiers: [makeTier('fast', 'Fast SSD', 'low latency'), makeTier('bulk', 'Bulk', 'cheap')],
+        storageTiers: [
+          makeTier('fast', 'Fast SSD', 'low latency'),
+          makeTier('bulk', 'Bulk', 'cheap'),
+        ],
       },
     });
 
