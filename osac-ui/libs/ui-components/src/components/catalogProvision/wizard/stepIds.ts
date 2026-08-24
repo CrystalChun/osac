@@ -2,7 +2,15 @@ import { TFunction } from 'i18next';
 
 import { CatalogProvisionKind } from '../catalogFieldDefinition';
 
-export const WIZARD_STEP_IDS = ['catalog', 'general', 'configuration', 'networking', 'review'];
+// Full set of valid step ids (used for type + membership guard); not every kind uses all of them.
+export const WIZARD_STEP_IDS = [
+  'catalog',
+  'general',
+  'configuration',
+  'storage',
+  'networking',
+  'review',
+];
 
 export type WizardStepId = (typeof WIZARD_STEP_IDS)[number];
 
@@ -14,6 +22,15 @@ export const STEP_LABEL_KEYS = (t: TFunction): Record<WizardStepId, string> => (
   networking: t('Networking'),
   review: t('Review'),
 });
+
+// Default/cluster order — no Storage step (that step is compute-instance only).
+const CLUSTER_WIZARD_STEPS: readonly WizardStepId[] = [
+  'catalog',
+  'general',
+  'configuration',
+  'networking',
+  'review',
+];
 
 const BARE_METAL_WIZARD_STEPS: readonly WizardStepId[] = [
   'catalog',
@@ -40,5 +57,5 @@ export const getWizardOrderedSteps = (kind?: CatalogProvisionKind): readonly Wiz
   if (kind === 'compute_instance') {
     return COMPUTE_INSTANCE_WIZARD_STEPS;
   }
-  return WIZARD_STEP_IDS;
+  return CLUSTER_WIZARD_STEPS;
 };

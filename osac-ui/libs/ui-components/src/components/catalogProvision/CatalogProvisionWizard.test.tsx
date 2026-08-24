@@ -1068,6 +1068,19 @@ describe('CatalogProvisionWizard', () => {
     expect(screen.queryByLabelText(/VM image/)).not.toBeInTheDocument();
   });
 
+  it('blocks Next on the Storage step until the boot disk size is valid', async () => {
+    const { user } = renderWizard();
+
+    await advanceToStorageStep(user, vmCatalogItem.title);
+    const bootDisk = screen.getByLabelText<HTMLInputElement>(/Boot disk/);
+    await user.clear(bootDisk);
+    await clickWizardNext(user);
+
+    await expectValidationAlert();
+    expect(screen.getByLabelText(/Boot disk/)).toBeInTheDocument();
+    expect(screen.queryByLabelText(/^Virtual network/)).not.toBeInTheDocument();
+  });
+
   it('blocks Next on cluster general step when name is invalid', async () => {
     const { user } = renderWizard({ kind: 'cluster' });
 
