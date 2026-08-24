@@ -6,6 +6,7 @@ import { ComputeInstanceState } from '@osac/types';
 import { mockQueryResult } from '@osac/ui-components/test-utils/query';
 
 import { VmListPage } from './VmListPage';
+import { SessionProvider } from '../../hooks/use-session';
 import { renderWithProviders } from '../../test-utils/TestProviders';
 
 vi.mock('@osac/ui-components/api/v1/compute-instance', () => ({
@@ -48,7 +49,12 @@ const vm = {
   },
 } as ComputeInstance;
 
-const renderPage = () => renderWithProviders(<VmListPage />);
+const renderPage = () =>
+  renderWithProviders(
+    <SessionProvider role="tenant-user" username="test-user" tenantId="test-tenant">
+      <VmListPage />
+    </SessionProvider>,
+  );
 
 describe('VmListPage', () => {
   beforeEach(() => {

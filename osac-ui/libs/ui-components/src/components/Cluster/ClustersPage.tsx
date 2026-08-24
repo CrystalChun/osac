@@ -1,5 +1,12 @@
 import { useNavigate } from 'react-router-dom';
-import { Alert, Button } from '@patternfly/react-core';
+import {
+  Alert,
+  Button,
+  Toolbar,
+  ToolbarContent,
+  ToolbarGroup,
+  ToolbarItem,
+} from '@patternfly/react-core';
 
 import { useClusters } from '@osac/ui-components/api/v1/cluster';
 
@@ -7,6 +14,7 @@ import { ClustersTable } from './ClustersTable';
 import { useTranslation } from '../../hooks/useTranslation';
 import ListPage from '../Page/ListPage';
 import ListPageBody from '../Page/ListPageBody';
+import ProjectFilter from '../Page/ProjectFilter';
 
 export const ClustersPage = () => {
   const { t } = useTranslation();
@@ -25,6 +33,15 @@ export const ClustersPage = () => {
       }
     >
       <ListPageBody isLoading={isLoading} error={error}>
+        <Toolbar>
+          <ToolbarContent>
+            <ToolbarGroup>
+              <ToolbarItem>
+                <ProjectFilter />
+              </ToolbarItem>
+            </ToolbarGroup>
+          </ToolbarContent>
+        </Toolbar>
         {clusters.length === 0 ? (
           <Alert variant="info" isInline title="No clusters found">
             No clusters are provisioned for your organization yet.

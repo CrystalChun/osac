@@ -1,6 +1,6 @@
 import { type MessageInitShape } from '@bufbuild/protobuf';
 import { timestampNow } from '@bufbuild/protobuf/wkt';
-import { useMutation } from '@tanstack/react-query';
+import { keepPreviousData, useMutation } from '@tanstack/react-query';
 
 import {
   ComputeInstanceSchema,
@@ -8,18 +8,21 @@ import {
   ComputeInstances,
   type ComputeInstancesListResponse,
 } from '@osac/types';
+import { useProjectFilterQuery } from '@osac/ui-components/hooks/use-project-filter-query';
 
 import { useApiFetch } from '../api-context';
-import { type ListParams, apiQueryKey } from '../types';
+import { apiQueryKey } from '../types';
 import { buildUpdateMaskPaths } from './update-mask';
 import { type ApiQueryClient, useApiQuery, useApiQueryClient } from '../use-api-query';
 
-export const useComputeInstances = (params: ListParams = {}) => {
+export const useComputeInstances = () => {
   const client = useApiFetch(ComputeInstances);
+  const filter = useProjectFilterQuery();
   return useApiQuery({
-    queryKey: apiQueryKey('v1/compute_instances', undefined, params),
-    queryFn: () => client.list(params),
+    queryKey: apiQueryKey('v1/compute_instances', undefined, filter ? { filter } : undefined),
+    queryFn: () => client.list({ filter }),
     select: (data) => data.items,
+    placeholderData: keepPreviousData,
   });
 };
 

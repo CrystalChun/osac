@@ -15,6 +15,7 @@ import { BareMetalActionsMenu } from '@osac/ui-components/components/BareMetalIn
 import { BareMetalStatusLabel } from '@osac/ui-components/components/BareMetalInstance/BareMetalStatusLabel';
 import ListPage from '@osac/ui-components/components/Page/ListPage';
 import ListPageBody from '@osac/ui-components/components/Page/ListPageBody';
+import ProjectFilter from '@osac/ui-components/components/Page/ProjectFilter';
 import { Timestamp } from '@osac/ui-components/components/Primitives/Timestamp';
 import { SubtleContent } from '@osac/ui-components/components/SubtleContent/SubtleContent';
 import { SEARCH_PARAM, usePageFilter } from '@osac/ui-components/hooks/use-page-filter';
@@ -49,6 +50,11 @@ export const BareMetalListPage = () => {
       <ListPageBody isLoading={isLoading} error={error}>
         <Toolbar>
           <ToolbarContent>
+            <ToolbarGroup>
+              <ToolbarItem>
+                <ProjectFilter />
+              </ToolbarItem>
+            </ToolbarGroup>
             <ToolbarGroup>
               <ToolbarItem>
                 <SearchInput

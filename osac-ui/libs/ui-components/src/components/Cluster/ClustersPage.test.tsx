@@ -14,6 +14,7 @@ import {
 
 import { ClustersPage } from './ClustersPage';
 import { ApiProvider } from '../../api/api-context';
+import { SessionProvider } from '../../hooks/use-session';
 import { createMockConnectTransport } from '../../test-utils/createMockConnectTransport';
 
 const makeCluster = (id: string, versionName: string): Cluster =>
@@ -59,7 +60,17 @@ const renderPage = (clusters: Cluster[]) => {
       createElement(
         QueryClientProvider,
         { client: queryClient },
-        createElement(MemoryRouter, null, children),
+        createElement(
+          MemoryRouter,
+          null,
+          // eslint-disable-next-line react/no-children-prop
+          createElement(SessionProvider, {
+            role: 'tenant-user',
+            username: 'test-user',
+            tenantId: 'test-tenant',
+            children,
+          }),
+        ),
       ),
     );
   render(<ClustersPage />, { wrapper });

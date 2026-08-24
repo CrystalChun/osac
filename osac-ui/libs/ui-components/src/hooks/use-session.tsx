@@ -1,4 +1,5 @@
-import { createContext, useContext } from 'react';
+import { createContext, useCallback, useContext, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 import type { UserRole } from '../shellTypes';
 import {
@@ -8,6 +9,7 @@ import {
   type Theme,
   useTheme,
 } from './use-theme';
+import { useUserPreferences } from './use-user-preferences';
 
 interface SessionContextValue {
   role: UserRole;
@@ -19,6 +21,8 @@ interface SessionContextValue {
   userContrast: Contrast;
   resolvedContrast: ResolvedContrast;
   setUserContrast: (contrast: Contrast) => void;
+  projects: string[];
+  setProjects: (projects: string[]) => void;
 }
 
 const SessionContext = createContext<SessionContextValue | null>(null);
@@ -30,8 +34,38 @@ interface SessionProviderProps {
   tenantId: string;
 }
 
+export const PROJECT_FILTER_PARAM = 'project';
+
+/** localStorage key prefix for the per-user persisted project filter selection. */
+export const PROJECT_FILTER_STORAGE_PREFIX = 'osac/project-filter/';
+
+export const getProjectFilterStorageKey = (username: string) =>
+  `${PROJECT_FILTER_STORAGE_PREFIX}${username}`;
+
 export const SessionProvider = ({ children, role, username, tenantId }: SessionProviderProps) => {
   const themeProps = useTheme();
+
+  const [searchParams] = useSearchParams();
+  const param = searchParams.get(PROJECT_FILTER_PARAM);
+
+  // Persist the selection per user so it is recovered on the next visit. An
+  // explicit URL param wins over the stored value so shared/deep links behave.
+  const [storedProjects, setStoredProjects] = useUserPreferences(
+    getProjectFilterStorageKey(username),
+  );
+
+  const [projects, setProjectsState] = useState<string[]>(() => {
+    const initial = param ?? storedProjects;
+    return initial ? initial.split(',') : [];
+  });
+
+  const setProjects = useCallback(
+    (next: string[]) => {
+      setProjectsState(next);
+      setStoredProjects(next.join(','));
+    },
+    [setStoredProjects],
+  );
 
   return role ? (
     <SessionContext.Provider
@@ -39,6 +73,8 @@ export const SessionProvider = ({ children, role, username, tenantId }: SessionP
         role,
         username,
         tenantId,
+        projects,
+        setProjects,
         ...themeProps,
       }}
     >
@@ -52,5 +88,6 @@ export const useSession = (): SessionContextValue => {
   if (!ctx) {
     throw new Error('useSession must be used inside SessionProvider');
   }
+
   return ctx;
 };
