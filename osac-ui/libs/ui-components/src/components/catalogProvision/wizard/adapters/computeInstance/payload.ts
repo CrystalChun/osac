@@ -13,7 +13,8 @@ export const createEmptyComputeInstanceValues = (): ComputeInstanceWizardValues 
     image: { sourceRef: '' },
     instanceType: '',
     userData: '',
-    bootDisk: { sizeGib: '' },
+    bootDisk: { sizeGib: '', storageTier: '' },
+    additionalDisks: [],
     networking: {
       virtualNetwork: '',
       subnet: '',
@@ -21,6 +22,10 @@ export const createEmptyComputeInstanceValues = (): ComputeInstanceWizardValues 
     },
   },
 });
+
+// Tier is picked from a dropdown (a tier name), so it needs no trimming.
+const tierField = (storageTier: string): { storageTier?: string } =>
+  storageTier ? { storageTier } : {};
 
 export const buildComputeInstanceCreatePayload = (
   values: ComputeInstanceWizardValues,
@@ -60,7 +65,17 @@ export const buildComputeInstanceCreatePayload = (
 
   const bootDiskRaw = values.spec.bootDisk.sizeGib.trim();
   if (bootDiskRaw) {
-    spec.bootDisk = { sizeGib: Number(bootDiskRaw) };
+    spec.bootDisk = {
+      sizeGib: Number(bootDiskRaw),
+      ...tierField(values.spec.bootDisk.storageTier),
+    };
+  }
+
+  const additionalDisks = values.spec.additionalDisks
+    .filter((disk) => disk.sizeGib.trim())
+    .map((disk) => ({ sizeGib: Number(disk.sizeGib.trim()), ...tierField(disk.storageTier) }));
+  if (additionalDisks.length > 0) {
+    spec.additionalDisks = additionalDisks;
   }
 
   return {
