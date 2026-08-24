@@ -1,12 +1,12 @@
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { NetworkClass } from '@osac/types';
+import type { NetworkClass, Project } from '@osac/types';
 
 import { VirtualNetworkCreateModal } from './VirtualNetworkCreateModal';
 import * as networkingApi from '../../api/v1/networking';
 import { mockQueryResult } from '../../test-utils/query';
+import { renderWithProviders } from '../../test-utils/TestProviders';
 
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async (importOriginal) => {
@@ -25,6 +25,34 @@ vi.mock('../../api/v1/networking', async (importOriginal) => {
     useCreateVirtualNetwork: vi.fn(),
   };
 });
+
+const projects: Project[] = [
+  {
+    $typeName: 'osac.public.v1.Project',
+    id: 'project-1',
+    metadata: {
+      $typeName: 'osac.public.v1.Metadata',
+      displayName: '',
+      description: '',
+      name: 'my-project',
+      annotations: {},
+      creator: 'foo',
+      labels: {},
+      project: '',
+      tenant: 'foo',
+      version: 1,
+    },
+    spec: {
+      $typeName: 'osac.public.v1.ProjectSpec',
+      title: 'My Project',
+    },
+  } as Project,
+];
+
+const renderModal = (onClose: () => void) =>
+  renderWithProviders(<VirtualNetworkCreateModal onClose={onClose} />, {
+    apiFixtures: { projects },
+  });
 
 describe('VirtualNetworkCreateModal', () => {
   const mockOnClose = vi.fn();
@@ -51,7 +79,7 @@ describe('VirtualNetworkCreateModal', () => {
   });
 
   it('renders with Name and IPv4 CIDR fields', () => {
-    render(<VirtualNetworkCreateModal onClose={mockOnClose} />);
+    renderModal(mockOnClose);
 
     expect(screen.getByLabelText(/Name/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/IPv4 CIDR/i)).toBeInTheDocument();
@@ -60,21 +88,20 @@ describe('VirtualNetworkCreateModal', () => {
   });
 
   it('Create button stays enabled', () => {
-    render(<VirtualNetworkCreateModal onClose={mockOnClose} />);
+    renderModal(mockOnClose);
 
     const createButton = screen.getByRole('button', { name: /Create/i });
     expect(createButton).not.toBeDisabled();
   });
 
   it('renders IPv6 CIDR field as optional', () => {
-    render(<VirtualNetworkCreateModal onClose={mockOnClose} />);
+    renderModal(mockOnClose);
 
     expect(screen.getByLabelText(/IPv6 CIDR \(Optional\)/i)).toBeInTheDocument();
   });
 
   it('shows validation errors and does not submit when Name and CIDRs are empty', async () => {
-    const user = userEvent.setup();
-    render(<VirtualNetworkCreateModal onClose={mockOnClose} />);
+    const { user } = renderModal(mockOnClose);
 
     await user.click(screen.getByRole('button', { name: /Create/i }));
 
@@ -85,11 +112,12 @@ describe('VirtualNetworkCreateModal', () => {
   });
 
   it('calls create and navigates on successful submit', async () => {
-    const user = userEvent.setup();
     mutateAsync.mockResolvedValue({ id: 'vn-new' });
 
-    render(<VirtualNetworkCreateModal onClose={mockOnClose} />);
+    const { user } = renderModal(mockOnClose);
 
+    await user.click(screen.getByLabelText(/^Project/));
+    await user.click(screen.getByRole('option', { name: 'My Project' }));
     await user.type(screen.getByLabelText(/Name/i), 'vn-prod');
     await user.type(screen.getByLabelText(/IPv4 CIDR/i), '10.0.0.0/16');
     await user.click(screen.getByRole('button', { name: /Create/i }));
@@ -97,7 +125,7 @@ describe('VirtualNetworkCreateModal', () => {
     await waitFor(() => {
       expect(mutateAsync).toHaveBeenCalledWith(
         expect.objectContaining({
-          metadata: { name: 'vn-prod' },
+          metadata: { name: 'vn-prod', project: 'my-project' },
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           spec: expect.objectContaining({
             networkClass: { name: 'test-nc' },
@@ -110,14 +138,13 @@ describe('VirtualNetworkCreateModal', () => {
   });
 
   it('shows error alert when create fails', async () => {
-    const user = userEvent.setup();
     mutateAsync.mockRejectedValue(new Error('API error'));
     vi.mocked(networkingApi.useCreateVirtualNetwork).mockReturnValue({
       mutateAsync,
       error: new Error('API error'),
     } as unknown as ReturnType<typeof networkingApi.useCreateVirtualNetwork>);
 
-    render(<VirtualNetworkCreateModal onClose={mockOnClose} />);
+    const { user } = renderModal(mockOnClose);
 
     await user.type(screen.getByLabelText(/Name/i), 'vn-prod');
     await user.type(screen.getByLabelText(/IPv4 CIDR/i), '10.0.0.0/16');
@@ -133,7 +160,7 @@ describe('VirtualNetworkCreateModal', () => {
       mockQueryResult<NetworkClass[]>({ isLoading: true }),
     );
 
-    render(<VirtualNetworkCreateModal onClose={mockOnClose} />);
+    renderModal(mockOnClose);
 
     expect(screen.getByRole('button', { name: /Create/i })).toBeInTheDocument();
   });
@@ -141,7 +168,7 @@ describe('VirtualNetworkCreateModal', () => {
   it('renders when no network classes are available', () => {
     vi.mocked(networkingApi.useNetworkClasses).mockReturnValue(mockQueryResult<NetworkClass[]>());
 
-    render(<VirtualNetworkCreateModal onClose={mockOnClose} />);
+    renderModal(mockOnClose);
 
     expect(screen.getByRole('button', { name: /Create/i })).toBeInTheDocument();
   });

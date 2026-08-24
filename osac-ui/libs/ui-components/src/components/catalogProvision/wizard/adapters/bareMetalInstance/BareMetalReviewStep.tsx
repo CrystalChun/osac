@@ -1,12 +1,23 @@
 import {
+  Alert,
+  Bullseye,
   DescriptionList,
   DescriptionListDescription,
   DescriptionListGroup,
   DescriptionListTerm,
+  Spinner,
+  Stack,
+  StackItem,
 } from '@patternfly/react-core';
 import { useFormikContext } from 'formik';
 
+import { useProjects } from '@osac/ui-components/api/v1/project';
 import { CatalogItem } from '@osac/ui-components/components/catalog/catalogItemDisplay';
+import {
+  fullProjectPathToQueryFilter,
+  getProjectName,
+} from '@osac/ui-components/components/Project/utils';
+import { getErrorMessage } from '@osac/ui-components/utils/error';
 
 import { BareMetalInstanceWizardValues } from './fields';
 import { useTranslation } from '../../../../../hooks/useTranslation';
@@ -20,33 +31,66 @@ export const BareMetalReviewStep = ({ catalogItem }: Props) => {
   const { t } = useTranslation();
   const { values } = useFormikContext<BareMetalInstanceWizardValues>();
 
-  return (
-    <DescriptionList isHorizontal isCompact aria-label={t('catalogProvision.steps.review.title')}>
-      <DescriptionListGroup>
-        <DescriptionListTerm>{t('Catalog item')}</DescriptionListTerm>
-        <DescriptionListDescription>
-          {catalogItem?.title || catalogItem?.metadata?.name || '—'}
-        </DescriptionListDescription>
-      </DescriptionListGroup>
+  const { data, isLoading, error } = useProjects({
+    filter: fullProjectPathToQueryFilter(values.metadata.project),
+  });
 
-      <DescriptionListGroup>
-        <DescriptionListTerm>{t('Name')}</DescriptionListTerm>
-        <DescriptionListDescription>
-          {formatReviewScalar(values.metadata.name)}
-        </DescriptionListDescription>
-      </DescriptionListGroup>
-      <DescriptionListGroup>
-        <DescriptionListTerm>{t('SSH public key')}</DescriptionListTerm>
-        <DescriptionListDescription>
-          {formatReviewScalar(values.spec.sshKey)}
-        </DescriptionListDescription>
-      </DescriptionListGroup>
-      <DescriptionListGroup>
-        <DescriptionListTerm>{t('User data')}</DescriptionListTerm>
-        <DescriptionListDescription>
-          {formatReviewScalar(values.spec.userData, true)}
-        </DescriptionListDescription>
-      </DescriptionListGroup>
-    </DescriptionList>
+  if (isLoading) {
+    return (
+      <Bullseye>
+        <Spinner />
+      </Bullseye>
+    );
+  }
+
+  return (
+    <Stack hasGutter>
+      {!!error && (
+        <StackItem>
+          <Alert variant="warning" isInline title={t('Failed to fetch project')}>
+            {getErrorMessage(error)}
+          </Alert>
+        </StackItem>
+      )}
+      <StackItem>
+        <DescriptionList
+          isHorizontal
+          isCompact
+          aria-label={t('catalogProvision.steps.review.title')}
+        >
+          <DescriptionListGroup>
+            <DescriptionListTerm>{t('Catalog item')}</DescriptionListTerm>
+            <DescriptionListDescription>
+              {catalogItem?.title || catalogItem?.metadata?.name || '—'}
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+
+          <DescriptionListGroup>
+            <DescriptionListTerm>{t('Project')}</DescriptionListTerm>
+            <DescriptionListDescription>
+              {data?.length === 1 ? getProjectName(data[0], t) : values.metadata.project}
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+          <DescriptionListGroup>
+            <DescriptionListTerm>{t('Name')}</DescriptionListTerm>
+            <DescriptionListDescription>
+              {formatReviewScalar(values.metadata.name)}
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+          <DescriptionListGroup>
+            <DescriptionListTerm>{t('SSH public key')}</DescriptionListTerm>
+            <DescriptionListDescription>
+              {formatReviewScalar(values.spec.sshKey)}
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+          <DescriptionListGroup>
+            <DescriptionListTerm>{t('User data')}</DescriptionListTerm>
+            <DescriptionListDescription>
+              {formatReviewScalar(values.spec.userData, true)}
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+        </DescriptionList>
+      </StackItem>
+    </Stack>
   );
 };

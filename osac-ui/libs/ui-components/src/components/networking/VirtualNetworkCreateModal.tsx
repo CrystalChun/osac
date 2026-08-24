@@ -19,10 +19,15 @@ import OsacForm from '../../components/Form/OsacForm';
 import { useTranslation } from '../../hooks/useTranslation';
 import { getErrorMessage } from '../../utils/error';
 import { buildCidrSchema } from '../../validation/cidr-validation';
+import NameField from '../catalogProvision/wizard/fields/NameField';
+import ProjectField from '../Form/ProjectField';
 import { SelectField } from '../Form/SelectField';
 
 type VirtualNetworkCreateFormValues = {
-  name: string;
+  metadata: {
+    name: string;
+    project: string;
+  };
   networkClass: string;
   ipv4Cidr: string;
   ipv6Cidr: string;
@@ -44,7 +49,8 @@ const VirtualNetworkCreateForm = () => {
 
   return (
     <OsacForm>
-      <InputField name="name" label={t('Name')} fieldId="vn-name" isRequired />
+      <ProjectField />
+      <NameField />
       <SelectField
         fieldId="networkClass"
         name="networkClass"
@@ -84,7 +90,9 @@ export const VirtualNetworkCreateModal = ({ onClose }: VirtualNetworkCreateModal
   const validationSchema = useMemo(
     () =>
       Yup.object({
-        name: Yup.string().required(t('Name is required')),
+        metadata: Yup.object({
+          name: Yup.string().required(t('Name is required')),
+        }),
         networkClass: Yup.string().required(t('Network class is required')),
         ipv4Cidr: buildCidrSchema(t, 'ipv4'),
         ipv6Cidr: buildCidrSchema(t, 'ipv6'),
@@ -96,14 +104,17 @@ export const VirtualNetworkCreateModal = ({ onClose }: VirtualNetworkCreateModal
 
   return (
     <Formik<VirtualNetworkCreateFormValues>
-      initialValues={{ name: '', networkClass: '', ipv4Cidr: '', ipv6Cidr: '' }}
+      initialValues={{
+        metadata: { name: '', project: '' },
+        networkClass: '',
+        ipv4Cidr: '',
+        ipv6Cidr: '',
+      }}
       validationSchema={validationSchema}
       onSubmit={async (values) => {
         try {
           const result = await create({
-            metadata: {
-              name: values.name,
-            },
+            metadata: values.metadata,
             spec: {
               networkClass: {
                 name: values.networkClass,

@@ -46,7 +46,7 @@ const clusterCatalogItem: ClusterCatalogItem = {
 
 const emptyValues: ClusterWizardValues = {
   catalogItemId: '',
-  metadata: { name: '' },
+  metadata: { name: '', project: '' },
   spec: {
     sshPublicKey: '',
     pullSecret: '',
@@ -105,7 +105,7 @@ describe('buildClusterStepSchema', () => {
     const errors = await validateStep('general', {
       ...emptyValues,
       catalogItemId: clusterCatalogItem.id,
-      metadata: { name: 'MyCluster' },
+      metadata: { name: 'MyCluster', project: '' },
       spec: {
         ...emptyValues.spec,
         pullSecret: '{"auths": {}}',
@@ -122,7 +122,7 @@ describe('buildClusterStepSchema', () => {
     const errors = await validateStep('general', {
       ...emptyValues,
       catalogItemId: clusterCatalogItem.id,
-      metadata: { name: 'my-cluster' },
+      metadata: { name: 'my-cluster', project: '' },
       spec: {
         ...emptyValues.spec,
         pullSecret: '{"foo":"bar"}',
@@ -140,7 +140,7 @@ describe('buildClusterStepSchema', () => {
     const errors = await validateStep('general', {
       ...emptyValues,
       catalogItemId: clusterCatalogItem.id,
-      metadata: { name: 'my-cluster' },
+      metadata: { name: 'my-cluster', project: '' },
       spec: {
         ...emptyValues.spec,
         pullSecret: '{"auths": {}}',
@@ -159,7 +159,7 @@ describe('buildClusterStepSchema', () => {
     const errors = await validateStep('general', {
       ...emptyValues,
       catalogItemId: clusterCatalogItem.id,
-      metadata: { name: 'my-cluster' },
+      metadata: { name: 'my-cluster', project: '' },
     });
     expect(errors).toEqual({
       spec: { pullSecret: 'Pull secret is required' },
@@ -173,7 +173,7 @@ describe('buildClusterStepSchema', () => {
       {
         ...emptyValues,
         catalogItemId: clusterCatalogItem.id,
-        metadata: { name: 'my-cluster' },
+        metadata: { name: 'my-cluster', project: '' },
         spec: {
           ...emptyValues.spec,
           pullSecret: '{"auths": {}}',
@@ -194,7 +194,7 @@ describe('buildClusterStepSchema', () => {
       {
         ...emptyValues,
         catalogItemId: clusterCatalogItem.id,
-        metadata: { name: 'my-cluster' },
+        metadata: { name: 'my-cluster', project: '' },
         spec: {
           ...emptyValues.spec,
           pullSecret: '{"auths": {}}',
@@ -216,7 +216,7 @@ describe('buildClusterStepSchema', () => {
       {
         ...emptyValues,
         catalogItemId: clusterCatalogItem.id,
-        metadata: { name: 'my-cluster' },
+        metadata: { name: 'my-cluster', project: '' },
         spec: {
           ...emptyValues.spec,
           pullSecret: '{"auths": {}}',
@@ -246,7 +246,7 @@ describe('buildClusterStepSchema', () => {
       {
         ...emptyValues,
         catalogItemId: clusterCatalogItem.id,
-        metadata: { name: 'my-cluster' },
+        metadata: { name: 'my-cluster', project: '' },
         spec: {
           ...emptyValues.spec,
           pullSecret: '{"auths": {}}',

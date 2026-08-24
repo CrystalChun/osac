@@ -48,7 +48,7 @@ const vmCatalogItem: ComputeInstanceCatalogItem = {
 
 const emptyValues: ComputeInstanceWizardValues = {
   catalogItemId: '',
-  metadata: { name: '' },
+  metadata: { name: '', project: '' },
   spec: {
     sshPublicKey: '',
     image: { sourceRef: '' },
@@ -109,7 +109,7 @@ describe('buildComputeInstanceStepSchema', () => {
     const errors = await validateStep('general', {
       ...emptyValues,
       catalogItemId: vmCatalogItem.id,
-      metadata: { name: '' },
+      metadata: { name: '', project: '' },
     });
     expect(errors).toEqual({ metadata: { name: 'Name is required' } });
   });
@@ -118,7 +118,7 @@ describe('buildComputeInstanceStepSchema', () => {
     const errors = await validateStep('general', {
       ...emptyValues,
       catalogItemId: vmCatalogItem.id,
-      metadata: { name: 'MyVM' },
+      metadata: { name: 'MyVM', project: '' },
     });
     expect(errors).toEqual({
       metadata: {
@@ -131,7 +131,7 @@ describe('buildComputeInstanceStepSchema', () => {
     const errors = await validateStep('general', {
       ...emptyValues,
       catalogItemId: vmCatalogItem.id,
-      metadata: { name: 'my-vm' },
+      metadata: { name: 'my-vm', project: '' },
     });
     expect(errors).toEqual({});
   });
@@ -142,7 +142,7 @@ describe('buildComputeInstanceStepSchema', () => {
       {
         ...emptyValues,
         catalogItemId: vmCatalogItem.id,
-        metadata: { name: 'web-01' },
+        metadata: { name: 'web-01', project: '' },
         spec: {
           ...emptyValues.spec,
           image: { sourceRef: 'quay.io/example/rhel9' },
@@ -163,7 +163,7 @@ describe('buildComputeInstanceStepSchema', () => {
       {
         ...emptyValues,
         catalogItemId: vmCatalogItem.id,
-        metadata: { name: 'web-01' },
+        metadata: { name: 'web-01', project: '' },
         spec: {
           ...emptyValues.spec,
           image: { sourceRef: 'quay.io/example/rhel9' },
@@ -188,7 +188,7 @@ describe('buildComputeInstanceStepSchema', () => {
       {
         ...emptyValues,
         catalogItemId: vmCatalogItem.id,
-        metadata: { name: 'web-01' },
+        metadata: { name: 'web-01', project: '' },
         spec: {
           ...emptyValues.spec,
           image: { sourceRef: 'quay.io/example/rhel9' },
@@ -221,7 +221,7 @@ describe('buildComputeInstanceStepSchema', () => {
       {
         ...emptyValues,
         catalogItemId: vmCatalogItem.id,
-        metadata: { name: 'web-01' },
+        metadata: { name: 'web-01', project: '' },
       },
       catalogItem,
     );

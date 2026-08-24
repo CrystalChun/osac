@@ -17,11 +17,11 @@ import * as Yup from 'yup';
 import type { SecurityGroupSchema } from '@osac/types';
 
 import { useCreateSecurityGroup, useVirtualNetworks } from '../../api/v1/networking';
-import { InputField } from '../../components/Form/InputField';
 import OsacForm from '../../components/Form/OsacForm';
 import { SelectField } from '../../components/Form/SelectField';
 import { useTranslation } from '../../hooks/useTranslation';
 import { getErrorMessage } from '../../utils/error';
+import NameField from '../catalogProvision/wizard/fields/NameField';
 
 interface SecurityGroupCreateModalProps {
   onClose: () => void;
@@ -30,13 +30,17 @@ interface SecurityGroupCreateModalProps {
 }
 
 interface FormValues {
-  name: string;
+  metadata: {
+    name: string;
+  };
   virtualNetwork: string;
 }
 
 const validationSchema = (t: TFunction) =>
   Yup.object({
-    name: Yup.string().required(t('Name is required')),
+    metadata: Yup.object({
+      name: Yup.string().required(t('Name is required')),
+    }),
     virtualNetwork: Yup.string().required(t('Virtual network is required')),
   });
 
@@ -58,14 +62,20 @@ export const SecurityGroupCreateModal = ({
     <Formik<FormValues>
       enableReinitialize
       initialValues={{
-        name: '',
+        metadata: {
+          name: '',
+        },
         virtualNetwork: virtualNetworkId || '',
       }}
       validationSchema={validationSchema(t)}
       onSubmit={async (values) => {
         try {
           const body: MessageInitShape<typeof SecurityGroupSchema> = {
-            metadata: { name: values.name },
+            metadata: {
+              name: values.metadata.name,
+              project: virtualNetworks.find(({ id }) => id === values.virtualNetwork)?.metadata
+                ?.project,
+            },
             spec: {
               virtualNetwork: {
                 id: values.virtualNetwork,
@@ -90,25 +100,24 @@ export const SecurityGroupCreateModal = ({
         >
           <ModalHeader title={t('Create security group')} labelId="sg-create-modal-title" />
           <ModalBody>
-            <OsacForm>
-              <Stack hasGutter>
-                {!!createSecurityGroup.error && (
-                  <StackItem>
-                    <Alert variant="danger" title={t('Error')} isInline>
-                      {getErrorMessage(createSecurityGroup.error)}
-                    </Alert>
-                  </StackItem>
-                )}
-
-                {!!vnError && (
-                  <StackItem>
-                    <Alert variant="danger" title={t('Error loading virtual networks')} isInline>
-                      {getErrorMessage(vnError)}
-                    </Alert>
-                  </StackItem>
-                )}
-
+            <Stack hasGutter>
+              {!!createSecurityGroup.error && (
                 <StackItem>
+                  <Alert variant="danger" title={t('Error')} isInline>
+                    {getErrorMessage(createSecurityGroup.error)}
+                  </Alert>
+                </StackItem>
+              )}
+
+              {!!vnError && (
+                <StackItem>
+                  <Alert variant="danger" title={t('Error loading virtual networks')} isInline>
+                    {getErrorMessage(vnError)}
+                  </Alert>
+                </StackItem>
+              )}
+              <StackItem>
+                <OsacForm>
                   <SelectField
                     name="virtualNetwork"
                     label={t('Virtual Network')}
@@ -119,20 +128,17 @@ export const SecurityGroupCreateModal = ({
                     placeholder={t('Select a virtual network')}
                     options={virtualNetworkOptions}
                   />
-                </StackItem>
-
-                <StackItem>
-                  <InputField name="name" label={t('Name')} fieldId="sg-name" isRequired />
-                </StackItem>
-              </Stack>
-            </OsacForm>
+                  <NameField />
+                </OsacForm>
+              </StackItem>
+            </Stack>
           </ModalBody>
           <ModalFooter>
             <Button
               variant="primary"
               onClick={submitForm}
               isLoading={isSubmitting}
-              isDisabled={isSubmitting || !isValid}
+              isDisabled={isSubmitting || !isValid || isLoading}
             >
               {t('Create')}
             </Button>

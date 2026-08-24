@@ -19,6 +19,7 @@ export interface BareMetalInstanceWizardValues {
   catalogItemId: string;
   metadata: {
     name: string;
+    project: string;
   };
   spec: {
     sshKey: string;
@@ -28,7 +29,7 @@ export interface BareMetalInstanceWizardValues {
 
 export const createEmptyBareMetalInstanceValues = (): BareMetalInstanceWizardValues => ({
   catalogItemId: '',
-  metadata: { name: '' },
+  metadata: { name: '', project: '' },
   spec: {
     sshKey: '',
     userData: '',

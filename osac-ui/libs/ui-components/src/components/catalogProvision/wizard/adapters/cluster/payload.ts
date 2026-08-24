@@ -7,7 +7,7 @@ import { createEmptyNodeSetRow } from './fields';
 
 export const createEmptyClusterValues = (): ClusterWizardValues => ({
   catalogItemId: '',
-  metadata: { name: '' },
+  metadata: { name: '', project: '' },
   spec: {
     sshPublicKey: '',
     pullSecret: '',
@@ -63,7 +63,7 @@ export const buildClusterCreatePayload = (
   }
 
   return {
-    metadata: { name: values.metadata.name.trim() },
+    metadata: { name: values.metadata.name.trim(), project: values.metadata.project },
     spec,
   };
 };

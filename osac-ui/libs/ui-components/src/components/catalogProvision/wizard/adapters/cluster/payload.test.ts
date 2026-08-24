@@ -47,7 +47,7 @@ describe('buildClusterCreatePayload', () => {
     const values = {
       ...createEmptyClusterValues(),
       catalogItemId: clusterCatalogItem.id,
-      metadata: { name: 'my-cluster' },
+      metadata: { name: 'my-cluster', project: '' },
       spec: {
         ...createEmptyClusterValues().spec,
         sshPublicKey: 'ssh-rsa AAAA',
@@ -68,7 +68,7 @@ describe('buildClusterCreatePayload', () => {
     };
 
     expect(buildClusterCreatePayload(values, clusterCatalogItem)).toEqual({
-      metadata: { name: 'my-cluster' },
+      metadata: { name: 'my-cluster', project: '' },
       spec: {
         catalogItem: { id: clusterCatalogItem.id },
         sshPublicKey: 'ssh-rsa AAAA',
@@ -88,7 +88,7 @@ describe('buildClusterCreatePayload', () => {
     const values = {
       ...createEmptyClusterValues(),
       catalogItemId: clusterCatalogItem.id,
-      metadata: { name: 'empty-pools' },
+      metadata: { name: 'empty-pools', project: '' },
       spec: {
         ...createEmptyClusterValues().spec,
         pullSecret: 'secret',
@@ -113,7 +113,7 @@ describe('buildClusterCreatePayload', () => {
     const values = {
       ...createEmptyClusterValues(),
       catalogItemId: clusterCatalogItem.id,
-      metadata: { name: 'filtered-pools' },
+      metadata: { name: 'filtered-pools', project: '' },
       spec: {
         ...createEmptyClusterValues().spec,
         pullSecret: 'secret',
@@ -131,6 +131,27 @@ describe('buildClusterCreatePayload', () => {
     const payload = buildClusterCreatePayload(values, clusterCatalogItem);
     expect(payload.spec?.nodeSets).toEqual({
       acme_1tb: { hostType: { id: 'acme_1tb' }, size: 3 },
+    });
+  });
+
+  it.each([
+    ['default (no project)', ''],
+    ['top-level project', 'my-project'],
+    ['nested project path', 'parent.child'],
+  ])('passes the selected %s through to metadata.project', (_label, project) => {
+    const values = {
+      ...createEmptyClusterValues(),
+      catalogItemId: clusterCatalogItem.id,
+      metadata: { name: 'my-cluster', project },
+      spec: {
+        ...createEmptyClusterValues().spec,
+        pullSecret: 'secret',
+      },
+    };
+
+    expect(buildClusterCreatePayload(values, clusterCatalogItem).metadata).toEqual({
+      name: 'my-cluster',
+      project,
     });
   });
 });

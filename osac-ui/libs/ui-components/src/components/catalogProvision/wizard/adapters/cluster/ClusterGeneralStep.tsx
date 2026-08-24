@@ -1,4 +1,5 @@
 import type { ClusterCatalogItem } from '@osac/types';
+import ProjectField from '@osac/ui-components/components/Form/ProjectField';
 
 import { CLUSTER_SSH_KEY_FORM_PATH, CLUSTER_SSH_KEY_WIRE_PATH } from './fields';
 import OsacForm from '../../../../Form/OsacForm';
@@ -12,6 +13,7 @@ interface ClusterGeneralStepProps {
 
 const ClusterGeneralStep = ({ catalogItem }: ClusterGeneralStepProps) => (
   <OsacForm>
+    <ProjectField />
     <NameField />
     <SshKeyField
       catalogItem={catalogItem}

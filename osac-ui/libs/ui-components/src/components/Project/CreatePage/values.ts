@@ -8,7 +8,7 @@ export interface ProjectCreateValues {
 }
 
 export const initialValues: ProjectCreateValues = {
-  metadata: { name: '', project: 'default' },
+  metadata: { name: '', project: '' },
   title: '',
   description: '',
 };

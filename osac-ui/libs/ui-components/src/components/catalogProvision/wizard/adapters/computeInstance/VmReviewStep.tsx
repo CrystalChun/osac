@@ -17,7 +17,12 @@ import {
   useSubnet,
   useVirtualNetwork,
 } from '@osac/ui-components/api/v1/networking';
+import { useProjects } from '@osac/ui-components/api/v1/project';
 import { CatalogItem } from '@osac/ui-components/components/catalog/catalogItemDisplay';
+import {
+  fullProjectPathToQueryFilter,
+  getProjectName,
+} from '@osac/ui-components/components/Project/utils';
 import { formatInstanceTypeReviewLabelFromType } from '@osac/ui-components/components/vm/utils';
 import { getErrorMessage } from '@osac/ui-components/utils/error';
 
@@ -59,7 +64,13 @@ export const VmReviewStep = ({ catalogItem }: Props) => {
     filter: `this.id in [${values.spec.networking.securityGroups.map((sc) => `"${sc}"`).join(',')}]`,
   });
 
-  if (instanceLoading || virtNetLoading || subnetLoading || scLoading) {
+  const {
+    data: projects,
+    isLoading: projectsLoading,
+    error: projectsError,
+  } = useProjects({ filter: fullProjectPathToQueryFilter(values.metadata.project) });
+
+  if (instanceLoading || virtNetLoading || subnetLoading || scLoading || projectsLoading) {
     return (
       <Bullseye>
         <Spinner />
@@ -97,6 +108,14 @@ export const VmReviewStep = ({ catalogItem }: Props) => {
           </Alert>
         </StackItem>
       )}
+
+      {!!projectsError && (
+        <StackItem>
+          <Alert variant="warning" isInline title={t('Failed to fetch project')}>
+            {getErrorMessage(projectsError)}
+          </Alert>
+        </StackItem>
+      )}
       <StackItem>
         <DescriptionList
           isHorizontal
@@ -110,6 +129,12 @@ export const VmReviewStep = ({ catalogItem }: Props) => {
             </DescriptionListDescription>
           </DescriptionListGroup>
 
+          <DescriptionListGroup>
+            <DescriptionListTerm>{t('Project')}</DescriptionListTerm>
+            <DescriptionListDescription>
+              {projects?.length === 1 ? getProjectName(projects[0], t) : values.metadata.project}
+            </DescriptionListDescription>
+          </DescriptionListGroup>
           <DescriptionListGroup>
             <DescriptionListTerm>{t('Name')}</DescriptionListTerm>
             <DescriptionListDescription>
