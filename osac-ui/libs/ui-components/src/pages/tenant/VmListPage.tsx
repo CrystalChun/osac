@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Alert,
   Button,
@@ -20,39 +20,20 @@ import ListPage from '@osac/ui-components/components/Page/ListPage';
 import ListPageBody from '@osac/ui-components/components/Page/ListPageBody';
 import { SubtleContent } from '@osac/ui-components/components/SubtleContent/SubtleContent';
 import { VmTable } from '@osac/ui-components/components/vm/VmTable';
+import {
+  SEARCH_PARAM,
+  useArrayPageFilter,
+  usePageFilter,
+} from '@osac/ui-components/hooks/use-page-filter';
 import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
 import { getErrorMessage } from '@osac/ui-components/utils/error';
 
 type VmStatusFilter = 'running' | 'stopped';
 
 const STATUS_FILTER_PARAM = 'status';
-const SEARCH_PARAM = 'search';
-const VM_STATUS_FILTER_VALUES: readonly VmStatusFilter[] = ['running', 'stopped'];
 
 const isVmStatusFilter = (value: string): value is VmStatusFilter =>
   value === 'running' || value === 'stopped';
-
-const parseStatusFilters = (searchParams: URLSearchParams): VmStatusFilter[] => {
-  const raw = searchParams.get(STATUS_FILTER_PARAM);
-  if (!raw) {
-    return [];
-  }
-  const seen = new Set<VmStatusFilter>();
-  const filters: VmStatusFilter[] = [];
-  for (const value of raw.split(',')) {
-    const trimmed = value.trim();
-    if (isVmStatusFilter(trimmed) && !seen.has(trimmed)) {
-      seen.add(trimmed);
-      filters.push(trimmed);
-    }
-  }
-  return filters;
-};
-
-const serializeStatusFilters = (filters: VmStatusFilter[]): string | null =>
-  filters.length > 0 ? filters.join(',') : null;
-
-const parseSearch = (searchParams: URLSearchParams): string => searchParams.get(SEARCH_PARAM) ?? '';
 
 const vmMatchesStatusFilter = (vm: ComputeInstance, filter: VmStatusFilter): boolean => {
   const state = vm.status?.state;
@@ -62,17 +43,14 @@ const vmMatchesStatusFilter = (vm: ComputeInstance, filter: VmStatusFilter): boo
   return state === ComputeInstanceState.STOPPED;
 };
 
-const statusesWithItems = (vms: ComputeInstance[]): VmStatusFilter[] =>
-  VM_STATUS_FILTER_VALUES.filter((status) => vms.some((vm) => vmMatchesStatusFilter(vm, status)));
-
 export const VmListPage = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const hasInitializedStatusFilters = useRef(false);
-
-  const statusFilters = useMemo(() => parseStatusFilters(searchParams), [searchParams]);
-  const search = useMemo(() => parseSearch(searchParams), [searchParams]);
+  const [search, setSearch] = usePageFilter(SEARCH_PARAM);
+  const [statusFilters, setStatusFilters] = useArrayPageFilter(
+    STATUS_FILTER_PARAM,
+    isVmStatusFilter,
+  );
 
   const { data: vms = [], isLoading, error } = useComputeInstances();
   const {
@@ -80,67 +58,6 @@ export const VmListPage = () => {
     isLoading: isInstanceTypesLoading,
     error: instanceTypesError,
   } = useInstanceTypes();
-
-  useEffect(() => {
-    if (hasInitializedStatusFilters.current || isLoading || error) {
-      return;
-    }
-    hasInitializedStatusFilters.current = true;
-
-    if (searchParams.has(STATUS_FILTER_PARAM)) {
-      return;
-    }
-
-    const serialized = serializeStatusFilters(statusesWithItems(vms));
-    if (!serialized) {
-      return;
-    }
-
-    setSearchParams(
-      (prev) => {
-        const next = new URLSearchParams(prev);
-        next.set(STATUS_FILTER_PARAM, serialized);
-        return next;
-      },
-      { replace: true },
-    );
-  }, [error, isLoading, searchParams, setSearchParams, vms]);
-
-  const toggleStatusFilter = (value: VmStatusFilter) => {
-    setSearchParams(
-      (prev) => {
-        const next = new URLSearchParams(prev);
-        const current = parseStatusFilters(next);
-        const updated = current.includes(value)
-          ? current.filter((option) => option !== value)
-          : [...current, value];
-        const serialized = serializeStatusFilters(updated);
-        if (serialized) {
-          next.set(STATUS_FILTER_PARAM, serialized);
-        } else {
-          next.set(STATUS_FILTER_PARAM, '');
-        }
-        return next;
-      },
-      { replace: true },
-    );
-  };
-
-  const setSearch = (value: string) => {
-    setSearchParams(
-      (prev) => {
-        const next = new URLSearchParams(prev);
-        const trimmed = value.trim();
-        if (!trimmed) {
-          next.delete(SEARCH_PARAM);
-        } else {
-          next.set(SEARCH_PARAM, value);
-        }
-        return next;
-      },
-      { replace: true },
-    );
-  };
 
   const statusFilterOptions = useMemo<ReadonlyArray<{ value: VmStatusFilter; label: string }>>(
     () => [
@@ -159,14 +76,15 @@ export const VmListPage = () => {
   );
 
   const filteredVms = useMemo(() => {
-    if (statusFilters.length === 0) {
-      return [];
-    }
     const searchTerm = search.trim().toLowerCase();
+    if (statusFilters.length === 0 && !searchTerm) {
+      return vms;
+    }
     return vms.filter((vm) => {
       const name = vm.metadata?.name ?? '';
       const matchesSearch = !searchTerm || name.toLowerCase().includes(searchTerm);
-      const matchesStatus = statusFilters.some((filter) => vmMatchesStatusFilter(vm, filter));
+      const matchesStatus =
+        !statusFilters.length || statusFilters.some((filter) => vmMatchesStatusFilter(vm, filter));
       return matchesSearch && matchesStatus;
     });
   }, [search, statusFilters, vms]);
@@ -210,7 +128,7 @@ export const VmListPage = () => {
                       }
                       buttonId={`vm-filter-status-${option.value}`}
                       isSelected={statusFilters.includes(option.value)}
-                      onChange={() => toggleStatusFilter(option.value)}
+                      onChange={() => setStatusFilters(option.value)}
                     />
                   ))}
                 </ToggleGroup>

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Button,
@@ -17,12 +17,13 @@ import ListPage from '@osac/ui-components/components/Page/ListPage';
 import ListPageBody from '@osac/ui-components/components/Page/ListPageBody';
 import { Timestamp } from '@osac/ui-components/components/Primitives/Timestamp';
 import { SubtleContent } from '@osac/ui-components/components/SubtleContent/SubtleContent';
+import { SEARCH_PARAM, usePageFilter } from '@osac/ui-components/hooks/use-page-filter';
 import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
 
 export const BareMetalListPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = usePageFilter(SEARCH_PARAM);
 
   const { data: instances = [], isLoading, error } = useBareMetalInstances();
 

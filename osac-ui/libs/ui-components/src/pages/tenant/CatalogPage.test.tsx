@@ -251,8 +251,8 @@ describe('CatalogPage', () => {
       expect(screen.getByText(clusterCatalogItem.title)).toBeInTheDocument();
     });
 
-    // Default auto-selects every type that has items; deselect VMs to leave clusters only.
-    await user.click(screen.getByRole('button', { name: /Virtual Machines/ }));
+    // With no type filter every type is shown; selecting Clusters narrows to clusters only.
+    await user.click(screen.getByRole('button', { name: /Clusters/ }));
 
     await waitFor(() => {
       expect(screen.getByText(clusterCatalogItem.title)).toBeInTheDocument();
@@ -260,7 +260,7 @@ describe('CatalogPage', () => {
     expect(screen.queryByText(vmCatalogItem.title)).not.toBeInTheDocument();
   });
 
-  it('shows an error from any loaded catalog type', async () => {
+  it('shows an error from a failed catalog type alongside items that loaded', async () => {
     renderCatalogPage(
       createCatalogPageTransport({
         clusterError: Object.assign(new Error(), { name: 'UnauthorizedError' }),
@@ -270,7 +270,8 @@ describe('CatalogPage', () => {
     await waitFor(() => {
       expect(screen.getByText('Unauthorized')).toBeInTheDocument();
     });
-    expect(screen.queryByText(vmCatalogItem.title)).not.toBeInTheDocument();
+    // VMs loaded successfully, so their items stay visible next to the error.
+    expect(screen.getByText(vmCatalogItem.title)).toBeInTheDocument();
     expect(screen.queryByText(clusterCatalogItem.title)).not.toBeInTheDocument();
   });
 
@@ -284,7 +285,8 @@ describe('CatalogPage', () => {
     });
 
     expect(screen.queryByText('Unauthorized')).not.toBeInTheDocument();
-    expect(screen.getByRole('textbox', { name: 'Filter catalog by keyword' })).toBeDisabled();
+    // Clusters and bare metal loaded successfully, so search stays enabled despite the VM error.
+    expect(screen.getByRole('textbox', { name: 'Filter catalog by keyword' })).toBeEnabled();
   });
 
   it('shows an empty state when no catalog items are returned', async () => {
