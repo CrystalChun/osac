@@ -21,6 +21,10 @@ export const VmStorageStep = ({ catalogItem }: Props) => {
     () => getCatalogFieldOverlay('spec.boot_disk.size_gib', definitions, t('Boot disk')),
     [definitions, t],
   );
+  const storageTierOverlay = useMemo(
+    () => getCatalogFieldOverlay('spec.boot_disk.storage_tier', definitions, t('Storage tier')),
+    [definitions, t],
+  );
 
   if (!catalogItem) {
     return null;
@@ -39,8 +43,9 @@ export const VmStorageStep = ({ catalogItem }: Props) => {
       />
       <StorageTierSelectField
         name="spec.bootDisk.storageTier"
-        label={t('Storage tier')}
+        label={storageTierOverlay.label}
         fieldId="vm-boot-disk-storage-tier"
+        isLocked={!storageTierOverlay.editable}
       />
     </OsacForm>
   );

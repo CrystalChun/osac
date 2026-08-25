@@ -43,8 +43,14 @@ export const applyVmCatalogConfigurationDefaults = (
     definitions,
     t('catalogProvision.vm.fields.bootDisk'),
   );
+  const storageTierOverlay = getCatalogFieldOverlay(
+    'spec.boot_disk.storage_tier',
+    definitions,
+    t('Storage tier'),
+  );
 
   setDefault(helpers, 'spec.image.sourceRef', overlayDefaultToFormValue(imageOverlay));
   setDefault(helpers, 'spec.userData', overlayDefaultToFormValue(userDataOverlay));
   setDefault(helpers, 'spec.bootDisk.sizeGib', overlayDefaultToFormValue(bootDiskOverlay) ?? '');
+  setDefault(helpers, 'spec.bootDisk.storageTier', overlayDefaultToFormValue(storageTierOverlay));
 };
