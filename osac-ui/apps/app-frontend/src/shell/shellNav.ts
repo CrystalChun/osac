@@ -52,6 +52,12 @@ const getAdminNav = (t: TFunction): NavRow[] => [
         label: t('Instance types'),
         path: '/admin/infrastructure/instance-types',
       },
+      {
+        kind: 'link',
+        id: 'disk-images',
+        label: t('Disk images'),
+        path: '/admin/infrastructure/disk-images',
+      },
     ],
   },
   getTenantAdminSection(t),
