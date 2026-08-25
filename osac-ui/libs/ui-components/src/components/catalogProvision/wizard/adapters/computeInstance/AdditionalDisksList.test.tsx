@@ -80,7 +80,9 @@ describe('AdditionalDisksList', () => {
   });
 
   it('reports the original array index, not rendered position, for a row after a hidden one', async () => {
-    const { user, onEdit, onDelete } = renderList(
+    // Delete stays enabled while an editor is open (see "disables Add and Edit" test below for
+    // why Edit does not), so it's the only action clickable in this scenario.
+    const { user, onDelete } = renderList(
       [
         { sizeGib: '10', storageTier: 'fast' },
         { sizeGib: '20', storageTier: 'bulk' },
@@ -89,13 +91,25 @@ describe('AdditionalDisksList', () => {
       1,
     );
 
-    await waitFor(() => expect(screen.getAllByRole('button', { name: 'Edit' })).toHaveLength(2));
+    await waitFor(() => expect(screen.getAllByRole('button', { name: 'Delete' })).toHaveLength(2));
     // With index 1 hidden, the second rendered row is originally index 2.
-    await user.click(screen.getAllByRole('button', { name: 'Edit' })[1]);
-    expect(onEdit).toHaveBeenCalledWith(2);
-
     await user.click(screen.getAllByRole('button', { name: 'Delete' })[1]);
     expect(onDelete).toHaveBeenCalledWith(2);
+  });
+
+  it('disables Add and every row Edit action while an editor is open, but leaves Delete enabled', async () => {
+    renderList(
+      [
+        { sizeGib: '10', storageTier: 'fast' },
+        { sizeGib: '20', storageTier: 'bulk' },
+      ],
+      0,
+    );
+
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Edit' })).toBeInTheDocument());
+    expect(screen.getByRole('button', { name: 'Add disk' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Edit' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Delete' })).toBeEnabled();
   });
 
   it('calls onAdd when the Add disk button is clicked', async () => {

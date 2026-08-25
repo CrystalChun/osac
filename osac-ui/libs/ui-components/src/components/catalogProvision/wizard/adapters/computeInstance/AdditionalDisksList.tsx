@@ -35,12 +35,18 @@ export const AdditionalDisksList = ({
     [tiers],
   );
 
+  // Add/Edit are disabled while an editor is open to prevent re-entrancy (a second draft row,
+  // or silently discarding an in-progress edit by switching targets). Delete stays enabled —
+  // it only ever targets a different row (the one being edited is filtered out below), so it
+  // can't disturb the open editor's uncommitted state.
+  const isEditorOpen = editingIndex !== null;
+
   const rows = disks
     .map((disk, index) => ({ disk, index }))
     .filter(({ index }) => index !== editingIndex);
 
   const addButton = (
-    <Button variant="primary" icon={<PlusCircleIcon />} onClick={onAdd}>
+    <Button variant="primary" icon={<PlusCircleIcon />} onClick={onAdd} isDisabled={isEditorOpen}>
       {t('Add disk')}
     </Button>
   );
@@ -73,7 +79,12 @@ export const AdditionalDisksList = ({
                 {tierDisplayNameByName.get(disk.storageTier) || disk.storageTier}
               </Td>
               <Td dataLabel={t('Actions')}>
-                <Button variant="link" isInline onClick={() => onEdit(index)}>
+                <Button
+                  variant="link"
+                  isInline
+                  isDisabled={isEditorOpen}
+                  onClick={() => onEdit(index)}
+                >
                   {t('Edit')}
                 </Button>
                 {' | '}
