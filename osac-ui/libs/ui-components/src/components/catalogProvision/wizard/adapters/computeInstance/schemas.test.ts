@@ -255,6 +255,91 @@ describe('buildComputeInstanceStepSchema', () => {
     });
   });
 
+  it('requires storage tier on each additional disk on storage step', async () => {
+    const errors = await validateStep(
+      'storage',
+      {
+        ...emptyValues,
+        catalogItemId: vmCatalogItem.id,
+        metadata: { name: 'web-01', project: '' },
+        spec: {
+          ...emptyValues.spec,
+          bootDisk: { sizeGib: '30', storageTier: '' },
+          additionalDisks: [{ sizeGib: '100', storageTier: '' }],
+        },
+      },
+      vmCatalogItem,
+    );
+    expect(errors).toEqual({
+      spec: {
+        'additionalDisks[0]': {
+          storageTier: 'catalogProvision.validation.additionalDiskStorageTierRequired',
+        },
+      },
+    });
+  });
+
+  it('validates additional disk size as numeric on storage step', async () => {
+    const errors = await validateStep(
+      'storage',
+      {
+        ...emptyValues,
+        catalogItemId: vmCatalogItem.id,
+        metadata: { name: 'web-01', project: '' },
+        spec: {
+          ...emptyValues.spec,
+          bootDisk: { sizeGib: '30', storageTier: '' },
+          additionalDisks: [{ sizeGib: 'not-a-number', storageTier: 'fast' }],
+        },
+      },
+      vmCatalogItem,
+    );
+    expect(errors).toEqual({
+      spec: {
+        'additionalDisks[0]': {
+          sizeGib: 'catalogProvision.validation.additionalDiskSizeNumber',
+        },
+      },
+    });
+  });
+
+  it('accepts an additional disk with a storage tier selected', async () => {
+    const errors = await validateStep(
+      'storage',
+      {
+        ...emptyValues,
+        catalogItemId: vmCatalogItem.id,
+        metadata: { name: 'web-01', project: '' },
+        spec: {
+          ...emptyValues.spec,
+          bootDisk: { sizeGib: '30', storageTier: '' },
+          additionalDisks: [{ sizeGib: '100', storageTier: 'fast' }],
+        },
+      },
+      vmCatalogItem,
+    );
+    expect(errors).toEqual({});
+  });
+
+  it('does not validate additional disks on configuration step', async () => {
+    const errors = await validateStep(
+      'configuration',
+      {
+        ...emptyValues,
+        catalogItemId: vmCatalogItem.id,
+        metadata: { name: 'web-01', project: '' },
+        spec: {
+          ...emptyValues.spec,
+          image: { sourceRef: 'quay.io/example/rhel9' },
+          instanceType: 'standard-4-8',
+          additionalDisks: [{ sizeGib: '100', storageTier: '' }],
+        },
+      },
+      vmCatalogItem,
+    );
+    expect(errors).toEqual({});
+  });
+
   it('requires ssh key on general step when defined in catalog field_definitions', async () => {
     const catalogItem = {
       ...vmCatalogItem,

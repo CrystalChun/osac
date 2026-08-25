@@ -81,6 +81,20 @@ const buildComputeInstanceFieldDefinitions = (catalogItem: unknown, t: TFunction
         t('catalogProvision.validation.required'),
       ),
     }),
+    specAdditionalDisks: yup.array(
+      yup.object({
+        sizeGib: yup
+          .string()
+          .test(
+            'additional-disk-number',
+            t('catalogProvision.validation.additionalDiskSizeNumber'),
+            (value) => !value?.trim() || !Number.isNaN(Number(value)),
+          ),
+        storageTier: yup
+          .string()
+          .required(t('catalogProvision.validation.additionalDiskStorageTierRequired')),
+      }),
+    ),
     specNetworking: yup.object({
       virtualNetwork: yup
         .string()
@@ -137,6 +151,7 @@ export const buildComputeInstanceStepSchema = (
       return yup.object({
         spec: yup.object({
           bootDisk: fields.specBootDisk,
+          additionalDisks: fields.specAdditionalDisks,
         }),
       });
     case 'networking':
