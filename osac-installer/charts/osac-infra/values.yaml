@@ -25,6 +25,7 @@ keycloak:
   defaultUserPassword: foobar
   route:
     hostname: ""
+    publicIngress: false
   # devFixtures seeds known, non-random passwords for the realm's built-in
   # tenant/test users (admin, user, tenant1_admin, ...). Must stay disabled
   # outside Kind/CI -- this chart is also used for real installs.
