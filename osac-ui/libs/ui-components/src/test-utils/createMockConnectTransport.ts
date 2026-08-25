@@ -15,6 +15,7 @@ import type {
   DiskImagesCreateResponse,
   DiskImagesDeleteRequest,
   DiskImagesDeleteResponse,
+  DiskImagesListRequest,
   DiskImagesUpdateRequest,
   DiskImagesUpdateResponse,
   HostType,
@@ -43,6 +44,7 @@ import {
   ComputeInstanceCatalogItems,
   DiskImageLifecycle,
   DiskImages,
+  DiskImagesListResponseSchema,
   HostTypes,
   IdentityProviders,
   InstanceTypeState,
@@ -273,6 +275,9 @@ export type MockTransportOverrides = {
   onInstanceTypeCreate?: (req: InstanceTypesCreateRequest) => InstanceTypesCreateResponse;
   onInstanceTypeUpdate?: (req: InstanceTypesUpdateRequest) => InstanceTypesUpdateResponse;
   onInstanceTypeDelete?: (req: InstanceTypesDeleteRequest) => InstanceTypesDeleteResponse;
+  onDiskImageList?: (
+    req: DiskImagesListRequest,
+  ) => MessageInitShape<typeof DiskImagesListResponseSchema>;
   onDiskImageCreate?: (req: DiskImagesCreateRequest) => DiskImagesCreateResponse;
   onDiskImageUpdate?: (req: DiskImagesUpdateRequest) => DiskImagesUpdateResponse;
   onDiskImageDelete?: (req: DiskImagesDeleteRequest) => DiskImagesDeleteResponse;
@@ -414,6 +419,9 @@ export const createMockConnectTransport = (
 
       router.service(DiskImages, {
         list: (req) => {
+          if (overrides.onDiskImageList) {
+            return overrides.onDiskImageList(req);
+          }
           const items = diskImages.filter((item) =>
             matchesDiskImageLifecycleFilter(req.filter, item.spec?.lifecycle),
           );
