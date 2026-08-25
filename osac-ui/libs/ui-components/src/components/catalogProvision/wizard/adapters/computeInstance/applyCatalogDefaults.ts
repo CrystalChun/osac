@@ -46,7 +46,7 @@ export const applyVmCatalogConfigurationDefaults = (
   const storageTierOverlay = getCatalogFieldOverlay(
     'spec.boot_disk.storage_tier',
     definitions,
-    t('catalogProvision.vm.fields.storageTier'),
+    t('Storage tier'),
   );
 
   setDefault(helpers, 'spec.image.sourceRef', overlayDefaultToFormValue(imageOverlay));

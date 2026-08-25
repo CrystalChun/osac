@@ -92,7 +92,6 @@
   "catalogProvision.vm.fields.name": "Name",
   "catalogProvision.vm.fields.securityGroup": "Security groups",
   "catalogProvision.vm.fields.sshKey": "SSH public key",
-  "catalogProvision.vm.fields.storageTier": "Storage tier",
   "catalogProvision.vm.fields.subnet": "Subnet",
   "catalogProvision.vm.fields.userData": "User Data",
   "catalogProvision.vm.fields.virtualNetwork": "Virtual network",
