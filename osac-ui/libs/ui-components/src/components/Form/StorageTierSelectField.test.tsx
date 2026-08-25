@@ -26,12 +26,21 @@ const makeTier = (
     status: { state },
   });
 
-const renderField = (options: Parameters<typeof renderWithProviders>[1], initialTier = '') =>
+const renderField = (
+  options: Parameters<typeof renderWithProviders>[1],
+  initialTier = '',
+  isLocked = false,
+) =>
   renderWithProviders(
     <Formik initialValues={{ tier: initialTier, other: 'keep-me' }} onSubmit={() => undefined}>
       {({ values }) => (
         <>
-          <StorageTierSelectField name="tier" label="Storage tier" fieldId="tier" />
+          <StorageTierSelectField
+            name="tier"
+            label="Storage tier"
+            fieldId="tier"
+            isLocked={isLocked}
+          />
           <output data-selected>{values.tier}</output>
           <output data-other>{values.other}</output>
         </>
@@ -113,5 +122,28 @@ describe('StorageTierSelectField', () => {
 
     expect(await screen.findByRole('combobox')).toBeInTheDocument();
     expect(screen.getByText('keep-me', { selector: '[data-other]' })).toBeInTheDocument();
+  });
+
+  it('does not show a lock badge by default', async () => {
+    renderField({
+      apiFixtures: { storageTiers: [makeTier('fast', 'Fast SSD', 'low latency')] },
+    });
+
+    await screen.findByRole('combobox');
+    expect(screen.queryByText('Locked by catalog')).not.toBeInTheDocument();
+  });
+
+  it('shows the catalog value read-only with a lock badge when isLocked', async () => {
+    renderField(
+      { apiFixtures: { storageTiers: [makeTier('fast', 'Fast SSD', 'low latency')] } },
+      'fast',
+      true,
+    );
+
+    await waitFor(() => expect(screen.getByRole('combobox')).toHaveValue('Fast SSD (default)'));
+    expect(screen.getByText('Locked by catalog')).toBeInTheDocument();
+    // PatternFly's typeahead toggle has no aria-disabled/functional-disabled signal on the
+    // combobox itself — this checks the `disabled` attribute it renders on the wrapping div.
+    expect(screen.getByRole('combobox').closest('[disabled]')).not.toBeNull();
   });
 });

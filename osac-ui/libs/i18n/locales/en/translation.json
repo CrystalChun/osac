@@ -341,6 +341,7 @@
   "Loading security groups...": "Loading security groups...",
   "Loading subnets...": "Loading subnets...",
   "Loading...": "Loading...",
+  "Locked by catalog": "Locked by catalog",
   "Log out": "Log out",
   "Logout failed": "Logout failed",
   "Logout URL": "Logout URL",

@@ -1,5 +1,13 @@
 import { useMemo } from 'react';
-import { Alert, Button, FormGroup, HelperText, HelperTextItem } from '@patternfly/react-core';
+import {
+  Alert,
+  Button,
+  FormGroup,
+  HelperText,
+  HelperTextItem,
+  Label,
+} from '@patternfly/react-core';
+import LockIcon from '@patternfly/react-icons/dist/esm/icons/lock-icon';
 import { type TypeaheadSelectOption } from '@patternfly/react-templates';
 
 import { TypeaheadSelectField } from './TypeaheadSelectField';
@@ -14,6 +22,8 @@ interface StorageTierSelectFieldProps {
   label: string;
   fieldId: string;
   isRequired?: boolean;
+  /** Renders the picker read-only with a lock badge — the catalog item does not allow editing this field. */
+  isLocked?: boolean;
 }
 
 export const StorageTierSelectField = ({
@@ -21,6 +31,7 @@ export const StorageTierSelectField = ({
   label,
   fieldId,
   isRequired = false,
+  isLocked = false,
 }: StorageTierSelectFieldProps) => {
   const { t } = useTranslation();
   const {
@@ -74,7 +85,14 @@ export const StorageTierSelectField = ({
       fieldId={fieldId}
       isRequired={isRequired}
       options={options}
-      isDisabled={isLoading}
+      isDisabled={isLoading || isLocked}
+      labelInfo={
+        isLocked ? (
+          <Label color="grey" icon={<LockIcon aria-hidden />}>
+            {t('Locked by catalog')}
+          </Label>
+        ) : undefined
+      }
       placeholder={isLoading ? t('Loading...') : t('Select a storage tier')}
       noOptionsFoundMessage={(filter) => t('No storage tiers found for "{{filter}}"', { filter })}
     />
