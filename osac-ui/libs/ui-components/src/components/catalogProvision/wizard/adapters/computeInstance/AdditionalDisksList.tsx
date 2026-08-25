@@ -28,6 +28,9 @@ export const AdditionalDisksList = ({
   onDelete,
 }: AdditionalDisksListProps) => {
   const { t } = useTranslation();
+  // Unlike StorageTierSelectField (rendered by the editor), this read-only list has no
+  // Alert/Retry affordance for a failed tier fetch — falling back to the raw stored name is a
+  // deliberate, low-stakes degradation rather than an oversight.
   const { data: tiers = [] } = usePrivateStorageTiers({ filter: STORAGE_TIER_ACTIVE_LIST_FILTER });
 
   const tierDisplayNameByName = useMemo(
