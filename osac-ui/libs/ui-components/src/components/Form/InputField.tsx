@@ -18,6 +18,9 @@ interface InputFieldProps {
   helperText?: string;
   placeholder?: string;
   onBlur?: () => void;
+  min?: number;
+  max?: number;
+  step?: number;
 }
 
 export const InputField = ({
@@ -33,6 +36,9 @@ export const InputField = ({
   helperText,
   placeholder,
   onBlur,
+  min,
+  max,
+  step,
   children,
 }: React.PropsWithChildren<InputFieldProps>) => {
   const [field, meta] = useField<string>(name);
@@ -72,6 +78,9 @@ export const InputField = ({
               type={type}
               value={field.value ?? ''}
               placeholder={placeholder}
+              min={min}
+              max={max}
+              step={step}
               onChange={(_event, value) => {
                 void field.onChange({ target: { name, value } });
               }}
