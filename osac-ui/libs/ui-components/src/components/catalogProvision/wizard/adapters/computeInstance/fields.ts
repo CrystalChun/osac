@@ -40,4 +40,5 @@ export const CONFIGURATION_CATALOG_PATHS = [
   'spec.image.source_ref',
   'spec.user_data',
   'spec.boot_disk.size_gib',
+  'spec.boot_disk.storage_tier',
 ] as const;
