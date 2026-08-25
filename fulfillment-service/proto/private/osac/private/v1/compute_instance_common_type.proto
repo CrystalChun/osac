@@ -15,6 +15,10 @@ syntax = "proto3";
 
 package osac.private.v1;
 
+import "cleanapi/cleanapi.proto";
+
+option (cleanapi.file).package = "osac.public.v1";
+
 // Contains the disk configuration for a compute instance.
 message ComputeInstanceDisk {
   // Disk size in GiB.
