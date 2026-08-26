@@ -1,7 +1,13 @@
 import { type MessageInitShape } from '@bufbuild/protobuf';
 import { useMutation } from '@tanstack/react-query';
 
-import { DiskImageLifecycle, DiskImageSchema, DiskImages } from '@osac/types';
+import {
+  Architecture,
+  DiskImageLifecycle,
+  DiskImageSchema,
+  DiskImages,
+  GuestOSFamily,
+} from '@osac/types';
 
 import { useApiFetch } from '../api-context';
 import { type ListParams, apiQueryKey } from '../types';
@@ -21,6 +27,65 @@ const withDefaultLifecycleFilter = (filter?: string): string | undefined => {
   return filter
     ? `(${filter}) && ${DISK_IMAGE_NON_OBSOLETE_FILTER}`
     : DISK_IMAGE_NON_OBSOLETE_FILTER;
+};
+
+export type DiskImageListFilterCriteria = {
+  search?: string;
+  guestOsFamily?: GuestOSFamily;
+  architecture?: Architecture[];
+  lifecycle?: DiskImageLifecycle[];
+  showObsolete?: boolean;
+  scope?: 'global' | 'tenant';
+};
+
+const ALL_DISK_IMAGE_LIFECYCLE_VALUES = [
+  DiskImageLifecycle.UNSPECIFIED,
+  DiskImageLifecycle.AVAILABLE,
+  DiskImageLifecycle.DEPRECATED,
+  DiskImageLifecycle.OBSOLETE,
+];
+
+const lifecycleEqualsClause = (values: DiskImageLifecycle[]): string =>
+  values.length === 1
+    ? `this.spec.lifecycle == ${values[0]}`
+    : `(${values.map((value) => `this.spec.lifecycle == ${value}`).join(' || ')})`;
+
+export const buildDiskImageListFilter = (
+  criteria: DiskImageListFilterCriteria,
+): string | undefined => {
+  const clauses: string[] = [];
+
+  if (criteria.search) {
+    const escapedSearch = criteria.search.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+    clauses.push(`this.metadata.name.contains("${escapedSearch}")`);
+  }
+  if (criteria.guestOsFamily !== undefined) {
+    clauses.push(`this.spec.guestOsFamily == ${criteria.guestOsFamily}`);
+  }
+  if (criteria.architecture?.length) {
+    clauses.push(
+      `this.spec.architecture.exists(a, ${criteria.architecture
+        .map((value) => `a == ${value}`)
+        .join(' || ')})`,
+    );
+  }
+  if (criteria.scope) {
+    clauses.push(
+      criteria.scope === 'global' ? 'this.metadata.tenant == ""' : 'this.metadata.tenant != ""',
+    );
+  }
+
+  const selectedLifecycle = criteria.lifecycle ?? [];
+  if (criteria.showObsolete) {
+    const lifecycleValues = selectedLifecycle.length
+      ? [...selectedLifecycle, DiskImageLifecycle.OBSOLETE]
+      : ALL_DISK_IMAGE_LIFECYCLE_VALUES;
+    clauses.push(lifecycleEqualsClause(lifecycleValues));
+  } else if (selectedLifecycle.length) {
+    clauses.push(lifecycleEqualsClause(selectedLifecycle));
+  }
+
+  return clauses.length ? clauses.join(' && ') : undefined;
 };
 
 export const useDiskImages = (params: ListParams = {}, options: DiskImagesQueryOptions = {}) => {
