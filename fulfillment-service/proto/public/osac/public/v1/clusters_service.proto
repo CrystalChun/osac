@@ -109,6 +109,12 @@ message ClustersCreateResponse {
   Cluster object = 1;
 }
 
+message ClustersDeleteRequest {
+  string id = 1;
+}
+
+message ClustersDeleteResponse {}
+
 message ClustersUpdateRequest {
   Cluster object = 1;
   google.protobuf.FieldMask update_mask = 2;
@@ -122,12 +128,6 @@ message ClustersUpdateRequest {
 message ClustersUpdateResponse {
   Cluster object = 1;
 }
-
-message ClustersDeleteRequest {
-  string id = 1;
-}
-
-message ClustersDeleteResponse {}
 
 service Clusters {
   // Retrieves the list of clusters.
@@ -189,6 +189,11 @@ service Clusters {
     };
   }
 
+  // Delete a cluster.
+  rpc Delete(ClustersDeleteRequest) returns (ClustersDeleteResponse) {
+    option (google.api.http) = {delete: "/api/fulfillment/v1/clusters/{id}"};
+  }
+
   // Updates an existing cluster.
   //
   // In the HTTP+JSON version of the API this is mapped to the `PATCH` verb and the `update_mask` field is automatically
@@ -216,10 +221,5 @@ service Clusters {
       body: "object"
       response_body: "object"
     };
-  }
-
-  // Delete a cluster.
-  rpc Delete(ClustersDeleteRequest) returns (ClustersDeleteResponse) {
-    option (google.api.http) = {delete: "/api/fulfillment/v1/clusters/{id}"};
   }
 }
