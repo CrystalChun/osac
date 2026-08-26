@@ -88,7 +88,10 @@ const buildComputeInstanceFieldDefinitions = (catalogItem: unknown, t: TFunction
           .test(
             'additional-disk-number',
             t('catalogProvision.validation.additionalDiskSizeNumber'),
-            (value) => !value?.trim() || !Number.isNaN(Number(value)),
+            (value) => {
+              const size = Number(value?.trim());
+              return Number.isInteger(size) && size >= 1 && size <= 16384;
+            },
           ),
         storageTier: yup
           .string()

@@ -279,7 +279,14 @@ describe('buildComputeInstanceStepSchema', () => {
     });
   });
 
-  it('validates additional disk size as numeric on storage step', async () => {
+  it.each([
+    ['blank', ''],
+    ['non-numeric', 'not-a-number'],
+    ['zero', '0'],
+    ['negative', '-5'],
+    ['fractional', '30.5'],
+    ['above the maximum', '16385'],
+  ])('rejects an additional disk size that is %s', async (_label, sizeGib) => {
     const errors = await validateStep(
       'storage',
       {
@@ -289,7 +296,7 @@ describe('buildComputeInstanceStepSchema', () => {
         spec: {
           ...emptyValues.spec,
           bootDisk: { sizeGib: '30', storageTier: '' },
-          additionalDisks: [{ sizeGib: 'not-a-number', storageTier: 'fast' }],
+          additionalDisks: [{ sizeGib, storageTier: 'fast' }],
         },
       },
       vmCatalogItem,
@@ -303,23 +310,30 @@ describe('buildComputeInstanceStepSchema', () => {
     });
   });
 
-  it('accepts an additional disk with a storage tier selected', async () => {
-    const errors = await validateStep(
-      'storage',
-      {
-        ...emptyValues,
-        catalogItemId: vmCatalogItem.id,
-        metadata: { name: 'web-01', project: '' },
-        spec: {
-          ...emptyValues.spec,
-          bootDisk: { sizeGib: '30', storageTier: '' },
-          additionalDisks: [{ sizeGib: '100', storageTier: 'fast' }],
+  it.each([
+    ['the minimum', '1'],
+    ['the maximum', '16384'],
+    ['a typical value', '100'],
+  ])(
+    'accepts an additional disk size at %s with a storage tier selected',
+    async (_label, sizeGib) => {
+      const errors = await validateStep(
+        'storage',
+        {
+          ...emptyValues,
+          catalogItemId: vmCatalogItem.id,
+          metadata: { name: 'web-01', project: '' },
+          spec: {
+            ...emptyValues.spec,
+            bootDisk: { sizeGib: '30', storageTier: '' },
+            additionalDisks: [{ sizeGib, storageTier: 'fast' }],
+          },
         },
-      },
-      vmCatalogItem,
-    );
-    expect(errors).toEqual({});
-  });
+        vmCatalogItem,
+      );
+      expect(errors).toEqual({});
+    },
+  );
 
   it('does not validate additional disks on configuration step', async () => {
     const errors = await validateStep(
