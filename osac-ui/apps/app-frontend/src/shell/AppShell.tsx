@@ -21,6 +21,7 @@ import { ClusterRoutes } from '@osac/ui-components/pages/tenant/ClusterRoutes';
 import { VmCreatePage } from '@osac/ui-components/pages/tenant/VmCreatePage';
 import { VmListPage } from '@osac/ui-components/pages/tenant/VmListPage';
 
+import { DiskImageRoutes } from './DiskImageRoutes';
 import { InstanceTypeRoutes } from './InstanceTypeRoutes';
 import { ShellMasthead } from './ShellMasthead';
 import { defaultRouteForRole } from './shellRoutes';
@@ -107,6 +108,14 @@ export const AppShell = ({ logout }: { logout: () => Promise<void> }) => {
           element={
             <ShellRoute>
               <InstanceTypeRoutes />
+            </ShellRoute>
+          }
+        />
+        <Route
+          path="/admin/infrastructure/disk-images/*"
+          element={
+            <ShellRoute>
+              <DiskImageRoutes />
             </ShellRoute>
           }
         />

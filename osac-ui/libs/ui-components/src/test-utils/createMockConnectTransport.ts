@@ -10,6 +10,14 @@ import type {
   ClustersCreateRequest,
   ClustersCreateResponse,
   ComputeInstanceCatalogItem,
+  DiskImage,
+  DiskImagesCreateRequest,
+  DiskImagesCreateResponse,
+  DiskImagesDeleteRequest,
+  DiskImagesDeleteResponse,
+  DiskImagesListRequest,
+  DiskImagesUpdateRequest,
+  DiskImagesUpdateResponse,
   HostType,
   IdentityProvider,
   IdentityProvidersCreateRequest,
@@ -34,6 +42,9 @@ import {
   ClusterVersionsListResponseSchema,
   Clusters,
   ComputeInstanceCatalogItems,
+  DiskImageLifecycle,
+  DiskImages,
+  DiskImagesListResponseSchema,
   HostTypes,
   IdentityProviders,
   InstanceTypeState,
@@ -104,6 +115,7 @@ export type MockApiFixtures = {
   securityGroups?: SecurityGroup[];
   identityProviders?: IdentityProvider[];
   instanceTypes?: InstanceType[];
+  diskImages?: DiskImage[];
   projects?: Project[];
   projectMemberships?: ProjectMembership[];
   privateInstanceTypes?: PrivateInstanceType[];
@@ -166,6 +178,19 @@ const matchesInstanceTypeActiveFilter = (
     return true;
   }
   return state === InstanceTypeState.ACTIVE;
+};
+
+const matchesDiskImageLifecycleFilter = (
+  filter: string | undefined,
+  lifecycle: number | undefined,
+): boolean => {
+  if (!filter?.includes('this.spec.lifecycle')) {
+    return true;
+  }
+  if (filter.includes(`!= ${DiskImageLifecycle.OBSOLETE}`)) {
+    return lifecycle !== DiskImageLifecycle.OBSOLETE;
+  }
+  return true;
 };
 
 const matchesClusterVersionActiveFilter = (
@@ -250,6 +275,12 @@ export type MockTransportOverrides = {
   onInstanceTypeCreate?: (req: InstanceTypesCreateRequest) => InstanceTypesCreateResponse;
   onInstanceTypeUpdate?: (req: InstanceTypesUpdateRequest) => InstanceTypesUpdateResponse;
   onInstanceTypeDelete?: (req: InstanceTypesDeleteRequest) => InstanceTypesDeleteResponse;
+  onDiskImageList?: (
+    req: DiskImagesListRequest,
+  ) => MessageInitShape<typeof DiskImagesListResponseSchema>;
+  onDiskImageCreate?: (req: DiskImagesCreateRequest) => DiskImagesCreateResponse;
+  onDiskImageUpdate?: (req: DiskImagesUpdateRequest) => DiskImagesUpdateResponse;
+  onDiskImageDelete?: (req: DiskImagesDeleteRequest) => DiskImagesDeleteResponse;
 };
 
 export const createMockConnectTransport = (
@@ -270,6 +301,7 @@ export const createMockConnectTransport = (
   const subnets = fixtures.subnets ?? [];
   const securityGroups = fixtures.securityGroups ?? [];
   const instanceTypes = fixtures.instanceTypes ?? [];
+  const diskImages = fixtures.diskImages ?? [];
   const privateInstanceTypes = fixtures.privateInstanceTypes ?? [];
   const storageBackends = [...(fixtures.storageBackends ?? [])];
   const storageTiers = fixtures.storageTiers ?? [];
@@ -383,6 +415,39 @@ export const createMockConnectTransport = (
         get: (req) => ({
           object: instanceTypes.find((i) => i.id === req.id),
         }),
+      });
+
+      router.service(DiskImages, {
+        list: (req) => {
+          if (overrides.onDiskImageList) {
+            return overrides.onDiskImageList(req);
+          }
+          const items = diskImages.filter((item) =>
+            matchesDiskImageLifecycleFilter(req.filter, item.spec?.lifecycle),
+          );
+          return { items, size: items.length, total: items.length };
+        },
+        get: (req) => ({
+          object: diskImages.find((i) => i.id === req.id),
+        }),
+        create: (req) => {
+          if (overrides.onDiskImageCreate) {
+            return overrides.onDiskImageCreate(req);
+          }
+          return { object: { id: 'new-disk-image-1', ...req.object } };
+        },
+        update: (req) => {
+          if (overrides.onDiskImageUpdate) {
+            return overrides.onDiskImageUpdate(req);
+          }
+          return { object: req.object };
+        },
+        delete: (req) => {
+          if (overrides.onDiskImageDelete) {
+            return overrides.onDiskImageDelete(req);
+          }
+          return {};
+        },
       });
 
       router.service(IdentityProviders, {

@@ -60,7 +60,7 @@ describe('navRowsForRole', () => {
     ]);
   });
 
-  it('Infrastructure section shows up only for admin role and contains storage and instance types', () => {
+  it('Infrastructure section shows up only for admin role and contains storage, instance types, and disk images', () => {
     expect(findSection('admin', 'nav-infrastructure')).toEqual({
       kind: 'section',
       id: 'nav-infrastructure',
@@ -77,6 +77,12 @@ describe('navRowsForRole', () => {
           id: 'instance-types',
           label: 'Instance types',
           path: '/admin/infrastructure/instance-types',
+        },
+        {
+          kind: 'link',
+          id: 'disk-images',
+          label: 'Disk images',
+          path: '/admin/infrastructure/disk-images',
         },
       ],
     });
