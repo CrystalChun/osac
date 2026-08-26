@@ -85,17 +85,11 @@ const buildComputeInstanceFieldDefinitions = (catalogItem: unknown, t: TFunction
       yup.object({
         sizeGib: yup
           .string()
-          .test(
-            'additional-disk-number',
-            t('catalogProvision.validation.additionalDiskSizeNumber'),
-            (value) => {
-              const size = Number(value?.trim());
-              return Number.isInteger(size) && size >= 1 && size <= 16384;
-            },
-          ),
-        storageTier: yup
-          .string()
-          .required(t('catalogProvision.validation.additionalDiskStorageTierRequired')),
+          .test('additional-disk-number', t('Additional disk size must be a number'), (value) => {
+            const size = Number(value?.trim());
+            return Number.isInteger(size) && size >= 1 && size <= 16384;
+          }),
+        storageTier: yup.string().required(t('Storage tier is required')),
       }),
     ),
     specNetworking: yup.object({

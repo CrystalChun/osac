@@ -273,7 +273,7 @@ describe('buildComputeInstanceStepSchema', () => {
     expect(errors).toEqual({
       spec: {
         'additionalDisks[0]': {
-          storageTier: 'catalogProvision.validation.additionalDiskStorageTierRequired',
+          storageTier: 'Storage tier is required',
         },
       },
     });
@@ -304,7 +304,7 @@ describe('buildComputeInstanceStepSchema', () => {
     expect(errors).toEqual({
       spec: {
         'additionalDisks[0]': {
-          sizeGib: 'catalogProvision.validation.additionalDiskSizeNumber',
+          sizeGib: 'Additional disk size must be a number',
         },
       },
     });
