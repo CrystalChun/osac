@@ -15,9 +15,12 @@ syntax = "proto3";
 
 package osac.private.v1;
 
+import "cleanapi/cleanapi.proto";
 import "google/api/field_behavior.proto";
 import "osac/private/v1/metadata_type.proto";
 import "osac/private/v1/network_class_type.proto";
+
+option (cleanapi.file).package = "osac.public.v1";
 
 // Represents a tenant-isolated virtual network.
 //
@@ -60,6 +63,7 @@ message VirtualNetworkSpec {
   //
   // Example: "us-east-1", "eu-west-2"
   string region = 1 [
+    (cleanapi.field).private = true,
     (google.api.field_behavior) = REQUIRED,
     (google.api.field_behavior) = IMMUTABLE
   ];
@@ -71,6 +75,7 @@ message VirtualNetworkSpec {
   // available capabilities. The NetworkClass must support the IP addressing mode implied by whichever of
   // ipv4_cidr and ipv6_cidr are set below.
   NetworkClassReference network_class = 2 [
+    (cleanapi.field).private = true,
     (google.api.field_behavior) = OPTIONAL,
     (google.api.field_behavior) = IMMUTABLE
   ];
