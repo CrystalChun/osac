@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 
 import type { ComputeInstanceCatalogItem } from '@osac/types';
 
+import { AdditionalDisksArrayField } from './AdditionalDisksArrayField';
 import { useTranslation } from '../../../../../hooks/useTranslation';
 import { InputField } from '../../../../Form/InputField';
 import OsacForm from '../../../../Form/OsacForm';
@@ -47,6 +48,7 @@ export const VmStorageStep = ({ catalogItem }: Props) => {
         fieldId="vm-boot-disk-storage-tier"
         isLocked={!storageTierOverlay.editable}
       />
+      <AdditionalDisksArrayField />
     </OsacForm>
   );
 };

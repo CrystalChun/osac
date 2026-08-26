@@ -109,3 +109,25 @@ describe('VmStorageStep', () => {
     expect(screen.queryByText('Locked by catalog')).not.toBeInTheDocument();
   });
 });
+
+// AdditionalDisksArrayField owns the add/remove/per-row-edit behavior (covered by its own
+// AdditionalDisksArrayField.test.tsx) — these tests only confirm it's actually wired into the
+// step, alongside the (independently field-tested) boot disk fields.
+describe('VmStorageStep — additional disks', () => {
+  it('renders the additional-disks array field with no rows initially', () => {
+    renderStep(makeCatalogItem());
+
+    expect(screen.getByText('No additional disks added.')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Add disk' })).toBeInTheDocument();
+  });
+
+  it('adding an additional disk does not affect the boot disk fields', async () => {
+    const { user } = renderStep(makeCatalogItem(), 'fast');
+
+    await user.click(screen.getByRole('button', { name: 'Add disk' }));
+
+    await waitFor(() => expect(screen.getAllByRole('combobox')).toHaveLength(2));
+    // Boot disk's picker renders before the additional-disks array field in this step.
+    expect(screen.getAllByRole('combobox')[0]).toHaveValue('Fast SSD');
+  });
+});
