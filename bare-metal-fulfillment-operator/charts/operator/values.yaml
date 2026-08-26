@@ -43,3 +43,8 @@ bcm:
   insecureSkipVerify: false
   hostClass: "bcm"
   bmhNamespace: ""
+
+metal3:
+  enabled: false
+  namespace: ""
+  hostClass: "metal3"
