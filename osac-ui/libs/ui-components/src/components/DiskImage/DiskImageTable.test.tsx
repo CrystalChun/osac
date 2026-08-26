@@ -63,17 +63,16 @@ describe('DiskImageTable', () => {
 
     expect(screen.getAllByRole('columnheader').map((header) => header.textContent)).toEqual([
       'Name',
+      'Lifecycle',
       'Guest OS family',
       'Architecture',
-      'Lifecycle',
       'Scope',
       'Created',
       '',
     ]);
     expect(screen.getByRole('button', { name: 'disk-image-global-1' })).toBeInTheDocument();
-    expect(screen.getByText('amd64')).toBeInTheDocument();
-    expect(screen.getByText('arm64')).toBeInTheDocument();
-    expect(screen.getByText('Available')).toBeInTheDocument();
+    expect(screen.getByText('amd64, arm64')).toBeInTheDocument();
+    expect(screen.getByText('Available').closest('.pf-v6-c-label')).toHaveClass('pf-m-green');
     expect(screen.getByText('Linux')).toBeInTheDocument();
   });
 

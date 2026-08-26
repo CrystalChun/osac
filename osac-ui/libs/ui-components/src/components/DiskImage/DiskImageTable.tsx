@@ -5,28 +5,24 @@ import {
   EmptyState,
   EmptyStateBody,
   EmptyStateVariant,
-  Flex,
-  FlexItem,
-  Label,
-  LabelGroup,
 } from '@patternfly/react-core';
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 import type { TFunction } from 'i18next';
 
-import { Architecture, type DiskImage, DiskImageLifecycle, GuestOSFamily } from '@osac/types';
+import { Architecture, type DiskImage, GuestOSFamily } from '@osac/types';
 
 import DiskImageActionsMenu from './DiskImageActionsMenu';
+import DiskImageLifecycleLabel from './DiskImageLifecycleLabel';
 import { useTranslation } from '../../hooks/useTranslation';
 import { Timestamp } from '../Primitives/Timestamp';
 import TruncatedText from '../Primitives/TruncatedText';
-import { GuestOsIcon, type OsType } from '../shared/GuestOsIcon';
 
 const NAME_PREVIEW_LENGTH = 32;
 const NAME_COLUMN_WIDTH = 20;
+const LIFECYCLE_COLUMN_WIDTH = 15;
 const GUEST_OS_COLUMN_WIDTH = 15;
 const ARCHITECTURE_COLUMN_WIDTH = 20;
-const LIFECYCLE_COLUMN_WIDTH = 15;
 const SCOPE_COLUMN_WIDTH = 15;
 const CREATED_COLUMN_WIDTH = 15;
 const EMPTY_STATE_COLUMN_SPAN = 7;
@@ -38,29 +34,11 @@ const ARCHITECTURE_LABELS: Record<Architecture, string> = {
   [Architecture.S390X]: 's390x',
 };
 
-const lifecycleLabels = (t: TFunction): Record<DiskImageLifecycle, string> => ({
-  [DiskImageLifecycle.UNSPECIFIED]: t('Unspecified'),
-  [DiskImageLifecycle.AVAILABLE]: t('Available'),
-  [DiskImageLifecycle.DEPRECATED]: t('Deprecated'),
-  [DiskImageLifecycle.OBSOLETE]: t('Obsolete'),
-});
-
 const guestOsFamilyLabels = (t: TFunction): Record<GuestOSFamily, string> => ({
   [GuestOSFamily.GUEST_OS_FAMILY_UNSPECIFIED]: t('Unspecified'),
   [GuestOSFamily.GUEST_OS_FAMILY_LINUX]: t('Linux'),
   [GuestOSFamily.GUEST_OS_FAMILY_WINDOWS]: t('Windows'),
 });
-
-const guestOsFamilyToOsType = (family?: GuestOSFamily): OsType | undefined => {
-  switch (family) {
-    case GuestOSFamily.GUEST_OS_FAMILY_LINUX:
-      return 'linux';
-    case GuestOSFamily.GUEST_OS_FAMILY_WINDOWS:
-      return 'windows';
-    default:
-      return undefined;
-  }
-};
 
 interface DiskImageTableProps {
   diskImages: DiskImage[];
@@ -69,7 +47,6 @@ interface DiskImageTableProps {
 const DiskImageTable = ({ diskImages }: DiskImageTableProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const lifecycleText = lifecycleLabels(t);
   const guestOsFamilyText = guestOsFamilyLabels(t);
 
   return (
@@ -77,9 +54,9 @@ const DiskImageTable = ({ diskImages }: DiskImageTableProps) => {
       <Thead>
         <Tr>
           <Th width={NAME_COLUMN_WIDTH}>{t('Name')}</Th>
+          <Th width={LIFECYCLE_COLUMN_WIDTH}>{t('Lifecycle')}</Th>
           <Th width={GUEST_OS_COLUMN_WIDTH}>{t('Guest OS family')}</Th>
           <Th width={ARCHITECTURE_COLUMN_WIDTH}>{t('Architecture')}</Th>
-          <Th width={LIFECYCLE_COLUMN_WIDTH}>{t('Lifecycle')}</Th>
           <Th width={SCOPE_COLUMN_WIDTH}>{t('Scope')}</Th>
           <Th width={CREATED_COLUMN_WIDTH}>{t('Created')}</Th>
           <Th aria-label={t('Actions')} />
@@ -105,7 +82,6 @@ const DiskImageTable = ({ diskImages }: DiskImageTableProps) => {
           </Tr>
         ) : (
           diskImages.map((diskImage) => {
-            const osType = guestOsFamilyToOsType(diskImage.spec?.guestOsFamily);
             const architecture = diskImage.spec?.architecture ?? [];
             const isGlobal = !diskImage.metadata?.tenant;
 
@@ -123,39 +99,20 @@ const DiskImageTable = ({ diskImages }: DiskImageTableProps) => {
                     />
                   </Button>
                 </Td>
+                <Td dataLabel={t('Lifecycle')} width={LIFECYCLE_COLUMN_WIDTH}>
+                  <DiskImageLifecycleLabel lifecycle={diskImage.spec?.lifecycle} />
+                </Td>
                 <Td dataLabel={t('Guest OS family')} width={GUEST_OS_COLUMN_WIDTH}>
-                  <Flex
-                    spaceItems={{ default: 'spaceItemsSm' }}
-                    alignItems={{ default: 'alignItemsCenter' }}
-                    flexWrap={{ default: 'nowrap' }}
-                  >
-                    {osType && (
-                      <FlexItem>
-                        <GuestOsIcon os={osType} size="sm" />
-                      </FlexItem>
-                    )}
-                    <FlexItem>
-                      {
-                        guestOsFamilyText[
-                          diskImage.spec?.guestOsFamily ?? GuestOSFamily.GUEST_OS_FAMILY_UNSPECIFIED
-                        ]
-                      }
-                    </FlexItem>
-                  </Flex>
+                  {
+                    guestOsFamilyText[
+                      diskImage.spec?.guestOsFamily ?? GuestOSFamily.GUEST_OS_FAMILY_UNSPECIFIED
+                    ]
+                  }
                 </Td>
                 <Td dataLabel={t('Architecture')} width={ARCHITECTURE_COLUMN_WIDTH}>
-                  {architecture.length ? (
-                    <LabelGroup>
-                      {architecture.map((value) => (
-                        <Label key={value}>{ARCHITECTURE_LABELS[value]}</Label>
-                      ))}
-                    </LabelGroup>
-                  ) : (
-                    '—'
-                  )}
-                </Td>
-                <Td dataLabel={t('Lifecycle')} width={LIFECYCLE_COLUMN_WIDTH}>
-                  {lifecycleText[diskImage.spec?.lifecycle ?? DiskImageLifecycle.UNSPECIFIED]}
+                  {architecture.length
+                    ? architecture.map((value) => ARCHITECTURE_LABELS[value]).join(', ')
+                    : '—'}
                 </Td>
                 <Td dataLabel={t('Scope')} width={SCOPE_COLUMN_WIDTH}>
                   {isGlobal ? t('Global') : t('Tenant')}
