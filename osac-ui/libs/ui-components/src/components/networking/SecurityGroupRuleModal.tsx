@@ -21,6 +21,7 @@ import { toPlainRule } from './securityGroupRuleUtils';
 import { useUpdateSecurityGroup } from '../../api/v1/networking';
 import { useTranslation } from '../../hooks/useTranslation';
 import { getErrorMessage } from '../../utils/error';
+import { buildCidrSchema } from '../../validation/cidr-validation';
 
 const createRuleValidationSchema = (t: TFunction) =>
   Yup.object({
@@ -67,33 +68,11 @@ const createRuleValidationSchema = (t: TFunction) =>
           }),
       otherwise: (schema) => schema.notRequired(),
     }),
-    ipv4Cidr: Yup.string().when('ipv6Cidr', {
+    ipv4Cidr: buildCidrSchema(t, 'ipv4').when('ipv6Cidr', {
       is: (ipv6: string) => !ipv6 || ipv6.trim() === '',
-      then: (schema) =>
-        schema
-          .required(t('At least one CIDR (IPv4 or IPv6) is required'))
-          .matches(
-            /^(\d{1,3}\.){3}\d{1,3}\/\d{1,2}$/,
-            t('Invalid IPv4 CIDR format (e.g., 192.168.1.0/24)'),
-          ),
-      otherwise: (schema) =>
-        schema.test('format', t('Invalid IPv4 CIDR format (e.g., 192.168.1.0/24)'), (value) => {
-          if (!value || value.trim() === '') {
-            return true;
-          }
-          return /^(\d{1,3}\.){3}\d{1,3}\/\d{1,2}$/.test(value);
-        }),
+      then: (schema) => schema.required(t('At least one CIDR (IPv4 or IPv6) is required')),
     }),
-    ipv6Cidr: Yup.string().test(
-      'format',
-      t('Invalid IPv6 CIDR format (e.g., 2001:db8::/32)'),
-      (value) => {
-        if (!value || value.trim() === '') {
-          return true;
-        }
-        return /^([0-9a-fA-F:]+)\/\d{1,3}$/.test(value);
-      },
-    ),
+    ipv6Cidr: buildCidrSchema(t, 'ipv6'),
   });
 
 interface SecurityGroupRuleModalProps {
