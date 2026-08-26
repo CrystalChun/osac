@@ -4,6 +4,7 @@ import { type ComputeInstanceCatalogItem, ComputeInstanceSchema } from '@osac/ty
 
 import type { ComputeInstanceWizardValues } from './fields';
 import { VM_CREATE_RUN_STRATEGY } from './fields';
+import { hasCatalogFieldDefinition, readCatalogFieldDefinitions } from '../../catalogOverlay';
 
 export const createEmptyComputeInstanceValues = (): ComputeInstanceWizardValues => ({
   catalogItemId: '',
@@ -74,7 +75,11 @@ export const buildComputeInstanceCreatePayload = (
   const additionalDisks = values.spec.additionalDisks
     .filter((disk) => disk.sizeGib.trim())
     .map((disk) => ({ sizeGib: Number(disk.sizeGib.trim()), ...tierField(disk.storageTier) }));
-  if (additionalDisks.length > 0) {
+  const hasAdditionalDisksDefault = hasCatalogFieldDefinition(
+    'spec.additional_disks',
+    readCatalogFieldDefinitions(catalogItem),
+  );
+  if (additionalDisks.length > 0 || hasAdditionalDisksDefault) {
     spec.additionalDisks = additionalDisks;
   }
 
