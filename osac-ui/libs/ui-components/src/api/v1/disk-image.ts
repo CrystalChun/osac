@@ -34,14 +34,13 @@ export const useDiskImages = (params: ListParams = {}, options: DiskImagesQueryO
   });
 };
 
-export const useDiskImage = (id: string | undefined) => {
+export const useDiskImage = (id?: string) => {
   const client = useApiFetch(DiskImages);
-  const trimmedId = id?.trim() ?? '';
   return useApiQuery({
-    queryKey: apiQueryKey('v1/disk_images', trimmedId ? [trimmedId] : undefined),
-    queryFn: () => client.get({ id: trimmedId }),
+    queryKey: apiQueryKey('v1/disk_images', [id]),
+    queryFn: () => client.get({ id }),
     select: (data) => data.object,
-    enabled: Boolean(trimmedId),
+    enabled: !!id,
   });
 };
 
