@@ -17,6 +17,7 @@ import glob
 import logging
 import os
 import pathlib
+import re
 import shutil
 import sys
 
@@ -25,6 +26,7 @@ import click
 from . import commands
 from . import dirs
 from . import setup
+from . import tools
 
 
 @click.group(invoke_without_command=True)
@@ -85,6 +87,52 @@ def images() -> None:
         sys.exit(1)
 
 
+def _sync_cleanapi_version() -> None:
+    """
+    Updates buf.yaml and buf.gen.yaml to use the cleanapi version from tools.PROTOC_GEN_CLEANAPI.
+    This ensures the version is only maintained in one place (dev/tools.py).
+    Always runs `buf dep update` to sync buf.lock, regardless of whether YAML files changed.
+    """
+    cleanapi_version = f"v{tools.PROTOC_GEN_CLEANAPI.version}"
+    project_dir = dirs.project()
+
+    files_to_update = [
+        project_dir / "buf.yaml",
+        project_dir / "buf.gen.yaml",
+    ]
+
+    # Pattern to match cleanapi version in YAML files
+    pattern = re.compile(r'(buf\.build/cleanapi/cleanapi):v[\d.]+')
+    replacement = rf'\1:{cleanapi_version}'
+
+    for file_path in files_to_update:
+        if not file_path.exists():
+            logging.warning(f"File not found: {file_path}")
+            continue
+
+        content = file_path.read_text()
+        updated_content = pattern.sub(replacement, content)
+
+        if content != updated_content:
+            file_path.write_text(updated_content)
+            logging.info(f"Updated cleanapi version to {cleanapi_version} in {file_path.name}")
+
+    # Always run buf dep update to ensure buf.lock is in sync
+    # This handles fresh checkouts and failed prior updates
+    commands.run(args=["buf", "dep", "update"], cwd=project_dir, check=True)
+
+
+@build.command()
+def sync_cleanapi_version() -> None:
+    """
+    Syncs the cleanapi version from dev/tools.py to buf.yaml and buf.gen.yaml.
+
+    This command is automatically run during proto builds, but can be run manually
+    to update the YAML files without generating code.
+    """
+    _sync_cleanapi_version()
+
+
 @build.command()
 def protos() -> None:
     """
@@ -95,6 +143,9 @@ def protos() -> None:
     """
     # Ensure dependencies are installed
     setup.install_protoc_gen_cleanapi()
+
+    # Sync cleanapi version from tools.py to buf.yaml and buf.gen.yaml
+    _sync_cleanapi_version()
 
     # Check if required tools are available
     if not shutil.which("protoc"):
@@ -121,10 +172,12 @@ def protos() -> None:
     deps_dir.mkdir(parents=True, exist_ok=True)
 
     # Export each dependency
+    # cleanapi version comes from tools.PROTOC_GEN_CLEANAPI
+    cleanapi_version = f"v{tools.PROTOC_GEN_CLEANAPI.version}"
     for dep in ["buf.build/bufbuild/protovalidate",
         "buf.build/googleapis/googleapis",
         "buf.build/grpc-ecosystem/grpc-gateway",
-        "buf.build/cleanapi/cleanapi:v0.0.8"]:
+        f"buf.build/cleanapi/cleanapi:{cleanapi_version}"]:
         dep_name = dep.split("/")[-1].split(":")[0]
         dep_path = deps_dir / dep_name
         if not dep_path.exists():
