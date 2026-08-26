@@ -4,6 +4,7 @@ import type { TFunction } from 'i18next';
 import type { ComputeInstanceCatalogItem } from '@osac/types';
 
 import type { ComputeInstanceDiskValues, ComputeInstanceWizardValues } from './fields';
+import { fieldDefinitionDefaultToInputString } from '../../../catalogFieldDefinition';
 import {
   getCatalogFieldOverlay,
   overlayDefaultToFormValue,
@@ -20,11 +21,6 @@ const setDefault = (
   }
 };
 
-const additionalDiskFieldToFormString = (value: unknown): string =>
-  typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean'
-    ? String(value)
-    : '';
-
 const additionalDisksOverlayToFormValue = (
   value: unknown,
 ): ComputeInstanceDiskValues[] | undefined => {
@@ -34,8 +30,8 @@ const additionalDisksOverlayToFormValue = (
   return value.map((entry) => {
     const record = entry && typeof entry === 'object' ? (entry as Record<string, unknown>) : {};
     return {
-      sizeGib: additionalDiskFieldToFormString(record.size_gib),
-      storageTier: additionalDiskFieldToFormString(record.storage_tier),
+      sizeGib: fieldDefinitionDefaultToInputString(record.size_gib),
+      storageTier: fieldDefinitionDefaultToInputString(record.storage_tier),
     };
   });
 };
