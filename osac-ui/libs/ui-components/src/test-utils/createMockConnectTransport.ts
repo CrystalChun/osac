@@ -60,6 +60,8 @@ import {
   VirtualNetworks,
 } from '@osac/types';
 import type {
+  BareMetalInstanceTypesDeleteRequest,
+  BareMetalInstanceTypesListRequest,
   InstanceTypesCreateRequest,
   InstanceTypesCreateResponse,
   InstanceTypesDeleteRequest,
@@ -68,6 +70,7 @@ import type {
   InstanceTypesListResponse,
   InstanceTypesUpdateRequest,
   InstanceTypesUpdateResponse,
+  BareMetalInstanceType as PrivateBareMetalInstanceType,
   InstanceType as PrivateInstanceType,
   Tenant as PrivateTenant,
   StorageBackend,
@@ -88,6 +91,9 @@ import type {
   TenantsCreateResponse,
 } from '@osac/types/private';
 import {
+  BareMetalInstanceTypesDeleteResponseSchema,
+  BareMetalInstanceTypesListResponseSchema,
+  BareMetalInstanceTypes as PrivateBareMetalInstanceTypes,
   InstanceTypes as PrivateInstanceTypes,
   Tenants as PrivateTenants,
   StorageBackendState,
@@ -119,6 +125,7 @@ export type MockApiFixtures = {
   projects?: Project[];
   projectMemberships?: ProjectMembership[];
   privateInstanceTypes?: PrivateInstanceType[];
+  privateBaremetalInstanceTypes?: PrivateBareMetalInstanceType[];
   storageBackends?: StorageBackend[];
   storageTiers?: StorageTier[];
   roles?: Role[];
@@ -275,6 +282,12 @@ export type MockTransportOverrides = {
   onInstanceTypeCreate?: (req: InstanceTypesCreateRequest) => InstanceTypesCreateResponse;
   onInstanceTypeUpdate?: (req: InstanceTypesUpdateRequest) => InstanceTypesUpdateResponse;
   onInstanceTypeDelete?: (req: InstanceTypesDeleteRequest) => InstanceTypesDeleteResponse;
+  onBaremetalInstanceTypeList?: (
+    req: BareMetalInstanceTypesListRequest,
+  ) => MessageInitShape<typeof BareMetalInstanceTypesListResponseSchema>;
+  onBaremetalInstanceTypeDelete?: (
+    req: BareMetalInstanceTypesDeleteRequest,
+  ) => MessageInitShape<typeof BareMetalInstanceTypesDeleteResponseSchema>;
   onDiskImageList?: (
     req: DiskImagesListRequest,
   ) => MessageInitShape<typeof DiskImagesListResponseSchema>;
@@ -303,6 +316,7 @@ export const createMockConnectTransport = (
   const instanceTypes = fixtures.instanceTypes ?? [];
   const diskImages = fixtures.diskImages ?? [];
   const privateInstanceTypes = fixtures.privateInstanceTypes ?? [];
+  const privateBaremetalInstanceTypes = fixtures.privateBaremetalInstanceTypes ?? [];
   const storageBackends = [...(fixtures.storageBackends ?? [])];
   const storageTiers = fixtures.storageTiers ?? [];
   const roles = fixtures.roles ?? [];
@@ -595,6 +609,28 @@ export const createMockConnectTransport = (
         delete: (req) => {
           if (overrides.onInstanceTypeDelete) {
             return overrides.onInstanceTypeDelete(req);
+          }
+          return {};
+        },
+      });
+
+      router.service(PrivateBareMetalInstanceTypes, {
+        list: (req) => {
+          if (overrides.onBaremetalInstanceTypeList) {
+            return overrides.onBaremetalInstanceTypeList(req);
+          }
+          return {
+            items: privateBaremetalInstanceTypes,
+            size: privateBaremetalInstanceTypes.length,
+            total: privateBaremetalInstanceTypes.length,
+          };
+        },
+        get: (req) => ({
+          object: privateBaremetalInstanceTypes.find((item) => item.id === req.id),
+        }),
+        delete: (req) => {
+          if (overrides.onBaremetalInstanceTypeDelete) {
+            return overrides.onBaremetalInstanceTypeDelete(req);
           }
           return {};
         },

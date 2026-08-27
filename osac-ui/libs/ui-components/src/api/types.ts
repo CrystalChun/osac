@@ -30,6 +30,7 @@ export type ApiRoute =
   | 'v1/external_ip_pools'
   | 'v1/console_sessions'
   | 'v1/private/instance_types'
+  | 'v1/private/baremetal_instance_types'
   | 'v1/private/tenants'
   | 'v1/private/storage_backends'
   | 'v1/private/storage_tiers'
