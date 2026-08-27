@@ -79,19 +79,19 @@ message ExternalIPStatus {
   //
   // Populated once the IP transitions to ALLOCATED state. Remains stable for the lifetime of
   // the ExternalIP. Cleared only when the IP is deallocated.
-  string address = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string address = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Parent ExternalIPPool ID that this IP was allocated from.
   //
   // Mirrors spec.pool for convenience in status queries. Populated when the IP is allocated.
-  string pool = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string pool = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Whether this ExternalIP is currently attached to a target resource via an ExternalIPAttachment.
   //
   // Set to true when an ExternalIPAttachment referencing this ExternalIP reaches READY state.
   // Set to false when the ExternalIPAttachment is deleted. An ExternalIP with attached = true
   // cannot be deleted; the ExternalIPAttachment must be deleted first.
-  bool attached = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+  bool attached = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // Lifecycle states for ExternalIP resources.
