@@ -28,9 +28,15 @@ const selectTier = async (
   await user.click(await screen.findByRole('option', { name: optionName }));
 };
 
-const renderField = () =>
+const renderField = (initialDisks: { sizeGib: string; storageTier: string }[] = []) =>
   renderWithProviders(
-    <Formik initialValues={createEmptyComputeInstanceValues()} onSubmit={() => undefined}>
+    <Formik
+      initialValues={{
+        ...createEmptyComputeInstanceValues(),
+        spec: { ...createEmptyComputeInstanceValues().spec, additionalDisks: initialDisks },
+      }}
+      onSubmit={() => undefined}
+    >
       <AdditionalDisksArrayField />
     </Formik>,
     { apiFixtures: { storageTiers } },
@@ -113,5 +119,21 @@ describe('AdditionalDisksArrayField', () => {
     const remaining = screen.getAllByRole('spinbutton', { name: 'Size (GiB)' });
     expect(remaining).toHaveLength(1);
     expect(remaining[0]).toHaveValue(77);
+  });
+
+  it('renders a row already present in initial values (e.g. seeded from a catalog default) as editable and removable', async () => {
+    const { user } = renderField([{ sizeGib: '40', storageTier: 'fast' }]);
+
+    expect(screen.queryByText('No additional disks added.')).not.toBeInTheDocument();
+    const sizeInput = screen.getByRole('spinbutton', { name: 'Size (GiB)' });
+    expect(sizeInput).toHaveValue(40);
+    await waitFor(() => expect(screen.getByRole('combobox')).toHaveValue('Fast SSD (default)'));
+
+    await user.clear(sizeInput);
+    await user.type(sizeInput, '60');
+    expect(sizeInput).toHaveValue(60);
+
+    await user.click(screen.getByRole('button', { name: 'Remove disk' }));
+    expect(screen.getByText('No additional disks added.')).toBeInTheDocument();
   });
 });

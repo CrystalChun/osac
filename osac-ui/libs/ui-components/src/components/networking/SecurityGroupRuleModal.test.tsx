@@ -129,6 +129,66 @@ describe('SecurityGroupRuleModal', () => {
     expect(onClose).toHaveBeenCalled();
   });
 
+  it('rejects semantically invalid IPv4 CIDR 999.555.666.777/99 (OSAC-3899)', async () => {
+    const user = userEvent.setup();
+    const onClose = vi.fn();
+
+    render(
+      <SecurityGroupRuleModal onClose={onClose} securityGroup={securityGroup} direction="egress" />,
+    );
+
+    await user.click(screen.getByLabelText(/^Protocol/i));
+    await user.click(screen.getByRole('option', { name: 'All' }));
+    await user.click(screen.getByLabelText(/IPv4 CIDR$/i));
+    await user.type(screen.getByLabelText(/IPv4 CIDR$/i), '999.555.666.777/99');
+    await user.tab();
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /Add/i })).toBeDisabled();
+    });
+    expect(mutateAsync).not.toHaveBeenCalled();
+  });
+
+  it('rejects IPv4 CIDR with out-of-range prefix 192.168.1.0/55 (OSAC-3899)', async () => {
+    const user = userEvent.setup();
+    const onClose = vi.fn();
+
+    render(
+      <SecurityGroupRuleModal onClose={onClose} securityGroup={securityGroup} direction="egress" />,
+    );
+
+    await user.click(screen.getByLabelText(/^Protocol/i));
+    await user.click(screen.getByRole('option', { name: 'All' }));
+    await user.click(screen.getByLabelText(/IPv4 CIDR$/i));
+    await user.type(screen.getByLabelText(/IPv4 CIDR$/i), '192.168.1.0/55');
+    await user.tab();
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /Add/i })).toBeDisabled();
+    });
+    expect(mutateAsync).not.toHaveBeenCalled();
+  });
+
+  it('rejects invalid IPv6 CIDR 00:000000:000000:00000:00/0 (OSAC-3899)', async () => {
+    const user = userEvent.setup();
+    const onClose = vi.fn();
+
+    render(
+      <SecurityGroupRuleModal onClose={onClose} securityGroup={securityGroup} direction="egress" />,
+    );
+
+    await user.click(screen.getByLabelText(/^Protocol/i));
+    await user.click(screen.getByRole('option', { name: 'All' }));
+    await user.click(screen.getByLabelText(/IPv6 CIDR/i));
+    await user.type(screen.getByLabelText(/IPv6 CIDR/i), '00:000000:000000:00000:00/0');
+    await user.tab();
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /Add/i })).toBeDisabled();
+    });
+    expect(mutateAsync).not.toHaveBeenCalled();
+  });
+
   it('shows error and keeps modal open when the mutation fails', async () => {
     const user = userEvent.setup();
     mutateAsync.mockRejectedValue(new Error('boom'));

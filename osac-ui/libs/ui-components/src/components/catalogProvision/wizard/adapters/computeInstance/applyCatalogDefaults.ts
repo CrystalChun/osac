@@ -3,7 +3,8 @@ import type { TFunction } from 'i18next';
 
 import type { ComputeInstanceCatalogItem } from '@osac/types';
 
-import type { ComputeInstanceWizardValues } from './fields';
+import type { ComputeInstanceDiskValues, ComputeInstanceWizardValues } from './fields';
+import { fieldDefinitionDefaultToInputString } from '../../../catalogFieldDefinition';
 import {
   getCatalogFieldOverlay,
   overlayDefaultToFormValue,
@@ -18,6 +19,21 @@ const setDefault = (
   if (value !== undefined) {
     void helpers.setFieldValue(path, value);
   }
+};
+
+const additionalDisksOverlayToFormValue = (
+  value: unknown,
+): ComputeInstanceDiskValues[] | undefined => {
+  if (!Array.isArray(value)) {
+    return undefined;
+  }
+  return value.map((entry) => {
+    const record = entry && typeof entry === 'object' ? (entry as Record<string, unknown>) : {};
+    return {
+      sizeGib: fieldDefinitionDefaultToInputString(record.size_gib),
+      storageTier: fieldDefinitionDefaultToInputString(record.storage_tier),
+    };
+  });
 };
 
 /** Apply catalog overlay defaults once when a catalog item is selected. */
@@ -48,9 +64,19 @@ export const applyVmCatalogConfigurationDefaults = (
     definitions,
     t('Storage tier'),
   );
+  const additionalDisksOverlay = getCatalogFieldOverlay(
+    'spec.additional_disks',
+    definitions,
+    t('Additional disks'),
+  );
 
   setDefault(helpers, 'spec.image.sourceRef', overlayDefaultToFormValue(imageOverlay));
   setDefault(helpers, 'spec.userData', overlayDefaultToFormValue(userDataOverlay));
   setDefault(helpers, 'spec.bootDisk.sizeGib', overlayDefaultToFormValue(bootDiskOverlay) ?? '');
   setDefault(helpers, 'spec.bootDisk.storageTier', overlayDefaultToFormValue(storageTierOverlay));
+  setDefault(
+    helpers,
+    'spec.additionalDisks',
+    additionalDisksOverlayToFormValue(additionalDisksOverlay.defaultValue),
+  );
 };

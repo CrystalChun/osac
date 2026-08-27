@@ -32,6 +32,20 @@ const vmCatalogItem: ComputeInstanceCatalogItem = {
   fieldDefinitions: [],
 };
 
+const catalogItemWithAdditionalDisksDefault: ComputeInstanceCatalogItem = {
+  ...vmCatalogItem,
+  fieldDefinitions: [
+    {
+      $typeName: 'osac.public.v1.FieldDefinition',
+      path: 'spec.additional_disks',
+      displayName: 'Additional disks',
+      editable: true,
+      validationSchema: '',
+      default: { kind: { case: 'listValue', value: { values: [] } } },
+    },
+  ],
+} as unknown as ComputeInstanceCatalogItem;
+
 const buildValues = (project: string) => ({
   ...createEmptyComputeInstanceValues(),
   catalogItemId: vmCatalogItem.id,
@@ -147,5 +161,29 @@ describe('buildComputeInstanceCreatePayload — disk storage tiers', () => {
     const payload = buildComputeInstanceCreatePayload(values, vmCatalogItem);
 
     expect(payload.spec).not.toHaveProperty('additionalDisks');
+  });
+
+  it('sends an explicit empty additional_disks array when the catalog default was cleared', () => {
+    const values = baseValues();
+    values.spec.additionalDisks = [];
+
+    const payload = buildComputeInstanceCreatePayload(
+      values,
+      catalogItemWithAdditionalDisksDefault,
+    );
+
+    expect(payload.spec?.additionalDisks).toEqual([]);
+  });
+
+  it('still sends non-empty additional disks as usual when the catalog defines a default', () => {
+    const values = baseValues();
+    values.spec.additionalDisks = [{ sizeGib: '100', storageTier: 'bulk' }];
+
+    const payload = buildComputeInstanceCreatePayload(
+      values,
+      catalogItemWithAdditionalDisksDefault,
+    );
+
+    expect(payload.spec?.additionalDisks).toEqual([{ sizeGib: 100, storageTier: 'bulk' }]);
   });
 });
