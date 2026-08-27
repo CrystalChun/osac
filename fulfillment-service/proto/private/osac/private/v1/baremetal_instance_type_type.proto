@@ -16,10 +16,7 @@ syntax = "proto3";
 package osac.private.v1;
 
 import "buf/validate/validate.proto";
-import "cleanapi/cleanapi.proto";
 import "osac/private/v1/metadata_type.proto";
-
-option (cleanapi.file).package = "osac.public.v1";
 
 // Describes a pre-configured bare metal hardware type that can be referenced by name when provisioning
 // bare metal instances.
@@ -46,7 +43,7 @@ message BareMetalInstanceTypeSpec {
 
   // Label selector for matching inventory hosts. Required.
   // Labels are passed directly to the inventory backend using backend-native naming conventions.
-  BareMetalLabelSelector host_label_selector = 2 [(cleanapi.field).private = true, (buf.validate.field).required = true];
+  BareMetalLabelSelector host_label_selector = 2 [(buf.validate.field).required = true];
 
   // Human-readable description of the bare metal instance type.
   string description = 3;
@@ -57,7 +54,6 @@ message BareMetalInstanceTypeStatus {}
 
 // Kubernetes-style label selector for matching inventory hosts.
 message BareMetalLabelSelector {
-  option (cleanapi.message).private = true;
   // Simple key-value label matches. At least one pair is required.
   // Labels are passed directly to the inventory backend using backend-native naming conventions.
   map<string, string> match_labels = 1 [(buf.validate.field).map.min_pairs = 1];
