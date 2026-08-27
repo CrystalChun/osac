@@ -34,6 +34,8 @@ const VmDetailsCard = ({ vm }: Props) => {
     instanceTypeId,
     isInstanceTypeLoading,
     fieldLabels,
+    bootDiskTierDisplay,
+    additionalDiskRows,
   } = useVmDetailsDisplay(vm);
 
   return (
@@ -97,9 +99,19 @@ const VmDetailsCard = ({ vm }: Props) => {
               <DescriptionListGroup>
                 <DescriptionListTerm>{fieldLabels.bootDisk}</DescriptionListTerm>
                 <DescriptionListDescription>
-                  {formatBootDiskSizeForReview(vm.spec?.bootDisk?.sizeGib)}
+                  {formatBootDiskSizeForReview(vm.spec?.bootDisk?.sizeGib)}, {bootDiskTierDisplay}
                 </DescriptionListDescription>
               </DescriptionListGroup>
+              {additionalDiskRows.map((disk, index) => (
+                <DescriptionListGroup key={index}>
+                  <DescriptionListTerm>
+                    {t('Additional disk {{number}}', { number: index + 1 })}
+                  </DescriptionListTerm>
+                  <DescriptionListDescription>
+                    {formatBootDiskSizeForReview(disk.sizeGib)}, {disk.tierDisplay}
+                  </DescriptionListDescription>
+                </DescriptionListGroup>
+              ))}
             </>
           ) : null}
           <DescriptionListGroup>

@@ -107,6 +107,8 @@ describe('VmDetailsCard', () => {
         userData: 'User Data',
       },
       networkingRows: [],
+      bootDiskTierDisplay: 'Balanced',
+      additionalDiskRows: [],
       catalogItem: undefined,
     });
 
@@ -115,7 +117,7 @@ describe('VmDetailsCard', () => {
     expect(screen.getByText('Details')).toBeInTheDocument();
     expect(screen.getByText('web-01')).toBeInTheDocument();
     expect(screen.getByText('ssh-rsa AAAA...')).toBeInTheDocument();
-    expect(screen.getByText('40 GB')).toBeInTheDocument();
+    expect(screen.getByText('40 GB, Balanced')).toBeInTheDocument();
     expect(screen.getByText('alice')).toBeInTheDocument();
     expect(screen.queryByText('User Data')).not.toBeInTheDocument();
     expect(screen.queryByText('Run strategy')).not.toBeInTheDocument();
@@ -140,6 +142,8 @@ describe('VmDetailsCard', () => {
         userData: 'User Data',
       },
       networkingRows: [],
+      bootDiskTierDisplay: '—',
+      additionalDiskRows: [],
       catalogItem: undefined,
     });
 
@@ -149,5 +153,39 @@ describe('VmDetailsCard', () => {
     ).toBeInTheDocument();
     expect(screen.getByText('legacy-vm')).toBeInTheDocument();
     expect(screen.queryByText('SSH public key')).not.toBeInTheDocument();
+  });
+
+  it('lists each additional disk with its resolved tier and exposes no edit control', () => {
+    vi.mocked(useVmDetailsDisplay).mockReturnValue({
+      catalogItemId: 'catalog-rhel-9',
+      hasCatalogItem: true,
+      isCatalogItemLoading: false,
+      instanceType: undefined,
+      instanceTypeId: 'standard-4-8',
+      isInstanceTypeLoading: false,
+      fieldLabels: {
+        sshPublicKey: 'SSH public key',
+        image: 'VM image',
+        bootDisk: 'Boot disk',
+        userData: 'User Data',
+      },
+      networkingRows: [],
+      bootDiskTierDisplay: 'Balanced',
+      additionalDiskRows: [
+        { sizeGib: '100', tierDisplay: 'Fast SSD' },
+        { sizeGib: '20', tierDisplay: 'legacy-tier' },
+      ],
+      catalogItem: undefined,
+    });
+
+    renderCard();
+
+    expect(screen.getByText('40 GB, Balanced')).toBeInTheDocument();
+    expect(screen.getByText('Additional disk 1')).toBeInTheDocument();
+    expect(screen.getByText('100 GB, Fast SSD')).toBeInTheDocument();
+    expect(screen.getByText('Additional disk 2')).toBeInTheDocument();
+    expect(screen.getByText('20 GB, legacy-tier')).toBeInTheDocument();
+    expect(screen.queryAllByRole('combobox')).toHaveLength(0);
+    expect(screen.queryAllByRole('button')).toHaveLength(0);
   });
 });
