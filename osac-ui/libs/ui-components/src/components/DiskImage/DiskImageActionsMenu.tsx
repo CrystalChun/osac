@@ -35,21 +35,11 @@ const DiskImageActionsMenu = ({ diskImage }: DiskImageActionsMenuProps) => {
       popperProps={{ position: 'right' }}
     >
       <DropdownList>
-        <DropdownItem
-          value="view"
-          onClick={() => {
-            navigate(`/admin/infrastructure/disk-images/${diskImage.id}`);
-            setOpen(false);
-          }}
-        >
+        <DropdownItem onClick={() => navigate(`/admin/infrastructure/disk-images/${diskImage.id}`)}>
           {t('View')}
         </DropdownItem>
         <DropdownItem
-          value="edit"
-          onClick={() => {
-            navigate(`/admin/infrastructure/disk-images/${diskImage.id}/edit`);
-            setOpen(false);
-          }}
+          onClick={() => navigate(`/admin/infrastructure/disk-images/${diskImage.id}/edit`)}
         >
           {t('Edit')}
         </DropdownItem>

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Button,
@@ -18,34 +18,33 @@ import { Architecture, DiskImageLifecycle, GuestOSFamily } from '@osac/types';
 
 import DiskImageTable from './DiskImageTable';
 import { buildDiskImageListFilter, useDiskImages } from '../../api/v1/disk-image';
+import { SEARCH_PARAM, useArrayPageFilter, usePageFilter } from '../../hooks/use-page-filter';
 import { useTranslation } from '../../hooks/useTranslation';
 import ListPage from '../Page/ListPage';
 import ListPageBody from '../Page/ListPageBody';
 
-type SelectOptionValue = string | number;
-
 const ALL_OPTION_VALUE = '__all__';
 
-interface FilterOption {
-  value: SelectOptionValue;
+interface FilterOption<T extends string> {
+  value: T;
   label: string;
 }
 
-interface SingleSelectFilterProps {
+interface SingleSelectFilterProps<T extends string> {
   label: string;
   allLabel: string;
-  options: FilterOption[];
-  selected: SelectOptionValue | undefined;
-  onChange: (value: SelectOptionValue | undefined) => void;
+  options: FilterOption<T>[];
+  selected: T | undefined;
+  onChange: (value: T | undefined) => void;
 }
 
-const SingleSelectFilter = ({
+const SingleSelectFilter = <T extends string>({
   label,
   allLabel,
   options,
   selected,
   onChange,
-}: SingleSelectFilterProps) => {
+}: SingleSelectFilterProps<T>) => {
   const [isOpen, setIsOpen] = useState(false);
   const selectedLabel = options.find((option) => option.value === selected)?.label ?? allLabel;
 
@@ -53,8 +52,8 @@ const SingleSelectFilter = ({
     <Select
       isOpen={isOpen}
       onOpenChange={setIsOpen}
-      onSelect={(_event, value: SelectOptionValue) => {
-        onChange(value === ALL_OPTION_VALUE ? undefined : value);
+      onSelect={(_event, value) => {
+        onChange(value === ALL_OPTION_VALUE ? undefined : (value as T));
         setIsOpen(false);
       }}
       toggle={(toggleRef) => (
@@ -81,14 +80,19 @@ const SingleSelectFilter = ({
   );
 };
 
-interface MultiSelectFilterProps {
+interface MultiSelectFilterProps<T extends string> {
   label: string;
-  options: FilterOption[];
-  selected: SelectOptionValue[];
-  onChange: (values: SelectOptionValue[]) => void;
+  options: FilterOption<T>[];
+  selected: T[];
+  onToggle: (value: T) => void;
 }
 
-const MultiSelectFilter = ({ label, options, selected, onChange }: MultiSelectFilterProps) => {
+const MultiSelectFilter = <T extends string>({
+  label,
+  options,
+  selected,
+  onToggle,
+}: MultiSelectFilterProps<T>) => {
   const [isOpen, setIsOpen] = useState(false);
   const toggleLabel = selected.length ? `${label} (${selected.length})` : label;
 
@@ -97,13 +101,11 @@ const MultiSelectFilter = ({ label, options, selected, onChange }: MultiSelectFi
       role="menu"
       isOpen={isOpen}
       onOpenChange={setIsOpen}
-      onSelect={(_event, value: SelectOptionValue | undefined) => {
+      onSelect={(_event, value) => {
         if (value === undefined) {
           return;
         }
-        onChange(
-          selected.includes(value) ? selected.filter((v) => v !== value) : [...selected, value],
-        );
+        onToggle(value as T);
       }}
       toggle={(toggleRef) => (
         <MenuToggle ref={toggleRef} onClick={() => setIsOpen((open) => !open)} isExpanded={isOpen}>
@@ -127,46 +129,91 @@ const MultiSelectFilter = ({ label, options, selected, onChange }: MultiSelectFi
   );
 };
 
+type GuestOsFamilyFilterValue = 'linux' | 'windows';
+const GUEST_OS_FAMILY_PARAM = 'guestOsFamily';
+const isGuestOsFamilyFilterValue = (value: string): value is GuestOsFamilyFilterValue =>
+  value === 'linux' || value === 'windows';
+const GUEST_OS_FAMILY_FILTER_TO_ENUM: Record<GuestOsFamilyFilterValue, GuestOSFamily> = {
+  linux: GuestOSFamily.GUEST_OS_FAMILY_LINUX,
+  windows: GuestOSFamily.GUEST_OS_FAMILY_WINDOWS,
+};
+
+type ArchitectureFilterValue = 'amd64' | 'arm64' | 's390x';
+const ARCHITECTURE_PARAM = 'architecture';
+const isArchitectureFilterValue = (value: string): value is ArchitectureFilterValue =>
+  value === 'amd64' || value === 'arm64' || value === 's390x';
+const ARCHITECTURE_FILTER_TO_ENUM: Record<ArchitectureFilterValue, Architecture> = {
+  amd64: Architecture.AMD64,
+  arm64: Architecture.ARM64,
+  s390x: Architecture.S390X,
+};
+
+type LifecycleFilterValue = 'available' | 'deprecated';
+const LIFECYCLE_PARAM = 'lifecycle';
+const isLifecycleFilterValue = (value: string): value is LifecycleFilterValue =>
+  value === 'available' || value === 'deprecated';
+const LIFECYCLE_FILTER_TO_ENUM: Record<LifecycleFilterValue, DiskImageLifecycle> = {
+  available: DiskImageLifecycle.AVAILABLE,
+  deprecated: DiskImageLifecycle.DEPRECATED,
+};
+
+type ScopeFilterValue = 'global' | 'tenant';
+const SCOPE_PARAM = 'scope';
+const isScopeFilterValue = (value: string): value is ScopeFilterValue =>
+  value === 'global' || value === 'tenant';
+
+const SHOW_OBSOLETE_PARAM = 'showObsolete';
+
 const DiskImageListPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const [search, setSearch] = useState('');
-  const [guestOsFamily, setGuestOsFamily] = useState<GuestOSFamily>();
-  const [architecture, setArchitecture] = useState<Architecture[]>([]);
-  const [lifecycle, setLifecycle] = useState<DiskImageLifecycle[]>([]);
-  const [showObsolete, setShowObsolete] = useState(false);
-  const [scope, setScope] = useState<'global' | 'tenant'>();
-
-  const filter = useMemo(
-    () =>
-      buildDiskImageListFilter({
-        search,
-        guestOsFamily,
-        architecture,
-        lifecycle,
-        showObsolete,
-        scope,
-      }),
-    [search, guestOsFamily, architecture, lifecycle, showObsolete, scope],
+  const [search, setSearch] = usePageFilter(SEARCH_PARAM);
+  const [guestOsFamilyParam, setGuestOsFamilyParam] = usePageFilter(GUEST_OS_FAMILY_PARAM);
+  const [architectureFilter, toggleArchitectureFilter] = useArrayPageFilter(
+    ARCHITECTURE_PARAM,
+    isArchitectureFilterValue,
   );
+  const [lifecycleFilter, toggleLifecycleFilter] = useArrayPageFilter(
+    LIFECYCLE_PARAM,
+    isLifecycleFilterValue,
+  );
+  const [scopeParam, setScopeParam] = usePageFilter(SCOPE_PARAM);
+  const [showObsoleteParam, setShowObsoleteParam] = usePageFilter(SHOW_OBSOLETE_PARAM);
+
+  const guestOsFamily = isGuestOsFamilyFilterValue(guestOsFamilyParam)
+    ? GUEST_OS_FAMILY_FILTER_TO_ENUM[guestOsFamilyParam]
+    : undefined;
+  const architecture = architectureFilter.map((value) => ARCHITECTURE_FILTER_TO_ENUM[value]);
+  const lifecycle = lifecycleFilter.map((value) => LIFECYCLE_FILTER_TO_ENUM[value]);
+  const scope = isScopeFilterValue(scopeParam) ? scopeParam : undefined;
+  const showObsolete = showObsoleteParam === 'true';
+
+  const filter = buildDiskImageListFilter({
+    search,
+    guestOsFamily,
+    architecture,
+    lifecycle,
+    showObsolete,
+    scope,
+  });
 
   const { data: diskImages = [], isLoading, error } = useDiskImages({ filter });
 
-  const guestOsFamilyOptions: FilterOption[] = [
-    { value: GuestOSFamily.GUEST_OS_FAMILY_LINUX, label: t('Linux') },
-    { value: GuestOSFamily.GUEST_OS_FAMILY_WINDOWS, label: t('Windows') },
+  const guestOsFamilyOptions: FilterOption<GuestOsFamilyFilterValue>[] = [
+    { value: 'linux', label: t('Linux') },
+    { value: 'windows', label: t('Windows') },
   ];
-  const architectureOptions: FilterOption[] = [
-    { value: Architecture.AMD64, label: 'amd64' },
-    { value: Architecture.ARM64, label: 'arm64' },
-    { value: Architecture.S390X, label: 's390x' },
+  const architectureOptions: FilterOption<ArchitectureFilterValue>[] = [
+    { value: 'amd64', label: 'amd64' },
+    { value: 'arm64', label: 'arm64' },
+    { value: 's390x', label: 's390x' },
   ];
-  const lifecycleOptions: FilterOption[] = [
-    { value: DiskImageLifecycle.AVAILABLE, label: t('Available') },
-    { value: DiskImageLifecycle.DEPRECATED, label: t('Deprecated') },
+  const lifecycleOptions: FilterOption<LifecycleFilterValue>[] = [
+    { value: 'available', label: t('Available') },
+    { value: 'deprecated', label: t('Deprecated') },
   ];
-  const scopeOptions: FilterOption[] = [
+  const scopeOptions: FilterOption<ScopeFilterValue>[] = [
     { value: 'global', label: t('Global') },
     { value: 'tenant', label: t('Tenant') },
   ];
@@ -203,24 +250,26 @@ const DiskImageListPage = () => {
                   label={t('Guest OS family')}
                   allLabel={t('All guest OS families')}
                   options={guestOsFamilyOptions}
-                  selected={guestOsFamily}
-                  onChange={(value) => setGuestOsFamily(value as GuestOSFamily | undefined)}
+                  selected={
+                    isGuestOsFamilyFilterValue(guestOsFamilyParam) ? guestOsFamilyParam : undefined
+                  }
+                  onChange={(value) => setGuestOsFamilyParam(value ?? '')}
                 />
               </ToolbarItem>
               <ToolbarItem>
                 <MultiSelectFilter
                   label={t('Architecture')}
                   options={architectureOptions}
-                  selected={architecture}
-                  onChange={(values) => setArchitecture(values as Architecture[])}
+                  selected={architectureFilter}
+                  onToggle={toggleArchitectureFilter}
                 />
               </ToolbarItem>
               <ToolbarItem>
                 <MultiSelectFilter
                   label={t('Lifecycle')}
                   options={lifecycleOptions}
-                  selected={lifecycle}
-                  onChange={(values) => setLifecycle(values as DiskImageLifecycle[])}
+                  selected={lifecycleFilter}
+                  onToggle={toggleLifecycleFilter}
                 />
               </ToolbarItem>
               <ToolbarItem>
@@ -229,7 +278,7 @@ const DiskImageListPage = () => {
                   allLabel={t('All scopes')}
                   options={scopeOptions}
                   selected={scope}
-                  onChange={(value) => setScope(value as 'global' | 'tenant' | undefined)}
+                  onChange={(value) => setScopeParam(value ?? '')}
                 />
               </ToolbarItem>
               <ToolbarItem>
@@ -237,7 +286,7 @@ const DiskImageListPage = () => {
                   id="disk-image-show-obsolete"
                   label={t('Show obsolete')}
                   isChecked={showObsolete}
-                  onChange={(_event, checked) => setShowObsolete(checked)}
+                  onChange={(_event, checked) => setShowObsoleteParam(checked ? 'true' : '')}
                 />
               </ToolbarItem>
             </ToolbarGroup>

@@ -110,6 +110,25 @@ describe('useDiskImages', () => {
     expect(capturedFilter).toBe(callerFilter);
   });
 
+  it('still appends the default filter when the caller filter merely contains the lifecycle field name as text, not a predicate', async () => {
+    let capturedFilter: string | undefined;
+    const transport = createMockConnectTransport(
+      {},
+      {
+        onDiskImageList: (req) => {
+          capturedFilter = req.filter;
+          return { items: [] };
+        },
+      },
+    );
+    const callerFilter = 'this.metadata.name.contains("this.spec.lifecycle")';
+    const { wrapper } = makeWrapper(transport);
+    const { result } = renderHook(() => useDiskImages({ filter: callerFilter }), { wrapper });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(capturedFilter).toBe(`(${callerFilter}) && ${DISK_IMAGE_NON_OBSOLETE_FILTER}`);
+  });
+
   it('combines the default filter with a caller filter that does not reference lifecycle', async () => {
     let capturedFilter: string | undefined;
     const transport = createMockConnectTransport(

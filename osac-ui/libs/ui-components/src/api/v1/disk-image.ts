@@ -20,8 +20,10 @@ type DiskImagesQueryOptions = {
 
 export const DISK_IMAGE_NON_OBSOLETE_FILTER = `this.spec.lifecycle != ${DiskImageLifecycle.OBSOLETE}`;
 
+const LIFECYCLE_PREDICATE_PATTERN = /this\.spec\.lifecycle\s*(==|!=)/;
+
 const withDefaultLifecycleFilter = (filter?: string): string | undefined => {
-  if (filter?.includes('this.spec.lifecycle')) {
+  if (filter && LIFECYCLE_PREDICATE_PATTERN.test(filter)) {
     return filter;
   }
   return filter

@@ -27,12 +27,12 @@ const SCOPE_COLUMN_WIDTH = 15;
 const CREATED_COLUMN_WIDTH = 15;
 const EMPTY_STATE_COLUMN_SPAN = 7;
 
-const ARCHITECTURE_LABELS: Record<Architecture, string> = {
-  [Architecture.UNSPECIFIED]: '—',
+const architectureLabels = (t: TFunction): Record<Architecture, string> => ({
+  [Architecture.UNSPECIFIED]: t('Unspecified'),
   [Architecture.AMD64]: 'amd64',
   [Architecture.ARM64]: 'arm64',
   [Architecture.S390X]: 's390x',
-};
+});
 
 const guestOsFamilyLabels = (t: TFunction): Record<GuestOSFamily, string> => ({
   [GuestOSFamily.GUEST_OS_FAMILY_UNSPECIFIED]: t('Unspecified'),
@@ -48,6 +48,7 @@ const DiskImageTable = ({ diskImages }: DiskImageTableProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const guestOsFamilyText = guestOsFamilyLabels(t);
+  const architectureText = architectureLabels(t);
 
   return (
     <Table aria-label={t('Disk images')} variant="compact">
@@ -111,7 +112,7 @@ const DiskImageTable = ({ diskImages }: DiskImageTableProps) => {
                 </Td>
                 <Td dataLabel={t('Architecture')} width={ARCHITECTURE_COLUMN_WIDTH}>
                   {architecture.length
-                    ? architecture.map((value) => ARCHITECTURE_LABELS[value]).join(', ')
+                    ? architecture.map((value) => architectureText[value]).join(', ')
                     : '—'}
                 </Td>
                 <Td dataLabel={t('Scope')} width={SCOPE_COLUMN_WIDTH}>
