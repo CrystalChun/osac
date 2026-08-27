@@ -134,13 +134,13 @@ GOLANGCI_LINT = Tool(
 
 PROTOC_GEN_CLEANAPI = Tool(
     name="protoc-gen-cleanapi",
-    version="0.0.8",
+    version="0.0.12",
     github_repo="jhernand/protoc-gen-cleanapi",
     version_command=["protoc-gen-cleanapi", "--version"],
     version_pattern=r"^(?P<version>\S+)",
     checksums={
         "protoc-gen-cleanapi_{version}_checksums.txt":
-        "22ee7ea769c14fe48fafa2a1f60cc4f21a5bb91cc6ca60c1415b204e9dedf40b",
+        "eaf158c71951b1238d20a1e48cbf5fd4af536dff4f2e75d2296fbb31d1157094",
     },
     # Override defaults - this tool uses underscores and no version in artifact name
     checksums_artifact="protoc-gen-cleanapi_{version}_checksums.txt",
