@@ -16,8 +16,11 @@ syntax = "proto3";
 package osac.private.v1;
 
 import "buf/validate/validate.proto";
+import "cleanapi/cleanapi.proto";
 import "osac/private/v1/metadata_type.proto";
 import "osac/private/v1/security_rule_type.proto";
+
+option (cleanapi.file).private = true;
 
 // Describes a network implementation strategy available for creating virtual networks.
 //
