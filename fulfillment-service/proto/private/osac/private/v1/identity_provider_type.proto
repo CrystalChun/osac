@@ -15,14 +15,17 @@ syntax = "proto3";
 
 package osac.private.v1;
 
+import "cleanapi/cleanapi.proto";
 import "google/protobuf/timestamp.proto";
 import "osac/private/v1/condition_status_type.proto";
 import "osac/private/v1/metadata_type.proto";
 import "osac/private/v1/secret_type.proto";
 
+option (cleanapi.file).package = "osac.public.v1";
+
 // IdentityProvider represents an external identity provider configuration.
 // Identity providers enable users to authenticate using their existing corporate credentials
-// (LDAP, Active Directory, OIDC, SAML, etc.).
+// (LDAP, Active Directory, OIDC, SAML, etc.) rather than managing separate credentials.
 message IdentityProvider {
   // Unique identifier for this IdP. Immutable after creation.
   string id = 1;
@@ -144,22 +147,23 @@ message IdentityProviderStatus {
   // Message provides additional context about the current status.
   string message = 2;
 
-  // Conditions represent specific aspects of the identity provider's status.
-  repeated IdentityProviderCondition conditions = 3;
-
   // This is used by the system to track when the spec.health_check_trigger has changed
   // and to acknowledge that the health check process has started.
   // The system will update it to match spec.health_check_trigger when the check begins.
   // Users can compare this to spec.health_check_trigger to see if their check request has been acknowledged.
-  optional string health_check_trigger = 4;
+  optional string health_check_trigger = 3;
 
   // Health check results from the last health check that completed.
   // This is populated after a health check triggered by spec.health_check_trigger completes.
-  optional IdentityProviderHealth health = 5;
+  optional IdentityProviderHealth health = 4;
+
+  // Conditions represent specific aspects of the identity provider's status.
+  repeated IdentityProviderCondition conditions = 5 [(cleanapi.field).private = true];
 }
 
 // IdentityProviderCondition represents a specific condition of the identity provider.
 message IdentityProviderCondition {
+  option (cleanapi.message).private = true;
   // Type of condition. Examples: "Reachable", "Configured", "Authenticated"
   string type = 1;
 
