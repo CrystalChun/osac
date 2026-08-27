@@ -377,8 +377,6 @@
   "Name must be a valid DNS label (RFC 1035).": "Name must be a valid DNS label (RFC 1035).",
   "Name must be at most 63 characters long": "Name must be at most 63 characters long",
   "Name must only contain lowercase letters (a-z), digits (0-9), and hyphens (-)": "Name must only contain lowercase letters (a-z), digits (0-9), and hyphens (-)",
-  "Network class": "Network class",
-  "Network class is required": "Network class is required",
   "Networking": "Networking",
   "Next": "Next",
   "NFS": "NFS",

@@ -1,11 +1,10 @@
 import { screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { NetworkClass, Project } from '@osac/types';
+import type { Project } from '@osac/types';
 
 import { VirtualNetworkCreateModal } from './VirtualNetworkCreateModal';
 import * as networkingApi from '../../api/v1/networking';
-import { mockQueryResult } from '../../test-utils/query';
 import { renderWithProviders } from '../../test-utils/TestProviders';
 
 const mockNavigate = vi.fn();
@@ -21,7 +20,6 @@ vi.mock('../../api/v1/networking', async (importOriginal) => {
   const actual = await importOriginal<typeof networkingApi>();
   return {
     ...actual,
-    useNetworkClasses: vi.fn(),
     useCreateVirtualNetwork: vi.fn(),
   };
 });
@@ -60,18 +58,6 @@ describe('VirtualNetworkCreateModal', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(networkingApi.useNetworkClasses).mockReturnValue(
-      mockQueryResult<NetworkClass[]>({
-        data: [
-          {
-            id: 'nc-1',
-            metadata: { name: 'test-nc' },
-            title: 'Test Network Class',
-            isDefault: true,
-          },
-        ] as NetworkClass[],
-      }),
-    );
     vi.mocked(networkingApi.useCreateVirtualNetwork).mockReturnValue({
       mutateAsync,
       error: null,
@@ -128,7 +114,6 @@ describe('VirtualNetworkCreateModal', () => {
           metadata: { name: 'vn-prod', project: 'my-project' },
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           spec: expect.objectContaining({
-            networkClass: { name: 'test-nc' },
             ipv4Cidr: '10.0.0.0/16',
           }),
         }),
@@ -153,23 +138,5 @@ describe('VirtualNetworkCreateModal', () => {
     await waitFor(() => {
       expect(screen.getByText(/API error/i)).toBeInTheDocument();
     });
-  });
-
-  it('renders loading indicator while network classes are loading', () => {
-    vi.mocked(networkingApi.useNetworkClasses).mockReturnValue(
-      mockQueryResult<NetworkClass[]>({ isLoading: true }),
-    );
-
-    renderModal(mockOnClose);
-
-    expect(screen.getByRole('button', { name: /Create/i })).toBeInTheDocument();
-  });
-
-  it('renders when no network classes are available', () => {
-    vi.mocked(networkingApi.useNetworkClasses).mockReturnValue(mockQueryResult<NetworkClass[]>());
-
-    renderModal(mockOnClose);
-
-    expect(screen.getByRole('button', { name: /Create/i })).toBeInTheDocument();
   });
 });

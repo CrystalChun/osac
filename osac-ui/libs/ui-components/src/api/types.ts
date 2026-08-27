@@ -19,7 +19,6 @@ export type ApiRoute =
   | 'v1/organizations'
   | 'v1/users'
   | 'v1/capabilities'
-  | 'v1/network_classes'
   | 'v1/virtual_networks'
   | 'v1/subnets'
   | 'v1/security_groups'

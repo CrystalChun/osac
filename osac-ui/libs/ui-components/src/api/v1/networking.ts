@@ -2,7 +2,6 @@ import { MessageInitShape } from '@bufbuild/protobuf';
 import { useMutation } from '@tanstack/react-query';
 
 import {
-  NetworkClasses,
   SecurityGroupSchema,
   SecurityGroupState,
   SecurityGroups,
@@ -20,19 +19,6 @@ import { type ApiQueryClient, useApiQuery, useApiQueryClient } from '../use-api-
 
 type NetworkingQueryOptions = {
   enabled?: boolean;
-};
-
-export const useNetworkClasses = (
-  params: ListParams = {},
-  options: NetworkingQueryOptions = {},
-) => {
-  const client = useApiFetch(NetworkClasses);
-  return useApiQuery({
-    queryKey: apiQueryKey('v1/network_classes', undefined, params),
-    queryFn: () => client.list(params),
-    select: (data) => data.items,
-    enabled: options.enabled ?? true,
-  });
 };
 
 export const useVirtualNetworks = (
