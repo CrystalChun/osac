@@ -210,3 +210,18 @@ export const formatBootDiskSizeForReview = (value: unknown): string => {
   }
   return `${formatted} GB`;
 };
+
+interface StorageTierNameLookup {
+  metadata?: { name?: string; displayName?: string };
+}
+
+export const resolveStorageTierDisplayName = (
+  storageTier: string | undefined,
+  tiers: StorageTierNameLookup[] | undefined,
+): string => {
+  if (!storageTier) {
+    return formatReviewScalar(storageTier);
+  }
+  const match = tiers?.find((tier) => tier.metadata?.name === storageTier);
+  return match?.metadata?.displayName || match?.metadata?.name || storageTier;
+};
