@@ -221,38 +221,6 @@ var _ = Describe("Protovalidate interceptor", func() {
 			Expect(status.Message()).To(ContainSubstring("validation failed"))
 		})
 
-		It("Rejects requests with label keys that are too long", func() {
-			// Create Metadata with label key > 316 chars:
-			longKey := ""
-			for i := 0; i < 320; i++ {
-				longKey = longKey + "a"
-			}
-			invalidMetadata := &publicv1.Metadata{
-				Name: "valid-name",
-				Labels: map[string]string{
-					longKey: "value",
-				},
-			}
-
-			mockHandler := func(ctx context.Context, req any) (any, error) {
-				Fail("Handler should not be called for invalid request")
-				return nil, nil
-			}
-
-			response, err := interceptor.UnaryServer(
-				context.Background(),
-				invalidMetadata,
-				&grpc.UnaryServerInfo{FullMethod: "/test.Service/Method"},
-				mockHandler,
-			)
-
-			Expect(err).To(HaveOccurred())
-			Expect(response).To(BeNil())
-			status, ok := grpcstatus.FromError(err)
-			Expect(ok).To(BeTrue())
-			Expect(status.Code()).To(Equal(grpccodes.InvalidArgument))
-		})
-
 		It("Rejects empty name (mandatory field)", func() {
 			invalidMetadata := &publicv1.Metadata{
 				Name: "",

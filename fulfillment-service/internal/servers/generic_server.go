@@ -1082,13 +1082,14 @@ func (s *GenericServer[O]) validateMetadata(ctx context.Context, metadata metada
 
 // validateLabels validates label keys and values according to Kubernetes label naming conventions.
 //
-// This validation complements protovalidate annotations on the Metadata message:
-// - Proto annotations enforce length constraints (keys: 1-316 chars, values: max 63 chars)
-// - This Go code enforces complex DNS subdomain rules that cannot be expressed in simple regex:
-//   - Prefix/name structure (optional "prefix/" followed by name)
-//   - Each dot-separated segment must be a valid DNS label
-//   - Character restrictions (alphanumeric, hyphens, underscores, dots)
-//   - Alphanumeric start/end requirements
+// Label keys consist of an optional prefix and a name separated by '/':
+//   - Prefix: DNS subdomain (1-253 chars), dot-separated DNS labels
+//   - Name: 1-63 chars, must start and end with alphanumeric, allows lowercase letters, digits, hyphens, underscores, dots
+//   - Total key length: up to 317 chars (253 + "/" + 63)
+//
+// Label values: 0-63 chars (empty allowed), same character restrictions as names.
+//
+// This validation is performed in Go code (no protovalidate annotations on the labels field).
 func (s *GenericServer[O]) validateLabels(labels map[string]string) error {
 	for key, value := range labels {
 		err := s.validateLabelKey("metadata.labels", key)
