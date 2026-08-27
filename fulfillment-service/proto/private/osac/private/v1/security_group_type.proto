@@ -15,10 +15,13 @@ syntax = "proto3";
 
 package osac.private.v1;
 
+import "cleanapi/cleanapi.proto";
 import "google/api/field_behavior.proto";
 import "osac/private/v1/metadata_type.proto";
 import "osac/private/v1/security_rule_type.proto";
 import "osac/private/v1/virtual_network_type.proto";
+
+option (cleanapi.file).package = "osac.public.v1";
 
 // Represents a virtual firewall controlling network traffic for compute instances.
 //
@@ -35,9 +38,6 @@ import "osac/private/v1/virtual_network_type.proto";
 // The parent VirtualNetwork relationship is established via metadata.annotations using the 'osac.openshift.io/owner-reference'
 // key with the VirtualNetwork ID as the value. This enables proper resource hierarchy for garbage collection - when
 // a VirtualNetwork is deleted, all associated SecurityGroups are automatically cleaned up.
-//
-// Design follows AWS Security Groups and Azure Network Security Groups (NSGs) patterns, adapted for cloud-native
-// multi-tenant environments.
 message SecurityGroup {
   // Unique identifier of the security group.
   string id = 1;
@@ -87,10 +87,6 @@ message SecurityGroupSpec {
   //
   // Example: Allow all outbound traffic, or restrict to specific destinations
   repeated SecurityRule egress = 3;
-
-  // Reserved field numbers for removed fields (do not reuse).
-  reserved 4;
-  reserved "implementation_strategy";
 }
 
 // Represents the current operational state of a SecurityGroup.
