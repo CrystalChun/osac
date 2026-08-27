@@ -20,6 +20,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"k8s.io/apimachinery/pkg/api/equality"
 	apimeta "k8s.io/apimachinery/pkg/api/meta"
@@ -42,6 +43,11 @@ import (
 // by this controller only, so it lives here rather than in volume_names.go
 // (which holds identifiers shared with the feedback controller).
 const osacVolumeFinalizer = "osac.openshift.io/volume-finalizer"
+
+// statusStampPollInterval is the requeue delay when backend/protocol have not
+// yet been stamped by the fulfillment-service. Kept short because the stamp
+// typically lands within a second of CR creation.
+const statusStampPollInterval = 2 * time.Second
 
 // VendorProvisioner abstracts vendor storage array operations. Unlike other
 // OSAC resources that provision through AAP (RunProvisioningLifecycle), volumes
@@ -173,10 +179,22 @@ func (r *VolumeReconciler) Reconcile(ctx context.Context, req mcreconcile.Reques
 // is present, sets the initial phase to Progressing, and delegates to
 // handleProvisioning if the volume has not yet reached Ready.
 func (r *VolumeReconciler) handleUpdate(ctx context.Context, vol *v1alpha1.Volume) (ctrl.Result, error) {
+	log := ctrllog.FromContext(ctx)
+
 	if controllerutil.AddFinalizer(vol, osacVolumeFinalizer) {
 		if err := r.Update(ctx, vol); err != nil {
 			return ctrl.Result{}, err
 		}
+	}
+
+	// Backend and protocol are stamped by the fulfillment-service in a separate
+	// Status().Update() after it creates the Volume CR. If the operator reconciles
+	// before that stamp lands, these fields are empty. Requeue WITHOUT writing
+	// status (no phase change) to avoid clobbering FS's concurrent stamp with a
+	// resourceVersion bump.
+	if vol.Status.Backend == "" || vol.Status.Protocol == "" {
+		log.Info("backend/protocol not yet populated by fulfillment-service, requeueing")
+		return ctrl.Result{RequeueAfter: statusStampPollInterval}, nil
 	}
 
 	if vol.Status.Phase == "" {
