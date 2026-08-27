@@ -93,8 +93,34 @@ jobs:
       with:
         version: '1.50.0'
         setup_only: true
+    - if: steps.should-run.outputs.run && matrix.component == 'fulfillment-service'
+      uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+      with:
+        enable-cache: auto
+        version: "latest-known"
+    - if: steps.should-run.outputs.run && matrix.component == 'fulfillment-service'
+      name: Install protoc
+      run: |
+        # Install protoc for the public proto generation step
+        sudo apt-get update
+        sudo apt-get install -y protobuf-compiler
+    - if: steps.should-run.outputs.run && matrix.component == 'fulfillment-service'
+      name: Generate public protos from private
+      working-directory: fulfillment-service
+      run: uv run dev.py build protos
     - if: steps.should-run.outputs.run
+      name: Generate Go code from protos
+      working-directory: ${{ matrix.component }}
+      run: buf generate
+    - if: steps.should-run.outputs.run
+      name: Check for uncommitted changes
       working-directory: ${{ matrix.component }}
       run: |
-        buf generate
-        git diff --exit-code -- .
+        if ! git diff --exit-code -- .; then
+          if [ "${{ matrix.component }}" = "fulfillment-service" ]; then
+            echo "::error::Generated code is out of date. Run 'uv run dev.py build protos && buf generate' in fulfillment-service/ and commit the changes."
+          else
+            echo "::error::Generated code is out of date. Run 'buf generate' in ${{ matrix.component }}/ and commit the changes."
+          fi
+          exit 1
+        fi
