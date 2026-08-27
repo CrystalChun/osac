@@ -16,8 +16,11 @@ syntax = "proto3";
 package osac.private.v1;
 
 import "buf/validate/validate.proto";
+import "cleanapi/cleanapi.proto";
 import "osac/private/v1/condition_status_type.proto";
 import "osac/private/v1/metadata_type.proto";
+
+option (cleanapi.file).package = "osac.public.v1";
 
 // A project is a logical grouping of resources.
 //
@@ -31,9 +34,6 @@ import "osac/private/v1/metadata_type.proto";
 // - Organizing resources by team, department, or application
 // - Hierarchical resource isolation (e.g., prod/staging/dev as nested projects)
 // - Quota and resource allocation boundaries
-//
-// The system validates the project hierarchy during reconciliation:
-// - Circular dependencies are prevented
 message Project {
   option (buf.validate.message).cel = {
     id: "project_name_segments"
@@ -108,7 +108,7 @@ message ProjectStatus {
   // have been configured in Keycloak.
   //
   // Each condition has a type, status (True/False/Unknown), and optional reason and message.
-  repeated ProjectCondition conditions = 3;
+  repeated ProjectCondition conditions = 3 [(cleanapi.field).private = true];
 
 }
 
@@ -177,6 +177,7 @@ enum ProjectState {
 // Conditions follow the Kubernetes condition pattern, providing detailed status information
 // about various subsystems or aspects of the project.
 message ProjectCondition {
+  option (cleanapi.message).private = true;
   // Type of condition.
   ProjectConditionType type = 1;
 
@@ -202,6 +203,7 @@ message ProjectCondition {
 
 // Types of conditions that can be reported for a Project.
 enum ProjectConditionType {
+  option (cleanapi.enum).private = true;
   // Unspecified condition type.
   PROJECT_CONDITION_TYPE_UNSPECIFIED = 0;
 
