@@ -8,6 +8,7 @@ import {
   Spinner,
   Stack,
   StackItem,
+  Title,
 } from '@patternfly/react-core';
 import { useFormikContext } from 'formik';
 
@@ -17,6 +18,7 @@ import {
   useSubnet,
   useVirtualNetwork,
 } from '@osac/ui-components/api/v1/networking';
+import { usePrivateStorageTiers } from '@osac/ui-components/api/v1/private/storage-tiers';
 import { useProjects } from '@osac/ui-components/api/v1/project';
 import { CatalogItem } from '@osac/ui-components/components/catalog/catalogItemDisplay';
 import {
@@ -28,7 +30,11 @@ import { getErrorMessage } from '@osac/ui-components/utils/error';
 
 import { ComputeInstanceWizardValues } from './fields';
 import { useTranslation } from '../../../../../hooks/useTranslation';
-import { formatBootDiskSizeForReview, formatReviewScalar } from '../../catalogOverlay';
+import {
+  formatBootDiskSizeForReview,
+  formatReviewScalar,
+  resolveStorageTierDisplayName,
+} from '../../catalogOverlay';
 
 interface Props {
   catalogItem: CatalogItem | null;
@@ -70,7 +76,16 @@ export const VmReviewStep = ({ catalogItem }: Props) => {
     error: projectsError,
   } = useProjects({ filter: fullProjectPathToQueryFilter(values.metadata.project) });
 
-  if (instanceLoading || virtNetLoading || subnetLoading || scLoading || projectsLoading) {
+  const { data: tiers, isLoading: tiersLoading, error: tiersError } = usePrivateStorageTiers();
+
+  if (
+    instanceLoading ||
+    virtNetLoading ||
+    subnetLoading ||
+    scLoading ||
+    projectsLoading ||
+    tiersLoading
+  ) {
     return (
       <Bullseye>
         <Spinner />
@@ -116,12 +131,18 @@ export const VmReviewStep = ({ catalogItem }: Props) => {
           </Alert>
         </StackItem>
       )}
+      {!!tiersError && (
+        <StackItem>
+          <Alert variant="warning" isInline title={t('Failed to fetch storage tiers')}>
+            {getErrorMessage(tiersError)}
+          </Alert>
+        </StackItem>
+      )}
       <StackItem>
-        <DescriptionList
-          isHorizontal
-          isCompact
-          aria-label={t('catalogProvision.steps.review.title')}
-        >
+        <Title headingLevel="h3">{t('Configuration')}</Title>
+      </StackItem>
+      <StackItem>
+        <DescriptionList isHorizontal isCompact aria-label={t('Configuration')}>
           <DescriptionListGroup>
             <DescriptionListTerm>{t('Catalog item')}</DescriptionListTerm>
             <DescriptionListDescription>
@@ -164,12 +185,6 @@ export const VmReviewStep = ({ catalogItem }: Props) => {
               )}
             </DescriptionListDescription>
           </DescriptionListGroup>
-          <DescriptionListGroup>
-            <DescriptionListTerm>{t('Boot disk')}</DescriptionListTerm>
-            <DescriptionListDescription>
-              {formatBootDiskSizeForReview(values.spec.bootDisk.sizeGib)}
-            </DescriptionListDescription>
-          </DescriptionListGroup>
 
           <DescriptionListGroup>
             <DescriptionListTerm>{t('User Data')}</DescriptionListTerm>
@@ -198,6 +213,31 @@ export const VmReviewStep = ({ catalogItem }: Props) => {
                 .join(', ')}
             </DescriptionListDescription>
           </DescriptionListGroup>
+        </DescriptionList>
+      </StackItem>
+      <StackItem>
+        <Title headingLevel="h3">{t('Storage')}</Title>
+      </StackItem>
+      <StackItem>
+        <DescriptionList isHorizontal isCompact aria-label={t('Storage')}>
+          <DescriptionListGroup>
+            <DescriptionListTerm>{t('Boot disk')}</DescriptionListTerm>
+            <DescriptionListDescription>
+              {formatBootDiskSizeForReview(values.spec.bootDisk.sizeGib)},{' '}
+              {resolveStorageTierDisplayName(values.spec.bootDisk.storageTier, tiers)}
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+          {values.spec.additionalDisks.map((disk, index) => (
+            <DescriptionListGroup key={index}>
+              <DescriptionListTerm>
+                {t('Additional disk {{number}}', { number: index + 1 })}
+              </DescriptionListTerm>
+              <DescriptionListDescription>
+                {formatBootDiskSizeForReview(disk.sizeGib)},{' '}
+                {resolveStorageTierDisplayName(disk.storageTier, tiers)}
+              </DescriptionListDescription>
+            </DescriptionListGroup>
+          ))}
         </DescriptionList>
       </StackItem>
     </Stack>
