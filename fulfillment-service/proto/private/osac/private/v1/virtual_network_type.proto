@@ -15,9 +15,12 @@ syntax = "proto3";
 
 package osac.private.v1;
 
+import "cleanapi/cleanapi.proto";
 import "google/api/field_behavior.proto";
 import "osac/private/v1/metadata_type.proto";
 import "osac/private/v1/network_class_type.proto";
+
+option (cleanapi.file).package = "osac.public.v1";
 
 // Represents a tenant-isolated virtual network.
 //
@@ -60,10 +63,10 @@ message VirtualNetworkSpec {
   //
   // Example: "us-east-1", "eu-west-2"
   string region = 1 [
+    (cleanapi.field).private = true,
     (google.api.field_behavior) = REQUIRED,
     (google.api.field_behavior) = IMMUTABLE
   ];
-
   // The NetworkClass for this VirtualNetwork. If omitted on creation, the default NetworkClass is used.
   // Once set (either explicitly or via default), this field is immutable.
   //
@@ -71,10 +74,10 @@ message VirtualNetworkSpec {
   // available capabilities. The NetworkClass must support the IP addressing mode implied by whichever of
   // ipv4_cidr and ipv6_cidr are set below.
   NetworkClassReference network_class = 2 [
+    (cleanapi.field).private = true,
     (google.api.field_behavior) = OPTIONAL,
     (google.api.field_behavior) = IMMUTABLE
   ];
-
   // IPv4 CIDR block for this network. Optional for IPv6-only networks. Immutable after creation.
   //
   // Must be valid CIDR notation. Validation enforced at service layer.
@@ -94,10 +97,6 @@ message VirtualNetworkSpec {
   //
   // Leave empty when creating an IPv4-only network.
   optional string ipv6_cidr = 4 [(google.api.field_behavior) = IMMUTABLE];
-
-  // Reserved field numbers for removed fields (do not reuse).
-  reserved 5, 6;
-  reserved "capabilities", "implementation_strategy";
 }
 
 // Represents the current operational state of a VirtualNetwork.
@@ -121,7 +120,7 @@ message VirtualNetworkStatus {
 
   // Identifier of the hub that was selected for this virtual network.
   // This is system-managed and used by the controller to track which hub cluster manages this network's resources.
-  string hub = 3;
+  string hub = 3 [(cleanapi.field).private = true];
 }
 
 // Lifecycle states for VirtualNetwork resources.
