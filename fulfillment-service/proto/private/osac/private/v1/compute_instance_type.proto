@@ -15,7 +15,6 @@ syntax = "proto3";
 
 package osac.private.v1;
 
-import "cleanapi/cleanapi.proto";
 import "google/api/field_behavior.proto";
 import "google/protobuf/any.proto";
 import "google/protobuf/timestamp.proto";
@@ -28,8 +27,6 @@ import "osac/private/v1/metadata_type.proto";
 import "osac/private/v1/instance_type_type.proto";
 import "osac/private/v1/security_group_type.proto";
 import "osac/private/v1/subnet_type.proto";
-
-option (cleanapi.file).package = "osac.public.v1";
 
 // Contains the details of the compute instance.
 //
@@ -229,7 +226,7 @@ message ComputeInstanceStatus {
   string internal_ip_address = 3;
 
   // Identifier of the hub that was selected for this compute instance.
-  string hub = 4 [(cleanapi.field).private = true];
+  string hub = 4;
 
 
   // LastRestartedAt records when the last restart was initiated by the controller.
