@@ -38,7 +38,7 @@ const (
 
 // Lifecycle states for NATGateway resources.
 //
-// State transitions: UNSPECIFIED -> PENDING -> READY. On deletion: READY -> DELETING.
+// State transitions: UNSPECIFIED -> PENDING -> READY.
 // FAILED is a terminal error state for provisioning failures.
 type NATGatewayState int32
 
@@ -58,8 +58,8 @@ const (
 	NATGatewayState_NAT_GATEWAY_STATE_READY NATGatewayState = 2
 	// Provisioning failed. Check status.message for error details.
 	//
-	// This is a terminal error state. The NATGateway may require manual intervention
-	// (e.g., deleting and recreating) or a Signal RPC to retry the operation.
+	// This is a terminal error state. The NATGateway may require deletion and recreation,
+	// or an administrator can retry via the private API Signal RPC.
 	NATGatewayState_NAT_GATEWAY_STATE_FAILED NATGatewayState = 3
 	// The NAT gateway is being deprovisioned and will be removed.
 	//
@@ -124,7 +124,7 @@ func (x NATGatewayState) Number() protoreflect.EnumNumber {
 // VirtualNetwork is rejected. All spec fields are immutable after creation.
 //
 // The lifecycle follows: PENDING (SNAT rule being configured) -> READY (egress active).
-// FAILED is a terminal error state for provisioning failures. DELETING is set during deprovisioning.
+// FAILED is a terminal error state for provisioning failures.
 type NATGateway struct {
 	state               protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Id       string                 `protobuf:"bytes,1,opt,name=id,proto3"`
