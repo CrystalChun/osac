@@ -96,14 +96,43 @@ func deleteProject(ctx context.Context, client privatev1.ProjectsClient, id stri
 	).Should(Succeed())
 }
 
+func deleteSecrets(ctx context.Context, client privatev1.SecretsClient, tenant string) {
+	listFilter := fmt.Sprintf("this.metadata.tenant == %q && !has(this.metadata.deletion_timestamp)", tenant)
+	listRequest := privatev1.SecretsListRequest_builder{
+		Filter: &listFilter,
+	}.Build()
+	Eventually(
+		func(g Gomega) {
+			listResponse, err := client.List(ctx, listRequest)
+			g.Expect(err).ToNot(HaveOccurred())
+			for _, item := range listResponse.GetItems() {
+				_, err := client.Delete(ctx, privatev1.SecretsDeleteRequest_builder{
+					Id: item.GetId(),
+				}.Build())
+				g.Expect(err).ToNot(HaveOccurred())
+			}
+			g.Expect(listResponse.GetTotal()).To(BeZero())
+		},
+		time.Minute,
+		time.Second,
+	).Should(Succeed())
+}
+
 func deleteTenant(ctx context.Context, tenantsClient privatev1.TenantsClient, projectsClient privatev1.ProjectsClient,
-	id string) {
+	id, name string) {
+	// Break-glass secrets are stored against the tenant's default project, so they
+	// must be removed before projects (secrets_project_fk) and the tenant
+	// (secrets_tenant_fk) can be deleted. Repeat on each loop in case the
+	// reconciler persists a secret between cleanup steps.
+	secretsClient := privatev1.NewSecretsClient(tool.InternalView().AdminConn())
+
 	// Before deleting the tenant we need to delete all the projects associated with it:
-	listProjectsFilter := fmt.Sprintf("this.metadata.tenant == %q && !has(this.metadata.deletion_timestamp)", id)
+	listProjectsFilter := fmt.Sprintf("this.metadata.tenant == %q && !has(this.metadata.deletion_timestamp)", name)
 	listProjectsRequest := privatev1.ProjectsListRequest_builder{
 		Filter: &listProjectsFilter,
 	}.Build()
 	for {
+		deleteSecrets(ctx, secretsClient, name)
 		listProjectsResponse, err := projectsClient.List(ctx, listProjectsRequest)
 		Expect(err).ToNot(HaveOccurred())
 		if listProjectsResponse.GetTotal() == 0 {
@@ -111,23 +140,42 @@ func deleteTenant(ctx context.Context, tenantsClient privatev1.TenantsClient, pr
 		}
 		listProjectsItems := listProjectsResponse.GetItems()
 		for _, listProjectItem := range listProjectsItems {
+			deleteSecrets(ctx, secretsClient, name)
 			deleteProject(ctx, projectsClient, listProjectItem.GetId())
 		}
 	}
+	deleteSecrets(ctx, secretsClient, name)
 
 	// Now we can delete the tenant:
 	_, err := tenantsClient.Delete(ctx, privatev1.TenantsDeleteRequest_builder{
 		Id: id,
 	}.Build())
 	Expect(err).ToNot(HaveOccurred())
+
+	// Wake tenant and onboarding reconcilers so finalizer removal is not delayed
+	// waiting for the next watch/sync cycle. Tolerate NotFound: Delete above starts
+	// asynchronous finalizer processing, so the tenant may already be archived by the
+	// time this best-effort nudge runs, which means the goal state is already reached.
+	_, err = tenantsClient.Signal(ctx, privatev1.TenantsSignalRequest_builder{
+		Id: id,
+	}.Build())
+	if err != nil {
+		signalStatus, ok := grpcstatus.FromError(err)
+		Expect(ok).To(BeTrue())
+		Expect(signalStatus.Code()).To(Equal(grpccodes.NotFound))
+	}
+
 	Eventually(
 		func(g Gomega) {
 			_, err := tenantsClient.Get(ctx, privatev1.TenantsGetRequest_builder{
 				Id: id,
 			}.Build())
 			g.Expect(err).To(HaveOccurred())
+			status, ok := grpcstatus.FromError(err)
+			g.Expect(ok).To(BeTrue())
+			g.Expect(status.Code()).To(Equal(grpccodes.NotFound))
 		},
-		time.Minute,
+		2*time.Minute,
 		time.Second,
 	).Should(Succeed())
 }
@@ -287,7 +335,7 @@ var _ = Describe("Tenant lifecycle", func() {
 		verifyTenantInKeycloak(ctx, name)
 
 		By("Deleting tenant")
-		deleteTenant(ctx, tenantsClient, projectsClient, id)
+		deleteTenant(ctx, tenantsClient, projectsClient, id, name)
 
 		By("Waiting for tenant to return NotFound")
 		Eventually(
@@ -624,7 +672,7 @@ var _ = Describe("Tenant edge cases and resilience", func() {
 		waitForTenantSynced(ctx, tenantsClient, id)
 
 		By("Deleting the tenant")
-		deleteTenant(ctx, tenantsClient, projectsClient, id)
+		deleteTenant(ctx, tenantsClient, projectsClient, id, name)
 
 		By("Waiting for tenant to be fully removed")
 		Eventually(
@@ -681,7 +729,7 @@ var _ = Describe("Tenant edge cases and resilience", func() {
 		id := createResponse.GetObject().GetId()
 
 		By("Immediately deleting the tenant before it reaches SYNCED")
-		deleteTenant(ctx, tenantsClient, projectsClient, id)
+		deleteTenant(ctx, tenantsClient, projectsClient, id, name)
 
 		By("Verifying the tenant eventually returns NotFound")
 		Eventually(
