@@ -80,11 +80,12 @@ const (
 	envManagementRecheckInterval = "OSAC_MANAGEMENT_RECHECK_INTERVAL"
 	envProvisionPollInterval     = "OSAC_PROVISION_POLL_INTERVAL"
 
-	envAAPURL                = "OSAC_AAP_URL"
-	envAAPToken              = "OSAC_AAP_TOKEN"
-	envAAPStatusPollInterval = "OSAC_AAP_STATUS_POLL_INTERVAL"
-	envAAPInsecureSkipVerify = "OSAC_AAP_INSECURE_SKIP_VERIFY"
-	envAAPTemplatePrefix     = "OSAC_AAP_TEMPLATE_PREFIX"
+	envAAPURL                       = "OSAC_AAP_URL"
+	envAAPToken                     = "OSAC_AAP_TOKEN"
+	envAAPStatusPollInterval        = "OSAC_AAP_STATUS_POLL_INTERVAL"
+	envAAPInsecureSkipVerify        = "OSAC_AAP_INSECURE_SKIP_VERIFY"
+	envAAPTemplatePrefix            = "OSAC_AAP_TEMPLATE_PREFIX"
+	envEnableNetworkingProvisioning = "OSAC_ENABLE_NETWORKING_PROVISIONING"
 )
 
 func init() {
@@ -264,15 +265,18 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Create shared provisioning provider
+	// Create shared provisioning, networking, and IP discovery providers
 	var provisioningProvider provisioning.ProvisioningProvider
+	var networkingProvider provisioning.ProvisioningProvider
+	var ipDiscoveryProvider provisioning.ProvisioningProvider
+	var aapClient *aap.Client
 	aapURL := helpers.GetEnvWithDefault(envAAPURL, "")
 	aapToken := helpers.GetEnvWithDefault(envAAPToken, "")
 	if aapURL != "" && aapToken != "" {
 		insecureSkipVerify := helpers.GetEnvWithDefault(envAAPInsecureSkipVerify, false)
 		templatePrefix := helpers.GetEnvWithDefault(envAAPTemplatePrefix, "osac")
 
-		aapClient := aap.NewClient(aapURL, aapToken, insecureSkipVerify)
+		aapClient = aap.NewClient(aapURL, aapToken, insecureSkipVerify)
 
 		var err error
 		provisioningProvider, err = provisioning.NewProvider(provisioning.ProviderConfig{
@@ -282,6 +286,25 @@ func main() {
 		if err != nil {
 			setupLog.Error(err, "failed to create AAP provisioning provider")
 			os.Exit(1)
+		}
+
+		enableNetworkingProvisioning := helpers.GetEnvWithDefault(envEnableNetworkingProvisioning, false)
+		if enableNetworkingProvisioning {
+			// Networking provisioning (onboard) and deprovisioning (offboard) are both a
+			// port move; the single move playbook derives the direction from the CR.
+			networkingProvider = provisioning.NewAAPProvider(
+				aapClient,
+				templatePrefix+"-move-network-attachment",
+				templatePrefix+"-move-network-attachment",
+			)
+
+			ipDiscoveryProvider = provisioning.NewAAPProvider(
+				aapClient,
+				templatePrefix+"-query-dhcp-lease",
+				"",
+			)
+		} else {
+			setupLog.Info("BMI networking provisioning disabled, move-network-attachment and query-dhcp-lease will be skipped")
 		}
 
 		setupLog.Info("AAP provisioning provider configured")
@@ -294,7 +317,10 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := setupBareMetalInstanceController(ctx, mgr, provisioningProvider); err != nil {
+	if err := setupBareMetalInstanceController(
+		ctx, mgr, provisioningProvider, networkingProvider,
+		ipDiscoveryProvider, aapClient,
+	); err != nil {
 		setupLog.Error(err, "unable to setup controller", "controller", "BareMetalInstance")
 		os.Exit(1)
 	}
@@ -399,6 +425,9 @@ func setupBareMetalInstanceController(
 	ctx context.Context,
 	mgr ctrl.Manager,
 	provisioningProvider provisioning.ProvisioningProvider,
+	networkingProvider provisioning.ProvisioningProvider,
+	ipDiscoveryProvider provisioning.ProvisioningProvider,
+	aapClient *aap.Client,
 ) error {
 	// Read and parse inventory configuration
 	inventoryConfigPath := helpers.GetEnvWithDefault(envInventoryConfigPath, "/etc/osac/inventory/inventory.yaml")
@@ -412,8 +441,8 @@ func setupBareMetalInstanceController(
 		return fmt.Errorf("failed to parse inventory config: %w", err)
 	}
 
-	// Parse management config before inventory client — Metal3 management
-	// triggers BMH manager wiring on the inventory config.
+	// Parse management config before inventory client — the bare-metal management
+	// backend may trigger additional wiring on the inventory config.
 	managementConfigPath := helpers.GetEnvWithDefault(envManagementConfigPath, "/etc/osac/management/management.yaml")
 	managementConfigData, err := os.ReadFile(managementConfigPath)
 	if err != nil {
@@ -466,6 +495,9 @@ func setupBareMetalInstanceController(
 		inventoryClient,
 		managementClient,
 		provisioningProvider,
+		networkingProvider,
+		ipDiscoveryProvider,
+		aapClient,
 		noFreeHostsPollInterval,
 		tryLockFailPollInterval,
 		managementRecheckInterval,
