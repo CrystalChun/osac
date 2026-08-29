@@ -16,7 +16,6 @@ syntax = "proto3";
 package osac.private.v1;
 
 import "buf/validate/validate.proto";
-import "cleanapi/cleanapi.proto";
 import "google/api/field_behavior.proto";
 import "google/protobuf/any.proto";
 import "google/protobuf/timestamp.proto";
@@ -26,8 +25,6 @@ import "osac/private/v1/condition_status_type.proto";
 import "osac/private/v1/metadata_type.proto";
 import "osac/private/v1/security_group_type.proto";
 import "osac/private/v1/subnet_type.proto";
-
-option (cleanapi.file).package = "osac.public.v1";
 
 // Contains the details of a bare metal instance.
 //
@@ -155,7 +152,7 @@ message BareMetalInstanceStatus {
   int64 restart_trigger = 3;
 
   // Identifier of the hub that was selected for this bare metal instance.
-  string hub = 4 [(cleanapi.field).private = true];
+  string hub = 4;
 
   // Runtime networking state for each network attachment.
   // Populated by the operator after DHCP lease discovery and synced via the feedback controller.

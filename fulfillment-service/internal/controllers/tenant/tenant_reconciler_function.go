@@ -235,6 +235,13 @@ func (t *task) syncToIDP(ctx context.Context) error {
 		t.tenant.GetStatus().SetBreakGlassUserId(credentials.UserID)
 	}
 
+	// Ensure the Vault namespace exists before attempting to persist the break-glass secret.
+	// The secret will be stored in Vault under the tenant's namespace, so the namespace
+	// must be provisioned first.
+	if err := t.ensureVaultNamespace(ctx); err != nil {
+		return err
+	}
+
 	if err := t.persistBreakGlassSecret(ctx); err != nil {
 		t.r.logger.ErrorContext(ctx, "Failed to persist break-glass credentials secret",
 			slog.String("tenant_id", t.tenant.GetId()),

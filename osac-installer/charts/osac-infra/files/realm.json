@@ -1156,6 +1156,20 @@
         "organization",
         "offline_access",
         "microprofile-jwt"
+      ],
+      "protocolMappers": [
+        {
+          "id": "osac-api-audience",
+          "name": "osac-api-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.client.audience": "osac-api",
+            "id.token.claim": "false",
+            "access.token.claim": "true"
+          }
+        }
       ]
     },
     {
@@ -1602,7 +1616,8 @@
             "access.token.claim": "true",
             "claim.name": "organization"
           }
-        }, {
+        },
+        {
           "id": "org-group-membership-001",
           "name": "organization-groups",
           "protocol": "openid-connect",
