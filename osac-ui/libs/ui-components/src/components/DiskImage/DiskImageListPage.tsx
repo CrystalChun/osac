@@ -18,6 +18,7 @@ import { Architecture, DiskImageLifecycle, GuestOSFamily } from '@osac/types';
 
 import DiskImageTable from './DiskImageTable';
 import { buildDiskImageListFilter, useDiskImages } from '../../api/v1/disk-image';
+import { useTenants } from '../../api/v1/private/tenant';
 import { SEARCH_PARAM, useArrayPageFilter, usePageFilter } from '../../hooks/use-page-filter';
 import { useTranslation } from '../../hooks/useTranslation';
 import ListPage from '../Page/ListPage';
@@ -199,6 +200,7 @@ const DiskImageListPage = () => {
   });
 
   const { data: diskImages = [], isLoading, error } = useDiskImages({ filter });
+  const { data: tenants = [] } = useTenants();
 
   const guestOsFamilyOptions: FilterOption<GuestOsFamilyFilterValue>[] = [
     { value: 'linux', label: t('Linux') },
@@ -292,7 +294,7 @@ const DiskImageListPage = () => {
             </ToolbarGroup>
           </ToolbarContent>
         </Toolbar>
-        <DiskImageTable diskImages={diskImages} />
+        <DiskImageTable diskImages={diskImages} tenants={tenants} />
       </ListPageBody>
     </ListPage>
   );

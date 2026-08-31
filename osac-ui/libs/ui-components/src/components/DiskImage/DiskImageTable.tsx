@@ -11,6 +11,7 @@ import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 import type { TFunction } from 'i18next';
 
 import { Architecture, type DiskImage, GuestOSFamily } from '@osac/types';
+import { type Tenant } from '@osac/types/private';
 
 import DiskImageActionsMenu from './DiskImageActionsMenu';
 import DiskImageLifecycleLabel from './DiskImageLifecycleLabel';
@@ -42,9 +43,10 @@ const guestOsFamilyLabels = (t: TFunction): Record<GuestOSFamily, string> => ({
 
 interface DiskImageTableProps {
   diskImages: DiskImage[];
+  tenants: Tenant[];
 }
 
-const DiskImageTable = ({ diskImages }: DiskImageTableProps) => {
+const DiskImageTable = ({ diskImages, tenants }: DiskImageTableProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const guestOsFamilyText = guestOsFamilyLabels(t);
@@ -84,7 +86,9 @@ const DiskImageTable = ({ diskImages }: DiskImageTableProps) => {
         ) : (
           diskImages.map((diskImage) => {
             const architecture = diskImage.spec?.architecture ?? [];
-            const isGlobal = diskImage.metadata?.tenant === 'shared';
+            const tenantId = diskImage.metadata?.tenant;
+            const isGlobal = tenantId === 'shared';
+            const tenantName = tenants.find((tenant) => tenant.id === tenantId)?.metadata?.name;
 
             return (
               <Tr key={diskImage.id}>
@@ -112,11 +116,13 @@ const DiskImageTable = ({ diskImages }: DiskImageTableProps) => {
                 </Td>
                 <Td dataLabel={t('Architecture')} width={ARCHITECTURE_COLUMN_WIDTH}>
                   {architecture.length
-                    ? architecture.map((value) => architectureText[value]).join(', ')
+                    ? architecture
+                        .map((value) => architectureText[value] ?? t('Unspecified'))
+                        .join(', ')
                     : '—'}
                 </Td>
                 <Td dataLabel={t('Scope')} width={SCOPE_COLUMN_WIDTH}>
-                  {isGlobal ? t('Global') : t('Tenant')}
+                  {isGlobal ? t('Global') : (tenantName ?? tenantId)}
                 </Td>
                 <Td dataLabel={t('Created')} width={CREATED_COLUMN_WIDTH}>
                   <Timestamp value={diskImage.metadata?.creationTimestamp} />

@@ -10,9 +10,16 @@ import {
   DiskImageSchema,
   GuestOSFamily,
 } from '@osac/types';
+import type { Tenant } from '@osac/types/private';
 
 import DiskImageTable from './DiskImageTable';
 import { renderWithProviders } from '../../test-utils/TestProviders';
+
+const makeTenant = (id: string, name: string): Tenant =>
+  ({
+    id,
+    metadata: { name },
+  }) as Tenant;
 
 const makeDiskImage = (overrides: {
   id: string;
@@ -37,12 +44,12 @@ const makeDiskImage = (overrides: {
     },
   });
 
-const renderTableWithRoutes = (diskImages: DiskImage[]) =>
+const renderTableWithRoutes = (diskImages: DiskImage[], tenants: Tenant[] = []) =>
   renderWithProviders(
     <Routes>
       <Route
         path="/admin/infrastructure/disk-images"
-        element={<DiskImageTable diskImages={diskImages} />}
+        element={<DiskImageTable diskImages={diskImages} tenants={tenants} />}
       />
       <Route
         path="/admin/infrastructure/disk-images/:id"
@@ -76,16 +83,33 @@ describe('DiskImageTable', () => {
     expect(screen.getByText('Linux')).toBeInTheDocument();
   });
 
+  it('falls back to Unspecified for an architecture value not known to the frontend', () => {
+    renderTableWithRoutes([
+      makeDiskImage({ id: 'unknown-arch-1', architecture: [99 as Architecture] }),
+    ]);
+
+    expect(screen.getByText('Unspecified')).toBeInTheDocument();
+  });
+
   it('shows Global scope when metadata.tenant is "shared"', () => {
     renderTableWithRoutes([makeDiskImage({ id: 'global-1', tenant: 'shared' })]);
 
     expect(screen.getByText('Global')).toBeInTheDocument();
   });
 
-  it('shows Tenant scope when metadata.tenant is set', () => {
-    renderTableWithRoutes([makeDiskImage({ id: 'tenant-1', tenant: 'tenant-a' })]);
+  it('shows the resolved tenant name for a tenant-scoped image', () => {
+    renderTableWithRoutes(
+      [makeDiskImage({ id: 'tenant-1', tenant: 'tenant-a' })],
+      [makeTenant('tenant-a', 'Acme Corp')],
+    );
 
-    expect(screen.getByText('Tenant')).toBeInTheDocument();
+    expect(screen.getByText('Acme Corp')).toBeInTheDocument();
+  });
+
+  it('falls back to the raw tenant id when the tenant is not found in the list', () => {
+    renderTableWithRoutes([makeDiskImage({ id: 'tenant-1', tenant: 'tenant-a' })], []);
+
+    expect(screen.getByText('tenant-a')).toBeInTheDocument();
   });
 
   it('navigates to the detail route when the name is clicked', async () => {
