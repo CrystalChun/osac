@@ -28,14 +28,14 @@ const SCOPE_COLUMN_WIDTH = 15;
 const CREATED_COLUMN_WIDTH = 15;
 const EMPTY_STATE_COLUMN_SPAN = 7;
 
-const architectureLabels = (t: TFunction): Record<Architecture, string> => ({
+export const architectureLabels = (t: TFunction): Record<Architecture, string> => ({
   [Architecture.UNSPECIFIED]: t('Unspecified'),
   [Architecture.AMD64]: 'amd64',
   [Architecture.ARM64]: 'arm64',
   [Architecture.S390X]: 's390x',
 });
 
-const guestOsFamilyLabels = (t: TFunction): Record<GuestOSFamily, string> => ({
+export const guestOsFamilyLabels = (t: TFunction): Record<GuestOSFamily, string> => ({
   [GuestOSFamily.GUEST_OS_FAMILY_UNSPECIFIED]: t('Unspecified'),
   [GuestOSFamily.GUEST_OS_FAMILY_LINUX]: t('Linux'),
   [GuestOSFamily.GUEST_OS_FAMILY_WINDOWS]: t('Windows'),
