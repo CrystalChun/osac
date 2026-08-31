@@ -6,18 +6,19 @@ import {
   ActionListItem,
   Alert,
   Button,
+  Content,
   FormGroup,
   Stack,
   StackItem,
 } from '@patternfly/react-core';
 import { Formik, type FormikHelpers } from 'formik';
 
-import { SourceType } from '@osac/types';
+import { type DiskImage, SourceType } from '@osac/types';
 
 import { architectureLabels, guestOsFamilyLabels } from './DiskImageTable';
 import { getDiskImageCreateSchema } from './validation';
 import { DiskImageFormValues, diskImageCreateValues } from './values';
-import { useCreateDiskImage } from '../../api/v1/disk-image';
+import { useCreateDiskImage, useUpdateDiskImage } from '../../api/v1/disk-image';
 import { useTranslation } from '../../hooks/useTranslation';
 import { getErrorMessage } from '../../utils/error';
 import NameField from '../catalogProvision/wizard/fields/NameField';
@@ -37,10 +38,45 @@ const FIELD_ERROR_MATCHERS: { pattern: RegExp; field: string }[] = [
 const mapInvalidArgumentToField = (message: string): string | undefined =>
   FIELD_ERROR_MATCHERS.find(({ pattern }) => pattern.test(message))?.field;
 
-const DiskImageForm = () => {
+const ReadOnlyField = ({
+  label,
+  fieldId,
+  value,
+}: {
+  label: string;
+  fieldId: string;
+  value: string;
+}) => (
+  <FormGroup label={label} fieldId={fieldId}>
+    <Content component="p">{value}</Content>
+  </FormGroup>
+);
+
+const getInitialValues = (diskImage?: DiskImage): DiskImageFormValues =>
+  diskImage
+    ? {
+        metadata: { name: diskImage.metadata?.name ?? '' },
+        spec: {
+          sourceRef: diskImage.spec?.sourceRef ?? '',
+          guestOsFamily:
+            diskImage.spec?.guestOsFamily ?? diskImageCreateValues.spec.guestOsFamily,
+          architecture: diskImage.spec?.architecture ?? [],
+        },
+      }
+    : diskImageCreateValues;
+
+interface DiskImageFormProps {
+  diskImage?: DiskImage;
+}
+
+const DiskImageForm = ({ diskImage }: DiskImageFormProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { mutateAsync: create, error } = useCreateDiskImage();
+  const isEdit = !!diskImage;
+  const initialValues = getInitialValues(diskImage);
+  const { mutateAsync: create, error: createError } = useCreateDiskImage();
+  const { mutateAsync: update, error: updateError } = useUpdateDiskImage();
+  const error = createError ?? updateError;
   const errorMessage = error ? getErrorMessage(error) : undefined;
   const errorField =
     error instanceof ConnectError && error.code === Code.InvalidArgument
@@ -60,6 +96,15 @@ const DiskImageForm = () => {
     { setFieldError }: FormikHelpers<DiskImageFormValues>,
   ) => {
     try {
+      if (isEdit && diskImage) {
+        const updated = await update({
+          id: diskImage.id,
+          body: { spec: { architecture: values.spec.architecture } },
+        });
+        navigate(`${DISK_IMAGES_LIST_ROUTE}/${updated.id}`);
+        return;
+      }
+
       const created = await create({
         metadata: { name: values.metadata.name },
         spec: {
@@ -83,7 +128,7 @@ const DiskImageForm = () => {
 
   return (
     <Formik
-      initialValues={diskImageCreateValues}
+      initialValues={initialValues}
       validationSchema={getDiskImageCreateSchema(t)}
       onSubmit={onSubmit}
     >
@@ -93,23 +138,49 @@ const DiskImageForm = () => {
           <Stack hasGutter>
             <StackItem>
               <OsacForm>
-                <NameField />
-                <FormGroup label={t('Source type')} fieldId="disk-image-source-type">
-                  {SourceType[SourceType.REGISTRY]}
-                </FormGroup>
-                <InputField
-                  name="spec.sourceRef"
-                  label={t('Source reference')}
-                  fieldId="disk-image-source-ref"
-                  isRequired
+                {isEdit ? (
+                  <ReadOnlyField
+                    label={t('Name')}
+                    fieldId="disk-image-name"
+                    value={diskImage?.metadata?.name ?? ''}
+                  />
+                ) : (
+                  <NameField />
+                )}
+                <ReadOnlyField
+                  label={t('Source type')}
+                  fieldId="disk-image-source-type"
+                  value={SourceType[SourceType.REGISTRY]}
                 />
-                <SelectField
-                  name="spec.guestOsFamily"
-                  label={t('Guest OS family')}
-                  fieldId="disk-image-guest-os-family"
-                  isRequired
-                  options={guestOsFamilyOptions}
-                />
+                {isEdit ? (
+                  <ReadOnlyField
+                    label={t('Source reference')}
+                    fieldId="disk-image-source-ref"
+                    value={diskImage?.spec?.sourceRef ?? ''}
+                  />
+                ) : (
+                  <InputField
+                    name="spec.sourceRef"
+                    label={t('Source reference')}
+                    fieldId="disk-image-source-ref"
+                    isRequired
+                  />
+                )}
+                {isEdit ? (
+                  <ReadOnlyField
+                    label={t('Guest OS family')}
+                    fieldId="disk-image-guest-os-family"
+                    value={guestOsFamilyLabels(t)[initialValues.spec.guestOsFamily]}
+                  />
+                ) : (
+                  <SelectField
+                    name="spec.guestOsFamily"
+                    label={t('Guest OS family')}
+                    fieldId="disk-image-guest-os-family"
+                    isRequired
+                    options={guestOsFamilyOptions}
+                  />
+                )}
                 <MultiSelectField
                   name="spec.architecture"
                   label={t('Architecture')}
@@ -136,7 +207,7 @@ const DiskImageForm = () => {
                       isDisabled={isSubmitting}
                       isLoading={isSubmitting}
                     >
-                      {t('Create')}
+                      {t(isEdit ? 'Save' : 'Create')}
                     </Button>
                   </ActionListItem>
                   <ActionListItem>
