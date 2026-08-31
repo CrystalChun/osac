@@ -18,8 +18,8 @@ import {
   useSubnet,
   useVirtualNetwork,
 } from '@osac/ui-components/api/v1/networking';
-import { usePrivateStorageTiers } from '@osac/ui-components/api/v1/private/storage-tiers';
 import { useProjects } from '@osac/ui-components/api/v1/project';
+import { useStorageTiers } from '@osac/ui-components/api/v1/storage-tiers';
 import { CatalogItem } from '@osac/ui-components/components/catalog/catalogItemDisplay';
 import {
   fullProjectPathToQueryFilter,
@@ -76,7 +76,7 @@ export const VmReviewStep = ({ catalogItem }: Props) => {
     error: projectsError,
   } = useProjects({ filter: fullProjectPathToQueryFilter(values.metadata.project) });
 
-  const { data: tiers, isLoading: tiersLoading, error: tiersError } = usePrivateStorageTiers();
+  const { data: tiers, isLoading: tiersLoading, error: tiersError } = useStorageTiers();
 
   if (
     instanceLoading ||
