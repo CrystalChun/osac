@@ -28,6 +28,7 @@ import type {
   Project,
   ProjectMembership,
   StorageTier as PublicStorageTier,
+  StorageTiersGetRequest as PublicStorageTiersGetRequest,
   StorageTiersListRequest as PublicStorageTiersListRequest,
   Role,
   RoleBinding,
@@ -54,6 +55,7 @@ import {
   ProjectMemberships,
   Projects,
   StorageTiers as PublicStorageTiers,
+  StorageTiersGetResponseSchema as PublicStorageTiersGetResponseSchema,
   StorageTiersListResponseSchema as PublicStorageTiersListResponseSchema,
   RoleBindings,
   Roles,
@@ -267,6 +269,11 @@ export type MockTransportOverrides = {
   onPublicStorageTierList?: (
     req: PublicStorageTiersListRequest,
   ) => MessageInitShape<typeof PublicStorageTiersListResponseSchema>;
+  onPublicStorageTierGet?: (
+    req: PublicStorageTiersGetRequest,
+  ) =>
+    | MessageInitShape<typeof PublicStorageTiersGetResponseSchema>
+    | Promise<MessageInitShape<typeof PublicStorageTiersGetResponseSchema>>;
   onStorageTierGet?: (
     req: StorageTiersGetRequest,
   ) =>
@@ -589,7 +596,12 @@ export const createMockConnectTransport = (
             total: items.length,
           };
         },
-        get: (req) => ({ object: publicStorageTiers.find((t) => t.id === req.id) }),
+        get: (req) => {
+          if (overrides.onPublicStorageTierGet) {
+            return overrides.onPublicStorageTierGet(req);
+          }
+          return { object: publicStorageTiers.find((t) => t.id === req.id) };
+        },
       });
 
       router.service(PrivateInstanceTypes, {
