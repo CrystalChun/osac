@@ -20,7 +20,9 @@ import "google/api/annotations.proto";
 import "google/protobuf/field_mask.proto";
 import "osac/private/v1/storage_tier_type.proto";
 
-option (cleanapi.file).private = true;
+option (cleanapi.file).package = "osac.public.v1";
+option (cleanapi.file).http_route_prefix_map = "private:fulfillment";
+
 
 message StorageTiersListRequest {
   // Index of the first result. If not specified the default value will be zero.
@@ -36,9 +38,9 @@ message StorageTiersListRequest {
   // The value of this parameter is a [CEL](https://cel.dev) expression used to select which objects to return. The
   // built-in `this` variable refers to the object being tested and `now` refers to the current date and time. If the
   // expression evaluates to `true` the object is included in the results. For example, to retrieve all storage tiers
-  // with a specific state:
+  // with names starting with `gold`:
   //
-  //     this.status.state == 1
+  //     this.metadata.name.startsWith("gold")
   //
   // If this isn't provided, or if the value is empty, then all the storage tiers that the user has permission to see
   // will be returned. Not all CEL constructs are currently supported for implementation reasons; see the filter
@@ -59,7 +61,7 @@ message StorageTiersListRequest {
 
 message StorageTiersListResponse {
   // Actual number of items returned. Note that this may be smaller than the value requested in the `limit` parameter
-  // of the request if there are not enough items, or if the system decides that returning that number of items isn't
+  // of the request if there are not enough items, or of the system decides that returning that number of items isn't
   // feasible or convenient for performance reasons.
   int32 size = 1;
 
@@ -80,14 +82,17 @@ message StorageTiersGetResponse {
 }
 
 message StorageTiersCreateRequest {
+  option (cleanapi.message).private = true;
   StorageTier object = 1;
 }
 
 message StorageTiersCreateResponse {
+  option (cleanapi.message).private = true;
   StorageTier object = 1;
 }
 
 message StorageTiersUpdateRequest {
+  option (cleanapi.message).private = true;
   StorageTier object = 1;
   google.protobuf.FieldMask update_mask = 2;
 
@@ -98,20 +103,27 @@ message StorageTiersUpdateRequest {
 }
 
 message StorageTiersUpdateResponse {
+  option (cleanapi.message).private = true;
   StorageTier object = 1;
 }
 
 message StorageTiersDeleteRequest {
+  option (cleanapi.message).private = true;
   string id = 1;
 }
 
-message StorageTiersDeleteResponse {}
+message StorageTiersDeleteResponse {
+  option (cleanapi.message).private = true;
+}
 
 message StorageTiersSignalRequest {
+  option (cleanapi.message).private = true;
   string id = 1;
 }
 
-message StorageTiersSignalResponse {}
+message StorageTiersSignalResponse {
+  option (cleanapi.message).private = true;
+}
 
 service StorageTiers {
   // Retrieves the list of storage tiers.
@@ -126,32 +138,32 @@ service StorageTiers {
       response_body: "object"
     };
   }
-
   // Creates a new storage tier.
   rpc Create(StorageTiersCreateRequest) returns (StorageTiersCreateResponse) {
+    option (cleanapi.method).private = true;
     option (google.api.http) = {
       post: "/api/private/v1/storage_tiers"
       body: "object"
       response_body: "object"
     };
   }
-
   // Updates an existing storage tier.
   rpc Update(StorageTiersUpdateRequest) returns (StorageTiersUpdateResponse) {
+    option (cleanapi.method).private = true;
     option (google.api.http) = {
       patch: "/api/private/v1/storage_tiers/{object.id}"
       body: "object"
       response_body: "object"
     };
   }
-
   // Deletes a storage tier.
   rpc Delete(StorageTiersDeleteRequest) returns (StorageTiersDeleteResponse) {
+    option (cleanapi.method).private = true;
     option (google.api.http) = {delete: "/api/private/v1/storage_tiers/{id}"};
   }
-
   // Signal is required by the generic server infrastructure but is not implemented for StorageTier
   // (no reconciler). Calls return UNIMPLEMENTED.
   rpc Signal(StorageTiersSignalRequest) returns (StorageTiersSignalResponse) {
+    option (cleanapi.method).private = true;
   }
 }

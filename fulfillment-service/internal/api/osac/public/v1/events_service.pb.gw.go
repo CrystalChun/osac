@@ -116,7 +116,7 @@ func RegisterEventsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/osac.public.v1.Events/Watch", runtime.WithHTTPPathPattern("/api/events/v1/events"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/osac.public.v1.Events/Watch", runtime.WithHTTPPathPattern("/api/events/v1/events/watch"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -133,7 +133,7 @@ func RegisterEventsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 }
 
 var (
-	pattern_Events_Watch_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 1}, []string{"api", "events", "v1"}, ""))
+	pattern_Events_Watch_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 1, 2, 3}, []string{"api", "events", "v1", "watch"}, ""))
 )
 
 var (

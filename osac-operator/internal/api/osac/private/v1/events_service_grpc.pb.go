@@ -39,6 +39,12 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type EventsClient interface {
+	// Start watching events.
+	//
+	// Note that the server doesn't make any guarantee about the delivery or order of these events. In particular events
+	// that happen while the client is disconnected will not be delivered. Clients should consider using other mechanisms
+	// to ensure that they process objects correctly. For example, they can combine this watch mechanism with periodic
+	// redconciliation of all the objects.
 	Watch(ctx context.Context, in *EventsWatchRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[EventsWatchResponse], error)
 }
 
@@ -73,6 +79,12 @@ type Events_WatchClient = grpc.ServerStreamingClient[EventsWatchResponse]
 // All implementations must embed UnimplementedEventsServer
 // for forward compatibility.
 type EventsServer interface {
+	// Start watching events.
+	//
+	// Note that the server doesn't make any guarantee about the delivery or order of these events. In particular events
+	// that happen while the client is disconnected will not be delivered. Clients should consider using other mechanisms
+	// to ensure that they process objects correctly. For example, they can combine this watch mechanism with periodic
+	// redconciliation of all the objects.
 	Watch(*EventsWatchRequest, grpc.ServerStreamingServer[EventsWatchResponse]) error
 	mustEmbedUnimplementedEventsServer()
 }

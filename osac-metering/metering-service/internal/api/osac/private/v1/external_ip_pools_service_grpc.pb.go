@@ -44,7 +44,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ExternalIPPoolsClient interface {
-	// Retrieves the list of external IP pools.
+	// Retrieves the list of external IP pools visible to the caller.
 	List(ctx context.Context, in *ExternalIPPoolsListRequest, opts ...grpc.CallOption) (*ExternalIPPoolsListResponse, error)
 	// Retrieves the details of one specific external IP pool.
 	Get(ctx context.Context, in *ExternalIPPoolsGetRequest, opts ...grpc.CallOption) (*ExternalIPPoolsGetResponse, error)
@@ -131,7 +131,7 @@ func (c *externalIPPoolsClient) Signal(ctx context.Context, in *ExternalIPPoolsS
 // All implementations must embed UnimplementedExternalIPPoolsServer
 // for forward compatibility.
 type ExternalIPPoolsServer interface {
-	// Retrieves the list of external IP pools.
+	// Retrieves the list of external IP pools visible to the caller.
 	List(context.Context, *ExternalIPPoolsListRequest) (*ExternalIPPoolsListResponse, error)
 	// Retrieves the details of one specific external IP pool.
 	Get(context.Context, *ExternalIPPoolsGetRequest) (*ExternalIPPoolsGetResponse, error)
