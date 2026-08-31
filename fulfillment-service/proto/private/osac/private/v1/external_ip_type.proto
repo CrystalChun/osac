@@ -15,9 +15,12 @@ syntax = "proto3";
 
 package osac.private.v1;
 
+import "cleanapi/cleanapi.proto";
 import "google/api/field_behavior.proto";
 import "osac/private/v1/metadata_type.proto";
 import "osac/private/v1/external_ip_pool_type.proto";
+
+option (cleanapi.file).package = "osac.public.v1";
 
 // Represents an external IP address allocated from an ExternalIPPool.
 //
@@ -75,29 +78,29 @@ message ExternalIPStatus {
   // Typically empty for ALLOCATED state.
   optional string message = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // Identifier of the hub cluster that this external IP is deployed to.
-  //
-  // Set by the fulfillment-service controller when reconciling the external IP to a Kubernetes CR
-  // on the target hub cluster. Used for tracking which cluster the IP resources reside on.
-  string hub = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
-
   // Allocated IP address from the parent pool's CIDR range.
   //
   // Populated once the IP transitions to ALLOCATED state. Remains stable for the lifetime of
   // the ExternalIP. Cleared only when the IP is deallocated.
-  string address = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string address = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Parent ExternalIPPool ID that this IP was allocated from.
   //
   // Mirrors spec.pool for convenience in status queries. Populated when the IP is allocated.
-  string pool = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string pool = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Whether this ExternalIP is currently attached to a target resource via an ExternalIPAttachment.
   //
   // Set to true when an ExternalIPAttachment referencing this ExternalIP reaches READY state.
   // Set to false when the ExternalIPAttachment is deleted. An ExternalIP with attached = true
   // cannot be deleted; the ExternalIPAttachment must be deleted first.
-  bool attached = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+  bool attached = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Identifier of the hub cluster that this external IP is deployed to.
+  //
+  // Set by the fulfillment-service controller when reconciling the external IP to a Kubernetes CR
+  // on the target hub cluster. Used for tracking which cluster the IP resources reside on.
+  string hub = 6 [(cleanapi.field).private = true, (google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // Lifecycle states for ExternalIP resources.
