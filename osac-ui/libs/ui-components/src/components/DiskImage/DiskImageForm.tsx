@@ -19,6 +19,8 @@ import { architectureLabels, guestOsFamilyLabels } from './DiskImageTable';
 import { getDiskImageCreateSchema } from './validation';
 import { DiskImageFormValues, diskImageCreateValues } from './values';
 import { useCreateDiskImage, useUpdateDiskImage } from '../../api/v1/disk-image';
+import { useTenants } from '../../api/v1/private/tenant';
+import { useSession } from '../../hooks/use-session';
 import { useTranslation } from '../../hooks/useTranslation';
 import { getErrorMessage } from '../../utils/error';
 import NameField from '../catalogProvision/wizard/fields/NameField';
@@ -55,7 +57,7 @@ const ReadOnlyField = ({
 const getInitialValues = (diskImage?: DiskImage): DiskImageFormValues =>
   diskImage
     ? {
-        metadata: { name: diskImage.metadata?.name ?? '' },
+        metadata: { name: diskImage.metadata?.name ?? '', tenant: '' },
         spec: {
           sourceRef: diskImage.spec?.sourceRef ?? '',
           guestOsFamily:
@@ -74,6 +76,8 @@ const DiskImageForm = ({ diskImage }: DiskImageFormProps) => {
   const navigate = useNavigate();
   const isEdit = !!diskImage;
   const initialValues = getInitialValues(diskImage);
+  const isAdmin = useSession().role === 'admin';
+  const { data: tenants = [] } = useTenants({}, !isAdmin || isEdit);
   const { mutateAsync: create, error: createError } = useCreateDiskImage();
   const { mutateAsync: update, error: updateError } = useUpdateDiskImage();
   const error = createError ?? updateError;
@@ -91,6 +95,11 @@ const DiskImageForm = ({ diskImage }: DiskImageFormProps) => {
     .filter(([value]) => Number(value) !== 0)
     .map(([value, label]) => ({ value: Number(value), label }));
 
+  const scopeOptions = [
+    { value: '', label: t('Global') },
+    ...tenants.map((tenant) => ({ value: tenant.id, label: tenant.metadata?.name || tenant.id })),
+  ];
+
   const onSubmit = async (
     values: DiskImageFormValues,
     { setFieldError }: FormikHelpers<DiskImageFormValues>,
@@ -106,7 +115,10 @@ const DiskImageForm = ({ diskImage }: DiskImageFormProps) => {
       }
 
       const created = await create({
-        metadata: { name: values.metadata.name },
+        metadata: {
+          name: values.metadata.name,
+          ...(isAdmin && values.metadata.tenant ? { tenant: values.metadata.tenant } : {}),
+        },
         spec: {
           sourceType: SourceType.REGISTRY,
           sourceRef: values.spec.sourceRef,
@@ -188,6 +200,14 @@ const DiskImageForm = ({ diskImage }: DiskImageFormProps) => {
                   isRequired
                   options={architectureOptions}
                 />
+                {isAdmin && !isEdit && (
+                  <SelectField
+                    name="metadata.tenant"
+                    label={t('Scope')}
+                    fieldId="disk-image-scope"
+                    options={scopeOptions}
+                  />
+                )}
               </OsacForm>
             </StackItem>
             {!!error && !errorField && (

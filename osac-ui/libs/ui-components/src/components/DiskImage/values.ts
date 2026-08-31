@@ -1,7 +1,7 @@
 import { Architecture, GuestOSFamily } from '@osac/types';
 
 export interface DiskImageFormValues {
-  metadata: { name: string; tenant?: string };
+  metadata: { name: string; tenant: string };
   spec: {
     sourceRef: string;
     guestOsFamily: GuestOSFamily;
@@ -10,7 +10,7 @@ export interface DiskImageFormValues {
 }
 
 export const diskImageCreateValues: DiskImageFormValues = {
-  metadata: { name: '' },
+  metadata: { name: '', tenant: '' },
   spec: {
     sourceRef: '',
     guestOsFamily: GuestOSFamily.GUEST_OS_FAMILY_LINUX,

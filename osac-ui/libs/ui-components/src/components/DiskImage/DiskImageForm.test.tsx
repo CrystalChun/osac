@@ -12,10 +12,34 @@ import {
   GuestOSFamily,
   SourceType,
 } from '@osac/types';
+import type { Tenant } from '@osac/types/private';
 
 import DiskImageForm, { DISK_IMAGES_LIST_ROUTE } from './DiskImageForm';
+import type { UserRole } from '../../shellTypes';
 import type { MockTransportOverrides } from '../../test-utils/createMockConnectTransport';
 import { renderWithProviders } from '../../test-utils/TestProviders';
+
+vi.mock('../../hooks/use-session', () => ({
+  useSession: vi.fn(() => ({ role: 'tenant-user', username: 'testuser', tenantId: 'tenant-1' })),
+}));
+
+const { useSession } = await import('../../hooks/use-session');
+
+const makeSession = (role: UserRole) => ({
+  role,
+  username: 'testuser',
+  tenantId: 'tenant-1',
+  userTheme: 'system' as const,
+  resolvedTheme: 'light' as const,
+  setUserTheme: vi.fn(),
+  userContrast: 'system' as const,
+  resolvedContrast: 'glass' as const,
+  setUserContrast: vi.fn(),
+  projects: [],
+  setProjects: vi.fn(),
+});
+
+const makeTenant = (id: string, name: string): Tenant => ({ id, metadata: { name } }) as Tenant;
 
 const makeDiskImage = (overrides: Partial<{ architecture: Architecture[] }> = {}): DiskImage =>
   create(DiskImageSchema, {
@@ -38,8 +62,8 @@ vi.mock('react-router-dom', async (importOriginal) => {
   };
 });
 
-const renderForm = (overrides?: MockTransportOverrides) =>
-  renderWithProviders(<DiskImageForm />, { transportOverrides: overrides });
+const renderForm = (overrides?: MockTransportOverrides, tenants: Tenant[] = []) =>
+  renderWithProviders(<DiskImageForm />, { transportOverrides: overrides, apiFixtures: { tenants } });
 
 const fillValidForm = async (user: ReturnType<typeof renderForm>['user']) => {
   await user.type(screen.getByRole('textbox', { name: 'Name' }), 'rhel-9');
@@ -208,6 +232,80 @@ describe('DiskImageForm', () => {
         expect(screen.getByText('Failed to save disk image')).toBeInTheDocument();
       });
       expect(screen.getByText('request rejected')).toBeInTheDocument();
+    });
+  });
+
+  describe('scope control', () => {
+    beforeEach(() => {
+      vi.mocked(useSession).mockReturnValue(makeSession('tenant-user'));
+    });
+
+    it('is absent for a tenant-user session', () => {
+      renderForm();
+
+      expect(screen.queryByRole('button', { name: 'Scope' })).not.toBeInTheDocument();
+    });
+
+    it('is absent for a tenant-admin session', () => {
+      vi.mocked(useSession).mockReturnValue(makeSession('tenant-admin'));
+      renderForm();
+
+      expect(screen.queryByRole('button', { name: 'Scope' })).not.toBeInTheDocument();
+    });
+
+    it('renders for a provider-admin session, defaulting to Global', () => {
+      vi.mocked(useSession).mockReturnValue(makeSession('admin'));
+      renderForm(undefined, [makeTenant('tenant-1', 'Tenant One')]);
+
+      expect(screen.getByRole('button', { name: 'Scope' })).toHaveTextContent('Global');
+    });
+
+    it('omits metadata.tenant from the create payload for a non-admin session', async () => {
+      let captured: Record<string, unknown> | undefined;
+      const { user } = renderForm({
+        onDiskImageCreate: (req) => {
+          captured = req as unknown as Record<string, unknown>;
+          return create(DiskImagesCreateResponseSchema, {
+            object: { ...req.object, id: 'disk-image-created-1' },
+          });
+        },
+      });
+
+      await fillValidForm(user);
+      await user.click(screen.getByRole('button', { name: 'Create' }));
+
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalled();
+      });
+      const metadata = (captured?.object as { metadata?: { tenant?: string } })?.metadata;
+      expect(metadata?.tenant).toBe('');
+    });
+
+    it('includes the selected tenant in the create payload for a provider-admin session', async () => {
+      vi.mocked(useSession).mockReturnValue(makeSession('admin'));
+      let captured: Record<string, unknown> | undefined;
+      const { user } = renderForm(
+        {
+          onDiskImageCreate: (req) => {
+            captured = req as unknown as Record<string, unknown>;
+            return create(DiskImagesCreateResponseSchema, {
+              object: { ...req.object, id: 'disk-image-created-1' },
+            });
+          },
+        },
+        [makeTenant('tenant-1', 'Tenant One')],
+      );
+
+      await fillValidForm(user);
+      await user.click(screen.getByRole('button', { name: 'Scope' }));
+      await user.click(screen.getByRole('option', { name: 'Tenant One' }));
+      await user.click(screen.getByRole('button', { name: 'Create' }));
+
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalled();
+      });
+      const metadata = (captured?.object as { metadata?: { tenant?: string } })?.metadata;
+      expect(metadata?.tenant).toBe('tenant-1');
     });
   });
 
