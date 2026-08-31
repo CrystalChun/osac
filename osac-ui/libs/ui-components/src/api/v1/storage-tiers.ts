@@ -4,6 +4,8 @@ import { useApiFetch } from '../api-context';
 import { type ListParams, apiQueryKey } from '../types';
 import { useApiQuery } from '../use-api-query';
 
+// Server-side CEL filter restricting the list to ACTIVE tiers. Enum fields compare
+// with `==` against the int literal (see cluster-versions.ts for the enum caveat).
 export const STORAGE_TIER_ACTIVE_LIST_FILTER = `this.status.state == ${StorageTierState.ACTIVE}`;
 
 export const useStorageTiers = (params: ListParams = {}) => {
