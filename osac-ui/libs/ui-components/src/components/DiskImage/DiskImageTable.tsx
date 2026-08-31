@@ -84,7 +84,7 @@ const DiskImageTable = ({ diskImages }: DiskImageTableProps) => {
         ) : (
           diskImages.map((diskImage) => {
             const architecture = diskImage.spec?.architecture ?? [];
-            const isGlobal = !diskImage.metadata?.tenant;
+            const isGlobal = diskImage.metadata?.tenant === 'shared';
 
             return (
               <Tr key={diskImage.id}>

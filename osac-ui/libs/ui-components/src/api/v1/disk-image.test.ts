@@ -173,8 +173,8 @@ describe('buildDiskImageListFilter', () => {
       { architecture: [Architecture.AMD64, Architecture.ARM64] },
       `this.spec.architecture.exists(a, a == ${Architecture.AMD64} || a == ${Architecture.ARM64})`,
     ],
-    ['scope global', { scope: 'global' as const }, 'this.metadata.tenant == ""'],
-    ['scope tenant', { scope: 'tenant' as const }, 'this.metadata.tenant != ""'],
+    ['scope global', { scope: 'global' as const }, 'this.metadata.tenant == "shared"'],
+    ['scope tenant', { scope: 'tenant' as const }, 'this.metadata.tenant != "shared"'],
     [
       'single lifecycle value, no show-obsolete',
       { lifecycle: [DiskImageLifecycle.AVAILABLE] },
@@ -202,7 +202,7 @@ describe('buildDiskImageListFilter', () => {
         guestOsFamily: GuestOSFamily.GUEST_OS_FAMILY_LINUX,
         scope: 'global' as const,
       },
-      `this.metadata.name.contains("fedora") && this.spec.guestOsFamily == ${GuestOSFamily.GUEST_OS_FAMILY_LINUX} && this.metadata.tenant == ""`,
+      `this.metadata.name.contains("fedora") && this.spec.guestOsFamily == ${GuestOSFamily.GUEST_OS_FAMILY_LINUX} && this.metadata.tenant == "shared"`,
     ],
   ])('%s', (_name, criteria, expected) => {
     expect(buildDiskImageListFilter(criteria)).toBe(expected);

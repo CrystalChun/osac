@@ -73,7 +73,9 @@ export const buildDiskImageListFilter = (
   }
   if (criteria.scope) {
     clauses.push(
-      criteria.scope === 'global' ? 'this.metadata.tenant == ""' : 'this.metadata.tenant != ""',
+      criteria.scope === 'global'
+        ? 'this.metadata.tenant == "shared"'
+        : 'this.metadata.tenant != "shared"',
     );
   }
 

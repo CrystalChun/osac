@@ -76,8 +76,8 @@ describe('DiskImageTable', () => {
     expect(screen.getByText('Linux')).toBeInTheDocument();
   });
 
-  it('shows Global scope when metadata.tenant is empty', () => {
-    renderTableWithRoutes([makeDiskImage({ id: 'global-1' })]);
+  it('shows Global scope when metadata.tenant is "shared"', () => {
+    renderTableWithRoutes([makeDiskImage({ id: 'global-1', tenant: 'shared' })]);
 
     expect(screen.getByText('Global')).toBeInTheDocument();
   });
