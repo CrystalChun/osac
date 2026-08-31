@@ -35,6 +35,8 @@ export type TestProvidersProps = {
   transport?: Transport;
   transportOverrides?: MockTransportOverrides;
   routerEntries?: string[];
+  /** Route path pattern to mount `children` under — set this to exercise `useParams()`. Defaults to a catch-all. */
+  routePath?: string;
 };
 
 export const TestProviders = ({
@@ -43,6 +45,7 @@ export const TestProviders = ({
   transport: transportOverride,
   transportOverrides,
   routerEntries,
+  routePath = '*',
 }: TestProvidersProps) => {
   const i18nInstance = createTestI18n();
   const transport =
@@ -54,7 +57,7 @@ export const TestProviders = ({
   });
   // A data router (rather than a plain <MemoryRouter>) is required so that
   // data-router-only hooks like useBlocker (used by LeaveFormConfirmation) work in tests.
-  const router = createMemoryRouter([{ path: '*', element: children }], {
+  const router = createMemoryRouter([{ path: routePath, element: children }], {
     initialEntries: routerEntries,
   });
 
@@ -76,6 +79,7 @@ export type RenderWithProvidersOptions = Omit<RenderOptions, 'wrapper'> & {
   transport?: Transport;
   transportOverrides?: MockTransportOverrides;
   routerEntries?: string[];
+  routePath?: string;
 };
 
 export type RenderWithProvidersResult = RenderResult & {
@@ -86,7 +90,8 @@ export const renderWithProviders = (
   ui: ReactElement,
   options: RenderWithProvidersOptions = {},
 ): RenderWithProvidersResult => {
-  const { apiFixtures, transport, transportOverrides, routerEntries, ...renderOptions } = options;
+  const { apiFixtures, transport, transportOverrides, routerEntries, routePath, ...renderOptions } =
+    options;
 
   const view = render(ui, {
     wrapper: ({ children }) => (
@@ -95,6 +100,7 @@ export const renderWithProviders = (
         transport={transport}
         transportOverrides={transportOverrides}
         routerEntries={routerEntries}
+        routePath={routePath}
       >
         {children}
       </TestProviders>
