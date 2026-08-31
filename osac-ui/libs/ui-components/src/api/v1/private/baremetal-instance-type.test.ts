@@ -11,8 +11,11 @@ import {
 
 import {
   invalidateBareMetalInstanceTypesQueries,
+  useAdminBareMetalInstanceType,
   useAdminBareMetalInstanceTypes,
+  useCreateBareMetalInstanceType,
   useDeleteBareMetalInstanceType,
+  useUpdateBareMetalInstanceType,
 } from './baremetal-instance-type';
 import { createMockConnectTransport } from '../../../test-utils/createMockConnectTransport';
 import { ApiProvider } from '../../api-context';
@@ -122,6 +125,131 @@ describe('useDeleteBareMetalInstanceType', () => {
     });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(queryClient.getQueryState(['v1/private/baremetal_instance_types'])?.isInvalidated).toBe(
+      true,
+    );
+  });
+});
+
+describe('useAdminBareMetalInstanceType', () => {
+  it('returns a single bare metal instance type from the get response', async () => {
+    const transport = createMockConnectTransport({
+      privateBaremetalInstanceTypes: [makeBareMetalInstanceType('gpu-1')],
+    });
+    const { wrapper } = makeWrapper(transport);
+    const { result } = renderHook(() => useAdminBareMetalInstanceType('gpu-1'), { wrapper });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(result.current.data?.id).toBe('gpu-1');
+    expect(result.current.data?.metadata?.name).toBe('bm-type-gpu-1');
+  });
+
+  it('does not fetch when the id is empty', () => {
+    const transport = createMockConnectTransport({
+      privateBaremetalInstanceTypes: [makeBareMetalInstanceType('gpu-1')],
+    });
+    const { wrapper } = makeWrapper(transport);
+    const { result } = renderHook(() => useAdminBareMetalInstanceType(''), { wrapper });
+
+    expect(result.current.fetchStatus).toBe('idle');
+    expect(result.current.data).toBeUndefined();
+  });
+});
+
+describe('useCreateBareMetalInstanceType', () => {
+  it('sends the object to the create RPC and returns the created type', async () => {
+    let captured: Record<string, unknown> | undefined;
+    const transport = createMockConnectTransport(
+      {},
+      {
+        onBaremetalInstanceTypeCreate: (req) => {
+          captured = req as unknown as Record<string, unknown>;
+          return { object: { ...req.object, id: 'created-1' } };
+        },
+      },
+    );
+    const { wrapper } = makeWrapper(transport);
+    const { result } = renderHook(() => useCreateBareMetalInstanceType(), { wrapper });
+
+    let created: { id: string } | undefined;
+    await act(async () => {
+      created = await result.current.mutateAsync({
+        metadata: { name: 'bm-new' },
+        spec: {
+          description: 'new type',
+          hardware: { cpu: { cores: 64, architecture: 'x86_64' }, memory: { totalGb: 256n } },
+          hostLabelSelector: { matchLabels: { tier: 'gpu' } },
+        },
+      });
+    });
+
+    expect((captured?.object as { metadata?: { name?: string } })?.metadata?.name).toBe('bm-new');
+    expect(created?.id).toBe('created-1');
+  });
+
+  it('invalidates the list query after a successful create', async () => {
+    const transport = createMockConnectTransport({});
+    const { wrapper, queryClient } = makeWrapper(transport);
+    queryClient.setQueryData(['v1/private/baremetal_instance_types'], { items: [] });
+    const { result } = renderHook(() => useCreateBareMetalInstanceType(), { wrapper });
+
+    await act(async () => {
+      await result.current.mutateAsync({ metadata: { name: 'bm-new' } });
+    });
+
+    expect(queryClient.getQueryState(['v1/private/baremetal_instance_types'])?.isInvalidated).toBe(
+      true,
+    );
+  });
+});
+
+describe('useUpdateBareMetalInstanceType', () => {
+  it('sends the id, body, and a field mask derived from the body', async () => {
+    let captured: { object?: { id?: string }; updateMask?: { paths?: string[] } } | undefined;
+    const transport = createMockConnectTransport(
+      {},
+      {
+        onBaremetalInstanceTypeUpdate: (req) => {
+          captured = req as unknown as typeof captured;
+          return { object: req.object };
+        },
+      },
+    );
+    const { wrapper } = makeWrapper(transport);
+    const { result } = renderHook(() => useUpdateBareMetalInstanceType(), { wrapper });
+
+    await act(async () => {
+      await result.current.mutateAsync({
+        id: 'gpu-1',
+        body: {
+          metadata: { name: 'bm-type-gpu-1' },
+          spec: {
+            description: 'updated',
+            hardware: { capabilities: { 'sr-iov': 'true' } },
+            hostLabelSelector: { matchLabels: { tier: 'gpu' } },
+          },
+        },
+      });
+    });
+
+    expect(captured?.object?.id).toBe('gpu-1');
+    expect(captured?.updateMask?.paths).toContain('metadata.name');
+    expect(captured?.updateMask?.paths).toContain('spec.description');
+    expect(captured?.updateMask?.paths).toContain('spec.hardware.capabilities');
+    expect(captured?.updateMask?.paths).toContain('spec.host_label_selector.match_labels');
+    expect(captured?.updateMask?.paths).not.toContain('spec.hardware.capabilities.sr-iov');
+  });
+
+  it('invalidates the list query after a successful update', async () => {
+    const transport = createMockConnectTransport({});
+    const { wrapper, queryClient } = makeWrapper(transport);
+    queryClient.setQueryData(['v1/private/baremetal_instance_types'], { items: [] });
+    const { result } = renderHook(() => useUpdateBareMetalInstanceType(), { wrapper });
+
+    await act(async () => {
+      await result.current.mutateAsync({ id: 'gpu-1', body: { spec: { description: 'x' } } });
+    });
+
     expect(queryClient.getQueryState(['v1/private/baremetal_instance_types'])?.isInvalidated).toBe(
       true,
     );

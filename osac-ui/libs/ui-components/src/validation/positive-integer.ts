@@ -1,7 +1,9 @@
 import type { TFunction } from 'i18next';
 import * as Yup from 'yup';
 
-export const positiveIntegerSchema = (t: TFunction, max?: number): Yup.NumberSchema => {
+const INT32_MAX = 2147483647;
+
+export const positiveIntegerSchema = (t: TFunction, max: number = INT32_MAX): Yup.NumberSchema => {
   const schema = Yup.number()
     .transform((value: number, originalValue: unknown) =>
       originalValue === '' ? undefined : value,

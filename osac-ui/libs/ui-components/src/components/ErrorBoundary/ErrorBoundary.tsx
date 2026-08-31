@@ -37,7 +37,7 @@ class ErrorBoundary extends React.Component<React.PropsWithChildren, State> {
         <details>{getErrorMessage(error)}</details>
       </Alert>
     ) : (
-      <div>{children}</div>
+      children
     );
   }
 }

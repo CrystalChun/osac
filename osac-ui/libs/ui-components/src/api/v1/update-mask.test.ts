@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
+import { BareMetalInstanceTypeSchema } from '@osac/types/private';
+
 import { buildUpdateMaskPaths } from './update-mask';
 
 describe('buildUpdateMaskPaths', () => {
@@ -35,6 +37,15 @@ describe('buildUpdateMaskPaths', () => {
     expect(buildUpdateMaskPaths({ spec: { run_strategy: 'Always' } })).toEqual([
       'spec.run_strategy',
     ]);
+  });
+
+  it('uses the protobuf schema to treat map fields as leaves', () => {
+    expect(
+      buildUpdateMaskPaths(
+        { spec: { hardware: { capabilities: { 'sr-iov': 'true' } } } },
+        { schema: BareMetalInstanceTypeSchema },
+      ),
+    ).toEqual(['spec.hardware.capabilities']);
   });
 
   it('returns an empty array for an empty object', () => {
