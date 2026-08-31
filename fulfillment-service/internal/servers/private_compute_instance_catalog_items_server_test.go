@@ -1254,9 +1254,12 @@ var _ = Describe("Private compute instance catalog items server", func() {
 				// DAO's tenancy filter hides the "other-tenant" disk image (collapsing to
 				// zero rows -> NotFound, without leaking cross-tenant existence).
 				restrictedTenancy := auth.NewMockTenancyLogic(ctrl)
-				visible := auth.SharedTenants.Union(collections.NewSet("my-tenant"))
-				restrictedTenancy.EXPECT().DetermineVisibleTenants(gomock.Any()).
-					Return(visible, nil).AnyTimes()
+				restrictedVisibility, err := auth.NewVisibility().
+					AddVisibleTenants(auth.SharedTenant, "my-tenant").
+					Build()
+				Expect(err).ToNot(HaveOccurred())
+				restrictedTenancy.EXPECT().DetermineVisibility(gomock.Any()).
+					Return(restrictedVisibility, nil).AnyTimes()
 				restrictedTenancy.EXPECT().DetermineAssignableTenants(gomock.Any()).
 					Return(collections.NewSet("my-tenant"), nil).AnyTimes()
 				restrictedTenancy.EXPECT().DetermineDefaultTenant(gomock.Any()).
@@ -1302,10 +1305,14 @@ var _ = Describe("Private compute instance catalog items server", func() {
 				// buildCatalogServer wires a catalog server whose caller has the given default tenant
 				// and can see the shared tenant plus the listed extra tenants.
 				buildCatalogServer := func(defaultTenant string, extraVisible ...string) *PrivateComputeInstanceCatalogItemsServer {
-					visible := auth.SharedTenants.Union(collections.NewSet(extraVisible...))
+					visibility, err := auth.NewVisibility().
+						AddVisibleTenant(auth.SharedTenant).
+						AddVisibleTenants(extraVisible...).
+						Build()
+					Expect(err).ToNot(HaveOccurred())
 					mockTenancy := auth.NewMockTenancyLogic(ctrl)
-					mockTenancy.EXPECT().DetermineVisibleTenants(gomock.Any()).
-						Return(visible, nil).AnyTimes()
+					mockTenancy.EXPECT().DetermineVisibility(gomock.Any()).
+						Return(visibility, nil).AnyTimes()
 					mockTenancy.EXPECT().DetermineAssignableTenants(gomock.Any()).
 						Return(collections.NewSet(defaultTenant), nil).AnyTimes()
 					mockTenancy.EXPECT().DetermineDefaultTenant(gomock.Any()).

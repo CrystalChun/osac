@@ -85,18 +85,3 @@ func (mr *MockTenancyLogicMockRecorder) DetermineVisibility(ctx any) *gomock.Cal
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DetermineVisibility", reflect.TypeOf((*MockTenancyLogic)(nil).DetermineVisibility), ctx)
 }
-
-// DetermineVisibleTenants mocks base method.
-func (m *MockTenancyLogic) DetermineVisibleTenants(ctx context.Context) (collections.Set[string], error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DetermineVisibleTenants", ctx)
-	ret0, _ := ret[0].(collections.Set[string])
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// DetermineVisibleTenants indicates an expected call of DetermineVisibleTenants.
-func (mr *MockTenancyLogicMockRecorder) DetermineVisibleTenants(ctx any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DetermineVisibleTenants", reflect.TypeOf((*MockTenancyLogic)(nil).DetermineVisibleTenants), ctx)
-}

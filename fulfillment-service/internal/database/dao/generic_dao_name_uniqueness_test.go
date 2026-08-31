@@ -27,7 +27,6 @@ import (
 	privatev1 "github.com/osac-project/osac/fulfillment-service/internal/api/osac/private/v1"
 	testsv1 "github.com/osac-project/osac/fulfillment-service/internal/api/osac/tests/v1"
 	"github.com/osac-project/osac/fulfillment-service/internal/auth"
-	"github.com/osac-project/osac/fulfillment-service/internal/collections"
 	"github.com/osac-project/osac/fulfillment-service/internal/database"
 )
 
@@ -90,8 +89,8 @@ var _ = Describe("Name uniqueness", func() {
 		Expect(err).ToNot(HaveOccurred())
 
 		tenancy = auth.NewMockTenancyLogic(ctrl)
-		tenancy.EXPECT().DetermineVisibleTenants(gomock.Any()).
-			Return(collections.NewUniversalSet[string](), nil).
+		tenancy.EXPECT().DetermineVisibility(gomock.Any()).
+			Return(auth.TotalVisibility(), nil).
 			AnyTimes()
 
 		tenantsDao, err = NewGenericDAO[*privatev1.Tenant]().

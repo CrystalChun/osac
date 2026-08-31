@@ -76,8 +76,8 @@ var _ = BeforeSuite(func() {
 	tenancy.EXPECT().DetermineDefaultTenant(gomock.Any()).
 		Return(testTenant, nil).
 		AnyTimes()
-	tenancy.EXPECT().DetermineVisibleTenants(gomock.Any()).
-		Return(auth.AllTenants, nil).
+	tenancy.EXPECT().DetermineVisibility(gomock.Any()).
+		Return(auth.TotalVisibility(), nil).
 		AnyTimes()
 
 	// Create the database server:

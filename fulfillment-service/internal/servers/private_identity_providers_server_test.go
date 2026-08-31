@@ -440,8 +440,8 @@ var _ = Describe("Private identity providers server", func() {
 				localTenancy.EXPECT().DetermineDefaultTenant(gomock.Any()).
 					Return(auth.SystemTenant, nil).
 					AnyTimes()
-				localTenancy.EXPECT().DetermineVisibleTenants(gomock.Any()).
-					Return(auth.AllTenants, nil).
+				localTenancy.EXPECT().DetermineVisibility(gomock.Any()).
+					Return(auth.TotalVisibility(), nil).
 					AnyTimes()
 				localServer, err := NewPrivateIdentityProvidersServer().
 					SetLogger(logger).

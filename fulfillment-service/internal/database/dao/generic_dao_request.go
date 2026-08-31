@@ -32,16 +32,16 @@ import (
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/osac-project/osac/fulfillment-service/internal/collections"
+	"github.com/osac-project/osac/fulfillment-service/internal/auth"
 	"github.com/osac-project/osac/fulfillment-service/internal/database"
 )
 
 // request is a common base for all DAO request types, containing shared fields.
 type request[O Object] struct {
-	dao     *GenericDAO[O]
-	tx      database.Tx
-	tenants collections.Set[string]
-	sql     struct {
+	dao        *GenericDAO[O]
+	tx         database.Tx
+	visibility *auth.Visibility
+	sql        struct {
 		filter strings.Builder
 		params []any
 	}
@@ -59,18 +59,6 @@ type archiveArgs struct {
 	annotationsData []byte
 	version         int32
 	data            []byte
-}
-
-// init initializes the request, in particular it calculates the set of visible tenants.
-func (r *request[O]) init(ctx context.Context) error {
-	// Determine the set of visible tenants:
-	tenants, err := r.dao.tenancyLogic.DetermineVisibleTenants(ctx)
-	if err != nil {
-		return err
-	}
-	r.tenants = tenants
-
-	return nil
 }
 
 // archive moves a deleted object to the archived table and removes it from the main table.
@@ -179,57 +167,94 @@ func (r *request[O]) translateArchiveError(ctx context.Context, tenant string, e
 	}
 }
 
-// addTenancyFilter adds a clause to restrict results to only those objects that belong to tenants the current user
-// has permission to see.
-func (r *request[O]) addTenancyFilter(ctx context.Context) error {
-	// If the visible tenants set is universal, it means that the user has permission to see all tenants, so we don't
-	// need to apply any filtering:
-	if r.tenants.Universal() {
-		return nil
+// addVisibilityFilter adds a where clause to restrict results to only those objects that belong to tenants and projects
+// that the current user has permission to see.
+//
+// Returns a boolean flag indicating if the user has permissions to see any objects. When this is false it means that
+// the user doesn't have permission to see any objects, so the caller can skip building and executing the query and
+// return an error or an empty result instead.
+func (r *request[O]) addVisibilityFilter(ctx context.Context) (result bool, err error) {
+	// This method should always be called before any other filter or parameter is added:
+	if r.sql.filter.Len() > 0 {
+		err = fmt.Errorf(
+			"visibility filter must be the first filter added, but it already contains '%s'",
+			r.sql.filter.String(),
+		)
+		return
+	}
+	if len(r.sql.params) > 0 {
+		err = fmt.Errorf(
+			"visibility filter must be the first filter added, but it already contains %d parameters",
+			len(r.sql.params),
+		)
+		return
 	}
 
-	// If the visible tenants set is empty, it means that the user has no permission to see any tenants, so we can
-	// discard any previous filter and return instead a filter that matches nothing. Note that if parameters have
-	// been already added to the query, for example in the form of '$1', we need to preserve the existing filter
-	// to avoid potential binding errors.
-	if r.tenants.Empty() {
-		if len(r.sql.params) == 0 {
-			r.sql.filter.WriteString("false")
-		} else {
-			previous := r.sql.filter.String()
-			r.sql.filter.Reset()
-			r.sql.filter.WriteString("false and (")
-			r.sql.filter.WriteString(previous)
-			r.sql.filter.WriteString(")")
+	// Determine the set of visible projects for each visible tenant on first use:
+	if r.visibility == nil {
+		r.visibility, err = r.dao.tenancyLogic.DetermineVisibility(ctx)
+		if err != nil {
+			return
 		}
-		return nil
 	}
 
-	// If the tenant set is finite, then we can add a filter that matches the tenant in the set.
-	if r.tenants.Finite() {
-		ids := r.tenants.Inclusions()
-		sort.Strings(ids)
-		r.sql.params = append(r.sql.params, ids)
-		filter := fmt.Sprintf("tenant = any($%d)", len(r.sql.params))
-		if r.sql.filter.Len() == 0 {
-			r.sql.filter.WriteString(filter)
-		} else {
-			previous := r.sql.filter.String()
-			r.sql.filter.Reset()
-			fmt.Fprintf(&r.sql.filter, "(%s) and %s", previous, filter)
+	// If the visibility is unrestricted, it means that the user has permission to see all tenants and projects,
+	// so we don't need to apply any filtering:
+	if r.visibility.IsTotal() {
+		result = true
+		return
+	}
+
+	// Add a filter that matches each visible tenant. The default project (empty string) is always visible for a
+	// tenant the user can see, and is matched with equality. Named projects use the ltree '@>' operator so that
+	// granting a project also grants its descendants: the bound array is on the left and must contain an ancestor of
+	// the row project. The default project is never passed to '@>': the empty ltree is the root of the tree, so
+	// `array['']::ltree[] @> project` would match every project in the tenant.
+	//
+	// For example, if the user can see projects 'a1' and 'a2' in tenant 'a', and only the default project in tenant
+	// 'b', the filter will be like this:
+	//
+	//	tenant = 'a' and (project = '' or array['a1', 'a2']::ltree[] @> project) or tenant = 'b' and project = ''
+	//
+	// Tenants that are not visible are omitted. If the user can see tenant 'b' but not tenant 'a', the filter will
+	// not mention tenant 'a'.
+	tenants := r.visibility.VisibleTenants()
+	filters := 0
+	fmt.Fprintf(&r.sql.filter, "(")
+	for _, tenant := range tenants {
+		projects := r.visibility.VisibleProjects(tenant)
+		named := make([]string, 0, len(projects))
+		for _, project := range projects {
+			if project != "" {
+				named = append(named, project)
+			}
 		}
-		return nil
+		if filters > 0 {
+			fmt.Fprintf(&r.sql.filter, " or ")
+		}
+		index := len(r.sql.params) + 1
+		r.sql.params = append(r.sql.params, tenant)
+		if len(named) == 0 {
+			fmt.Fprintf(&r.sql.filter, "tenant = $%d and project = ''", index)
+		} else {
+			r.sql.params = append(r.sql.params, named)
+			fmt.Fprintf(
+				&r.sql.filter,
+				"tenant = $%d and (project = '' or $%d::ltree[] @> project)",
+				index, index+1,
+			)
+		}
+		filters++
 	}
+	fmt.Fprintf(&r.sql.filter, ")")
 
-	// If we are here then the tenant set is infinite, and we don't know how to apply filtering for that at the
-	// moment, so return an error.
-	r.dao.logger.Warn(
-		"Operation not permitted because visible tenant set is infinite",
-		slog.Any("exclusions", r.tenants.Exclusions()),
-	)
-	return &ErrDenied{
-		Reason: "operation not permitted",
+	// Due to the way we construct the filters above, if no filters were added it means that the user doesn't have
+	// permission to see any objects. We also clean the filter buffer, which at that point will contain '()'.
+	result = filters > 0
+	if !result {
+		r.sql.filter.Reset()
 	}
+	return
 }
 
 type makeMetadataArgs struct {
@@ -256,23 +281,12 @@ func (r *request[O]) makeMetadata(args makeMetadataArgs) metadataIface {
 	}
 	result.SetFinalizers(args.finalizers)
 	result.SetCreator(args.creator)
-	result.SetTenant(r.filterTenant(args.tenant))
+	result.SetTenant(args.tenant)
 	result.SetProject(args.project)
 	result.SetLabels(args.labels)
 	result.SetAnnotations(args.annotations)
 	result.SetVersion(args.version)
 	return result
-}
-
-// filterTenant returns the object's tenant if it is visible to the user, or an empty string otherwise.
-func (r *request[O]) filterTenant(tenant string) string {
-	if r.tenants.Universal() {
-		return tenant
-	}
-	if r.tenants.Contains(tenant) {
-		return tenant
-	}
-	return ""
 }
 
 func (r *request[O]) getMetadata(object O) metadataIface {
