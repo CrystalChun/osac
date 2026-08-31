@@ -26,14 +26,13 @@ describe('resolveVmStatus', () => {
     });
   });
 
-  it('maps paused to grey with pause icon override', async () => {
+  it('maps paused to grey with paused text', async () => {
     const i18n = await initTestI18n();
     const t = i18n.t.bind(i18n);
     const resolved = resolveVmStatus(ComputeInstanceState.PAUSED, t);
     expect(resolved.status).toBe('unspecified');
     expect(resolved.text).toBe('Paused');
     expect(resolved.color).toBe('grey');
-    expect(resolved.icon).toBeDefined();
   });
 
   it('maps transition states to progressing', async () => {

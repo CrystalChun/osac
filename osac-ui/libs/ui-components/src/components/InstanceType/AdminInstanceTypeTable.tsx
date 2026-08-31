@@ -1,21 +1,14 @@
-import { useNavigate } from 'react-router-dom';
-import {
-  Bullseye,
-  Button,
-  EmptyState,
-  EmptyStateBody,
-  EmptyStateVariant,
-} from '@patternfly/react-core';
+import { Bullseye, EmptyState, EmptyStateBody, EmptyStateVariant } from '@patternfly/react-core';
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
 import type { InstanceType as PrivateInstanceType } from '@osac/types/private';
+import ResourceNameField from '@osac/ui-components/components/Resource/ResourceNameField.tsx';
 
 import AdminInstanceTypeActionsMenu from './AdminInstanceTypeActionsMenu';
 import InstanceTypeLifecycleLabel from './InstanceTypeLifecycleLabel';
 import { useTranslation } from '../../hooks/useTranslation';
 import { Timestamp } from '../Primitives/Timestamp';
-import TruncatedText from '../Primitives/TruncatedText';
 
 const INSTANCE_TYPE_NAME_PREVIEW_LENGTH = 32;
 const NAME_COLUMN_WIDTH = 15;
@@ -32,7 +25,6 @@ interface AdminInstanceTypeTableProps {
 
 const AdminInstanceTypeTable = ({ instanceTypes }: AdminInstanceTypeTableProps) => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
 
   return (
     <Table aria-label={t('Instance types')} variant="compact">
@@ -71,18 +63,11 @@ const AdminInstanceTypeTable = ({ instanceTypes }: AdminInstanceTypeTableProps) 
             return (
               <Tr key={instanceType.id}>
                 <Td dataLabel={t('Name')} modifier="truncate" width={NAME_COLUMN_WIDTH}>
-                  <Button
-                    variant="link"
-                    isInline
-                    onClick={() =>
-                      navigate(`/admin/infrastructure/instance-types/${instanceType.id}`)
-                    }
-                  >
-                    <TruncatedText
-                      content={instanceType.metadata?.name || instanceType.id}
-                      maxCharsDisplayed={INSTANCE_TYPE_NAME_PREVIEW_LENGTH}
-                    />
-                  </Button>
+                  <ResourceNameField
+                    resource={instanceType}
+                    detailsUrl={`/admin/infrastructure/instance-types/${instanceType.id}`}
+                    maxCharsDisplayed={INSTANCE_TYPE_NAME_PREVIEW_LENGTH}
+                  />
                 </Td>
                 <Td dataLabel={t('Lifecycle state')} width={LIFECYCLE_STATE_COLUMN_WIDTH}>
                   <InstanceTypeLifecycleLabel state={instanceType.spec?.state} />

@@ -17,6 +17,7 @@ import {
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
 import { VirtualNetworkState } from '@osac/types';
+import ResourceNameField from '@osac/ui-components/components/Resource/ResourceNameField.tsx';
 
 import {
   securityGroupFilterForVirtualNetwork,
@@ -156,18 +157,20 @@ export const VirtualNetworkDetailPage = () => {
                   <Thead>
                     <Tr>
                       <Th>{t('Name')}</Th>
-                      <Th>{t('CIDR')}</Th>
                       <Th>{t('Status')}</Th>
+                      <Th>{t('CIDR')}</Th>
                     </Tr>
                   </Thead>
                   <Tbody>
                     {subnets.map((subnet) => (
                       <Tr key={subnet.id}>
-                        <Td dataLabel="Name">{subnet.metadata?.name ?? subnet.id}</Td>
-                        <Td dataLabel="CIDR">{subnet.spec?.ipv4Cidr ?? '—'}</Td>
+                        <Td dataLabel="Name">
+                          <ResourceNameField resource={subnet} />
+                        </Td>
                         <Td dataLabel="Status">
                           <SubnetStatusLabel state={subnet.status?.state} />
                         </Td>
+                        <Td dataLabel="CIDR">{subnet.spec?.ipv4Cidr ?? '—'}</Td>
                       </Tr>
                     ))}
                   </Tbody>
@@ -204,33 +207,29 @@ export const VirtualNetworkDetailPage = () => {
                   <Thead>
                     <Tr>
                       <Th>{t('Name')}</Th>
+                      <Th>{t('Status')}</Th>
                       <Th>{t('Inbound Rules')}</Th>
                       <Th>{t('Outbound Rules')}</Th>
-                      <Th>{t('Status')}</Th>
                     </Tr>
                   </Thead>
                   <Tbody>
                     {securityGroups.map((sg) => {
-                      const sgName = sg.metadata?.name ?? sg.id;
                       const ingressCount = sg.spec?.ingress?.length ?? 0;
                       const egressCount = sg.spec?.egress?.length ?? 0;
 
                       return (
                         <Tr key={sg.id}>
                           <Td dataLabel={t('Name')}>
-                            <Button
-                              variant="link"
-                              isInline
-                              onClick={() => navigate(`/networking/security-groups/${sg.id}`)}
-                            >
-                              {sgName}
-                            </Button>
+                            <ResourceNameField
+                              resource={sg}
+                              detailsUrl={`/networking/security-groups/${sg.id}`}
+                            />
                           </Td>
-                          <Td dataLabel={t('Inbound Rules')}>{ingressCount}</Td>
-                          <Td dataLabel={t('Outbound Rules')}>{egressCount}</Td>
                           <Td dataLabel={t('Status')}>
                             <SecurityGroupStatusLabel state={sg.status?.state} />
                           </Td>
+                          <Td dataLabel={t('Inbound Rules')}>{ingressCount}</Td>
+                          <Td dataLabel={t('Outbound Rules')}>{egressCount}</Td>
                         </Tr>
                       );
                     })}

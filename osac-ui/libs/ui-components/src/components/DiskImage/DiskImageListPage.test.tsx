@@ -64,7 +64,7 @@ describe('DiskImageListPage', () => {
     renderPage();
 
     expect(screen.getByRole('heading', { name: 'Disk images' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'disk-image-a' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'disk-image-a' })).toBeInTheDocument();
   });
 
   it('shows a loading spinner while the query is in flight', () => {

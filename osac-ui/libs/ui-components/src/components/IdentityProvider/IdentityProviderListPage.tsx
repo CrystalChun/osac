@@ -17,6 +17,7 @@ import IdentityProviderStatusLabel from '@osac/ui-components/components/Identity
 import ListPage from '@osac/ui-components/components/Page/ListPage';
 import ListPageBody from '@osac/ui-components/components/Page/ListPageBody';
 import { Timestamp } from '@osac/ui-components/components/Primitives/Timestamp';
+import ResourceNameField from '@osac/ui-components/components/Resource/ResourceNameField.tsx';
 import { SubtleContent } from '@osac/ui-components/components/SubtleContent/SubtleContent';
 import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
 
@@ -96,7 +97,9 @@ const IdentityProviderListPage = () => {
             <Tbody>
               {filteredProviders.map((idp) => (
                 <Tr key={idp.id}>
-                  <Td dataLabel={t('Name')}>{getIdpName(idp)}</Td>
+                  <Td dataLabel={t('Name')}>
+                    <ResourceNameField resource={idp} title={getIdpName(idp)} />
+                  </Td>
                   <Td dataLabel={t('Status')}>
                     <IdentityProviderStatusLabel idp={idp} />
                   </Td>

@@ -99,8 +99,8 @@ describe('SecurityGroupsListPage', () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByRole('button', { name: 'sg-web' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'sg-db' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'sg-web' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'sg-db' })).toBeInTheDocument();
 
     const rows = screen.getAllByRole('row');
     expect(rows).toHaveLength(3); // header + 2 data rows
@@ -129,8 +129,8 @@ describe('SecurityGroupsListPage', () => {
     const searchInput = screen.getByPlaceholderText(/Search security groups/i);
     await user.type(searchInput, 'web');
 
-    expect(screen.getByRole('button', { name: 'sg-web' })).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'sg-db' })).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'sg-web' })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'sg-db' })).not.toBeInTheDocument();
   });
 
   it('opens create modal when Create button is clicked', async () => {

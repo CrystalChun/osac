@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
+import ResourceNameField from '@osac/ui-components/components/Resource/ResourceNameField.tsx';
+
 import RoleBindingActionsMenu from './RoleBindingActionsMenu';
 import RoleBindingStatusLabel from './RoleBindingStatusLabel';
 import { useRoles } from '../../api/v1/role';
@@ -55,7 +57,9 @@ const RoleBindingsPage = () => {
             <Tbody>
               {roleBindings.map((rb) => (
                 <Tr key={rb.id}>
-                  <Td dataLabel={t('Name')}>{rb.metadata?.name || rb.id}</Td>
+                  <Td dataLabel={t('Name')}>
+                    <ResourceNameField resource={rb} />
+                  </Td>
                   <Td dataLabel={t('Status')}>
                     <RoleBindingStatusLabel rb={rb} />
                   </Td>

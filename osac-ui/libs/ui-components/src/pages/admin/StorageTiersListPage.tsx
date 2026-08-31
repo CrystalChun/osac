@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { Alert, Button, Flex, FlexItem, Stack, StackItem } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
+import ResourceNameField from '@osac/ui-components/components/Resource/ResourceNameField.tsx';
+
 import {
   storageBackendIdsFilter,
   usePrivateStorageBackends,
@@ -86,15 +88,10 @@ export const StorageTiersListPage = () => {
                       return (
                         <Tr key={tier.id}>
                           <Td dataLabel={t('Name')}>
-                            <Button
-                              variant="link"
-                              isInline
-                              onClick={() =>
-                                navigate(`/admin/infrastructure/storage/tiers/${tier.id}`)
-                              }
-                            >
-                              {tier.metadata?.name || tier.id}
-                            </Button>
+                            <ResourceNameField
+                              resource={tier}
+                              detailsUrl={`/admin/infrastructure/storage/tiers/${tier.id}`}
+                            />
                           </Td>
                           <Td dataLabel={t('Status')}>
                             <StorageTierStatusLabel state={tier.status?.state} />

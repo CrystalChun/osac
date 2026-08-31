@@ -93,7 +93,7 @@ describe('AdminInstanceTypeListPage', () => {
       'Created',
       '',
     ]);
-    expect(screen.getByRole('button', { name: 'instance-type-active-1' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'instance-type-active-1' })).toBeInTheDocument();
     expect(screen.getByText('2')).toBeInTheDocument();
     expect(screen.getAllByText('—').length).toBeGreaterThanOrEqual(2);
     expect(screen.getByText('Active')).toBeInTheDocument();
