@@ -17,18 +17,7 @@ package osac.public.v1;
 
 import "buf/validate/validate.proto";
 import "osac/public/v1/metadata_type.proto";
-
-// Identifies the storage protocol used by a storage tier.
-enum StorageProtocol {
-  // Protocol is unknown or has not been specified.
-  STORAGE_PROTOCOL_UNSPECIFIED = 0;
-
-  // NFS (Network File System) protocol for file-based storage access.
-  STORAGE_PROTOCOL_NFS = 1;
-
-  // Block storage protocol for volume-based storage access.
-  STORAGE_PROTOCOL_BLOCK = 2;
-}
+import "osac/public/v1/storage_common_type.proto";
 
 // Lifecycle states for StorageTier resources.
 enum StorageTierState {
@@ -56,7 +45,7 @@ message StorageTier {
   Metadata metadata = 2;
 
   // Advertised service level of the storage tier.
-  StorageTierSpec spec = 3 [(buf.validate.field).required = true];
+  StorageTierSpec spec = 3;
 
   // Current operational status of the storage tier.
   StorageTierStatus status = 4;
@@ -76,12 +65,8 @@ message StorageTierSpec {
   // Maximum write bandwidth in megabytes per second.
   int32 max_write_bandwidth_mbs = 4;
 
-  // Reserved field numbers for removed fields (do not reuse).
-  reserved 5;
-  reserved "quota_gib";
-
   // Whether data at rest is encrypted on this tier.
-  bool encryption_enabled = 6;
+  bool encryption_enabled = 5;
 }
 
 // Contains the system-provided status of a StorageTier.

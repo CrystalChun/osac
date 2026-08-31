@@ -20,7 +20,7 @@ import "cleanapi/cleanapi.proto";
 import "osac/private/v1/metadata_type.proto";
 import "osac/private/v1/storage_common_type.proto";
 
-option (cleanapi.file).private = true;
+option (cleanapi.file).package = "osac.public.v1";
 
 // Lifecycle states for StorageTier resources.
 enum StorageTierState {
@@ -34,31 +34,30 @@ enum StorageTierState {
 // Represents the association of a storage backend within a storage tier, including bandwidth and
 // encryption configuration.
 message BackendAssociation {
+  option (cleanapi.message).private = true;
+
   // Unique identifier of the associated storage backend.
   string backend_id = 1;
 
-  // Reserved field numbers for removed fields (do not reuse).
-  reserved 2, 5;
-  reserved "protocol", "quota_gib";
-
   // Maximum read bandwidth in megabytes per second.
-  int32 max_read_bandwidth_mbs = 3;
+  int32 max_read_bandwidth_mbs = 2;
 
   // Maximum write bandwidth in megabytes per second.
-  int32 max_write_bandwidth_mbs = 4;
+  int32 max_write_bandwidth_mbs = 3;
 
   // Whether data at rest is encrypted on this backend.
-  bool encryption_enabled = 6;
+  bool encryption_enabled = 4;
 }
 
-// Represents a storage tier in the OSAC platform.
+// Describes a class of storage service that can be referenced by name when provisioning
+// storage-enabled resources.
 //
-// StorageTier is a platform-scoped entity that groups one or more StorageBackend associations with
-// bandwidth and encryption settings under a single protocol. It is managed exclusively by Cloud
-// Provider Admins through the private API. Tenants consume storage tiers indirectly when
-// provisioning storage-enabled resources.
+// StorageTiers are admin-managed catalog resources. Tenant users select a tier by name instead of
+// specifying raw storage backend details. Cloud Provider Admins control the available tiers through
+// the private API.
 //
-// StorageTier follows the NetworkClass pattern: DB-backed with no Kubernetes CRD and no reconciler.
+// The `spec` contains the tier's advertised service level. The `status` contains the current state
+// of the storage tier, is provided by the system and can't be modified by the user.
 message StorageTier {
   // Unique identifier of the storage tier.
   string id = 1;
@@ -66,27 +65,35 @@ message StorageTier {
   // Metadata of the storage tier.
   Metadata metadata = 2;
 
-  // Desired configuration of the storage tier (admin-modifiable).
+  // Advertised service level of the storage tier.
   StorageTierSpec spec = 3;
 
   // Current operational status of the storage tier.
   StorageTierStatus status = 4;
 }
 
-// Defines the desired configuration for a StorageTier.
+// Defines the advertised service level of a StorageTier.
 message StorageTierSpec {
   // Human-readable description of the storage tier.
   string description = 1;
 
-  // List of backend associations that compose this storage tier.
-  repeated BackendAssociation backends = 2;
+  // Storage protocol used by this tier. Always an explicit protocol (NFS or BLOCK); never UNSPECIFIED.
+  StorageProtocol protocol = 2 [(buf.validate.field).enum = {defined_only: true, not_in: [0]}];
 
-  // Storage protocol used by this storage tier. Must be an explicit protocol (NFS or BLOCK);
-  // UNSPECIFIED is rejected.
-  StorageProtocol protocol = 3 [(buf.validate.field).enum = {defined_only: true, not_in: [0]}];
+  // Maximum read bandwidth in megabytes per second.
+  int32 max_read_bandwidth_mbs = 3;
+
+  // Maximum write bandwidth in megabytes per second.
+  int32 max_write_bandwidth_mbs = 4;
+
+  // Whether data at rest is encrypted on this tier.
+  bool encryption_enabled = 5;
+
+  // List of backend associations that compose this storage tier.
+  repeated BackendAssociation backends = 6 [(cleanapi.field).private = true];
 }
 
-// Represents the current operational state of a StorageTier.
+// Contains the system-provided status of a StorageTier.
 message StorageTierStatus {
   // Current lifecycle state of the storage tier.
   StorageTierState state = 1;
