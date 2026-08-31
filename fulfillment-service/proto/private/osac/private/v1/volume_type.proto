@@ -16,8 +16,11 @@ syntax = "proto3";
 package osac.private.v1;
 
 import "buf/validate/validate.proto";
+import "cleanapi/cleanapi.proto";
 import "osac/private/v1/metadata_type.proto";
 import "osac/private/v1/storage_common_type.proto";
+
+option (cleanapi.file).private = true;
 
 // Access modes for Volume resources, matching Kubernetes PersistentVolume access modes.
 // https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes
