@@ -3,9 +3,14 @@ import { describe, expect, it } from 'vitest';
 import type { UserRole } from '@osac/ui-components/shellTypes';
 import { tIdentity } from '@osac/ui-components/test-utils/i18n';
 
-import { NavSection, isNavSection, navRowsForRole } from './shellNav';
+import { NavLink, NavSection, isNavLink, isNavSection, navRowsForRole } from './shellNav';
 
-const roles: UserRole[] = ['tenant-user', 'tenant-admin', 'admin'];
+const nonIdpRoles: UserRole[] = ['admin', 'tenant-admin', 'tenant-user'];
+
+const findLink = (role: UserRole, linkId: string): NavLink | undefined =>
+  navRowsForRole(role, tIdentity).find((row) => isNavLink(row) && row.id === linkId) as
+    | NavLink
+    | undefined;
 
 const findSection = (role: UserRole, sectionId: string): NavSection | undefined =>
   navRowsForRole(role, tIdentity).find((row) => isNavSection(row) && row.id === sectionId) as
@@ -16,18 +21,28 @@ const servicesChildren = (role: UserRole) =>
   findSection(role, 'nav-tenant-services')?.children ?? [];
 
 describe('navRowsForRole', () => {
-  it('includes Virtual Machines, Clusters, and Bare Metal under Services for all roles', () => {
-    for (const role of roles) {
+  it('includes Virtual Machines, Clusters, and Bare Metal under Services for all roles except IDP manager', () => {
+    for (const role of nonIdpRoles) {
       expect(servicesChildren(role)).toEqual([
-        { kind: 'link', id: 'compute-vms', label: 'Virtual Machines', path: '/vms' },
-        { kind: 'link', id: 'clusters', label: 'Clusters', path: '/clusters' },
         { kind: 'link', id: 'bare-metal', label: 'Bare Metal', path: '/bare-metal' },
+        { kind: 'link', id: 'clusters', label: 'Clusters', path: '/clusters' },
+        { kind: 'link', id: 'compute-vms', label: 'Virtual Machines', path: '/vms' },
       ]);
     }
+    expect(servicesChildren('tenant-idp-manager')).toEqual([]);
   });
 
-  it('includes Networking section for all roles', () => {
-    for (const role of roles) {
+  it('includes Catalog and Projects for all roles except IDP manager', () => {
+    for (const role of nonIdpRoles) {
+      expect(findLink(role, 'catalog')).toBeDefined();
+      expect(findLink(role, 'projects')).toBeDefined();
+    }
+    expect(findLink('tenant-idp-manager', 'catalog')).toBeUndefined();
+    expect(findLink('tenant-idp-manager', 'projects')).toBeUndefined();
+  });
+
+  it('includes Networking section for all roles except IDP manager', () => {
+    for (const role of nonIdpRoles) {
       const networking = findSection(role, 'nav-tenant-networking');
       expect(networking).toBeDefined();
       expect(networking?.children).toEqual([
@@ -45,6 +60,8 @@ describe('navRowsForRole', () => {
         },
       ]);
     }
+    const networking = findSection('tenant-idp-manager', 'nav-tenant-networking');
+    expect(networking).toBeUndefined();
   });
 
   it('Administration section shows up only for admin role', () => {
@@ -91,13 +108,13 @@ describe('navRowsForRole', () => {
     }
   });
 
-  it('Tenant section shows up for admin, tenant-admin, and tenant-idp-manager', () => {
-    for (const role of ['admin', 'tenant-admin', 'tenant-idp-manager'] as UserRole[]) {
-      const section = findSection(role, 'nav-tenant-administration');
-      expect(section).toBeDefined();
-      expect(section?.children.map((c) => c.id)).toContain('idp');
-      expect(section?.children.map((c) => c.id)).toContain('role-bindings');
-    }
-    expect(findSection('tenant-user', 'nav-tenant-administration')).toBeUndefined();
+  it('IDP sections show for tenant-idp-manager', () => {
+    const idpLink = findLink('tenant-idp-manager', 'idp');
+    const roleBindingsLink = findLink('tenant-idp-manager', 'role-bindings');
+    expect(idpLink).toBeDefined();
+    expect(roleBindingsLink).toBeDefined();
+
+    const catalogLink = findLink('tenant-idp-manager', 'catalog');
+    expect(catalogLink).toBeUndefined();
   });
 });
