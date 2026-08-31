@@ -45,6 +45,17 @@ describe('DiskImageCreatePage', () => {
     expect(screen.getByRole('textbox', { name: 'Name' })).toBeInTheDocument();
   });
 
+  it('shows a loading state before the fetched disk image resolves', () => {
+    renderWithProviders(<DiskImageCreatePage />, {
+      routerEntries: ['/admin/infrastructure/disk-images/di-1/edit'],
+      routePath: '/admin/infrastructure/disk-images/:id/edit',
+      apiFixtures: { diskImages: [diskImageFixture] },
+    });
+
+    expect(screen.getByRole('progressbar')).toBeInTheDocument();
+    expect(screen.queryByText('rhel-9')).not.toBeInTheDocument();
+  });
+
   it('fetches and pre-populates the edit form for a :id route param', async () => {
     renderWithProviders(<DiskImageCreatePage />, {
       routerEntries: ['/admin/infrastructure/disk-images/di-1/edit'],
