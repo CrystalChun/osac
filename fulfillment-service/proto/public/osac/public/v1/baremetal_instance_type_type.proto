@@ -38,13 +38,11 @@ message BareMetalInstanceType {
 
 // Defines the hardware specifications for a BareMetalInstanceType.
 message BareMetalInstanceTypeSpec {
-  reserved 2;
-
   // Hardware specifications for this bare metal instance type.
   BareMetalHardwareSpec hardware = 1 [(buf.validate.field).required = true];
 
   // Human-readable description of the bare metal instance type.
-  string description = 3;
+  string description = 2;
 }
 
 // Contains the system-provided status of a BareMetalInstanceType.
