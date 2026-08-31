@@ -15,9 +15,12 @@ syntax = "proto3";
 
 package osac.private.v1;
 
+import "cleanapi/cleanapi.proto";
 import "google/api/field_behavior.proto";
 import "osac/private/v1/metadata_type.proto";
 import "osac/private/v1/network_class_type.proto";
+
+option (cleanapi.file).package = "osac.public.v1";
 
 // Represents a tenant-isolated virtual network.
 //
@@ -53,28 +56,6 @@ message VirtualNetwork {
 // The spec contains user-specified parameters that define how the network should be configured. These fields
 // follow a declarative model where users specify the desired state and the system reconciles to match it.
 message VirtualNetworkSpec {
-  // Region where the network is created. This is required and immutable after creation.
-  //
-  // VirtualNetworks are region-scoped resources and cannot span multiple regions. Compute instances can only
-  // attach to VirtualNetworks in the same region.
-  //
-  // Example: "us-east-1", "eu-west-2"
-  string region = 1 [
-    (google.api.field_behavior) = REQUIRED,
-    (google.api.field_behavior) = IMMUTABLE
-  ];
-
-  // The NetworkClass for this VirtualNetwork. If omitted on creation, the default NetworkClass is used.
-  // Once set (either explicitly or via default), this field is immutable.
-  //
-  // The selected NetworkClass determines the network backend (via its fabric_manager/k8s_manager) and the
-  // available capabilities. The NetworkClass must support the IP addressing mode implied by whichever of
-  // ipv4_cidr and ipv6_cidr are set below.
-  NetworkClassReference network_class = 2 [
-    (google.api.field_behavior) = OPTIONAL,
-    (google.api.field_behavior) = IMMUTABLE
-  ];
-
   // IPv4 CIDR block for this network. Optional for IPv6-only networks. Immutable after creation.
   //
   // Must be valid CIDR notation. Validation enforced at service layer.
@@ -83,7 +64,7 @@ message VirtualNetworkSpec {
   // Example: "10.0.0.0/16", "192.168.0.0/24"
   //
   // Leave empty when creating an IPv6-only network.
-  optional string ipv4_cidr = 3 [(google.api.field_behavior) = IMMUTABLE];
+  optional string ipv4_cidr = 1 [(google.api.field_behavior) = IMMUTABLE];
 
   // IPv6 CIDR block for this network. Optional for IPv4-only networks. Immutable after creation.
   //
@@ -93,11 +74,29 @@ message VirtualNetworkSpec {
   // Example: "2001:db8::/48", "fd00::/64"
   //
   // Leave empty when creating an IPv4-only network.
-  optional string ipv6_cidr = 4 [(google.api.field_behavior) = IMMUTABLE];
-
-  // Reserved field numbers for removed fields (do not reuse).
-  reserved 5, 6;
-  reserved "capabilities", "implementation_strategy";
+  optional string ipv6_cidr = 2 [(google.api.field_behavior) = IMMUTABLE];
+  // Region where the network is created. This is required and immutable after creation.
+  //
+  // VirtualNetworks are region-scoped resources and cannot span multiple regions. Compute instances can only
+  // attach to VirtualNetworks in the same region.
+  //
+  // Example: "us-east-1", "eu-west-2"
+  string region = 3 [
+    (cleanapi.field).private = true,
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = IMMUTABLE
+  ];
+  // The NetworkClass for this VirtualNetwork. If omitted on creation, the default NetworkClass is used.
+  // Once set (either explicitly or via default), this field is immutable.
+  //
+  // The selected NetworkClass determines the network backend (via its fabric_manager/k8s_manager) and the
+  // available capabilities. The NetworkClass must support the IP addressing mode implied by whichever of
+  // ipv4_cidr and ipv6_cidr are set below.
+  NetworkClassReference network_class = 4 [
+    (cleanapi.field).private = true,
+    (google.api.field_behavior) = OPTIONAL,
+    (google.api.field_behavior) = IMMUTABLE
+  ];
 }
 
 // Represents the current operational state of a VirtualNetwork.
@@ -121,7 +120,7 @@ message VirtualNetworkStatus {
 
   // Identifier of the hub that was selected for this virtual network.
   // This is system-managed and used by the controller to track which hub cluster manages this network's resources.
-  string hub = 3;
+  string hub = 3 [(cleanapi.field).private = true];
 }
 
 // Lifecycle states for VirtualNetwork resources.

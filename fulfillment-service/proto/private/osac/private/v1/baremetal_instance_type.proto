@@ -16,6 +16,7 @@ syntax = "proto3";
 package osac.private.v1;
 
 import "buf/validate/validate.proto";
+import "cleanapi/cleanapi.proto";
 import "google/api/field_behavior.proto";
 import "google/protobuf/any.proto";
 import "google/protobuf/timestamp.proto";
@@ -25,6 +26,8 @@ import "osac/private/v1/condition_status_type.proto";
 import "osac/private/v1/metadata_type.proto";
 import "osac/private/v1/security_group_type.proto";
 import "osac/private/v1/subnet_type.proto";
+
+option (cleanapi.file).package = "osac.public.v1";
 
 // Contains the details of a bare metal instance.
 //
@@ -151,16 +154,16 @@ message BareMetalInstanceStatus {
   // The controller sets this to match `spec.restart_trigger` once the power cycle is complete.
   int64 restart_trigger = 3;
 
-  // Identifier of the hub that was selected for this bare metal instance.
-  string hub = 4;
-
   // Runtime networking state for each network attachment.
   // Populated by the operator after DHCP lease discovery and synced via the feedback controller.
-  repeated BareMetalNetworkAttachmentStatus network_attachment_statuses = 5;
+  repeated BareMetalNetworkAttachmentStatus network_attachment_statuses = 4;
 
   // Physical hardware metadata fetched from the inventory backend at allocation time.
   // Absent until the inventory backend provides NIC data.
-  optional BareMetalHardware hardware = 6;
+  optional BareMetalHardware hardware = 5;
+
+  // Identifier of the hub that was selected for this bare metal instance.
+  string hub = 6 [(cleanapi.field).private = true];
 }
 
 // Runtime networking state for a single bare metal network attachment.

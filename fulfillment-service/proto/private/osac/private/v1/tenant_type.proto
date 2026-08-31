@@ -16,17 +16,24 @@ syntax = "proto3";
 package osac.private.v1;
 
 import "buf/validate/validate.proto";
+import "cleanapi/cleanapi.proto";
 import "google/protobuf/timestamp.proto";
 import "osac/private/v1/condition_status_type.proto";
 import "osac/private/v1/metadata_type.proto";
 import "osac/private/v1/break_glass_credentials_type.proto";
 import "osac/private/v1/secret_type.proto";
 
+option (cleanapi.file).package = "osac.public.v1";
+
+// A tenant groups resources and users for a customer or business unit.
+//
+// buf:lint:ignore OSAC_OBJECT_SHAPE
 message Tenant {
+  // Unique identifier of the tenant.
   string id = 1;
   Metadata metadata = 2;
   TenantSpec spec = 3;
-  TenantStatus status = 4;
+  TenantStatus status = 4 [(cleanapi.field).private = true];
 }
 
 message TenantSpec {
@@ -86,6 +93,7 @@ message TenantSpec {
 // Status is system-provided and read-only. Users cannot modify status fields directly; the system updates them
 // based on the reconciliation with the identity provider.
 message TenantStatus {
+  option (cleanapi.message).private = true;
   // Break-glass account credentials.
   // Only populated on successful creation. These credentials must be stored securely.
   // This field is not persisted; Get and List responses omit it. The durable copy is the
@@ -125,6 +133,7 @@ message TenantStatus {
 
 // Represents a specific aspect of the tenant's current state.
 message TenantCondition {
+  option (cleanapi.message).private = true;
   // Type of condition.
   TenantConditionType type = 1;
 
@@ -143,6 +152,7 @@ message TenantCondition {
 
 // Types of conditions that can be reported for a Tenant.
 enum TenantConditionType {
+  option (cleanapi.enum).private = true;
   // Unspecified condition type.
   TENANT_CONDITION_TYPE_UNSPECIFIED = 0;
 
@@ -167,6 +177,7 @@ enum TenantConditionType {
 // State transitions typically follow: UNSPECIFIED -> PENDING -> SYNCED, with FAILED as a terminal error state
 // that may require user intervention or resource recreation.
 enum TenantState {
+  option (cleanapi.enum).private = true;
   // State is unknown or has not been determined yet. This is the default state before initialization.
   TENANT_STATE_UNSPECIFIED = 0;
 
