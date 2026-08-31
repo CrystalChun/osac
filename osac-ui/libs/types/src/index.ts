@@ -14,6 +14,9 @@ export * from './osac/public/v1/instance_types_service_pb.js'
 export * from './osac/public/v1/disk_image_type_pb.js'
 export * from './osac/public/v1/disk_images_service_pb.js'
 
+export * from './osac/public/v1/storage_tier_type_pb.js'
+export * from './osac/public/v1/storage_tiers_service_pb.js'
+
 export * from './osac/public/v1/organization_type_pb.js'
 export * from './osac/public/v1/organizations_service_pb.js'
 
