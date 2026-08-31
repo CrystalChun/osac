@@ -15,6 +15,7 @@ syntax = "proto3";
 
 package osac.private.v1;
 
+import "cleanapi/cleanapi.proto";
 import "google/api/field_behavior.proto";
 import "google/protobuf/any.proto";
 import "google/protobuf/timestamp.proto";
@@ -28,6 +29,8 @@ import "osac/private/v1/host_type_type.proto";
 import "osac/private/v1/secret_type.proto";
 import "osac/private/v1/security_group_type.proto";
 import "osac/private/v1/subnet_type.proto";
+
+option (cleanapi.file).package = "osac.public.v1";
 
 // Contains the details of the cluster.
 //
@@ -259,16 +262,13 @@ message ClusterStatus {
   // The key of the map is the unique identifier of the node set for this cluster.
   map<string, ClusterNodeSet> node_sets = 5;
 
-  // Identifier of the hub that was selected for this cluster.
-  string hub = 6;
-
   // Internal API server VIP allocated by MetalLB for the cluster.
   //
   // This is the cluster-internal address used as the DNAT target for external access. It differs from `api_url`, which
   // is the external URL used by clients to reach the API server.
   //
   // This will be empty until the CaaS template discovers the MetalLB-allocated VIP during cluster provisioning.
-  string api_endpoint = 7;
+  string api_endpoint = 6;
 
   // Internal ingress VIP allocated by MetalLB for the cluster.
   //
@@ -276,24 +276,27 @@ message ClusterStatus {
   // which is the external URL for the cluster console.
   //
   // This will be empty until the CaaS template discovers the MetalLB-allocated VIP during cluster provisioning.
-  string ingress_endpoint = 8;
+  string ingress_endpoint = 7;
 
   // Records when the cluster entered its current state, as reported by the provisioning backend.
   // This is the authoritative timestamp of the state transition, suitable for billing interval
   // calculations.
   //
   // This will be empty if no state transition has been reported yet.
-  optional google.protobuf.Timestamp state_transition_time = 9;
+  optional google.protobuf.Timestamp state_transition_time = 8;
 
   // Reference to a Secret containing the cluster's kubeconfig.
   //
   // System-populated after cluster provisioning.
-  SecretLocalReference kubeconfig_secret = 10;
+  SecretLocalReference kubeconfig_secret = 9;
 
   // Reference to a Secret containing the cluster's kubeadmin password.
   //
   // System-populated after cluster provisioning.
-  SecretLocalReference password_secret = 11;
+  SecretLocalReference password_secret = 10;
+
+  // Identifier of the hub that was selected for this cluster.
+  string hub = 11 [(cleanapi.field).private = true];
 }
 
 // Represents the overall state of a cluster.
@@ -424,7 +427,7 @@ message ClusterNodeSet {
   // System-populated during cluster creation by selecting the first interface with
   // role "fabric" from the HostType's interfaces list. Not user-settable.
   // Empty when the cluster has no network_attachment.
-  string fabric_interface = 3;
+  string fabric_interface = 3 [(cleanapi.field).private = true];
 }
 
 // Local reference to a Cluster resource.
