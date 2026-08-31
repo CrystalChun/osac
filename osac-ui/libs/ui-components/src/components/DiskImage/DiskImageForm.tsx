@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { Code, ConnectError } from '@connectrpc/connect';
 import {
   ActionList,
   ActionListGroup,
@@ -9,7 +10,7 @@ import {
   Stack,
   StackItem,
 } from '@patternfly/react-core';
-import { Formik } from 'formik';
+import { Formik, type FormikHelpers } from 'formik';
 
 import { SourceType } from '@osac/types';
 
@@ -28,10 +29,23 @@ import { SelectField } from '../Form/SelectField';
 
 export const DISK_IMAGES_LIST_ROUTE = '/admin/infrastructure/disk-images';
 
+const FIELD_ERROR_MATCHERS: { pattern: RegExp; field: string }[] = [
+  { pattern: /source_ref/, field: 'spec.sourceRef' },
+  { pattern: /architecture/, field: 'spec.architecture' },
+];
+
+const mapInvalidArgumentToField = (message: string): string | undefined =>
+  FIELD_ERROR_MATCHERS.find(({ pattern }) => pattern.test(message))?.field;
+
 const DiskImageForm = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { mutateAsync: create, error } = useCreateDiskImage();
+  const errorMessage = error ? getErrorMessage(error) : undefined;
+  const errorField =
+    error instanceof ConnectError && error.code === Code.InvalidArgument
+      ? mapInvalidArgumentToField(error.rawMessage)
+      : undefined;
 
   const guestOsFamilyOptions = Object.entries(guestOsFamilyLabels(t))
     .filter(([value]) => Number(value) !== 0)
@@ -41,7 +55,10 @@ const DiskImageForm = () => {
     .filter(([value]) => Number(value) !== 0)
     .map(([value, label]) => ({ value: Number(value), label }));
 
-  const onSubmit = async (values: DiskImageFormValues) => {
+  const onSubmit = async (
+    values: DiskImageFormValues,
+    { setFieldError }: FormikHelpers<DiskImageFormValues>,
+  ) => {
     try {
       const created = await create({
         metadata: { name: values.metadata.name },
@@ -53,8 +70,14 @@ const DiskImageForm = () => {
         },
       });
       navigate(`${DISK_IMAGES_LIST_ROUTE}/${created.id}`);
-    } catch {
-      // tanstack handles the error
+    } catch (err) {
+      if (err instanceof ConnectError && err.code === Code.InvalidArgument) {
+        const field = mapInvalidArgumentToField(err.rawMessage);
+        if (field) {
+          setFieldError(field, err.rawMessage);
+        }
+      }
+      // otherwise the generic Alert below (driven by the mutation's error state) applies
     }
   };
 
@@ -96,10 +119,10 @@ const DiskImageForm = () => {
                 />
               </OsacForm>
             </StackItem>
-            {!!error && (
+            {!!error && !errorField && (
               <StackItem>
                 <Alert variant="danger" title={t('Failed to save disk image')} isInline>
-                  {getErrorMessage(error)}
+                  {errorMessage}
                 </Alert>
               </StackItem>
             )}

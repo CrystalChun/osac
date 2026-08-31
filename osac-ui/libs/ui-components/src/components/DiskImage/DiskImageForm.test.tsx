@@ -1,4 +1,5 @@
 import { create } from '@bufbuild/protobuf';
+import { Code, ConnectError } from '@connectrpc/connect';
 import { screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -130,6 +131,63 @@ describe('DiskImageForm', () => {
       });
       const spec = (captured?.object as { spec?: { guestOsFamily?: GuestOSFamily } })?.spec;
       expect(spec?.guestOsFamily).toBe(GuestOSFamily.GUEST_OS_FAMILY_LINUX);
+    });
+
+    it('maps an InvalidArgument mentioning source_ref onto the source reference field, retaining entered values', async () => {
+      const { user } = renderForm({
+        onDiskImageCreate: () => {
+          throw new ConnectError("field 'source_ref' must not be empty", Code.InvalidArgument);
+        },
+      });
+
+      await fillValidForm(user);
+      await user.click(screen.getByRole('button', { name: 'Create' }));
+
+      await waitFor(() => {
+        expect(screen.getByText("field 'source_ref' must not be empty")).toBeInTheDocument();
+      });
+      expect(screen.queryByText('Failed to save disk image')).not.toBeInTheDocument();
+      expect(screen.getByRole('textbox', { name: 'Name' })).toHaveValue('rhel-9');
+      expect(screen.getByRole('textbox', { name: 'Source reference' })).toHaveValue(
+        'quay.io/example/rhel:9',
+      );
+    });
+
+    it('maps an InvalidArgument mentioning architecture onto the architecture field', async () => {
+      const { user } = renderForm({
+        onDiskImageCreate: () => {
+          throw new ConnectError(
+            "field 'architecture' must contain at least one value",
+            Code.InvalidArgument,
+          );
+        },
+      });
+
+      await fillValidForm(user);
+      await user.click(screen.getByRole('button', { name: 'Create' }));
+
+      await waitFor(() => {
+        expect(
+          screen.getByText("field 'architecture' must contain at least one value"),
+        ).toBeInTheDocument();
+      });
+      expect(screen.queryByText('Failed to save disk image')).not.toBeInTheDocument();
+    });
+
+    it('falls back to the generic alert for an InvalidArgument that names no known field', async () => {
+      const { user } = renderForm({
+        onDiskImageCreate: () => {
+          throw new ConnectError('request rejected', Code.InvalidArgument);
+        },
+      });
+
+      await fillValidForm(user);
+      await user.click(screen.getByRole('button', { name: 'Create' }));
+
+      await waitFor(() => {
+        expect(screen.getByText('Failed to save disk image')).toBeInTheDocument();
+      });
+      expect(screen.getByText('request rejected')).toBeInTheDocument();
     });
   });
 });
