@@ -17,6 +17,7 @@ package osac.public.v1;
 
 import "buf/validate/validate.proto";
 import "osac/public/v1/metadata_type.proto";
+import "osac/public/v1/secret_type.proto";
 
 // A tenant groups resources and users for a customer or business unit.
 //
@@ -70,4 +71,12 @@ message TenantSpec {
       ]
     }
   }];
+
+  // Reference to a Secret resource containing break-glass account credentials.
+  //
+  // On Create the system generates break-glass credentials and returns them in status. The
+  // reconciler then stores them as a Secret and sets this field. Callers may also set it to an
+  // existing Secret; the referenced Secret must exist. The secret data must contain `username` and
+  // `password` entries.
+  SecretLocalReference break_glass_credentials_secret = 2;
 }
