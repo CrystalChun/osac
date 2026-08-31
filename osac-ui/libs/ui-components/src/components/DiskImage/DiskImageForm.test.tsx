@@ -63,7 +63,10 @@ vi.mock('react-router-dom', async (importOriginal) => {
 });
 
 const renderForm = (overrides?: MockTransportOverrides, tenants: Tenant[] = []) =>
-  renderWithProviders(<DiskImageForm />, { transportOverrides: overrides, apiFixtures: { tenants } });
+  renderWithProviders(<DiskImageForm />, {
+    transportOverrides: overrides,
+    apiFixtures: { tenants },
+  });
 
 const fillValidForm = async (user: ReturnType<typeof renderForm>['user']) => {
   await user.type(screen.getByRole('textbox', { name: 'Name' }), 'rhel-9');

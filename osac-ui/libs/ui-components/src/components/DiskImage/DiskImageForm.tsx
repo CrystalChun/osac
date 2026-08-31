@@ -60,8 +60,7 @@ const getInitialValues = (diskImage?: DiskImage): DiskImageFormValues =>
         metadata: { name: diskImage.metadata?.name ?? '', tenant: '' },
         spec: {
           sourceRef: diskImage.spec?.sourceRef ?? '',
-          guestOsFamily:
-            diskImage.spec?.guestOsFamily ?? diskImageCreateValues.spec.guestOsFamily,
+          guestOsFamily: diskImage.spec?.guestOsFamily ?? diskImageCreateValues.spec.guestOsFamily,
           architecture: diskImage.spec?.architecture ?? [],
         },
       }
