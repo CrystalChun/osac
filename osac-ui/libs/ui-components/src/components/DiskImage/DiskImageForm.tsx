@@ -13,12 +13,12 @@ import {
 } from '@patternfly/react-core';
 import { Formik, type FormikHelpers } from 'formik';
 
-import { type DiskImage, SourceType } from '@osac/types';
+import { SourceType } from '@osac/types';
 
 import { architectureLabels, guestOsFamilyLabels } from './DiskImageTable';
 import { getDiskImageCreateSchema } from './validation';
 import { DiskImageFormValues, diskImageCreateValues } from './values';
-import { useCreateDiskImage, useUpdateDiskImage } from '../../api/v1/disk-image';
+import { useCreateDiskImage } from '../../api/v1/disk-image';
 import { useTenants } from '../../api/v1/private/tenant';
 import { useSession } from '../../hooks/use-session';
 import { useTranslation } from '../../hooks/useTranslation';
@@ -54,32 +54,12 @@ const ReadOnlyField = ({
   </FormGroup>
 );
 
-const getInitialValues = (diskImage?: DiskImage): DiskImageFormValues =>
-  diskImage
-    ? {
-        metadata: { name: diskImage.metadata?.name ?? '', tenant: '' },
-        spec: {
-          sourceRef: diskImage.spec?.sourceRef ?? '',
-          guestOsFamily: diskImage.spec?.guestOsFamily ?? diskImageCreateValues.spec.guestOsFamily,
-          architecture: diskImage.spec?.architecture ?? [],
-        },
-      }
-    : diskImageCreateValues;
-
-interface DiskImageFormProps {
-  diskImage?: DiskImage;
-}
-
-const DiskImageForm = ({ diskImage }: DiskImageFormProps) => {
+const DiskImageForm = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const isEdit = !!diskImage;
-  const initialValues = getInitialValues(diskImage);
   const isAdmin = useSession().role === 'admin';
-  const { data: tenants = [] } = useTenants({}, !isAdmin || isEdit);
-  const { mutateAsync: create, error: createError } = useCreateDiskImage();
-  const { mutateAsync: update, error: updateError } = useUpdateDiskImage();
-  const error = createError ?? updateError;
+  const { data: tenants = [] } = useTenants({}, !isAdmin);
+  const { mutateAsync: create, error } = useCreateDiskImage();
   const errorMessage = error ? getErrorMessage(error) : undefined;
   const errorField =
     error instanceof ConnectError && error.code === Code.InvalidArgument
@@ -104,15 +84,6 @@ const DiskImageForm = ({ diskImage }: DiskImageFormProps) => {
     { setFieldError }: FormikHelpers<DiskImageFormValues>,
   ) => {
     try {
-      if (isEdit && diskImage) {
-        const updated = await update({
-          id: diskImage.id,
-          body: { spec: { architecture: values.spec.architecture } },
-        });
-        navigate(`${DISK_IMAGES_LIST_ROUTE}/${updated.id}`);
-        return;
-      }
-
       const created = await create({
         metadata: {
           name: values.metadata.name,
@@ -139,7 +110,7 @@ const DiskImageForm = ({ diskImage }: DiskImageFormProps) => {
 
   return (
     <Formik
-      initialValues={initialValues}
+      initialValues={diskImageCreateValues}
       validationSchema={getDiskImageCreateSchema(t)}
       onSubmit={onSubmit}
     >
@@ -149,49 +120,25 @@ const DiskImageForm = ({ diskImage }: DiskImageFormProps) => {
           <Stack hasGutter>
             <StackItem>
               <OsacForm>
-                {isEdit ? (
-                  <ReadOnlyField
-                    label={t('Name')}
-                    fieldId="disk-image-name"
-                    value={diskImage?.metadata?.name ?? ''}
-                  />
-                ) : (
-                  <NameField />
-                )}
+                <NameField />
                 <ReadOnlyField
                   label={t('Source type')}
                   fieldId="disk-image-source-type"
                   value={SourceType[SourceType.REGISTRY]}
                 />
-                {isEdit ? (
-                  <ReadOnlyField
-                    label={t('Source reference')}
-                    fieldId="disk-image-source-ref"
-                    value={diskImage?.spec?.sourceRef ?? ''}
-                  />
-                ) : (
-                  <InputField
-                    name="spec.sourceRef"
-                    label={t('Source reference')}
-                    fieldId="disk-image-source-ref"
-                    isRequired
-                  />
-                )}
-                {isEdit ? (
-                  <ReadOnlyField
-                    label={t('Guest OS family')}
-                    fieldId="disk-image-guest-os-family"
-                    value={guestOsFamilyLabels(t)[initialValues.spec.guestOsFamily]}
-                  />
-                ) : (
-                  <SelectField
-                    name="spec.guestOsFamily"
-                    label={t('Guest OS family')}
-                    fieldId="disk-image-guest-os-family"
-                    isRequired
-                    options={guestOsFamilyOptions}
-                  />
-                )}
+                <InputField
+                  name="spec.sourceRef"
+                  label={t('Source reference')}
+                  fieldId="disk-image-source-ref"
+                  isRequired
+                />
+                <SelectField
+                  name="spec.guestOsFamily"
+                  label={t('Guest OS family')}
+                  fieldId="disk-image-guest-os-family"
+                  isRequired
+                  options={guestOsFamilyOptions}
+                />
                 <MultiSelectField
                   name="spec.architecture"
                   label={t('Architecture')}
@@ -199,7 +146,7 @@ const DiskImageForm = ({ diskImage }: DiskImageFormProps) => {
                   isRequired
                   options={architectureOptions}
                 />
-                {isAdmin && !isEdit && (
+                {isAdmin && (
                   <SelectField
                     name="metadata.tenant"
                     label={t('Scope')}
@@ -226,7 +173,7 @@ const DiskImageForm = ({ diskImage }: DiskImageFormProps) => {
                       isDisabled={isSubmitting}
                       isLoading={isSubmitting}
                     >
-                      {t(isEdit ? 'Save' : 'Create')}
+                      {t('Create')}
                     </Button>
                   </ActionListItem>
                   <ActionListItem>

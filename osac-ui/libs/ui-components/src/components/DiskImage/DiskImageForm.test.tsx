@@ -5,10 +5,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
   Architecture,
-  type DiskImage,
-  DiskImageSchema,
   DiskImagesCreateResponseSchema,
-  DiskImagesUpdateResponseSchema,
   GuestOSFamily,
   SourceType,
 } from '@osac/types';
@@ -40,18 +37,6 @@ const makeSession = (role: UserRole) => ({
 });
 
 const makeTenant = (id: string, name: string): Tenant => ({ id, metadata: { name } }) as Tenant;
-
-const makeDiskImage = (overrides: Partial<{ architecture: Architecture[] }> = {}): DiskImage =>
-  create(DiskImageSchema, {
-    id: 'di-1',
-    metadata: { name: 'rhel-9' },
-    spec: {
-      sourceType: SourceType.REGISTRY,
-      sourceRef: 'quay.io/example/rhel:9',
-      guestOsFamily: GuestOSFamily.GUEST_OS_FAMILY_LINUX,
-      architecture: overrides.architecture ?? [Architecture.AMD64],
-    },
-  });
 
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async (importOriginal) => {
@@ -309,59 +294,6 @@ describe('DiskImageForm', () => {
       });
       const metadata = (captured?.object as { metadata?: { tenant?: string } })?.metadata;
       expect(metadata?.tenant).toBe('tenant-1');
-    });
-  });
-
-  describe('edit mode', () => {
-    const renderEditForm = (diskImage: DiskImage, overrides?: MockTransportOverrides) =>
-      renderWithProviders(<DiskImageForm diskImage={diskImage} />, {
-        transportOverrides: overrides,
-      });
-
-    it('renders source type, source reference, guest OS family, and name as read-only text', () => {
-      renderEditForm(makeDiskImage());
-
-      expect(screen.getByText('rhel-9')).toBeInTheDocument();
-      expect(screen.getByText('REGISTRY')).toBeInTheDocument();
-      expect(screen.getByText('quay.io/example/rhel:9')).toBeInTheDocument();
-      expect(screen.getByText('Linux')).toBeInTheDocument();
-      expect(screen.queryByRole('textbox', { name: 'Name' })).not.toBeInTheDocument();
-      expect(screen.queryByRole('textbox', { name: 'Source reference' })).not.toBeInTheDocument();
-      expect(screen.queryByRole('button', { name: 'Guest OS family' })).not.toBeInTheDocument();
-    });
-
-    it('keeps architecture as the only active control', () => {
-      renderEditForm(makeDiskImage());
-
-      expect(screen.getByRole('button', { name: 'Architecture' })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
-    });
-
-    it('submits an update scoped to architecture and navigates to the detail page', async () => {
-      let captured: Record<string, unknown> | undefined;
-      const { user } = renderEditForm(makeDiskImage(), {
-        onDiskImageUpdate: (req) => {
-          captured = req as unknown as Record<string, unknown>;
-          return create(DiskImagesUpdateResponseSchema, {
-            object: { ...req.object, id: 'di-1' },
-          });
-        },
-      });
-
-      await user.click(screen.getByRole('button', { name: 'Architecture' }));
-      await user.click(screen.getByRole('option', { name: 'arm64' }));
-      await user.click(screen.getByRole('button', { name: 'Save' }));
-
-      await waitFor(() => {
-        expect(mockNavigate).toHaveBeenCalledWith(`${DISK_IMAGES_LIST_ROUTE}/di-1`);
-      });
-      const object = captured?.object as { id?: string; spec?: { architecture?: Architecture[] } };
-      expect(object?.id).toBe('di-1');
-      expect((captured?.updateMask as { paths?: string[] } | undefined)?.paths).toEqual([
-        'spec.architecture',
-      ]);
-      const architecture = object?.spec?.architecture;
-      expect(architecture).toEqual([Architecture.AMD64, Architecture.ARM64]);
     });
   });
 });

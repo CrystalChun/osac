@@ -42,10 +42,4 @@ describe('DiskImageRoutes', () => {
 
     expect(screen.getByRole('heading', { name: 'Disk image details' })).toBeInTheDocument();
   });
-
-  it('renders the create page shell (edit mode) on the id/edit route', () => {
-    render(renderRoutes('/admin/infrastructure/disk-images/rhel-9/edit'));
-
-    expect(screen.getByRole('heading', { name: 'Create disk image' })).toBeInTheDocument();
-  });
 });
