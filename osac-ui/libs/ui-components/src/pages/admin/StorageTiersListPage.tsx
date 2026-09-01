@@ -78,7 +78,7 @@ export const StorageTiersListPage = () => {
                       <Th>{t('Name')}</Th>
                       <Th>{t('Status')}</Th>
                       <Th>{t('Backends')}</Th>
-                      <Th>{t('Protocol(s)')}</Th>
+                      <Th>{t('Protocol')}</Th>
                       <Th aria-label={t('Actions')} />
                     </Tr>
                   </Thead>
@@ -105,10 +105,10 @@ export const StorageTiersListPage = () => {
                               )
                               .join(', ')}
                           </Td>
-                          <Td dataLabel={t('Protocol(s)')}>
-                            {backendAssociations
-                              .map((association) => protocolLabels[association.protocol])
-                              .join(', ')}
+                          <Td dataLabel={t('Protocol')}>
+                            {tier.spec?.protocol !== undefined
+                              ? protocolLabels[tier.spec.protocol]
+                              : '—'}
                           </Td>
                           <Td dataLabel={t('Actions')} isActionCell>
                             <StorageTierActionsMenu tier={tier} />

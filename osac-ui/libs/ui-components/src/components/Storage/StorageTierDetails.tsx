@@ -19,7 +19,7 @@ import {
 import type { StorageTier } from '@osac/types/private';
 
 import { StorageTierBackendAssociationsTable } from './StorageTierBackendAssociationsTable';
-import { uniqueBackendIds } from './storageTierBackendResolution';
+import { protocolLabel, uniqueBackendIds } from './storageTierBackendResolution';
 import { StorageTierDetailActionButtons } from './StorageTierDetailActionButtons';
 import { StorageTierStatusLabel } from './StorageTierStatusLabel';
 import {
@@ -39,6 +39,7 @@ interface StorageTierDetailsProps {
 export const StorageTierDetails = ({ tier }: StorageTierDetailsProps) => {
   const { t } = useTranslation();
   const tierName = tier.metadata?.name ?? tier.id;
+  const protocolLabels = protocolLabel(t);
 
   const backendIds = useMemo(() => uniqueBackendIds([tier]), [tier]);
   const { data: backends = [], error: backendsError } = usePrivateStorageBackends(
@@ -94,6 +95,38 @@ export const StorageTierDetails = ({ tier }: StorageTierDetailsProps) => {
                   <DescriptionListTerm>{t('Description')}</DescriptionListTerm>
                   <DescriptionListDescription>{tier.spec.description}</DescriptionListDescription>
                 </DescriptionListGroup>
+              )}
+
+              {tier.spec?.protocol !== undefined && (
+                <DescriptionListGroup>
+                  <DescriptionListTerm>{t('Protocol')}</DescriptionListTerm>
+                  <DescriptionListDescription>
+                    {protocolLabels[tier.spec.protocol]}
+                  </DescriptionListDescription>
+                </DescriptionListGroup>
+              )}
+
+              {tier.spec && (
+                <>
+                  <DescriptionListGroup>
+                    <DescriptionListTerm>{t('Max read bandwidth')}</DescriptionListTerm>
+                    <DescriptionListDescription>
+                      {`${tier.spec.maxReadBandwidthMbs} MB/s`}
+                    </DescriptionListDescription>
+                  </DescriptionListGroup>
+                  <DescriptionListGroup>
+                    <DescriptionListTerm>{t('Max write bandwidth')}</DescriptionListTerm>
+                    <DescriptionListDescription>
+                      {`${tier.spec.maxWriteBandwidthMbs} MB/s`}
+                    </DescriptionListDescription>
+                  </DescriptionListGroup>
+                  <DescriptionListGroup>
+                    <DescriptionListTerm>{t('Encryption')}</DescriptionListTerm>
+                    <DescriptionListDescription>
+                      {tier.spec.encryptionEnabled ? t('Yes') : t('No')}
+                    </DescriptionListDescription>
+                  </DescriptionListGroup>
+                </>
               )}
 
               {tier.status?.message && (
