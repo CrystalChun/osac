@@ -4,6 +4,7 @@ import type { TFunction } from 'i18next';
 import type { UserRole } from '@osac/ui-components/shellTypes';
 
 export const isNavSection = (row: NavRow): row is NavSection => row.kind === 'section';
+export const isNavLink = (row: NavRow): row is NavLink => row.kind === 'link';
 
 export type NavLink = { kind: 'link'; id: string; label: string; path: string };
 
@@ -16,19 +17,13 @@ export type NavSection = {
 
 type NavRow = NavSection | NavLink;
 
-const getTenantAdminSection = (t: TFunction): NavRow => ({
-  kind: 'section',
-  id: 'nav-tenant-administration',
-  label: t('Tenant'),
-  children: [
-    { kind: 'link', id: 'idp', label: t('Identity providers'), path: '/tenant/identity-provider' },
-    { kind: 'link', id: 'role-bindings', label: t('Role Bindings'), path: '/tenant/role-binding' },
-  ],
-});
-
-const getIdpManagerNav = (t: TFunction): NavRow[] => [getTenantAdminSection(t)];
+const getIdpManagerNav = (t: TFunction): NavRow[] => [
+  { kind: 'link', id: 'idp', label: t('Identity providers'), path: '/tenant/identity-provider' },
+  { kind: 'link', id: 'role-bindings', label: t('Role Bindings'), path: '/tenant/role-binding' },
+];
 
 const getAdminNav = (t: TFunction): NavRow[] => [
+  ...getBaseNav(t),
   {
     kind: 'section',
     id: 'nav-administration',
@@ -60,44 +55,60 @@ const getAdminNav = (t: TFunction): NavRow[] => [
       },
     ],
   },
-  getTenantAdminSection(t),
-  ...getBaseNav(t),
+  getNetworkNav(t),
 ];
 
-const getTenantAdminNav = (t: TFunction): NavRow[] => [getTenantAdminSection(t), ...getBaseNav(t)];
+const getTenantAdminNav = (t: TFunction): NavRow[] => [...getBaseNav(t), getNetworkNav(t)];
+
+const getCatalogNav = (t: TFunction): NavRow => ({
+  kind: 'link',
+  id: 'catalog',
+  label: t('Catalog'),
+  path: '/catalog',
+});
+
+const getServicesNav = (t: TFunction): NavRow => ({
+  kind: 'section',
+  id: 'nav-tenant-services',
+  label: t('Services'),
+  children: [
+    { kind: 'link', id: 'bare-metal', label: t('Bare Metal'), path: '/bare-metal' },
+    { kind: 'link', id: 'clusters', label: t('Clusters'), path: '/clusters' },
+    { kind: 'link', id: 'compute-vms', label: t('Virtual Machines'), path: '/vms' },
+  ],
+});
+
+const getProjectsNav = (t: TFunction): NavRow => ({
+  kind: 'link',
+  id: 'projects',
+  label: t('Projects'),
+  path: '/projects',
+});
+
+const getNetworkNav = (t: TFunction): NavRow => ({
+  kind: 'section',
+  id: 'nav-tenant-networking',
+  label: t('Networking'),
+  children: [
+    {
+      kind: 'link',
+      id: 'virtual-networks',
+      label: t('Virtual networks'),
+      path: '/networking/virtual-networks',
+    },
+    {
+      kind: 'link',
+      id: 'security-groups',
+      label: t('Security groups'),
+      path: '/networking/security-groups',
+    },
+  ],
+});
 
 const getBaseNav = (t: TFunction): NavRow[] => [
-  { kind: 'link', id: 'catalog', label: t('Catalog'), path: '/catalog' },
-  {
-    kind: 'section',
-    id: 'nav-tenant-services',
-    label: t('Services'),
-    children: [
-      { kind: 'link', id: 'compute-vms', label: t('Virtual Machines'), path: '/vms' },
-      { kind: 'link', id: 'clusters', label: t('Clusters'), path: '/clusters' },
-      { kind: 'link', id: 'bare-metal', label: t('Bare Metal'), path: '/bare-metal' },
-    ],
-  },
-  { kind: 'link', id: 'projects', label: t('Projects'), path: '/projects' },
-  {
-    kind: 'section',
-    id: 'nav-tenant-networking',
-    label: t('Networking'),
-    children: [
-      {
-        kind: 'link',
-        id: 'virtual-networks',
-        label: t('Virtual networks'),
-        path: '/networking/virtual-networks',
-      },
-      {
-        kind: 'link',
-        id: 'security-groups',
-        label: t('Security groups'),
-        path: '/networking/security-groups',
-      },
-    ],
-  },
+  getCatalogNav(t),
+  getServicesNav(t),
+  getProjectsNav(t),
 ];
 
 export const navRowsForRole = (role: UserRole, t: TFunction): NavRow[] => {
@@ -113,5 +124,6 @@ export const navRowsForRole = (role: UserRole, t: TFunction): NavRow[] => {
     return getTenantAdminNav(t);
   }
 
-  return getBaseNav(t);
+  // 'tenant-user'
+  return [...getBaseNav(t), getNetworkNav(t)];
 };

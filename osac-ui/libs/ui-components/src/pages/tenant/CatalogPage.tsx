@@ -66,9 +66,9 @@ const CatalogPage = () => {
 
   const catalogTypeFilters = useMemo<ReadonlyArray<{ value: CatalogItemKind; label: string }>>(
     () => [
-      { value: 'vm', label: t('Virtual Machines') },
-      { value: 'cluster', label: t('Clusters') },
       { value: 'bm', label: t('Bare Metal Machines') },
+      { value: 'cluster', label: t('Clusters') },
+      { value: 'vm', label: t('Virtual Machines') },
     ],
     [t],
   );
