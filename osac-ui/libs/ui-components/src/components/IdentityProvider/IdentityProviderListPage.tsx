@@ -1,7 +1,5 @@
-import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useMemo } from 'react';
 import {
-  Button,
   SearchInput,
   Toolbar,
   ToolbarContent,
@@ -17,9 +15,11 @@ import IdentityProviderActionsMenu from '@osac/ui-components/components/Identity
 import IdentityProviderStatusLabel from '@osac/ui-components/components/IdentityProvider/IdentityProviderStatusLabel';
 import ListPage from '@osac/ui-components/components/Page/ListPage';
 import ListPageBody from '@osac/ui-components/components/Page/ListPageBody';
+import CreateButton from '@osac/ui-components/components/Primitives/CreateButton.tsx';
 import { Timestamp } from '@osac/ui-components/components/Primitives/Timestamp';
 import ResourceNameField from '@osac/ui-components/components/Resource/ResourceNameField.tsx';
 import { SubtleContent } from '@osac/ui-components/components/SubtleContent/SubtleContent';
+import { SEARCH_PARAM, usePageFilter } from '@osac/ui-components/hooks/use-page-filter.ts';
 import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
 
 import { getIdpName } from './utils';
@@ -35,8 +35,7 @@ const resolveIdpType = (t: TFunction, configCase: string | undefined): string =>
 
 const IdentityProviderListPage = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = usePageFilter(SEARCH_PARAM);
 
   const { data, isLoading, error } = useListResource(IdentityProviders);
 
@@ -57,9 +56,9 @@ const IdentityProviderListPage = () => {
       description={t('Manage identity providers for your tenant.')}
       error={error}
       actions={
-        <Button variant="primary" onClick={() => navigate('/tenant/identity-provider/create')}>
+        <CreateButton to="/tenant/identity-provider/create">
           {t('Create identity provider')}
-        </Button>
+        </CreateButton>
       }
     >
       <ListPageBody isLoading={isLoading} error={error}>

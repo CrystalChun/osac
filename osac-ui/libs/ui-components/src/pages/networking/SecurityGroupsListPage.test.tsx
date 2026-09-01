@@ -75,6 +75,7 @@ describe('SecurityGroupsListPage', () => {
     );
 
     expect(screen.getByText('Security groups')).toBeInTheDocument();
+    expect(screen.getByText('Networking').closest('.pf-v6-c-label')).not.toBeNull();
     expect(screen.getByRole('button', { name: /Create security group/i })).toBeInTheDocument();
   });
 
@@ -101,6 +102,12 @@ describe('SecurityGroupsListPage', () => {
 
     expect(screen.getByRole('link', { name: 'sg-web' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'sg-db' })).toBeInTheDocument();
+
+    const vnLinks = screen.getAllByRole('link', { name: 'vn-prod' });
+    expect(vnLinks).toHaveLength(2);
+    vnLinks.forEach((link) => {
+      expect(link).toHaveAttribute('href', '/networking/virtual-networks/vn-1');
+    });
 
     const rows = screen.getAllByRole('row');
     expect(rows).toHaveLength(3); // header + 2 data rows

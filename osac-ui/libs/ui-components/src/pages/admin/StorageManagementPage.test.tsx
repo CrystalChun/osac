@@ -26,6 +26,7 @@ describe('StorageManagementPage', () => {
 
     expect(screen.getByRole('tab', { name: 'Backends' })).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: 'Tiers' })).toBeInTheDocument();
+    expect(screen.getByText('Infrastructure').closest('.pf-v6-c-label')).not.toBeNull();
   });
 
   it('shows the storage backends list when activeTab is backends', async () => {
@@ -42,7 +43,7 @@ describe('StorageManagementPage', () => {
     renderPage('tiers');
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Create tier' })).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: 'Create tier' })).toBeInTheDocument();
     });
   });
 
@@ -52,7 +53,7 @@ describe('StorageManagementPage', () => {
     await user.click(screen.getByRole('tab', { name: 'Tiers' }));
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Create tier' })).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: 'Create tier' })).toBeInTheDocument();
     });
   });
 
@@ -73,7 +74,7 @@ describe('StorageManagementPage', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Create backend' })).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: 'Create backend' })).toBeInTheDocument();
     });
     expect(onStorageTierList).not.toHaveBeenCalled();
   });
@@ -99,16 +100,16 @@ describe('StorageManagementPage', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Create tier' })).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: 'Create tier' })).toBeInTheDocument();
     });
     expect(onStorageTierList).toHaveBeenCalledTimes(1);
 
     await user.click(screen.getByRole('tab', { name: 'Backends' }));
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Create backend' })).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: 'Create backend' })).toBeInTheDocument();
     });
-    expect(screen.queryByRole('button', { name: 'Create tier' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Create tier' })).not.toBeInTheDocument();
     expect(onStorageTierList).toHaveBeenCalledTimes(1);
   });
 });

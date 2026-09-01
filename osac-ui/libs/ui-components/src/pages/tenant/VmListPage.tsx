@@ -1,8 +1,6 @@
 import { useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
   Alert,
-  Button,
   Flex,
   FlexItem,
   Label,
@@ -23,6 +21,7 @@ import { useInstanceTypes } from '@osac/ui-components/api/v1/instance-types';
 import ListPage from '@osac/ui-components/components/Page/ListPage';
 import ListPageBody from '@osac/ui-components/components/Page/ListPageBody';
 import ProjectFilter from '@osac/ui-components/components/Page/ProjectFilter';
+import CreateButton from '@osac/ui-components/components/Primitives/CreateButton.tsx';
 import { SubtleContent } from '@osac/ui-components/components/SubtleContent/SubtleContent';
 import { VmTable } from '@osac/ui-components/components/vm/VmTable';
 import {
@@ -49,7 +48,6 @@ const vmMatchesStatusFilter = (vm: ComputeInstance, filter: VmStatusFilter): boo
 };
 
 export const VmListPage = () => {
-  const navigate = useNavigate();
   const { t } = useTranslation();
   const [search, setSearch] = usePageFilter(SEARCH_PARAM);
   const [statusFilters, setStatusFilters] = useArrayPageFilter(
@@ -99,13 +97,10 @@ export const VmListPage = () => {
   return (
     <ListPage
       title={t('Virtual machines')}
+      label={t('Services')}
       description={t('View and filter your virtual machines.')}
       error={error}
-      actions={
-        <Button variant="primary" onClick={() => navigate('/vms/create')}>
-          {t('Create virtual machine')}
-        </Button>
-      }
+      actions={<CreateButton to="/vms/create">{t('Create virtual machine')}</CreateButton>}
     >
       <ListPageBody isLoading={isLoading} error={error}>
         <Stack hasGutter>

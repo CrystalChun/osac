@@ -33,6 +33,11 @@ describe('TenantListPage', () => {
     await waitFor(() => {
       expect(screen.getByRole('heading', { name: 'Tenants' })).toBeInTheDocument();
     });
+    expect(screen.getByText('Administration').closest('.pf-v6-c-label')).not.toBeNull();
+    expect(screen.getByRole('link', { name: 'Create tenant' })).toHaveAttribute(
+      'href',
+      '/admin/tenants/create',
+    );
   });
 
   it('renders tenant rows with names', async () => {

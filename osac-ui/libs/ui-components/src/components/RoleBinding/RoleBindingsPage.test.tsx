@@ -147,11 +147,11 @@ describe('RoleBindingsPage', () => {
     expect(screen.queryByRole('table')).not.toBeInTheDocument();
   });
 
-  it('renders the create role binding button', async () => {
+  it('renders the create role binding link', async () => {
     renderPage();
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Create role binding' })).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: 'Create role binding' })).toBeInTheDocument();
     });
   });
 

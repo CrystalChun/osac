@@ -1,7 +1,5 @@
-import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useMemo } from 'react';
 import {
-  Button,
   SearchInput,
   Toolbar,
   ToolbarContent,
@@ -13,9 +11,11 @@ import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 import { useProjects } from '@osac/ui-components/api/v1/project';
 import ListPage from '@osac/ui-components/components/Page/ListPage';
 import ListPageBody from '@osac/ui-components/components/Page/ListPageBody';
+import CreateButton from '@osac/ui-components/components/Primitives/CreateButton.tsx';
 import { Timestamp } from '@osac/ui-components/components/Primitives/Timestamp';
 import ResourceNameField from '@osac/ui-components/components/Resource/ResourceNameField.tsx';
 import { SubtleContent } from '@osac/ui-components/components/SubtleContent/SubtleContent';
+import { SEARCH_PARAM, usePageFilter } from '@osac/ui-components/hooks/use-page-filter.ts';
 import { useSession } from '@osac/ui-components/hooks/use-session';
 import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
 
@@ -25,9 +25,8 @@ import { getProjectName } from './utils';
 
 const ProjectListPage = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const { role, tenantId } = useSession();
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = usePageFilter(SEARCH_PARAM);
 
   const { data: projects = [], isLoading, error } = useProjects();
 
@@ -51,9 +50,7 @@ const ProjectListPage = () => {
       error={error}
       actions={
         canCreate && !!tenantId ? (
-          <Button variant="primary" onClick={() => navigate('/projects/create')}>
-            {t('Create project')}
-          </Button>
+          <CreateButton to="/projects/create">{t('Create project')}</CreateButton>
         ) : undefined
       }
     >

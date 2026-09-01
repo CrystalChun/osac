@@ -36,7 +36,7 @@ describe('StorageRoutes', () => {
   it('redirects the bare /admin/infrastructure/storage path to the Backends tab', () => {
     renderAt('/admin/infrastructure/storage');
 
-    expect(screen.getByRole('button', { name: 'Create backend' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Create backend' })).toBeInTheDocument();
   });
 
   it('renders the real create form for backends/create', () => {
@@ -86,7 +86,7 @@ describe('StorageRoutes', () => {
     renderAt('/admin/infrastructure/storage/tiers');
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Create tier' })).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: 'Create tier' })).toBeInTheDocument();
     });
   });
 

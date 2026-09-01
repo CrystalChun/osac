@@ -97,12 +97,13 @@ describe('StorageBackendsListPage', () => {
     expect(screen.queryByRole('table')).not.toBeInTheDocument();
   });
 
-  it('navigates to the create route when "Create backend" is clicked', async () => {
-    const { user } = renderPage();
+  it('links the Create backend action to the create route', () => {
+    renderPage();
 
-    await user.click(screen.getByRole('button', { name: 'Create backend' }));
-
-    expect(mockNavigate).toHaveBeenCalledWith('/admin/infrastructure/storage/backends/create');
+    expect(screen.getByRole('link', { name: 'Create backend' })).toHaveAttribute(
+      'href',
+      '/admin/infrastructure/storage/backends/create',
+    );
   });
 
   it('navigates to the edit route with the correct ID when Edit is clicked', async () => {

@@ -96,7 +96,7 @@ const CatalogPage = () => {
   );
 
   return (
-    <ListPage title={t('Catalog')} description={pageDescription}>
+    <ListPage label={t('Global marketplace')} title={t('Catalog')} description={pageDescription}>
       <Stack hasGutter>
         <StackItem>
           <Flex

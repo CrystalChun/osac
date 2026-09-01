@@ -1,7 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
-  Button,
   Checkbox,
   MenuToggle,
   SearchInput,
@@ -16,6 +14,7 @@ import {
 
 import { Architecture, DiskImageLifecycle, GuestOSFamily } from '@osac/types';
 import { Tenants } from '@osac/types/private';
+import CreateButton from '@osac/ui-components/components/Primitives/CreateButton.tsx';
 
 import DiskImageTable from './DiskImageTable';
 import { useListResource } from '../../api/use-resource';
@@ -168,7 +167,6 @@ const SHOW_OBSOLETE_PARAM = 'showObsolete';
 
 const DiskImageListPage = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
 
   const [search, setSearch] = usePageFilter(SEARCH_PARAM);
   const [guestOsFamilyParam, setGuestOsFamilyParam] = usePageFilter(GUEST_OS_FAMILY_PARAM);
@@ -225,15 +223,13 @@ const DiskImageListPage = () => {
   return (
     <ListPage
       title={t('Disk images')}
+      label={t('Infrastructure')}
       description={t('Manage disk images available for provisioning virtual machines.')}
       error={error}
       actions={
-        <Button
-          variant="primary"
-          onClick={() => navigate('/admin/infrastructure/disk-images/create')}
-        >
+        <CreateButton to="/admin/infrastructure/disk-images/create">
           {t('Create disk image')}
-        </Button>
+        </CreateButton>
       }
     >
       <ListPageBody isLoading={isLoading} error={error}>

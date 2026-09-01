@@ -75,15 +75,18 @@ describe('ProjectListPage', () => {
     expect(screen.getByText('Pending')).toBeInTheDocument();
   });
 
-  it('shows the Create project button for tenant-admin', async () => {
+  it('shows the Create project link for tenant-admin', async () => {
     renderPage();
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Create project' })).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: 'Create project' })).toHaveAttribute(
+        'href',
+        '/projects/create',
+      );
     });
   });
 
-  it('hides the Create project button for tenant-user', async () => {
+  it('hides the Create project link for tenant-user', async () => {
     vi.mocked(useSession).mockReturnValue({
       role: 'tenant-user',
       username: 'testuser',
@@ -103,7 +106,7 @@ describe('ProjectListPage', () => {
     await waitFor(() => {
       expect(screen.getByRole('heading', { name: 'Projects' })).toBeInTheDocument();
     });
-    expect(screen.queryByRole('button', { name: 'Create project' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Create project' })).not.toBeInTheDocument();
   });
 
   it('shows empty state when there are no projects', async () => {

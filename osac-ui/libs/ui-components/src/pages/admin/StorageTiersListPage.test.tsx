@@ -180,7 +180,7 @@ describe('StorageTiersListPage', () => {
       expect(screen.getByText('fast')).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole('button', { name: 'Create tier' }));
+    await user.click(screen.getByRole('link', { name: 'Create tier' }));
 
     await waitFor(() => {
       expect(screen.getByText('navigated-to-create')).toBeInTheDocument();
@@ -198,7 +198,7 @@ describe('StorageTiersListPage', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Create tier' })).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: 'Create tier' })).toBeInTheDocument();
     });
   });
 

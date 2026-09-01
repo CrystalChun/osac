@@ -1,14 +1,7 @@
-import { useNavigate } from 'react-router-dom';
-import {
-  Alert,
-  Button,
-  Toolbar,
-  ToolbarContent,
-  ToolbarGroup,
-  ToolbarItem,
-} from '@patternfly/react-core';
+import { Alert, Toolbar, ToolbarContent, ToolbarGroup, ToolbarItem } from '@patternfly/react-core';
 
 import { useClusters } from '@osac/ui-components/api/v1/cluster';
+import CreateButton from '@osac/ui-components/components/Primitives/CreateButton.tsx';
 
 import { ClustersTable } from './ClustersTable';
 import { useTranslation } from '../../hooks/useTranslation';
@@ -18,19 +11,15 @@ import ProjectFilter from '../Page/ProjectFilter';
 
 export const ClustersPage = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const { data: clusters = [], isLoading, error } = useClusters();
 
   return (
     <ListPage
-      title="Clusters"
-      description="OpenShift clusters provisioned for your organization."
+      title={t('Clusters')}
+      label={t('Services')}
+      description={t('OpenShift clusters provisioned for your organization.')}
       error={error}
-      actions={
-        <Button variant="primary" onClick={() => navigate('/clusters/create')}>
-          {t('Create cluster')}
-        </Button>
-      }
+      actions={<CreateButton to="/clusters/create">{t('Create cluster')}</CreateButton>}
     >
       <ListPageBody isLoading={isLoading} error={error}>
         <Toolbar>

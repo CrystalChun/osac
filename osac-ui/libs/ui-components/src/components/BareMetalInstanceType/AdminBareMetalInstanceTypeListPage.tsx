@@ -15,6 +15,7 @@ const AdminBareMetalInstanceTypeListPage = () => {
   return (
     <ListPage
       title={t('Bare metal instance types')}
+      label={t('Infrastructure')}
       description={t('Manage provider-defined bare metal instance types for this cloud platform.')}
       error={error}
       actions={
