@@ -17,18 +17,18 @@ package osac.public.v1;
 
 import "osac/public/v1/baremetal_instance_type.proto";
 import "osac/public/v1/cluster_template_type.proto";
-import "osac/public/v1/cluster_type.proto";
 import "osac/public/v1/cluster_version_type.proto";
+import "osac/public/v1/cluster_type.proto";
 import "osac/public/v1/compute_instance_template_type.proto";
 import "osac/public/v1/compute_instance_type.proto";
 import "osac/public/v1/disk_image_type.proto";
 import "osac/public/v1/host_type_type.proto";
 import "osac/public/v1/instance_type_type.proto";
-import "osac/public/v1/role_binding_type.proto";
 import "osac/public/v1/project_type.proto";
-import "osac/public/v1/secret_type.proto";
-import "osac/public/v1/role_type.proto";
 import "osac/public/v1/tenant_type.proto";
+import "osac/public/v1/role_binding_type.proto";
+import "osac/public/v1/role_type.proto";
+import "osac/public/v1/secret_type.proto";
 
 // Represents events delivered by the server.
 message Event {
@@ -40,20 +40,20 @@ message Event {
 
   // Payload of the event.
   oneof payload {
-    Cluster cluster = 3;
-    ClusterTemplate cluster_template = 4;
-    HostType host_type = 5;
-    ComputeInstanceTemplate compute_instance_template = 7;
-    ComputeInstance compute_instance = 8;
-    Role role = 9;
-    RoleBinding role_binding = 10;
-    Project project = 11;
-    InstanceType instance_type = 12;
-    Tenant tenant = 13;
-    ClusterVersion cluster_version = 14;
-    BareMetalInstance bare_metal_instance = 15;
-    Secret secret = 16;
-    DiskImage disk_image = 17;
+    BareMetalInstance bare_metal_instance = 3;
+    Cluster cluster = 4;
+    ClusterTemplate cluster_template = 5;
+    ClusterVersion cluster_version = 6;
+    ComputeInstance compute_instance = 7;
+    ComputeInstanceTemplate compute_instance_template = 8;
+    DiskImage disk_image = 9;
+    HostType host_type = 10;
+    InstanceType instance_type = 11;
+    Project project = 12;
+    Role role = 13;
+    RoleBinding role_binding = 14;
+    Secret secret = 15;
+    Tenant tenant = 16;
   }
 }
 
