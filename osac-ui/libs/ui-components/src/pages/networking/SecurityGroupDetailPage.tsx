@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { type MessageInitShape } from '@bufbuild/protobuf';
 import {
   Alert,
   Breadcrumb,
@@ -17,19 +18,44 @@ import {
   Tabs,
 } from '@patternfly/react-core';
 
-import { SecurityGroupState } from '@osac/types';
+import { type SecurityGroup, SecurityGroupSchema, SecurityGroupState } from '@osac/types';
 
-import { resourceDisplayName, useSecurityGroup, useVirtualNetworks } from '../../api/v1/networking';
-import { SecurityGroupDeleteModal } from '../../components/networking/SecurityGroupDeleteModal';
-import { SecurityGroupDeleteRuleModal } from '../../components/networking/SecurityGroupDeleteRuleModal';
+import {
+  resourceDisplayName,
+  useDeleteSecurityGroup,
+  useSecurityGroup,
+  useUpdateSecurityGroup,
+  useVirtualNetworks,
+} from '../../api/v1/networking';
 import { SecurityGroupRuleModal } from '../../components/networking/SecurityGroupRuleModal';
 import { SecurityGroupRulesTable } from '../../components/networking/SecurityGroupRulesTable';
+import { toPlainRule } from '../../components/networking/securityGroupRuleUtils';
 import { SecurityGroupStatusLabel } from '../../components/networking/SecurityGroupStatusLabel';
 import ListPage from '../../components/Page/ListPage';
 import ListPageBody from '../../components/Page/ListPageBody';
+import DeleteResourceModal from '../../components/Resource/DeleteResourceModal';
 import { useTranslation } from '../../hooks/useTranslation';
 
 type RuleTarget = { direction: 'ingress' | 'egress'; ruleIndex?: number };
+
+const securityGroupWithoutRule = (
+  sg: SecurityGroup,
+  target: Required<RuleTarget>,
+): MessageInitShape<typeof SecurityGroupSchema> => {
+  const newIngress = (sg.spec?.ingress ?? []).map(toPlainRule);
+  const newEgress = (sg.spec?.egress ?? []).map(toPlainRule);
+  const targetList = target.direction === 'ingress' ? newIngress : newEgress;
+  targetList.splice(target.ruleIndex, 1);
+  return {
+    id: sg.id,
+    metadata: { name: sg.metadata?.name ?? '' },
+    spec: {
+      virtualNetwork: sg.spec?.virtualNetwork,
+      ingress: newIngress,
+      egress: newEgress,
+    },
+  };
+};
 
 export const SecurityGroupDetailPage = () => {
   const { t } = useTranslation();
@@ -42,6 +68,8 @@ export const SecurityGroupDetailPage = () => {
 
   const { data: sg, isLoading, error } = useSecurityGroup(id);
   const { data: virtualNetworks = [] } = useVirtualNetworks();
+  const deleteSecurityGroup = useDeleteSecurityGroup();
+  const updateSecurityGroup = useUpdateSecurityGroup();
 
   const sgName = sg?.metadata?.name ?? id;
   const isFailed = sg?.status?.state === SecurityGroupState.FAILED;
@@ -177,19 +205,30 @@ export const SecurityGroupDetailPage = () => {
       )}
 
       {deleteRuleTarget && sg && (
-        <SecurityGroupDeleteRuleModal
+        <DeleteResourceModal
+          resourceName={t('rule')}
+          label={t(
+            'This will permanently delete the rule. This action cannot be undone. Traffic matching this rule will be blocked.',
+          )}
+          errorLabel={t('Failed to delete rule')}
           onClose={() => setDeleteRuleTarget(null)}
-          securityGroup={sg}
-          direction={deleteRuleTarget.direction}
-          ruleIndex={deleteRuleTarget.ruleIndex}
+          onSuccess={() => setDeleteRuleTarget(null)}
+          mutation={updateSecurityGroup}
+          variables={{ object: securityGroupWithoutRule(sg, deleteRuleTarget) }}
         />
       )}
 
       {showDeleteSgModal && (
-        <SecurityGroupDeleteModal
+        <DeleteResourceModal
+          resourceName={sgName}
+          label={t(
+            'This will permanently delete the security group and all its rules. This action cannot be undone.',
+          )}
+          errorLabel={t('Failed to delete security group')}
           onClose={() => setShowDeleteSgModal(false)}
-          onDeleted={() => navigate('/networking/security-groups')}
-          securityGroupId={id}
+          onSuccess={() => navigate('/networking/security-groups')}
+          mutation={deleteSecurityGroup}
+          variables={id}
         />
       )}
     </ListPage>

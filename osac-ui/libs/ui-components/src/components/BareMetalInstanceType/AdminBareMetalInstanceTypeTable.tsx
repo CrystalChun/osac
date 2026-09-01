@@ -11,8 +11,9 @@ import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 import { ActionsColumn, Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
 import type { BareMetalInstanceType as PrivateBareMetalInstanceType } from '@osac/types/private';
+import { useDeleteBareMetalInstanceType } from '@osac/ui-components/api/v1/private/baremetal-instance-type';
+import DeleteResourceModal from '@osac/ui-components/components/Resource/DeleteResourceModal';
 
-import BareMetalInstanceTypeDeleteModal from './BareMetalInstanceTypeDeleteModal';
 import { useTranslation } from '../../hooks/useTranslation';
 import TruncatedText from '../Primitives/TruncatedText';
 
@@ -32,14 +33,21 @@ const AdminBareMetalInstanceTypeTable = ({
 }: AdminBareMetalInstanceTypeTableProps) => {
   const { t } = useTranslation();
   const [deleteTarget, setDeleteTarget] = useState<PrivateBareMetalInstanceType>();
+  const deleteBareMetalInstanceType = useDeleteBareMetalInstanceType();
 
   return (
     <>
       {deleteTarget && (
-        <BareMetalInstanceTypeDeleteModal
-          bareMetalInstanceType={deleteTarget}
+        <DeleteResourceModal
+          resourceName={deleteTarget.metadata?.name || deleteTarget.id}
+          label={t(
+            'This permanently deletes the bare metal instance type. This action cannot be undone.',
+          )}
+          errorLabel={t('Failed to delete bare metal instance type')}
           onClose={() => setDeleteTarget(undefined)}
           onSuccess={() => setDeleteTarget(undefined)}
+          mutation={deleteBareMetalInstanceType}
+          variables={deleteTarget.id}
         />
       )}
       <Table aria-label={t('Bare metal instance types')} variant="compact">

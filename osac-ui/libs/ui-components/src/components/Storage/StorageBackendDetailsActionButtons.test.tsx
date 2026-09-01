@@ -33,11 +33,13 @@ const mockBackend = {
 
 describe('StorageBackendDetailsActionButtons', () => {
   const mutate = vi.fn();
+  const reset = vi.fn();
 
   beforeEach(() => {
     mockNavigate.mockReset();
     vi.mocked(storageBackendsApi.useDeleteStorageBackend).mockReturnValue({
       mutate,
+      reset,
       isPending: false,
       error: null,
     } as unknown as ReturnType<typeof storageBackendsApi.useDeleteStorageBackend>);

@@ -23,7 +23,7 @@ const ProjectMembershipActionsMenu = ({
   const [deleteOpen, setDeleteOpen] = useState(false);
   const navigate = useNavigate();
 
-  const { mutateAsync: deletePm } = useDeleteProjectMembership();
+  const deleteProjectMembership = useDeleteProjectMembership();
 
   return (
     <>
@@ -34,9 +34,10 @@ const ProjectMembershipActionsMenu = ({
             'This permanently deletes the Project membership. This action cannot be undone.',
           )}
           errorLabel={t('Failed to delete Project membership')}
-          onDelete={() => deletePm(projectMembership.id)}
           onClose={() => setDeleteOpen(false)}
           onSuccess={() => setDeleteOpen(false)}
+          mutation={deleteProjectMembership}
+          variables={projectMembership.id}
         />
       )}
       <Dropdown

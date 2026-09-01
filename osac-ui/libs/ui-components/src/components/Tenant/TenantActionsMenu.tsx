@@ -3,8 +3,9 @@ import { Dropdown, DropdownItem, DropdownList, MenuToggle } from '@patternfly/re
 import { EllipsisVIcon } from '@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon';
 
 import type { Tenant } from '@osac/types/private';
+import { useDeleteTenant } from '@osac/ui-components/api/v1/private/tenant';
+import DeleteResourceModal from '@osac/ui-components/components/Resource/DeleteResourceModal';
 
-import TenantDeleteConfirmModal from './TenantDeleteConfirmModal';
 import { useTranslation } from '../../hooks/useTranslation';
 
 interface TenantActionsMenuProps {
@@ -15,14 +16,22 @@ const TenantActionsMenu = ({ tenant }: TenantActionsMenuProps) => {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const deleteTenant = useDeleteTenant();
+  const tenantName = tenant.metadata?.name ?? tenant.id;
 
   return (
     <>
       {deleteOpen && (
-        <TenantDeleteConfirmModal
-          tenant={tenant}
+        <DeleteResourceModal
+          resourceName={tenantName}
+          label={t(
+            'This permanently deletes the tenant and all its resources. This action cannot be undone.',
+          )}
+          errorLabel={t('Failed to delete tenant')}
           onClose={() => setDeleteOpen(false)}
           onSuccess={() => setDeleteOpen(false)}
+          mutation={deleteTenant}
+          variables={tenant.id}
         />
       )}
       <Dropdown
@@ -33,7 +42,7 @@ const TenantActionsMenu = ({ tenant }: TenantActionsMenuProps) => {
             ref={ref}
             variant="plain"
             onClick={() => setOpen((o) => !o)}
-            aria-label={t('Actions for {{name}}', { name: tenant.metadata?.name ?? tenant.id })}
+            aria-label={t('Actions for {{name}}', { name: tenantName })}
           >
             <EllipsisVIcon />
           </MenuToggle>
