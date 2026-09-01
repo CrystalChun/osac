@@ -35,6 +35,7 @@ filters:
     - udis
     - ItzikEzra-rh
     - carbonin
+    - maorfr
     reviewers:
     - jhernand
     - adriengentil
@@ -70,3 +71,4 @@ filters:
     - udis
     - ItzikEzra-rh
     - carbonin
+    - maorfr
