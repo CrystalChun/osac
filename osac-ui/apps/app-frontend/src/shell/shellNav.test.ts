@@ -77,7 +77,7 @@ describe('navRowsForRole', () => {
     ]);
   });
 
-  it('Infrastructure section shows up only for admin role and contains storage, instance types, and disk images', () => {
+  it('Infrastructure section shows up only for admin role and contains storage, instance types, bare metal instance types, and disk images', () => {
     expect(findSection('admin', 'nav-infrastructure')).toEqual({
       kind: 'section',
       id: 'nav-infrastructure',
@@ -94,6 +94,12 @@ describe('navRowsForRole', () => {
           id: 'instance-types',
           label: 'Instance types',
           path: '/admin/infrastructure/instance-types',
+        },
+        {
+          kind: 'link',
+          id: 'baremetal-instance-types',
+          label: 'Bare metal instance types',
+          path: '/admin/infrastructure/baremetal-instance-types',
         },
         {
           kind: 'link',

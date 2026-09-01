@@ -49,6 +49,12 @@ const getAdminNav = (t: TFunction): NavRow[] => [
       },
       {
         kind: 'link',
+        id: 'baremetal-instance-types',
+        label: t('Bare metal instance types'),
+        path: '/admin/infrastructure/baremetal-instance-types',
+      },
+      {
+        kind: 'link',
         id: 'disk-images',
         label: t('Disk images'),
         path: '/admin/infrastructure/disk-images',

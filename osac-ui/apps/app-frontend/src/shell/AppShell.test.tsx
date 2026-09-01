@@ -16,7 +16,7 @@ const renderAppShell = (entry: string) =>
       <AppShell logout={vi.fn().mockResolvedValue(undefined)} />
     </SessionProvider>,
     {
-      apiFixtures: { privateInstanceTypes: [] },
+      apiFixtures: { privateInstanceTypes: [], privateBaremetalInstanceTypes: [] },
       routerEntries: [entry],
     },
   );
@@ -41,5 +41,14 @@ describe('AppShell', () => {
     renderAppShell('/admin/infrastructure/instance-types/create');
 
     expect(screen.getByRole('heading', { name: 'Create instance type' })).toBeInTheDocument();
+  });
+
+  it('renders the bare metal instance type list route through the admin shell', async () => {
+    renderAppShell('/admin/infrastructure/baremetal-instance-types');
+
+    expect(screen.getByRole('heading', { name: 'Bare metal instance types' })).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('No bare metal instance types yet.')).toBeInTheDocument();
+    });
   });
 });
