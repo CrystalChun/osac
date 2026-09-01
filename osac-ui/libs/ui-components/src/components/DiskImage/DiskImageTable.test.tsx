@@ -76,7 +76,7 @@ describe('DiskImageTable', () => {
       'Scope',
       'Created',
     ]);
-    expect(screen.getByRole('button', { name: 'disk-image-global-1' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'disk-image-global-1' })).toBeInTheDocument();
     expect(screen.getByText('amd64, arm64')).toBeInTheDocument();
     expect(screen.getByText('Available').closest('.pf-v6-c-label')).toHaveClass('pf-m-green');
     expect(screen.getByText('Linux')).toBeInTheDocument();
@@ -114,7 +114,7 @@ describe('DiskImageTable', () => {
   it('navigates to the detail route when the name is clicked', async () => {
     const { user } = renderTableWithRoutes([makeDiskImage({ id: 'di-1' })]);
 
-    await user.click(screen.getByRole('button', { name: 'disk-image-di-1' }));
+    await user.click(screen.getByRole('link', { name: 'disk-image-di-1' }));
 
     expect(screen.getByRole('heading', { name: 'Disk image detail page' })).toBeInTheDocument();
   });

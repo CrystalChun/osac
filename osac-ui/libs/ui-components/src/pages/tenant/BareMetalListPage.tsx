@@ -17,6 +17,7 @@ import ListPage from '@osac/ui-components/components/Page/ListPage';
 import ListPageBody from '@osac/ui-components/components/Page/ListPageBody';
 import ProjectFilter from '@osac/ui-components/components/Page/ProjectFilter';
 import { Timestamp } from '@osac/ui-components/components/Primitives/Timestamp';
+import ResourceNameField from '@osac/ui-components/components/Resource/ResourceNameField.tsx';
 import { SubtleContent } from '@osac/ui-components/components/SubtleContent/SubtleContent';
 import { SEARCH_PARAM, usePageFilter } from '@osac/ui-components/hooks/use-page-filter';
 import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
@@ -79,39 +80,30 @@ export const BareMetalListPage = () => {
             <Thead>
               <Tr>
                 <Th>{t('Name')}</Th>
-                <Th>{t('Catalog item')}</Th>
                 <Th>{t('Status')}</Th>
+                <Th>{t('Catalog item')}</Th>
                 <Th>{t('Created')}</Th>
                 <Th aria-label={t('Actions')} />
               </Tr>
             </Thead>
             <Tbody>
-              {filteredInstances.map((inst) => {
-                const name = inst.metadata?.name ?? inst.id;
-                return (
-                  <Tr key={inst.id}>
-                    <Td dataLabel={t('Name')}>
-                      <Button
-                        variant="link"
-                        isInline
-                        onClick={() => navigate(`/bare-metal/${inst.id}`)}
-                      >
-                        {name}
-                      </Button>
-                    </Td>
-                    <Td dataLabel={t('Catalog item')}>{inst.spec?.catalogItem?.name ?? '—'}</Td>
-                    <Td dataLabel={t('Status')}>
-                      <BareMetalStatusLabel state={inst.status?.state} />
-                    </Td>
-                    <Td dataLabel={t('Created')}>
-                      <Timestamp value={inst.metadata?.creationTimestamp} />
-                    </Td>
-                    <Td dataLabel={t('Actions')} isActionCell>
-                      <BareMetalActionsMenu instance={inst} />
-                    </Td>
-                  </Tr>
-                );
-              })}
+              {filteredInstances.map((inst) => (
+                <Tr key={inst.id}>
+                  <Td dataLabel={t('Name')}>
+                    <ResourceNameField resource={inst} detailsUrl={`/bare-metal/${inst.id}`} />
+                  </Td>
+                  <Td dataLabel={t('Status')}>
+                    <BareMetalStatusLabel state={inst.status?.state} />
+                  </Td>
+                  <Td dataLabel={t('Catalog item')}>{inst.spec?.catalogItem?.name ?? '—'}</Td>
+                  <Td dataLabel={t('Created')}>
+                    <Timestamp value={inst.metadata?.creationTimestamp} />
+                  </Td>
+                  <Td dataLabel={t('Actions')} isActionCell>
+                    <BareMetalActionsMenu instance={inst} />
+                  </Td>
+                </Tr>
+              ))}
             </Tbody>
           </Table>
         )}

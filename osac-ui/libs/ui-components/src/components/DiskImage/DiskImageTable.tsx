@@ -1,22 +1,15 @@
-import { useNavigate } from 'react-router-dom';
-import {
-  Bullseye,
-  Button,
-  EmptyState,
-  EmptyStateBody,
-  EmptyStateVariant,
-} from '@patternfly/react-core';
+import { Bullseye, EmptyState, EmptyStateBody, EmptyStateVariant } from '@patternfly/react-core';
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 import type { TFunction } from 'i18next';
 
 import { Architecture, type DiskImage, GuestOSFamily } from '@osac/types';
 import { type Tenant } from '@osac/types/private';
+import ResourceNameField from '@osac/ui-components/components/Resource/ResourceNameField.tsx';
 
 import DiskImageLifecycleLabel from './DiskImageLifecycleLabel';
 import { useTranslation } from '../../hooks/useTranslation';
 import { Timestamp } from '../Primitives/Timestamp';
-import TruncatedText from '../Primitives/TruncatedText';
 
 const NAME_PREVIEW_LENGTH = 32;
 const NAME_COLUMN_WIDTH = 20;
@@ -47,7 +40,6 @@ interface DiskImageTableProps {
 
 const DiskImageTable = ({ diskImages, tenants }: DiskImageTableProps) => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const guestOsFamilyText = guestOsFamilyLabels(t);
   const architectureText = architectureLabels(t);
 
@@ -91,16 +83,11 @@ const DiskImageTable = ({ diskImages, tenants }: DiskImageTableProps) => {
             return (
               <Tr key={diskImage.id}>
                 <Td dataLabel={t('Name')} modifier="truncate" width={NAME_COLUMN_WIDTH}>
-                  <Button
-                    variant="link"
-                    isInline
-                    onClick={() => navigate(`/admin/infrastructure/disk-images/${diskImage.id}`)}
-                  >
-                    <TruncatedText
-                      content={diskImage.metadata?.name || diskImage.id}
-                      maxCharsDisplayed={NAME_PREVIEW_LENGTH}
-                    />
-                  </Button>
+                  <ResourceNameField
+                    resource={diskImage}
+                    detailsUrl={`/admin/infrastructure/disk-images/${diskImage.id}`}
+                    maxCharsDisplayed={NAME_PREVIEW_LENGTH}
+                  />
                 </Td>
                 <Td dataLabel={t('Lifecycle')} width={LIFECYCLE_COLUMN_WIDTH}>
                   <DiskImageLifecycleLabel lifecycle={diskImage.spec?.lifecycle} />

@@ -10,6 +10,8 @@ import {
 } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
+import ResourceNameField from '@osac/ui-components/components/Resource/ResourceNameField.tsx';
+
 import {
   resourceDisplayName,
   useSecurityGroups,
@@ -92,15 +94,14 @@ export const SecurityGroupsListPage = () => {
               <Thead>
                 <Tr>
                   <Th>{t('Name')}</Th>
+                  <Th>{t('Status')}</Th>
                   <Th>{t('Virtual Network')}</Th>
                   <Th>{t('Inbound Rules')}</Th>
                   <Th>{t('Outbound Rules')}</Th>
-                  <Th>{t('Status')}</Th>
                 </Tr>
               </Thead>
               <Tbody>
                 {filteredSGs.map((sg) => {
-                  const name = sg.metadata?.name ?? sg.id;
                   const vnId = sg.spec?.virtualNetwork?.id ?? '';
                   const vn = virtualNetworks.find((v) => v.id === vnId);
                   const vnName = resourceDisplayName(vn?.metadata, vnId);
@@ -110,13 +111,13 @@ export const SecurityGroupsListPage = () => {
                   return (
                     <Tr key={sg.id}>
                       <Td dataLabel="Name">
-                        <Button
-                          variant="link"
-                          isInline
-                          onClick={() => navigate(`/networking/security-groups/${sg.id}`)}
-                        >
-                          {name}
-                        </Button>
+                        <ResourceNameField
+                          resource={sg}
+                          detailsUrl={`/networking/security-groups/${sg.id}`}
+                        />
+                      </Td>
+                      <Td dataLabel="Status">
+                        <SecurityGroupStatusLabel state={sg.status?.state} />
                       </Td>
                       <Td dataLabel="Virtual Network">
                         {vnId ? (
@@ -133,9 +134,6 @@ export const SecurityGroupsListPage = () => {
                       </Td>
                       <Td dataLabel="Inbound Rules">{ingressCount}</Td>
                       <Td dataLabel="Outbound Rules">{egressCount}</Td>
-                      <Td dataLabel="Status">
-                        <SecurityGroupStatusLabel state={sg.status?.state} />
-                      </Td>
                     </Tr>
                   );
                 })}

@@ -1,7 +1,7 @@
-import { Link } from 'react-router-dom';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
 import type { StorageBackend } from '@osac/types/private';
+import ResourceNameField from '@osac/ui-components/components/Resource/ResourceNameField.tsx';
 
 import StorageBackendActionsMenu from './StorageBackendActionsMenu';
 import StorageBackendStatusLabel from './StorageBackendStatusLabel';
@@ -29,9 +29,10 @@ export const StorageBackendsTable = ({ backends }: StorageBackendsTableProps) =>
         {backends.map((backend) => (
           <Tr key={backend.id}>
             <Td dataLabel={t('Name')}>
-              <Link to={`/admin/infrastructure/storage/backends/${encodeURIComponent(backend.id)}`}>
-                {backend.metadata?.name || backend.id}
-              </Link>
+              <ResourceNameField
+                resource={backend}
+                detailsUrl={`/admin/infrastructure/storage/backends/${encodeURIComponent(backend.id)}`}
+              />
             </Td>
             <Td dataLabel={t('Status')}>
               <StorageBackendStatusLabel state={backend.status?.state} />

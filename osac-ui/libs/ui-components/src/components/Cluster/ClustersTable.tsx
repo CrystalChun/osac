@@ -1,9 +1,9 @@
 import { useMemo } from 'react';
-import { Link } from 'react-router-dom';
 import { Skeleton } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
 import type { Cluster } from '@osac/types';
+import ResourceNameField from '@osac/ui-components/components/Resource/ResourceNameField.tsx';
 
 import ClusterActionsMenu from './ClusterActionsMenu';
 import { ClusterStatusLabel } from './ClusterStatusLabel';
@@ -67,9 +67,10 @@ export const ClustersTable = ({ clusters }: ClustersTableProps) => {
           return (
             <Tr key={cluster.id}>
               <Td dataLabel={t('Name')}>
-                <Link to={`/clusters/${encodeURIComponent(cluster.id)}`}>
-                  {cluster.metadata?.name || cluster.id}
-                </Link>
+                <ResourceNameField
+                  resource={cluster}
+                  detailsUrl={`/clusters/${encodeURIComponent(cluster.id)}`}
+                />
               </Td>
               <Td dataLabel={t('Status')}>
                 <ClusterStatusLabel state={cluster.status?.state} />

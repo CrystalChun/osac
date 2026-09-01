@@ -15,6 +15,7 @@ import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
 import { Project } from '@osac/types';
 import { useProjectMemberships } from '@osac/ui-components/api/v1/project-membership';
+import ResourceNameField from '@osac/ui-components/components/Resource/ResourceNameField.tsx';
 import { useSession } from '@osac/ui-components/hooks/use-session';
 import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
 import { getErrorMessage } from '@osac/ui-components/utils/error';
@@ -62,7 +63,9 @@ const ProjectMembership = ({ project }: { project: Project }) => {
       <Tbody>
         {data?.map((pm) => (
           <Tr key={pm.id}>
-            <Td dataLabel={t('Name')}>{pm.metadata?.name}</Td>
+            <Td dataLabel={t('Name')}>
+              <ResourceNameField resource={pm} />
+            </Td>
             <Td dataLabel={t('Role')}>{pm.spec?.role ? getRoleLabel(t)[pm.spec.role] : '-'}</Td>
             <Td dataLabel={t('Users')}>
               {pm.spec?.users ? t('{{count}} user', { count: pm.spec?.users.length }) : '-'}

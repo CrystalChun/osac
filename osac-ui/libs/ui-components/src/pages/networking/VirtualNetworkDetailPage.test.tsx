@@ -160,7 +160,7 @@ describe('VirtualNetworkDetailPage', () => {
     renderPage();
 
     expect(screen.getByText('Security groups')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'sg-web' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'sg-web' })).toBeInTheDocument();
   });
 
   it('shows an empty state when there are no security groups', () => {

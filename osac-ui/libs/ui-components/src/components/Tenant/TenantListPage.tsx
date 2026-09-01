@@ -14,6 +14,7 @@ import { useTenants } from '@osac/ui-components/api/v1/private/tenant';
 import ListPage from '@osac/ui-components/components/Page/ListPage';
 import ListPageBody from '@osac/ui-components/components/Page/ListPageBody';
 import { Timestamp } from '@osac/ui-components/components/Primitives/Timestamp';
+import ResourceNameField from '@osac/ui-components/components/Resource/ResourceNameField.tsx';
 import { SubtleContent } from '@osac/ui-components/components/SubtleContent/SubtleContent';
 import TenantActionsMenu from '@osac/ui-components/components/Tenant/TenantActionsMenu';
 import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
@@ -85,7 +86,9 @@ const TenantListPage = () => {
             <Tbody>
               {filteredTenants.map((tenant) => (
                 <Tr key={tenant.id}>
-                  <Td dataLabel={t('Tenant')}>{tenant.metadata?.name || tenant.id}</Td>
+                  <Td dataLabel={t('Tenant')}>
+                    <ResourceNameField resource={tenant} />
+                  </Td>
                   <Td dataLabel={t('Status')}>
                     <TenantStatusLabel state={tenant.status?.state} />
                   </Td>

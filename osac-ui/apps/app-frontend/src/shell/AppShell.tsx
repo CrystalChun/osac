@@ -53,7 +53,6 @@ export const AppShell = ({ logout }: { logout: () => Promise<void> }) => {
       skipToContent={
         <SkipToContent href={`#${MAIN_CONTENT_ID}`}>{t('Skip to content')}</SkipToContent>
       }
-      isContentFilled
     >
       <Routes>
         <Route

@@ -1,6 +1,3 @@
-import type { ComponentType, SVGProps } from 'react';
-import PauseIcon from '@patternfly/react-icons/dist/esm/icons/pause-icon';
-
 import { ComputeInstanceState } from '@osac/types';
 
 import {
@@ -18,7 +15,6 @@ export type ResolvedVmStatus = {
   status: StatusKind;
   text: string;
   color?: LabelColor;
-  icon?: ComponentType<SVGProps<SVGSVGElement>>;
 };
 
 export const resolveVmStatus = (
@@ -43,7 +39,6 @@ export const resolveVmStatus = (
         status: 'unspecified',
         text: t('Paused'),
         color: 'grey',
-        icon: PauseIcon,
       };
     default:
       return { status: 'unspecified', text: t('Unknown') };
@@ -52,6 +47,6 @@ export const resolveVmStatus = (
 
 export const VmStatusLabel = ({ state }: VmStatusLabelProps) => {
   const { t } = useTranslation();
-  const { status, text, color, icon } = resolveVmStatus(state, t);
-  return <ResourceStatusLabel status={status} text={text} color={color} icon={icon} />;
+  const { status, text, color } = resolveVmStatus(state, t);
+  return <ResourceStatusLabel status={status} text={text} color={color} />;
 };

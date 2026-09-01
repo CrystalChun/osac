@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   Button,
   SearchInput,
@@ -14,6 +14,7 @@ import { useProjects } from '@osac/ui-components/api/v1/project';
 import ListPage from '@osac/ui-components/components/Page/ListPage';
 import ListPageBody from '@osac/ui-components/components/Page/ListPageBody';
 import { Timestamp } from '@osac/ui-components/components/Primitives/Timestamp';
+import ResourceNameField from '@osac/ui-components/components/Resource/ResourceNameField.tsx';
 import { SubtleContent } from '@osac/ui-components/components/SubtleContent/SubtleContent';
 import { useSession } from '@osac/ui-components/hooks/use-session';
 import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
@@ -92,7 +93,11 @@ const ProjectListPage = () => {
               {filteredProjects.map((project) => (
                 <Tr key={project.id}>
                   <Td dataLabel={t('Name')}>
-                    <Link to={`/projects/${project.id}`}>{getProjectName(project, t)}</Link>
+                    <ResourceNameField
+                      resource={project}
+                      title={getProjectName(project, t)}
+                      detailsUrl={`/projects/${project.id}`}
+                    />
                   </Td>
                   <Td dataLabel={t('Status')}>
                     <ProjectStatusLabel project={project} />

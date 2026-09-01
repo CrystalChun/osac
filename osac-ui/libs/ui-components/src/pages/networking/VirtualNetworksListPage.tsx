@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
   Button,
   SearchInput,
@@ -9,6 +8,8 @@ import {
   ToolbarItem,
 } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
+
+import ResourceNameField from '@osac/ui-components/components/Resource/ResourceNameField.tsx';
 
 import { useSubnets, useVirtualNetworks } from '../../api/v1/networking';
 import { CidrDisplay } from '../../components/networking/CidrDisplay';
@@ -21,7 +22,6 @@ import { useTranslation } from '../../hooks/useTranslation';
 
 export const VirtualNetworksListPage = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
@@ -82,34 +82,30 @@ export const VirtualNetworksListPage = () => {
               <Thead>
                 <Tr>
                   <Th>{t('Name')}</Th>
+                  <Th>{t('Status')}</Th>
                   <Th>{t('CIDR')}</Th>
                   <Th>{t('Subnets')}</Th>
-                  <Th>{t('Status')}</Th>
                 </Tr>
               </Thead>
               <Tbody>
                 {filteredVNs.map((vn) => {
-                  const name = vn.metadata?.name ?? vn.id;
                   const subnetCount = subnetCountByVN[vn.id] || 0;
 
                   return (
                     <Tr key={vn.id}>
                       <Td dataLabel={t('Name')}>
-                        <Button
-                          variant="link"
-                          isInline
-                          onClick={() => navigate(`/networking/virtual-networks/${vn.id}`)}
-                        >
-                          {name}
-                        </Button>
+                        <ResourceNameField
+                          resource={vn}
+                          detailsUrl={`/networking/virtual-networks/${vn.id}`}
+                        />
+                      </Td>
+                      <Td dataLabel={t('Status')}>
+                        <VirtualNetworkStatusLabel state={vn.status?.state} />
                       </Td>
                       <Td dataLabel={t('CIDR')}>
                         <CidrDisplay ipv4Cidr={vn.spec?.ipv4Cidr} ipv6Cidr={vn.spec?.ipv6Cidr} />
                       </Td>
                       <Td dataLabel={t('Subnets')}>{subnetCount}</Td>
-                      <Td dataLabel={t('Status')}>
-                        <VirtualNetworkStatusLabel state={vn.status?.state} />
-                      </Td>
                     </Tr>
                   );
                 })}

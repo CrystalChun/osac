@@ -220,7 +220,7 @@ describe('StorageTiersListPage', () => {
       expect(screen.getByText('fast')).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole('button', { name: 'fast' }));
+    await user.click(screen.getByRole('link', { name: 'fast' }));
 
     await waitFor(() => {
       expect(screen.getByText('navigated-to-details')).toBeInTheDocument();
