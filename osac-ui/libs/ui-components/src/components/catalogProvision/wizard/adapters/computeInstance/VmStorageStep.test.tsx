@@ -6,8 +6,9 @@ import { describe, expect, it } from 'vitest';
 import {
   type ComputeInstanceCatalogItem,
   ComputeInstanceTemplateReferenceSchema,
+  StorageTierSchema,
+  StorageTierState,
 } from '@osac/types';
-import { StorageTierSchema, StorageTierState } from '@osac/types/private';
 
 import { createEmptyComputeInstanceValues } from './payload';
 import { VmStorageStep } from './VmStorageStep';
@@ -58,7 +59,7 @@ const renderStep = (catalogItem: ComputeInstanceCatalogItem, storageTier = '') =
     </Formik>,
     {
       apiFixtures: {
-        storageTiers: [makeTier('other', 'Other'), makeTier('fast', 'Fast SSD')],
+        publicStorageTiers: [makeTier('other', 'Other'), makeTier('fast', 'Fast SSD')],
       },
     },
   );

@@ -27,6 +27,9 @@ import type {
   InstanceType,
   Project,
   ProjectMembership,
+  StorageTier as PublicStorageTier,
+  StorageTiersGetRequest as PublicStorageTiersGetRequest,
+  StorageTiersListRequest as PublicStorageTiersListRequest,
   Role,
   RoleBinding,
   SecurityGroup,
@@ -51,6 +54,9 @@ import {
   InstanceTypes,
   ProjectMemberships,
   Projects,
+  StorageTiers as PublicStorageTiers,
+  StorageTiersGetResponseSchema as PublicStorageTiersGetResponseSchema,
+  StorageTiersListResponseSchema as PublicStorageTiersListResponseSchema,
   RoleBindings,
   Roles,
   SecurityGroups,
@@ -128,6 +134,7 @@ export type MockApiFixtures = {
   privateBaremetalInstanceTypes?: PrivateBareMetalInstanceType[];
   storageBackends?: StorageBackend[];
   storageTiers?: StorageTier[];
+  publicStorageTiers?: PublicStorageTier[];
   roles?: Role[];
   roleBindings?: RoleBinding[];
   users?: User[];
@@ -266,6 +273,14 @@ export type MockTransportOverrides = {
   onStorageTierList?: (
     req: StorageTiersListRequest,
   ) => MessageInitShape<typeof StorageTiersListResponseSchema>;
+  onPublicStorageTierList?: (
+    req: PublicStorageTiersListRequest,
+  ) => MessageInitShape<typeof PublicStorageTiersListResponseSchema>;
+  onPublicStorageTierGet?: (
+    req: PublicStorageTiersGetRequest,
+  ) =>
+    | MessageInitShape<typeof PublicStorageTiersGetResponseSchema>
+    | Promise<MessageInitShape<typeof PublicStorageTiersGetResponseSchema>>;
   onStorageTierGet?: (
     req: StorageTiersGetRequest,
   ) =>
@@ -319,6 +334,7 @@ export const createMockConnectTransport = (
   const privateBaremetalInstanceTypes = fixtures.privateBaremetalInstanceTypes ?? [];
   const storageBackends = [...(fixtures.storageBackends ?? [])];
   const storageTiers = fixtures.storageTiers ?? [];
+  const publicStorageTiers = fixtures.publicStorageTiers ?? [];
   const roles = fixtures.roles ?? [];
   const roleBindingsFixtures = fixtures.roleBindings ?? [];
   const usersFixtures = fixtures.users ?? [];
@@ -577,6 +593,28 @@ export const createMockConnectTransport = (
             return overrides.onStorageTierDelete(req);
           }
           return {};
+        },
+      });
+
+      router.service(PublicStorageTiers, {
+        list: (req) => {
+          if (overrides.onPublicStorageTierList) {
+            return overrides.onPublicStorageTierList(req);
+          }
+          const items = publicStorageTiers.filter((item) =>
+            matchesStorageTierActiveFilter(req.filter, item.status?.state),
+          );
+          return {
+            items,
+            size: items.length,
+            total: items.length,
+          };
+        },
+        get: (req) => {
+          if (overrides.onPublicStorageTierGet) {
+            return overrides.onPublicStorageTierGet(req);
+          }
+          return { object: publicStorageTiers.find((t) => t.id === req.id) };
         },
       });
 

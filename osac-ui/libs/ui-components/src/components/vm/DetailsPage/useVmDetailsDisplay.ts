@@ -11,7 +11,7 @@ import {
   useSubnets,
   useVirtualNetworks,
 } from '../../../api/v1/networking';
-import { usePrivateStorageTiers } from '../../../api/v1/private/storage-tiers';
+import { useStorageTiers } from '../../../api/v1/storage-tiers';
 import { useTranslation } from '../../../hooks/useTranslation';
 import {
   getCatalogFieldOverlay,
@@ -41,7 +41,7 @@ export const useVmDetailsDisplay = (vm: ComputeInstance) => {
   const { data: virtualNetworks = [] } = useVirtualNetworks();
   const { data: subnets = [] } = useSubnets();
   const { data: securityGroups = [] } = useSecurityGroups();
-  const { data: storageTiers = [] } = usePrivateStorageTiers();
+  const { data: storageTiers = [] } = useStorageTiers();
 
   const fieldLabels = useMemo(() => {
     const definitions = catalogItem ? readCatalogFieldDefinitions(catalogItem) : [];

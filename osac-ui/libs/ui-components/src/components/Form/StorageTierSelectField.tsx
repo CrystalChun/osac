@@ -11,10 +11,7 @@ import LockIcon from '@patternfly/react-icons/dist/esm/icons/lock-icon';
 import { type TypeaheadSelectOption } from '@patternfly/react-templates';
 
 import { TypeaheadSelectField } from './TypeaheadSelectField';
-import {
-  STORAGE_TIER_ACTIVE_LIST_FILTER,
-  usePrivateStorageTiers,
-} from '../../api/v1/private/storage-tiers';
+import { STORAGE_TIER_ACTIVE_LIST_FILTER, useStorageTiers } from '../../api/v1/storage-tiers';
 import { useTranslation } from '../../hooks/useTranslation';
 
 interface StorageTierSelectFieldProps {
@@ -39,7 +36,7 @@ export const StorageTierSelectField = ({
     isLoading,
     error: loadError,
     refetch,
-  } = usePrivateStorageTiers({ filter: STORAGE_TIER_ACTIVE_LIST_FILTER });
+  } = useStorageTiers({ filter: STORAGE_TIER_ACTIVE_LIST_FILTER });
 
   const options = useMemo<TypeaheadSelectOption[]>(
     () =>

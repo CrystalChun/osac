@@ -3,7 +3,7 @@ import { screen, waitFor } from '@testing-library/react';
 import { Formik } from 'formik';
 import { describe, expect, it } from 'vitest';
 
-import { StorageTierSchema, StorageTierState } from '@osac/types/private';
+import { StorageTierSchema, StorageTierState } from '@osac/types';
 
 import { AdditionalDisksArrayField } from './AdditionalDisksArrayField';
 import { createEmptyComputeInstanceValues } from './payload';
@@ -39,7 +39,7 @@ const renderField = (initialDisks: { sizeGib: string; storageTier: string }[] = 
     >
       <AdditionalDisksArrayField />
     </Formik>,
-    { apiFixtures: { storageTiers } },
+    { apiFixtures: { publicStorageTiers: storageTiers } },
   );
 
 describe('AdditionalDisksArrayField', () => {

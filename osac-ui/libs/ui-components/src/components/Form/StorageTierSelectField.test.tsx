@@ -4,11 +4,7 @@ import { screen, waitFor } from '@testing-library/react';
 import { Formik } from 'formik';
 import { describe, expect, it } from 'vitest';
 
-import {
-  StorageTierSchema,
-  StorageTierState,
-  StorageTiersListResponseSchema,
-} from '@osac/types/private';
+import { StorageTierSchema, StorageTierState, StorageTiersListResponseSchema } from '@osac/types';
 
 import { StorageTierSelectField } from './StorageTierSelectField';
 import { renderWithProviders } from '../../test-utils/TestProviders';
@@ -53,7 +49,7 @@ describe('StorageTierSelectField', () => {
   it('renders inline and sets the field to the selected tier name', async () => {
     const { user } = renderField({
       apiFixtures: {
-        storageTiers: [
+        publicStorageTiers: [
           makeTier('fast', 'Fast SSD', 'low latency'),
           makeTier('bulk', 'Bulk', 'cheap'),
         ],
@@ -71,7 +67,7 @@ describe('StorageTierSelectField', () => {
   it('lists only active tiers, marks the first as default, and filters as you type', async () => {
     const { user } = renderField({
       apiFixtures: {
-        storageTiers: [
+        publicStorageTiers: [
           makeTier('fast', 'Fast SSD', 'low latency'),
           makeTier('bulk', 'Bulk', 'cheap'),
           makeTier('gone', 'Retired', '', StorageTierState.UNSPECIFIED),
@@ -93,7 +89,7 @@ describe('StorageTierSelectField', () => {
   });
 
   it('shows an empty state directing to an administrator when no tiers are available', async () => {
-    renderField({ apiFixtures: { storageTiers: [] } });
+    renderField({ apiFixtures: { publicStorageTiers: [] } });
 
     expect(
       await screen.findByText('No storage tiers available. Contact your administrator.'),
@@ -105,7 +101,7 @@ describe('StorageTierSelectField', () => {
     let calls = 0;
     const { user } = renderField({
       transportOverrides: {
-        onStorageTierList: () => {
+        onPublicStorageTierList: () => {
           calls += 1;
           if (calls === 1) {
             throw new ConnectError('boom', Code.Internal);
@@ -126,7 +122,7 @@ describe('StorageTierSelectField', () => {
 
   it('does not show a lock badge by default', async () => {
     renderField({
-      apiFixtures: { storageTiers: [makeTier('fast', 'Fast SSD', 'low latency')] },
+      apiFixtures: { publicStorageTiers: [makeTier('fast', 'Fast SSD', 'low latency')] },
     });
 
     await screen.findByRole('combobox');
@@ -135,7 +131,7 @@ describe('StorageTierSelectField', () => {
 
   it('shows the catalog value read-only with a lock badge when isLocked', async () => {
     renderField(
-      { apiFixtures: { storageTiers: [makeTier('fast', 'Fast SSD', 'low latency')] } },
+      { apiFixtures: { publicStorageTiers: [makeTier('fast', 'Fast SSD', 'low latency')] } },
       'fast',
       true,
     );

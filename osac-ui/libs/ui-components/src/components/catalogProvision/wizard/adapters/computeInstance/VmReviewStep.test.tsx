@@ -3,7 +3,7 @@ import { screen } from '@testing-library/react';
 import { Formik } from 'formik';
 import { describe, expect, it } from 'vitest';
 
-import { StorageTierSchema, StorageTierState } from '@osac/types/private';
+import { StorageTierSchema, StorageTierState } from '@osac/types';
 
 import { createEmptyComputeInstanceValues } from './payload';
 import { VmReviewStep } from './VmReviewStep';
@@ -29,7 +29,7 @@ const renderReviewStep = (
     >
       <VmReviewStep catalogItem={null} />
     </Formik>,
-    { apiFixtures: { storageTiers } },
+    { apiFixtures: { publicStorageTiers: storageTiers } },
   );
 };
 
