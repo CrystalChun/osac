@@ -13,7 +13,6 @@ import type { TFunction } from 'i18next';
 import { Architecture, type DiskImage, GuestOSFamily } from '@osac/types';
 import { type Tenant } from '@osac/types/private';
 
-import DiskImageActionsMenu from './DiskImageActionsMenu';
 import DiskImageLifecycleLabel from './DiskImageLifecycleLabel';
 import { useTranslation } from '../../hooks/useTranslation';
 import { Timestamp } from '../Primitives/Timestamp';
@@ -26,7 +25,7 @@ const GUEST_OS_COLUMN_WIDTH = 15;
 const ARCHITECTURE_COLUMN_WIDTH = 20;
 const SCOPE_COLUMN_WIDTH = 15;
 const CREATED_COLUMN_WIDTH = 15;
-const EMPTY_STATE_COLUMN_SPAN = 7;
+const EMPTY_STATE_COLUMN_SPAN = 6;
 
 export const architectureLabels = (t: TFunction): Record<Architecture, string> => ({
   [Architecture.UNSPECIFIED]: t('Unspecified'),
@@ -62,7 +61,6 @@ const DiskImageTable = ({ diskImages, tenants }: DiskImageTableProps) => {
           <Th width={ARCHITECTURE_COLUMN_WIDTH}>{t('Architecture')}</Th>
           <Th width={SCOPE_COLUMN_WIDTH}>{t('Scope')}</Th>
           <Th width={CREATED_COLUMN_WIDTH}>{t('Created')}</Th>
-          <Th aria-label={t('Actions')} />
         </Tr>
       </Thead>
       <Tbody>
@@ -126,9 +124,6 @@ const DiskImageTable = ({ diskImages, tenants }: DiskImageTableProps) => {
                 </Td>
                 <Td dataLabel={t('Created')} width={CREATED_COLUMN_WIDTH}>
                   <Timestamp value={diskImage.metadata?.creationTimestamp} />
-                </Td>
-                <Td dataLabel={t('Actions')} isActionCell>
-                  <DiskImageActionsMenu diskImage={diskImage} />
                 </Td>
               </Tr>
             );
