@@ -47,6 +47,6 @@ service Events {
   // to ensure that they process objects correctly. For example, they can combine this watch mechanism with periodic
   // redconciliation of all the objects.
   rpc Watch(EventsWatchRequest) returns (stream EventsWatchResponse) {
-    option (google.api.http) = {get: "/api/events/v1/events"};
+    option (google.api.http) = {get: "/api/events/v1/events/watch"};
   }
 }

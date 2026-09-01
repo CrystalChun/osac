@@ -44,7 +44,9 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type BareMetalInstanceTypesClient interface {
+	// Retrieves the list of bare metal instance types.
 	List(ctx context.Context, in *BareMetalInstanceTypesListRequest, opts ...grpc.CallOption) (*BareMetalInstanceTypesListResponse, error)
+	// Retrieves the details of one specific bare metal instance type.
 	Get(ctx context.Context, in *BareMetalInstanceTypesGetRequest, opts ...grpc.CallOption) (*BareMetalInstanceTypesGetResponse, error)
 	Create(ctx context.Context, in *BareMetalInstanceTypesCreateRequest, opts ...grpc.CallOption) (*BareMetalInstanceTypesCreateResponse, error)
 	Update(ctx context.Context, in *BareMetalInstanceTypesUpdateRequest, opts ...grpc.CallOption) (*BareMetalInstanceTypesUpdateResponse, error)
@@ -125,7 +127,9 @@ func (c *bareMetalInstanceTypesClient) Signal(ctx context.Context, in *BareMetal
 // All implementations must embed UnimplementedBareMetalInstanceTypesServer
 // for forward compatibility.
 type BareMetalInstanceTypesServer interface {
+	// Retrieves the list of bare metal instance types.
 	List(context.Context, *BareMetalInstanceTypesListRequest) (*BareMetalInstanceTypesListResponse, error)
+	// Retrieves the details of one specific bare metal instance type.
 	Get(context.Context, *BareMetalInstanceTypesGetRequest) (*BareMetalInstanceTypesGetResponse, error)
 	Create(context.Context, *BareMetalInstanceTypesCreateRequest) (*BareMetalInstanceTypesCreateResponse, error)
 	Update(context.Context, *BareMetalInstanceTypesUpdateRequest) (*BareMetalInstanceTypesUpdateResponse, error)

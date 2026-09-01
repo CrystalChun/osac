@@ -15,17 +15,19 @@ syntax = "proto3";
 
 package osac.private.v1;
 
+import "cleanapi/cleanapi.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/field_mask.proto";
 import "osac/private/v1/external_ip_pool_type.proto";
+
+option (cleanapi.file).package = "osac.public.v1";
+option (cleanapi.file).http_route_prefix_map = "private:fulfillment";
 
 message ExternalIPPoolsListRequest {
   // Index of the first result. If not specified the default value will be zero.
   optional int32 offset = 1;
 
-  // Maximum number of results to be returned by the server. When not specified all the results will be returned. Note
-  // that there may not be enough results to return, and that the server may decide, for performance reasons, to return
-  // less results than requested.
+  // Maximum number of results to be returned by the server. When not specified all the results will be returned.
   optional int32 limit = 2;
 
   // Filter criteria.
@@ -37,9 +39,7 @@ message ExternalIPPoolsListRequest {
   //
   //     this.spec.ip_family == IP_FAMILY_IPV4
   //
-  // If this isn't provided, or if the value is empty, then all the external IP pools that the user has permission to see
-  // will be returned. Not all CEL constructs are currently supported for implementation reasons; see the filter
-  // documentation (docs/FILTER.md) for the full details.
+  // If this isn't provided, or if the value is empty, then all pools visible to the user are returned.
   optional string filter = 3;
 
   // Order criteria.
@@ -51,17 +51,14 @@ message ExternalIPPoolsListRequest {
   //     metadata.created_at desc
   //
   // If the parameter isn't provided, or if the value is empty, then the order of the results is undefined.
-  optional string order = 4;
+  optional string order = 4 [(cleanapi.field).private = true];
 }
 
 message ExternalIPPoolsListResponse {
-  // Actual number of items returned. Note that this may be smaller than the value requested in the `limit` parameter
-  // of the request if there are not enough items, or if the system decides that returning that number of items isn't
-  // feasible or convenient for performance reasons.
+  // Actual number of items returned.
   int32 size = 1;
 
-  // Total number of items of the collection that match the search criteria, regardless of the number of results
-  // requested with the `limit` parameter.
+  // Total number of items matching the search criteria.
   int32 total = 2;
 
   // List of results.
@@ -77,14 +74,17 @@ message ExternalIPPoolsGetResponse {
 }
 
 message ExternalIPPoolsCreateRequest {
+  option (cleanapi.message).private = true;
   ExternalIPPool object = 1;
 }
 
 message ExternalIPPoolsCreateResponse {
+  option (cleanapi.message).private = true;
   ExternalIPPool object = 1;
 }
 
 message ExternalIPPoolsUpdateRequest {
+  option (cleanapi.message).private = true;
   ExternalIPPool object = 1;
   google.protobuf.FieldMask update_mask = 2;
 
@@ -95,23 +95,30 @@ message ExternalIPPoolsUpdateRequest {
 }
 
 message ExternalIPPoolsUpdateResponse {
+  option (cleanapi.message).private = true;
   ExternalIPPool object = 1;
 }
 
 message ExternalIPPoolsDeleteRequest {
+  option (cleanapi.message).private = true;
   string id = 1;
 }
 
-message ExternalIPPoolsDeleteResponse {}
+message ExternalIPPoolsDeleteResponse {
+  option (cleanapi.message).private = true;
+}
 
 message ExternalIPPoolsSignalRequest {
+  option (cleanapi.message).private = true;
   string id = 1;
 }
 
-message ExternalIPPoolsSignalResponse {}
+message ExternalIPPoolsSignalResponse {
+  option (cleanapi.message).private = true;
+}
 
 service ExternalIPPools {
-  // Retrieves the list of external IP pools.
+  // Retrieves the list of external IP pools visible to the caller.
   rpc List(ExternalIPPoolsListRequest) returns (ExternalIPPoolsListResponse) {
     option (google.api.http) = {get: "/api/private/v1/external_ip_pools"};
   }
@@ -126,29 +133,30 @@ service ExternalIPPools {
 
   // Creates a new external IP pool.
   rpc Create(ExternalIPPoolsCreateRequest) returns (ExternalIPPoolsCreateResponse) {
+    option (cleanapi.method).private = true;
     option (google.api.http) = {
       post: "/api/private/v1/external_ip_pools"
       body: "object"
       response_body: "object"
     };
   }
-
   // Updates an existing external IP pool. Only metadata fields (name, labels, annotations) are mutable.
   // All spec fields (cidrs, ip_family, implementation_strategy) are immutable after creation.
   rpc Update(ExternalIPPoolsUpdateRequest) returns (ExternalIPPoolsUpdateResponse) {
+    option (cleanapi.method).private = true;
     option (google.api.http) = {
       patch: "/api/private/v1/external_ip_pools/{object.id}"
       body: "object"
       response_body: "object"
     };
   }
-
   // Deletes an external IP pool. Rejected if allocated ExternalIPs still reference this pool.
   rpc Delete(ExternalIPPoolsDeleteRequest) returns (ExternalIPPoolsDeleteResponse) {
+    option (cleanapi.method).private = true;
     option (google.api.http) = {delete: "/api/private/v1/external_ip_pools/{id}"};
   }
-
   // Indicates that something changed in the object or the system that may require reconciling the object.
   rpc Signal(ExternalIPPoolsSignalRequest) returns (ExternalIPPoolsSignalResponse) {
+    option (cleanapi.method).private = true;
   }
 }

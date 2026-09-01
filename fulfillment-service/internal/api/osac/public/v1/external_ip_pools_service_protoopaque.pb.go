@@ -157,7 +157,9 @@ type ExternalIPPoolsListRequest_builder struct {
 	// Filter criteria.
 	//
 	// The value of this parameter is a [CEL](https://cel.dev) expression used to select which objects to return. The
-	// built-in `this` variable refers to the object being tested. For example, to retrieve all IPv4 pools:
+	// built-in `this` variable refers to the object being tested and `now` refers to the current date and time. If the
+	// expression evaluates to `true` the object is included in the results. For example, to retrieve all IPv4 external
+	// IP pools:
 	//
 	//	this.spec.ip_family == IP_FAMILY_IPV4
 	//

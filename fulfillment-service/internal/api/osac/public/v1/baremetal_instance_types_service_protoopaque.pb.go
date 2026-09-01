@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2026 Red Hat, Inc.
+// Copyright (c) 2025 Red Hat, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
 // the License. You may obtain a copy of the License at
@@ -371,6 +371,7 @@ func (x *BareMetalInstanceTypesGetRequest) SetId(v string) {
 type BareMetalInstanceTypesGetRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
+	// Unique identifier of the bare metal instance type.
 	Id string
 }
 
