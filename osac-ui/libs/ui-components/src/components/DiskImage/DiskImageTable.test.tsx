@@ -75,7 +75,6 @@ describe('DiskImageTable', () => {
       'Architecture',
       'Scope',
       'Created',
-      '',
     ]);
     expect(screen.getByRole('button', { name: 'disk-image-global-1' })).toBeInTheDocument();
     expect(screen.getByText('amd64, arm64')).toBeInTheDocument();
