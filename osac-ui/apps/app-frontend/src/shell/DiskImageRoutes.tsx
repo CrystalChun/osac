@@ -9,6 +9,5 @@ export const DiskImageRoutes = () => (
     <Route index element={<DiskImageListPage />} />
     <Route path="create" element={<DiskImageCreatePage />} />
     <Route path=":id" element={<DiskImageDetailPage />} />
-    <Route path=":id/edit" element={<DiskImageCreatePage />} />
   </Routes>
 );
