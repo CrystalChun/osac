@@ -16,20 +16,19 @@ import {
 } from '@patternfly/react-core';
 import { Formik, useFormikContext } from 'formik';
 
-import { RoleBinding } from '@osac/types';
+import { RoleBinding, RoleBindings, Roles, User, Users } from '@osac/types';
 import { Tenants } from '@osac/types/private';
+import { cel } from '@osac/ui-components/api/cel';
 
 import { getRoleBindingSpec } from './payload';
 import { validationSchema } from './validation';
 import { RoleBindingCreateFormValues, getInitialValues } from './values';
-import { useListResource } from '../../../api/use-resource';
-import { useRoles } from '../../../api/v1/role';
 import {
-  useCreateRoleBinding,
-  useRoleBinding,
-  useUpdateRoleBinding,
-} from '../../../api/v1/role-binding';
-import { getTenantUsersFilter, useUsers } from '../../../api/v1/user';
+  useCreateResource,
+  useGetResource,
+  useListResource,
+  useUpdateResource,
+} from '../../../api/use-resource';
 import { useSession } from '../../../hooks/use-session';
 import { useTranslation } from '../../../hooks/useTranslation';
 import { getErrorMessage } from '../../../utils/error';
@@ -53,12 +52,15 @@ const RoleBindingCreateForm = ({ isEdit }: { isEdit: boolean }) => {
   );
   const tenants = tenantsResponse?.items ?? [];
 
-  const { data: users = [], isLoading: usersLoading } = useUsers(
-    { filter: getTenantUsersFilter(values.metadata.tenant) },
-    !values.metadata.tenant,
+  const { data: users, isLoading: usersLoading } = useListResource(
+    Users,
+    {
+      filter: cel<User>((filter) => filter.field('metadata.tenant').equals(values.metadata.tenant)),
+    },
+    { enabled: !!values.metadata.tenant },
   );
 
-  const { data: roles = [], isLoading: rolesLoading } = useRoles();
+  const { data: roles, isLoading: rolesLoading } = useListResource(Roles);
 
   return (
     <OsacForm>
@@ -84,7 +86,7 @@ const RoleBindingCreateForm = ({ isEdit }: { isEdit: boolean }) => {
         isRequired
         isDisabled={!values.metadata.tenant}
         isLoading={usersLoading}
-        options={users.map((user) => ({
+        options={(users?.items || []).map((user) => ({
           label: user.spec?.username || user.metadata?.name || user.id,
           value: user.metadata?.name || user.id,
         }))}
@@ -95,7 +97,7 @@ const RoleBindingCreateForm = ({ isEdit }: { isEdit: boolean }) => {
         label={t('Role')}
         isRequired
         isLoading={rolesLoading}
-        options={roles.map((role) => ({
+        options={(roles?.items || []).map((role) => ({
           label: role.spec?.title || role.metadata?.name || role.id,
           value: role.metadata?.name || role.id,
         }))}
@@ -112,8 +114,8 @@ const RoleBindingCreatePageInner = ({ roleBinding }: RoleBindingCreatePageProps)
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { tenantId } = useSession();
-  const { mutateAsync: create, error: createErr } = useCreateRoleBinding();
-  const { mutateAsync: update, error: updateErr } = useUpdateRoleBinding();
+  const { mutateAsync: create, error: createErr } = useCreateResource(RoleBindings);
+  const { mutateAsync: update, error: updateErr } = useUpdateResource(RoleBindings);
 
   const initialValues = getInitialValues(roleBinding, tenantId);
 
@@ -123,15 +125,17 @@ const RoleBindingCreatePageInner = ({ roleBinding }: RoleBindingCreatePageProps)
     try {
       if (roleBinding) {
         await update({
-          id: roleBinding.id,
-          body: {
+          object: {
+            id: roleBinding.id,
             spec: getRoleBindingSpec(values),
           },
         });
       } else {
         await create({
-          metadata: values.metadata,
-          spec: getRoleBindingSpec(values),
+          object: {
+            metadata: values.metadata,
+            spec: getRoleBindingSpec(values),
+          },
         });
       }
 
@@ -222,7 +226,7 @@ const RoleBindingCreatePage = () => {
   const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
 
-  const { data, isLoading, error } = useRoleBinding(id);
+  const { data, isLoading, error } = useGetResource(RoleBindings, { id }, { enabled: !!id });
   if (isLoading) {
     return (
       <Bullseye>
@@ -239,7 +243,7 @@ const RoleBindingCreatePage = () => {
     );
   }
 
-  return <RoleBindingCreatePageInner roleBinding={data} />;
+  return <RoleBindingCreatePageInner roleBinding={data?.object} />;
 };
 
 export default RoleBindingCreatePage;

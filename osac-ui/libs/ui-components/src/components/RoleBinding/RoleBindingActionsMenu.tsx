@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { Dropdown, DropdownItem, DropdownList, MenuToggle } from '@patternfly/react-core';
 import { EllipsisVIcon } from '@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon';
 
-import type { RoleBinding } from '@osac/types';
-import { useDeleteRoleBinding } from '@osac/ui-components/api/v1/role-binding';
+import { type RoleBinding, RoleBindings } from '@osac/types';
+import { useDeleteResource } from '@osac/ui-components/api/use-resource';
 import DeleteResourceModal from '@osac/ui-components/components/Resource/DeleteResourceModal';
 
 import { useTranslation } from '../../hooks/useTranslation';
@@ -18,7 +18,7 @@ const RoleBindingActionsMenu = ({ roleBinding }: RoleBindingActionsMenuProps) =>
   const [open, setOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const navigate = useNavigate();
-  const deleteRoleBinding = useDeleteRoleBinding();
+  const deleteRoleBinding = useDeleteResource(RoleBindings);
 
   return (
     <>
@@ -32,7 +32,7 @@ const RoleBindingActionsMenu = ({ roleBinding }: RoleBindingActionsMenuProps) =>
           onClose={() => setDeleteOpen(false)}
           onSuccess={() => setDeleteOpen(false)}
           mutation={deleteRoleBinding}
-          variables={roleBinding.id}
+          variables={{ id: roleBinding.id }}
         />
       )}
       <Dropdown

@@ -16,14 +16,14 @@ import {
 } from '@patternfly/react-core';
 import { Formik } from 'formik';
 
-import { ProjectMembershipRole } from '@osac/types';
+import { ProjectMembershipRole, Users } from '@osac/types';
+import { useListResource } from '@osac/ui-components/api/use-resource';
 import { useProject } from '@osac/ui-components/api/v1/project';
 import {
   useCreateProjectMembership,
   useProjectMembership,
   useUpdateProjectMembership,
 } from '@osac/ui-components/api/v1/project-membership';
-import { useUsers } from '@osac/ui-components/api/v1/user';
 import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
 import { getErrorMessage } from '@osac/ui-components/utils/error';
 
@@ -47,7 +47,7 @@ const ProjectMembershipCreatePage = () => {
   const { mutateAsync: update, error: updateErr } = useUpdateProjectMembership();
 
   const { data: project, isLoading: projectLoading, error: projectErr } = useProject(projectId);
-  const { data: users = [], isLoading: usersLoading, error: usersError } = useUsers();
+  const { data: users, isLoading: usersLoading, error: usersError } = useListResource(Users);
   const { data: pm, isLoading: pmLoading, error: pmError } = useProjectMembership(pmId);
 
   const roles = getRoleLabel(t);
@@ -131,7 +131,7 @@ const ProjectMembershipCreatePage = () => {
                       fieldId="users"
                       label={t('Users')}
                       name="users"
-                      options={users.map((user) => ({
+                      options={(users?.items || []).map((user) => ({
                         label: user.spec?.username || user.metadata?.name || user.id,
                         value: user.metadata?.name || user.id,
                       }))}
