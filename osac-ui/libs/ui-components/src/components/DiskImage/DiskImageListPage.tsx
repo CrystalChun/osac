@@ -15,10 +15,11 @@ import {
 } from '@patternfly/react-core';
 
 import { Architecture, DiskImageLifecycle, GuestOSFamily } from '@osac/types';
+import { Tenants } from '@osac/types/private';
 
 import DiskImageTable from './DiskImageTable';
+import { useListResource } from '../../api/use-resource';
 import { buildDiskImageListFilter, useDiskImages } from '../../api/v1/disk-image';
-import { useTenants } from '../../api/v1/private/tenant';
 import { SEARCH_PARAM, useArrayPageFilter, usePageFilter } from '../../hooks/use-page-filter';
 import { useTranslation } from '../../hooks/useTranslation';
 import ListPage from '../Page/ListPage';
@@ -200,7 +201,8 @@ const DiskImageListPage = () => {
   });
 
   const { data: diskImages = [], isLoading, error } = useDiskImages({ filter });
-  const { data: tenants = [] } = useTenants();
+  const { data: tenantsResponse } = useListResource(Tenants);
+  const tenants = tenantsResponse?.items ?? [];
 
   const guestOsFamilyOptions: FilterOption<GuestOsFamilyFilterValue>[] = [
     { value: 'linux', label: t('Linux') },

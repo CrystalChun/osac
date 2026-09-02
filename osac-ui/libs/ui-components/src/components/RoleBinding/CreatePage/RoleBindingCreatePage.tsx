@@ -17,11 +17,12 @@ import {
 import { Formik, useFormikContext } from 'formik';
 
 import { RoleBinding } from '@osac/types';
+import { Tenants } from '@osac/types/private';
 
 import { getRoleBindingSpec } from './payload';
 import { validationSchema } from './validation';
 import { RoleBindingCreateFormValues, getInitialValues } from './values';
-import { useTenants } from '../../../api/v1/private/tenant';
+import { useListResource } from '../../../api/use-resource';
 import { useRoles } from '../../../api/v1/role';
 import {
   useCreateRoleBinding,
@@ -45,7 +46,12 @@ const RoleBindingCreateForm = ({ isEdit }: { isEdit: boolean }) => {
 
   const isAdmin = sessionRole === 'admin';
 
-  const { data: tenants = [], isLoading: tenantsLoading } = useTenants({}, !isAdmin);
+  const { data: tenantsResponse, isLoading: tenantsLoading } = useListResource(
+    Tenants,
+    {},
+    { enabled: isAdmin },
+  );
+  const tenants = tenantsResponse?.items ?? [];
 
   const { data: users = [], isLoading: usersLoading } = useUsers(
     { filter: getTenantUsersFilter(values.metadata.tenant) },

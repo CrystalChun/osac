@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { Dropdown, DropdownItem, DropdownList, MenuToggle } from '@patternfly/react-core';
 import { EllipsisVIcon } from '@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon';
 
-import type { Tenant } from '@osac/types/private';
-import { useDeleteTenant } from '@osac/ui-components/api/v1/private/tenant';
+import { type Tenant, Tenants } from '@osac/types/private';
+import { useDeleteResource } from '@osac/ui-components/api/use-resource';
 import DeleteResourceModal from '@osac/ui-components/components/Resource/DeleteResourceModal';
 
 import { useTranslation } from '../../hooks/useTranslation';
@@ -16,7 +16,7 @@ const TenantActionsMenu = ({ tenant }: TenantActionsMenuProps) => {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const deleteTenant = useDeleteTenant();
+  const deleteTenant = useDeleteResource(Tenants);
   const tenantName = tenant.metadata?.name ?? tenant.id;
 
   return (
@@ -31,7 +31,7 @@ const TenantActionsMenu = ({ tenant }: TenantActionsMenuProps) => {
           onClose={() => setDeleteOpen(false)}
           onSuccess={() => setDeleteOpen(false)}
           mutation={deleteTenant}
-          variables={tenant.id}
+          variables={{ id: tenant.id }}
         />
       )}
       <Dropdown

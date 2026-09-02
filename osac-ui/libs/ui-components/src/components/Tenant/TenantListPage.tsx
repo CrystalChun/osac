@@ -10,7 +10,8 @@ import {
 } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
-import { useTenants } from '@osac/ui-components/api/v1/private/tenant';
+import { Tenants } from '@osac/types/private';
+import { useListResource } from '@osac/ui-components/api/use-resource';
 import ListPage from '@osac/ui-components/components/Page/ListPage';
 import ListPageBody from '@osac/ui-components/components/Page/ListPageBody';
 import { Timestamp } from '@osac/ui-components/components/Primitives/Timestamp';
@@ -26,18 +27,18 @@ const TenantListPage = () => {
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
 
-  const { data: tenants = [], isLoading, error } = useTenants();
+  const { data, isLoading, error } = useListResource(Tenants);
 
   const filteredTenants = useMemo(() => {
-    if (!search) {
-      return tenants;
+    if (!search || !data?.items) {
+      return data?.items || [];
     }
     const lowerSearch = search.toLowerCase();
-    return tenants.filter((tenant) => {
+    return data.items.filter((tenant) => {
       const name = tenant.metadata?.name ?? tenant.id;
       return name.toLowerCase().includes(lowerSearch);
     });
-  }, [search, tenants]);
+  }, [search, data?.items]);
 
   return (
     <ListPage

@@ -9,8 +9,8 @@ import {
   StackItem,
 } from '@patternfly/react-core';
 
-import { IdentityProvider } from '@osac/types';
-import { useUpdateIdentityProvider } from '@osac/ui-components/api/v1/identity-provider';
+import { IdentityProvider, IdentityProviders } from '@osac/types';
+import { useUpdateResource } from '@osac/ui-components/api/use-resource';
 
 import { getIdpName } from './utils';
 import { useTranslation } from '../../hooks/useTranslation';
@@ -28,7 +28,7 @@ const IdentityProviderEnableModal = ({
   onSuccess,
 }: IdentityProviderEnableModalProps) => {
   const { t } = useTranslation();
-  const { mutate, isPending, error } = useUpdateIdentityProvider();
+  const { mutate, isPending, error } = useUpdateResource(IdentityProviders);
 
   const isEnabled = !!idp.spec?.enabled;
   const idpName = getIdpName(idp);
@@ -74,7 +74,15 @@ const IdentityProviderEnableModal = ({
         <Button
           variant="primary"
           onClick={() =>
-            mutate({ id: idp.id, body: { spec: { enabled: !isEnabled } } }, { onSuccess })
+            mutate(
+              {
+                object: {
+                  id: idp.id,
+                  spec: { enabled: !isEnabled },
+                },
+              },
+              { onSuccess },
+            )
           }
           isDisabled={isPending}
           isLoading={isPending}

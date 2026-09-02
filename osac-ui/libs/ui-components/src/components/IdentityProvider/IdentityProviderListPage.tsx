@@ -11,7 +11,8 @@ import {
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 import { TFunction } from 'i18next';
 
-import { useIdentityProviders } from '@osac/ui-components/api/v1/identity-provider';
+import { IdentityProviders } from '@osac/types';
+import { useListResource } from '@osac/ui-components/api/use-resource';
 import IdentityProviderActionsMenu from '@osac/ui-components/components/IdentityProvider/IdentityProviderActionsMenu';
 import IdentityProviderStatusLabel from '@osac/ui-components/components/IdentityProvider/IdentityProviderStatusLabel';
 import ListPage from '@osac/ui-components/components/Page/ListPage';
@@ -37,18 +38,18 @@ const IdentityProviderListPage = () => {
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
 
-  const { data: identityProviders = [], isLoading, error } = useIdentityProviders();
+  const { data, isLoading, error } = useListResource(IdentityProviders);
 
   const filteredProviders = useMemo(() => {
-    if (!search) {
-      return identityProviders;
+    if (!search || !data?.items) {
+      return data?.items || [];
     }
     const lowerSearch = search.toLowerCase();
-    return identityProviders.filter((idp) => {
+    return data.items.filter((idp) => {
       const title = getIdpName(idp);
       return title.toLowerCase().includes(lowerSearch);
     });
-  }, [search, identityProviders]);
+  }, [search, data?.items]);
 
   return (
     <ListPage

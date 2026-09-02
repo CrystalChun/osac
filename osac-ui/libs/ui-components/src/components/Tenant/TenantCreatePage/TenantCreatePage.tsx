@@ -17,10 +17,12 @@ import MinusCircleIcon from '@patternfly/react-icons/dist/esm/icons/minus-circle
 import PlusCircleIcon from '@patternfly/react-icons/dist/esm/icons/plus-circle-icon';
 import { FieldArray, Formik } from 'formik';
 
+import { Tenants } from '@osac/types/private';
+
 import BreakGlassCredentialModal from './BreakGlassCredentialModal';
 import { getTenantSchema } from './validation';
 import { tenantValues } from './values';
-import { useCreateTenant } from '../../../api/v1/private/tenant';
+import { useCreateResource } from '../../../api/use-resource';
 import { useTranslation } from '../../../hooks/useTranslation';
 import { getErrorMessage } from '../../../utils/error';
 import { InputField } from '../../Form/InputField';
@@ -29,11 +31,11 @@ import OsacForm from '../../Form/OsacForm';
 const TenantCreatePage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { data, mutate, error, isPending } = useCreateTenant();
+  const { data, mutate, error, isPending } = useCreateResource(Tenants);
 
   return (
     <>
-      {data && <BreakGlassCredentialModal tenant={data} />}
+      {data?.object && <BreakGlassCredentialModal tenant={data.object} />}
       <PageSection hasBodyWrapper={false}>
         <Stack hasGutter>
           <Breadcrumb>
@@ -55,8 +57,10 @@ const TenantCreatePage = () => {
           validationSchema={getTenantSchema(t)}
           onSubmit={(values) =>
             mutate({
-              metadata: { name: values.name },
-              spec: { domains: values.domains },
+              object: {
+                metadata: { name: values.name },
+                spec: { domains: values.domains },
+              },
             })
           }
         >

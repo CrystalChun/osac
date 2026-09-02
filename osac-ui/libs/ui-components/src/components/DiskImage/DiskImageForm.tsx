@@ -14,12 +14,13 @@ import {
 import { Formik, type FormikHelpers } from 'formik';
 
 import { SourceType } from '@osac/types';
+import { Tenants } from '@osac/types/private';
 
 import { architectureLabels, guestOsFamilyLabels } from './DiskImageTable';
 import { getDiskImageCreateSchema } from './validation';
 import { DiskImageFormValues, diskImageCreateValues } from './values';
+import { useListResource } from '../../api/use-resource';
 import { useCreateDiskImage } from '../../api/v1/disk-image';
-import { useTenants } from '../../api/v1/private/tenant';
 import { useSession } from '../../hooks/use-session';
 import { useTranslation } from '../../hooks/useTranslation';
 import { getErrorMessage } from '../../utils/error';
@@ -58,7 +59,8 @@ const DiskImageForm = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const isAdmin = useSession().role === 'admin';
-  const { data: tenants = [] } = useTenants({}, !isAdmin);
+  const { data: tenantsResponse } = useListResource(Tenants, {}, { enabled: isAdmin });
+  const tenants = tenantsResponse?.items ?? [];
   const { mutateAsync: create, error } = useCreateDiskImage();
   const errorMessage = error ? getErrorMessage(error) : undefined;
   const errorField =
