@@ -137,10 +137,14 @@ export default defineConfig(
       ],
     },
   },
-  // ui-components must use useApiQuery / useApiQueryClient, never tanstack hooks directly
+  // ui-components consumers must use the API wrappers instead of TanStack hooks directly
   {
     files: ['libs/ui-components/src/**/*.{ts,tsx}'],
-    ignores: ['libs/ui-components/src/api/use-api-query.ts', 'libs/ui-components/src/hooks/useTranslation.ts'],
+    ignores: [
+      'libs/ui-components/src/api/use-resource.ts',
+      'libs/ui-components/src/api/use-api-query.ts',
+      'libs/ui-components/src/hooks/useTranslation.ts',
+    ],
     rules: {
       'no-restricted-imports': [
         'error',

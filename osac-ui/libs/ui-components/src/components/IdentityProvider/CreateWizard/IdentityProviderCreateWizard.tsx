@@ -15,12 +15,12 @@ import {
 } from '@patternfly/react-core';
 import { Formik } from 'formik';
 
-import { IdentityProvider } from '@osac/types';
+import { IdentityProvider, IdentityProviders } from '@osac/types';
 import {
-  useCreateIdentityProvider,
-  useIdentityProvider,
-  useUpdateIdentityProvider,
-} from '@osac/ui-components/api/v1/identity-provider';
+  useCreateResource,
+  useGetResource,
+  useUpdateResource,
+} from '@osac/ui-components/api/use-resource';
 import { getErrorMessage } from '@osac/ui-components/utils/error';
 
 import { buildIdpCreatePayload, buildIdpUpdatePayload } from './payload';
@@ -42,8 +42,8 @@ const IdentityProviderCreateWizard = ({ idp }: IdentityProviderCreateWizard) => 
   const { t } = useTranslation();
 
   const navigate = useNavigate();
-  const { mutateAsync: createAync, error: createErr } = useCreateIdentityProvider();
-  const { mutateAsync: updateAsync, error: updateErr } = useUpdateIdentityProvider();
+  const { mutateAsync: createAync, error: createErr } = useCreateResource(IdentityProviders);
+  const { mutateAsync: updateAsync, error: updateErr } = useUpdateResource(IdentityProviders);
   const [currentStep, setCurrentStep] = useState<string>('general');
 
   const initialValues = getIdentityProviderValues(idp);
@@ -51,9 +51,14 @@ const IdentityProviderCreateWizard = ({ idp }: IdentityProviderCreateWizard) => 
   const onSubmit = async (values: IdentityProviderValues) => {
     try {
       if (idp) {
-        await updateAsync({ id: idp.id, body: buildIdpUpdatePayload(values) });
+        await updateAsync({
+          object: {
+            id: idp.id,
+            ...buildIdpUpdatePayload(values),
+          },
+        });
       } else {
-        await createAync(buildIdpCreatePayload(values));
+        await createAync({ object: buildIdpCreatePayload(values) });
       }
       navigate(`/tenant/identity-provider`);
     } catch {
@@ -126,7 +131,11 @@ const IdentityProviderCreatePage = () => {
   const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
 
-  const { data, isLoading, error } = useIdentityProvider(id);
+  const { data, isLoading, error } = useGetResource(
+    IdentityProviders,
+    { id: id ?? '' },
+    { enabled: Boolean(id) },
+  );
 
   if (isLoading) {
     return (
@@ -144,7 +153,7 @@ const IdentityProviderCreatePage = () => {
     );
   }
 
-  return <IdentityProviderCreateWizard idp={data} />;
+  return <IdentityProviderCreateWizard idp={data?.object} />;
 };
 
 export default IdentityProviderCreatePage;

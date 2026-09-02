@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { Dropdown, DropdownItem, DropdownList, MenuToggle } from '@patternfly/react-core';
 import { EllipsisVIcon } from '@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon';
 
-import { IdentityProvider } from '@osac/types';
-import { useDeleteIdentityProvider } from '@osac/ui-components/api/v1/identity-provider';
+import { IdentityProvider, IdentityProviders } from '@osac/types';
+import { useDeleteResource } from '@osac/ui-components/api/use-resource';
 import DeleteResourceModal from '@osac/ui-components/components/Resource/DeleteResourceModal';
 
 import IdentityProviderEnableModal from './IdentityProviderEnableModal';
@@ -21,7 +21,7 @@ const IdentityProviderActionsMenu = ({ idp }: IdentityProviderActionsMenuProps) 
   const [open, setOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [enableOpen, setEnableOpen] = useState(false);
-  const deleteIdp = useDeleteIdentityProvider();
+  const deleteIdp = useDeleteResource(IdentityProviders);
 
   return (
     <>
@@ -35,7 +35,7 @@ const IdentityProviderActionsMenu = ({ idp }: IdentityProviderActionsMenuProps) 
           onClose={() => setDeleteOpen(false)}
           onSuccess={() => setDeleteOpen(false)}
           mutation={deleteIdp}
-          variables={idp.id}
+          variables={{ id: idp.id }}
         />
       )}
       {enableOpen && (
