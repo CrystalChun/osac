@@ -36,6 +36,7 @@ export type ApiRoute =
   | 'v1/private/tenants'
   | 'v1/private/storage_backends'
   | 'v1/private/storage_tiers'
+  | 'v1/private/external_ip_pools'
   | 'v1/identity_providers'
   | 'v1/roles'
   | 'v1/role_bindings'

@@ -77,6 +77,12 @@ import type {
   BareMetalInstanceTypesListRequest,
   BareMetalInstanceTypesUpdateRequest,
   BareMetalInstanceTypesUpdateResponse,
+  ExternalIPPool,
+  ExternalIPPoolsCreateRequest,
+  ExternalIPPoolsCreateResponse,
+  ExternalIPPoolsListRequest,
+  ExternalIPPoolsUpdateRequest,
+  ExternalIPPoolsUpdateResponse,
   InstanceTypesCreateRequest,
   InstanceTypesCreateResponse,
   InstanceTypesDeleteRequest,
@@ -110,6 +116,9 @@ import {
   BareMetalInstanceTypesDeleteResponseSchema,
   BareMetalInstanceTypesListResponseSchema,
   BareMetalInstanceTypesUpdateResponseSchema,
+  ExternalIPPoolState,
+  ExternalIPPools,
+  ExternalIPPoolsListResponseSchema,
   BareMetalInstanceTypes as PrivateBareMetalInstanceTypes,
   InstanceTypes as PrivateInstanceTypes,
   Tenants as PrivateTenants,
@@ -144,6 +153,7 @@ export type MockApiFixtures = {
   privateInstanceTypes?: PrivateInstanceType[];
   privateBaremetalInstanceTypes?: PrivateBareMetalInstanceType[];
   storageBackends?: StorageBackend[];
+  privateExternalIpPools?: ExternalIPPool[];
   storageTiers?: StorageTier[];
   publicStorageTiers?: PublicStorageTier[];
   roles?: Role[];
@@ -282,6 +292,13 @@ export type MockTransportOverrides = {
     req: StorageBackendsCreateRequest,
   ) => StorageBackendsCreateResponse | Promise<StorageBackendsCreateResponse>;
   onStorageBackendUpdate?: (req: StorageBackendsUpdateRequest) => StorageBackendsUpdateResponse;
+  onExternalIPPoolList?: (
+    req: ExternalIPPoolsListRequest,
+  ) => MessageInitShape<typeof ExternalIPPoolsListResponseSchema>;
+  onExternalIPPoolCreate?: (
+    req: ExternalIPPoolsCreateRequest,
+  ) => ExternalIPPoolsCreateResponse | Promise<ExternalIPPoolsCreateResponse>;
+  onExternalIPPoolUpdate?: (req: ExternalIPPoolsUpdateRequest) => ExternalIPPoolsUpdateResponse;
   onStorageTierList?: (
     req: StorageTiersListRequest,
   ) => MessageInitShape<typeof StorageTiersListResponseSchema>;
@@ -363,6 +380,7 @@ export const createMockConnectTransport = (
   const privateInstanceTypes = fixtures.privateInstanceTypes ?? [];
   const privateBaremetalInstanceTypes = fixtures.privateBaremetalInstanceTypes ?? [];
   const storageBackends = [...(fixtures.storageBackends ?? [])];
+  const privateExternalIpPools = [...(fixtures.privateExternalIpPools ?? [])];
   const storageTiers = fixtures.storageTiers ?? [];
   const publicStorageTiers = fixtures.publicStorageTiers ?? [];
   const roles = fixtures.roles ?? [];
@@ -585,6 +603,48 @@ export const createMockConnectTransport = (
           const index = storageBackends.findIndex((b) => b.id === req.id);
           if (index !== -1) {
             storageBackends.splice(index, 1);
+          }
+          return {};
+        },
+      });
+
+      router.service(ExternalIPPools, {
+        list: (req) => {
+          if (overrides.onExternalIPPoolList) {
+            return overrides.onExternalIPPoolList(req);
+          }
+          return {
+            items: privateExternalIpPools,
+            size: privateExternalIpPools.length,
+            total: privateExternalIpPools.length,
+          };
+        },
+        get: (req) => ({
+          object: privateExternalIpPools.find((p) => p.id === req.id),
+        }),
+        create: (req) => {
+          if (overrides.onExternalIPPoolCreate) {
+            return overrides.onExternalIPPoolCreate(req);
+          }
+          return {
+            object: {
+              id: 'new-external-ip-pool-1',
+              metadata: req.object?.metadata,
+              spec: req.object?.spec,
+              status: { state: ExternalIPPoolState.EXTERNAL_IP_POOL_STATE_READY },
+            },
+          };
+        },
+        update: (req) => {
+          if (overrides.onExternalIPPoolUpdate) {
+            return overrides.onExternalIPPoolUpdate(req);
+          }
+          return { object: req.object };
+        },
+        delete: (req) => {
+          const index = privateExternalIpPools.findIndex((p) => p.id === req.id);
+          if (index !== -1) {
+            privateExternalIpPools.splice(index, 1);
           }
           return {};
         },
