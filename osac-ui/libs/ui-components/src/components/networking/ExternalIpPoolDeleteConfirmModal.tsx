@@ -1,7 +1,8 @@
+import { ExternalIPPools } from '@osac/types/private';
 import type { ExternalIPPool } from '@osac/types/private';
 import DeleteResourceModal from '@osac/ui-components/components/Resource/DeleteResourceModal.tsx';
 
-import { useDeleteExternalIPPool } from '../../api/v1/private/external-ip-pools';
+import { useDeleteResource } from '../../api/use-resource';
 import { useTranslation } from '../../hooks/useTranslation';
 
 interface ExternalIpPoolDeleteConfirmModalProps {
@@ -16,7 +17,7 @@ const ExternalIpPoolDeleteConfirmModal = ({
   onSuccess,
 }: ExternalIpPoolDeleteConfirmModalProps) => {
   const { t } = useTranslation();
-  const deletePool = useDeleteExternalIPPool();
+  const deletePool = useDeleteResource(ExternalIPPools);
   const poolName = pool.metadata?.name ?? pool.id;
 
   return (
@@ -29,7 +30,7 @@ const ExternalIpPoolDeleteConfirmModal = ({
       onClose={onClose}
       onSuccess={onSuccess}
       mutation={deletePool}
-      variables={pool.id}
+      variables={{ id: pool.id }}
     />
   );
 };

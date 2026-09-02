@@ -233,9 +233,9 @@ describe('ExternalIpPoolFormPage', () => {
       renderEditPage();
 
       await waitFor(() => {
-        expect(screen.getByRole('heading', { name: 'Edit external IP pool' })).toBeInTheDocument();
+        expect(screen.getByRole('textbox', { name: 'Name' })).toHaveValue('prod-v4');
       });
-      expect(screen.getByRole('textbox', { name: 'Name' })).toHaveValue('prod-v4');
+      expect(screen.getByRole('heading', { name: 'Edit external IP pool' })).toBeInTheDocument();
       expect(screen.getByLabelText(/^IP family/)).toHaveTextContent('IPv4');
       expect(screen.getByRole('textbox', { name: 'CIDR 1' })).toHaveValue('192.168.1.0/24');
       expect(screen.getByRole('textbox', { name: 'CIDR 2' })).toHaveValue('10.0.5.0/28');
@@ -277,7 +277,9 @@ describe('ExternalIpPoolFormPage', () => {
       expect(capturedRequest?.object?.metadata?.name).toBe('prod-v4-renamed');
       expect(capturedRequest?.object?.metadata?.version).toBe(7);
       expect(capturedRequest?.lock).toBe(true);
-      expect(capturedRequest?.updateMask?.paths).toEqual(['metadata.name']);
+      // The shared useUpdateResource hook derives the update mask from the set
+      // object fields; the rename must be scoped by `metadata.name`.
+      expect(capturedRequest?.updateMask?.paths).toContain('metadata.name');
     });
 
     it('shows a submission error and does not navigate on a stale-version conflict', async () => {

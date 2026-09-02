@@ -1,7 +1,8 @@
 import { useNavigate } from 'react-router-dom';
 import { Button, Flex, FlexItem } from '@patternfly/react-core';
 
-import { usePrivateExternalIPPools } from '@osac/ui-components/api/v1/private/external-ip-pools';
+import { ExternalIPPools } from '@osac/types/private';
+import { useListResource } from '@osac/ui-components/api/use-resource';
 import { ExternalIpPoolsTable } from '@osac/ui-components/components/networking/ExternalIpPoolsTable';
 import ListPageBody from '@osac/ui-components/components/Page/ListPageBody';
 import { SubtleContent } from '@osac/ui-components/components/SubtleContent/SubtleContent';
@@ -11,7 +12,8 @@ export const ExternalIpPoolsListPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const { data: pools = [], isLoading, error } = usePrivateExternalIPPools();
+  const { data, isLoading, error } = useListResource(ExternalIPPools);
+  const pools = data?.items ?? [];
 
   return (
     <>
