@@ -24,6 +24,7 @@ import { VmListPage } from '@osac/ui-components/pages/tenant/VmListPage';
 
 import { BareMetalInstanceTypeRoutes } from './BareMetalInstanceTypeRoutes';
 import { DiskImageRoutes } from './DiskImageRoutes';
+import { ExternalIpPoolRoutes } from './ExternalIpPoolRoutes';
 import { InstanceTypeRoutes } from './InstanceTypeRoutes';
 import { ShellMasthead } from './ShellMasthead';
 import { defaultRouteForRole } from './shellRoutes';
@@ -125,6 +126,14 @@ export const AppShell = ({ logout }: { logout: () => Promise<void> }) => {
           element={
             <ShellRoute>
               <DiskImageRoutes />
+            </ShellRoute>
+          }
+        />
+        <Route
+          path="/admin/infrastructure/external-ip-pools/*"
+          element={
+            <ShellRoute>
+              <ExternalIpPoolRoutes />
             </ShellRoute>
           }
         />
