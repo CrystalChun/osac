@@ -14,16 +14,18 @@ const ProjectDeleteModal = ({
   onClose: VoidFunction;
   onSuccess: VoidFunction;
 }) => {
-  const { mutateAsync: deleteProject } = useDeleteProject();
   const { t } = useTranslation();
+  const deleteProject = useDeleteProject();
+
   return (
     <DeleteResourceModal
       resourceName={getProjectName(project, t)}
-      onDelete={() => deleteProject(project.id)}
       label={t('This permanently deletes the Project. This action cannot be undone.')}
       errorLabel={t('Failed to delete Project')}
       onClose={onClose}
       onSuccess={onSuccess}
+      mutation={deleteProject}
+      variables={project.id}
     />
   );
 };

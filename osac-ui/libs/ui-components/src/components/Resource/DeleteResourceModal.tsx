@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import {
   Alert,
   Button,
@@ -13,33 +12,45 @@ import {
 import { useTranslation } from '../../hooks/useTranslation';
 import { getErrorMessage } from '../../utils/error';
 
-interface DeleteResourceModalProps {
-  resourceName: string;
-  onDelete: () => Promise<unknown>;
-  onClose: () => void;
-  onSuccess: () => void;
-  label: string;
-  errorLabel: string;
+interface DeleteMutation<TVariables> {
+  mutate: (variables: TVariables, options?: { onSuccess?: () => void }) => void;
+  isPending: boolean;
+  error: Error | null;
+  reset: () => void;
 }
 
-const DeleteResourceModal = ({
+interface DeleteResourceModalProps<TVariables> {
+  resourceName: string;
+  label: string;
+  errorLabel: string;
+  onClose: () => void;
+  onSuccess?: () => void;
+  mutation: DeleteMutation<TVariables>;
+  variables: TVariables;
+}
+
+const DeleteResourceModal = <TVariables,>({
+  resourceName,
   label,
   errorLabel,
-  onDelete,
-  resourceName,
   onClose,
   onSuccess,
-}: DeleteResourceModalProps) => {
-  const [isPending, setIsPending] = useState(false);
-
-  const [error, setError] = useState<unknown>();
+  mutation,
+  variables,
+}: DeleteResourceModalProps<TVariables>) => {
   const { t } = useTranslation();
+  const { mutate, reset, isPending, error } = mutation;
+
+  const handleClosing = (closeFn?: () => void) => {
+    reset();
+    closeFn?.();
+  };
 
   return (
     <Modal
       variant="small"
       isOpen
-      onClose={isPending ? undefined : onClose}
+      onClose={isPending ? undefined : () => handleClosing(onClose)}
       aria-labelledby="delete-confirm-title"
     >
       <ModalHeader
@@ -62,23 +73,16 @@ const DeleteResourceModal = ({
       <ModalFooter>
         <Button
           variant="danger"
-          onClick={async () => {
-            try {
-              setIsPending(true);
-              await onDelete();
-              onSuccess();
-            } catch (e) {
-              setError(e);
-            } finally {
-              setIsPending(false);
-            }
+          onClick={() => {
+            reset();
+            mutate(variables, { onSuccess: () => handleClosing(onSuccess) });
           }}
           isDisabled={isPending}
           isLoading={isPending}
         >
           {t('Delete')}
         </Button>
-        <Button variant="link" onClick={onClose} isDisabled={isPending}>
+        <Button variant="link" onClick={() => handleClosing(onClose)} isDisabled={isPending}>
           {t('Cancel')}
         </Button>
       </ModalFooter>

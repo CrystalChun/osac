@@ -4,8 +4,9 @@ import { Dropdown, DropdownItem, DropdownList, MenuToggle } from '@patternfly/re
 import { EllipsisVIcon } from '@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon';
 
 import { IdentityProvider } from '@osac/types';
+import { useDeleteIdentityProvider } from '@osac/ui-components/api/v1/identity-provider';
+import DeleteResourceModal from '@osac/ui-components/components/Resource/DeleteResourceModal';
 
-import IdentityProviderDeleteModal from './IdentityProviderDeleteModal';
 import IdentityProviderEnableModal from './IdentityProviderEnableModal';
 import { getIdpName } from './utils';
 import { useTranslation } from '../../hooks/useTranslation';
@@ -20,14 +21,21 @@ const IdentityProviderActionsMenu = ({ idp }: IdentityProviderActionsMenuProps) 
   const [open, setOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [enableOpen, setEnableOpen] = useState(false);
+  const deleteIdp = useDeleteIdentityProvider();
 
   return (
     <>
       {deleteOpen && (
-        <IdentityProviderDeleteModal
-          idp={idp}
+        <DeleteResourceModal
+          resourceName={getIdpName(idp)}
+          label={t(
+            'This permanently deletes the Identity provider and all its resources. This action cannot be undone.',
+          )}
+          errorLabel={t('Failed to delete Identity provider')}
           onClose={() => setDeleteOpen(false)}
           onSuccess={() => setDeleteOpen(false)}
+          mutation={deleteIdp}
+          variables={idp.id}
         />
       )}
       {enableOpen && (

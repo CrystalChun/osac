@@ -4,8 +4,9 @@ import { Dropdown, DropdownItem, DropdownList, MenuToggle } from '@patternfly/re
 import { EllipsisVIcon } from '@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon';
 
 import type { RoleBinding } from '@osac/types';
+import { useDeleteRoleBinding } from '@osac/ui-components/api/v1/role-binding';
+import DeleteResourceModal from '@osac/ui-components/components/Resource/DeleteResourceModal';
 
-import RoleBindingDeleteModal from './RoleBindingDeleteModal';
 import { useTranslation } from '../../hooks/useTranslation';
 
 interface RoleBindingActionsMenuProps {
@@ -17,14 +18,21 @@ const RoleBindingActionsMenu = ({ roleBinding }: RoleBindingActionsMenuProps) =>
   const [open, setOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const navigate = useNavigate();
+  const deleteRoleBinding = useDeleteRoleBinding();
 
   return (
     <>
       {deleteOpen && (
-        <RoleBindingDeleteModal
-          roleBinding={roleBinding}
+        <DeleteResourceModal
+          resourceName={roleBinding.metadata?.name || roleBinding.id}
+          label={t(
+            'This permanently deletes the role binding. Users will lose the permissions granted by this binding. This action cannot be undone.',
+          )}
+          errorLabel={t('Failed to delete role binding')}
           onClose={() => setDeleteOpen(false)}
           onSuccess={() => setDeleteOpen(false)}
+          mutation={deleteRoleBinding}
+          variables={roleBinding.id}
         />
       )}
       <Dropdown
