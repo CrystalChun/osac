@@ -15,6 +15,7 @@ import type {
   DiskImagesCreateResponse,
   DiskImagesDeleteRequest,
   DiskImagesDeleteResponse,
+  DiskImagesGetRequest,
   DiskImagesListRequest,
   DiskImagesUpdateRequest,
   DiskImagesUpdateResponse,
@@ -47,6 +48,7 @@ import {
   ComputeInstanceCatalogItems,
   DiskImageLifecycle,
   DiskImages,
+  DiskImagesGetResponseSchema,
   DiskImagesListResponseSchema,
   HostTypes,
   IdentityProviders,
@@ -306,6 +308,11 @@ export type MockTransportOverrides = {
   onDiskImageList?: (
     req: DiskImagesListRequest,
   ) => MessageInitShape<typeof DiskImagesListResponseSchema>;
+  onDiskImageGet?: (
+    req: DiskImagesGetRequest,
+  ) =>
+    | MessageInitShape<typeof DiskImagesGetResponseSchema>
+    | Promise<MessageInitShape<typeof DiskImagesGetResponseSchema>>;
   onDiskImageCreate?: (req: DiskImagesCreateRequest) => DiskImagesCreateResponse;
   onDiskImageUpdate?: (req: DiskImagesUpdateRequest) => DiskImagesUpdateResponse;
   onDiskImageDelete?: (req: DiskImagesDeleteRequest) => DiskImagesDeleteResponse;
@@ -457,9 +464,12 @@ export const createMockConnectTransport = (
           );
           return { items, size: items.length, total: items.length };
         },
-        get: (req) => ({
-          object: diskImages.find((i) => i.id === req.id),
-        }),
+        get: (req) => {
+          if (overrides.onDiskImageGet) {
+            return overrides.onDiskImageGet(req);
+          }
+          return { object: diskImages.find((i) => i.id === req.id) };
+        },
         create: (req) => {
           if (overrides.onDiskImageCreate) {
             return overrides.onDiskImageCreate(req);
