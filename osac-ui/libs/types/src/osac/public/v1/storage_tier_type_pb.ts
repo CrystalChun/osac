@@ -20,13 +20,15 @@ import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
 import type { Metadata } from "./metadata_type_pb";
 import { file_osac_public_v1_metadata_type } from "./metadata_type_pb";
+import type { StorageProtocol } from "./storage_common_type_pb";
+import { file_osac_public_v1_storage_common_type } from "./storage_common_type_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file osac/public/v1/storage_tier_type.proto.
  */
 export const file_osac_public_v1_storage_tier_type: GenFile = /*@__PURE__*/
-  fileDesc("CiZvc2FjL3B1YmxpYy92MS9zdG9yYWdlX3RpZXJfdHlwZS5wcm90bxIOb3NhYy5wdWJsaWMudjEirwEKC1N0b3JhZ2VUaWVyEgoKAmlkGAEgASgJEioKCG1ldGFkYXRhGAIgASgLMhgub3NhYy5wdWJsaWMudjEuTWV0YWRhdGESNQoEc3BlYxgDIAEoCzIfLm9zYWMucHVibGljLnYxLlN0b3JhZ2VUaWVyU3BlY0IGukgDyAEBEjEKBnN0YXR1cxgEIAEoCzIhLm9zYWMucHVibGljLnYxLlN0b3JhZ2VUaWVyU3RhdHVzItMBCg9TdG9yYWdlVGllclNwZWMSEwoLZGVzY3JpcHRpb24YASABKAkSPQoIcHJvdG9jb2wYAiABKA4yHy5vc2FjLnB1YmxpYy52MS5TdG9yYWdlUHJvdG9jb2xCCrpIB4IBBBABIAASHgoWbWF4X3JlYWRfYmFuZHdpZHRoX21icxgDIAEoBRIfChdtYXhfd3JpdGVfYmFuZHdpZHRoX21icxgEIAEoBRIaChJlbmNyeXB0aW9uX2VuYWJsZWQYBiABKAhKBAgFEAZSCXF1b3RhX2dpYiJmChFTdG9yYWdlVGllclN0YXR1cxIvCgVzdGF0ZRgBIAEoDjIgLm9zYWMucHVibGljLnYxLlN0b3JhZ2VUaWVyU3RhdGUSFAoHbWVzc2FnZRgCIAEoCUgAiAEBQgoKCF9tZXNzYWdlKmkKD1N0b3JhZ2VQcm90b2NvbBIgChxTVE9SQUdFX1BST1RPQ09MX1VOU1BFQ0lGSUVEEAASGAoUU1RPUkFHRV9QUk9UT0NPTF9ORlMQARIaChZTVE9SQUdFX1BST1RPQ09MX0JMT0NLEAIqVQoQU3RvcmFnZVRpZXJTdGF0ZRIiCh5TVE9SQUdFX1RJRVJfU1RBVEVfVU5TUEVDSUZJRUQQABIdChlTVE9SQUdFX1RJRVJfU1RBVEVfQUNUSVZFEAFiBnByb3RvMw", [file_buf_validate_validate, file_osac_public_v1_metadata_type]);
+  fileDesc("CiZvc2FjL3B1YmxpYy92MS9zdG9yYWdlX3RpZXJfdHlwZS5wcm90bxIOb3NhYy5wdWJsaWMudjEipwEKC1N0b3JhZ2VUaWVyEgoKAmlkGAEgASgJEioKCG1ldGFkYXRhGAIgASgLMhgub3NhYy5wdWJsaWMudjEuTWV0YWRhdGESLQoEc3BlYxgDIAEoCzIfLm9zYWMucHVibGljLnYxLlN0b3JhZ2VUaWVyU3BlYxIxCgZzdGF0dXMYBCABKAsyIS5vc2FjLnB1YmxpYy52MS5TdG9yYWdlVGllclN0YXR1cyLCAQoPU3RvcmFnZVRpZXJTcGVjEhMKC2Rlc2NyaXB0aW9uGAEgASgJEj0KCHByb3RvY29sGAIgASgOMh8ub3NhYy5wdWJsaWMudjEuU3RvcmFnZVByb3RvY29sQgq6SAeCAQQQASAAEh4KFm1heF9yZWFkX2JhbmR3aWR0aF9tYnMYAyABKAUSHwoXbWF4X3dyaXRlX2JhbmR3aWR0aF9tYnMYBCABKAUSGgoSZW5jcnlwdGlvbl9lbmFibGVkGAUgASgIImYKEVN0b3JhZ2VUaWVyU3RhdHVzEi8KBXN0YXRlGAEgASgOMiAub3NhYy5wdWJsaWMudjEuU3RvcmFnZVRpZXJTdGF0ZRIUCgdtZXNzYWdlGAIgASgJSACIAQFCCgoIX21lc3NhZ2UqVQoQU3RvcmFnZVRpZXJTdGF0ZRIiCh5TVE9SQUdFX1RJRVJfU1RBVEVfVU5TUEVDSUZJRUQQABIdChlTVE9SQUdFX1RJRVJfU1RBVEVfQUNUSVZFEAFiBnByb3RvMw", [file_buf_validate_validate, file_osac_public_v1_metadata_type, file_osac_public_v1_storage_common_type]);
 
 /**
  * Describes a class of storage service that can be referenced by name when provisioning
@@ -115,7 +117,7 @@ export type StorageTierSpec = Message<"osac.public.v1.StorageTierSpec"> & {
   /**
    * Whether data at rest is encrypted on this tier.
    *
-   * @generated from field: bool encryption_enabled = 6;
+   * @generated from field: bool encryption_enabled = 5;
    */
   encryptionEnabled: boolean;
 };
@@ -156,40 +158,6 @@ export const StorageTierStatusSchema: GenMessage<StorageTierStatus> = /*@__PURE_
   messageDesc(file_osac_public_v1_storage_tier_type, 2);
 
 /**
- * Identifies the storage protocol used by a storage tier.
- *
- * @generated from enum osac.public.v1.StorageProtocol
- */
-export enum StorageProtocol {
-  /**
-   * Protocol is unknown or has not been specified.
-   *
-   * @generated from enum value: STORAGE_PROTOCOL_UNSPECIFIED = 0;
-   */
-  UNSPECIFIED = 0,
-
-  /**
-   * NFS (Network File System) protocol for file-based storage access.
-   *
-   * @generated from enum value: STORAGE_PROTOCOL_NFS = 1;
-   */
-  NFS = 1,
-
-  /**
-   * Block storage protocol for volume-based storage access.
-   *
-   * @generated from enum value: STORAGE_PROTOCOL_BLOCK = 2;
-   */
-  BLOCK = 2,
-}
-
-/**
- * Describes the enum osac.public.v1.StorageProtocol.
- */
-export const StorageProtocolSchema: GenEnum<StorageProtocol> = /*@__PURE__*/
-  enumDesc(file_osac_public_v1_storage_tier_type, 0);
-
-/**
  * Lifecycle states for StorageTier resources.
  *
  * @generated from enum osac.public.v1.StorageTierState
@@ -214,5 +182,5 @@ export enum StorageTierState {
  * Describes the enum osac.public.v1.StorageTierState.
  */
 export const StorageTierStateSchema: GenEnum<StorageTierState> = /*@__PURE__*/
-  enumDesc(file_osac_public_v1_storage_tier_type, 1);
+  enumDesc(file_osac_public_v1_storage_tier_type, 0);
 

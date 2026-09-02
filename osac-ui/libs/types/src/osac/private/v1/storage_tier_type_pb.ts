@@ -17,6 +17,8 @@
 
 import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
+import { file_cleanapi_cleanapi } from "../../../cleanapi/cleanapi_pb";
 import type { Metadata } from "./metadata_type_pb";
 import { file_osac_private_v1_metadata_type } from "./metadata_type_pb";
 import type { StorageProtocol } from "./storage_common_type_pb";
@@ -27,11 +29,11 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/private/v1/storage_tier_type.proto.
  */
 export const file_osac_private_v1_storage_tier_type: GenFile = /*@__PURE__*/
-  fileDesc("Cidvc2FjL3ByaXZhdGUvdjEvc3RvcmFnZV90aWVyX3R5cGUucHJvdG8SD29zYWMucHJpdmF0ZS52MSLMAQoSQmFja2VuZEFzc29jaWF0aW9uEhIKCmJhY2tlbmRfaWQYASABKAkSMgoIcHJvdG9jb2wYAiABKA4yIC5vc2FjLnByaXZhdGUudjEuU3RvcmFnZVByb3RvY29sEh4KFm1heF9yZWFkX2JhbmR3aWR0aF9tYnMYAyABKAUSHwoXbWF4X3dyaXRlX2JhbmR3aWR0aF9tYnMYBCABKAUSEQoJcXVvdGFfZ2liGAUgASgDEhoKEmVuY3J5cHRpb25fZW5hYmxlZBgGIAEoCCKqAQoLU3RvcmFnZVRpZXISCgoCaWQYASABKAkSKwoIbWV0YWRhdGEYAiABKAsyGS5vc2FjLnByaXZhdGUudjEuTWV0YWRhdGESLgoEc3BlYxgDIAEoCzIgLm9zYWMucHJpdmF0ZS52MS5TdG9yYWdlVGllclNwZWMSMgoGc3RhdHVzGAQgASgLMiIub3NhYy5wcml2YXRlLnYxLlN0b3JhZ2VUaWVyU3RhdHVzIl0KD1N0b3JhZ2VUaWVyU3BlYxITCgtkZXNjcmlwdGlvbhgBIAEoCRI1CghiYWNrZW5kcxgCIAMoCzIjLm9zYWMucHJpdmF0ZS52MS5CYWNrZW5kQXNzb2NpYXRpb24iZwoRU3RvcmFnZVRpZXJTdGF0dXMSMAoFc3RhdGUYASABKA4yIS5vc2FjLnByaXZhdGUudjEuU3RvcmFnZVRpZXJTdGF0ZRIUCgdtZXNzYWdlGAIgASgJSACIAQFCCgoIX21lc3NhZ2UqVQoQU3RvcmFnZVRpZXJTdGF0ZRIiCh5TVE9SQUdFX1RJRVJfU1RBVEVfVU5TUEVDSUZJRUQQABIdChlTVE9SQUdFX1RJRVJfU1RBVEVfQUNUSVZFEAFiBnByb3RvMw", [file_osac_private_v1_metadata_type, file_osac_private_v1_storage_common_type]);
+  fileDesc("Cidvc2FjL3ByaXZhdGUvdjEvc3RvcmFnZV90aWVyX3R5cGUucHJvdG8SD29zYWMucHJpdmF0ZS52MSKNAQoSQmFja2VuZEFzc29jaWF0aW9uEhIKCmJhY2tlbmRfaWQYASABKAkSHgoWbWF4X3JlYWRfYmFuZHdpZHRoX21icxgCIAEoBRIfChdtYXhfd3JpdGVfYmFuZHdpZHRoX21icxgDIAEoBRIaChJlbmNyeXB0aW9uX2VuYWJsZWQYBCABKAg6Boq1GAIIASKqAQoLU3RvcmFnZVRpZXISCgoCaWQYASABKAkSKwoIbWV0YWRhdGEYAiABKAsyGS5vc2FjLnByaXZhdGUudjEuTWV0YWRhdGESLgoEc3BlYxgDIAEoCzIgLm9zYWMucHJpdmF0ZS52MS5TdG9yYWdlVGllclNwZWMSMgoGc3RhdHVzGAQgASgLMiIub3NhYy5wcml2YXRlLnYxLlN0b3JhZ2VUaWVyU3RhdHVzIoICCg9TdG9yYWdlVGllclNwZWMSEwoLZGVzY3JpcHRpb24YASABKAkSPgoIcHJvdG9jb2wYAiABKA4yIC5vc2FjLnByaXZhdGUudjEuU3RvcmFnZVByb3RvY29sQgq6SAeCAQQQASAAEh4KFm1heF9yZWFkX2JhbmR3aWR0aF9tYnMYAyABKAUSHwoXbWF4X3dyaXRlX2JhbmR3aWR0aF9tYnMYBCABKAUSGgoSZW5jcnlwdGlvbl9lbmFibGVkGAUgASgIEj0KCGJhY2tlbmRzGAYgAygLMiMub3NhYy5wcml2YXRlLnYxLkJhY2tlbmRBc3NvY2lhdGlvbkIGirUYAggBImcKEVN0b3JhZ2VUaWVyU3RhdHVzEjAKBXN0YXRlGAEgASgOMiEub3NhYy5wcml2YXRlLnYxLlN0b3JhZ2VUaWVyU3RhdGUSFAoHbWVzc2FnZRgCIAEoCUgAiAEBQgoKCF9tZXNzYWdlKlUKEFN0b3JhZ2VUaWVyU3RhdGUSIgoeU1RPUkFHRV9USUVSX1NUQVRFX1VOU1BFQ0lGSUVEEAASHQoZU1RPUkFHRV9USUVSX1NUQVRFX0FDVElWRRABQhSKtRgQEg5vc2FjLnB1YmxpYy52MWIGcHJvdG8z", [file_buf_validate_validate, file_cleanapi_cleanapi, file_osac_private_v1_metadata_type, file_osac_private_v1_storage_common_type]);
 
 /**
- * Represents the association of a storage backend within a storage tier, including protocol-specific
- * configuration and quota limits.
+ * Represents the association of a storage backend within a storage tier, including bandwidth and
+ * encryption configuration.
  *
  * @generated from message osac.private.v1.BackendAssociation
  */
@@ -44,37 +46,23 @@ export type BackendAssociation = Message<"osac.private.v1.BackendAssociation"> &
   backendId: string;
 
   /**
-   * Storage protocol used for this backend association.
-   *
-   * @generated from field: osac.private.v1.StorageProtocol protocol = 2;
-   */
-  protocol: StorageProtocol;
-
-  /**
    * Maximum read bandwidth in megabytes per second.
    *
-   * @generated from field: int32 max_read_bandwidth_mbs = 3;
+   * @generated from field: int32 max_read_bandwidth_mbs = 2;
    */
   maxReadBandwidthMbs: number;
 
   /**
    * Maximum write bandwidth in megabytes per second.
    *
-   * @generated from field: int32 max_write_bandwidth_mbs = 4;
+   * @generated from field: int32 max_write_bandwidth_mbs = 3;
    */
   maxWriteBandwidthMbs: number;
 
   /**
-   * Storage quota in gibibytes (GiB) allocated to this backend association.
-   *
-   * @generated from field: int64 quota_gib = 5;
-   */
-  quotaGib: bigint;
-
-  /**
    * Whether data at rest is encrypted on this backend.
    *
-   * @generated from field: bool encryption_enabled = 6;
+   * @generated from field: bool encryption_enabled = 4;
    */
   encryptionEnabled: boolean;
 };
@@ -87,14 +75,15 @@ export const BackendAssociationSchema: GenMessage<BackendAssociation> = /*@__PUR
   messageDesc(file_osac_private_v1_storage_tier_type, 0);
 
 /**
- * Represents a storage tier in the OSAC platform.
- *
- * StorageTier is a platform-scoped entity that groups one or more StorageBackend associations with
- * protocol, bandwidth, quota, and encryption settings. It is managed exclusively by Cloud Provider
- * Admins through the private API. Tenants consume storage tiers indirectly when provisioning
+ * Describes a class of storage service that can be referenced by name when provisioning
  * storage-enabled resources.
  *
- * StorageTier follows the NetworkClass pattern: DB-backed with no Kubernetes CRD and no reconciler.
+ * StorageTiers are admin-managed catalog resources. Tenant users select a tier by name instead of
+ * specifying raw storage backend details. Cloud Provider Admins control the available tiers through
+ * the private API.
+ *
+ * The `spec` contains the tier's advertised service level. The `status` contains the current state
+ * of the storage tier, is provided by the system and can't be modified by the user.
  *
  * @generated from message osac.private.v1.StorageTier
  */
@@ -114,7 +103,7 @@ export type StorageTier = Message<"osac.private.v1.StorageTier"> & {
   metadata?: Metadata | undefined;
 
   /**
-   * Desired configuration of the storage tier (admin-modifiable).
+   * Advertised service level of the storage tier.
    *
    * @generated from field: osac.private.v1.StorageTierSpec spec = 3;
    */
@@ -136,7 +125,7 @@ export const StorageTierSchema: GenMessage<StorageTier> = /*@__PURE__*/
   messageDesc(file_osac_private_v1_storage_tier_type, 1);
 
 /**
- * Defines the desired configuration for a StorageTier.
+ * Defines the advertised service level of a StorageTier.
  *
  * @generated from message osac.private.v1.StorageTierSpec
  */
@@ -149,9 +138,37 @@ export type StorageTierSpec = Message<"osac.private.v1.StorageTierSpec"> & {
   description: string;
 
   /**
+   * Storage protocol used by this tier. Always an explicit protocol (NFS or BLOCK); never UNSPECIFIED.
+   *
+   * @generated from field: osac.private.v1.StorageProtocol protocol = 2;
+   */
+  protocol: StorageProtocol;
+
+  /**
+   * Maximum read bandwidth in megabytes per second.
+   *
+   * @generated from field: int32 max_read_bandwidth_mbs = 3;
+   */
+  maxReadBandwidthMbs: number;
+
+  /**
+   * Maximum write bandwidth in megabytes per second.
+   *
+   * @generated from field: int32 max_write_bandwidth_mbs = 4;
+   */
+  maxWriteBandwidthMbs: number;
+
+  /**
+   * Whether data at rest is encrypted on this tier.
+   *
+   * @generated from field: bool encryption_enabled = 5;
+   */
+  encryptionEnabled: boolean;
+
+  /**
    * List of backend associations that compose this storage tier.
    *
-   * @generated from field: repeated osac.private.v1.BackendAssociation backends = 2;
+   * @generated from field: repeated osac.private.v1.BackendAssociation backends = 6;
    */
   backends: BackendAssociation[];
 };
@@ -164,7 +181,7 @@ export const StorageTierSpecSchema: GenMessage<StorageTierSpec> = /*@__PURE__*/
   messageDesc(file_osac_private_v1_storage_tier_type, 2);
 
 /**
- * Represents the current operational state of a StorageTier.
+ * Contains the system-provided status of a StorageTier.
  *
  * @generated from message osac.private.v1.StorageTierStatus
  */

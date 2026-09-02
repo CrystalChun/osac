@@ -21,19 +21,22 @@ const makeBackend = (id: string, name: string): StorageBackend =>
 const makeTier = (
   id: string,
   name: string,
-  backends: { backendId: string; protocol: StorageProtocol }[],
+  protocol: StorageProtocol,
+  backendIds: string[],
 ): StorageTier =>
   ({
     id,
     metadata: { name },
     spec: {
       description: '',
-      backends: backends.map((b) => ({
-        backendId: b.backendId,
-        protocol: b.protocol,
+      protocol,
+      maxReadBandwidthMbs: 0,
+      maxWriteBandwidthMbs: 0,
+      encryptionEnabled: false,
+      backends: backendIds.map((backendId) => ({
+        backendId,
         maxReadBandwidthMbs: 0,
         maxWriteBandwidthMbs: 0,
-        quotaGib: BigInt(0),
         encryptionEnabled: false,
       })),
     },
@@ -44,12 +47,10 @@ const backendA = makeBackend('backend-a', 'Fast NVMe');
 const backendB = makeBackend('backend-b', 'Bulk HDD');
 const backendUnused = makeBackend('backend-unused', 'Unused Backend');
 
-const singleBackendTier = makeTier('tier-1', 'fast', [
-  { backendId: 'backend-a', protocol: StorageProtocol.NFS },
-]);
-const mixedTier = makeTier('tier-2', 'mixed', [
-  { backendId: 'backend-b', protocol: StorageProtocol.BLOCK },
-  { backendId: 'missing-backend', protocol: StorageProtocol.NFS },
+const singleBackendTier = makeTier('tier-1', 'fast', StorageProtocol.NFS, ['backend-a']);
+const mixedTier = makeTier('tier-2', 'mixed', StorageProtocol.BLOCK, [
+  'backend-b',
+  'missing-backend',
 ]);
 
 const defaultTiers = [singleBackendTier, mixedTier];
@@ -74,14 +75,14 @@ describe('StorageTiersListPage', () => {
     expect(screen.getByText('NFS')).toBeInTheDocument();
   });
 
-  it('renders comma-separated backend names and protocols for a tier with multiple backend associations, falling back to the raw id when a backend cannot be resolved', async () => {
+  it('renders comma-separated backend names for a tier with multiple backend associations, falling back to the raw id when a backend cannot be resolved', async () => {
     renderPage();
 
     await waitFor(() => {
       expect(screen.getByText('mixed')).toBeInTheDocument();
     });
     expect(screen.getByText('Bulk HDD, missing-backend')).toBeInTheDocument();
-    expect(screen.getByText('Block, NFS')).toBeInTheDocument();
+    expect(screen.getByText('Block')).toBeInTheDocument();
   });
 
   it('renders the STATUS column via StorageTierStatusLabel', async () => {

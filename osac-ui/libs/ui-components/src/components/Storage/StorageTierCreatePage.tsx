@@ -59,30 +59,23 @@ type QosFieldKey =
   | 'protocol'
   | 'maxReadBandwidthMbs'
   | 'maxWriteBandwidthMbs'
-  | 'quotaGib'
   | 'encryptionEnabled';
 
 const QOS_FIELD_KEYS: QosFieldKey[] = [
   'protocol',
   'maxReadBandwidthMbs',
   'maxWriteBandwidthMbs',
-  'quotaGib',
   'encryptionEnabled',
 ];
-
-interface BackendAssociationValues {
-  backendId: string;
-  protocol: '' | 'NFS' | 'BLOCK';
-  maxReadBandwidthMbs: string;
-  maxWriteBandwidthMbs: string;
-  quotaGib: string;
-  encryptionEnabled: boolean;
-}
 
 interface StorageTierFormValues {
   metadata: { name: string };
   description: string;
-  backends: [BackendAssociationValues];
+  backendId: string;
+  protocol: '' | 'NFS' | 'BLOCK';
+  maxReadBandwidthMbs: string;
+  maxWriteBandwidthMbs: string;
+  encryptionEnabled: boolean;
 }
 
 const getInitialValues = (tier?: StorageTier): StorageTierFormValues => {
@@ -90,16 +83,11 @@ const getInitialValues = (tier?: StorageTier): StorageTierFormValues => {
   return {
     metadata: { name: tier?.metadata?.name ?? '' },
     description: tier?.spec?.description ?? '',
-    backends: [
-      {
-        backendId: backend?.backendId ?? '',
-        protocol: backend ? (VALUE_BY_PROTOCOL[backend.protocol] ?? '') : '',
-        maxReadBandwidthMbs: backend ? String(backend.maxReadBandwidthMbs) : '',
-        maxWriteBandwidthMbs: backend ? String(backend.maxWriteBandwidthMbs) : '',
-        quotaGib: backend ? String(backend.quotaGib) : '',
-        encryptionEnabled: backend?.encryptionEnabled ?? false,
-      },
-    ],
+    backendId: backend?.backendId ?? '',
+    protocol: tier?.spec ? (VALUE_BY_PROTOCOL[tier.spec.protocol] ?? '') : '',
+    maxReadBandwidthMbs: tier?.spec ? String(tier.spec.maxReadBandwidthMbs) : '',
+    maxWriteBandwidthMbs: tier?.spec ? String(tier.spec.maxWriteBandwidthMbs) : '',
+    encryptionEnabled: tier?.spec?.encryptionEnabled ?? false,
   };
 };
 
@@ -107,21 +95,13 @@ const getStorageTierSchema = (t: TFunction) =>
   Yup.object({
     metadata: Yup.object({ name: resourceNameSchema(t) }),
     description: Yup.string(),
-    backends: Yup.array()
-      .of(
-        Yup.object({
-          backendId: Yup.string().required(t('Backend is required')),
-          protocol: Yup.string()
-            .oneOf(['NFS', 'BLOCK'], t('Protocol is required'))
-            .required(t('Protocol is required')),
-          maxReadBandwidthMbs: positiveIntegerSchema(t, INT32_MAX),
-          maxWriteBandwidthMbs: positiveIntegerSchema(t, INT32_MAX),
-          quotaGib: positiveIntegerSchema(t, Number.MAX_SAFE_INTEGER),
-          encryptionEnabled: Yup.boolean().required(),
-        }),
-      )
-      .length(1)
-      .required(),
+    backendId: Yup.string().required(t('Backend is required')),
+    protocol: Yup.string()
+      .oneOf(['NFS', 'BLOCK'], t('Protocol is required'))
+      .required(t('Protocol is required')),
+    maxReadBandwidthMbs: positiveIntegerSchema(t, INT32_MAX),
+    maxWriteBandwidthMbs: positiveIntegerSchema(t, INT32_MAX),
+    encryptionEnabled: Yup.boolean().required(),
   });
 
 interface StorageTierFormProps {
@@ -143,19 +123,30 @@ const StorageTierForm = ({ tier, backendOptions, backendsLoading }: StorageTierF
 
   const onSubmit = async (values: StorageTierFormValues) => {
     try {
-      const currentBackend = values.backends[0];
+      const protocol = PROTOCOL_BY_VALUE[values.protocol as 'NFS' | 'BLOCK'];
+      const maxReadBandwidthMbs = Number(values.maxReadBandwidthMbs);
+      const maxWriteBandwidthMbs = Number(values.maxWriteBandwidthMbs);
       const backendPayload = {
-        backendId: currentBackend.backendId,
-        protocol: PROTOCOL_BY_VALUE[currentBackend.protocol as 'NFS' | 'BLOCK'],
-        maxReadBandwidthMbs: Number(currentBackend.maxReadBandwidthMbs),
-        maxWriteBandwidthMbs: Number(currentBackend.maxWriteBandwidthMbs),
-        quotaGib: BigInt(Math.trunc(Number(currentBackend.quotaGib))),
-        encryptionEnabled: currentBackend.encryptionEnabled,
+        backendId: values.backendId,
+        maxReadBandwidthMbs,
+        maxWriteBandwidthMbs,
+        encryptionEnabled: values.encryptionEnabled,
       };
 
       if (tier) {
         const descriptionChanged = values.description !== initialValues.description;
-        const spec: { description?: string; backends: [Record<string, unknown>] } = {
+        const spec: {
+          protocol: StorageProtocol;
+          maxReadBandwidthMbs: number;
+          maxWriteBandwidthMbs: number;
+          encryptionEnabled: boolean;
+          backends: [Record<string, unknown>];
+          description?: string;
+        } = {
+          protocol,
+          maxReadBandwidthMbs,
+          maxWriteBandwidthMbs,
+          encryptionEnabled: values.encryptionEnabled,
           backends: [backendPayload],
         };
         if (descriptionChanged) {
@@ -166,7 +157,14 @@ const StorageTierForm = ({ tier, backendOptions, backendsLoading }: StorageTierF
       } else {
         const created = await create({
           metadata: values.metadata,
-          spec: { description: values.description, backends: [backendPayload] },
+          spec: {
+            description: values.description,
+            protocol,
+            maxReadBandwidthMbs,
+            maxWriteBandwidthMbs,
+            encryptionEnabled: values.encryptionEnabled,
+            backends: [backendPayload],
+          },
         });
         navigate(`${TIERS_LIST_PATH}/${created.id}`);
       }
@@ -200,10 +198,7 @@ const StorageTierForm = ({ tier, backendOptions, backendsLoading }: StorageTierF
         >
           {({ values, submitForm, isSubmitting }) => {
             const qosChanged =
-              isEdit &&
-              QOS_FIELD_KEYS.some(
-                (key) => values.backends[0][key] !== initialValues.backends[0][key],
-              );
+              isEdit && QOS_FIELD_KEYS.some((key) => values[key] !== initialValues[key]);
 
             return (
               <Stack hasGutter>
@@ -217,7 +212,7 @@ const StorageTierForm = ({ tier, backendOptions, backendsLoading }: StorageTierF
                       fieldId="tier-description"
                     />
                     <SelectField
-                      name="backends[0].backendId"
+                      name="backendId"
                       label={t('Backend')}
                       fieldId="tier-backend"
                       isRequired
@@ -226,7 +221,7 @@ const StorageTierForm = ({ tier, backendOptions, backendsLoading }: StorageTierF
                       options={backendOptions}
                     />
                     <RadioButtonField
-                      name="backends[0].protocol"
+                      name="protocol"
                       label={t('Protocol')}
                       fieldId="tier-protocol"
                       isRequired
@@ -237,28 +232,21 @@ const StorageTierForm = ({ tier, backendOptions, backendsLoading }: StorageTierF
                       ]}
                     />
                     <InputField
-                      name="backends[0].maxReadBandwidthMbs"
+                      name="maxReadBandwidthMbs"
                       label={t('Max read bandwidth (MB/s)')}
                       fieldId="tier-max-read-bandwidth"
                       type="number"
                       isRequired
                     />
                     <InputField
-                      name="backends[0].maxWriteBandwidthMbs"
+                      name="maxWriteBandwidthMbs"
                       label={t('Max write bandwidth (MB/s)')}
                       fieldId="tier-max-write-bandwidth"
                       type="number"
                       isRequired
                     />
-                    <InputField
-                      name="backends[0].quotaGib"
-                      label={t('Quota (GiB)')}
-                      fieldId="tier-quota"
-                      type="number"
-                      isRequired
-                    />
                     <CheckboxField
-                      name="backends[0].encryptionEnabled"
+                      name="encryptionEnabled"
                       label={t('Encryption enabled')}
                       fieldId="tier-encryption-enabled"
                     />
@@ -269,7 +257,7 @@ const StorageTierForm = ({ tier, backendOptions, backendsLoading }: StorageTierF
                   <StackItem>
                     <Alert variant="info" isInline title={t('QoS settings changed')}>
                       {t(
-                        'Bandwidth and quota changes take effect immediately for existing and new volumes. Changes to encryption or protocol require the associated StorageClass to be recreated before new volumes pick them up; existing volumes are unaffected.',
+                        'Bandwidth changes take effect immediately for existing and new volumes. Changes to encryption or protocol require the associated StorageClass to be recreated before new volumes pick them up; existing volumes are unaffected.',
                       )}
                     </Alert>
                   </StackItem>

@@ -2,7 +2,6 @@ import { screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
 import type { BackendAssociation, StorageBackend } from '@osac/types/private';
-import { StorageProtocol } from '@osac/types/private';
 
 import { StorageTierBackendAssociationsTable } from './StorageTierBackendAssociationsTable';
 import { renderWithProviders } from '../../test-utils/TestProviders';
@@ -13,16 +12,14 @@ const makeBackend = (id: string, name: string): StorageBackend =>
 const makeAssociation = (overrides: Partial<BackendAssociation> = {}): BackendAssociation =>
   ({
     backendId: 'backend-a',
-    protocol: StorageProtocol.NFS,
     maxReadBandwidthMbs: 100,
     maxWriteBandwidthMbs: 80,
-    quotaGib: 500n,
     encryptionEnabled: true,
     ...overrides,
   }) as BackendAssociation;
 
 describe('StorageTierBackendAssociationsTable', () => {
-  it('renders one row per backend association with resolved name, protocol, bandwidth, quota, and encryption', () => {
+  it('renders one row per backend association with resolved name, bandwidth, and encryption', () => {
     const backendsById = new Map([['backend-a', makeBackend('backend-a', 'Fast NVMe')]]);
 
     renderWithProviders(
@@ -33,10 +30,8 @@ describe('StorageTierBackendAssociationsTable', () => {
     );
 
     expect(screen.getByText('Fast NVMe')).toBeInTheDocument();
-    expect(screen.getByText('NFS')).toBeInTheDocument();
     expect(screen.getByText('100 MB/s')).toBeInTheDocument();
     expect(screen.getByText('80 MB/s')).toBeInTheDocument();
-    expect(screen.getByText('500 GiB')).toBeInTheDocument();
     expect(screen.getByText('Yes')).toBeInTheDocument();
   });
 
@@ -62,17 +57,6 @@ describe('StorageTierBackendAssociationsTable', () => {
     expect(screen.getByText('No')).toBeInTheDocument();
   });
 
-  it('renders the Block protocol label', () => {
-    renderWithProviders(
-      <StorageTierBackendAssociationsTable
-        backends={[makeAssociation({ protocol: StorageProtocol.BLOCK })]}
-        backendsById={new Map()}
-      />,
-    );
-
-    expect(screen.getByText('Block')).toBeInTheDocument();
-  });
-
   it('renders multiple rows for multiple backend associations', () => {
     const backendsById = new Map([
       ['backend-a', makeBackend('backend-a', 'Fast NVMe')],
@@ -83,7 +67,7 @@ describe('StorageTierBackendAssociationsTable', () => {
       <StorageTierBackendAssociationsTable
         backends={[
           makeAssociation({ backendId: 'backend-a' }),
-          makeAssociation({ backendId: 'backend-b', protocol: StorageProtocol.BLOCK }),
+          makeAssociation({ backendId: 'backend-b' }),
         ]}
         backendsById={backendsById}
       />,

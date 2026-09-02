@@ -22,14 +22,16 @@ const tier: StorageTier = {
   metadata: { name: 'fast' },
   spec: {
     description: 'Fast tier for latency-sensitive workloads',
+    protocol: StorageProtocol.NFS,
+    maxReadBandwidthMbs: 100,
+    maxWriteBandwidthMbs: 80,
+    encryptionEnabled: true,
     backends: [
       {
         backendId: 'backend-a',
-        protocol: StorageProtocol.NFS,
-        maxReadBandwidthMbs: 100,
-        maxWriteBandwidthMbs: 80,
-        quotaGib: 500n,
-        encryptionEnabled: true,
+        maxReadBandwidthMbs: 90,
+        maxWriteBandwidthMbs: 70,
+        encryptionEnabled: false,
       },
     ],
   },
@@ -91,8 +93,10 @@ describe('StorageTierDetailsPage', () => {
     expect(screen.getByText('NFS')).toBeInTheDocument();
     expect(screen.getByText('100 MB/s')).toBeInTheDocument();
     expect(screen.getByText('80 MB/s')).toBeInTheDocument();
-    expect(screen.getByText('500 GiB')).toBeInTheDocument();
     expect(screen.getByText('Yes')).toBeInTheDocument();
+    expect(screen.getByText('90 MB/s')).toBeInTheDocument();
+    expect(screen.getByText('70 MB/s')).toBeInTheDocument();
+    expect(screen.getByText('No')).toBeInTheDocument();
   });
 
   it('shows the status message when present', async () => {
@@ -108,7 +112,7 @@ describe('StorageTierDetailsPage', () => {
     });
   });
 
-  it('omits the description field when the tier has none', async () => {
+  it('shows a dash for the description field when the tier has none', async () => {
     renderAt('/admin/infrastructure/storage/tiers/tier-1', {
       storageTiers: [{ ...tier, spec: { ...tier.spec, description: '' } } as StorageTier],
       storageBackends: [backendA],
@@ -117,7 +121,8 @@ describe('StorageTierDetailsPage', () => {
     await waitFor(() => {
       expect(screen.getByRole('heading', { name: 'fast' })).toBeInTheDocument();
     });
-    expect(screen.queryByText('Description')).not.toBeInTheDocument();
+    expect(screen.getByText('Description')).toBeInTheDocument();
+    expect(screen.getByText('—')).toBeInTheDocument();
   });
 
   it('falls back to the raw backend id when resolution fails', async () => {

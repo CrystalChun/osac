@@ -104,13 +104,15 @@ describe('StorageRoutes', () => {
       metadata: { name: 'fast-tier', version: 1 },
       spec: {
         description: '',
+        protocol: StorageProtocol.NFS,
+        maxReadBandwidthMbs: 100,
+        maxWriteBandwidthMbs: 100,
+        encryptionEnabled: false,
         backends: [
           {
             backendId: 'backend-1',
-            protocol: StorageProtocol.NFS,
             maxReadBandwidthMbs: 100,
             maxWriteBandwidthMbs: 100,
-            quotaGib: 500n,
             encryptionEnabled: false,
           },
         ],
@@ -131,13 +133,15 @@ describe('StorageRoutes', () => {
       metadata: { name: 'fast-tier', version: 1 },
       spec: {
         description: '',
+        protocol: StorageProtocol.NFS,
+        maxReadBandwidthMbs: 100,
+        maxWriteBandwidthMbs: 100,
+        encryptionEnabled: false,
         backends: [
           {
             backendId: 'backend-1',
-            protocol: StorageProtocol.NFS,
             maxReadBandwidthMbs: 100,
             maxWriteBandwidthMbs: 100,
-            quotaGib: 500n,
             encryptionEnabled: false,
           },
         ],

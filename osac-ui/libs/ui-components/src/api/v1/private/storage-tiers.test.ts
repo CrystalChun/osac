@@ -31,13 +31,15 @@ const makeStorageTier = (id: string, state: StorageTierState = StorageTierState.
     metadata: { name: `tier-${id}` },
     spec: {
       description: '',
+      protocol: StorageProtocol.NFS,
+      maxReadBandwidthMbs: 100,
+      maxWriteBandwidthMbs: 100,
+      encryptionEnabled: false,
       backends: [
         {
           backendId: 'b-1',
-          protocol: StorageProtocol.NFS,
           maxReadBandwidthMbs: 100,
           maxWriteBandwidthMbs: 100,
-          quotaGib: 500n,
           encryptionEnabled: false,
         },
       ],
@@ -150,13 +152,15 @@ describe('useCreateStorageTier', () => {
         metadata: { name: 'tier-1' },
         spec: {
           description: 'fast tier',
+          protocol: StorageProtocol.NFS,
+          maxReadBandwidthMbs: 100,
+          maxWriteBandwidthMbs: 100,
+          encryptionEnabled: false,
           backends: [
             {
               backendId: 'b-1',
-              protocol: StorageProtocol.NFS,
               maxReadBandwidthMbs: 100,
               maxWriteBandwidthMbs: 100,
-              quotaGib: 500n,
               encryptionEnabled: false,
             },
           ],
@@ -170,7 +174,8 @@ describe('useCreateStorageTier', () => {
       metadata: { name: 'tier-1' },
       spec: {
         description: 'fast tier',
-        backends: [{ backendId: 'b-1', protocol: StorageProtocol.NFS }],
+        protocol: StorageProtocol.NFS,
+        backends: [{ backendId: 'b-1' }],
       },
     });
   });
@@ -223,10 +228,8 @@ describe('useUpdateStorageTier', () => {
     const backends = [
       {
         backendId: 'b-2',
-        protocol: StorageProtocol.BLOCK,
         maxReadBandwidthMbs: 200,
         maxWriteBandwidthMbs: 200,
-        quotaGib: 1000n,
         encryptionEnabled: true,
       },
     ];
@@ -252,10 +255,8 @@ describe('useUpdateStorageTier', () => {
         backends: [
           {
             backendId: 'b-1',
-            protocol: StorageProtocol.NFS,
             maxReadBandwidthMbs: 100,
             maxWriteBandwidthMbs: 100,
-            quotaGib: 500n,
             encryptionEnabled: false,
           },
         ],
