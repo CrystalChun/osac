@@ -103,6 +103,23 @@ describe('ExternalIpPoolsListPage', () => {
     expect(screen.getByText('2001:db8::/64')).toBeInTheDocument();
   });
 
+  it('shows a single CIDR inline and summarizes multiple CIDRs by count', async () => {
+    renderPage([
+      makePool('p-1', 'prod-v4', IPFamily.IP_FAMILY_IPV4, ['192.168.1.0/24']),
+      makePool('p-3', 'multi', IPFamily.IP_FAMILY_IPV4, [
+        '192.168.1.0/24',
+        '10.0.5.0/28',
+        '172.16.0.0/24',
+      ]),
+    ]);
+
+    await waitFor(() => {
+      expect(screen.getByText('192.168.1.0/24')).toBeInTheDocument();
+    });
+    expect(screen.getByText('3 CIDRs')).toBeInTheDocument();
+    expect(screen.queryByText('10.0.5.0/28')).not.toBeInTheDocument();
+  });
+
   it('renders status labels for each pool', async () => {
     renderPage();
 

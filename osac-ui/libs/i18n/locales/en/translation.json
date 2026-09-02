@@ -1,4 +1,6 @@
 {
+  "{{count}} CIDRs_one": "{{count}} CIDR",
+  "{{count}} CIDRs_other": "{{count}} CIDRs",
   "{{count}} user_one": "{{count}} user",
   "{{count}} user_other": "{{count}} users",
   "{{label}} key {{number}}": "{{label}} key {{number}}",

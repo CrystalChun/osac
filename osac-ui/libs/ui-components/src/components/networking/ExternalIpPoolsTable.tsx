@@ -28,6 +28,17 @@ const formatCapacity = (status?: ExternalIPPoolStatus): string =>
 export const ExternalIpPoolsTable = ({ pools }: ExternalIpPoolsTableProps) => {
   const { t } = useTranslation();
 
+  // Show the single CIDR inline; collapse multiple into a "<n> CIDRs" summary.
+  const formatCidrs = (cidrs?: string[]): string => {
+    if (!cidrs || cidrs.length === 0) {
+      return '—';
+    }
+    if (cidrs.length === 1) {
+      return cidrs[0];
+    }
+    return t('{{count}} CIDRs', { count: cidrs.length });
+  };
+
   return (
     <Table aria-label={t('External IP pools')} variant="compact">
       <Thead>
@@ -48,7 +59,7 @@ export const ExternalIpPoolsTable = ({ pools }: ExternalIpPoolsTableProps) => {
               <ExternalIpPoolStatusLabel state={pool.status?.state} />
             </Td>
             <Td dataLabel={t('IP family')}>{ipFamilyLabel(pool.spec?.ipFamily)}</Td>
-            <Td dataLabel={t('CIDRs')}>{pool.spec?.cidrs.join(', ')}</Td>
+            <Td dataLabel={t('CIDRs')}>{formatCidrs(pool.spec?.cidrs)}</Td>
             <Td dataLabel={t('Available / Total')}>{formatCapacity(pool.status)}</Td>
             <Td dataLabel={t('Actions')} isActionCell>
               <ExternalIpPoolActionsMenu pool={pool} />
