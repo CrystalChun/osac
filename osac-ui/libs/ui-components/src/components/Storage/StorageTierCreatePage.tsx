@@ -43,7 +43,6 @@ import { SelectField, type SelectFieldOption } from '../Form/SelectField';
 import ListPageBody from '../Page/ListPageBody';
 
 const TIERS_LIST_PATH = '/admin/infrastructure/storage/tiers';
-const INT32_MAX = 2147483647;
 
 const PROTOCOL_BY_VALUE: Record<'NFS' | 'BLOCK', StorageProtocol> = {
   NFS: StorageProtocol.NFS,
@@ -99,8 +98,8 @@ const getStorageTierSchema = (t: TFunction) =>
     protocol: Yup.string()
       .oneOf(['NFS', 'BLOCK'], t('Protocol is required'))
       .required(t('Protocol is required')),
-    maxReadBandwidthMbs: positiveIntegerSchema(t, INT32_MAX),
-    maxWriteBandwidthMbs: positiveIntegerSchema(t, INT32_MAX),
+    maxReadBandwidthMbs: positiveIntegerSchema(t).required(t('Max read bandwidth is required')),
+    maxWriteBandwidthMbs: positiveIntegerSchema(t).required(t('Max write bandwidth is required')),
     encryptionEnabled: Yup.boolean().required(),
   });
 

@@ -73,7 +73,7 @@ describe('InstanceTypeCreateForm', () => {
   });
 
   it.each([
-    ['blank', '', 'This field is required'],
+    ['blank', '', 'Cores are required'],
     ['decimal', '1.5', 'Must be a whole number'],
     ['zero', '0', 'Must be greater than zero'],
     ['negative', '-1', 'Must be greater than zero'],
@@ -95,7 +95,7 @@ describe('InstanceTypeCreateForm', () => {
   });
 
   it.each([
-    ['blank', '', 'This field is required'],
+    ['blank', '', 'Memory is required'],
     ['decimal', '1.5', 'Must be a whole number'],
     ['zero', '0', 'Must be greater than zero'],
     ['negative', '-1', 'Must be greater than zero'],

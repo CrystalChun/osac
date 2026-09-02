@@ -6,8 +6,6 @@ import { resourceNameSchema } from '@osac/ui-components/validation/resource-name
 
 import type { InstanceTypeCreateFormValues } from './values';
 
-const MAX_INT32 = 2147483647;
-
 const requiredForGpu = (t: TFunction) => t('Required when configuring a GPU');
 
 export const getInstanceTypeCreateSchema = (t: TFunction) =>
@@ -17,8 +15,8 @@ export const getInstanceTypeCreateSchema = (t: TFunction) =>
     }),
     spec: Yup.object({
       description: Yup.string(),
-      cores: positiveIntegerSchema(t, MAX_INT32),
-      memoryGib: positiveIntegerSchema(t, MAX_INT32),
+      cores: positiveIntegerSchema(t).required(t('Cores are required')),
+      memoryGib: positiveIntegerSchema(t).required(t('Memory is required')),
       gpu: Yup.lazy((gpu: InstanceTypeCreateFormValues['spec']['gpu'] | undefined) => {
         const anyProvided = !!gpu?.pciDeviceSelector || !!gpu?.resourceName || !!gpu?.count;
 
@@ -30,7 +28,7 @@ export const getInstanceTypeCreateSchema = (t: TFunction) =>
           pciDeviceSelector: Yup.string().required(requiredForGpu(t)),
           resourceName: Yup.string().required(requiredForGpu(t)),
           // No GPU-specific upper bound here; the backend enforces count <= 16.
-          count: positiveIntegerSchema(t, MAX_INT32).required(requiredForGpu(t)),
+          count: positiveIntegerSchema(t).required(requiredForGpu(t)),
         });
       }),
     }),

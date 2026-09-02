@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Bullseye,
   EmptyState,
@@ -32,6 +33,7 @@ const AdminBareMetalInstanceTypeTable = ({
   bareMetalInstanceTypes,
 }: AdminBareMetalInstanceTypeTableProps) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [deleteTarget, setDeleteTarget] = useState<PrivateBareMetalInstanceType>();
   const deleteBareMetalInstanceType = useDeleteBareMetalInstanceType();
 
@@ -102,6 +104,13 @@ const AdminBareMetalInstanceTypeTable = ({
                   <Td dataLabel={t('Actions')} isActionCell>
                     <ActionsColumn
                       items={[
+                        {
+                          title: t('Edit'),
+                          onClick: () =>
+                            navigate(
+                              `/admin/infrastructure/baremetal-instance-types/${bareMetalInstanceType.id}/edit`,
+                            ),
+                        },
                         {
                           title: t('Delete'),
                           onClick: () => setDeleteTarget(bareMetalInstanceType),

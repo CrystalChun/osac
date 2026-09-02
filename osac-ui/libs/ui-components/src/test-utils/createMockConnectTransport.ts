@@ -68,8 +68,13 @@ import {
   VirtualNetworks,
 } from '@osac/types';
 import type {
+  BareMetalInstanceTypesCreateRequest,
+  BareMetalInstanceTypesCreateResponse,
   BareMetalInstanceTypesDeleteRequest,
+  BareMetalInstanceTypesGetRequest,
   BareMetalInstanceTypesListRequest,
+  BareMetalInstanceTypesUpdateRequest,
+  BareMetalInstanceTypesUpdateResponse,
   InstanceTypesCreateRequest,
   InstanceTypesCreateResponse,
   InstanceTypesDeleteRequest,
@@ -99,8 +104,10 @@ import type {
   TenantsCreateResponse,
 } from '@osac/types/private';
 import {
+  BareMetalInstanceTypesCreateResponseSchema,
   BareMetalInstanceTypesDeleteResponseSchema,
   BareMetalInstanceTypesListResponseSchema,
+  BareMetalInstanceTypesUpdateResponseSchema,
   BareMetalInstanceTypes as PrivateBareMetalInstanceTypes,
   InstanceTypes as PrivateInstanceTypes,
   Tenants as PrivateTenants,
@@ -302,6 +309,19 @@ export type MockTransportOverrides = {
   onBaremetalInstanceTypeList?: (
     req: BareMetalInstanceTypesListRequest,
   ) => MessageInitShape<typeof BareMetalInstanceTypesListResponseSchema>;
+  onBaremetalInstanceTypeGet?: (req: BareMetalInstanceTypesGetRequest) => {
+    object?: PrivateBareMetalInstanceType;
+  };
+  onBaremetalInstanceTypeCreate?: (
+    req: BareMetalInstanceTypesCreateRequest,
+  ) =>
+    | MessageInitShape<typeof BareMetalInstanceTypesCreateResponseSchema>
+    | BareMetalInstanceTypesCreateResponse;
+  onBaremetalInstanceTypeUpdate?: (
+    req: BareMetalInstanceTypesUpdateRequest,
+  ) =>
+    | MessageInitShape<typeof BareMetalInstanceTypesUpdateResponseSchema>
+    | BareMetalInstanceTypesUpdateResponse;
   onBaremetalInstanceTypeDelete?: (
     req: BareMetalInstanceTypesDeleteRequest,
   ) => MessageInitShape<typeof BareMetalInstanceTypesDeleteResponseSchema>;
@@ -673,9 +693,24 @@ export const createMockConnectTransport = (
             total: privateBaremetalInstanceTypes.length,
           };
         },
-        get: (req) => ({
-          object: privateBaremetalInstanceTypes.find((item) => item.id === req.id),
-        }),
+        get: (req) => {
+          if (overrides.onBaremetalInstanceTypeGet) {
+            return overrides.onBaremetalInstanceTypeGet(req);
+          }
+          return { object: privateBaremetalInstanceTypes.find((item) => item.id === req.id) };
+        },
+        create: (req) => {
+          if (overrides.onBaremetalInstanceTypeCreate) {
+            return overrides.onBaremetalInstanceTypeCreate(req);
+          }
+          return { object: { id: 'new-baremetal-instance-type-1', ...req.object } };
+        },
+        update: (req) => {
+          if (overrides.onBaremetalInstanceTypeUpdate) {
+            return overrides.onBaremetalInstanceTypeUpdate(req);
+          }
+          return { object: req.object };
+        },
         delete: (req) => {
           if (overrides.onBaremetalInstanceTypeDelete) {
             return overrides.onBaremetalInstanceTypeDelete(req);

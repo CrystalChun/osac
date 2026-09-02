@@ -94,7 +94,7 @@ export const OSACWizardFooter = ({
   return (
     <WizardFooterWrapper>
       <Stack hasGutter>
-        {validationAlert ? (
+        {validationAlert && (
           <StackItem>
             <Alert
               variant="danger"
@@ -102,8 +102,8 @@ export const OSACWizardFooter = ({
               title={t('Fix the highlighted errors before continuing.')}
             />
           </StackItem>
-        ) : null}
-        {error ? (
+        )}
+        {!!error && isLast && (
           <StackItem>
             <Alert
               variant="danger"
@@ -113,7 +113,7 @@ export const OSACWizardFooter = ({
               {getErrorMessage(error)}
             </Alert>
           </StackItem>
-        ) : null}
+        )}
         <StackItem>
           <ActionList>
             <ActionListGroup>
