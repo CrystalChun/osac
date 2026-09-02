@@ -35,6 +35,15 @@ if (parsedBaseURL.username || parsedBaseURL.password) {
 const scratchDir = path.join(path.dirname(fileURLToPath(import.meta.url)), 'scratch');
 fs.mkdirSync(scratchDir, { recursive: true });
 
+// Video recording is opt-in via PW_VIDEO=on (default off) — handy for debugging
+// a flow by watching the recording afterwards. PW_SLOW_MO adds a per-action
+// delay in ms (e.g. PW_SLOW_MO=500) so the recording plays at human speed
+// instead of instant fills/clicks. Note: enabling video also records the setup
+// project, which types the real Keycloak password — leave PW_VIDEO off unless
+// you're deliberately debugging the login flow.
+const video = process.env.PW_VIDEO === 'on' ? 'on' : 'off';
+const slowMo = Number(process.env.PW_SLOW_MO) || 0;
+
 export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
@@ -46,6 +55,8 @@ export default defineConfig({
   use: {
     baseURL,
     trace: 'on-first-retry',
+    video,
+    launchOptions: { slowMo },
     // Dev/lab cluster routes commonly present a self-signed or cluster-internal
     // CA cert that Chromium doesn't trust by default (the same reason manual
     // testing against these environments always needs curl -k). Opt-in only —
