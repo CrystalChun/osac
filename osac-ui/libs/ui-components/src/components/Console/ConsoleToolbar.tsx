@@ -1,9 +1,19 @@
-import { Button, Toolbar, ToolbarContent, ToolbarItem } from '@patternfly/react-core';
+import { useState } from 'react';
+import {
+  Button,
+  MenuToggle,
+  Select,
+  SelectList,
+  SelectOption,
+  Toolbar,
+  ToolbarContent,
+  ToolbarItem,
+} from '@patternfly/react-core';
 import CompressIcon from '@patternfly/react-icons/dist/esm/icons/compress-icon';
 import ExpandIcon from '@patternfly/react-icons/dist/esm/icons/expand-icon';
 import PasteIcon from '@patternfly/react-icons/dist/esm/icons/paste-icon';
 
-import type { ConsoleUiConnectionState } from './console.types';
+import type { ConsoleTransport, ConsoleUiConnectionState } from './console.types';
 import { useTranslation } from '../../hooks/useTranslation';
 
 interface Props {
@@ -11,16 +21,66 @@ interface Props {
   isFullscreen: boolean;
   onPaste?: () => void;
   onToggleFullscreen: () => void;
+  consoleTransport: ConsoleTransport;
+  onConsoleTransportChange: (transport: ConsoleTransport) => void;
 }
 
-const ConsoleToolbar = ({ connectionState, isFullscreen, onPaste, onToggleFullscreen }: Props) => {
+const ConsoleToolbar = ({
+  connectionState,
+  isFullscreen,
+  onPaste,
+  onToggleFullscreen,
+  consoleTransport,
+  onConsoleTransportChange,
+}: Props) => {
   const { t } = useTranslation();
   const isConnected = connectionState === 'connected';
   const fullscreenDisabled = !isConnected;
 
+  const [isTransportOpen, setIsTransportOpen] = useState(false);
+  // SelectOption values are ConsoleTransport strings, so onSelect passes the choice through.
+  const transportLabels: Record<ConsoleTransport, string> = {
+    vnc: t('Graphical (VNC)'),
+    serial: t('Serial'),
+  };
+
   return (
     <Toolbar>
       <ToolbarContent>
+        <ToolbarItem>
+          <Select
+            isOpen={isTransportOpen}
+            selected={consoleTransport}
+            onOpenChange={setIsTransportOpen}
+            onSelect={(_event, value) => {
+              setIsTransportOpen(false);
+              const transport = String(value);
+              if (transport === 'vnc' || transport === 'serial') {
+                onConsoleTransportChange(transport);
+              }
+            }}
+            toggle={(toggleRef) => (
+              <MenuToggle
+                ref={toggleRef}
+                aria-label={t('Select console type')}
+                isExpanded={isTransportOpen}
+                onClick={() => setIsTransportOpen((open) => !open)}
+              >
+                {transportLabels[consoleTransport]}
+              </MenuToggle>
+            )}
+            shouldFocusToggleOnSelect
+          >
+            <SelectList>
+              <SelectOption value="vnc" isSelected={consoleTransport === 'vnc'}>
+                {transportLabels.vnc}
+              </SelectOption>
+              <SelectOption value="serial" isSelected={consoleTransport === 'serial'}>
+                {transportLabels.serial}
+              </SelectOption>
+            </SelectList>
+          </Select>
+        </ToolbarItem>
         <ToolbarItem>
           <Button
             variant="secondary"
