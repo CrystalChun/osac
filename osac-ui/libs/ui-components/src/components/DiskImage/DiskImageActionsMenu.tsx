@@ -23,6 +23,10 @@ const DiskImageActionsMenu = ({ diskImage }: DiskImageActionsMenuProps) => {
     diskImage.spec?.lifecycle,
   );
 
+  if (!canDeprecate && !canObsolete && !canReactivate) {
+    return null;
+  }
+
   const name = diskImage.metadata?.name || diskImage.id;
 
   return (

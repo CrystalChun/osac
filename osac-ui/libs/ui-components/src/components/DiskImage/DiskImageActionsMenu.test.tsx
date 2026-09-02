@@ -11,6 +11,7 @@ import {
 } from '@osac/types';
 
 import DiskImageActionsMenu from './DiskImageActionsMenu';
+import DiskImageLifecycleLabel from './DiskImageLifecycleLabel';
 import { renderWithProviders } from '../../test-utils/TestProviders';
 
 const makeDiskImage = (lifecycle: DiskImageLifecycle): DiskImage =>
@@ -58,14 +59,10 @@ describe('DiskImageActionsMenu', () => {
     expect(screen.queryByRole('menuitem', { name: 'Delete' })).not.toBeInTheDocument();
   });
 
-  it('exposes no lifecycle actions for an unspecified lifecycle', async () => {
-    const { user } = renderMenu(makeDiskImage(DiskImageLifecycle.UNSPECIFIED));
-    await openMenu(user);
+  it('renders nothing for an unspecified lifecycle (no actions available)', () => {
+    renderMenu(makeDiskImage(DiskImageLifecycle.UNSPECIFIED));
 
-    expect(screen.queryByRole('menuitem', { name: 'Deprecate' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('menuitem', { name: 'Obsolete' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('menuitem', { name: 'Reactivate' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('menuitem', { name: 'Delete' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Actions for fedora-41' })).not.toBeInTheDocument();
   });
 
   it('sends a spec.lifecycle update targeting DEPRECATED when Deprecate is clicked', async () => {
@@ -90,18 +87,27 @@ describe('DiskImageActionsMenu', () => {
   });
 
   it('shows a toast with the deprecate failure title and backend message when the update fails, and leaves the lifecycle unchanged', async () => {
-    const { user } = renderMenu(makeDiskImage(DiskImageLifecycle.AVAILABLE), {
-      transportOverrides: {
-        onDiskImageUpdate: () => {
-          throw new ConnectError('image is referenced', Code.FailedPrecondition);
+    const diskImage = makeDiskImage(DiskImageLifecycle.AVAILABLE);
+    const { user } = renderWithProviders(
+      <>
+        <DiskImageLifecycleLabel lifecycle={diskImage.spec?.lifecycle} />
+        <DiskImageActionsMenu diskImage={diskImage} />
+      </>,
+      {
+        transportOverrides: {
+          onDiskImageUpdate: () => {
+            throw new ConnectError('image is referenced', Code.FailedPrecondition);
+          },
         },
       },
-    });
+    );
     await openMenu(user);
     await user.click(screen.getByRole('menuitem', { name: 'Deprecate' }));
 
     expect(await screen.findByText('Failed to deprecate disk image')).toBeInTheDocument();
     expect(screen.getByText('image is referenced')).toBeInTheDocument();
+    expect(screen.getByText('Available')).toBeInTheDocument();
+    expect(screen.queryByText('Deprecated')).not.toBeInTheDocument();
   });
 
   it('shows a toast with the obsolete failure title when the obsolete update fails', async () => {
