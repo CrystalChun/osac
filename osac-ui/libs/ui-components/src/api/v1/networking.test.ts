@@ -12,6 +12,7 @@ import {
   securityGroupFilterForVirtualNetwork,
   securityGroupFilterForVirtualNetworkList,
   virtualNetworkFilterForSubnetList,
+  virtualNetworkScopeFilter,
 } from './networking';
 
 describe('networking list filters', () => {
@@ -44,6 +45,16 @@ describe('networking list filters', () => {
   it('escapes CEL injection characters in virtual network id when building subnet filter', () => {
     expect(virtualNetworkFilterForSubnetList(`"'] || true || this.id in ['`)).toBe(
       `(this.spec.virtual_network.id == "\\"'] || true || this.id in ['") && (this.status.state == ${SubnetState.READY})`,
+    );
+  });
+
+  it('scopes to the virtual network without a ready-state filter', () => {
+    expect(virtualNetworkScopeFilter('vn-1')).toBe('this.spec.virtual_network.id == "vn-1"');
+  });
+
+  it('escapes CEL injection in virtual network id for the scope-only filter', () => {
+    expect(virtualNetworkScopeFilter(`"'] || true || this.id in ['`)).toBe(
+      `this.spec.virtual_network.id == "\\"'] || true || this.id in ['"`,
     );
   });
 
