@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
 import type { ExternalIPPool, ExternalIPPoolStatus } from '@osac/types/private';
@@ -11,7 +12,7 @@ interface ExternalIpPoolsTableProps {
   pools: ExternalIPPool[];
 }
 
-const ipFamilyLabel = (ipFamily?: IPFamily): string => {
+export const ipFamilyLabel = (ipFamily?: IPFamily): string => {
   switch (ipFamily) {
     case IPFamily.IP_FAMILY_IPV4:
       return 'IPv4';
@@ -54,7 +55,11 @@ export const ExternalIpPoolsTable = ({ pools }: ExternalIpPoolsTableProps) => {
       <Tbody>
         {pools.map((pool) => (
           <Tr key={pool.id}>
-            <Td dataLabel={t('Name')}>{pool.metadata?.name}</Td>
+            <Td dataLabel={t('Name')}>
+              <Link to={`/admin/infrastructure/external-ip-pools/${pool.id}`}>
+                {pool.metadata?.name}
+              </Link>
+            </Td>
             <Td dataLabel={t('Status')}>
               <ExternalIpPoolStatusLabel state={pool.status?.state} />
             </Td>

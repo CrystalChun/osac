@@ -10,6 +10,10 @@ vi.mock('@osac/ui-components/pages/admin/ExternalIpPoolFormPage', () => ({
   ExternalIpPoolFormPage: () => <h1>External IP pool form</h1>,
 }));
 
+vi.mock('@osac/ui-components/pages/admin/ExternalIpPoolDetailsPage', () => ({
+  ExternalIpPoolDetailsPage: () => <h1>External IP pool details</h1>,
+}));
+
 import { ExternalIpPoolRoutes } from './ExternalIpPoolRoutes';
 
 const renderRoutes = (initialEntry: string) => (
@@ -37,5 +41,11 @@ describe('ExternalIpPoolRoutes', () => {
     render(renderRoutes('/admin/infrastructure/external-ip-pools/p-1/edit'));
 
     expect(screen.getByRole('heading', { name: 'External IP pool form' })).toBeInTheDocument();
+  });
+
+  it('renders the details page on the id route', () => {
+    render(renderRoutes('/admin/infrastructure/external-ip-pools/p-1'));
+
+    expect(screen.getByRole('heading', { name: 'External IP pool details' })).toBeInTheDocument();
   });
 });
