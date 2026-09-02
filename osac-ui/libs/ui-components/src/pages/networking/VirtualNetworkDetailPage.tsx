@@ -20,11 +20,10 @@ import { VirtualNetworkState } from '@osac/types';
 import ResourceNameField from '@osac/ui-components/components/Resource/ResourceNameField.tsx';
 
 import {
-  securityGroupFilterForVirtualNetwork,
   useSecurityGroups,
   useSubnets,
   useVirtualNetwork,
-  virtualNetworkFilterForSubnetList,
+  virtualNetworkScopeFilter,
 } from '../../api/v1/networking';
 import { SecurityGroupCreateModal } from '../../components/networking/SecurityGroupCreateModal';
 import { SecurityGroupStatusLabel } from '../../components/networking/SecurityGroupStatusLabel';
@@ -50,14 +49,14 @@ export const VirtualNetworkDetailPage = () => {
     isLoading: isLoadingSubnets,
     error: subnetsError,
   } = useSubnets({
-    filter: virtualNetworkFilterForSubnetList(id),
+    filter: virtualNetworkScopeFilter(id),
   });
   const {
     data: securityGroups = [],
     isLoading: isLoadingSecurityGroups,
     error: securityGroupsError,
   } = useSecurityGroups({
-    filter: securityGroupFilterForVirtualNetwork(id),
+    filter: virtualNetworkScopeFilter(id),
   });
 
   const vnName = vn?.metadata?.name ?? id;
