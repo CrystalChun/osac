@@ -68,6 +68,15 @@ describe('ExternalIpPoolsListPage', () => {
     mockNavigate.mockReset();
   });
 
+  it('renders the page header', () => {
+    renderPage();
+
+    expect(screen.getByRole('heading', { name: 'External IP pools' })).toBeInTheDocument();
+    expect(
+      screen.getByText('Manage external IP address pools for this cloud platform.'),
+    ).toBeInTheDocument();
+  });
+
   it('renders column headers', async () => {
     renderPage();
 

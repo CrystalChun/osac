@@ -432,6 +432,7 @@
   "Logout failed": "Logout failed",
   "Logout URL": "Logout URL",
   "Manage disk images available for provisioning virtual machines.": "Manage disk images available for provisioning virtual machines.",
+  "Manage external IP address pools for this cloud platform.": "Manage external IP address pools for this cloud platform.",
   "Manage firewall rules for your virtual networks.": "Manage firewall rules for your virtual networks.",
   "Manage identity providers for your tenant.": "Manage identity providers for your tenant.",
   "Manage provider-defined bare metal instance types for this cloud platform.": "Manage provider-defined bare metal instance types for this cloud platform.",
