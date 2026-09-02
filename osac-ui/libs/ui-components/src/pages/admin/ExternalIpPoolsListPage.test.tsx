@@ -83,10 +83,10 @@ describe('ExternalIpPoolsListPage', () => {
     await waitFor(() => {
       expect(screen.getByRole('columnheader', { name: 'Name' })).toBeInTheDocument();
     });
+    expect(screen.getByRole('columnheader', { name: 'Status' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: 'IP family' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: 'CIDRs' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: 'Available / Total' })).toBeInTheDocument();
-    expect(screen.getByRole('columnheader', { name: 'State' })).toBeInTheDocument();
   });
 
   it('renders a row per pool with name, IP family, CIDRs and capacity', async () => {

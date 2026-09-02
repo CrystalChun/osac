@@ -33,10 +33,10 @@ export const ExternalIpPoolsTable = ({ pools }: ExternalIpPoolsTableProps) => {
       <Thead>
         <Tr>
           <Th>{t('Name')}</Th>
+          <Th>{t('Status')}</Th>
           <Th>{t('IP family')}</Th>
           <Th>{t('CIDRs')}</Th>
           <Th>{t('Available / Total')}</Th>
-          <Th>{t('State')}</Th>
           <Th aria-label={t('Actions')} />
         </Tr>
       </Thead>
@@ -44,12 +44,12 @@ export const ExternalIpPoolsTable = ({ pools }: ExternalIpPoolsTableProps) => {
         {pools.map((pool) => (
           <Tr key={pool.id}>
             <Td dataLabel={t('Name')}>{pool.metadata?.name}</Td>
+            <Td dataLabel={t('Status')}>
+              <ExternalIpPoolStatusLabel state={pool.status?.state} />
+            </Td>
             <Td dataLabel={t('IP family')}>{ipFamilyLabel(pool.spec?.ipFamily)}</Td>
             <Td dataLabel={t('CIDRs')}>{pool.spec?.cidrs.join(', ')}</Td>
             <Td dataLabel={t('Available / Total')}>{formatCapacity(pool.status)}</Td>
-            <Td dataLabel={t('State')}>
-              <ExternalIpPoolStatusLabel state={pool.status?.state} />
-            </Td>
             <Td dataLabel={t('Actions')} isActionCell>
               <ExternalIpPoolActionsMenu pool={pool} />
             </Td>
