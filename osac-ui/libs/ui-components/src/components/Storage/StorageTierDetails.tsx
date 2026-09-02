@@ -27,6 +27,7 @@ import {
   usePrivateStorageBackends,
 } from '../../api/v1/private/storage-backends';
 import { useTranslation } from '../../hooks/useTranslation';
+import { displayValue } from '../../utils/detailFormatters';
 import { getErrorMessage } from '../../utils/error';
 import { ResourceDetailHeader } from '../Resource/ResourceDetailHeader';
 
@@ -90,44 +91,38 @@ export const StorageTierDetails = ({ tier }: StorageTierDetailsProps) => {
                 <DescriptionListDescription>{tierName}</DescriptionListDescription>
               </DescriptionListGroup>
 
-              {tier.spec?.description && (
-                <DescriptionListGroup>
-                  <DescriptionListTerm>{t('Description')}</DescriptionListTerm>
-                  <DescriptionListDescription>{tier.spec.description}</DescriptionListDescription>
-                </DescriptionListGroup>
-              )}
+              <DescriptionListGroup>
+                <DescriptionListTerm>{t('Description')}</DescriptionListTerm>
+                <DescriptionListDescription>
+                  {displayValue(tier.spec?.description)}
+                </DescriptionListDescription>
+              </DescriptionListGroup>
 
-              {tier.spec?.protocol !== undefined && (
-                <DescriptionListGroup>
-                  <DescriptionListTerm>{t('Protocol')}</DescriptionListTerm>
-                  <DescriptionListDescription>
-                    {protocolLabels[tier.spec.protocol]}
-                  </DescriptionListDescription>
-                </DescriptionListGroup>
-              )}
+              <DescriptionListGroup>
+                <DescriptionListTerm>{t('Protocol')}</DescriptionListTerm>
+                <DescriptionListDescription>
+                  {tier.spec ? protocolLabels[tier.spec.protocol] : '—'}
+                </DescriptionListDescription>
+              </DescriptionListGroup>
 
-              {tier.spec && (
-                <>
-                  <DescriptionListGroup>
-                    <DescriptionListTerm>{t('Max read bandwidth')}</DescriptionListTerm>
-                    <DescriptionListDescription>
-                      {`${tier.spec.maxReadBandwidthMbs} MB/s`}
-                    </DescriptionListDescription>
-                  </DescriptionListGroup>
-                  <DescriptionListGroup>
-                    <DescriptionListTerm>{t('Max write bandwidth')}</DescriptionListTerm>
-                    <DescriptionListDescription>
-                      {`${tier.spec.maxWriteBandwidthMbs} MB/s`}
-                    </DescriptionListDescription>
-                  </DescriptionListGroup>
-                  <DescriptionListGroup>
-                    <DescriptionListTerm>{t('Encryption')}</DescriptionListTerm>
-                    <DescriptionListDescription>
-                      {tier.spec.encryptionEnabled ? t('Yes') : t('No')}
-                    </DescriptionListDescription>
-                  </DescriptionListGroup>
-                </>
-              )}
+              <DescriptionListGroup>
+                <DescriptionListTerm>{t('Max read bandwidth')}</DescriptionListTerm>
+                <DescriptionListDescription>
+                  {tier.spec ? `${tier.spec.maxReadBandwidthMbs} MB/s` : '—'}
+                </DescriptionListDescription>
+              </DescriptionListGroup>
+              <DescriptionListGroup>
+                <DescriptionListTerm>{t('Max write bandwidth')}</DescriptionListTerm>
+                <DescriptionListDescription>
+                  {tier.spec ? `${tier.spec.maxWriteBandwidthMbs} MB/s` : '—'}
+                </DescriptionListDescription>
+              </DescriptionListGroup>
+              <DescriptionListGroup>
+                <DescriptionListTerm>{t('Encryption')}</DescriptionListTerm>
+                <DescriptionListDescription>
+                  {tier.spec ? (tier.spec.encryptionEnabled ? t('Yes') : t('No')) : '—'}
+                </DescriptionListDescription>
+              </DescriptionListGroup>
 
               {tier.status?.message && (
                 <DescriptionListGroup>

@@ -112,7 +112,7 @@ describe('StorageTierDetailsPage', () => {
     });
   });
 
-  it('omits the description field when the tier has none', async () => {
+  it('shows a dash for the description field when the tier has none', async () => {
     renderAt('/admin/infrastructure/storage/tiers/tier-1', {
       storageTiers: [{ ...tier, spec: { ...tier.spec, description: '' } } as StorageTier],
       storageBackends: [backendA],
@@ -121,7 +121,8 @@ describe('StorageTierDetailsPage', () => {
     await waitFor(() => {
       expect(screen.getByRole('heading', { name: 'fast' })).toBeInTheDocument();
     });
-    expect(screen.queryByText('Description')).not.toBeInTheDocument();
+    expect(screen.getByText('Description')).toBeInTheDocument();
+    expect(screen.getByText('—')).toBeInTheDocument();
   });
 
   it('falls back to the raw backend id when resolution fails', async () => {
