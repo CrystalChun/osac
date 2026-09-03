@@ -72,6 +72,7 @@ const ConsoleToolbar = ({
             toggle={(toggleRef) => (
               <MenuToggle
                 ref={toggleRef}
+                variant="secondary"
                 aria-label={t('Select console type')}
                 isExpanded={isTransportOpen}
                 onClick={() => setIsTransportOpen((open) => !open)}
