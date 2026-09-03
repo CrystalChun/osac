@@ -2,18 +2,22 @@ import { MessageInitShape } from '@bufbuild/protobuf';
 import { useMutation } from '@tanstack/react-query';
 
 import {
+  type SecurityGroup,
   SecurityGroupSchema,
   SecurityGroupState,
   SecurityGroups,
+  type Subnet,
   SubnetSchema,
   SubnetState,
   Subnets,
+  type VirtualNetwork,
   VirtualNetworkSchema,
   VirtualNetworkState,
   VirtualNetworks,
 } from '@osac/types';
 
 import { useApiFetch } from '../api-context';
+import { cel } from '../cel';
 import { type ListParams, apiQueryKey } from '../types';
 import { type ApiQueryClient, useApiQuery, useApiQueryClient } from '../use-api-query';
 
@@ -59,32 +63,28 @@ export const useSecurityGroups = (
 
 // Scope + ready filter: use where only attachable subnets are valid (e.g. the VM
 // provisioning wizard). Not for the detail page — it hides non-ready subnets.
-export const virtualNetworkFilterForSubnetList = (virtualNetworkId: string): string =>
-  combineListFilters(virtualNetworkScopeFilter(virtualNetworkId), SUBNET_READY_LIST_FILTER);
+export const virtualNetworkFilterForSubnetList = (virtualNetworkId: string) =>
+  cel<Subnet>((filter) =>
+    filter.and(
+      filter.field('spec.virtualNetwork.id').equals(virtualNetworkId),
+      filter.field('status.state').equals(SubnetState.READY),
+    ),
+  );
 
-export const securityGroupFilterForVirtualNetworkList = (virtualNetworkId: string): string =>
-  combineListFilters(virtualNetworkScopeFilter(virtualNetworkId), SECURITY_GROUP_READY_LIST_FILTER);
+export const securityGroupFilterForVirtualNetworkList = (virtualNetworkId: string) =>
+  cel<SecurityGroup>((filter) =>
+    filter.and(
+      filter.field('spec.virtualNetwork.id').equals(virtualNetworkId),
+      filter.field('status.state').equals(SecurityGroupState.READY),
+    ),
+  );
 
-const readyStateFilter = (readyState: number): string => `this.status.state == ${readyState}`;
+export const VIRTUAL_NETWORK_READY_LIST_FILTER = cel<VirtualNetwork>((filter) =>
+  filter.field('status.state').equals(VirtualNetworkState.READY),
+);
 
-export const VIRTUAL_NETWORK_READY_LIST_FILTER = readyStateFilter(VirtualNetworkState.READY);
-
-export const SUBNET_READY_LIST_FILTER = readyStateFilter(SubnetState.READY);
-
-export const SECURITY_GROUP_READY_LIST_FILTER = readyStateFilter(SecurityGroupState.READY);
-
-const combineListFilters = (...parts: string[]): string => {
-  if (parts.length === 1) {
-    return parts[0];
-  }
-  return parts.map((part) => `(${part})`).join(' && ');
-};
-
-export const escapeCelStringLiteral = (value: string): string =>
-  value.replaceAll('\\', '\\\\').replaceAll('"', '\\"');
-
-export const virtualNetworkScopeFilter = (virtualNetworkId: string): string =>
-  `this.spec.virtual_network.id == "${escapeCelStringLiteral(virtualNetworkId)}"`;
+export const virtualNetworkScopeFilter = (virtualNetworkId: string) =>
+  cel<Subnet>((filter) => filter.field('spec.virtualNetwork.id').equals(virtualNetworkId));
 
 export const resourceDisplayName = (metadata?: { name?: string }, id?: string): string =>
   metadata?.name?.trim() || id || '—';
@@ -203,8 +203,8 @@ export const useDeleteSubnet = () => {
   });
 };
 
-export const securityGroupFilterForVirtualNetwork = (virtualNetworkId: string): string =>
-  `this.spec.virtual_network.id == "${escapeCelStringLiteral(virtualNetworkId)}"`;
+export const securityGroupFilterForVirtualNetwork = (virtualNetworkId: string) =>
+  cel<SecurityGroup>((filter) => filter.field('spec.virtualNetwork.id').equals(virtualNetworkId));
 
 export const useCreateSecurityGroup = () => {
   const client = useApiFetch(SecurityGroups);

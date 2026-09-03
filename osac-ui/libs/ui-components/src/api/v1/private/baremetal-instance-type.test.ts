@@ -19,6 +19,7 @@ import {
 } from './baremetal-instance-type';
 import { createMockConnectTransport } from '../../../test-utils/createMockConnectTransport';
 import { ApiProvider } from '../../api-context';
+import { cel } from '../../cel';
 
 const makeBareMetalInstanceType = (id: string): PrivateBareMetalInstanceType =>
   create(BareMetalInstanceTypeSchema, {
@@ -87,7 +88,12 @@ describe('useAdminBareMetalInstanceTypes', () => {
     );
     const { wrapper } = makeWrapper(transport);
     const { result } = renderHook(
-      () => useAdminBareMetalInstanceTypes({ filter: 'this.metadata.name == "gpu-1"' }),
+      () =>
+        useAdminBareMetalInstanceTypes({
+          filter: cel<PrivateBareMetalInstanceType>((filter) =>
+            filter.field('metadata.name').equals('gpu-1'),
+          ),
+        }),
       { wrapper },
     );
 

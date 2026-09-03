@@ -12,6 +12,8 @@ import {
 } from '@patternfly/react-core';
 import { useFormikContext } from 'formik';
 
+import { type SecurityGroup } from '@osac/types';
+import { cel } from '@osac/ui-components/api/cel';
 import { useInstanceType } from '@osac/ui-components/api/v1/instance-types';
 import {
   useSecurityGroups,
@@ -67,7 +69,9 @@ export const VmReviewStep = ({ catalogItem }: Props) => {
     isLoading: scLoading,
     error: scError,
   } = useSecurityGroups({
-    filter: `this.id in [${values.spec.networking.securityGroups.map((sc) => `"${sc}"`).join(',')}]`,
+    filter: cel<SecurityGroup>((filter) =>
+      filter.field('id').isIn(values.spec.networking.securityGroups),
+    ),
   });
 
   const {

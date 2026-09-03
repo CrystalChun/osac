@@ -4,6 +4,7 @@ import { useMutation } from '@tanstack/react-query';
 import { type Project, type ProjectSchema, Projects } from '@osac/types';
 
 import { useApiFetch } from '../api-context';
+import { cel } from '../cel';
 import { type ListParams, apiQueryKey } from '../types';
 import { type ApiQueryClient, useApiQuery, useApiQueryClient } from '../use-api-query';
 
@@ -12,7 +13,7 @@ const invalidateProjectQueries = (qc: ApiQueryClient) =>
 
 export const useProjects = (
   params: ListParams = {
-    filter: 'this.metadata.tenant != "shared"',
+    filter: cel<Project>((filter) => filter.field('metadata.tenant').notEquals('shared')),
   },
 ) => {
   const client = useApiFetch(Projects);
@@ -32,7 +33,7 @@ const ALL_PROJECTS_PAGE_SIZE = 100;
  */
 export const useAllProjects = (
   params: ListParams = {
-    filter: 'this.metadata.tenant != "shared"',
+    filter: cel<Project>((filter) => filter.field('metadata.tenant').notEquals('shared')),
   },
 ) => {
   const client = useApiFetch(Projects);

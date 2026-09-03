@@ -2,6 +2,7 @@ import { type MessageInitShape } from '@bufbuild/protobuf';
 import { useMutation } from '@tanstack/react-query';
 
 import {
+  type StorageTier,
   StorageTierSchema,
   StorageTierSpecSchema,
   StorageTierState,
@@ -9,13 +10,16 @@ import {
 } from '@osac/types/private';
 
 import { useApiFetch } from '../../api-context';
+import { cel } from '../../cel';
 import { type ListParams, apiQueryKey } from '../../types';
 import { type ApiQueryClient, useApiQuery, useApiQueryClient } from '../../use-api-query';
 import { buildUpdateMaskPaths } from '../update-mask';
 
 // Server-side CEL filter restricting the list to ACTIVE tiers. Enum fields compare
 // with `==` against the int literal (see cluster-versions.ts for the enum caveat).
-export const STORAGE_TIER_ACTIVE_LIST_FILTER = `this.status.state == ${StorageTierState.ACTIVE}`;
+export const STORAGE_TIER_ACTIVE_LIST_FILTER = cel<StorageTier>((filter) =>
+  filter.field('status.state').equals(StorageTierState.ACTIVE),
+);
 
 export const usePrivateStorageTiers = (params: ListParams = {}) => {
   const client = useApiFetch(StorageTiers);

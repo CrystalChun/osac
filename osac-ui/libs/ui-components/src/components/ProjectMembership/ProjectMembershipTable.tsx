@@ -13,7 +13,8 @@ import {
 import PlusCircleIcon from '@patternfly/react-icons/dist/esm/icons/plus-circle-icon';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
-import { Project } from '@osac/types';
+import { type Project, type ProjectMembership } from '@osac/types';
+import { cel } from '@osac/ui-components/api/cel';
 import { useProjectMemberships } from '@osac/ui-components/api/v1/project-membership';
 import ResourceNameField from '@osac/ui-components/components/Resource/ResourceNameField.tsx';
 import { useSession } from '@osac/ui-components/hooks/use-session';
@@ -31,7 +32,9 @@ const ProjectMembership = ({ project }: { project: Project }) => {
   const { role } = useSession();
   const { t } = useTranslation();
   const { data, isLoading, error } = useProjectMemberships({
-    filter: `this.metadata.project == "${getFullProjectPath(project)}"`,
+    filter: cel<ProjectMembership>((filter) =>
+      filter.field('metadata.project').equals(getFullProjectPath(project)),
+    ),
   });
 
   if (isLoading) {
