@@ -17,6 +17,7 @@ import {
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
 import { VirtualNetworkState } from '@osac/types';
+import CreateButton from '@osac/ui-components/components/Primitives/CreateButton.tsx';
 import ResourceNameField from '@osac/ui-components/components/Resource/ResourceNameField.tsx';
 
 import {
@@ -132,9 +133,9 @@ export const VirtualNetworkDetailPage = () => {
             <CardHeader
               actions={{
                 actions: (
-                  <Button variant="primary" onClick={() => setIsSubnetModalOpen(true)}>
+                  <CreateButton variant="secondary" onClick={() => setIsSubnetModalOpen(true)}>
                     {t('Create subnet')}
-                  </Button>
+                  </CreateButton>
                 ),
               }}
             >
@@ -182,9 +183,12 @@ export const VirtualNetworkDetailPage = () => {
             <CardHeader
               actions={{
                 actions: (
-                  <Button variant="primary" onClick={() => setIsSecurityGroupModalOpen(true)}>
+                  <CreateButton
+                    variant="secondary"
+                    onClick={() => setIsSecurityGroupModalOpen(true)}
+                  >
                     {t('Create security group')}
-                  </Button>
+                  </CreateButton>
                 ),
               }}
             >

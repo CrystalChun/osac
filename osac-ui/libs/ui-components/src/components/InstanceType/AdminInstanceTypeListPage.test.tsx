@@ -84,6 +84,7 @@ describe('AdminInstanceTypeListPage', () => {
     renderPage();
 
     expect(screen.getByRole('heading', { name: 'Instance types' })).toBeInTheDocument();
+    expect(screen.getByText('Infrastructure').closest('.pf-v6-c-label')).not.toBeNull();
     expect(screen.getAllByRole('columnheader').map((header) => header.textContent)).toEqual([
       'Name',
       'Lifecycle state',
@@ -154,7 +155,7 @@ describe('AdminInstanceTypeListPage', () => {
 
     const { user } = renderPageWithCreateRoute();
 
-    await user.click(screen.getByRole('button', { name: 'Create instance type' }));
+    await user.click(screen.getByRole('link', { name: 'Create instance type' }));
 
     expect(screen.getByRole('heading', { name: 'Create instance type page' })).toBeInTheDocument();
   });

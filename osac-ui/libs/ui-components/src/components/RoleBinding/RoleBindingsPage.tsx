@@ -1,8 +1,7 @@
 import { useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
+import CreateButton from '@osac/ui-components/components/Primitives/CreateButton.tsx';
 import ResourceNameField from '@osac/ui-components/components/Resource/ResourceNameField.tsx';
 
 import RoleBindingActionsMenu from './RoleBindingActionsMenu';
@@ -16,7 +15,6 @@ import { useTranslation } from '../../hooks/useTranslation';
 
 const RoleBindingsPage = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
 
   const { data: roleBindings = [], isLoading, error } = useRoleBindings();
   const { data: roles = [] } = useRoles();
@@ -34,11 +32,7 @@ const RoleBindingsPage = () => {
       title={t('Role Bindings')}
       description={t('Manage role bindings for users.')}
       error={error}
-      actions={
-        <Button variant="primary" onClick={() => navigate('create')}>
-          {t('Create role binding')}
-        </Button>
-      }
+      actions={<CreateButton to="create">{t('Create role binding')}</CreateButton>}
     >
       <ListPageBody isLoading={isLoading} error={error}>
         {roleBindings.length === 0 ? (

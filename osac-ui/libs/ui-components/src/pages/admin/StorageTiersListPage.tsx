@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Alert, Button, Flex, FlexItem, Stack, StackItem } from '@patternfly/react-core';
+import { Alert, Flex, FlexItem, Stack, StackItem } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
+import CreateButton from '@osac/ui-components/components/Primitives/CreateButton.tsx';
 import ResourceNameField from '@osac/ui-components/components/Resource/ResourceNameField.tsx';
 
 import {
@@ -22,7 +22,6 @@ import { useTranslation } from '../../hooks/useTranslation';
 
 export const StorageTiersListPage = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
 
   const { data: tiers = [], isLoading, error } = usePrivateStorageTiers();
 
@@ -43,14 +42,11 @@ export const StorageTiersListPage = () => {
   return (
     <Stack hasGutter>
       <StackItem>
-        <Flex justifyContent={{ default: 'justifyContentFlexEnd' }}>
+        <Flex className="pf-v6-u-mt-md" justifyContent={{ default: 'justifyContentFlexEnd' }}>
           <FlexItem>
-            <Button
-              variant="primary"
-              onClick={() => navigate('/admin/infrastructure/storage/tiers/create')}
-            >
+            <CreateButton to="/admin/infrastructure/storage/tiers/create">
               {t('Create tier')}
-            </Button>
+            </CreateButton>
           </FlexItem>
         </Flex>
       </StackItem>

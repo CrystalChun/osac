@@ -1,7 +1,5 @@
 import { useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
-  Button,
   SearchInput,
   Toolbar,
   ToolbarContent,
@@ -16,6 +14,7 @@ import { BareMetalStatusLabel } from '@osac/ui-components/components/BareMetalIn
 import ListPage from '@osac/ui-components/components/Page/ListPage';
 import ListPageBody from '@osac/ui-components/components/Page/ListPageBody';
 import ProjectFilter from '@osac/ui-components/components/Page/ProjectFilter';
+import CreateButton from '@osac/ui-components/components/Primitives/CreateButton.tsx';
 import { Timestamp } from '@osac/ui-components/components/Primitives/Timestamp';
 import ResourceNameField from '@osac/ui-components/components/Resource/ResourceNameField.tsx';
 import { SubtleContent } from '@osac/ui-components/components/SubtleContent/SubtleContent';
@@ -24,7 +23,6 @@ import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
 
 export const BareMetalListPage = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const [search, setSearch] = usePageFilter(SEARCH_PARAM);
 
   const { data: instances = [], isLoading, error } = useBareMetalInstances();
@@ -40,13 +38,10 @@ export const BareMetalListPage = () => {
   return (
     <ListPage
       title={t('Bare Metal')}
+      label={t('Services')}
       description={t('View and manage your bare metal instances.')}
       error={error}
-      actions={
-        <Button variant="primary" onClick={() => navigate('/bare-metal/create')}>
-          {t('Provision bare metal')}
-        </Button>
-      }
+      actions={<CreateButton to="/bare-metal/create">{t('Provision bare metal')}</CreateButton>}
     >
       <ListPageBody isLoading={isLoading} error={error}>
         <Toolbar>

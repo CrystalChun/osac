@@ -1,28 +1,24 @@
-import { useNavigate } from 'react-router-dom';
-import { Button, Flex, FlexItem } from '@patternfly/react-core';
+import { Flex, FlexItem } from '@patternfly/react-core';
 
 import { usePrivateStorageBackends } from '@osac/ui-components/api/v1/private/storage-backends';
 import ListPageBody from '@osac/ui-components/components/Page/ListPageBody';
+import CreateButton from '@osac/ui-components/components/Primitives/CreateButton.tsx';
 import { StorageBackendsTable } from '@osac/ui-components/components/Storage/StorageBackendsTable';
 import { SubtleContent } from '@osac/ui-components/components/SubtleContent/SubtleContent';
 import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
 
 export const StorageBackendsListPage = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
 
   const { data: backends = [], isLoading, error } = usePrivateStorageBackends();
 
   return (
     <>
-      <Flex justifyContent={{ default: 'justifyContentFlexEnd' }}>
+      <Flex className="pf-v6-u-mt-md" justifyContent={{ default: 'justifyContentFlexEnd' }}>
         <FlexItem>
-          <Button
-            variant="primary"
-            onClick={() => navigate('/admin/infrastructure/storage/backends/create')}
-          >
+          <CreateButton to="/admin/infrastructure/storage/backends/create">
             {t('Create backend')}
-          </Button>
+          </CreateButton>
         </FlexItem>
       </Flex>
       <ListPageBody isLoading={isLoading} error={error}>

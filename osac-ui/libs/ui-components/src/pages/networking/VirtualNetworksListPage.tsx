@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import {
-  Button,
   SearchInput,
   Toolbar,
   ToolbarContent,
@@ -9,7 +8,9 @@ import {
 } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
+import CreateButton from '@osac/ui-components/components/Primitives/CreateButton.tsx';
 import ResourceNameField from '@osac/ui-components/components/Resource/ResourceNameField.tsx';
+import { SEARCH_PARAM, usePageFilter } from '@osac/ui-components/hooks/use-page-filter.ts';
 
 import { useSubnets, useVirtualNetworks } from '../../api/v1/networking';
 import { CidrDisplay } from '../../components/networking/CidrDisplay';
@@ -22,7 +23,7 @@ import { useTranslation } from '../../hooks/useTranslation';
 
 export const VirtualNetworksListPage = () => {
   const { t } = useTranslation();
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = usePageFilter(SEARCH_PARAM);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const { data: virtualNetworks = [], isLoading, error } = useVirtualNetworks();
@@ -48,12 +49,13 @@ export const VirtualNetworksListPage = () => {
   return (
     <>
       <ListPage
+        label={t('Networking')}
         title={t('Virtual networks')}
         description={t('Manage virtual networks for your compute instances.')}
         actions={
-          <Button variant="primary" onClick={() => setIsCreateModalOpen(true)}>
+          <CreateButton onClick={() => setIsCreateModalOpen(true)}>
             {t('Create virtual network')}
-          </Button>
+          </CreateButton>
         }
       >
         <ListPageBody isLoading={isLoading} error={error}>

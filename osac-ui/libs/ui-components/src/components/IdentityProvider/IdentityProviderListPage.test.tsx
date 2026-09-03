@@ -38,6 +38,10 @@ describe('IdentityProviderListPage', () => {
     await waitFor(() => {
       expect(screen.getByRole('heading', { name: 'Identity providers' })).toBeInTheDocument();
     });
+    expect(screen.getByRole('link', { name: 'Create identity provider' })).toHaveAttribute(
+      'href',
+      '/tenant/identity-provider/create',
+    );
   });
 
   it('renders identity provider rows with titles', async () => {

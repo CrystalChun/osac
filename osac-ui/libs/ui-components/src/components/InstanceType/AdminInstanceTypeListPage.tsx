@@ -1,5 +1,4 @@
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@patternfly/react-core';
+import CreateButton from '@osac/ui-components/components/Primitives/CreateButton.tsx';
 
 import AdminInstanceTypeTable from './AdminInstanceTypeTable';
 import { useAdminInstanceTypes } from '../../api/v1/private/instance-type';
@@ -9,21 +8,18 @@ import ListPageBody from '../Page/ListPageBody';
 
 const AdminInstanceTypeListPage = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const { data: instanceTypes = [], isLoading, error } = useAdminInstanceTypes();
 
   return (
     <ListPage
       title={t('Instance types')}
+      label={t('Infrastructure')}
       description={t('Manage provider-defined instance types for this cloud platform.')}
       error={error}
       actions={
-        <Button
-          variant="primary"
-          onClick={() => navigate('/admin/infrastructure/instance-types/create')}
-        >
+        <CreateButton to="/admin/infrastructure/instance-types/create">
           {t('Create instance type')}
-        </Button>
+        </CreateButton>
       }
     >
       <ListPageBody isLoading={isLoading} error={error}>

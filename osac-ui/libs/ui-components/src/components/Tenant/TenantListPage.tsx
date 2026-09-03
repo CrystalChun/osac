@@ -1,7 +1,5 @@
-import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useMemo } from 'react';
 import {
-  Button,
   SearchInput,
   Toolbar,
   ToolbarContent,
@@ -14,18 +12,19 @@ import { Tenants } from '@osac/types/private';
 import { useListResource } from '@osac/ui-components/api/use-resource';
 import ListPage from '@osac/ui-components/components/Page/ListPage';
 import ListPageBody from '@osac/ui-components/components/Page/ListPageBody';
+import CreateButton from '@osac/ui-components/components/Primitives/CreateButton.tsx';
 import { Timestamp } from '@osac/ui-components/components/Primitives/Timestamp';
 import ResourceNameField from '@osac/ui-components/components/Resource/ResourceNameField.tsx';
 import { SubtleContent } from '@osac/ui-components/components/SubtleContent/SubtleContent';
 import TenantActionsMenu from '@osac/ui-components/components/Tenant/TenantActionsMenu';
+import { SEARCH_PARAM, usePageFilter } from '@osac/ui-components/hooks/use-page-filter.ts';
 import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
 
 import TenantStatusLabel from '../../components/Tenant/TenantStatusLabel';
 
 const TenantListPage = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = usePageFilter(SEARCH_PARAM);
 
   const { data, isLoading, error } = useListResource(Tenants);
 
@@ -43,13 +42,10 @@ const TenantListPage = () => {
   return (
     <ListPage
       title={t('Tenants')}
+      label={t('Administration')}
       description={t('Manage tenants for this cloud platform.')}
       error={error}
-      actions={
-        <Button variant="primary" onClick={() => navigate('/admin/tenants/create')}>
-          {t('Create tenant')}
-        </Button>
-      }
+      actions={<CreateButton to="/admin/tenants/create">{t('Create tenant')}</CreateButton>}
     >
       <ListPageBody isLoading={isLoading} error={error}>
         <Toolbar>

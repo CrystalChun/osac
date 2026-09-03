@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import {
-  Button,
   SearchInput,
   Toolbar,
   ToolbarContent,
@@ -10,7 +9,9 @@ import {
 } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
+import CreateButton from '@osac/ui-components/components/Primitives/CreateButton.tsx';
 import ResourceNameField from '@osac/ui-components/components/Resource/ResourceNameField.tsx';
+import { SEARCH_PARAM, usePageFilter } from '@osac/ui-components/hooks/use-page-filter.ts';
 
 import {
   resourceDisplayName,
@@ -24,33 +25,13 @@ import ListPageBody from '../../components/Page/ListPageBody';
 import { SubtleContent } from '../../components/SubtleContent/SubtleContent';
 import { useTranslation } from '../../hooks/useTranslation';
 
-const SEARCH_PARAM = 'search';
-
 export const SecurityGroupsListPage = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-
-  const search = searchParams.get(SEARCH_PARAM) ?? '';
+  const [search, setSearch] = usePageFilter(SEARCH_PARAM);
 
   const { data: securityGroups = [], isLoading, error } = useSecurityGroups();
   const { data: virtualNetworks = [] } = useVirtualNetworks();
-
-  const setSearch = (value: string) => {
-    setSearchParams(
-      (prev) => {
-        const next = new URLSearchParams(prev);
-        if (!value.trim()) {
-          next.delete(SEARCH_PARAM);
-        } else {
-          next.set(SEARCH_PARAM, value);
-        }
-        return next;
-      },
-      { replace: true },
-    );
-  };
 
   const filteredSGs = securityGroups.filter((sg) => {
     const name = sg.metadata?.name ?? '';
@@ -60,12 +41,14 @@ export const SecurityGroupsListPage = () => {
   return (
     <>
       <ListPage
+        label={t('Networking')}
         title={t('Security groups')}
         description={t('Manage firewall rules for your virtual networks.')}
+        error={error}
         actions={
-          <Button variant="primary" onClick={() => setIsCreateModalOpen(true)}>
+          <CreateButton onClick={() => setIsCreateModalOpen(true)}>
             {t('Create security group')}
-          </Button>
+          </CreateButton>
         }
       >
         <ListPageBody isLoading={isLoading} error={error}>
@@ -121,13 +104,7 @@ export const SecurityGroupsListPage = () => {
                       </Td>
                       <Td dataLabel="Virtual Network">
                         {vnId ? (
-                          <Button
-                            variant="link"
-                            isInline
-                            onClick={() => navigate(`/networking/virtual-networks/${vnId}`)}
-                          >
-                            {vnName}
-                          </Button>
+                          <Link to={`/networking/virtual-networks/${vnId}`}>{vnName}</Link>
                         ) : (
                           vnName
                         )}

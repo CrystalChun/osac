@@ -64,6 +64,7 @@ describe('DiskImageListPage', () => {
     renderPage();
 
     expect(screen.getByRole('heading', { name: 'Disk images' })).toBeInTheDocument();
+    expect(screen.getByText('Infrastructure').closest('.pf-v6-c-label')).not.toBeNull();
     expect(screen.getByRole('link', { name: 'disk-image-a' })).toBeInTheDocument();
   });
 
@@ -100,7 +101,7 @@ describe('DiskImageListPage', () => {
     vi.mocked(useDiskImages).mockReturnValue(mockQueryResult<DiskImage[]>({ data: [] }));
 
     const { user } = renderPageWithCreateRoute();
-    await user.click(screen.getByRole('button', { name: 'Create disk image' }));
+    await user.click(screen.getByRole('link', { name: 'Create disk image' }));
 
     expect(screen.getByRole('heading', { name: 'Create disk image page' })).toBeInTheDocument();
   });

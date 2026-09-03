@@ -20,6 +20,7 @@ export const StorageManagementPage = ({ activeTab }: { activeTab: StorageTab }) 
   return (
     <ListPage
       title={t('Storage')}
+      label={t('Infrastructure')}
       description={t('Manage storage backends and tiers for this cloud platform.')}
     >
       <ListPageBody isLoading={false}>
