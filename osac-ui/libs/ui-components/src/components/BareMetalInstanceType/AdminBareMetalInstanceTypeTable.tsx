@@ -12,11 +12,10 @@ import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 import { ActionsColumn, Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
 import type { BareMetalInstanceType as PrivateBareMetalInstanceType } from '@osac/types/private';
-import { useDeleteBareMetalInstanceType } from '@osac/ui-components/api/v1/private/baremetal-instance-type';
-import DeleteResourceModal from '@osac/ui-components/components/Resource/DeleteResourceModal';
+import ResourceNameField from '@osac/ui-components/components/Resource/ResourceNameField';
 
+import BareMetalInstanceTypeDeleteModal from './BareMetalInstanceTypeDeleteModal';
 import { useTranslation } from '../../hooks/useTranslation';
-import TruncatedText from '../Primitives/TruncatedText';
 
 const NAME_PREVIEW_LENGTH = 32;
 const NAME_COLUMN_WIDTH = 20;
@@ -35,21 +34,14 @@ const AdminBareMetalInstanceTypeTable = ({
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [deleteTarget, setDeleteTarget] = useState<PrivateBareMetalInstanceType>();
-  const deleteBareMetalInstanceType = useDeleteBareMetalInstanceType();
 
   return (
     <>
       {deleteTarget && (
-        <DeleteResourceModal
-          resourceName={deleteTarget.metadata?.name || deleteTarget.id}
-          label={t(
-            'This permanently deletes the bare metal instance type. This action cannot be undone.',
-          )}
-          errorLabel={t('Failed to delete bare metal instance type')}
+        <BareMetalInstanceTypeDeleteModal
+          instanceType={deleteTarget}
           onClose={() => setDeleteTarget(undefined)}
           onSuccess={() => setDeleteTarget(undefined)}
-          mutation={deleteBareMetalInstanceType}
-          variables={deleteTarget.id}
         />
       )}
       <Table aria-label={t('Bare metal instance types')} variant="compact">
@@ -90,7 +82,11 @@ const AdminBareMetalInstanceTypeTable = ({
               return (
                 <Tr key={bareMetalInstanceType.id}>
                   <Td dataLabel={t('Name')} modifier="truncate" width={NAME_COLUMN_WIDTH}>
-                    <TruncatedText content={name} maxCharsDisplayed={NAME_PREVIEW_LENGTH} />
+                    <ResourceNameField
+                      resource={bareMetalInstanceType}
+                      detailsUrl={`/admin/infrastructure/baremetal-instance-types/${bareMetalInstanceType.id}`}
+                      maxCharsDisplayed={NAME_PREVIEW_LENGTH}
+                    />
                   </Td>
                   <Td dataLabel={t('CPU')} width={CPU_COLUMN_WIDTH}>
                     {cpu ? `${cpu.cores} (${cpu.architecture})` : '—'}

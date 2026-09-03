@@ -23,8 +23,7 @@ import { useTranslation } from '../../../hooks/useTranslation';
 import { FieldValidationProvider } from '../../Form/FieldValidationContext';
 import LeaveFormConfirmation from '../../Form/LeaveFormConfirmation';
 import { OSACWizardFooter } from '../../Wizard/OSACWizardFooter';
-
-export const BAREMETAL_INSTANCE_TYPES_LIST_ROUTE = '/admin/infrastructure/baremetal-instance-types';
+import { BAREMETAL_INSTANCE_TYPES_LIST_ROUTE } from '../AdminBareMetalInstanceTypeListPage';
 
 interface BareMetalInstanceTypeFormProps {
   bareMetalInstanceType?: PrivateBareMetalInstanceType;

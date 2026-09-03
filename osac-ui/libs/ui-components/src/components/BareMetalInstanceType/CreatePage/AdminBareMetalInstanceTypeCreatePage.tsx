@@ -11,12 +11,13 @@ import {
   Title,
 } from '@patternfly/react-core';
 
-import BareMetalInstanceTypeWizard, {
-  BAREMETAL_INSTANCE_TYPES_LIST_ROUTE,
-} from './BareMetalInstanceTypeWizard';
-import { useAdminBareMetalInstanceType } from '../../../api/v1/private/baremetal-instance-type';
+import { BareMetalInstanceTypes } from '@osac/types/private';
+import { useGetResource } from '@osac/ui-components/api/use-resource';
+
+import BareMetalInstanceTypeWizard from './BareMetalInstanceTypeWizard';
 import { useTranslation } from '../../../hooks/useTranslation';
 import { getErrorMessage } from '../../../utils/error';
+import { BAREMETAL_INSTANCE_TYPES_LIST_ROUTE } from '../AdminBareMetalInstanceTypeListPage';
 
 const AdminBareMetalInstanceTypeCreatePage = () => {
   const { t } = useTranslation();
@@ -24,7 +25,11 @@ const AdminBareMetalInstanceTypeCreatePage = () => {
   const { id } = useParams<{ id: string }>();
   const isEdit = Boolean(id);
 
-  const { data, isLoading, error } = useAdminBareMetalInstanceType(id ?? '');
+  const { data, isLoading, error } = useGetResource(
+    BareMetalInstanceTypes,
+    { id },
+    { enabled: !!id },
+  );
 
   const title = isEdit ? t('Edit bare metal instance type') : t('Create bare metal instance type');
 
@@ -42,6 +47,17 @@ const AdminBareMetalInstanceTypeCreatePage = () => {
                 {t('Bare metal instance types')}
               </Button>
             </BreadcrumbItem>
+            {isEdit && (
+              <BreadcrumbItem>
+                <Button
+                  variant="link"
+                  isInline
+                  onClick={() => navigate(`${BAREMETAL_INSTANCE_TYPES_LIST_ROUTE}/${id}`)}
+                >
+                  {data?.object?.metadata?.name || id}
+                </Button>
+              </BreadcrumbItem>
+            )}
             <BreadcrumbItem isActive>{isEdit ? t('Edit') : t('Create')}</BreadcrumbItem>
           </Breadcrumb>
           <Title headingLevel="h1" size="3xl">
@@ -62,7 +78,7 @@ const AdminBareMetalInstanceTypeCreatePage = () => {
           </Alert>
         </PageSection>
       ) : (
-        <BareMetalInstanceTypeWizard bareMetalInstanceType={data} />
+        <BareMetalInstanceTypeWizard bareMetalInstanceType={data?.object} />
       )}
     </>
   );
