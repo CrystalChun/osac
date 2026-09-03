@@ -27,7 +27,7 @@ describe('ConsoleToolbar', () => {
     renderToolbar({ consoleTransport: 'vnc' });
 
     expect(screen.getByRole('button', { name: 'Select console type' })).toHaveTextContent(
-      'Graphical (VNC)',
+      'VNC console',
     );
   });
 
@@ -38,9 +38,11 @@ describe('ConsoleToolbar', () => {
     await user.click(screen.getByRole('button', { name: 'Select console type' }));
 
     expect(
-      screen.getByRole('option', { name: 'Graphical (VNC)', selected: false }),
+      screen.getByRole('option', { name: 'VNC console', selected: false }),
     ).toBeInTheDocument();
-    expect(screen.getByRole('option', { name: 'Serial', selected: true })).toBeInTheDocument();
+    expect(
+      screen.getByRole('option', { name: 'Serial console', selected: true }),
+    ).toBeInTheDocument();
   });
 
   it('reports the chosen transport when a different option is selected', async () => {
@@ -48,7 +50,7 @@ describe('ConsoleToolbar', () => {
     const { onConsoleTransportChange } = renderToolbar({ consoleTransport: 'vnc' });
 
     await user.click(screen.getByRole('button', { name: 'Select console type' }));
-    await user.click(screen.getByRole('option', { name: 'Serial' }));
+    await user.click(screen.getByRole('option', { name: 'Serial console' }));
 
     expect(onConsoleTransportChange).toHaveBeenCalledWith('serial');
   });

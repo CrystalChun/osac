@@ -40,13 +40,23 @@ const ConsoleToolbar = ({
   const [isTransportOpen, setIsTransportOpen] = useState(false);
   // SelectOption values are ConsoleTransport strings, so onSelect passes the choice through.
   const transportLabels: Record<ConsoleTransport, string> = {
-    vnc: t('Graphical (VNC)'),
-    serial: t('Serial'),
+    serial: t('Serial console'),
+    vnc: t('VNC console'),
   };
 
   return (
     <Toolbar>
       <ToolbarContent>
+        <ToolbarItem>
+          <Button
+            variant="secondary"
+            icon={<PasteIcon />}
+            isDisabled={!isConnected || !onPaste}
+            onClick={onPaste}
+          >
+            {t('Paste from clipboard')}
+          </Button>
+        </ToolbarItem>
         <ToolbarItem>
           <Select
             isOpen={isTransportOpen}
@@ -72,24 +82,14 @@ const ConsoleToolbar = ({
             shouldFocusToggleOnSelect
           >
             <SelectList>
-              <SelectOption value="vnc" isSelected={consoleTransport === 'vnc'}>
-                {transportLabels.vnc}
-              </SelectOption>
               <SelectOption value="serial" isSelected={consoleTransport === 'serial'}>
                 {transportLabels.serial}
               </SelectOption>
+              <SelectOption value="vnc" isSelected={consoleTransport === 'vnc'}>
+                {transportLabels.vnc}
+              </SelectOption>
             </SelectList>
           </Select>
-        </ToolbarItem>
-        <ToolbarItem>
-          <Button
-            variant="secondary"
-            icon={<PasteIcon />}
-            isDisabled={!isConnected || !onPaste}
-            onClick={onPaste}
-          >
-            {t('Paste from clipboard')}
-          </Button>
         </ToolbarItem>
         <ToolbarItem>
           <Button

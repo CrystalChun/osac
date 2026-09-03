@@ -449,7 +449,7 @@ describe('VmConsoleTab', () => {
     expect(screen.getByText('VNC viewer')).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Select console type' }));
-    await user.click(screen.getByRole('option', { name: 'Serial' }));
+    await user.click(screen.getByRole('option', { name: 'Serial console' }));
 
     // Remounts on the new transport: serial viewer replaces VNC and the ticket type flips.
     expect(screen.getByText('Serial viewer')).toBeInTheDocument();
