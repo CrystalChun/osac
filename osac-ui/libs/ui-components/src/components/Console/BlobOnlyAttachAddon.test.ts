@@ -104,9 +104,9 @@ describe('BlobOnlyAttachAddon', () => {
     expect(terminal.write.mock.calls[1][0]).toBe('2');
   });
 
-  it('forwards terminal input to the socket only while it is open', () => {
+  it('forwards terminal input to the socket as a binary frame only while it is open', () => {
     terminal.emitData('a');
-    expect(socket.send).toHaveBeenCalledWith('a');
+    expect(socket.send).toHaveBeenCalledWith(new TextEncoder().encode('a'));
 
     socket.send.mockClear();
     socket.readyState = WebSocket.CLOSING;

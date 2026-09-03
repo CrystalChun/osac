@@ -44,7 +44,10 @@ export class BlobOnlyAttachAddon implements ITerminalAddon {
     this.socket.addEventListener('message', this.messageListener);
     this.dataDisposable = terminal.onData((data) => {
       if (this.socket.readyState === WebSocket.OPEN) {
-        this.socket.send(data);
+        // Send as a binary frame — the server rejects text frames (e.g. it
+        // would close the connection with "unexpected frame type read
+        // (expected MessageBinary): MessageText" the instant a key is pressed).
+        this.socket.send(new TextEncoder().encode(data));
       }
     });
   }
