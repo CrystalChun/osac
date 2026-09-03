@@ -7,7 +7,7 @@ const createFakeSocket = () => {
   const messageListeners: Array<(event: MessageEvent) => void> = [];
   return {
     binaryType: 'blob' as BinaryType,
-    readyState: WebSocket.OPEN,
+    readyState: WebSocket.OPEN as number,
     send: vi.fn(),
     addEventListener: vi.fn((event: string, listener: (event: MessageEvent) => void) => {
       if (event === 'message') {
