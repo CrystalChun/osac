@@ -1,5 +1,7 @@
 import { UseQueryOptions } from '@tanstack/react-query';
 
+import { type CelFilter } from './cel';
+
 /**
  * All known API base routes. Adding a new resource hook requires adding its
  * route here first — unknown strings are rejected at compile time everywhere
@@ -88,7 +90,7 @@ export const apiQueryKey = (
 export type ApiQueryParams = Record<string, string | number | boolean | null | undefined>;
 
 export type ListParams = {
-  filter?: string;
+  filter?: CelFilter;
   limit?: number;
   offset?: number;
   order?: string;

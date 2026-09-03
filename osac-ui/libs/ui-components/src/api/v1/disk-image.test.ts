@@ -26,6 +26,7 @@ import {
 } from './disk-image';
 import { createMockConnectTransport } from '../../test-utils/createMockConnectTransport';
 import { ApiProvider } from '../api-context';
+import { cel } from '../cel';
 
 const makeDiskImage = (
   id: string,
@@ -102,7 +103,9 @@ describe('useDiskImages', () => {
         },
       },
     );
-    const callerFilter = `this.spec.lifecycle == ${DiskImageLifecycle.AVAILABLE}`;
+    const callerFilter = cel<DiskImage>((filter) =>
+      filter.field('spec.lifecycle').equals(DiskImageLifecycle.AVAILABLE),
+    );
     const { wrapper } = makeWrapper(transport);
     const { result } = renderHook(() => useDiskImages({ filter: callerFilter }), { wrapper });
 
@@ -121,7 +124,9 @@ describe('useDiskImages', () => {
         },
       },
     );
-    const callerFilter = 'this.metadata.name.contains("this.spec.lifecycle")';
+    const callerFilter = cel<DiskImage>((filter) =>
+      filter.field('metadata.name').contains('this.spec.lifecycle'),
+    );
     const { wrapper } = makeWrapper(transport);
     const { result } = renderHook(() => useDiskImages({ filter: callerFilter }), { wrapper });
 
@@ -140,7 +145,9 @@ describe('useDiskImages', () => {
         },
       },
     );
-    const callerFilter = 'this.spec.architecture == 1';
+    const callerFilter = cel<DiskImage>((filter) =>
+      filter.field('spec.architecture').someEquals(Architecture.AMD64),
+    );
     const { wrapper } = makeWrapper(transport);
     const { result } = renderHook(() => useDiskImages({ filter: callerFilter }), { wrapper });
 
@@ -161,7 +168,7 @@ describe('buildDiskImageListFilter', () => {
     [
       'guestOsFamily only',
       { guestOsFamily: GuestOSFamily.GUEST_OS_FAMILY_LINUX },
-      `this.spec.guestOsFamily == ${GuestOSFamily.GUEST_OS_FAMILY_LINUX}`,
+      `this.spec.guest_os_family == ${GuestOSFamily.GUEST_OS_FAMILY_LINUX}`,
     ],
     [
       'single architecture value',
@@ -202,7 +209,7 @@ describe('buildDiskImageListFilter', () => {
         guestOsFamily: GuestOSFamily.GUEST_OS_FAMILY_LINUX,
         scope: 'global' as const,
       },
-      `this.metadata.name.contains("fedora") && this.spec.guestOsFamily == ${GuestOSFamily.GUEST_OS_FAMILY_LINUX} && this.metadata.tenant == "shared"`,
+      `this.metadata.name.contains("fedora") && this.spec.guest_os_family == ${GuestOSFamily.GUEST_OS_FAMILY_LINUX} && this.metadata.tenant == "shared"`,
     ],
   ])('%s', (_name, criteria, expected) => {
     expect(buildDiskImageListFilter(criteria)).toBe(expected);

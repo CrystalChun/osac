@@ -5,7 +5,6 @@ import { SecurityGroupState, SubnetState, VirtualNetworkState } from '@osac/type
 
 import {
   VIRTUAL_NETWORK_READY_LIST_FILTER,
-  escapeCelStringLiteral,
   invalidateSecurityGroupsQueries,
   invalidateSubnetsQueries,
   invalidateVirtualNetworksQueries,
@@ -14,6 +13,7 @@ import {
   virtualNetworkFilterForSubnetList,
   virtualNetworkScopeFilter,
 } from './networking';
+import { escapeCelStringLiteral } from '../cel';
 
 describe('networking list filters', () => {
   it('filters virtual networks to ready state using enum integer', () => {
@@ -32,19 +32,19 @@ describe('networking list filters', () => {
 
   it('combines virtual network scope and ready state for subnets', () => {
     expect(virtualNetworkFilterForSubnetList('vn-1')).toBe(
-      `(this.spec.virtual_network.id == "vn-1") && (this.status.state == ${SubnetState.READY})`,
+      `this.spec.virtual_network.id == "vn-1" && this.status.state == ${SubnetState.READY}`,
     );
   });
 
   it('escapes quotes in virtual network id when building subnet filter', () => {
     expect(virtualNetworkFilterForSubnetList('vn-"evil')).toBe(
-      `(this.spec.virtual_network.id == "vn-\\"evil") && (this.status.state == ${SubnetState.READY})`,
+      `this.spec.virtual_network.id == "vn-\\"evil" && this.status.state == ${SubnetState.READY}`,
     );
   });
 
   it('escapes CEL injection characters in virtual network id when building subnet filter', () => {
     expect(virtualNetworkFilterForSubnetList(`"'] || true || this.id in ['`)).toBe(
-      `(this.spec.virtual_network.id == "\\"'] || true || this.id in ['") && (this.status.state == ${SubnetState.READY})`,
+      `this.spec.virtual_network.id == "\\"'] || true || this.id in ['" && this.status.state == ${SubnetState.READY}`,
     );
   });
 
@@ -60,7 +60,7 @@ describe('networking list filters', () => {
 
   it('combines virtual network scope and ready state for security groups', () => {
     expect(securityGroupFilterForVirtualNetworkList('vn-1')).toBe(
-      `(this.spec.virtual_network.id == "vn-1") && (this.status.state == ${SecurityGroupState.READY})`,
+      `this.spec.virtual_network.id == "vn-1" && this.status.state == ${SecurityGroupState.READY}`,
     );
   });
 

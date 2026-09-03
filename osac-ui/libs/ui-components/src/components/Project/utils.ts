@@ -1,7 +1,7 @@
 import { TFunction } from 'i18next';
 
 import { Project } from '@osac/types';
-import { escapeCelStringLiteral } from '@osac/ui-components/api/v1/networking';
+import { cel } from '@osac/ui-components/api/cel';
 
 export const getProjectName = (project: Project, t: TFunction): string => {
   if (project.metadata?.name === '') {
@@ -18,7 +18,12 @@ export const getFullProjectPath = (project: Project | undefined) => {
 
 export const fullProjectPathToQueryFilter = (fullProjectPath: string) => {
   if (!fullProjectPath.includes('.')) {
-    return `this.metadata.tenant != "shared" && this.metadata.name == "${escapeCelStringLiteral(fullProjectPath)}"`;
+    return cel<Project>((filter) =>
+      filter.and(
+        filter.field('metadata.tenant').notEquals('shared'),
+        filter.field('metadata.name').equals(fullProjectPath),
+      ),
+    );
   }
 
   const lastIndex = fullProjectPath.lastIndexOf('.');
@@ -26,5 +31,11 @@ export const fullProjectPathToQueryFilter = (fullProjectPath: string) => {
   const parent = fullProjectPath.slice(0, lastIndex);
   const name = fullProjectPath.slice(lastIndex + 1);
 
-  return `this.metadata.tenant != "shared" && this.metadata.name == "${escapeCelStringLiteral(name)}" && this.metadata.project == "${escapeCelStringLiteral(parent)}"`;
+  return cel<Project>((filter) =>
+    filter.and(
+      filter.field('metadata.tenant').notEquals('shared'),
+      filter.field('metadata.name').equals(name),
+      filter.field('metadata.project').equals(parent),
+    ),
+  );
 };

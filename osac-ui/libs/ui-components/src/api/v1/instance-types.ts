@@ -1,6 +1,7 @@
-import { InstanceTypeState, InstanceTypes } from '@osac/types';
+import { type InstanceType, InstanceTypeState, InstanceTypes } from '@osac/types';
 
 import { useApiFetch } from '../api-context';
+import { cel } from '../cel';
 import { type ListParams, apiQueryKey } from '../types';
 import { useApiQuery } from '../use-api-query';
 
@@ -8,7 +9,9 @@ type InstanceTypesQueryOptions = {
   enabled?: boolean;
 };
 
-export const INSTANCE_TYPE_ACTIVE_LIST_FILTER = `this.spec.state == ${InstanceTypeState.ACTIVE}`;
+export const INSTANCE_TYPE_ACTIVE_LIST_FILTER = cel<InstanceType>((filter) =>
+  filter.field('spec.state').equals(InstanceTypeState.ACTIVE),
+);
 
 export const useInstanceTypes = (
   params: ListParams = {},

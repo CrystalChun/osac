@@ -2,6 +2,7 @@ import { type MessageInitShape, create } from '@bufbuild/protobuf';
 import { useMutation } from '@tanstack/react-query';
 
 import {
+  type StorageBackend,
   StorageBackendCredentialsSchema,
   StorageBackendSchema,
   StorageBackendSpecSchema,
@@ -10,15 +11,17 @@ import {
 } from '@osac/types/private';
 
 import { useApiFetch } from '../../api-context';
+import { cel } from '../../cel';
 import { type ListParams, apiQueryKey } from '../../types';
 import { type ApiQueryClient, useApiQuery, useApiQueryClient } from '../../use-api-query';
-import { escapeCelStringLiteral } from '../networking';
 import { buildUpdateMaskPaths } from '../update-mask';
 
-export const STORAGE_BACKEND_READY_LIST_FILTER = `this.status.state == ${StorageBackendState.READY}`;
+export const STORAGE_BACKEND_READY_LIST_FILTER = cel<StorageBackend>((filter) =>
+  filter.field('status.state').equals(StorageBackendState.READY),
+);
 
-export const storageBackendIdsFilter = (ids: string[]): string =>
-  `this.id in [${ids.map((id) => `"${escapeCelStringLiteral(id)}"`).join(', ')}]`;
+export const storageBackendIdsFilter = (ids: string[]) =>
+  cel<StorageBackend>((filter) => filter.field('id').isIn(ids));
 
 type StorageBackendsListOptions = {
   enabled?: boolean;

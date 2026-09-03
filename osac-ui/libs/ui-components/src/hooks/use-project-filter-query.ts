@@ -1,9 +1,11 @@
+import { type ComputeInstance } from '@osac/types';
+
 import { useSession } from './use-session';
-import { escapeCelStringLiteral } from '../api/v1/networking';
+import { cel } from '../api/cel';
 
 export const useProjectFilterQuery = () => {
   const { projects } = useSession();
   return projects.length
-    ? `this.metadata.project in [${projects.map((p) => `"${escapeCelStringLiteral(p)}"`).join(',')}]`
+    ? cel<ComputeInstance>((filter) => filter.field('metadata.project').isIn(projects))
     : undefined;
 };

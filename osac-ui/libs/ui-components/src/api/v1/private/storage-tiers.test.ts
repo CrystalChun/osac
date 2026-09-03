@@ -7,6 +7,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   StorageProtocol,
+  StorageTier,
   StorageTierSchema,
   StorageTierState,
   StorageTiersCreateResponseSchema,
@@ -24,6 +25,7 @@ import {
 } from './storage-tiers';
 import { createMockConnectTransport } from '../../../test-utils/createMockConnectTransport';
 import { ApiProvider } from '../../api-context';
+import { cel } from '../../cel';
 
 const makeStorageTier = (id: string, state: StorageTierState = StorageTierState.ACTIVE) =>
   create(StorageTierSchema, {
@@ -88,7 +90,9 @@ describe('usePrivateStorageTiers', () => {
     const { result } = renderHook(
       () =>
         usePrivateStorageTiers({
-          filter: 'this.status.state == 1',
+          filter: cel<StorageTier>((filter) =>
+            filter.field('status.state').equals(StorageTierState.ACTIVE),
+          ),
           limit: 10,
           offset: 5,
           order: 'metadata.name',

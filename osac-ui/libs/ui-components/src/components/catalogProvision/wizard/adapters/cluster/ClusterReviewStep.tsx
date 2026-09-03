@@ -11,7 +11,8 @@ import {
 } from '@patternfly/react-core';
 import { useFormikContext } from 'formik';
 
-import { HostType } from '@osac/types';
+import { type HostType } from '@osac/types';
+import { cel } from '@osac/ui-components/api/cel';
 import {
   CLUSTER_VERSION_ACTIVE_LIST_FILTER,
   useClusterVersions,
@@ -59,7 +60,9 @@ export const ClusterReviewStep = ({ catalogItem }: Props) => {
     isLoading,
     error,
   } = useHostTypes({
-    filter: `this.id in [${values.spec.nodeSetRows.map(({ hostType }) => `"${hostType}"`).join(',')}]`,
+    filter: cel<HostType>((filter) =>
+      filter.field('id').isIn(values.spec.nodeSetRows.map(({ hostType }) => hostType)),
+    ),
   });
 
   const { data: versions = [] } = useClusterVersions({
