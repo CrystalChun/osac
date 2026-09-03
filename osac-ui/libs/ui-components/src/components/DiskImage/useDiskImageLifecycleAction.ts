@@ -1,38 +1,29 @@
 import type { TFunction } from 'i18next';
 
-import { DiskImageLifecycle } from '@osac/types';
+import { DiskImageLifecycle, DiskImages } from '@osac/types';
 
-import { useUpdateDiskImage } from '../../api/v1/disk-image';
+import { useUpdateResource } from '../../api/use-resource';
 import { useTranslation } from '../../hooks/useTranslation';
 import { getErrorMessage } from '../../utils/error';
+import { getResourceLifecycleActions } from '../Resource/getResourceLifecycleActions';
 import { useToast } from '../Toast/useToast';
 
 export type DiskImageLifecycleAction = Exclude<DiskImageLifecycle, DiskImageLifecycle.UNSPECIFIED>;
 
-export type DiskImageLifecycleActions = {
-  canDeprecate: boolean;
-  canObsolete: boolean;
-  canReactivate: boolean;
-  canDelete: boolean;
+const DISK_IMAGE_LIFECYCLE_ACTION_RULES = {
+  canDeprecate: [DiskImageLifecycle.AVAILABLE],
+  canObsolete: [DiskImageLifecycle.AVAILABLE, DiskImageLifecycle.DEPRECATED],
+  canReactivate: [DiskImageLifecycle.DEPRECATED, DiskImageLifecycle.OBSOLETE],
+  canDelete: [DiskImageLifecycle.OBSOLETE],
 };
 
 /** Determines which lifecycle transitions are valid from the disk image's current state. */
-export const getDiskImageLifecycleActions = (
-  state: DiskImageLifecycle | undefined,
-): DiskImageLifecycleActions => {
-  const resolvedState = state ?? DiskImageLifecycle.UNSPECIFIED;
-
-  return {
-    canDeprecate: resolvedState === DiskImageLifecycle.AVAILABLE,
-    canObsolete:
-      resolvedState === DiskImageLifecycle.AVAILABLE ||
-      resolvedState === DiskImageLifecycle.DEPRECATED,
-    canReactivate:
-      resolvedState === DiskImageLifecycle.DEPRECATED ||
-      resolvedState === DiskImageLifecycle.OBSOLETE,
-    canDelete: resolvedState === DiskImageLifecycle.OBSOLETE,
-  };
-};
+export const getDiskImageLifecycleActions = (state: DiskImageLifecycle | undefined) =>
+  getResourceLifecycleActions(
+    state,
+    DiskImageLifecycle.UNSPECIFIED,
+    DISK_IMAGE_LIFECYCLE_ACTION_RULES,
+  );
 
 const getLifecycleErrorTitle = (t: TFunction, action: DiskImageLifecycleAction): string => {
   switch (action) {
@@ -49,11 +40,11 @@ const getLifecycleErrorTitle = (t: TFunction, action: DiskImageLifecycleAction):
 export const useDiskImageLifecycleAction = () => {
   const { t } = useTranslation();
   const { addToast } = useToast();
-  const updateDiskImage = useUpdateDiskImage();
+  const updateDiskImage = useUpdateResource(DiskImages);
 
   const runLifecycleAction = (diskImageId: string, action: DiskImageLifecycleAction) => {
     updateDiskImage.mutate(
-      { id: diskImageId, body: { spec: { lifecycle: action } } },
+      { object: { id: diskImageId, spec: { lifecycle: action } } },
       {
         onError: (error) => {
           addToast({
