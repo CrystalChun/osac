@@ -11,7 +11,12 @@ import {
   DescriptionListDescription,
   DescriptionListGroup,
   DescriptionListTerm,
+  Divider,
+  Flex,
+  FlexItem,
   PageSection,
+  Stack,
+  StackItem,
 } from '@patternfly/react-core';
 import type { TFunction } from 'i18next';
 
@@ -159,15 +164,33 @@ const DiskImageDetailPage = () => {
   return (
     <>
       <PageSection hasBodyWrapper={false}>
-        <ResourceDetailHeader
-          parentTo={DISK_IMAGES_LIST_ROUTE}
-          parentLabel={t('Disk images')}
-          resourceName={diskImage.metadata?.name || diskImage.id}
-        />
-        <DiskImageDetailActions
-          diskImage={diskImage}
-          onDeleted={() => navigate(DISK_IMAGES_LIST_ROUTE)}
-        />
+        <Stack hasGutter>
+          <StackItem>
+            <Flex
+              justifyContent={{ default: 'justifyContentSpaceBetween' }}
+              alignItems={{ default: 'alignItemsFlexStart' }}
+              flexWrap={{ default: 'wrap' }}
+              spaceItems={{ default: 'spaceItemsMd' }}
+            >
+              <FlexItem>
+                <ResourceDetailHeader
+                  parentTo={DISK_IMAGES_LIST_ROUTE}
+                  parentLabel={t('Disk images')}
+                  resourceName={diskImage.metadata?.name || diskImage.id}
+                />
+              </FlexItem>
+              <FlexItem>
+                <DiskImageDetailActions
+                  diskImage={diskImage}
+                  onDeleted={() => navigate(DISK_IMAGES_LIST_ROUTE)}
+                />
+              </FlexItem>
+            </Flex>
+          </StackItem>
+          <StackItem>
+            <Divider />
+          </StackItem>
+        </Stack>
       </PageSection>
 
       <PageSection hasBodyWrapper={false}>
