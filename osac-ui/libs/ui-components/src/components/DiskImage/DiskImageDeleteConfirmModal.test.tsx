@@ -55,7 +55,7 @@ describe('DiskImageDeleteConfirmModal', () => {
     expect(onClose).toHaveBeenCalled();
   });
 
-  it('shows a toast and the inline error, and does not call onSuccess, when delete fails with FailedPrecondition', async () => {
+  it('shows an inline error and does not call onSuccess when delete fails with FailedPrecondition', async () => {
     const onSuccess = vi.fn();
     const { user } = renderWithProviders(
       <DiskImageDeleteConfirmModal
@@ -78,11 +78,11 @@ describe('DiskImageDeleteConfirmModal', () => {
     await user.click(screen.getByRole('button', { name: /^Delete$/i }));
 
     await waitFor(() => {
-      expect(screen.getAllByText('Failed to delete disk image').length).toBeGreaterThan(1);
+      expect(screen.getByText('Failed to delete disk image')).toBeInTheDocument();
     });
     expect(
-      screen.getAllByText('disk image is referenced by ComputeInstance vm-1').length,
-    ).toBeGreaterThan(0);
+      screen.getByText('disk image is referenced by ComputeInstance vm-1'),
+    ).toBeInTheDocument();
     expect(screen.getByRole('dialog')).toBeInTheDocument();
     expect(onSuccess).not.toHaveBeenCalled();
   });

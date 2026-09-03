@@ -1,10 +1,8 @@
-import type { DiskImage } from '@osac/types';
+import { type DiskImage, DiskImages } from '@osac/types';
+import { useDeleteResource } from '@osac/ui-components/api/use-resource';
 import DeleteResourceModal from '@osac/ui-components/components/Resource/DeleteResourceModal.tsx';
 
-import { useDeleteDiskImage } from '../../api/v1/disk-image';
 import { useTranslation } from '../../hooks/useTranslation';
-import { getErrorMessage } from '../../utils/error';
-import { useToast } from '../Toast/useToast';
 
 interface DiskImageDeleteConfirmModalProps {
   diskImage: DiskImage;
@@ -18,28 +16,8 @@ const DiskImageDeleteConfirmModal = ({
   onSuccess,
 }: DiskImageDeleteConfirmModalProps) => {
   const { t } = useTranslation();
-  const { addToast } = useToast();
-  const deleteDiskImage = useDeleteDiskImage();
+  const deleteDiskImage = useDeleteResource(DiskImages);
   const name = diskImage.metadata?.name ?? diskImage.id;
-
-  const mutation = {
-    ...deleteDiskImage,
-    mutate: (
-      variables: string,
-      options?: { onSuccess?: () => void; onError?: (error: Error) => void },
-    ) =>
-      deleteDiskImage.mutate(variables, {
-        ...options,
-        onError: (error) => {
-          addToast({
-            variant: 'danger',
-            title: t('Failed to delete disk image'),
-            description: getErrorMessage(error),
-          });
-          options?.onError?.(error);
-        },
-      }),
-  };
 
   return (
     <DeleteResourceModal
@@ -48,8 +26,8 @@ const DiskImageDeleteConfirmModal = ({
       errorLabel={t('Failed to delete disk image')}
       onClose={onClose}
       onSuccess={onSuccess}
-      mutation={mutation}
-      variables={diskImage.id}
+      mutation={deleteDiskImage}
+      variables={{ id: diskImage.id }}
     />
   );
 };
