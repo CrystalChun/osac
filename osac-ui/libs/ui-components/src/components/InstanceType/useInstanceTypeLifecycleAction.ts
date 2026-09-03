@@ -5,30 +5,37 @@ import { InstanceTypeState } from '@osac/types/private';
 import { useUpdateInstanceType } from '../../api/v1/private/instance-type';
 import { useTranslation } from '../../hooks/useTranslation';
 import { getErrorMessage } from '../../utils/error';
+import { getResourceLifecycleActions } from '../Resource/getResourceLifecycleActions';
 import { useToast } from '../Toast/useToast';
 
 export type InstanceTypeLifecycleAction = Exclude<InstanceTypeState, InstanceTypeState.UNSPECIFIED>;
 
-export type InstanceTypeLifecycleActions = {
-  canDeprecate: boolean;
-  canObsolete: boolean;
-  canReactivate: boolean;
-  canDelete: boolean;
+const INSTANCE_TYPE_LIFECYCLE_ACTION_RULES = {
+  canDeprecate: [
+    InstanceTypeState.UNSPECIFIED,
+    InstanceTypeState.ACTIVE,
+    InstanceTypeState.OBSOLETE,
+  ],
+  canObsolete: [
+    InstanceTypeState.UNSPECIFIED,
+    InstanceTypeState.ACTIVE,
+    InstanceTypeState.DEPRECATED,
+  ],
+  canReactivate: [
+    InstanceTypeState.UNSPECIFIED,
+    InstanceTypeState.DEPRECATED,
+    InstanceTypeState.OBSOLETE,
+  ],
+  canDelete: [InstanceTypeState.OBSOLETE],
 };
 
 /** Determines which lifecycle transitions are valid from the instance type's current state. */
-export const getInstanceTypeLifecycleActions = (
-  state: InstanceTypeState | undefined,
-): InstanceTypeLifecycleActions => {
-  const resolvedState = state ?? InstanceTypeState.UNSPECIFIED;
-
-  return {
-    canDeprecate: resolvedState !== InstanceTypeState.DEPRECATED,
-    canObsolete: resolvedState !== InstanceTypeState.OBSOLETE,
-    canReactivate: resolvedState !== InstanceTypeState.ACTIVE,
-    canDelete: resolvedState === InstanceTypeState.OBSOLETE,
-  };
-};
+export const getInstanceTypeLifecycleActions = (state: InstanceTypeState | undefined) =>
+  getResourceLifecycleActions(
+    state,
+    InstanceTypeState.UNSPECIFIED,
+    INSTANCE_TYPE_LIFECYCLE_ACTION_RULES,
+  );
 
 const getLifecycleErrorTitle = (t: TFunction, action: InstanceTypeLifecycleAction): string => {
   switch (action) {

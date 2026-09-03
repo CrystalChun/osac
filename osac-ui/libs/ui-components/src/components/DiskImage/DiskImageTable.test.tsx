@@ -75,6 +75,7 @@ describe('DiskImageTable', () => {
       'Architecture',
       'Scope',
       'Created',
+      '',
     ]);
     expect(screen.getByRole('link', { name: 'disk-image-global-1' })).toBeInTheDocument();
     expect(screen.getByText('amd64, arm64')).toBeInTheDocument();
@@ -124,5 +125,23 @@ describe('DiskImageTable', () => {
 
     expect(screen.getByText('No disk images yet.')).toBeInTheDocument();
     expect(screen.getByRole('grid', { name: 'Disk images' })).toBeInTheDocument();
+  });
+
+  it("wires each row's actions menu to that row's own disk image", async () => {
+    const { user } = renderTableWithRoutes([
+      makeDiskImage({ id: 'available-1', lifecycle: DiskImageLifecycle.AVAILABLE }),
+      makeDiskImage({ id: 'obsolete-1', lifecycle: DiskImageLifecycle.OBSOLETE }),
+    ]);
+
+    await user.click(screen.getByRole('button', { name: 'Actions for disk-image-available-1' }));
+    expect(screen.getByRole('menuitem', { name: 'Deprecate' })).toBeInTheDocument();
+    expect(screen.getByRole('menuitem', { name: 'Obsolete' })).toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', { name: 'Reactivate' })).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Actions for disk-image-available-1' }));
+    await user.click(screen.getByRole('button', { name: 'Actions for disk-image-obsolete-1' }));
+    expect(screen.getByRole('menuitem', { name: 'Reactivate' })).toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', { name: 'Deprecate' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', { name: 'Obsolete' })).not.toBeInTheDocument();
   });
 });
