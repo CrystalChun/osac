@@ -17,16 +17,6 @@ export const useAdminBareMetalInstanceTypes = (params: ListParams = {}) => {
   });
 };
 
-export const useAdminBareMetalInstanceType = (id: string) => {
-  const client = useApiFetch(BareMetalInstanceTypes);
-  return useApiQuery({
-    queryKey: apiQueryKey('v1/private/baremetal_instance_types', [id]),
-    queryFn: () => client.get({ id }),
-    select: (data) => data.object,
-    enabled: Boolean(id),
-  });
-};
-
 export const invalidateBareMetalInstanceTypesQueries = (qc: ApiQueryClient) =>
   qc.invalidateQueries({ queryKey: apiQueryKey('v1/private/baremetal_instance_types') });
 

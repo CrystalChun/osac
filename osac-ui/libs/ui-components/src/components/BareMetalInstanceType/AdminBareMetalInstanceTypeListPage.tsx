@@ -7,6 +7,8 @@ import { useTranslation } from '../../hooks/useTranslation';
 import ListPage from '../Page/ListPage';
 import ListPageBody from '../Page/ListPageBody';
 
+export const BAREMETAL_INSTANCE_TYPES_LIST_ROUTE = '/admin/infrastructure/baremetal-instance-types';
+
 const AdminBareMetalInstanceTypeListPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();

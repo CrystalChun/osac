@@ -11,7 +11,6 @@ import {
 
 import {
   invalidateBareMetalInstanceTypesQueries,
-  useAdminBareMetalInstanceType,
   useAdminBareMetalInstanceTypes,
   useCreateBareMetalInstanceType,
   useDeleteBareMetalInstanceType,
@@ -128,31 +127,6 @@ describe('useDeleteBareMetalInstanceType', () => {
     expect(queryClient.getQueryState(['v1/private/baremetal_instance_types'])?.isInvalidated).toBe(
       true,
     );
-  });
-});
-
-describe('useAdminBareMetalInstanceType', () => {
-  it('returns a single bare metal instance type from the get response', async () => {
-    const transport = createMockConnectTransport({
-      privateBaremetalInstanceTypes: [makeBareMetalInstanceType('gpu-1')],
-    });
-    const { wrapper } = makeWrapper(transport);
-    const { result } = renderHook(() => useAdminBareMetalInstanceType('gpu-1'), { wrapper });
-
-    await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(result.current.data?.id).toBe('gpu-1');
-    expect(result.current.data?.metadata?.name).toBe('bm-type-gpu-1');
-  });
-
-  it('does not fetch when the id is empty', () => {
-    const transport = createMockConnectTransport({
-      privateBaremetalInstanceTypes: [makeBareMetalInstanceType('gpu-1')],
-    });
-    const { wrapper } = makeWrapper(transport);
-    const { result } = renderHook(() => useAdminBareMetalInstanceType(''), { wrapper });
-
-    expect(result.current.fetchStatus).toBe('idle');
-    expect(result.current.data).toBeUndefined();
   });
 });
 
