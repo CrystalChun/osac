@@ -26,6 +26,8 @@ const ClusterDetailsActionButtons = ({ cluster }: ClusterDetailsActionButtonsPro
 
   const isReady = cluster.status?.state === ClusterState.READY;
   const clusterName = cluster.metadata?.name ?? cluster.id;
+  const kubeconfigSecretId = cluster.status?.kubeconfigSecret?.id ?? '';
+  const passwordSecretId = cluster.status?.passwordSecret?.id ?? '';
 
   return (
     <>
@@ -37,7 +39,10 @@ const ClusterDetailsActionButtons = ({ cluster }: ClusterDetailsActionButtonsPro
         />
       )}
       {passwordOpen && (
-        <ClusterPasswordModal cluster={cluster} onClose={() => setPasswordOpen(false)} />
+        <ClusterPasswordModal
+          passwordSecretId={passwordSecretId}
+          onClose={() => setPasswordOpen(false)}
+        />
       )}
       {error && (
         <Modal
@@ -51,7 +56,7 @@ const ClusterDetailsActionButtons = ({ cluster }: ClusterDetailsActionButtonsPro
             title={t('Failed to download kubeconfig')}
             isInline
             actionLinks={
-              <AlertActionLink onClick={() => download(cluster.id, clusterName)}>
+              <AlertActionLink onClick={() => download(kubeconfigSecretId, clusterName)}>
                 {t('Retry')}
               </AlertActionLink>
             }
@@ -68,16 +73,16 @@ const ClusterDetailsActionButtons = ({ cluster }: ClusterDetailsActionButtonsPro
         <Button
           variant="secondary"
           icon={<DownloadIcon />}
-          isDisabled={!isReady || isPending}
+          isDisabled={!isReady || !kubeconfigSecretId || isPending}
           isLoading={isPending}
-          onClick={() => void download(cluster.id, clusterName)}
+          onClick={() => void download(kubeconfigSecretId, clusterName)}
         >
           {t('Download kubeconfig')}
         </Button>
         <Button
           variant="secondary"
           icon={<KeyIcon />}
-          isDisabled={!isReady}
+          isDisabled={!isReady || !passwordSecretId}
           onClick={() => setPasswordOpen(true)}
         >
           {t('View password')}

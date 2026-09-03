@@ -31,8 +31,6 @@ export const file_osac_public_v1_secrets_service: GenFile = /*@__PURE__*/
   fileDesc("CiRvc2FjL3B1YmxpYy92MS9zZWNyZXRzX3NlcnZpY2UucHJvdG8SDm9zYWMucHVibGljLnYxIpABChJTZWNyZXRzTGlzdFJlcXVlc3QSEwoGb2Zmc2V0GAEgASgFSACIAQESEgoFbGltaXQYAiABKAVIAYgBARITCgZmaWx0ZXIYAyABKAlIAogBARISCgVvcmRlchgEIAEoCUgDiAEBQgkKB19vZmZzZXRCCAoGX2xpbWl0QgkKB19maWx0ZXJCCAoGX29yZGVyIlkKE1NlY3JldHNMaXN0UmVzcG9uc2USDAoEc2l6ZRgBIAEoBRINCgV0b3RhbBgCIAEoBRIlCgVpdGVtcxgDIAMoCzIWLm9zYWMucHVibGljLnYxLlNlY3JldCIfChFTZWNyZXRzR2V0UmVxdWVzdBIKCgJpZBgBIAEoCSI8ChJTZWNyZXRzR2V0UmVzcG9uc2USJgoGb2JqZWN0GAEgASgLMhYub3NhYy5wdWJsaWMudjEuU2VjcmV0Ij4KFFNlY3JldHNDcmVhdGVSZXF1ZXN0EiYKBm9iamVjdBgBIAEoCzIWLm9zYWMucHVibGljLnYxLlNlY3JldCI/ChVTZWNyZXRzQ3JlYXRlUmVzcG9uc2USJgoGb2JqZWN0GAEgASgLMhYub3NhYy5wdWJsaWMudjEuU2VjcmV0In0KFFNlY3JldHNVcGRhdGVSZXF1ZXN0EiYKBm9iamVjdBgBIAEoCzIWLm9zYWMucHVibGljLnYxLlNlY3JldBIvCgt1cGRhdGVfbWFzaxgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5GaWVsZE1hc2sSDAoEbG9jaxgDIAEoCCI/ChVTZWNyZXRzVXBkYXRlUmVzcG9uc2USJgoGb2JqZWN0GAEgASgLMhYub3NhYy5wdWJsaWMudjEuU2VjcmV0IiIKFFNlY3JldHNEZWxldGVSZXF1ZXN0EgoKAmlkGAEgASgJIhcKFVNlY3JldHNEZWxldGVSZXNwb25zZTKmBQoHU2VjcmV0cxJ0CgRMaXN0EiIub3NhYy5wdWJsaWMudjEuU2VjcmV0c0xpc3RSZXF1ZXN0GiMub3NhYy5wdWJsaWMudjEuU2VjcmV0c0xpc3RSZXNwb25zZSIjgtPkkwIdEhsvYXBpL2Z1bGZpbGxtZW50L3YxL3NlY3JldHMSfgoDR2V0EiEub3NhYy5wdWJsaWMudjEuU2VjcmV0c0dldFJlcXVlc3QaIi5vc2FjLnB1YmxpYy52MS5TZWNyZXRzR2V0UmVzcG9uc2UiMILT5JMCKmIGb2JqZWN0EiAvYXBpL2Z1bGZpbGxtZW50L3YxL3NlY3JldHMve2lkfRKKAQoGQ3JlYXRlEiQub3NhYy5wdWJsaWMudjEuU2VjcmV0c0NyZWF0ZVJlcXVlc3QaJS5vc2FjLnB1YmxpYy52MS5TZWNyZXRzQ3JlYXRlUmVzcG9uc2UiM4LT5JMCLToGb2JqZWN0YgZvYmplY3QiGy9hcGkvZnVsZmlsbG1lbnQvdjEvc2VjcmV0cxKWAQoGVXBkYXRlEiQub3NhYy5wdWJsaWMudjEuU2VjcmV0c1VwZGF0ZVJlcXVlc3QaJS5vc2FjLnB1YmxpYy52MS5TZWNyZXRzVXBkYXRlUmVzcG9uc2UiP4LT5JMCOToGb2JqZWN0YgZvYmplY3QyJy9hcGkvZnVsZmlsbG1lbnQvdjEvc2VjcmV0cy97b2JqZWN0LmlkfRJ/CgZEZWxldGUSJC5vc2FjLnB1YmxpYy52MS5TZWNyZXRzRGVsZXRlUmVxdWVzdBolLm9zYWMucHVibGljLnYxLlNlY3JldHNEZWxldGVSZXNwb25zZSIogtPkkwIiKiAvYXBpL2Z1bGZpbGxtZW50L3YxL3NlY3JldHMve2lkfWIGcHJvdG8z", [file_google_api_annotations, file_google_protobuf_field_mask, file_osac_public_v1_secret_type]);
 
 /**
- * Request message for listing secrets.
- *
  * @generated from message osac.public.v1.SecretsListRequest
  */
 export type SecretsListRequest = Message<"osac.public.v1.SecretsListRequest"> & {
@@ -58,9 +56,9 @@ export type SecretsListRequest = Message<"osac.public.v1.SecretsListRequest"> & 
    * The value of this parameter is a [CEL](https://cel.dev) expression used to select which objects to return. The
    * built-in `this` variable refers to the object being tested and `now` refers to the current date and time. If the
    * expression evaluates to `true` the object is included in the results. For example, to retrieve all secrets with
-   * names starting with `tls`:
+   * a Vault backend:
    *
-   *     this.metadata.name.startsWith("tls")
+   *     this.backend == SECRET_BACKEND_VAULT
    *
    * If this isn't provided, or if the value is empty, then all the secrets that the user has permission to see will be
    * returned. Not all CEL constructs are currently supported for implementation reasons; see the filter documentation
@@ -94,8 +92,6 @@ export const SecretsListRequestSchema: GenMessage<SecretsListRequest> = /*@__PUR
   messageDesc(file_osac_public_v1_secrets_service, 0);
 
 /**
- * Response message for listing secrets.
- *
  * @generated from message osac.public.v1.SecretsListResponse
  */
 export type SecretsListResponse = Message<"osac.public.v1.SecretsListResponse"> & {
@@ -132,14 +128,10 @@ export const SecretsListResponseSchema: GenMessage<SecretsListResponse> = /*@__P
   messageDesc(file_osac_public_v1_secrets_service, 1);
 
 /**
- * Request message for getting a single secret.
- *
  * @generated from message osac.public.v1.SecretsGetRequest
  */
 export type SecretsGetRequest = Message<"osac.public.v1.SecretsGetRequest"> & {
   /**
-   * Unique identifier of the secret to retrieve.
-   *
    * @generated from field: string id = 1;
    */
   id: string;
@@ -153,14 +145,10 @@ export const SecretsGetRequestSchema: GenMessage<SecretsGetRequest> = /*@__PURE_
   messageDesc(file_osac_public_v1_secrets_service, 2);
 
 /**
- * Response message for getting a single secret.
- *
  * @generated from message osac.public.v1.SecretsGetResponse
  */
 export type SecretsGetResponse = Message<"osac.public.v1.SecretsGetResponse"> & {
   /**
-   * The requested secret object.
-   *
    * @generated from field: osac.public.v1.Secret object = 1;
    */
   object?: Secret | undefined;
@@ -174,14 +162,10 @@ export const SecretsGetResponseSchema: GenMessage<SecretsGetResponse> = /*@__PUR
   messageDesc(file_osac_public_v1_secrets_service, 3);
 
 /**
- * Request message for creating a new secret.
- *
  * @generated from message osac.public.v1.SecretsCreateRequest
  */
 export type SecretsCreateRequest = Message<"osac.public.v1.SecretsCreateRequest"> & {
   /**
-   * The secret object to create.
-   *
    * @generated from field: osac.public.v1.Secret object = 1;
    */
   object?: Secret | undefined;
@@ -195,14 +179,10 @@ export const SecretsCreateRequestSchema: GenMessage<SecretsCreateRequest> = /*@_
   messageDesc(file_osac_public_v1_secrets_service, 4);
 
 /**
- * Response message for creating a new secret.
- *
  * @generated from message osac.public.v1.SecretsCreateResponse
  */
 export type SecretsCreateResponse = Message<"osac.public.v1.SecretsCreateResponse"> & {
   /**
-   * The created secret object, including any server-generated fields.
-   *
    * @generated from field: osac.public.v1.Secret object = 1;
    */
   object?: Secret | undefined;
@@ -216,21 +196,15 @@ export const SecretsCreateResponseSchema: GenMessage<SecretsCreateResponse> = /*
   messageDesc(file_osac_public_v1_secrets_service, 5);
 
 /**
- * Request message for updating an existing secret.
- *
  * @generated from message osac.public.v1.SecretsUpdateRequest
  */
 export type SecretsUpdateRequest = Message<"osac.public.v1.SecretsUpdateRequest"> & {
   /**
-   * The secret object with updated fields.
-   *
    * @generated from field: osac.public.v1.Secret object = 1;
    */
   object?: Secret | undefined;
 
   /**
-   * Field mask specifying which fields to update. If not provided, all fields will be updated.
-   *
    * @generated from field: google.protobuf.FieldMask update_mask = 2;
    */
   updateMask?: FieldMask | undefined;
@@ -253,14 +227,10 @@ export const SecretsUpdateRequestSchema: GenMessage<SecretsUpdateRequest> = /*@_
   messageDesc(file_osac_public_v1_secrets_service, 6);
 
 /**
- * Response message for updating an existing secret.
- *
  * @generated from message osac.public.v1.SecretsUpdateResponse
  */
 export type SecretsUpdateResponse = Message<"osac.public.v1.SecretsUpdateResponse"> & {
   /**
-   * The updated secret object.
-   *
    * @generated from field: osac.public.v1.Secret object = 1;
    */
   object?: Secret | undefined;
@@ -274,14 +244,10 @@ export const SecretsUpdateResponseSchema: GenMessage<SecretsUpdateResponse> = /*
   messageDesc(file_osac_public_v1_secrets_service, 7);
 
 /**
- * Request message for deleting a secret.
- *
  * @generated from message osac.public.v1.SecretsDeleteRequest
  */
 export type SecretsDeleteRequest = Message<"osac.public.v1.SecretsDeleteRequest"> & {
   /**
-   * Unique identifier of the secret to delete.
-   *
    * @generated from field: string id = 1;
    */
   id: string;
@@ -295,8 +261,6 @@ export const SecretsDeleteRequestSchema: GenMessage<SecretsDeleteRequest> = /*@_
   messageDesc(file_osac_public_v1_secrets_service, 8);
 
 /**
- * Response message for deleting a secret.
- *
  * @generated from message osac.public.v1.SecretsDeleteResponse
  */
 export type SecretsDeleteResponse = Message<"osac.public.v1.SecretsDeleteResponse"> & {
@@ -310,10 +274,11 @@ export const SecretsDeleteResponseSchema: GenMessage<SecretsDeleteResponse> = /*
   messageDesc(file_osac_public_v1_secrets_service, 9);
 
 /**
- * Service for managing secrets.
+ * Service for managing secrets through the private API.
  *
- * Secrets store sensitive key-value data such as TLS certificates, pull secrets, and credentials. They are scoped to
- * a tenant and can be referenced by other resources that require sensitive configuration data.
+ * Provides full CRUD access to secrets, including backend and coordinates fields that are not exposed through the
+ * public API. Used by controllers and administrators for secret lifecycle management and synchronization with
+ * external storage backends.
  *
  * @generated from service osac.public.v1.Secrets
  */

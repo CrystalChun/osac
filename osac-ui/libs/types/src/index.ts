@@ -79,3 +79,6 @@ export * from './osac/public/v1/project_type_pb.js';
 export * from './osac/public/v1/projects_service_pb.js';
 export * from './osac/public/v1/project_membership_type_pb.js';
 export * from './osac/public/v1/project_memberships_service_pb.js';
+
+export * from './osac/public/v1/secret_type_pb.js';
+export * from './osac/public/v1/secrets_service_pb.js';

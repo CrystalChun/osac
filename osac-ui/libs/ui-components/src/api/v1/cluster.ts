@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { type MessageInitShape } from '@bufbuild/protobuf';
 import { keepPreviousData, useMutation } from '@tanstack/react-query';
 
-import { ClusterSchema, Clusters } from '@osac/types';
+import { ClusterSchema, Clusters, Secrets } from '@osac/types';
 import { useProjectFilterQuery } from '@osac/ui-components/hooks/use-project-filter-query';
 
 import { useApiFetch } from '../api-context';
@@ -71,17 +71,21 @@ const triggerDownload = (content: string, filename: string) => {
 };
 
 export const useDownloadKubeconfig = () => {
-  const client = useApiFetch(Clusters);
+  const client = useApiFetch(Secrets);
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<unknown>();
 
   const download = useCallback(
-    async (id: string, clusterName: string) => {
+    async (kubeconfigSecretId: string, clusterName: string) => {
       setIsPending(true);
       setError(undefined);
       try {
-        const resp = await client.getKubeconfig({ id });
-        triggerDownload(resp.kubeconfig, `${clusterName}-kubeconfig.yaml`);
+        const resp = await client.get({ id: kubeconfigSecretId });
+        const bytes = resp.object?.data.kubeconfig;
+        if (!bytes) {
+          throw new Error('Kubeconfig secret is missing kubeconfig data');
+        }
+        triggerDownload(new TextDecoder().decode(bytes), `${clusterName}-kubeconfig.yaml`);
       } catch (e) {
         setError(e);
       } finally {
@@ -94,21 +98,27 @@ export const useDownloadKubeconfig = () => {
   return { download, isPending, error, setError };
 };
 
-export const useFetchClusterPassword = (id: string) => {
-  const client = useApiFetch(Clusters);
+export const useFetchClusterPassword = (passwordSecretId: string) => {
+  const client = useApiFetch(Secrets);
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<unknown>();
   const [password, setPassword] = useState<string>();
   const [resetId, setResetId] = useState<number>(0);
 
   useEffect(() => {
+    if (!passwordSecretId) {
+      setPassword(undefined);
+      return;
+    }
+
     const controller = new AbortController();
     (async () => {
       setIsPending(true);
       setError(undefined);
       try {
-        const resp = await client.getPassword({ id }, { signal: controller.signal });
-        setPassword(resp.password);
+        const resp = await client.get({ id: passwordSecretId }, { signal: controller.signal });
+        const bytes = resp.object?.data.password;
+        setPassword(bytes ? new TextDecoder().decode(bytes) : undefined);
       } catch (e) {
         if (!controller.signal.aborted) {
           setError(e);
@@ -119,7 +129,7 @@ export const useFetchClusterPassword = (id: string) => {
         }
       }
     })();
-  }, [client, resetId, id]);
+  }, [client, resetId, passwordSecretId]);
 
   const retry = useCallback(() => {
     setPassword(undefined);

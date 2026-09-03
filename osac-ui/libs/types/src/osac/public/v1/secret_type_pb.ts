@@ -26,7 +26,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/public/v1/secret_type.proto.
  */
 export const file_osac_public_v1_secret_type: GenFile = /*@__PURE__*/
-  fileDesc("CiBvc2FjL3B1YmxpYy92MS9zZWNyZXRfdHlwZS5wcm90bxIOb3NhYy5wdWJsaWMudjEimAEKBlNlY3JldBIKCgJpZBgBIAEoCRIqCghtZXRhZGF0YRgCIAEoCzIYLm9zYWMucHVibGljLnYxLk1ldGFkYXRhEigKBHNwZWMYAyABKAsyGi5vc2FjLnB1YmxpYy52MS5TZWNyZXRTcGVjEiwKBnN0YXR1cxgEIAEoCzIcLm9zYWMucHVibGljLnYxLlNlY3JldFN0YXR1cyJ7CgpTZWNyZXRTcGVjEkAKBGRhdGEYASADKAsyJC5vc2FjLnB1YmxpYy52MS5TZWNyZXRTcGVjLkRhdGFFbnRyeUIMukgJmgEGIgRyAhABGisKCURhdGFFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAw6AjgBIooBCgxTZWNyZXRTdGF0dXMSRQoNcmVzb2x2ZWRfZGF0YRgBIAMoCzIuLm9zYWMucHVibGljLnYxLlNlY3JldFN0YXR1cy5SZXNvbHZlZERhdGFFbnRyeRozChFSZXNvbHZlZERhdGFFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAw6AjgBYgZwcm90bzM", [file_buf_validate_validate, file_osac_public_v1_metadata_type]);
+  fileDesc("CiBvc2FjL3B1YmxpYy92MS9zZWNyZXRfdHlwZS5wcm90bxIOb3NhYy5wdWJsaWMudjEiqwEKBlNlY3JldBIKCgJpZBgBIAEoCRIqCghtZXRhZGF0YRgCIAEoCzIYLm9zYWMucHVibGljLnYxLk1ldGFkYXRhEjwKBGRhdGEYAyADKAsyIC5vc2FjLnB1YmxpYy52MS5TZWNyZXQuRGF0YUVudHJ5Qgy6SAmaAQYiBHICEAEaKwoJRGF0YUVudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoDDoCOAEiMAoUU2VjcmV0TG9jYWxSZWZlcmVuY2USCgoCaWQYASABKAkSDAoEbmFtZRgCIAEoCWIGcHJvdG8z", [file_buf_validate_validate, file_osac_public_v1_metadata_type]);
 
 /**
  * Represents a secret containing opaque key-value data.
@@ -35,6 +35,8 @@ export const file_osac_public_v1_secret_type: GenFile = /*@__PURE__*/
  * of named binary values. For example, a TLS secret might contain entries named `tls.crt` and `tls.key`.
  *
  * Secrets are scoped to a tenant and can be referenced by other resources that require sensitive configuration data.
+ *
+ * buf:lint:ignore OSAC_OBJECT_SHAPE
  *
  * @generated from message osac.public.v1.Secret
  */
@@ -54,18 +56,13 @@ export type Secret = Message<"osac.public.v1.Secret"> & {
   metadata?: Metadata | undefined;
 
   /**
-   * Desired state of the secret.
+   * Opaque key-value data. Each key identifies a named entry (for example, `crt` or `key`) and the
+   * corresponding value is the raw secret material. Populated in Get responses; omitted from List and
+   * mutating responses.
    *
-   * @generated from field: osac.public.v1.SecretSpec spec = 3;
+   * @generated from field: map<string, bytes> data = 3;
    */
-  spec?: SecretSpec | undefined;
-
-  /**
-   * Observed state of the secret, populated by the server.
-   *
-   * @generated from field: osac.public.v1.SecretStatus status = 4;
-   */
-  status?: SecretStatus | undefined;
+  data: { [key: string]: Uint8Array };
 };
 
 /**
@@ -76,45 +73,26 @@ export const SecretSchema: GenMessage<Secret> = /*@__PURE__*/
   messageDesc(file_osac_public_v1_secret_type, 0);
 
 /**
- * Desired state of a secret.
+ * Local reference to a Secret resource.
  *
- * @generated from message osac.public.v1.SecretSpec
+ * @generated from message osac.public.v1.SecretLocalReference
  */
-export type SecretSpec = Message<"osac.public.v1.SecretSpec"> & {
+export type SecretLocalReference = Message<"osac.public.v1.SecretLocalReference"> & {
   /**
-   * Opaque key-value data. Each key identifies a named entry (for example, `crt` or `key`) and the
-   * corresponding value is the raw secret material.
-   *
-   * @generated from field: map<string, bytes> data = 1;
+   * @generated from field: string id = 1;
    */
-  data: { [key: string]: Uint8Array };
+  id: string;
+
+  /**
+   * @generated from field: string name = 2;
+   */
+  name: string;
 };
 
 /**
- * Describes the message osac.public.v1.SecretSpec.
- * Use `create(SecretSpecSchema)` to create a new message.
+ * Describes the message osac.public.v1.SecretLocalReference.
+ * Use `create(SecretLocalReferenceSchema)` to create a new message.
  */
-export const SecretSpecSchema: GenMessage<SecretSpec> = /*@__PURE__*/
+export const SecretLocalReferenceSchema: GenMessage<SecretLocalReference> = /*@__PURE__*/
   messageDesc(file_osac_public_v1_secret_type, 1);
-
-/**
- * Observed state of a secret, populated by the server.
- *
- * @generated from message osac.public.v1.SecretStatus
- */
-export type SecretStatus = Message<"osac.public.v1.SecretStatus"> & {
-  /**
-   * The secret's resolved key-value data. Present in Get responses; omitted from List responses.
-   *
-   * @generated from field: map<string, bytes> resolved_data = 1;
-   */
-  resolvedData: { [key: string]: Uint8Array };
-};
-
-/**
- * Describes the message osac.public.v1.SecretStatus.
- * Use `create(SecretStatusSchema)` to create a new message.
- */
-export const SecretStatusSchema: GenMessage<SecretStatus> = /*@__PURE__*/
-  messageDesc(file_osac_public_v1_secret_type, 2);
 

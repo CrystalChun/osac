@@ -47,6 +47,16 @@ const mockCluster = (state: ClusterState): Cluster => ({
     nodeSets: {},
     apiEndpoint: '',
     ingressEndpoint: '',
+    kubeconfigSecret: {
+      $typeName: 'osac.public.v1.SecretLocalReference',
+      id: 'kubeconfig-secret-123',
+      name: 'my-cluster-kubeconfig',
+    },
+    passwordSecret: {
+      $typeName: 'osac.public.v1.SecretLocalReference',
+      id: 'password-secret-123',
+      name: 'my-cluster-password',
+    },
   },
   spec: {
     $typeName: 'osac.public.v1.ClusterSpec',
@@ -122,7 +132,7 @@ describe('ClusterDetailsActionButtons', () => {
 
     await user.click(screen.getByRole('button', { name: /Download kubeconfig/i }));
 
-    expect(download).toHaveBeenCalledWith('cluster-123', 'my-cluster');
+    expect(download).toHaveBeenCalledWith('kubeconfig-secret-123', 'my-cluster');
   });
 
   it('shows error modal with retry on failed kubeconfig download', async () => {
@@ -140,7 +150,7 @@ describe('ClusterDetailsActionButtons', () => {
 
     await user.click(screen.getByRole('button', { name: /Retry/i }));
 
-    expect(download).toHaveBeenCalledWith('cluster-123', 'my-cluster');
+    expect(download).toHaveBeenCalledWith('kubeconfig-secret-123', 'my-cluster');
   });
 
   it('opens password modal when view password is clicked', async () => {

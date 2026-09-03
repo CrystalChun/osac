@@ -1,13 +1,6 @@
-import { create } from '@bufbuild/protobuf';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-
-import {
-  Cluster,
-  ClusterCatalogItemReferenceSchema,
-  ClusterTemplateReferenceSchema,
-} from '@osac/types';
 
 import ClusterPasswordModal from './ClusterPasswordModal';
 import * as clusterApi from '../../../api/v1/cluster';
@@ -20,39 +13,7 @@ vi.mock('../../../api/v1/cluster', async (importOriginal) => {
   };
 });
 
-const mockCluster: Cluster = {
-  $typeName: 'osac.public.v1.Cluster',
-  id: 'cluster-456',
-  metadata: {
-    $typeName: 'osac.public.v1.Metadata',
-    displayName: '',
-    description: '',
-    name: 'test-cluster',
-    annotations: {},
-    creator: 'foo',
-    labels: {},
-    project: 'foo',
-    tenant: 'foo',
-    version: 1,
-  },
-  status: {
-    $typeName: 'osac.public.v1.ClusterStatus',
-    state: 2,
-    conditions: [],
-    apiUrl: '',
-    consoleUrl: '',
-    nodeSets: {},
-    apiEndpoint: '',
-    ingressEndpoint: '',
-  },
-  spec: {
-    $typeName: 'osac.public.v1.ClusterSpec',
-    template: create(ClusterTemplateReferenceSchema, { id: '' }),
-    templateParameters: {},
-    nodeSets: {},
-    catalogItem: create(ClusterCatalogItemReferenceSchema, { id: '' }),
-  },
-};
+const passwordSecretId = 'password-secret-456';
 
 describe('ClusterPasswordModal', () => {
   const retry = vi.fn();
@@ -73,13 +34,13 @@ describe('ClusterPasswordModal', () => {
       ...overrides,
     });
 
-    return render(<ClusterPasswordModal cluster={mockCluster} onClose={onClose} />);
+    return render(<ClusterPasswordModal passwordSecretId={passwordSecretId} onClose={onClose} />);
   };
 
   it('fetches password on mount', () => {
     renderModal();
 
-    expect(clusterApi.useFetchClusterPassword).toHaveBeenCalledWith('cluster-456');
+    expect(clusterApi.useFetchClusterPassword).toHaveBeenCalledWith(passwordSecretId);
   });
 
   it('shows spinner while loading', () => {
