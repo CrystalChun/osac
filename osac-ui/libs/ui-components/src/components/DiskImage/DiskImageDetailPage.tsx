@@ -1,19 +1,35 @@
-import { useParams } from 'react-router-dom';
+import { useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
+  ActionList,
+  ActionListGroup,
+  ActionListItem,
+  Button,
   Card,
   CardBody,
   DescriptionList,
   DescriptionListDescription,
   DescriptionListGroup,
   DescriptionListTerm,
+  Divider,
+  Flex,
+  FlexItem,
   PageSection,
+  Stack,
+  StackItem,
 } from '@patternfly/react-core';
 import type { TFunction } from 'i18next';
 
-import { SourceType } from '@osac/types';
+import { type DiskImage, DiskImageLifecycle, SourceType } from '@osac/types';
 
+import DiskImageDeleteConfirmModal from './DiskImageDeleteConfirmModal';
 import DiskImageLifecycleLabel from './DiskImageLifecycleLabel';
 import { architectureLabels, guestOsFamilyLabels } from './DiskImageTable';
+import {
+  type DiskImageLifecycleAction,
+  getDiskImageLifecycleActions,
+  useDiskImageLifecycleAction,
+} from './useDiskImageLifecycleAction';
 import { useDiskImage } from '../../api/v1/disk-image';
 import { useTranslation } from '../../hooks/useTranslation';
 import { displayValue } from '../../utils/detailFormatters';
@@ -24,6 +40,78 @@ import { ResourceDetailsPageLoading } from '../Resource/ResourceDetailsPageLoadi
 
 export const DISK_IMAGES_LIST_ROUTE = '/admin/infrastructure/disk-images';
 
+interface DiskImageDetailActionsProps {
+  diskImage: DiskImage;
+  onDeleted: () => void;
+}
+
+const DiskImageDetailActions = ({ diskImage, onDeleted }: DiskImageDetailActionsProps) => {
+  const { t } = useTranslation();
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const { runLifecycleAction } = useDiskImageLifecycleAction();
+
+  const { canDeprecate, canObsolete, canReactivate, canDelete } = getDiskImageLifecycleActions(
+    diskImage.spec?.lifecycle,
+  );
+
+  const runTransition = (action: DiskImageLifecycleAction) =>
+    runLifecycleAction(diskImage.id, action);
+
+  return (
+    <>
+      <ActionList>
+        <ActionListGroup>
+          {canDeprecate && (
+            <ActionListItem>
+              <Button
+                variant="secondary"
+                onClick={() => runTransition(DiskImageLifecycle.DEPRECATED)}
+              >
+                {t('Deprecate')}
+              </Button>
+            </ActionListItem>
+          )}
+          {canObsolete && (
+            <ActionListItem>
+              <Button
+                variant="secondary"
+                onClick={() => runTransition(DiskImageLifecycle.OBSOLETE)}
+              >
+                {t('Obsolete')}
+              </Button>
+            </ActionListItem>
+          )}
+          {canReactivate && (
+            <ActionListItem>
+              <Button
+                variant="secondary"
+                onClick={() => runTransition(DiskImageLifecycle.AVAILABLE)}
+              >
+                {t('Reactivate')}
+              </Button>
+            </ActionListItem>
+          )}
+          {canDelete && (
+            <ActionListItem>
+              <Button variant="danger" onClick={() => setDeleteOpen(true)}>
+                {t('Delete')}
+              </Button>
+            </ActionListItem>
+          )}
+        </ActionListGroup>
+      </ActionList>
+
+      {deleteOpen && (
+        <DiskImageDeleteConfirmModal
+          diskImage={diskImage}
+          onClose={() => setDeleteOpen(false)}
+          onSuccess={onDeleted}
+        />
+      )}
+    </>
+  );
+};
+
 const sourceTypeLabels = (t: TFunction): Record<SourceType, string> => ({
   [SourceType.UNSPECIFIED]: t('Unspecified'),
   [SourceType.REGISTRY]: t('Registry'),
@@ -31,6 +119,7 @@ const sourceTypeLabels = (t: TFunction): Record<SourceType, string> => ({
 
 const DiskImageDetailPage = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { id = '' } = useParams<{ id: string }>();
   const { data: diskImage, isLoading, isError, error, refetch } = useDiskImage(id);
 
@@ -75,12 +164,33 @@ const DiskImageDetailPage = () => {
   return (
     <>
       <PageSection hasBodyWrapper={false}>
-        <ResourceDetailHeader
-          parentTo={DISK_IMAGES_LIST_ROUTE}
-          parentLabel={t('Disk images')}
-          resourceName={diskImage.metadata?.name || diskImage.id}
-        />
-        {/* Lifecycle ActionList insertion point — OSAC-4453 */}
+        <Stack hasGutter>
+          <StackItem>
+            <Flex
+              justifyContent={{ default: 'justifyContentSpaceBetween' }}
+              alignItems={{ default: 'alignItemsFlexStart' }}
+              flexWrap={{ default: 'wrap' }}
+              spaceItems={{ default: 'spaceItemsMd' }}
+            >
+              <FlexItem>
+                <ResourceDetailHeader
+                  parentTo={DISK_IMAGES_LIST_ROUTE}
+                  parentLabel={t('Disk images')}
+                  resourceName={diskImage.metadata?.name || diskImage.id}
+                />
+              </FlexItem>
+              <FlexItem>
+                <DiskImageDetailActions
+                  diskImage={diskImage}
+                  onDeleted={() => navigate(DISK_IMAGES_LIST_ROUTE)}
+                />
+              </FlexItem>
+            </Flex>
+          </StackItem>
+          <StackItem>
+            <Divider />
+          </StackItem>
+        </Stack>
       </PageSection>
 
       <PageSection hasBodyWrapper={false}>

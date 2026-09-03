@@ -19,7 +19,6 @@ import {
   buildDiskImageListFilter,
   invalidateDiskImagesQueries,
   useCreateDiskImage,
-  useDeleteDiskImage,
   useDiskImage,
   useDiskImages,
   useUpdateDiskImage,
@@ -336,25 +335,6 @@ describe('useUpdateDiskImage', () => {
     ]);
     const object = captured?.object as { id?: string };
     expect(object.id).toBe('di-1');
-    expect(queryClient.getQueryState(['v1/disk_images'])?.isInvalidated).toBe(true);
-  });
-});
-
-describe('useDeleteDiskImage', () => {
-  it('deletes a disk image by id and invalidates the list query', async () => {
-    const transport = createMockConnectTransport({
-      diskImages: [makeDiskImage('di-1')],
-    });
-    const { wrapper, queryClient } = makeWrapper(transport);
-    queryClient.setQueryData(['v1/disk_images'], { items: [] });
-    const { result } = renderHook(() => useDeleteDiskImage(), { wrapper });
-
-    act(() => {
-      result.current.mutate('di-1');
-    });
-
-    await waitFor(() => expect(result.current.isSuccess || result.current.isError).toBe(true));
-    expect(result.current.isSuccess).toBe(true);
     expect(queryClient.getQueryState(['v1/disk_images'])?.isInvalidated).toBe(true);
   });
 });

@@ -180,12 +180,3 @@ export const useUpdateDiskImage = () => {
     onSuccess: () => invalidateDiskImagesQueries(qc),
   });
 };
-
-export const useDeleteDiskImage = () => {
-  const client = useApiFetch(DiskImages);
-  const qc = useApiQueryClient();
-  return useMutation({
-    mutationFn: (id: string) => client.delete({ id }),
-    onSuccess: () => invalidateDiskImagesQueries(qc),
-  });
-};

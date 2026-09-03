@@ -1,7 +1,7 @@
 import { Route, Routes } from 'react-router-dom';
 import { create } from '@bufbuild/protobuf';
 import { Code, ConnectError } from '@connectrpc/connect';
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
 import {
@@ -9,6 +9,7 @@ import {
   type DiskImage,
   DiskImageLifecycle,
   DiskImageSchema,
+  DiskImagesDeleteResponseSchema,
   GuestOSFamily,
   SourceType,
 } from '@osac/types';
@@ -53,6 +54,18 @@ const availableImage: DiskImage = create(DiskImageSchema, {
     guestOsFamily: GuestOSFamily.GUEST_OS_FAMILY_LINUX,
     architecture: [Architecture.AMD64],
     lifecycle: DiskImageLifecycle.AVAILABLE,
+  },
+});
+
+const obsoleteImage: DiskImage = create(DiskImageSchema, {
+  id: 'disk-3',
+  metadata: { name: 'centos-9', tenant: 'shared' },
+  spec: {
+    sourceType: SourceType.REGISTRY,
+    sourceRef: 'quay.io/containerdisks/centos:9',
+    guestOsFamily: GuestOSFamily.GUEST_OS_FAMILY_LINUX,
+    architecture: [Architecture.AMD64],
+    lifecycle: DiskImageLifecycle.OBSOLETE,
   },
 });
 
@@ -155,5 +168,106 @@ describe('DiskImageDetailPage', () => {
     await waitFor(() => {
       expect(callCount).toBe(2);
     });
+  });
+
+  it('shows Deprecate and Obsolete buttons, not Reactivate or Delete, for an AVAILABLE image', async () => {
+    renderAt('/admin/infrastructure/disk-images/disk-2', { diskImages: [availableImage] });
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: 'ubuntu-24' })).toBeInTheDocument();
+    });
+
+    expect(screen.getByRole('button', { name: 'Deprecate' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Obsolete' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Reactivate' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
+  });
+
+  it('shows Obsolete and Reactivate buttons, not Deprecate or Delete, for a DEPRECATED image', async () => {
+    renderAt('/admin/infrastructure/disk-images/disk-1', { diskImages: [deprecatedImage] });
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: 'fedora-41' })).toBeInTheDocument();
+    });
+
+    expect(screen.getByRole('button', { name: 'Obsolete' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Reactivate' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Deprecate' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
+  });
+
+  it('shows Reactivate and Delete buttons, not Deprecate or Obsolete, for an OBSOLETE image', async () => {
+    renderAt('/admin/infrastructure/disk-images/disk-3', { diskImages: [obsoleteImage] });
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: 'centos-9' })).toBeInTheDocument();
+    });
+
+    expect(screen.getByRole('button', { name: 'Reactivate' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Deprecate' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Obsolete' })).not.toBeInTheDocument();
+  });
+
+  it('opens the delete confirmation modal without issuing a request when Delete is clicked', async () => {
+    let deleteCalled = false;
+    const { user } = renderWithProviders(
+      <Routes>
+        <Route path={DETAIL_ROUTE} element={<DiskImageDetailPage />} />
+      </Routes>,
+      {
+        routerEntries: ['/admin/infrastructure/disk-images/disk-3'],
+        apiFixtures: { diskImages: [obsoleteImage] },
+        transportOverrides: {
+          onDiskImageDelete: () => {
+            deleteCalled = true;
+            return create(DiskImagesDeleteResponseSchema);
+          },
+        },
+      },
+    );
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: 'centos-9' })).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole('button', { name: 'Delete' }));
+
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(deleteCalled).toBe(false);
+  });
+
+  it('deletes the image and navigates to the list on success', async () => {
+    let deleteCalled = false;
+    const { user } = renderWithProviders(
+      <Routes>
+        <Route path={DETAIL_ROUTE} element={<DiskImageDetailPage />} />
+        <Route path={LIST_PATH} element={<div>navigated-to-list</div>} />
+      </Routes>,
+      {
+        routerEntries: ['/admin/infrastructure/disk-images/disk-3'],
+        apiFixtures: { diskImages: [obsoleteImage] },
+        transportOverrides: {
+          onDiskImageDelete: (req) => {
+            deleteCalled = true;
+            expect(req.id).toBe('disk-3');
+            return create(DiskImagesDeleteResponseSchema);
+          },
+        },
+      },
+    );
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: 'centos-9' })).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole('button', { name: 'Delete' }));
+    const dialog = screen.getByRole('dialog');
+    await user.click(within(dialog).getByRole('button', { name: 'Delete' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('navigated-to-list')).toBeInTheDocument();
+    });
+    expect(deleteCalled).toBe(true);
   });
 });
