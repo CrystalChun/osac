@@ -17,6 +17,7 @@
 
 import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_cleanapi_cleanapi } from "../../../cleanapi/cleanapi_pb";
 import { file_google_api_field_behavior } from "../../../google/api/field_behavior_pb";
 import type { Metadata } from "./metadata_type_pb";
 import { file_osac_private_v1_metadata_type } from "./metadata_type_pb";
@@ -28,7 +29,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/private/v1/virtual_network_type.proto.
  */
 export const file_osac_private_v1_virtual_network_type: GenFile = /*@__PURE__*/
-  fileDesc("Cipvc2FjL3ByaXZhdGUvdjEvdmlydHVhbF9uZXR3b3JrX3R5cGUucHJvdG8SD29zYWMucHJpdmF0ZS52MSKzAQoOVmlydHVhbE5ldHdvcmsSCgoCaWQYASABKAkSKwoIbWV0YWRhdGEYAiABKAsyGS5vc2FjLnByaXZhdGUudjEuTWV0YWRhdGESMQoEc3BlYxgDIAEoCzIjLm9zYWMucHJpdmF0ZS52MS5WaXJ0dWFsTmV0d29ya1NwZWMSNQoGc3RhdHVzGAQgASgLMiUub3NhYy5wcml2YXRlLnYxLlZpcnR1YWxOZXR3b3JrU3RhdHVzIoYCChJWaXJ0dWFsTmV0d29ya1NwZWMSFgoGcmVnaW9uGAEgASgJQgbgQQLgQQUSRQoNbmV0d29ya19jbGFzcxgCIAEoCzImLm9zYWMucHJpdmF0ZS52MS5OZXR3b3JrQ2xhc3NSZWZlcmVuY2VCBuBBAeBBBRIbCglpcHY0X2NpZHIYAyABKAlCA+BBBUgAiAEBEhsKCWlwdjZfY2lkchgEIAEoCUID4EEFSAGIAQESJwoXaW1wbGVtZW50YXRpb25fc3RyYXRlZ3kYBiABKAlCBuBBA+BBBUIMCgpfaXB2NF9jaWRyQgwKCl9pcHY2X2NpZHJKBAgFEAZSDGNhcGFiaWxpdGllcyJ6ChRWaXJ0dWFsTmV0d29ya1N0YXR1cxIzCgVzdGF0ZRgBIAEoDjIkLm9zYWMucHJpdmF0ZS52MS5WaXJ0dWFsTmV0d29ya1N0YXRlEhQKB21lc3NhZ2UYAiABKAlIAIgBARILCgNodWIYAyABKAlCCgoIX21lc3NhZ2UiOAocVmlydHVhbE5ldHdvcmtMb2NhbFJlZmVyZW5jZRIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJKqIBChNWaXJ0dWFsTmV0d29ya1N0YXRlEiUKIVZJUlRVQUxfTkVUV09SS19TVEFURV9VTlNQRUNJRklFRBAAEiEKHVZJUlRVQUxfTkVUV09SS19TVEFURV9QRU5ESU5HEAESHwobVklSVFVBTF9ORVRXT1JLX1NUQVRFX1JFQURZEAISIAocVklSVFVBTF9ORVRXT1JLX1NUQVRFX0ZBSUxFRBADYgZwcm90bzM", [file_google_api_field_behavior, file_osac_private_v1_metadata_type, file_osac_private_v1_network_class_type]);
+  fileDesc("Cipvc2FjL3ByaXZhdGUvdjEvdmlydHVhbF9uZXR3b3JrX3R5cGUucHJvdG8SD29zYWMucHJpdmF0ZS52MSKzAQoOVmlydHVhbE5ldHdvcmsSCgoCaWQYASABKAkSKwoIbWV0YWRhdGEYAiABKAsyGS5vc2FjLnByaXZhdGUudjEuTWV0YWRhdGESMQoEc3BlYxgDIAEoCzIjLm9zYWMucHJpdmF0ZS52MS5WaXJ0dWFsTmV0d29ya1NwZWMSNQoGc3RhdHVzGAQgASgLMiUub3NhYy5wcml2YXRlLnYxLlZpcnR1YWxOZXR3b3JrU3RhdHVzItUBChJWaXJ0dWFsTmV0d29ya1NwZWMSGwoJaXB2NF9jaWRyGAEgASgJQgPgQQVIAIgBARIbCglpcHY2X2NpZHIYAiABKAlCA+BBBUgBiAEBEhwKBnJlZ2lvbhgDIAEoCUIM4EEC4EEFirUYAggBEksKDW5ldHdvcmtfY2xhc3MYBCABKAsyJi5vc2FjLnByaXZhdGUudjEuTmV0d29ya0NsYXNzUmVmZXJlbmNlQgzgQQHgQQWKtRgCCAFCDAoKX2lwdjRfY2lkckIMCgpfaXB2Nl9jaWRyIoIBChRWaXJ0dWFsTmV0d29ya1N0YXR1cxIzCgVzdGF0ZRgBIAEoDjIkLm9zYWMucHJpdmF0ZS52MS5WaXJ0dWFsTmV0d29ya1N0YXRlEhQKB21lc3NhZ2UYAiABKAlIAIgBARITCgNodWIYAyABKAlCBoq1GAIIAUIKCghfbWVzc2FnZSI4ChxWaXJ0dWFsTmV0d29ya0xvY2FsUmVmZXJlbmNlEgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkqogEKE1ZpcnR1YWxOZXR3b3JrU3RhdGUSJQohVklSVFVBTF9ORVRXT1JLX1NUQVRFX1VOU1BFQ0lGSUVEEAASIQodVklSVFVBTF9ORVRXT1JLX1NUQVRFX1BFTkRJTkcQARIfChtWSVJUVUFMX05FVFdPUktfU1RBVEVfUkVBRFkQAhIgChxWSVJUVUFMX05FVFdPUktfU1RBVEVfRkFJTEVEEANCFIq1GBASDm9zYWMucHVibGljLnYxYgZwcm90bzM", [file_cleanapi_cleanapi, file_google_api_field_behavior, file_osac_private_v1_metadata_type, file_osac_private_v1_network_class_type]);
 
 /**
  * Represents a tenant-isolated virtual network.
@@ -96,30 +97,6 @@ export const VirtualNetworkSchema: GenMessage<VirtualNetwork> = /*@__PURE__*/
  */
 export type VirtualNetworkSpec = Message<"osac.private.v1.VirtualNetworkSpec"> & {
   /**
-   * Region where the network is created. This is required and immutable after creation.
-   *
-   * VirtualNetworks are region-scoped resources and cannot span multiple regions. Compute instances can only
-   * attach to VirtualNetworks in the same region.
-   *
-   * Example: "us-east-1", "eu-west-2"
-   *
-   * @generated from field: string region = 1;
-   */
-  region: string;
-
-  /**
-   * The NetworkClass for this VirtualNetwork. If omitted on creation, the default NetworkClass is used.
-   * Once set (either explicitly or via default), this field is immutable.
-   *
-   * The selected NetworkClass determines the network backend (implementation_strategy) and the available
-   * capabilities. The NetworkClass must support the IP addressing mode implied by whichever of ipv4_cidr
-   * and ipv6_cidr are set below.
-   *
-   * @generated from field: osac.private.v1.NetworkClassReference network_class = 2;
-   */
-  networkClass?: NetworkClassReference | undefined;
-
-  /**
    * IPv4 CIDR block for this network. Optional for IPv6-only networks. Immutable after creation.
    *
    * Must be valid CIDR notation. Validation enforced at service layer.
@@ -129,7 +106,7 @@ export type VirtualNetworkSpec = Message<"osac.private.v1.VirtualNetworkSpec"> &
    *
    * Leave empty when creating an IPv6-only network.
    *
-   * @generated from field: optional string ipv4_cidr = 3;
+   * @generated from field: optional string ipv4_cidr = 1;
    */
   ipv4Cidr?: string | undefined;
 
@@ -143,24 +120,33 @@ export type VirtualNetworkSpec = Message<"osac.private.v1.VirtualNetworkSpec"> &
    *
    * Leave empty when creating an IPv4-only network.
    *
-   * @generated from field: optional string ipv6_cidr = 4;
+   * @generated from field: optional string ipv6_cidr = 2;
    */
   ipv6Cidr?: string | undefined;
 
   /**
-   * Implementation strategy for provisioning this network.
+   * Region where the network is created. This is required and immutable after creation.
    *
-   * This determines the underlying network backend and Ansible role to use (e.g., "cudn" uses cudn_virtual_network
-   * role). The value is derived from the NetworkClass at creation time and stored here for direct access by
-   * controllers and provisioning systems.
+   * VirtualNetworks are region-scoped resources and cannot span multiple regions. Compute instances can only
+   * attach to VirtualNetworks in the same region.
    *
-   * This field is set by the system based on the selected network_class and is immutable after creation.
+   * Example: "us-east-1", "eu-west-2"
    *
-   * Example: "cudn", "physnet", "ovn"
-   *
-   * @generated from field: string implementation_strategy = 6;
+   * @generated from field: string region = 3;
    */
-  implementationStrategy: string;
+  region: string;
+
+  /**
+   * The NetworkClass for this VirtualNetwork. If omitted on creation, the default NetworkClass is used.
+   * Once set (either explicitly or via default), this field is immutable.
+   *
+   * The selected NetworkClass determines the network backend (via its fabric_manager/k8s_manager) and the
+   * available capabilities. The NetworkClass must support the IP addressing mode implied by whichever of
+   * ipv4_cidr and ipv6_cidr are set below.
+   *
+   * @generated from field: osac.private.v1.NetworkClassReference network_class = 4;
+   */
+  networkClass?: NetworkClassReference | undefined;
 };
 
 /**

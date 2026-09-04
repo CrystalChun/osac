@@ -313,7 +313,7 @@ export const RoleBindingsDeleteResponseSchema: GenMessage<RoleBindingsDeleteResp
  * Service for managing role bindings.
  *
  * Role bindings grant the permissions defined by a role to a set of users. Only administrators can create, update,
- * or delete role bindings. Regular users can only get and list them.
+ * or delete role bindings. Regular users can only list and get role bindings.
  *
  * @generated from service osac.public.v1.RoleBindings
  */
@@ -339,9 +339,7 @@ export const RoleBindings: GenService<{
     output: typeof RoleBindingsGetResponseSchema;
   },
   /**
-   * Creates a new role binding.
-   *
-   * This method isn't allowed for regular users, only for administrators.
+   * Creates a new role binding. This operation is only available to administrators.
    *
    * @generated from rpc osac.public.v1.RoleBindings.Create
    */
@@ -351,9 +349,7 @@ export const RoleBindings: GenService<{
     output: typeof RoleBindingsCreateResponseSchema;
   },
   /**
-   * Updates an existing role binding.
-   *
-   * This method isn't allowed for regular users, only for administrators.
+   * Updates an existing role binding. This operation is only available to administrators.
    *
    * @generated from rpc osac.public.v1.RoleBindings.Update
    */
@@ -363,9 +359,7 @@ export const RoleBindings: GenService<{
     output: typeof RoleBindingsUpdateResponseSchema;
   },
   /**
-   * Deletes a role binding.
-   *
-   * This method isn't allowed for regular users, only for administrators.
+   * Deletes a role binding. This operation is only available to administrators.
    *
    * @generated from rpc osac.public.v1.RoleBindings.Delete
    */

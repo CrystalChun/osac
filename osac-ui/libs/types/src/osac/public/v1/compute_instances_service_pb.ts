@@ -308,9 +308,6 @@ export const ComputeInstances: GenService<{
   /**
    * Creates a new compute instance.
    *
-   * Note that this operation is not allowed for regular users, only for the server. Regular users create compute instances
-   * indirectly, creating a compute instance order that will eventually result in the system creating a compute instance.
-   *
    * @generated from rpc osac.public.v1.ComputeInstances.Create
    */
   create: {
@@ -321,26 +318,6 @@ export const ComputeInstances: GenService<{
   /**
    * Updates an existing compute instance.
    *
-   * In the HTTP+JSON version of the API this is mapped to the `PATCH` verb and the `update_mask` field is automatically
-   * populated from the list of fields present in the request body. For example, to update the `state` of a compute instance to
-   * `READY` the request line should be like this:
-   *
-   * ```http
-   * PATCH /api/fulfillment/v1/compute_instances/123
-   * ```
-   *
-   * And the request body should be like this:
-   *
-   * ```json
-   * {
-   *   "status": {
-   *     "state": "COMPUTE_INSTANCE_STATE_READY"
-   *   }
-   * }
-   * ```
-   *
-   * The response body will contain the modified object.
-   *
    * @generated from rpc osac.public.v1.ComputeInstances.Update
    */
   update: {
@@ -349,7 +326,7 @@ export const ComputeInstances: GenService<{
     output: typeof ComputeInstancesUpdateResponseSchema;
   },
   /**
-   * Delete a compute instance.
+   * Deletes a compute instance.
    *
    * @generated from rpc osac.public.v1.ComputeInstances.Delete
    */

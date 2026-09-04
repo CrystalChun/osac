@@ -153,7 +153,7 @@ export const UserCredentialsSchema: GenMessage<UserCredentials> = /*@__PURE__*/
  */
 export type UserStatus = Message<"osac.public.v1.UserStatus"> & {
   /**
-   * The user's current state in the identity provider.
+   * The user's current state.
    *
    * @generated from field: string phase = 1;
    */

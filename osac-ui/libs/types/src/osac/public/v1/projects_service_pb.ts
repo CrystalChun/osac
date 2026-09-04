@@ -31,6 +31,8 @@ export const file_osac_public_v1_projects_service: GenFile = /*@__PURE__*/
   fileDesc("CiVvc2FjL3B1YmxpYy92MS9wcm9qZWN0c19zZXJ2aWNlLnByb3RvEg5vc2FjLnB1YmxpYy52MSKRAQoTUHJvamVjdHNMaXN0UmVxdWVzdBITCgZvZmZzZXQYASABKAVIAIgBARISCgVsaW1pdBgCIAEoBUgBiAEBEhMKBmZpbHRlchgDIAEoCUgCiAEBEhIKBW9yZGVyGAQgASgJSAOIAQFCCQoHX29mZnNldEIICgZfbGltaXRCCQoHX2ZpbHRlckIICgZfb3JkZXIiWwoUUHJvamVjdHNMaXN0UmVzcG9uc2USDAoEc2l6ZRgBIAEoBRINCgV0b3RhbBgCIAEoBRImCgVpdGVtcxgDIAMoCzIXLm9zYWMucHVibGljLnYxLlByb2plY3QiIAoSUHJvamVjdHNHZXRSZXF1ZXN0EgoKAmlkGAEgASgJIj4KE1Byb2plY3RzR2V0UmVzcG9uc2USJwoGb2JqZWN0GAEgASgLMhcub3NhYy5wdWJsaWMudjEuUHJvamVjdCJAChVQcm9qZWN0c0NyZWF0ZVJlcXVlc3QSJwoGb2JqZWN0GAEgASgLMhcub3NhYy5wdWJsaWMudjEuUHJvamVjdCJBChZQcm9qZWN0c0NyZWF0ZVJlc3BvbnNlEicKBm9iamVjdBgBIAEoCzIXLm9zYWMucHVibGljLnYxLlByb2plY3QifwoVUHJvamVjdHNVcGRhdGVSZXF1ZXN0EicKBm9iamVjdBgBIAEoCzIXLm9zYWMucHVibGljLnYxLlByb2plY3QSLwoLdXBkYXRlX21hc2sYAiABKAsyGi5nb29nbGUucHJvdG9idWYuRmllbGRNYXNrEgwKBGxvY2sYAyABKAgiQQoWUHJvamVjdHNVcGRhdGVSZXNwb25zZRInCgZvYmplY3QYASABKAsyFy5vc2FjLnB1YmxpYy52MS5Qcm9qZWN0IiMKFVByb2plY3RzRGVsZXRlUmVxdWVzdBIKCgJpZBgBIAEoCSIYChZQcm9qZWN0c0RlbGV0ZVJlc3BvbnNlMrgFCghQcm9qZWN0cxJ3CgRMaXN0EiMub3NhYy5wdWJsaWMudjEuUHJvamVjdHNMaXN0UmVxdWVzdBokLm9zYWMucHVibGljLnYxLlByb2plY3RzTGlzdFJlc3BvbnNlIiSC0+STAh4SHC9hcGkvZnVsZmlsbG1lbnQvdjEvcHJvamVjdHMSgQEKA0dldBIiLm9zYWMucHVibGljLnYxLlByb2plY3RzR2V0UmVxdWVzdBojLm9zYWMucHVibGljLnYxLlByb2plY3RzR2V0UmVzcG9uc2UiMYLT5JMCK2IGb2JqZWN0EiEvYXBpL2Z1bGZpbGxtZW50L3YxL3Byb2plY3RzL3tpZH0SjQEKBkNyZWF0ZRIlLm9zYWMucHVibGljLnYxLlByb2plY3RzQ3JlYXRlUmVxdWVzdBomLm9zYWMucHVibGljLnYxLlByb2plY3RzQ3JlYXRlUmVzcG9uc2UiNILT5JMCLjoGb2JqZWN0YgZvYmplY3QiHC9hcGkvZnVsZmlsbG1lbnQvdjEvcHJvamVjdHMSmQEKBlVwZGF0ZRIlLm9zYWMucHVibGljLnYxLlByb2plY3RzVXBkYXRlUmVxdWVzdBomLm9zYWMucHVibGljLnYxLlByb2plY3RzVXBkYXRlUmVzcG9uc2UiQILT5JMCOjoGb2JqZWN0YgZvYmplY3QyKC9hcGkvZnVsZmlsbG1lbnQvdjEvcHJvamVjdHMve29iamVjdC5pZH0SggEKBkRlbGV0ZRIlLm9zYWMucHVibGljLnYxLlByb2plY3RzRGVsZXRlUmVxdWVzdBomLm9zYWMucHVibGljLnYxLlByb2plY3RzRGVsZXRlUmVzcG9uc2UiKYLT5JMCIyohL2FwaS9mdWxmaWxsbWVudC92MS9wcm9qZWN0cy97aWR9YgZwcm90bzM", [file_google_api_annotations, file_google_protobuf_field_mask, file_osac_public_v1_project_type]);
 
 /**
+ * Request to list projects with optional pagination and filtering.
+ *
  * @generated from message osac.public.v1.ProjectsListRequest
  */
 export type ProjectsListRequest = Message<"osac.public.v1.ProjectsListRequest"> & {
@@ -92,25 +94,27 @@ export const ProjectsListRequestSchema: GenMessage<ProjectsListRequest> = /*@__P
   messageDesc(file_osac_public_v1_projects_service, 0);
 
 /**
+ * Response containing a paginated list of projects.
+ *
  * @generated from message osac.public.v1.ProjectsListResponse
  */
 export type ProjectsListResponse = Message<"osac.public.v1.ProjectsListResponse"> & {
   /**
-   * Actual number of items returned.
+   * Actual number of items returned in this response.
    *
    * @generated from field: int32 size = 1;
    */
   size: number;
 
   /**
-   * Total number of items of the collection that match the search criteria.
+   * Total number of items in the collection that match the search criteria, regardless of pagination.
    *
    * @generated from field: int32 total = 2;
    */
   total: number;
 
   /**
-   * List of results.
+   * The projects that match the request criteria, limited by pagination parameters.
    *
    * @generated from field: repeated osac.public.v1.Project items = 3;
    */
@@ -125,10 +129,14 @@ export const ProjectsListResponseSchema: GenMessage<ProjectsListResponse> = /*@_
   messageDesc(file_osac_public_v1_projects_service, 1);
 
 /**
+ * Request to retrieve a single project by ID.
+ *
  * @generated from message osac.public.v1.ProjectsGetRequest
  */
 export type ProjectsGetRequest = Message<"osac.public.v1.ProjectsGetRequest"> & {
   /**
+   * Unique identifier of the project to retrieve.
+   *
    * @generated from field: string id = 1;
    */
   id: string;
@@ -142,10 +150,14 @@ export const ProjectsGetRequestSchema: GenMessage<ProjectsGetRequest> = /*@__PUR
   messageDesc(file_osac_public_v1_projects_service, 2);
 
 /**
+ * Response containing the requested project.
+ *
  * @generated from message osac.public.v1.ProjectsGetResponse
  */
 export type ProjectsGetResponse = Message<"osac.public.v1.ProjectsGetResponse"> & {
   /**
+   * The requested project object.
+   *
    * @generated from field: osac.public.v1.Project object = 1;
    */
   object?: Project | undefined;
@@ -159,10 +171,14 @@ export const ProjectsGetResponseSchema: GenMessage<ProjectsGetResponse> = /*@__P
   messageDesc(file_osac_public_v1_projects_service, 3);
 
 /**
+ * Request to create a new project.
+ *
  * @generated from message osac.public.v1.ProjectsCreateRequest
  */
 export type ProjectsCreateRequest = Message<"osac.public.v1.ProjectsCreateRequest"> & {
   /**
+   * The project to create. The server will populate the ID and system-managed fields.
+   *
    * @generated from field: osac.public.v1.Project object = 1;
    */
   object?: Project | undefined;
@@ -176,10 +192,14 @@ export const ProjectsCreateRequestSchema: GenMessage<ProjectsCreateRequest> = /*
   messageDesc(file_osac_public_v1_projects_service, 4);
 
 /**
+ * Response containing the newly created project.
+ *
  * @generated from message osac.public.v1.ProjectsCreateResponse
  */
 export type ProjectsCreateResponse = Message<"osac.public.v1.ProjectsCreateResponse"> & {
   /**
+   * The created project with server-populated fields (ID, timestamps, status, etc.).
+   *
    * @generated from field: osac.public.v1.Project object = 1;
    */
   object?: Project | undefined;
@@ -193,15 +213,23 @@ export const ProjectsCreateResponseSchema: GenMessage<ProjectsCreateResponse> = 
   messageDesc(file_osac_public_v1_projects_service, 5);
 
 /**
+ * Request to update an existing project.
+ *
  * @generated from message osac.public.v1.ProjectsUpdateRequest
  */
 export type ProjectsUpdateRequest = Message<"osac.public.v1.ProjectsUpdateRequest"> & {
   /**
+   * The project with updated fields. The ID must match an existing project.
+   *
    * @generated from field: osac.public.v1.Project object = 1;
    */
   object?: Project | undefined;
 
   /**
+   * Field mask indicating which fields to update. If not provided, all fields are updated.
+   * Only fields specified in the mask will be modified. Nested fields can be specified using dot notation.
+   * Example: "metadata.labels", "spec.description"
+   *
    * @generated from field: google.protobuf.FieldMask update_mask = 2;
    */
   updateMask?: FieldMask | undefined;
@@ -224,10 +252,14 @@ export const ProjectsUpdateRequestSchema: GenMessage<ProjectsUpdateRequest> = /*
   messageDesc(file_osac_public_v1_projects_service, 6);
 
 /**
+ * Response containing the updated project.
+ *
  * @generated from message osac.public.v1.ProjectsUpdateResponse
  */
 export type ProjectsUpdateResponse = Message<"osac.public.v1.ProjectsUpdateResponse"> & {
   /**
+   * The updated project object with incremented version number.
+   *
    * @generated from field: osac.public.v1.Project object = 1;
    */
   object?: Project | undefined;
@@ -241,10 +273,14 @@ export const ProjectsUpdateResponseSchema: GenMessage<ProjectsUpdateResponse> = 
   messageDesc(file_osac_public_v1_projects_service, 7);
 
 /**
+ * Request to delete a project.
+ *
  * @generated from message osac.public.v1.ProjectsDeleteRequest
  */
 export type ProjectsDeleteRequest = Message<"osac.public.v1.ProjectsDeleteRequest"> & {
   /**
+   * Unique identifier of the project to delete.
+   *
    * @generated from field: string id = 1;
    */
   id: string;
@@ -258,6 +294,8 @@ export const ProjectsDeleteRequestSchema: GenMessage<ProjectsDeleteRequest> = /*
   messageDesc(file_osac_public_v1_projects_service, 8);
 
 /**
+ * Response for a successful project deletion.
+ *
  * @generated from message osac.public.v1.ProjectsDeleteResponse
  */
 export type ProjectsDeleteResponse = Message<"osac.public.v1.ProjectsDeleteResponse"> & {

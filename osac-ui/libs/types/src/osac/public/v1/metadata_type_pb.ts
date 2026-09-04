@@ -26,7 +26,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/public/v1/metadata_type.proto.
  */
 export const file_osac_public_v1_metadata_type: GenFile = /*@__PURE__*/
-  fileDesc("CiJvc2FjL3B1YmxpYy92MS9tZXRhZGF0YV90eXBlLnByb3RvEg5vc2FjLnB1YmxpYy52MSK7BAoITWV0YWRhdGESNgoSY3JlYXRpb25fdGltZXN0YW1wGAEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBI2ChJkZWxldGlvbl90aW1lc3RhbXAYAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEg8KB2NyZWF0b3IYAyABKAkSPQoEbmFtZRgEIAEoCUIvukgscioQARg/MiReW2EtejAtOV0oW2EtejAtOS1dezAsNjF9W2EtejAtOV0pPyQSDgoGdGVuYW50GAUgASgJEksKBmxhYmVscxgHIAMoCzIkLm9zYWMucHVibGljLnYxLk1ldGFkYXRhLkxhYmVsc0VudHJ5QhW6SBKaAQ8iB3IFEAEYvAIqBHICGD8STwoLYW5ub3RhdGlvbnMYCCADKAsyKS5vc2FjLnB1YmxpYy52MS5NZXRhZGF0YS5Bbm5vdGF0aW9uc0VudHJ5Qg+6SAyaAQkiB3IFEAEYvAISDwoHdmVyc2lvbhgJIAEoBRIPCgdwcm9qZWN0GAogASgJEh0KDGRpc3BsYXlfbmFtZRgLIAEoCUIHukgEcgIYPxIdCgtkZXNjcmlwdGlvbhgMIAEoCUIIukgFcgMYgAIaLQoLTGFiZWxzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ARoyChBBbm5vdGF0aW9uc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAFiBnByb3RvMw", [file_buf_validate_validate, file_google_protobuf_timestamp]);
+  fileDesc("CiJvc2FjL3B1YmxpYy92MS9tZXRhZGF0YV90eXBlLnByb3RvEg5vc2FjLnB1YmxpYy52MSKTBAoITWV0YWRhdGESNgoSY3JlYXRpb25fdGltZXN0YW1wGAEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBI2ChJkZWxldGlvbl90aW1lc3RhbXAYAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEg8KB2NyZWF0b3IYAyABKAkSDgoGdGVuYW50GAQgASgJEj0KBG5hbWUYBSABKAlCL7pILHIqEAEYPzIkXlthLXowLTldKFthLXowLTktXXswLDYxfVthLXowLTldKT8kEjQKBmxhYmVscxgGIAMoCzIkLm9zYWMucHVibGljLnYxLk1ldGFkYXRhLkxhYmVsc0VudHJ5Ej4KC2Fubm90YXRpb25zGAcgAygLMikub3NhYy5wdWJsaWMudjEuTWV0YWRhdGEuQW5ub3RhdGlvbnNFbnRyeRIPCgd2ZXJzaW9uGAggASgFEg8KB3Byb2plY3QYCSABKAkSHQoMZGlzcGxheV9uYW1lGAogASgJQge6SARyAhg/Eh0KC2Rlc2NyaXB0aW9uGAsgASgJQgi6SAVyAxiAAhotCgtMYWJlbHNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBGjIKEEFubm90YXRpb25zRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4AWIGcHJvdG8z", [file_buf_validate_validate, file_google_protobuf_timestamp]);
 
 /**
  * Metadata common to all kinds of objects.
@@ -49,11 +49,18 @@ export type Metadata = Message<"osac.public.v1.Metadata"> & {
   deletionTimestamp?: Timestamp | undefined;
 
   /**
-   * Name of the creator of the object.
+   * Creator contains the identifier of the user or group that created the object.
    *
    * @generated from field: string creator = 3;
    */
   creator: string;
+
+  /**
+   * Tenant contains the identifier of the tenant that the object belongs to.
+   *
+   * @generated from field: string tenant = 4;
+   */
+  tenant: string;
 
   /**
    * Mandatory, immutable, and unique within scope. Must be a valid RFC 1123 DNS label.
@@ -64,16 +71,9 @@ export type Metadata = Message<"osac.public.v1.Metadata"> & {
    * - Must only contain lowercase letters (a-z), digits (0-9) and hyphens (-).
    * - Must start and end with an alphanumeric character.
    *
-   * @generated from field: string name = 4;
+   * @generated from field: string name = 5;
    */
   name: string;
-
-  /**
-   * Identifier of the tenant that the object is assigned to.
-   *
-   * @generated from field: string tenant = 5;
-   */
-  tenant: string;
 
   /**
    * Labels contains key-value pairs for organizing and selecting objects.
@@ -89,7 +89,7 @@ export type Metadata = Message<"osac.public.v1.Metadata"> & {
    *
    * Labels are indexed and searchable.
    *
-   * @generated from field: map<string, string> labels = 7;
+   * @generated from field: map<string, string> labels = 6;
    */
   labels: { [key: string]: string };
 
@@ -99,14 +99,14 @@ export type Metadata = Message<"osac.public.v1.Metadata"> & {
    * Keys follow the same rules as label keys, including the optional DNS subdomain prefix and the 1-63 character name
    * restrictions. Values can be any string.
    *
-   * @generated from field: map<string, string> annotations = 8;
+   * @generated from field: map<string, string> annotations = 7;
    */
   annotations: { [key: string]: string };
 
   /**
    * Version is a numeric field that is automatically incremented with every change to the object.
    *
-   * @generated from field: int32 version = 9;
+   * @generated from field: int32 version = 8;
    */
   version: number;
 
@@ -129,7 +129,7 @@ export type Metadata = Message<"osac.public.v1.Metadata"> & {
    *
    * For organization objects this field is always empty, as organizations don't belong to a project.
    *
-   * @generated from field: string project = 10;
+   * @generated from field: string project = 9;
    */
   project: string;
 
@@ -137,7 +137,7 @@ export type Metadata = Message<"osac.public.v1.Metadata"> & {
    * Human-friendly display name. Optional, not unique, mutable.
    * Not constrained to DNS-label format.
    *
-   * @generated from field: string display_name = 11;
+   * @generated from field: string display_name = 10;
    */
   displayName: string;
 
@@ -145,7 +145,7 @@ export type Metadata = Message<"osac.public.v1.Metadata"> & {
    * Optional human-friendly description. Opaque string; clients may
    * treat content as Markdown. Not unique, mutable.
    *
-   * @generated from field: string description = 12;
+   * @generated from field: string description = 11;
    */
   description: string;
 };

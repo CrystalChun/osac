@@ -17,13 +17,14 @@
 
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_cleanapi_cleanapi } from "../../../cleanapi/cleanapi_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file osac/private/v1/break_glass_credentials_type.proto.
  */
 export const file_osac_private_v1_break_glass_credentials_type: GenFile = /*@__PURE__*/
-  fileDesc("CjJvc2FjL3ByaXZhdGUvdjEvYnJlYWtfZ2xhc3NfY3JlZGVudGlhbHNfdHlwZS5wcm90bxIPb3NhYy5wcml2YXRlLnYxIjsKFUJyZWFrR2xhc3NDcmVkZW50aWFscxIQCgh1c2VybmFtZRgBIAEoCRIQCghwYXNzd29yZBgCIAEoCWIGcHJvdG8z");
+  fileDesc("CjJvc2FjL3ByaXZhdGUvdjEvYnJlYWtfZ2xhc3NfY3JlZGVudGlhbHNfdHlwZS5wcm90bxIPb3NhYy5wcml2YXRlLnYxIjsKFUJyZWFrR2xhc3NDcmVkZW50aWFscxIQCgh1c2VybmFtZRgBIAEoCRIQCghwYXNzd29yZBgCIAEoCUIUirUYEBIOb3NhYy5wdWJsaWMudjFiBnByb3RvMw", [file_cleanapi_cleanapi]);
 
 /**
  * BreakGlassCredentials contains break-glass account credentials for IdP users.

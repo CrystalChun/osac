@@ -17,6 +17,7 @@
 
 import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_cleanapi_cleanapi } from "../../../cleanapi/cleanapi_pb";
 import { file_google_api_annotations } from "../../../google/api/annotations_pb";
 import type { FieldMask } from "../../../google/protobuf/field_mask_pb";
 import { file_google_protobuf_field_mask } from "../../../google/protobuf/field_mask_pb";
@@ -28,28 +29,49 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/private/v1/tenants_service.proto.
  */
 export const file_osac_private_v1_tenants_service: GenFile = /*@__PURE__*/
-  fileDesc("CiVvc2FjL3ByaXZhdGUvdjEvdGVuYW50c19zZXJ2aWNlLnByb3RvEg9vc2FjLnByaXZhdGUudjEikAEKElRlbmFudHNMaXN0UmVxdWVzdBITCgZvZmZzZXQYASABKAVIAIgBARISCgVsaW1pdBgCIAEoBUgBiAEBEhMKBmZpbHRlchgDIAEoCUgCiAEBEhIKBW9yZGVyGAQgASgJSAOIAQFCCQoHX29mZnNldEIICgZfbGltaXRCCQoHX2ZpbHRlckIICgZfb3JkZXIiWgoTVGVuYW50c0xpc3RSZXNwb25zZRIMCgRzaXplGAEgASgFEg0KBXRvdGFsGAIgASgFEiYKBWl0ZW1zGAMgAygLMhcub3NhYy5wcml2YXRlLnYxLlRlbmFudCIfChFUZW5hbnRzR2V0UmVxdWVzdBIKCgJpZBgBIAEoCSI9ChJUZW5hbnRzR2V0UmVzcG9uc2USJwoGb2JqZWN0GAEgASgLMhcub3NhYy5wcml2YXRlLnYxLlRlbmFudCI/ChRUZW5hbnRzQ3JlYXRlUmVxdWVzdBInCgZvYmplY3QYASABKAsyFy5vc2FjLnByaXZhdGUudjEuVGVuYW50IkAKFVRlbmFudHNDcmVhdGVSZXNwb25zZRInCgZvYmplY3QYASABKAsyFy5vc2FjLnByaXZhdGUudjEuVGVuYW50IiIKFFRlbmFudHNEZWxldGVSZXF1ZXN0EgoKAmlkGAEgASgJIhcKFVRlbmFudHNEZWxldGVSZXNwb25zZSJ+ChRUZW5hbnRzVXBkYXRlUmVxdWVzdBInCgZvYmplY3QYASABKAsyFy5vc2FjLnByaXZhdGUudjEuVGVuYW50Ei8KC3VwZGF0ZV9tYXNrGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLkZpZWxkTWFzaxIMCgRsb2NrGAMgASgIIkAKFVRlbmFudHNVcGRhdGVSZXNwb25zZRInCgZvYmplY3QYASABKAsyFy5vc2FjLnByaXZhdGUudjEuVGVuYW50IiIKFFRlbmFudHNTaWduYWxSZXF1ZXN0EgoKAmlkGAEgASgJIhcKFVRlbmFudHNTaWduYWxSZXNwb25zZTL3BQoHVGVuYW50cxJyCgRMaXN0EiMub3NhYy5wcml2YXRlLnYxLlRlbmFudHNMaXN0UmVxdWVzdBokLm9zYWMucHJpdmF0ZS52MS5UZW5hbnRzTGlzdFJlc3BvbnNlIh+C0+STAhkSFy9hcGkvcHJpdmF0ZS92MS90ZW5hbnRzEnwKA0dldBIiLm9zYWMucHJpdmF0ZS52MS5UZW5hbnRzR2V0UmVxdWVzdBojLm9zYWMucHJpdmF0ZS52MS5UZW5hbnRzR2V0UmVzcG9uc2UiLILT5JMCJmIGb2JqZWN0EhwvYXBpL3ByaXZhdGUvdjEvdGVuYW50cy97aWR9EogBCgZDcmVhdGUSJS5vc2FjLnByaXZhdGUudjEuVGVuYW50c0NyZWF0ZVJlcXVlc3QaJi5vc2FjLnByaXZhdGUudjEuVGVuYW50c0NyZWF0ZVJlc3BvbnNlIi+C0+STAik6Bm9iamVjdGIGb2JqZWN0IhcvYXBpL3ByaXZhdGUvdjEvdGVuYW50cxJ9CgZEZWxldGUSJS5vc2FjLnByaXZhdGUudjEuVGVuYW50c0RlbGV0ZVJlcXVlc3QaJi5vc2FjLnByaXZhdGUudjEuVGVuYW50c0RlbGV0ZVJlc3BvbnNlIiSC0+STAh4qHC9hcGkvcHJpdmF0ZS92MS90ZW5hbnRzL3tpZH0SlAEKBlVwZGF0ZRIlLm9zYWMucHJpdmF0ZS52MS5UZW5hbnRzVXBkYXRlUmVxdWVzdBomLm9zYWMucHJpdmF0ZS52MS5UZW5hbnRzVXBkYXRlUmVzcG9uc2UiO4LT5JMCNToGb2JqZWN0YgZvYmplY3QyIy9hcGkvcHJpdmF0ZS92MS90ZW5hbnRzL3tvYmplY3QuaWR9ElkKBlNpZ25hbBIlLm9zYWMucHJpdmF0ZS52MS5UZW5hbnRzU2lnbmFsUmVxdWVzdBomLm9zYWMucHJpdmF0ZS52MS5UZW5hbnRzU2lnbmFsUmVzcG9uc2UiAGIGcHJvdG8z", [file_google_api_annotations, file_google_protobuf_field_mask, file_osac_private_v1_tenant_type]);
+  fileDesc("CiVvc2FjL3ByaXZhdGUvdjEvdGVuYW50c19zZXJ2aWNlLnByb3RvEg9vc2FjLnByaXZhdGUudjEikAEKElRlbmFudHNMaXN0UmVxdWVzdBITCgZvZmZzZXQYASABKAVIAIgBARISCgVsaW1pdBgCIAEoBUgBiAEBEhMKBmZpbHRlchgDIAEoCUgCiAEBEhIKBW9yZGVyGAQgASgJSAOIAQFCCQoHX29mZnNldEIICgZfbGltaXRCCQoHX2ZpbHRlckIICgZfb3JkZXIiWgoTVGVuYW50c0xpc3RSZXNwb25zZRIMCgRzaXplGAEgASgFEg0KBXRvdGFsGAIgASgFEiYKBWl0ZW1zGAMgAygLMhcub3NhYy5wcml2YXRlLnYxLlRlbmFudCIfChFUZW5hbnRzR2V0UmVxdWVzdBIKCgJpZBgBIAEoCSI9ChJUZW5hbnRzR2V0UmVzcG9uc2USJwoGb2JqZWN0GAEgASgLMhcub3NhYy5wcml2YXRlLnYxLlRlbmFudCI/ChRUZW5hbnRzQ3JlYXRlUmVxdWVzdBInCgZvYmplY3QYASABKAsyFy5vc2FjLnByaXZhdGUudjEuVGVuYW50IkAKFVRlbmFudHNDcmVhdGVSZXNwb25zZRInCgZvYmplY3QYASABKAsyFy5vc2FjLnByaXZhdGUudjEuVGVuYW50IiIKFFRlbmFudHNEZWxldGVSZXF1ZXN0EgoKAmlkGAEgASgJIhcKFVRlbmFudHNEZWxldGVSZXNwb25zZSJ+ChRUZW5hbnRzVXBkYXRlUmVxdWVzdBInCgZvYmplY3QYASABKAsyFy5vc2FjLnByaXZhdGUudjEuVGVuYW50Ei8KC3VwZGF0ZV9tYXNrGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLkZpZWxkTWFzaxIMCgRsb2NrGAMgASgIIkAKFVRlbmFudHNVcGRhdGVSZXNwb25zZRInCgZvYmplY3QYASABKAsyFy5vc2FjLnByaXZhdGUudjEuVGVuYW50IioKFFRlbmFudHNTaWduYWxSZXF1ZXN0EgoKAmlkGAEgASgJOgaKtRgCCAEiHwoVVGVuYW50c1NpZ25hbFJlc3BvbnNlOgaKtRgCCAEy/QUKB1RlbmFudHMScgoETGlzdBIjLm9zYWMucHJpdmF0ZS52MS5UZW5hbnRzTGlzdFJlcXVlc3QaJC5vc2FjLnByaXZhdGUudjEuVGVuYW50c0xpc3RSZXNwb25zZSIfgtPkkwIZEhcvYXBpL3ByaXZhdGUvdjEvdGVuYW50cxJ8CgNHZXQSIi5vc2FjLnByaXZhdGUudjEuVGVuYW50c0dldFJlcXVlc3QaIy5vc2FjLnByaXZhdGUudjEuVGVuYW50c0dldFJlc3BvbnNlIiyC0+STAiZiBm9iamVjdBIcL2FwaS9wcml2YXRlL3YxL3RlbmFudHMve2lkfRKIAQoGQ3JlYXRlEiUub3NhYy5wcml2YXRlLnYxLlRlbmFudHNDcmVhdGVSZXF1ZXN0GiYub3NhYy5wcml2YXRlLnYxLlRlbmFudHNDcmVhdGVSZXNwb25zZSIvgtPkkwIpOgZvYmplY3RiBm9iamVjdCIXL2FwaS9wcml2YXRlL3YxL3RlbmFudHMSfQoGRGVsZXRlEiUub3NhYy5wcml2YXRlLnYxLlRlbmFudHNEZWxldGVSZXF1ZXN0GiYub3NhYy5wcml2YXRlLnYxLlRlbmFudHNEZWxldGVSZXNwb25zZSIkgtPkkwIeKhwvYXBpL3ByaXZhdGUvdjEvdGVuYW50cy97aWR9EpQBCgZVcGRhdGUSJS5vc2FjLnByaXZhdGUudjEuVGVuYW50c1VwZGF0ZVJlcXVlc3QaJi5vc2FjLnByaXZhdGUudjEuVGVuYW50c1VwZGF0ZVJlc3BvbnNlIjuC0+STAjU6Bm9iamVjdGIGb2JqZWN0MiMvYXBpL3ByaXZhdGUvdjEvdGVuYW50cy97b2JqZWN0LmlkfRJfCgZTaWduYWwSJS5vc2FjLnByaXZhdGUudjEuVGVuYW50c1NpZ25hbFJlcXVlc3QaJi5vc2FjLnByaXZhdGUudjEuVGVuYW50c1NpZ25hbFJlc3BvbnNlIgaKtRgCCAFCKYq1GCUSDm9zYWMucHVibGljLnYxIhNwcml2YXRlOmZ1bGZpbGxtZW50YgZwcm90bzM", [file_cleanapi_cleanapi, file_google_api_annotations, file_google_protobuf_field_mask, file_osac_private_v1_tenant_type]);
 
 /**
  * @generated from message osac.private.v1.TenantsListRequest
  */
 export type TenantsListRequest = Message<"osac.private.v1.TenantsListRequest"> & {
   /**
+   * Index of the first result. If not specified the default value will be zero.
+   *
    * @generated from field: optional int32 offset = 1;
    */
   offset?: number | undefined;
 
   /**
+   * Maximum number of results to be returned by the server. When not specified all the results will be returned. Note
+   * that there may not be enough results to return, and that the server may decide, for performance reasons, to return
+   * less results than requested.
+   *
    * @generated from field: optional int32 limit = 2;
    */
   limit?: number | undefined;
 
   /**
+   * Filter criteria.
+   *
+   * The value of this parameter is a [CEL](https://cel.dev) expression used to select which objects to return. The
+   * built-in `this` variable refers to the object being tested and `now` refers to the current date and time. If the
+   * expression evaluates to `true` the object is included in the results. For example, to retrieve all tenants with
+   * names starting with `my`:
+   *
+   *     this.metadata.name.startsWith("my")
+   *
+   * If this isn't provided, or if the value is empty, then all the tenants that the user has permission to see will be
+   * returned. Not all CEL constructs are currently supported for implementation reasons; see the filter documentation
+   * (docs/FILTER.md) for the full details.
+   *
    * @generated from field: optional string filter = 3;
    */
   filter?: string | undefined;
 
   /**
+   * Order criteria.
+   *
    * @generated from field: optional string order = 4;
    */
   order?: string | undefined;
@@ -67,16 +89,22 @@ export const TenantsListRequestSchema: GenMessage<TenantsListRequest> = /*@__PUR
  */
 export type TenantsListResponse = Message<"osac.private.v1.TenantsListResponse"> & {
   /**
+   * Actual number of items returned.
+   *
    * @generated from field: int32 size = 1;
    */
   size: number;
 
   /**
+   * Total number of items of the collection that match the search criteria.
+   *
    * @generated from field: int32 total = 2;
    */
   total: number;
 
   /**
+   * List of results.
+   *
    * @generated from field: repeated osac.private.v1.Tenant items = 3;
    */
   items: Tenant[];
@@ -270,6 +298,8 @@ export const TenantsSignalResponseSchema: GenMessage<TenantsSignalResponse> = /*
  */
 export const Tenants: GenService<{
   /**
+   * Retrieves the list of tenants.
+   *
    * @generated from rpc osac.private.v1.Tenants.List
    */
   list: {
@@ -278,6 +308,8 @@ export const Tenants: GenService<{
     output: typeof TenantsListResponseSchema;
   },
   /**
+   * Retrieves the details of one specific tenant.
+   *
    * @generated from rpc osac.private.v1.Tenants.Get
    */
   get: {
@@ -286,6 +318,8 @@ export const Tenants: GenService<{
     output: typeof TenantsGetResponseSchema;
   },
   /**
+   * Creates a new tenant.
+   *
    * @generated from rpc osac.private.v1.Tenants.Create
    */
   create: {
@@ -294,6 +328,8 @@ export const Tenants: GenService<{
     output: typeof TenantsCreateResponseSchema;
   },
   /**
+   * Deletes a tenant.
+   *
    * @generated from rpc osac.private.v1.Tenants.Delete
    */
   delete: {
@@ -302,6 +338,8 @@ export const Tenants: GenService<{
     output: typeof TenantsDeleteResponseSchema;
   },
   /**
+   * Updates an existing tenant.
+   *
    * @generated from rpc osac.private.v1.Tenants.Update
    */
   update: {

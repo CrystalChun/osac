@@ -66,7 +66,7 @@ export const CapabilitiesGetResponseSchema: GenMessage<CapabilitiesGetResponse> 
 
 /**
  * Provides information about the capabilities of the server, such as the list of trusted token issuers for
- * authentication. This endpoint does not require authentication.
+ * authentication.
  *
  * @generated from service osac.public.v1.Capabilities
  */

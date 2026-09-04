@@ -18,6 +18,7 @@
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
+import { file_cleanapi_cleanapi } from "../../../cleanapi/cleanapi_pb";
 import type { Timestamp } from "../../../google/protobuf/timestamp_pb";
 import { file_google_protobuf_timestamp } from "../../../google/protobuf/timestamp_pb";
 import type { Message } from "@bufbuild/protobuf";
@@ -26,7 +27,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/private/v1/metadata_type.proto.
  */
 export const file_osac_private_v1_metadata_type: GenFile = /*@__PURE__*/
-  fileDesc("CiNvc2FjL3ByaXZhdGUvdjEvbWV0YWRhdGFfdHlwZS5wcm90bxIPb3NhYy5wcml2YXRlLnYxIqkECghNZXRhZGF0YRI2ChJjcmVhdGlvbl90aW1lc3RhbXAYASABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjYKEmRlbGV0aW9uX3RpbWVzdGFtcBgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEgoKZmluYWxpemVycxgDIAMoCRIPCgdjcmVhdG9yGAQgASgJEg4KBnRlbmFudBgFIAEoCRI9CgRuYW1lGAYgASgJQi+6SCxyKhABGD8yJF5bYS16MC05XShbYS16MC05LV17MCw2MX1bYS16MC05XSk/JBI1CgZsYWJlbHMYByADKAsyJS5vc2FjLnByaXZhdGUudjEuTWV0YWRhdGEuTGFiZWxzRW50cnkSPwoLYW5ub3RhdGlvbnMYCCADKAsyKi5vc2FjLnByaXZhdGUudjEuTWV0YWRhdGEuQW5ub3RhdGlvbnNFbnRyeRIPCgd2ZXJzaW9uGAkgASgFEg8KB3Byb2plY3QYCiABKAkSHQoMZGlzcGxheV9uYW1lGAsgASgJQge6SARyAhg/Eh0KC2Rlc2NyaXB0aW9uGAwgASgJQgi6SAVyAxiAAhotCgtMYWJlbHNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBGjIKEEFubm90YXRpb25zRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4AWIGcHJvdG8z", [file_buf_validate_validate, file_google_protobuf_timestamp]);
+  fileDesc("CiNvc2FjL3ByaXZhdGUvdjEvbWV0YWRhdGFfdHlwZS5wcm90bxIPb3NhYy5wcml2YXRlLnYxIrEECghNZXRhZGF0YRI2ChJjcmVhdGlvbl90aW1lc3RhbXAYASABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjYKEmRlbGV0aW9uX3RpbWVzdGFtcBgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASDwoHY3JlYXRvchgDIAEoCRIOCgZ0ZW5hbnQYBCABKAkSPQoEbmFtZRgFIAEoCUIvukgscioQARg/MiReW2EtejAtOV0oW2EtejAtOS1dezAsNjF9W2EtejAtOV0pPyQSNQoGbGFiZWxzGAYgAygLMiUub3NhYy5wcml2YXRlLnYxLk1ldGFkYXRhLkxhYmVsc0VudHJ5Ej8KC2Fubm90YXRpb25zGAcgAygLMioub3NhYy5wcml2YXRlLnYxLk1ldGFkYXRhLkFubm90YXRpb25zRW50cnkSDwoHdmVyc2lvbhgIIAEoBRIPCgdwcm9qZWN0GAkgASgJEh0KDGRpc3BsYXlfbmFtZRgKIAEoCUIHukgEcgIYPxIdCgtkZXNjcmlwdGlvbhgLIAEoCUIIukgFcgMYgAISGgoKZmluYWxpemVycxgMIAMoCUIGirUYAggBGi0KC0xhYmVsc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEaMgoQQW5ub3RhdGlvbnNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBQhSKtRgQEg5vc2FjLnB1YmxpYy52MWIGcHJvdG8z", [file_buf_validate_validate, file_cleanapi_cleanapi, file_google_protobuf_timestamp]);
 
 /**
  * Metadata common to all kinds of objects.
@@ -49,24 +50,16 @@ export type Metadata = Message<"osac.private.v1.Metadata"> & {
   deletionTimestamp?: Timestamp | undefined;
 
   /**
-   * Finalizers indicate tasks that need to be completed before the object can be completely deleted. When the object
-   * has been deleted and this list is empty the system will automatically archive the object.
-   *
-   * @generated from field: repeated string finalizers = 3;
-   */
-  finalizers: string[];
-
-  /**
    * Creator contains the identifier of the user or group that created the object.
    *
-   * @generated from field: string creator = 4;
+   * @generated from field: string creator = 3;
    */
   creator: string;
 
   /**
    * Tenant contains the identifier of the tenant that the object belongs to.
    *
-   * @generated from field: string tenant = 5;
+   * @generated from field: string tenant = 4;
    */
   tenant: string;
 
@@ -79,7 +72,7 @@ export type Metadata = Message<"osac.private.v1.Metadata"> & {
    * - Must only contain lowercase letters (a-z), digits (0-9) and hyphens (-).
    * - Must start and end with an alphanumeric character.
    *
-   * @generated from field: string name = 6;
+   * @generated from field: string name = 5;
    */
   name: string;
 
@@ -97,7 +90,7 @@ export type Metadata = Message<"osac.private.v1.Metadata"> & {
    *
    * Labels are indexed and searchable.
    *
-   * @generated from field: map<string, string> labels = 7;
+   * @generated from field: map<string, string> labels = 6;
    */
   labels: { [key: string]: string };
 
@@ -107,14 +100,14 @@ export type Metadata = Message<"osac.private.v1.Metadata"> & {
    * Keys follow the same rules as label keys, including the optional DNS subdomain prefix and the 1-63 character name
    * restrictions. Values can be any string.
    *
-   * @generated from field: map<string, string> annotations = 8;
+   * @generated from field: map<string, string> annotations = 7;
    */
   annotations: { [key: string]: string };
 
   /**
    * Version is a numeric field that is automatically incremented with every change to the object.
    *
-   * @generated from field: int32 version = 9;
+   * @generated from field: int32 version = 8;
    */
   version: number;
 
@@ -137,7 +130,7 @@ export type Metadata = Message<"osac.private.v1.Metadata"> & {
    *
    * For organization objects this field is always empty, as organizations don't belong to a project.
    *
-   * @generated from field: string project = 10;
+   * @generated from field: string project = 9;
    */
   project: string;
 
@@ -145,7 +138,7 @@ export type Metadata = Message<"osac.private.v1.Metadata"> & {
    * Human-friendly display name. Optional, not unique, mutable.
    * Not constrained to DNS-label format.
    *
-   * @generated from field: string display_name = 11;
+   * @generated from field: string display_name = 10;
    */
   displayName: string;
 
@@ -153,9 +146,17 @@ export type Metadata = Message<"osac.private.v1.Metadata"> & {
    * Optional human-friendly description. Opaque string; clients may
    * treat content as Markdown. Not unique, mutable.
    *
-   * @generated from field: string description = 12;
+   * @generated from field: string description = 11;
    */
   description: string;
+
+  /**
+   * Finalizers indicate tasks that need to be completed before the object can be completely deleted. When the object
+   * has been deleted and this list is empty the system will automatically archive the object.
+   *
+   * @generated from field: repeated string finalizers = 12;
+   */
+  finalizers: string[];
 };
 
 /**

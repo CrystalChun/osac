@@ -19,7 +19,7 @@ export interface SelectFieldOption {
   isDisabled?: boolean;
 }
 
-interface SelectFieldProps {
+export interface SelectFieldProps {
   name: string;
   label: string;
   fieldId: string;
@@ -31,6 +31,7 @@ interface SelectFieldProps {
   loadingPlaceholder?: string;
   /** When true, commits the sole option to Formik once loading finishes and exactly one option exists. */
   autoSelectSingleOption?: boolean;
+  onSelect?: (value: string | number) => void;
 }
 
 export const SelectField = ({
@@ -44,6 +45,7 @@ export const SelectField = ({
   placeholder = '',
   loadingPlaceholder = 'Loading...',
   autoSelectSingleOption = false,
+  onSelect: onSelectProp,
 }: SelectFieldProps) => {
   const [field, meta, helpers] = useField<string | number>(name);
   const [isOpen, setIsOpen] = useState(false);
@@ -73,6 +75,7 @@ export const SelectField = ({
   const onSelect = (_event: MouseEvent<Element> | undefined, value: string | number) => {
     helpers.setValue(value, true);
     void helpers.setTouched(true, false);
+    onSelectProp?.(value);
     setIsOpen(false);
   };
 

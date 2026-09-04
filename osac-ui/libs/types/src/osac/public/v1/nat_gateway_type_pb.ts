@@ -48,7 +48,7 @@ export const file_osac_public_v1_nat_gateway_type: GenFile = /*@__PURE__*/
  * VirtualNetwork is rejected. All spec fields are immutable after creation.
  *
  * The lifecycle follows: PENDING (SNAT rule being configured) -> READY (egress active).
- * FAILED is a terminal error state for provisioning failures.
+ * FAILED is a terminal error state for provisioning failures. DELETING is set during deprovisioning.
  *
  * @generated from message osac.public.v1.NATGateway
  */
@@ -166,7 +166,7 @@ export const NATGatewayStatusSchema: GenMessage<NATGatewayStatus> = /*@__PURE__*
 /**
  * Lifecycle states for NATGateway resources.
  *
- * State transitions: UNSPECIFIED -> PENDING -> READY.
+ * State transitions: UNSPECIFIED -> PENDING -> READY. On deletion: READY -> DELETING.
  * FAILED is a terminal error state for provisioning failures.
  *
  * @generated from enum osac.public.v1.NATGatewayState
@@ -203,8 +203,8 @@ export enum NATGatewayState {
   /**
    * Provisioning failed. Check status.message for error details.
    *
-   * This is a terminal error state. The NATGateway may require deletion and recreation,
-   * or an administrator can retry via the private API Signal RPC.
+   * This is a terminal error state. The NATGateway may require manual intervention
+   * (e.g., deleting and recreating) or a Signal RPC to retry the operation.
    *
    * @generated from enum value: NAT_GATEWAY_STATE_FAILED = 3;
    */

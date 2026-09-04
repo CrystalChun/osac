@@ -308,7 +308,7 @@ export const ExternalIPs: GenService<{
     output: typeof ExternalIPsCreateResponseSchema;
   },
   /**
-   * Updates an existing external IP. Allows modifying metadata (labels, annotations).
+   * Updates an existing external IP. Allows modifying metadata (labels, annotations). The spec.pool field is immutable.
    *
    * @generated from rpc osac.public.v1.ExternalIPs.Update
    */

@@ -17,6 +17,7 @@
 
 import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_cleanapi_cleanapi } from "../../../cleanapi/cleanapi_pb";
 import { file_google_api_annotations } from "../../../google/api/annotations_pb";
 import type { FieldMask } from "../../../google/protobuf/field_mask_pb";
 import { file_google_protobuf_field_mask } from "../../../google/protobuf/field_mask_pb";
@@ -28,28 +29,36 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/private/v1/cluster_catalog_items_service.proto.
  */
 export const file_osac_private_v1_cluster_catalog_items_service: GenFile = /*@__PURE__*/
-  fileDesc("CjNvc2FjL3ByaXZhdGUvdjEvY2x1c3Rlcl9jYXRhbG9nX2l0ZW1zX3NlcnZpY2UucHJvdG8SD29zYWMucHJpdmF0ZS52MSKcAQoeQ2x1c3RlckNhdGFsb2dJdGVtc0xpc3RSZXF1ZXN0EhMKBm9mZnNldBgBIAEoBUgAiAEBEhIKBWxpbWl0GAIgASgFSAGIAQESEwoGZmlsdGVyGAMgASgJSAKIAQESEgoFb3JkZXIYBCABKAlIA4gBAUIJCgdfb2Zmc2V0QggKBl9saW1pdEIJCgdfZmlsdGVyQggKBl9vcmRlciJyCh9DbHVzdGVyQ2F0YWxvZ0l0ZW1zTGlzdFJlc3BvbnNlEgwKBHNpemUYASABKAUSDQoFdG90YWwYAiABKAUSMgoFaXRlbXMYAyADKAsyIy5vc2FjLnByaXZhdGUudjEuQ2x1c3RlckNhdGFsb2dJdGVtIisKHUNsdXN0ZXJDYXRhbG9nSXRlbXNHZXRSZXF1ZXN0EgoKAmlkGAEgASgJIlUKHkNsdXN0ZXJDYXRhbG9nSXRlbXNHZXRSZXNwb25zZRIzCgZvYmplY3QYASABKAsyIy5vc2FjLnByaXZhdGUudjEuQ2x1c3RlckNhdGFsb2dJdGVtIlcKIENsdXN0ZXJDYXRhbG9nSXRlbXNDcmVhdGVSZXF1ZXN0EjMKBm9iamVjdBgBIAEoCzIjLm9zYWMucHJpdmF0ZS52MS5DbHVzdGVyQ2F0YWxvZ0l0ZW0iWAohQ2x1c3RlckNhdGFsb2dJdGVtc0NyZWF0ZVJlc3BvbnNlEjMKBm9iamVjdBgBIAEoCzIjLm9zYWMucHJpdmF0ZS52MS5DbHVzdGVyQ2F0YWxvZ0l0ZW0iLgogQ2x1c3RlckNhdGFsb2dJdGVtc0RlbGV0ZVJlcXVlc3QSCgoCaWQYASABKAkiIwohQ2x1c3RlckNhdGFsb2dJdGVtc0RlbGV0ZVJlc3BvbnNlIpYBCiBDbHVzdGVyQ2F0YWxvZ0l0ZW1zVXBkYXRlUmVxdWVzdBIzCgZvYmplY3QYASABKAsyIy5vc2FjLnByaXZhdGUudjEuQ2x1c3RlckNhdGFsb2dJdGVtEi8KC3VwZGF0ZV9tYXNrGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLkZpZWxkTWFzaxIMCgRsb2NrGAMgASgIIlgKIUNsdXN0ZXJDYXRhbG9nSXRlbXNVcGRhdGVSZXNwb25zZRIzCgZvYmplY3QYASABKAsyIy5vc2FjLnByaXZhdGUudjEuQ2x1c3RlckNhdGFsb2dJdGVtIi4KIENsdXN0ZXJDYXRhbG9nSXRlbXNTaWduYWxSZXF1ZXN0EgoKAmlkGAEgASgJIiMKIUNsdXN0ZXJDYXRhbG9nSXRlbXNTaWduYWxSZXNwb25zZTLcBwoTQ2x1c3RlckNhdGFsb2dJdGVtcxKYAQoETGlzdBIvLm9zYWMucHJpdmF0ZS52MS5DbHVzdGVyQ2F0YWxvZ0l0ZW1zTGlzdFJlcXVlc3QaMC5vc2FjLnByaXZhdGUudjEuQ2x1c3RlckNhdGFsb2dJdGVtc0xpc3RSZXNwb25zZSItgtPkkwInEiUvYXBpL3ByaXZhdGUvdjEvY2x1c3Rlcl9jYXRhbG9nX2l0ZW1zEqIBCgNHZXQSLi5vc2FjLnByaXZhdGUudjEuQ2x1c3RlckNhdGFsb2dJdGVtc0dldFJlcXVlc3QaLy5vc2FjLnByaXZhdGUudjEuQ2x1c3RlckNhdGFsb2dJdGVtc0dldFJlc3BvbnNlIjqC0+STAjRiBm9iamVjdBIqL2FwaS9wcml2YXRlL3YxL2NsdXN0ZXJfY2F0YWxvZ19pdGVtcy97aWR9Eq4BCgZDcmVhdGUSMS5vc2FjLnByaXZhdGUudjEuQ2x1c3RlckNhdGFsb2dJdGVtc0NyZWF0ZVJlcXVlc3QaMi5vc2FjLnByaXZhdGUudjEuQ2x1c3RlckNhdGFsb2dJdGVtc0NyZWF0ZVJlc3BvbnNlIj2C0+STAjc6Bm9iamVjdGIGb2JqZWN0IiUvYXBpL3ByaXZhdGUvdjEvY2x1c3Rlcl9jYXRhbG9nX2l0ZW1zEqMBCgZEZWxldGUSMS5vc2FjLnByaXZhdGUudjEuQ2x1c3RlckNhdGFsb2dJdGVtc0RlbGV0ZVJlcXVlc3QaMi5vc2FjLnByaXZhdGUudjEuQ2x1c3RlckNhdGFsb2dJdGVtc0RlbGV0ZVJlc3BvbnNlIjKC0+STAiwqKi9hcGkvcHJpdmF0ZS92MS9jbHVzdGVyX2NhdGFsb2dfaXRlbXMve2lkfRK6AQoGVXBkYXRlEjEub3NhYy5wcml2YXRlLnYxLkNsdXN0ZXJDYXRhbG9nSXRlbXNVcGRhdGVSZXF1ZXN0GjIub3NhYy5wcml2YXRlLnYxLkNsdXN0ZXJDYXRhbG9nSXRlbXNVcGRhdGVSZXNwb25zZSJJgtPkkwJDOgZvYmplY3RiBm9iamVjdDIxL2FwaS9wcml2YXRlL3YxL2NsdXN0ZXJfY2F0YWxvZ19pdGVtcy97b2JqZWN0LmlkfRJxCgZTaWduYWwSMS5vc2FjLnByaXZhdGUudjEuQ2x1c3RlckNhdGFsb2dJdGVtc1NpZ25hbFJlcXVlc3QaMi5vc2FjLnByaXZhdGUudjEuQ2x1c3RlckNhdGFsb2dJdGVtc1NpZ25hbFJlc3BvbnNlIgBiBnByb3RvMw", [file_google_api_annotations, file_google_protobuf_field_mask, file_osac_private_v1_cluster_catalog_item_type]);
+  fileDesc("CjNvc2FjL3ByaXZhdGUvdjEvY2x1c3Rlcl9jYXRhbG9nX2l0ZW1zX3NlcnZpY2UucHJvdG8SD29zYWMucHJpdmF0ZS52MSKcAQoeQ2x1c3RlckNhdGFsb2dJdGVtc0xpc3RSZXF1ZXN0EhMKBm9mZnNldBgBIAEoBUgAiAEBEhIKBWxpbWl0GAIgASgFSAGIAQESEwoGZmlsdGVyGAMgASgJSAKIAQESEgoFb3JkZXIYBCABKAlIA4gBAUIJCgdfb2Zmc2V0QggKBl9saW1pdEIJCgdfZmlsdGVyQggKBl9vcmRlciJyCh9DbHVzdGVyQ2F0YWxvZ0l0ZW1zTGlzdFJlc3BvbnNlEgwKBHNpemUYASABKAUSDQoFdG90YWwYAiABKAUSMgoFaXRlbXMYAyADKAsyIy5vc2FjLnByaXZhdGUudjEuQ2x1c3RlckNhdGFsb2dJdGVtIisKHUNsdXN0ZXJDYXRhbG9nSXRlbXNHZXRSZXF1ZXN0EgoKAmlkGAEgASgJIlUKHkNsdXN0ZXJDYXRhbG9nSXRlbXNHZXRSZXNwb25zZRIzCgZvYmplY3QYASABKAsyIy5vc2FjLnByaXZhdGUudjEuQ2x1c3RlckNhdGFsb2dJdGVtIlcKIENsdXN0ZXJDYXRhbG9nSXRlbXNDcmVhdGVSZXF1ZXN0EjMKBm9iamVjdBgBIAEoCzIjLm9zYWMucHJpdmF0ZS52MS5DbHVzdGVyQ2F0YWxvZ0l0ZW0iWAohQ2x1c3RlckNhdGFsb2dJdGVtc0NyZWF0ZVJlc3BvbnNlEjMKBm9iamVjdBgBIAEoCzIjLm9zYWMucHJpdmF0ZS52MS5DbHVzdGVyQ2F0YWxvZ0l0ZW0iLgogQ2x1c3RlckNhdGFsb2dJdGVtc0RlbGV0ZVJlcXVlc3QSCgoCaWQYASABKAkiIwohQ2x1c3RlckNhdGFsb2dJdGVtc0RlbGV0ZVJlc3BvbnNlIpYBCiBDbHVzdGVyQ2F0YWxvZ0l0ZW1zVXBkYXRlUmVxdWVzdBIzCgZvYmplY3QYASABKAsyIy5vc2FjLnByaXZhdGUudjEuQ2x1c3RlckNhdGFsb2dJdGVtEi8KC3VwZGF0ZV9tYXNrGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLkZpZWxkTWFzaxIMCgRsb2NrGAMgASgIIlgKIUNsdXN0ZXJDYXRhbG9nSXRlbXNVcGRhdGVSZXNwb25zZRIzCgZvYmplY3QYASABKAsyIy5vc2FjLnByaXZhdGUudjEuQ2x1c3RlckNhdGFsb2dJdGVtIjYKIENsdXN0ZXJDYXRhbG9nSXRlbXNTaWduYWxSZXF1ZXN0EgoKAmlkGAEgASgJOgaKtRgCCAEiKwohQ2x1c3RlckNhdGFsb2dJdGVtc1NpZ25hbFJlc3BvbnNlOgaKtRgCCAEy4gcKE0NsdXN0ZXJDYXRhbG9nSXRlbXMSmAEKBExpc3QSLy5vc2FjLnByaXZhdGUudjEuQ2x1c3RlckNhdGFsb2dJdGVtc0xpc3RSZXF1ZXN0GjAub3NhYy5wcml2YXRlLnYxLkNsdXN0ZXJDYXRhbG9nSXRlbXNMaXN0UmVzcG9uc2UiLYLT5JMCJxIlL2FwaS9wcml2YXRlL3YxL2NsdXN0ZXJfY2F0YWxvZ19pdGVtcxKiAQoDR2V0Ei4ub3NhYy5wcml2YXRlLnYxLkNsdXN0ZXJDYXRhbG9nSXRlbXNHZXRSZXF1ZXN0Gi8ub3NhYy5wcml2YXRlLnYxLkNsdXN0ZXJDYXRhbG9nSXRlbXNHZXRSZXNwb25zZSI6gtPkkwI0YgZvYmplY3QSKi9hcGkvcHJpdmF0ZS92MS9jbHVzdGVyX2NhdGFsb2dfaXRlbXMve2lkfRKuAQoGQ3JlYXRlEjEub3NhYy5wcml2YXRlLnYxLkNsdXN0ZXJDYXRhbG9nSXRlbXNDcmVhdGVSZXF1ZXN0GjIub3NhYy5wcml2YXRlLnYxLkNsdXN0ZXJDYXRhbG9nSXRlbXNDcmVhdGVSZXNwb25zZSI9gtPkkwI3OgZvYmplY3RiBm9iamVjdCIlL2FwaS9wcml2YXRlL3YxL2NsdXN0ZXJfY2F0YWxvZ19pdGVtcxKjAQoGRGVsZXRlEjEub3NhYy5wcml2YXRlLnYxLkNsdXN0ZXJDYXRhbG9nSXRlbXNEZWxldGVSZXF1ZXN0GjIub3NhYy5wcml2YXRlLnYxLkNsdXN0ZXJDYXRhbG9nSXRlbXNEZWxldGVSZXNwb25zZSIygtPkkwIsKiovYXBpL3ByaXZhdGUvdjEvY2x1c3Rlcl9jYXRhbG9nX2l0ZW1zL3tpZH0SugEKBlVwZGF0ZRIxLm9zYWMucHJpdmF0ZS52MS5DbHVzdGVyQ2F0YWxvZ0l0ZW1zVXBkYXRlUmVxdWVzdBoyLm9zYWMucHJpdmF0ZS52MS5DbHVzdGVyQ2F0YWxvZ0l0ZW1zVXBkYXRlUmVzcG9uc2UiSYLT5JMCQzoGb2JqZWN0YgZvYmplY3QyMS9hcGkvcHJpdmF0ZS92MS9jbHVzdGVyX2NhdGFsb2dfaXRlbXMve29iamVjdC5pZH0SdwoGU2lnbmFsEjEub3NhYy5wcml2YXRlLnYxLkNsdXN0ZXJDYXRhbG9nSXRlbXNTaWduYWxSZXF1ZXN0GjIub3NhYy5wcml2YXRlLnYxLkNsdXN0ZXJDYXRhbG9nSXRlbXNTaWduYWxSZXNwb25zZSIGirUYAggBQimKtRglEg5vc2FjLnB1YmxpYy52MSITcHJpdmF0ZTpmdWxmaWxsbWVudGIGcHJvdG8z", [file_cleanapi_cleanapi, file_google_api_annotations, file_google_protobuf_field_mask, file_osac_private_v1_cluster_catalog_item_type]);
 
 /**
  * @generated from message osac.private.v1.ClusterCatalogItemsListRequest
  */
 export type ClusterCatalogItemsListRequest = Message<"osac.private.v1.ClusterCatalogItemsListRequest"> & {
   /**
+   * Index of the first result. If not specified the default value will be zero.
+   *
    * @generated from field: optional int32 offset = 1;
    */
   offset?: number | undefined;
 
   /**
+   * Maximum number of results to be returned by the server.
+   *
    * @generated from field: optional int32 limit = 2;
    */
   limit?: number | undefined;
 
   /**
+   * Filter criteria using CEL expressions.
+   *
    * @generated from field: optional string filter = 3;
    */
   filter?: string | undefined;
 
   /**
+   * Order criteria, similar to SQL ORDER BY syntax.
+   *
    * @generated from field: optional string order = 4;
    */
   order?: string | undefined;
@@ -270,6 +279,8 @@ export const ClusterCatalogItemsSignalResponseSchema: GenMessage<ClusterCatalogI
  */
 export const ClusterCatalogItems: GenService<{
   /**
+   * Retrieves the list of cluster catalog items.
+   *
    * @generated from rpc osac.private.v1.ClusterCatalogItems.List
    */
   list: {
@@ -278,6 +289,8 @@ export const ClusterCatalogItems: GenService<{
     output: typeof ClusterCatalogItemsListResponseSchema;
   },
   /**
+   * Retrieves the details of one specific cluster catalog item.
+   *
    * @generated from rpc osac.private.v1.ClusterCatalogItems.Get
    */
   get: {
@@ -286,6 +299,8 @@ export const ClusterCatalogItems: GenService<{
     output: typeof ClusterCatalogItemsGetResponseSchema;
   },
   /**
+   * Creates a new cluster catalog item.
+   *
    * @generated from rpc osac.private.v1.ClusterCatalogItems.Create
    */
   create: {
@@ -294,6 +309,8 @@ export const ClusterCatalogItems: GenService<{
     output: typeof ClusterCatalogItemsCreateResponseSchema;
   },
   /**
+   * Deletes a cluster catalog item.
+   *
    * @generated from rpc osac.private.v1.ClusterCatalogItems.Delete
    */
   delete: {
@@ -302,6 +319,8 @@ export const ClusterCatalogItems: GenService<{
     output: typeof ClusterCatalogItemsDeleteResponseSchema;
   },
   /**
+   * Updates an existing cluster catalog item.
+   *
    * @generated from rpc osac.private.v1.ClusterCatalogItems.Update
    */
   update: {

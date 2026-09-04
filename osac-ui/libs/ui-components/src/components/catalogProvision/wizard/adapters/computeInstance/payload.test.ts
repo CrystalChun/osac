@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import type { ComputeInstanceCatalogItem } from '@osac/types';
+import { type ComputeInstanceCatalogItem, ComputeInstanceRunStrategy } from '@osac/types';
 
 import { buildComputeInstanceCreatePayload, createEmptyComputeInstanceValues } from './payload';
 
@@ -82,7 +82,7 @@ describe('buildComputeInstanceCreatePayload', () => {
       spec: {
         catalogItem: { id: vmCatalogItem.id },
         instanceType: { id: 'standard-4-8' },
-        runStrategy: 'Always',
+        runStrategy: ComputeInstanceRunStrategy.COMPUTE_INSTANCE_RUN_STRATEGY_ALWAYS,
         networkAttachments: [
           {
             subnet: { id: 'subnet-1' },

@@ -11,7 +11,9 @@ export interface IdentityProviderValues {
       authorizationUrl: string;
       tokenUrl: string;
       clientId: string;
-      clientSecret: string;
+      clientSecretSecret: {
+        name: string;
+      };
       issuer: string;
       defaultScopes: string;
       userInfoUrl: string;
@@ -33,7 +35,9 @@ export const getIdentityProviderValues = (idp?: IdentityProvider): IdentityProvi
       config: {
         authorizationUrl: '',
         clientId: '',
-        clientSecret: '',
+        clientSecretSecret: {
+          name: '',
+        },
         defaultScopes: '',
         issuer: '',
         jwksUrl: '',
@@ -46,9 +50,12 @@ export const getIdentityProviderValues = (idp?: IdentityProvider): IdentityProvi
   };
 
   if (idp?.spec?.config.case === 'oidc') {
-    const { $typeName: _, ...oidcValues } = idp.spec.config.value;
+    const { $typeName: _, clientSecretSecret, ...oidcValues } = idp.spec.config.value;
     initValues.spec.config = {
       ...oidcValues,
+      clientSecretSecret: {
+        name: clientSecretSecret?.name || '',
+      },
       defaultScopes: idp.spec.config.value.defaultScopes || '',
       userInfoUrl: idp.spec.config.value.userInfoUrl || '',
       jwksUrl: idp.spec.config.value.jwksUrl || '',

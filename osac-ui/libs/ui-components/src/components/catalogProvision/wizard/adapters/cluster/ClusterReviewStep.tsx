@@ -138,7 +138,7 @@ export const ClusterReviewStep = ({ catalogItem }: Props) => {
           <DescriptionListGroup>
             <DescriptionListTerm>{t('Pull secret')}</DescriptionListTerm>
             <DescriptionListDescription>
-              {formatReviewScalar(values.spec.pullSecret, true)}
+              {values.spec.pullSecretSecret.name}
             </DescriptionListDescription>
           </DescriptionListGroup>
 

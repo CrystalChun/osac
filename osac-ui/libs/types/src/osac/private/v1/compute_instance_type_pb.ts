@@ -17,6 +17,8 @@
 
 import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
+import { file_cleanapi_cleanapi } from "../../../cleanapi/cleanapi_pb";
 import { file_google_api_field_behavior } from "../../../google/api/field_behavior_pb";
 import type { Any } from "../../../google/protobuf/any_pb";
 import { file_google_protobuf_any } from "../../../google/protobuf/any_pb";
@@ -24,12 +26,14 @@ import type { Timestamp } from "../../../google/protobuf/timestamp_pb";
 import { file_google_protobuf_timestamp } from "../../../google/protobuf/timestamp_pb";
 import type { ComputeInstanceCatalogItemReference } from "./compute_instance_catalog_item_type_pb";
 import { file_osac_private_v1_compute_instance_catalog_item_type } from "./compute_instance_catalog_item_type_pb";
-import type { ComputeInstanceDisk, ComputeInstanceImage } from "./compute_instance_common_type_pb";
+import type { ComputeInstanceDisk, ComputeInstanceRunStrategy } from "./compute_instance_common_type_pb";
 import { file_osac_private_v1_compute_instance_common_type } from "./compute_instance_common_type_pb";
 import type { ComputeInstanceTemplateReference } from "./compute_instance_template_type_pb";
 import { file_osac_private_v1_compute_instance_template_type } from "./compute_instance_template_type_pb";
 import type { ConditionStatus } from "./condition_status_type_pb";
 import { file_osac_private_v1_condition_status_type } from "./condition_status_type_pb";
+import type { DiskImageReference } from "./disk_image_type_pb";
+import { file_osac_private_v1_disk_image_type } from "./disk_image_type_pb";
 import type { Metadata } from "./metadata_type_pb";
 import { file_osac_private_v1_metadata_type } from "./metadata_type_pb";
 import type { InstanceTypeReference } from "./instance_type_type_pb";
@@ -44,16 +48,19 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/private/v1/compute_instance_type.proto.
  */
 export const file_osac_private_v1_compute_instance_type: GenFile = /*@__PURE__*/
-  fileDesc("Citvc2FjL3ByaXZhdGUvdjEvY29tcHV0ZV9pbnN0YW5jZV90eXBlLnByb3RvEg9vc2FjLnByaXZhdGUudjEitgEKD0NvbXB1dGVJbnN0YW5jZRIKCgJpZBgBIAEoCRIrCghtZXRhZGF0YRgCIAEoCzIZLm9zYWMucHJpdmF0ZS52MS5NZXRhZGF0YRIyCgRzcGVjGAMgASgLMiQub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZVNwZWMSNgoGc3RhdHVzGAQgASgLMiYub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZVN0YXR1cyKRAQoRTmV0d29ya0F0dGFjaG1lbnQSNQoGc3VibmV0GAEgASgLMiUub3NhYy5wcml2YXRlLnYxLlN1Ym5ldExvY2FsUmVmZXJlbmNlEkUKD3NlY3VyaXR5X2dyb3VwcxgCIAMoCzIsLm9zYWMucHJpdmF0ZS52MS5TZWN1cml0eUdyb3VwTG9jYWxSZWZlcmVuY2UikwgKE0NvbXB1dGVJbnN0YW5jZVNwZWMSQwoIdGVtcGxhdGUYASABKAsyMS5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlVGVtcGxhdGVSZWZlcmVuY2USWQoTdGVtcGxhdGVfcGFyYW1ldGVycxgCIAMoCzI8Lm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2VTcGVjLlRlbXBsYXRlUGFyYW1ldGVyc0VudHJ5Ej0KFHJlc3RhcnRfcmVxdWVzdGVkX2F0GAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEgAiAEBEjkKBWltYWdlGAQgASgLMiUub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZUltYWdlSAGIAQESGwoOc3NoX3B1YmxpY19rZXkYByABKAlIAogBARI8Cglib290X2Rpc2sYCCABKAsyJC5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlRGlza0gDiAEBEj4KEGFkZGl0aW9uYWxfZGlza3MYCSADKAsyJC5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlRGlzaxIZCgxydW5fc3RyYXRlZ3kYCiABKAlIBIgBARIWCgl1c2VyX2RhdGEYCyABKAlIBYgBARI/ChNuZXR3b3JrX2F0dGFjaG1lbnRzGA4gAygLMiIub3NhYy5wcml2YXRlLnYxLk5ldHdvcmtBdHRhY2htZW50EkoKDGNhdGFsb2dfaXRlbRgPIAEoCzI0Lm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2VDYXRhbG9nSXRlbVJlZmVyZW5jZRIXCgppc193aW5kb3dzGBAgASgISAaIAQESPQoNaW5zdGFuY2VfdHlwZRgRIAEoCzImLm9zYWMucHJpdmF0ZS52MS5JbnN0YW5jZVR5cGVSZWZlcmVuY2USKAobYXV0b19leHRlcm5hbF9pcF9hdHRhY2htZW50GBIgASgIQgPgQQUaTwoXVGVtcGxhdGVQYXJhbWV0ZXJzRW50cnkSCwoDa2V5GAEgASgJEiMKBXZhbHVlGAIgASgLMhQuZ29vZ2xlLnByb3RvYnVmLkFueToCOAFCFwoVX3Jlc3RhcnRfcmVxdWVzdGVkX2F0QggKBl9pbWFnZUIRCg9fc3NoX3B1YmxpY19rZXlCDAoKX2Jvb3RfZGlza0IPCg1fcnVuX3N0cmF0ZWd5QgwKCl91c2VyX2RhdGFCDQoLX2lzX3dpbmRvd3NKBAgFEAZKBAgGEAdKBAgMEA1KBAgNEA5SBWNvcmVzUgptZW1vcnlfZ2liUgZzdWJuZXRSD3NlY3VyaXR5X2dyb3VwcyL/AgoVQ29tcHV0ZUluc3RhbmNlU3RhdHVzEjQKBXN0YXRlGAEgASgOMiUub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZVN0YXRlEj0KCmNvbmRpdGlvbnMYAiADKAsyKS5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlQ29uZGl0aW9uEhsKE2ludGVybmFsX2lwX2FkZHJlc3MYAyABKAkSCwoDaHViGAQgASgJEjoKEWxhc3RfcmVzdGFydGVkX2F0GAUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEgAiAEBEhsKE2V4dGVybmFsX2lwX2FkZHJlc3MYBiABKAkSPgoVc3RhdGVfdHJhbnNpdGlvbl90aW1lGAcgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEgBiAEBQhQKEl9sYXN0X3Jlc3RhcnRlZF9hdEIYChZfc3RhdGVfdHJhbnNpdGlvbl90aW1lIoUCChhDb21wdXRlSW5zdGFuY2VDb25kaXRpb24SOwoEdHlwZRgBIAEoDjItLm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2VDb25kaXRpb25UeXBlEjAKBnN0YXR1cxgCIAEoDjIgLm9zYWMucHJpdmF0ZS52MS5Db25kaXRpb25TdGF0dXMSOAoUbGFzdF90cmFuc2l0aW9uX3RpbWUYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhMKBnJlYXNvbhgEIAEoCUgAiAEBEhQKB21lc3NhZ2UYBSABKAlIAYgBAUIJCgdfcmVhc29uQgoKCF9tZXNzYWdlIjkKHUNvbXB1dGVJbnN0YW5jZUxvY2FsUmVmZXJlbmNlEgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkquwIKFENvbXB1dGVJbnN0YW5jZVN0YXRlEiYKIkNPTVBVVEVfSU5TVEFOQ0VfU1RBVEVfVU5TUEVDSUZJRUQQABIjCh9DT01QVVRFX0lOU1RBTkNFX1NUQVRFX1NUQVJUSU5HEAESIgoeQ09NUFVURV9JTlNUQU5DRV9TVEFURV9SVU5OSU5HEAISIQodQ09NUFVURV9JTlNUQU5DRV9TVEFURV9GQUlMRUQQAxIjCh9DT01QVVRFX0lOU1RBTkNFX1NUQVRFX0RFTEVUSU5HEAQSIwofQ09NUFVURV9JTlNUQU5DRV9TVEFURV9TVE9QUElORxAFEiIKHkNPTVBVVEVfSU5TVEFOQ0VfU1RBVEVfU1RPUFBFRBAGEiEKHUNPTVBVVEVfSU5TVEFOQ0VfU1RBVEVfUEFVU0VEEAcqiQMKHENvbXB1dGVJbnN0YW5jZUNvbmRpdGlvblR5cGUSLworQ09NUFVURV9JTlNUQU5DRV9DT05ESVRJT05fVFlQRV9VTlNQRUNJRklFRBAAEjkKNUNPTVBVVEVfSU5TVEFOQ0VfQ09ORElUSU9OX1RZUEVfQ09ORklHVVJBVElPTl9BUFBMSUVEEAESKQolQ09NUFVURV9JTlNUQU5DRV9DT05ESVRJT05fVFlQRV9SRUFEWRACEjcKM0NPTVBVVEVfSU5TVEFOQ0VfQ09ORElUSU9OX1RZUEVfUkVTVEFSVF9JTl9QUk9HUkVTUxADEjIKLkNPTVBVVEVfSU5TVEFOQ0VfQ09ORElUSU9OX1RZUEVfUkVTVEFSVF9GQUlMRUQQBBIvCitDT01QVVRFX0lOU1RBTkNFX0NPTkRJVElPTl9UWVBFX1BST1ZJU0lPTkVEEAUSNAowQ09NUFVURV9JTlNUQU5DRV9DT05ESVRJT05fVFlQRV9SRVNUQVJUX1JFUVVJUkVEEAZiBnByb3RvMw", [file_google_api_field_behavior, file_google_protobuf_any, file_google_protobuf_timestamp, file_osac_private_v1_compute_instance_catalog_item_type, file_osac_private_v1_compute_instance_common_type, file_osac_private_v1_compute_instance_template_type, file_osac_private_v1_condition_status_type, file_osac_private_v1_metadata_type, file_osac_private_v1_instance_type_type, file_osac_private_v1_security_group_type, file_osac_private_v1_subnet_type]);
+  fileDesc("Citvc2FjL3ByaXZhdGUvdjEvY29tcHV0ZV9pbnN0YW5jZV90eXBlLnByb3RvEg9vc2FjLnByaXZhdGUudjEitgEKD0NvbXB1dGVJbnN0YW5jZRIKCgJpZBgBIAEoCRIrCghtZXRhZGF0YRgCIAEoCzIZLm9zYWMucHJpdmF0ZS52MS5NZXRhZGF0YRIyCgRzcGVjGAMgASgLMiQub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZVNwZWMSNgoGc3RhdHVzGAQgASgLMiYub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZVN0YXR1cyKYAQoYQ29tcHV0ZU5ldHdvcmtBdHRhY2htZW50EjUKBnN1Ym5ldBgBIAEoCzIlLm9zYWMucHJpdmF0ZS52MS5TdWJuZXRMb2NhbFJlZmVyZW5jZRJFCg9zZWN1cml0eV9ncm91cHMYAiADKAsyLC5vc2FjLnByaXZhdGUudjEuU2VjdXJpdHlHcm91cExvY2FsUmVmZXJlbmNlIuMIChNDb21wdXRlSW5zdGFuY2VTcGVjEkMKCHRlbXBsYXRlGAEgASgLMjEub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZVRlbXBsYXRlUmVmZXJlbmNlElkKE3RlbXBsYXRlX3BhcmFtZXRlcnMYAiADKAsyPC5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlU3BlYy5UZW1wbGF0ZVBhcmFtZXRlcnNFbnRyeRI9ChRyZXN0YXJ0X3JlcXVlc3RlZF9hdBgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBIAIgBARIbCg5zc2hfcHVibGljX2tleRgHIAEoCUgBiAEBEjwKCWJvb3RfZGlzaxgIIAEoCzIkLm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2VEaXNrSAKIAQESPgoQYWRkaXRpb25hbF9kaXNrcxgJIAMoCzIkLm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2VEaXNrElIKDHJ1bl9zdHJhdGVneRgKIAEoDjIrLm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2VSdW5TdHJhdGVneUIKukgHggEEEAEgAEgDiAEBEhYKCXVzZXJfZGF0YRgLIAEoCUgEiAEBEkYKE25ldHdvcmtfYXR0YWNobWVudHMYDiADKAsyKS5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZU5ldHdvcmtBdHRhY2htZW50EkoKDGNhdGFsb2dfaXRlbRgPIAEoCzI0Lm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2VDYXRhbG9nSXRlbVJlZmVyZW5jZRI9Cg1pbnN0YW5jZV90eXBlGBEgASgLMiYub3NhYy5wcml2YXRlLnYxLkluc3RhbmNlVHlwZVJlZmVyZW5jZRItChthdXRvX2V4dGVybmFsX2lwX2F0dGFjaG1lbnQYEiABKAhCA+BBBUgFiAEBEjcKCmRpc2tfaW1hZ2UYEyABKAsyIy5vc2FjLnByaXZhdGUudjEuRGlza0ltYWdlUmVmZXJlbmNlGk8KF1RlbXBsYXRlUGFyYW1ldGVyc0VudHJ5EgsKA2tleRgBIAEoCRIjCgV2YWx1ZRgCIAEoCzIULmdvb2dsZS5wcm90b2J1Zi5Bbnk6AjgBQhcKFV9yZXN0YXJ0X3JlcXVlc3RlZF9hdEIRCg9fc3NoX3B1YmxpY19rZXlCDAoKX2Jvb3RfZGlza0IPCg1fcnVuX3N0cmF0ZWd5QgwKCl91c2VyX2RhdGFCHgocX2F1dG9fZXh0ZXJuYWxfaXBfYXR0YWNobWVudEoECAQQBUoECAUQBkoECAYQB0oECAwQDUoECA0QDkoECBAQEVIFaW1hZ2VSBWNvcmVzUgptZW1vcnlfZ2liUgZzdWJuZXRSD3NlY3VyaXR5X2dyb3Vwc1IKaXNfd2luZG93cyKHAwoVQ29tcHV0ZUluc3RhbmNlU3RhdHVzEjQKBXN0YXRlGAEgASgOMiUub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZVN0YXRlEj0KCmNvbmRpdGlvbnMYAiADKAsyKS5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlQ29uZGl0aW9uEhsKE2ludGVybmFsX2lwX2FkZHJlc3MYAyABKAkSOgoRbGFzdF9yZXN0YXJ0ZWRfYXQYBCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wSACIAQESGwoTZXh0ZXJuYWxfaXBfYWRkcmVzcxgFIAEoCRI+ChVzdGF0ZV90cmFuc2l0aW9uX3RpbWUYBiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wSAGIAQESEwoDaHViGAcgASgJQgaKtRgCCAFCFAoSX2xhc3RfcmVzdGFydGVkX2F0QhgKFl9zdGF0ZV90cmFuc2l0aW9uX3RpbWUihQIKGENvbXB1dGVJbnN0YW5jZUNvbmRpdGlvbhI7CgR0eXBlGAEgASgOMi0ub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZUNvbmRpdGlvblR5cGUSMAoGc3RhdHVzGAIgASgOMiAub3NhYy5wcml2YXRlLnYxLkNvbmRpdGlvblN0YXR1cxI4ChRsYXN0X3RyYW5zaXRpb25fdGltZRgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEwoGcmVhc29uGAQgASgJSACIAQESFAoHbWVzc2FnZRgFIAEoCUgBiAEBQgkKB19yZWFzb25CCgoIX21lc3NhZ2UiOQodQ29tcHV0ZUluc3RhbmNlTG9jYWxSZWZlcmVuY2USCgoCaWQYASABKAkSDAoEbmFtZRgCIAEoCSq7AgoUQ29tcHV0ZUluc3RhbmNlU3RhdGUSJgoiQ09NUFVURV9JTlNUQU5DRV9TVEFURV9VTlNQRUNJRklFRBAAEiMKH0NPTVBVVEVfSU5TVEFOQ0VfU1RBVEVfU1RBUlRJTkcQARIiCh5DT01QVVRFX0lOU1RBTkNFX1NUQVRFX1JVTk5JTkcQAhIhCh1DT01QVVRFX0lOU1RBTkNFX1NUQVRFX0ZBSUxFRBADEiMKH0NPTVBVVEVfSU5TVEFOQ0VfU1RBVEVfREVMRVRJTkcQBBIjCh9DT01QVVRFX0lOU1RBTkNFX1NUQVRFX1NUT1BQSU5HEAUSIgoeQ09NUFVURV9JTlNUQU5DRV9TVEFURV9TVE9QUEVEEAYSIQodQ09NUFVURV9JTlNUQU5DRV9TVEFURV9QQVVTRUQQByqJAwocQ29tcHV0ZUluc3RhbmNlQ29uZGl0aW9uVHlwZRIvCitDT01QVVRFX0lOU1RBTkNFX0NPTkRJVElPTl9UWVBFX1VOU1BFQ0lGSUVEEAASOQo1Q09NUFVURV9JTlNUQU5DRV9DT05ESVRJT05fVFlQRV9DT05GSUdVUkFUSU9OX0FQUExJRUQQARIpCiVDT01QVVRFX0lOU1RBTkNFX0NPTkRJVElPTl9UWVBFX1JFQURZEAISNwozQ09NUFVURV9JTlNUQU5DRV9DT05ESVRJT05fVFlQRV9SRVNUQVJUX0lOX1BST0dSRVNTEAMSMgouQ09NUFVURV9JTlNUQU5DRV9DT05ESVRJT05fVFlQRV9SRVNUQVJUX0ZBSUxFRBAEEi8KK0NPTVBVVEVfSU5TVEFOQ0VfQ09ORElUSU9OX1RZUEVfUFJPVklTSU9ORUQQBRI0CjBDT01QVVRFX0lOU1RBTkNFX0NPTkRJVElPTl9UWVBFX1JFU1RBUlRfUkVRVUlSRUQQBkIUirUYEBIOb3NhYy5wdWJsaWMudjFiBnByb3RvMw", [file_buf_validate_validate, file_cleanapi_cleanapi, file_google_api_field_behavior, file_google_protobuf_any, file_google_protobuf_timestamp, file_osac_private_v1_compute_instance_catalog_item_type, file_osac_private_v1_compute_instance_common_type, file_osac_private_v1_compute_instance_template_type, file_osac_private_v1_condition_status_type, file_osac_private_v1_disk_image_type, file_osac_private_v1_metadata_type, file_osac_private_v1_instance_type_type, file_osac_private_v1_security_group_type, file_osac_private_v1_subnet_type]);
 
 /**
- * Contains the details about the compute instance that are available only for the system.
+ * Contains the details of the compute instance.
+ *
+ * The `spec` contains the desired details, and may be modified by the user. The `status` contains the current status of
+ * the compute instance, is provided by the system and can't be modified by the user.
  *
  * @generated from message osac.private.v1.ComputeInstance
  */
 export type ComputeInstance = Message<"osac.private.v1.ComputeInstance"> & {
   /**
-   * Public data.
+   * Unique identifier of the compute instance.
    *
    * @generated from field: string id = 1;
    */
@@ -85,18 +92,18 @@ export const ComputeInstanceSchema: GenMessage<ComputeInstance> = /*@__PURE__*/
 /**
  * Groups one subnet with security groups for that network attachment (multi-NIC VMs).
  *
- * @generated from message osac.private.v1.NetworkAttachment
+ * @generated from message osac.private.v1.ComputeNetworkAttachment
  */
-export type NetworkAttachment = Message<"osac.private.v1.NetworkAttachment"> & {
+export type ComputeNetworkAttachment = Message<"osac.private.v1.ComputeNetworkAttachment"> & {
   /**
-   * Reference to the Subnet for this NIC.
+   * Reference to the Subnet for this NIC; must be in READY state (same tenant and region rules as ComputeInstance).
    *
    * @generated from field: osac.private.v1.SubnetLocalReference subnet = 1;
    */
   subnet?: SubnetLocalReference | undefined;
 
   /**
-   * References to SecurityGroups for this NIC.
+   * References to SecurityGroups for this NIC; each must be READY and belong to the same VirtualNetwork as subnet.
    *
    * @generated from field: repeated osac.private.v1.SecurityGroupLocalReference security_groups = 2;
    */
@@ -104,39 +111,98 @@ export type NetworkAttachment = Message<"osac.private.v1.NetworkAttachment"> & {
 };
 
 /**
- * Describes the message osac.private.v1.NetworkAttachment.
- * Use `create(NetworkAttachmentSchema)` to create a new message.
+ * Describes the message osac.private.v1.ComputeNetworkAttachment.
+ * Use `create(ComputeNetworkAttachmentSchema)` to create a new message.
  */
-export const NetworkAttachmentSchema: GenMessage<NetworkAttachment> = /*@__PURE__*/
+export const ComputeNetworkAttachmentSchema: GenMessage<ComputeNetworkAttachment> = /*@__PURE__*/
   messageDesc(file_osac_private_v1_compute_instance_type, 1);
 
 /**
+ * The spec contains the details of a compute instance as desired by the user.
+ *
  * @generated from message osac.private.v1.ComputeInstanceSpec
  */
 export type ComputeInstanceSpec = Message<"osac.private.v1.ComputeInstanceSpec"> & {
   /**
-   * Copies of the public fields.
+   * Reference to the compute instance template. Either `template` or `catalog_item` is required on create.
+   *
+   * Mutually exclusive with `catalog_item`.
+   *
+   * This can't be modified after the compute instance is created.
    *
    * @generated from field: osac.private.v1.ComputeInstanceTemplateReference template = 1;
    */
   template?: ComputeInstanceTemplateReference | undefined;
 
   /**
+   * Values of the template parameters.
+   *
+   * When using the HTTP+JSON version of the API the values must be represented as documented in the (ProtoJSON format
+   * document)[https://protobuf.dev/programming-guides/json]. For example, if the template has a `cpu_count`
+   * parameter of integer type, the complete compute instance should be represented like this:
+   *
+   * ```json
+   * {
+   *   "spec": {
+   *     "template": "123",
+   *     "template_parameters": {
+   *       "cpu_count": {
+   *         "@type": "type.googleapis.com/google.protobuf.Int32Value",
+   *         "value": 4
+   *       }
+   *     }
+   *   }
+   * }
+   * ```
+   *
+   * The possible values of the `@type` are the same as those used by the `type_url` field of the `Any` type:
+   *
+   * | Type                           | Value                                             |
+   * |--------------------------------|---------------------------------------------------|
+   * | Boolean                        | `type.googleapis.com/google.protobuf.BoolValue`   |
+   * | Integer number, 32 bits        | `type.googleapis.com/google.protobuf.Int32Value`  |
+   * | Integer number, 64 bits        | `type.googleapis.com/google.protobuf.Int64Value`  |
+   * | Floating point number, 32 bits | `type.googleapis.com/google.protobuf.FloatValue`  |
+   * | Floating point number, 64 bits | `type.googleapis.com/google.protobuf.DoubleValue` |
+   * | String                         | `type.googleapis.com/google.protobuf.StringValue` |
+   * | Timestamp                      | `type.googleapis.com/google.protobuf.Timestamp`   |
+   * | Duration                       | `type.googleapis.com/google.protobuf.Duration`    |
+   * | Array of bytes                 | `type.googleapis.com/google.protobuf.BytesValue`  |
+   * | Any JSON value                 | `type.googleapis.com/google.protobuf.Value`       |
+   *
+   * These parameters can't be modified after the compute instance is created.
+   *
    * @generated from field: map<string, google.protobuf.Any> template_parameters = 2;
    */
   templateParameters: { [key: string]: Any };
 
   /**
+   * RestartRequestedAt is a timestamp signal to request a ComputeInstance restart.
+   *
+   * Set this field to the current time (usually NOW) to request a restart.
+   * The controller will execute the restart if this timestamp is greater than
+   * `status.last_restarted_at`.
+   *
+   * This is a declarative signal mechanism - the timestamp is a monotonically
+   * increasing value to detect new restart requests, not a scheduled time.
+   * Typically set to the current time for immediate restarts.
+   *
+   * External schedulers can set this field on a schedule to implement
+   * scheduled maintenance windows if needed.
+   *
+   * Example (when converted to JSON):
+   *
+   *    {
+   *      "spec": {
+   *        "template": "123",
+   *        "restart_requested_at": "2026-01-20T14:30:00Z"
+   *      }
+   *    }
+   *
+   *
    * @generated from field: optional google.protobuf.Timestamp restart_requested_at = 3;
    */
   restartRequestedAt?: Timestamp | undefined;
-
-  /**
-   * Image configuration.
-   *
-   * @generated from field: optional osac.private.v1.ComputeInstanceImage image = 4;
-   */
-  image?: ComputeInstanceImage | undefined;
 
   /**
    * SSH public key.
@@ -160,11 +226,11 @@ export type ComputeInstanceSpec = Message<"osac.private.v1.ComputeInstanceSpec">
   additionalDisks: ComputeInstanceDisk[];
 
   /**
-   * Run strategy for the compute instance (e.g. "Always" or "Halted").
+   * Run strategy for the compute instance.
    *
-   * @generated from field: optional string run_strategy = 10;
+   * @generated from field: optional osac.private.v1.ComputeInstanceRunStrategy run_strategy = 10;
    */
-  runStrategy?: string | undefined;
+  runStrategy?: ComputeInstanceRunStrategy | undefined;
 
   /**
    * User data for the compute instance (e.g. cloud-init, ignition).
@@ -176,9 +242,9 @@ export type ComputeInstanceSpec = Message<"osac.private.v1.ComputeInstanceSpec">
   /**
    * Network attachments: one entry per NIC.
    *
-   * @generated from field: repeated osac.private.v1.NetworkAttachment network_attachments = 14;
+   * @generated from field: repeated osac.private.v1.ComputeNetworkAttachment network_attachments = 14;
    */
-  networkAttachments: NetworkAttachment[];
+  networkAttachments: ComputeNetworkAttachment[];
 
   /**
    * Reference to a compute instance catalog item. Mutually exclusive with template during the migration period.
@@ -187,13 +253,6 @@ export type ComputeInstanceSpec = Message<"osac.private.v1.ComputeInstanceSpec">
    * @generated from field: osac.private.v1.ComputeInstanceCatalogItemReference catalog_item = 15;
    */
   catalogItem?: ComputeInstanceCatalogItemReference | undefined;
-
-  /**
-   * Indicates whether this compute instance runs a Windows guest OS (true) or Linux (false/omitted).
-   *
-   * @generated from field: optional bool is_windows = 16;
-   */
-  isWindows?: boolean | undefined;
 
   /**
    * Reference to an instance type. Specifies the compute configuration (cores, memory)
@@ -209,9 +268,17 @@ export type ComputeInstanceSpec = Message<"osac.private.v1.ComputeInstanceSpec">
    * with an ExternalIPAttachment for this instance atomically during creation.
    * Immutable after creation.
    *
-   * @generated from field: bool auto_external_ip_attachment = 18;
+   * @generated from field: optional bool auto_external_ip_attachment = 18;
    */
-  autoExternalIpAttachment: boolean;
+  autoExternalIpAttachment?: boolean | undefined;
+
+  /**
+   * Reference to a DiskImage resource. Required after template/catalog item
+   * defaults are applied. The server validates existence, lifecycle, and tenant visibility.
+   *
+   * @generated from field: osac.private.v1.DiskImageReference disk_image = 19;
+   */
+  diskImage?: DiskImageReference | undefined;
 };
 
 /**
@@ -222,17 +289,62 @@ export const ComputeInstanceSpecSchema: GenMessage<ComputeInstanceSpec> = /*@__P
   messageDesc(file_osac_private_v1_compute_instance_type, 2);
 
 /**
+ * The status contains the details of the compute instance provided by the system.
+ *
  * @generated from message osac.private.v1.ComputeInstanceStatus
  */
 export type ComputeInstanceStatus = Message<"osac.private.v1.ComputeInstanceStatus"> & {
   /**
-   * Public fields.
+   * Indicates the overall state of the compute instance.
    *
    * @generated from field: osac.private.v1.ComputeInstanceState state = 1;
    */
   state: ComputeInstanceState;
 
   /**
+   * Contains a list of conditions that describe in detail the status of the compute instance.
+   *
+   * For example, a running compute instance could be represented like this (when converted to JSON):
+   *
+   *    {
+   *      "id": "123",
+   *      "spec": {
+   *      },
+   *      "status": {
+   *        "state": "COMPUTE_INSTANCE_STATE_RUNNING",
+   *        "conditions": [
+   *          {
+   *            "type": "COMPUTE_INSTANCE_CONDITION_TYPE_PROVISIONED",
+   *            "status": "CONDITION_STATUS_TRUE",
+   *            "last_transition_time": "2025-03-12 20:10:01+00:00"
+   *          },
+   *          {
+   *            "type": "COMPUTE_INSTANCE_CONDITION_TYPE_CONFIGURATION_APPLIED",
+   *            "status": "CONDITION_STATUS_TRUE",
+   *            "last_transition_time": "2025-03-12 20:14:22+00:00"
+   *          },
+   *          {
+   *            "type": "COMPUTE_INSTANCE_CONDITION_TYPE_READY",
+   *            "status": "CONDITION_STATUS_TRUE",
+   *            "last_transition_time": "2025-03-12 20:15:59+00:00"
+   *          }
+   *        ]
+   *      }
+   *    }
+   *
+   * In this example the `PROVISIONED` condition is true (infrastructure is allocated), `CONFIGURATION_APPLIED` is true
+   * (the desired configuration has been applied by the provisioning provider), and `READY` is true (the compute
+   * instance is reachable via the internal IP address in `status.internal_ip_address`).
+   *
+   * The `state` field reflects the VM power state as reported by the hypervisor. Possible states include
+   * `STARTING`, `RUNNING`, `FAILED`, `DELETING`, `STOPPING`, `STOPPED`, and `PAUSED`.
+   *
+   * Note that in this example, to make it shorter, only three conditions appear. In general all the conditions (except
+   * `UNSPECIFIED`) will appear exactly once.
+   *
+   * Check the documentation of the values of the `ComputeInstanceConditionType` enumerated type to see possible conditions and
+   * reasons.
+   *
    * @generated from field: repeated osac.private.v1.ComputeInstanceCondition conditions = 2;
    */
   conditions: ComputeInstanceCondition[];
@@ -240,26 +352,36 @@ export type ComputeInstanceStatus = Message<"osac.private.v1.ComputeInstanceStat
   /**
    * Internal IP address of the compute instance.
    *
+   * This will be empty if the compute instance isn't running.
+   *
    * @generated from field: string internal_ip_address = 3;
    */
   internalIpAddress: string;
 
   /**
-   * Identifier of the hub that was selected for this compute instance.
+   * LastRestartedAt records when the last restart was initiated by the controller.
    *
-   * @generated from field: string hub = 4;
-   */
-  hub: string;
-
-  /**
-   * @generated from field: optional google.protobuf.Timestamp last_restarted_at = 5;
+   * This is set to `spec.restart_requested_at` when the controller processes a restart request.
+   * It will be empty if no restart has been performed yet.
+   *
+   * Example (when converted to JSON):
+   *
+   *    {
+   *      "status": {
+   *        "state": "COMPUTE_INSTANCE_STATE_RUNNING",
+   *        "last_restarted_at": "2026-01-20T14:30:00Z"
+   *      }
+   *    }
+   *
+   *
+   * @generated from field: optional google.protobuf.Timestamp last_restarted_at = 4;
    */
   lastRestartedAt?: Timestamp | undefined;
 
   /**
    * External IP address attached to the compute instance.
    *
-   * @generated from field: string external_ip_address = 6;
+   * @generated from field: string external_ip_address = 5;
    */
   externalIpAddress: string;
 
@@ -270,9 +392,16 @@ export type ComputeInstanceStatus = Message<"osac.private.v1.ComputeInstanceStat
    *
    * This will be empty if no state transition has been reported yet.
    *
-   * @generated from field: optional google.protobuf.Timestamp state_transition_time = 7;
+   * @generated from field: optional google.protobuf.Timestamp state_transition_time = 6;
    */
   stateTransitionTime?: Timestamp | undefined;
+
+  /**
+   * Identifier of the hub that was selected for this compute instance.
+   *
+   * @generated from field: string hub = 7;
+   */
+  hub: string;
 };
 
 /**
@@ -283,30 +412,46 @@ export const ComputeInstanceStatusSchema: GenMessage<ComputeInstanceStatus> = /*
   messageDesc(file_osac_private_v1_compute_instance_type, 3);
 
 /**
+ * Contains the details of a condition that describes the status of a compute instance.
+ *
  * @generated from message osac.private.v1.ComputeInstanceCondition
  */
 export type ComputeInstanceCondition = Message<"osac.private.v1.ComputeInstanceCondition"> & {
   /**
+   * Indicates the type of condition.
+   *
    * @generated from field: osac.private.v1.ComputeInstanceConditionType type = 1;
    */
   type: ComputeInstanceConditionType;
 
   /**
+   * Indicates the status of the condition.
+   *
    * @generated from field: osac.private.v1.ConditionStatus status = 2;
    */
   status: ConditionStatus;
 
   /**
+   * This time is the last time that the condition was updated.
+   *
    * @generated from field: google.protobuf.Timestamp last_transition_time = 3;
    */
   lastTransitionTime?: Timestamp | undefined;
 
   /**
+   * Contains a the reason of the condition in a format suitable for use by programs.
+   *
+   * The possible values will be documented in the object that contains the condition.
+   *
    * @generated from field: optional string reason = 4;
    */
   reason?: string | undefined;
 
   /**
+   * Contains a text giving more details of the condition.
+   *
+   * This will usually be progress reports, or error messages, and are intended for use by humans, to debug problems.
+   *
    * @generated from field: optional string message = 5;
    */
   message?: string | undefined;
@@ -344,45 +489,63 @@ export const ComputeInstanceLocalReferenceSchema: GenMessage<ComputeInstanceLoca
   messageDesc(file_osac_private_v1_compute_instance_type, 5);
 
 /**
+ * Represents the overall state of a compute instance.
+ *
  * @generated from enum osac.private.v1.ComputeInstanceState
  */
 export enum ComputeInstanceState {
   /**
+   * Unspecified indicates that the state is unknown.
+   *
    * @generated from enum value: COMPUTE_INSTANCE_STATE_UNSPECIFIED = 0;
    */
   UNSPECIFIED = 0,
 
   /**
+   * Indicates that the compute instance is starting.
+   *
    * @generated from enum value: COMPUTE_INSTANCE_STATE_STARTING = 1;
    */
   STARTING = 1,
 
   /**
+   * Indicates that the compute instance is running.
+   *
    * @generated from enum value: COMPUTE_INSTANCE_STATE_RUNNING = 2;
    */
   RUNNING = 2,
 
   /**
+   * Indicates that the compute instance is unusable.
+   *
    * @generated from enum value: COMPUTE_INSTANCE_STATE_FAILED = 3;
    */
   FAILED = 3,
 
   /**
+   * Indicates that the compute instance is being deleted.
+   *
    * @generated from enum value: COMPUTE_INSTANCE_STATE_DELETING = 4;
    */
   DELETING = 4,
 
   /**
+   * Indicates that the compute instance is in the process of being stopped.
+   *
    * @generated from enum value: COMPUTE_INSTANCE_STATE_STOPPING = 5;
    */
   STOPPING = 5,
 
   /**
+   * Indicates that the compute instance is stopped.
+   *
    * @generated from enum value: COMPUTE_INSTANCE_STATE_STOPPED = 6;
    */
   STOPPED = 6,
 
   /**
+   * Indicates that the compute instance is paused.
+   *
    * @generated from enum value: COMPUTE_INSTANCE_STATE_PAUSED = 7;
    */
   PAUSED = 7,
@@ -395,40 +558,99 @@ export const ComputeInstanceStateSchema: GenEnum<ComputeInstanceState> = /*@__PU
   enumDesc(file_osac_private_v1_compute_instance_type, 0);
 
 /**
+ * Types of conditions used to describe the status of compute instance.
+ *
  * @generated from enum osac.private.v1.ComputeInstanceConditionType
  */
 export enum ComputeInstanceConditionType {
   /**
+   * Unspecified indicates that the condition is unknown.
+   *
+   * This will never be appear in the `spec.conditions` field of a compute instance.
+   *
    * @generated from enum value: COMPUTE_INSTANCE_CONDITION_TYPE_UNSPECIFIED = 0;
    */
   UNSPECIFIED = 0,
 
   /**
+   * Indicates that the compute instance configuration has been applied by the provisioning provider.
+   *
+   * When `status` is `TRUE`, the configuration currently described by the compute instance spec
+   * has been successfully applied. This is determined by comparing `status.desiredConfigVersion`
+   * with `status.reconciledConfigVersion`.
+   *
+   * When `status` is `FALSE`, configuration is currently being applied (e.g. during initial
+   * provisioning or after a spec update).
+   *
    * @generated from enum value: COMPUTE_INSTANCE_CONDITION_TYPE_CONFIGURATION_APPLIED = 1;
    */
   CONFIGURATION_APPLIED = 1,
 
   /**
+   * Indicates that the compute instance is ready (reachable per readiness checks).
+   *
+   * When `status` is `TRUE`, the compute instance is running and the readiness check
+   * has passed. The instance is reachable via the internal IP address in `status.internal_ip_address`.
+   *
+   * When `status` is `FALSE`, the instance is not yet reachable (e.g. it is still
+   * starting, the readiness check has not passed, or the instance is stopped/paused).
+   *
+   * Possible `reason` values:
+   * - `AsExpected`: Normal operational state.
+   *
    * @generated from enum value: COMPUTE_INSTANCE_CONDITION_TYPE_READY = 2;
    */
   READY = 2,
 
   /**
+   * Indicates that a restart is in progress.
+   *
+   * When `status` is `TRUE`, it means a restart is currently in progress.
+   *
+   * Possible `reason` values:
+   * - `RestartRequested`: A restart has been requested via `spec.restart_requested_at`.
+   * - `RestartInProgress`: The restart has been initiated.
+   *
+   * When `status` is `FALSE`, no restart is currently in progress.
+   *
    * @generated from enum value: COMPUTE_INSTANCE_CONDITION_TYPE_RESTART_IN_PROGRESS = 3;
    */
   RESTART_IN_PROGRESS = 3,
 
   /**
+   * Indicates that a restart request has failed.
+   *
+   * When `status` is `TRUE`, it means the restart could not be executed.
+   * The `message` field will contain details about the failure.
+   * If the issue persists, please contact your administrator.
+   *
+   * When `status` is `FALSE`, there is no restart failure.
+   *
    * @generated from enum value: COMPUTE_INSTANCE_CONDITION_TYPE_RESTART_FAILED = 4;
    */
   RESTART_FAILED = 4,
 
   /**
+   * Indicates that the infrastructure resources (compute, storage) have been allocated.
+   *
+   * When `status` is `TRUE`, the compute instance has been created and
+   * infrastructure resources are allocated.
+   *
+   * When `status` is `FALSE`, infrastructure provisioning is in progress.
+   *
    * @generated from enum value: COMPUTE_INSTANCE_CONDITION_TYPE_PROVISIONED = 5;
    */
   PROVISIONED = 5,
 
   /**
+   * Indicates that the compute instance requires a restart for configuration changes
+   * to take effect.
+   *
+   * When `status` is `TRUE`, configuration changes have been applied to the VM spec
+   * but require a restart to take effect (they cannot be live-propagated).
+   *
+   * When `status` is `FALSE`, no restart is required.
+   *
    * @generated from enum value: COMPUTE_INSTANCE_CONDITION_TYPE_RESTART_REQUIRED = 6;
    */
   RESTART_REQUIRED = 6,

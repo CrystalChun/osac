@@ -17,6 +17,7 @@
 
 import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
 import type { Metadata } from "./metadata_type_pb";
 import { file_osac_public_v1_metadata_type } from "./metadata_type_pb";
 import type { Message } from "@bufbuild/protobuf";
@@ -25,7 +26,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/public/v1/project_type.proto.
  */
 export const file_osac_public_v1_project_type: GenFile = /*@__PURE__*/
-  fileDesc("CiFvc2FjL3B1YmxpYy92MS9wcm9qZWN0X3R5cGUucHJvdG8SDm9zYWMucHVibGljLnYxIpsBCgdQcm9qZWN0EgoKAmlkGAEgASgJEioKCG1ldGFkYXRhGAIgASgLMhgub3NhYy5wdWJsaWMudjEuTWV0YWRhdGESKQoEc3BlYxgDIAEoCzIbLm9zYWMucHVibGljLnYxLlByb2plY3RTcGVjEi0KBnN0YXR1cxgEIAEoCzIdLm9zYWMucHVibGljLnYxLlByb2plY3RTdGF0dXMiRgoLUHJvamVjdFNwZWMSDQoFdGl0bGUYAiABKAkSGAoLZGVzY3JpcHRpb24YAyABKAlIAIgBAUIOCgxfZGVzY3JpcHRpb24iXgoNUHJvamVjdFN0YXR1cxIrCgVzdGF0ZRgBIAEoDjIcLm9zYWMucHVibGljLnYxLlByb2plY3RTdGF0ZRIUCgdtZXNzYWdlGAIgASgJSACIAQFCCgoIX21lc3NhZ2UquQEKDFByb2plY3RTdGF0ZRIdChlQUk9KRUNUX1NUQVRFX1VOU1BFQ0lGSUVEEAASGQoVUFJPSkVDVF9TVEFURV9QRU5ESU5HEAESGAoUUFJPSkVDVF9TVEFURV9BQ1RJVkUQAhIYChRQUk9KRUNUX1NUQVRFX0ZBSUxFRBADEhoKFlBST0pFQ1RfU1RBVEVfREVMRVRJTkcQBBIfChtQUk9KRUNUX1NUQVRFX0RFTEVURV9GQUlMRUQQBWIGcHJvdG8z", [file_osac_public_v1_metadata_type]);
+  fileDesc("CiFvc2FjL3B1YmxpYy92MS9wcm9qZWN0X3R5cGUucHJvdG8SDm9zYWMucHVibGljLnYxIvgDCgdQcm9qZWN0EgoKAmlkGAEgASgJEjIKCG1ldGFkYXRhGAIgASgLMhgub3NhYy5wdWJsaWMudjEuTWV0YWRhdGFCBrpIA9gBAxIpCgRzcGVjGAMgASgLMhsub3NhYy5wdWJsaWMudjEuUHJvamVjdFNwZWMSLQoGc3RhdHVzGAQgASgLMh0ub3NhYy5wdWJsaWMudjEuUHJvamVjdFN0YXR1czrSArpIzgIaywIKFXByb2plY3RfbmFtZV9zZWdtZW50cxJ8cHJvamVjdCBuYW1lIG11c3QgYmUgZG90LXNlcGFyYXRlZCBETlMgbGFiZWxzIChlYWNoIHNlZ21lbnQ6IG1heCA2MyBjaGFycywgbG93ZXJjYXNlIGEtei8wLTkvaHlwaGVuLCBhbHBoYW51bWVyaWMgc3RhcnQvZW5kKRqzAXRoaXMubWV0YWRhdGEubmFtZS5zaXplKCkgPT0gMCB8fCB0aGlzLm1ldGFkYXRhLm5hbWUuc3BsaXQoJy4nKS5hbGwoc2VnbWVudCwgc2VnbWVudC5zaXplKCkgPiAwICYmIHNlZ21lbnQuc2l6ZSgpIDw9IDYzICYmIHNlZ21lbnQubWF0Y2hlcygnXlthLXowLTldKFthLXowLTktXXswLDYxfVthLXowLTldKT8kJykpIkYKC1Byb2plY3RTcGVjEg0KBXRpdGxlGAIgASgJEhgKC2Rlc2NyaXB0aW9uGAMgASgJSACIAQFCDgoMX2Rlc2NyaXB0aW9uIl4KDVByb2plY3RTdGF0dXMSKwoFc3RhdGUYASABKA4yHC5vc2FjLnB1YmxpYy52MS5Qcm9qZWN0U3RhdGUSFAoHbWVzc2FnZRgCIAEoCUgAiAEBQgoKCF9tZXNzYWdlKrkBCgxQcm9qZWN0U3RhdGUSHQoZUFJPSkVDVF9TVEFURV9VTlNQRUNJRklFRBAAEhkKFVBST0pFQ1RfU1RBVEVfUEVORElORxABEhgKFFBST0pFQ1RfU1RBVEVfQUNUSVZFEAISGAoUUFJPSkVDVF9TVEFURV9GQUlMRUQQAxIaChZQUk9KRUNUX1NUQVRFX0RFTEVUSU5HEAQSHwobUFJPSkVDVF9TVEFURV9ERUxFVEVfRkFJTEVEEAViBnByb3RvMw", [file_buf_validate_validate, file_osac_public_v1_metadata_type]);
 
 /**
  * A project is a logical grouping of resources.
@@ -52,7 +53,14 @@ export type Project = Message<"osac.public.v1.Project"> & {
   id: string;
 
   /**
-   * Metadata of the project, including name, labels, tenant, and timestamps.
+   * Metadata of the project, including name, labels, finalizers, and timestamps.
+   *
+   * Project names follow a hierarchical dot-separated DNS label format (e.g., "org.team.project").
+   * Each segment must be a valid DNS label: max 63 characters, lowercase letters (a-z), digits (0-9),
+   * and hyphens, with alphanumeric start and end.
+   *
+   * Note: Uses (buf.validate.field).ignore = IGNORE_ALWAYS to skip standard Metadata.name pattern
+   * validation (which doesn't allow dots). Project-specific validation is handled by message-level CEL.
    *
    * @generated from field: osac.public.v1.Metadata metadata = 2;
    */

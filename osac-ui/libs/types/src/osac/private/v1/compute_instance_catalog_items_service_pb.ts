@@ -17,6 +17,7 @@
 
 import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_cleanapi_cleanapi } from "../../../cleanapi/cleanapi_pb";
 import { file_google_api_annotations } from "../../../google/api/annotations_pb";
 import type { FieldMask } from "../../../google/protobuf/field_mask_pb";
 import { file_google_protobuf_field_mask } from "../../../google/protobuf/field_mask_pb";
@@ -28,28 +29,36 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/private/v1/compute_instance_catalog_items_service.proto.
  */
 export const file_osac_private_v1_compute_instance_catalog_items_service: GenFile = /*@__PURE__*/
-  fileDesc("Cjxvc2FjL3ByaXZhdGUvdjEvY29tcHV0ZV9pbnN0YW5jZV9jYXRhbG9nX2l0ZW1zX3NlcnZpY2UucHJvdG8SD29zYWMucHJpdmF0ZS52MSKkAQomQ29tcHV0ZUluc3RhbmNlQ2F0YWxvZ0l0ZW1zTGlzdFJlcXVlc3QSEwoGb2Zmc2V0GAEgASgFSACIAQESEgoFbGltaXQYAiABKAVIAYgBARITCgZmaWx0ZXIYAyABKAlIAogBARISCgVvcmRlchgEIAEoCUgDiAEBQgkKB19vZmZzZXRCCAoGX2xpbWl0QgkKB19maWx0ZXJCCAoGX29yZGVyIoIBCidDb21wdXRlSW5zdGFuY2VDYXRhbG9nSXRlbXNMaXN0UmVzcG9uc2USDAoEc2l6ZRgBIAEoBRINCgV0b3RhbBgCIAEoBRI6CgVpdGVtcxgDIAMoCzIrLm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2VDYXRhbG9nSXRlbSIzCiVDb21wdXRlSW5zdGFuY2VDYXRhbG9nSXRlbXNHZXRSZXF1ZXN0EgoKAmlkGAEgASgJImUKJkNvbXB1dGVJbnN0YW5jZUNhdGFsb2dJdGVtc0dldFJlc3BvbnNlEjsKBm9iamVjdBgBIAEoCzIrLm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2VDYXRhbG9nSXRlbSJnCihDb21wdXRlSW5zdGFuY2VDYXRhbG9nSXRlbXNDcmVhdGVSZXF1ZXN0EjsKBm9iamVjdBgBIAEoCzIrLm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2VDYXRhbG9nSXRlbSJ6CilDb21wdXRlSW5zdGFuY2VDYXRhbG9nSXRlbXNDcmVhdGVSZXNwb25zZRI7CgZvYmplY3QYASABKAsyKy5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlQ2F0YWxvZ0l0ZW0SEAoId2FybmluZ3MYAiADKAkiNgooQ29tcHV0ZUluc3RhbmNlQ2F0YWxvZ0l0ZW1zRGVsZXRlUmVxdWVzdBIKCgJpZBgBIAEoCSIrCilDb21wdXRlSW5zdGFuY2VDYXRhbG9nSXRlbXNEZWxldGVSZXNwb25zZSKmAQooQ29tcHV0ZUluc3RhbmNlQ2F0YWxvZ0l0ZW1zVXBkYXRlUmVxdWVzdBI7CgZvYmplY3QYASABKAsyKy5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlQ2F0YWxvZ0l0ZW0SLwoLdXBkYXRlX21hc2sYAiABKAsyGi5nb29nbGUucHJvdG9idWYuRmllbGRNYXNrEgwKBGxvY2sYAyABKAgiegopQ29tcHV0ZUluc3RhbmNlQ2F0YWxvZ0l0ZW1zVXBkYXRlUmVzcG9uc2USOwoGb2JqZWN0GAEgASgLMisub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZUNhdGFsb2dJdGVtEhAKCHdhcm5pbmdzGAIgAygJIjYKKENvbXB1dGVJbnN0YW5jZUNhdGFsb2dJdGVtc1NpZ25hbFJlcXVlc3QSCgoCaWQYASABKAkiKwopQ29tcHV0ZUluc3RhbmNlQ2F0YWxvZ0l0ZW1zU2lnbmFsUmVzcG9uc2Uy8ggKG0NvbXB1dGVJbnN0YW5jZUNhdGFsb2dJdGVtcxKxAQoETGlzdBI3Lm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2VDYXRhbG9nSXRlbXNMaXN0UmVxdWVzdBo4Lm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2VDYXRhbG9nSXRlbXNMaXN0UmVzcG9uc2UiNoLT5JMCMBIuL2FwaS9wcml2YXRlL3YxL2NvbXB1dGVfaW5zdGFuY2VfY2F0YWxvZ19pdGVtcxK7AQoDR2V0EjYub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZUNhdGFsb2dJdGVtc0dldFJlcXVlc3QaNy5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlQ2F0YWxvZ0l0ZW1zR2V0UmVzcG9uc2UiQ4LT5JMCPWIGb2JqZWN0EjMvYXBpL3ByaXZhdGUvdjEvY29tcHV0ZV9pbnN0YW5jZV9jYXRhbG9nX2l0ZW1zL3tpZH0SxwEKBkNyZWF0ZRI5Lm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2VDYXRhbG9nSXRlbXNDcmVhdGVSZXF1ZXN0Gjoub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZUNhdGFsb2dJdGVtc0NyZWF0ZVJlc3BvbnNlIkaC0+STAkA6Bm9iamVjdGIGb2JqZWN0Ii4vYXBpL3ByaXZhdGUvdjEvY29tcHV0ZV9pbnN0YW5jZV9jYXRhbG9nX2l0ZW1zErwBCgZEZWxldGUSOS5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlQ2F0YWxvZ0l0ZW1zRGVsZXRlUmVxdWVzdBo6Lm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2VDYXRhbG9nSXRlbXNEZWxldGVSZXNwb25zZSI7gtPkkwI1KjMvYXBpL3ByaXZhdGUvdjEvY29tcHV0ZV9pbnN0YW5jZV9jYXRhbG9nX2l0ZW1zL3tpZH0S0wEKBlVwZGF0ZRI5Lm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2VDYXRhbG9nSXRlbXNVcGRhdGVSZXF1ZXN0Gjoub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZUNhdGFsb2dJdGVtc1VwZGF0ZVJlc3BvbnNlIlKC0+STAkw6Bm9iamVjdGIGb2JqZWN0MjovYXBpL3ByaXZhdGUvdjEvY29tcHV0ZV9pbnN0YW5jZV9jYXRhbG9nX2l0ZW1zL3tvYmplY3QuaWR9EoEBCgZTaWduYWwSOS5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlQ2F0YWxvZ0l0ZW1zU2lnbmFsUmVxdWVzdBo6Lm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2VDYXRhbG9nSXRlbXNTaWduYWxSZXNwb25zZSIAYgZwcm90bzM", [file_google_api_annotations, file_google_protobuf_field_mask, file_osac_private_v1_compute_instance_catalog_item_type]);
+  fileDesc("Cjxvc2FjL3ByaXZhdGUvdjEvY29tcHV0ZV9pbnN0YW5jZV9jYXRhbG9nX2l0ZW1zX3NlcnZpY2UucHJvdG8SD29zYWMucHJpdmF0ZS52MSKkAQomQ29tcHV0ZUluc3RhbmNlQ2F0YWxvZ0l0ZW1zTGlzdFJlcXVlc3QSEwoGb2Zmc2V0GAEgASgFSACIAQESEgoFbGltaXQYAiABKAVIAYgBARITCgZmaWx0ZXIYAyABKAlIAogBARISCgVvcmRlchgEIAEoCUgDiAEBQgkKB19vZmZzZXRCCAoGX2xpbWl0QgkKB19maWx0ZXJCCAoGX29yZGVyIoIBCidDb21wdXRlSW5zdGFuY2VDYXRhbG9nSXRlbXNMaXN0UmVzcG9uc2USDAoEc2l6ZRgBIAEoBRINCgV0b3RhbBgCIAEoBRI6CgVpdGVtcxgDIAMoCzIrLm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2VDYXRhbG9nSXRlbSIzCiVDb21wdXRlSW5zdGFuY2VDYXRhbG9nSXRlbXNHZXRSZXF1ZXN0EgoKAmlkGAEgASgJImUKJkNvbXB1dGVJbnN0YW5jZUNhdGFsb2dJdGVtc0dldFJlc3BvbnNlEjsKBm9iamVjdBgBIAEoCzIrLm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2VDYXRhbG9nSXRlbSJnCihDb21wdXRlSW5zdGFuY2VDYXRhbG9nSXRlbXNDcmVhdGVSZXF1ZXN0EjsKBm9iamVjdBgBIAEoCzIrLm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2VDYXRhbG9nSXRlbSJ6CilDb21wdXRlSW5zdGFuY2VDYXRhbG9nSXRlbXNDcmVhdGVSZXNwb25zZRI7CgZvYmplY3QYASABKAsyKy5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlQ2F0YWxvZ0l0ZW0SEAoId2FybmluZ3MYAiADKAkipgEKKENvbXB1dGVJbnN0YW5jZUNhdGFsb2dJdGVtc1VwZGF0ZVJlcXVlc3QSOwoGb2JqZWN0GAEgASgLMisub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZUNhdGFsb2dJdGVtEi8KC3VwZGF0ZV9tYXNrGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLkZpZWxkTWFzaxIMCgRsb2NrGAMgASgIInoKKUNvbXB1dGVJbnN0YW5jZUNhdGFsb2dJdGVtc1VwZGF0ZVJlc3BvbnNlEjsKBm9iamVjdBgBIAEoCzIrLm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2VDYXRhbG9nSXRlbRIQCgh3YXJuaW5ncxgCIAMoCSI2CihDb21wdXRlSW5zdGFuY2VDYXRhbG9nSXRlbXNEZWxldGVSZXF1ZXN0EgoKAmlkGAEgASgJIisKKUNvbXB1dGVJbnN0YW5jZUNhdGFsb2dJdGVtc0RlbGV0ZVJlc3BvbnNlIj4KKENvbXB1dGVJbnN0YW5jZUNhdGFsb2dJdGVtc1NpZ25hbFJlcXVlc3QSCgoCaWQYASABKAk6Boq1GAIIASIzCilDb21wdXRlSW5zdGFuY2VDYXRhbG9nSXRlbXNTaWduYWxSZXNwb25zZToGirUYAggBMvgIChtDb21wdXRlSW5zdGFuY2VDYXRhbG9nSXRlbXMSsQEKBExpc3QSNy5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlQ2F0YWxvZ0l0ZW1zTGlzdFJlcXVlc3QaOC5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlQ2F0YWxvZ0l0ZW1zTGlzdFJlc3BvbnNlIjaC0+STAjASLi9hcGkvcHJpdmF0ZS92MS9jb21wdXRlX2luc3RhbmNlX2NhdGFsb2dfaXRlbXMSuwEKA0dldBI2Lm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2VDYXRhbG9nSXRlbXNHZXRSZXF1ZXN0Gjcub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZUNhdGFsb2dJdGVtc0dldFJlc3BvbnNlIkOC0+STAj1iBm9iamVjdBIzL2FwaS9wcml2YXRlL3YxL2NvbXB1dGVfaW5zdGFuY2VfY2F0YWxvZ19pdGVtcy97aWR9EscBCgZDcmVhdGUSOS5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlQ2F0YWxvZ0l0ZW1zQ3JlYXRlUmVxdWVzdBo6Lm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2VDYXRhbG9nSXRlbXNDcmVhdGVSZXNwb25zZSJGgtPkkwJAOgZvYmplY3RiBm9iamVjdCIuL2FwaS9wcml2YXRlL3YxL2NvbXB1dGVfaW5zdGFuY2VfY2F0YWxvZ19pdGVtcxLTAQoGVXBkYXRlEjkub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZUNhdGFsb2dJdGVtc1VwZGF0ZVJlcXVlc3QaOi5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlQ2F0YWxvZ0l0ZW1zVXBkYXRlUmVzcG9uc2UiUoLT5JMCTDoGb2JqZWN0YgZvYmplY3QyOi9hcGkvcHJpdmF0ZS92MS9jb21wdXRlX2luc3RhbmNlX2NhdGFsb2dfaXRlbXMve29iamVjdC5pZH0SvAEKBkRlbGV0ZRI5Lm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2VDYXRhbG9nSXRlbXNEZWxldGVSZXF1ZXN0Gjoub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZUNhdGFsb2dJdGVtc0RlbGV0ZVJlc3BvbnNlIjuC0+STAjUqMy9hcGkvcHJpdmF0ZS92MS9jb21wdXRlX2luc3RhbmNlX2NhdGFsb2dfaXRlbXMve2lkfRKHAQoGU2lnbmFsEjkub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZUNhdGFsb2dJdGVtc1NpZ25hbFJlcXVlc3QaOi5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlQ2F0YWxvZ0l0ZW1zU2lnbmFsUmVzcG9uc2UiBoq1GAIIAUIpirUYJRIOb3NhYy5wdWJsaWMudjEiE3ByaXZhdGU6ZnVsZmlsbG1lbnRiBnByb3RvMw", [file_cleanapi_cleanapi, file_google_api_annotations, file_google_protobuf_field_mask, file_osac_private_v1_compute_instance_catalog_item_type]);
 
 /**
  * @generated from message osac.private.v1.ComputeInstanceCatalogItemsListRequest
  */
 export type ComputeInstanceCatalogItemsListRequest = Message<"osac.private.v1.ComputeInstanceCatalogItemsListRequest"> & {
   /**
+   * Index of the first result. If not specified the default value will be zero.
+   *
    * @generated from field: optional int32 offset = 1;
    */
   offset?: number | undefined;
 
   /**
+   * Maximum number of results to be returned by the server.
+   *
    * @generated from field: optional int32 limit = 2;
    */
   limit?: number | undefined;
 
   /**
+   * Filter criteria using CEL expressions.
+   *
    * @generated from field: optional string filter = 3;
    */
   filter?: string | undefined;
 
   /**
+   * Order criteria, similar to SQL ORDER BY syntax.
+   *
    * @generated from field: optional string order = 4;
    */
   order?: string | undefined;
@@ -165,36 +174,6 @@ export const ComputeInstanceCatalogItemsCreateResponseSchema: GenMessage<Compute
   messageDesc(file_osac_private_v1_compute_instance_catalog_items_service, 5);
 
 /**
- * @generated from message osac.private.v1.ComputeInstanceCatalogItemsDeleteRequest
- */
-export type ComputeInstanceCatalogItemsDeleteRequest = Message<"osac.private.v1.ComputeInstanceCatalogItemsDeleteRequest"> & {
-  /**
-   * @generated from field: string id = 1;
-   */
-  id: string;
-};
-
-/**
- * Describes the message osac.private.v1.ComputeInstanceCatalogItemsDeleteRequest.
- * Use `create(ComputeInstanceCatalogItemsDeleteRequestSchema)` to create a new message.
- */
-export const ComputeInstanceCatalogItemsDeleteRequestSchema: GenMessage<ComputeInstanceCatalogItemsDeleteRequest> = /*@__PURE__*/
-  messageDesc(file_osac_private_v1_compute_instance_catalog_items_service, 6);
-
-/**
- * @generated from message osac.private.v1.ComputeInstanceCatalogItemsDeleteResponse
- */
-export type ComputeInstanceCatalogItemsDeleteResponse = Message<"osac.private.v1.ComputeInstanceCatalogItemsDeleteResponse"> & {
-};
-
-/**
- * Describes the message osac.private.v1.ComputeInstanceCatalogItemsDeleteResponse.
- * Use `create(ComputeInstanceCatalogItemsDeleteResponseSchema)` to create a new message.
- */
-export const ComputeInstanceCatalogItemsDeleteResponseSchema: GenMessage<ComputeInstanceCatalogItemsDeleteResponse> = /*@__PURE__*/
-  messageDesc(file_osac_private_v1_compute_instance_catalog_items_service, 7);
-
-/**
  * @generated from message osac.private.v1.ComputeInstanceCatalogItemsUpdateRequest
  */
 export type ComputeInstanceCatalogItemsUpdateRequest = Message<"osac.private.v1.ComputeInstanceCatalogItemsUpdateRequest"> & {
@@ -223,7 +202,7 @@ export type ComputeInstanceCatalogItemsUpdateRequest = Message<"osac.private.v1.
  * Use `create(ComputeInstanceCatalogItemsUpdateRequestSchema)` to create a new message.
  */
 export const ComputeInstanceCatalogItemsUpdateRequestSchema: GenMessage<ComputeInstanceCatalogItemsUpdateRequest> = /*@__PURE__*/
-  messageDesc(file_osac_private_v1_compute_instance_catalog_items_service, 8);
+  messageDesc(file_osac_private_v1_compute_instance_catalog_items_service, 6);
 
 /**
  * @generated from message osac.private.v1.ComputeInstanceCatalogItemsUpdateResponse
@@ -247,6 +226,36 @@ export type ComputeInstanceCatalogItemsUpdateResponse = Message<"osac.private.v1
  * Use `create(ComputeInstanceCatalogItemsUpdateResponseSchema)` to create a new message.
  */
 export const ComputeInstanceCatalogItemsUpdateResponseSchema: GenMessage<ComputeInstanceCatalogItemsUpdateResponse> = /*@__PURE__*/
+  messageDesc(file_osac_private_v1_compute_instance_catalog_items_service, 7);
+
+/**
+ * @generated from message osac.private.v1.ComputeInstanceCatalogItemsDeleteRequest
+ */
+export type ComputeInstanceCatalogItemsDeleteRequest = Message<"osac.private.v1.ComputeInstanceCatalogItemsDeleteRequest"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+};
+
+/**
+ * Describes the message osac.private.v1.ComputeInstanceCatalogItemsDeleteRequest.
+ * Use `create(ComputeInstanceCatalogItemsDeleteRequestSchema)` to create a new message.
+ */
+export const ComputeInstanceCatalogItemsDeleteRequestSchema: GenMessage<ComputeInstanceCatalogItemsDeleteRequest> = /*@__PURE__*/
+  messageDesc(file_osac_private_v1_compute_instance_catalog_items_service, 8);
+
+/**
+ * @generated from message osac.private.v1.ComputeInstanceCatalogItemsDeleteResponse
+ */
+export type ComputeInstanceCatalogItemsDeleteResponse = Message<"osac.private.v1.ComputeInstanceCatalogItemsDeleteResponse"> & {
+};
+
+/**
+ * Describes the message osac.private.v1.ComputeInstanceCatalogItemsDeleteResponse.
+ * Use `create(ComputeInstanceCatalogItemsDeleteResponseSchema)` to create a new message.
+ */
+export const ComputeInstanceCatalogItemsDeleteResponseSchema: GenMessage<ComputeInstanceCatalogItemsDeleteResponse> = /*@__PURE__*/
   messageDesc(file_osac_private_v1_compute_instance_catalog_items_service, 9);
 
 /**
@@ -284,6 +293,8 @@ export const ComputeInstanceCatalogItemsSignalResponseSchema: GenMessage<Compute
  */
 export const ComputeInstanceCatalogItems: GenService<{
   /**
+   * Retrieves the list of compute instance catalog items.
+   *
    * @generated from rpc osac.private.v1.ComputeInstanceCatalogItems.List
    */
   list: {
@@ -292,6 +303,8 @@ export const ComputeInstanceCatalogItems: GenService<{
     output: typeof ComputeInstanceCatalogItemsListResponseSchema;
   },
   /**
+   * Retrieves the details of one specific compute instance catalog item.
+   *
    * @generated from rpc osac.private.v1.ComputeInstanceCatalogItems.Get
    */
   get: {
@@ -300,6 +313,8 @@ export const ComputeInstanceCatalogItems: GenService<{
     output: typeof ComputeInstanceCatalogItemsGetResponseSchema;
   },
   /**
+   * Creates a new compute instance catalog item.
+   *
    * @generated from rpc osac.private.v1.ComputeInstanceCatalogItems.Create
    */
   create: {
@@ -308,20 +323,24 @@ export const ComputeInstanceCatalogItems: GenService<{
     output: typeof ComputeInstanceCatalogItemsCreateResponseSchema;
   },
   /**
-   * @generated from rpc osac.private.v1.ComputeInstanceCatalogItems.Delete
-   */
-  delete: {
-    methodKind: "unary";
-    input: typeof ComputeInstanceCatalogItemsDeleteRequestSchema;
-    output: typeof ComputeInstanceCatalogItemsDeleteResponseSchema;
-  },
-  /**
+   * Updates an existing compute instance catalog item.
+   *
    * @generated from rpc osac.private.v1.ComputeInstanceCatalogItems.Update
    */
   update: {
     methodKind: "unary";
     input: typeof ComputeInstanceCatalogItemsUpdateRequestSchema;
     output: typeof ComputeInstanceCatalogItemsUpdateResponseSchema;
+  },
+  /**
+   * Deletes a compute instance catalog item.
+   *
+   * @generated from rpc osac.private.v1.ComputeInstanceCatalogItems.Delete
+   */
+  delete: {
+    methodKind: "unary";
+    input: typeof ComputeInstanceCatalogItemsDeleteRequestSchema;
+    output: typeof ComputeInstanceCatalogItemsDeleteResponseSchema;
   },
   /**
    * Indicates that something changed in the object or the system that may require reconciling the object.

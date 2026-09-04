@@ -49,7 +49,6 @@ describe('VirtualNetworkDetailPage', () => {
     spec: {
       $typeName: 'osac.public.v1.VirtualNetworkSpec',
       ipv4Cidr: '10.0.0.0/16',
-      networkClass: undefined,
     },
     status: {
       $typeName: 'osac.public.v1.VirtualNetworkStatus',

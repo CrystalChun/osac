@@ -47,7 +47,7 @@ const IdpReviewStep = () => {
           <DescriptionListGroup>
             <DescriptionListTerm>{t('Client secret')}</DescriptionListTerm>
             <DescriptionListDescription>
-              {values.spec.config.clientSecret ? t('Defined') : t('Not defined')}
+              {values.spec.config.clientSecretSecret.name}
             </DescriptionListDescription>
           </DescriptionListGroup>
           <DescriptionListGroup>

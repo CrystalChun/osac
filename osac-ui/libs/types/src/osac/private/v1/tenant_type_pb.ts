@@ -18,6 +18,7 @@
 import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
+import { file_cleanapi_cleanapi } from "../../../cleanapi/cleanapi_pb";
 import type { Timestamp } from "../../../google/protobuf/timestamp_pb";
 import { file_google_protobuf_timestamp } from "../../../google/protobuf/timestamp_pb";
 import type { ConditionStatus } from "./condition_status_type_pb";
@@ -26,19 +27,27 @@ import type { Metadata } from "./metadata_type_pb";
 import { file_osac_private_v1_metadata_type } from "./metadata_type_pb";
 import type { BreakGlassCredentials } from "./break_glass_credentials_type_pb";
 import { file_osac_private_v1_break_glass_credentials_type } from "./break_glass_credentials_type_pb";
+import type { SecretLocalReference } from "./secret_type_pb";
+import { file_osac_private_v1_secret_type } from "./secret_type_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file osac/private/v1/tenant_type.proto.
  */
 export const file_osac_private_v1_tenant_type: GenFile = /*@__PURE__*/
-  fileDesc("CiFvc2FjL3ByaXZhdGUvdjEvdGVuYW50X3R5cGUucHJvdG8SD29zYWMucHJpdmF0ZS52MSKbAQoGVGVuYW50EgoKAmlkGAEgASgJEisKCG1ldGFkYXRhGAIgASgLMhkub3NhYy5wcml2YXRlLnYxLk1ldGFkYXRhEikKBHNwZWMYAyABKAsyGy5vc2FjLnByaXZhdGUudjEuVGVuYW50U3BlYxItCgZzdGF0dXMYBCABKAsyHS5vc2FjLnByaXZhdGUudjEuVGVuYW50U3RhdHVzIoUECgpUZW5hbnRTcGVjEvYDCgdkb21haW5zGAEgAygJQuQDukjgA5IB3AMYASLXA7oBeAoObm90X2lwX2FkZHJlc3MSKW11c3QgYmUgYSBETlMgaG9zdG5hbWUsIG5vdCBhbiBJUCBhZGRyZXNzGjshdGhpcy5tYXRjaGVzKCdeWzAtOS5dKyQnKSAmJiAhdGhpcy5tYXRjaGVzKCdeWzAtOWEtZjpdKyQnKboBWQoObWluX3R3b19sYWJlbHMSM211c3QgaGF2ZSBhdCBsZWFzdCB0d28gbGFiZWxzIChlLmcuLCAnZXhhbXBsZS5jb20nKRoSdGhpcy5jb250YWlucygnLicpugH1AQoQdmFsaWRfZG5zX2xhYmVscxJkYWxsIGxhYmVscyBtdXN0IGJlIHZhbGlkIEROUyBsYWJlbHMgKGxvd2VyY2FzZSBhLXovMC05L2h5cGhlbiwgbWF4IDYzIGNoYXJzLCBhbHBoYW51bWVyaWMgc3RhcnQvZW5kKRp7dGhpcy5zcGxpdCgnLicpLmFsbChsYWJlbCwgbGFiZWwuc2l6ZSgpID4gMCAmJiBsYWJlbC5zaXplKCkgPD0gNjMgJiYgbGFiZWwubWF0Y2hlcygnXlthLXowLTldKFthLXowLTktXXswLDYxfVthLXowLTldKT8kJykpcgUQARj9ASKSAgoMVGVuYW50U3RhdHVzEkcKF2JyZWFrX2dsYXNzX2NyZWRlbnRpYWxzGAEgASgLMiYub3NhYy5wcml2YXRlLnYxLkJyZWFrR2xhc3NDcmVkZW50aWFscxIrCgVzdGF0ZRgCIAEoDjIcLm9zYWMucHJpdmF0ZS52MS5UZW5hbnRTdGF0ZRIUCgdtZXNzYWdlGAMgASgJSACIAQESFwoPaWRwX3RlbmFudF9uYW1lGAQgASgJEhsKE2JyZWFrX2dsYXNzX3VzZXJfaWQYBSABKAkSNAoKY29uZGl0aW9ucxgGIAMoCzIgLm9zYWMucHJpdmF0ZS52MS5UZW5hbnRDb25kaXRpb25CCgoIX21lc3NhZ2Ui8wEKD1RlbmFudENvbmRpdGlvbhIyCgR0eXBlGAEgASgOMiQub3NhYy5wcml2YXRlLnYxLlRlbmFudENvbmRpdGlvblR5cGUSMAoGc3RhdHVzGAIgASgOMiAub3NhYy5wcml2YXRlLnYxLkNvbmRpdGlvblN0YXR1cxI4ChRsYXN0X3RyYW5zaXRpb25fdGltZRgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEwoGcmVhc29uGAQgASgJSACIAQESFAoHbWVzc2FnZRgFIAEoCUgBiAEBQgkKB19yZWFzb25CCgoIX21lc3NhZ2UqlwEKE1RlbmFudENvbmRpdGlvblR5cGUSJQohVEVOQU5UX0NPTkRJVElPTl9UWVBFX1VOU1BFQ0lGSUVEEAASMgouVEVOQU5UX0NPTkRJVElPTl9UWVBFX0RFRkFVTFRfTkVUV09SS0lOR19SRUFEWRABEiUKIVRFTkFOVF9DT05ESVRJT05fVFlQRV9WQVVMVF9SRUFEWRACKncKC1RlbmFudFN0YXRlEhwKGFRFTkFOVF9TVEFURV9VTlNQRUNJRklFRBAAEhgKFFRFTkFOVF9TVEFURV9QRU5ESU5HEAESFwoTVEVOQU5UX1NUQVRFX1NZTkNFRBACEhcKE1RFTkFOVF9TVEFURV9GQUlMRUQQA2IGcHJvdG8z", [file_buf_validate_validate, file_google_protobuf_timestamp, file_osac_private_v1_condition_status_type, file_osac_private_v1_metadata_type, file_osac_private_v1_break_glass_credentials_type]);
+  fileDesc("CiFvc2FjL3ByaXZhdGUvdjEvdGVuYW50X3R5cGUucHJvdG8SD29zYWMucHJpdmF0ZS52MSKjAQoGVGVuYW50EgoKAmlkGAEgASgJEisKCG1ldGFkYXRhGAIgASgLMhkub3NhYy5wcml2YXRlLnYxLk1ldGFkYXRhEikKBHNwZWMYAyABKAsyGy5vc2FjLnByaXZhdGUudjEuVGVuYW50U3BlYxI1CgZzdGF0dXMYBCABKAsyHS5vc2FjLnByaXZhdGUudjEuVGVuYW50U3RhdHVzQgaKtRgCCAEi1AQKClRlbmFudFNwZWMS9gMKB2RvbWFpbnMYASADKAlC5AO6SOADkgHcAxgBItcDugF4Cg5ub3RfaXBfYWRkcmVzcxIpbXVzdCBiZSBhIEROUyBob3N0bmFtZSwgbm90IGFuIElQIGFkZHJlc3MaOyF0aGlzLm1hdGNoZXMoJ15bMC05Ll0rJCcpICYmICF0aGlzLm1hdGNoZXMoJ15bMC05YS1mOl0rJCcpugFZCg5taW5fdHdvX2xhYmVscxIzbXVzdCBoYXZlIGF0IGxlYXN0IHR3byBsYWJlbHMgKGUuZy4sICdleGFtcGxlLmNvbScpGhJ0aGlzLmNvbnRhaW5zKCcuJym6AfUBChB2YWxpZF9kbnNfbGFiZWxzEmRhbGwgbGFiZWxzIG11c3QgYmUgdmFsaWQgRE5TIGxhYmVscyAobG93ZXJjYXNlIGEtei8wLTkvaHlwaGVuLCBtYXggNjMgY2hhcnMsIGFscGhhbnVtZXJpYyBzdGFydC9lbmQpGnt0aGlzLnNwbGl0KCcuJykuYWxsKGxhYmVsLCBsYWJlbC5zaXplKCkgPiAwICYmIGxhYmVsLnNpemUoKSA8PSA2MyAmJiBsYWJlbC5tYXRjaGVzKCdeW2EtejAtOV0oW2EtejAtOS1dezAsNjF9W2EtejAtOV0pPyQnKSlyBRABGP0BEk0KHmJyZWFrX2dsYXNzX2NyZWRlbnRpYWxzX3NlY3JldBgCIAEoCzIlLm9zYWMucHJpdmF0ZS52MS5TZWNyZXRMb2NhbFJlZmVyZW5jZSKaAgoMVGVuYW50U3RhdHVzEkcKF2JyZWFrX2dsYXNzX2NyZWRlbnRpYWxzGAEgASgLMiYub3NhYy5wcml2YXRlLnYxLkJyZWFrR2xhc3NDcmVkZW50aWFscxIrCgVzdGF0ZRgCIAEoDjIcLm9zYWMucHJpdmF0ZS52MS5UZW5hbnRTdGF0ZRIUCgdtZXNzYWdlGAMgASgJSACIAQESFwoPaWRwX3RlbmFudF9uYW1lGAQgASgJEhsKE2JyZWFrX2dsYXNzX3VzZXJfaWQYBSABKAkSNAoKY29uZGl0aW9ucxgGIAMoCzIgLm9zYWMucHJpdmF0ZS52MS5UZW5hbnRDb25kaXRpb246Boq1GAIIAUIKCghfbWVzc2FnZSL7AQoPVGVuYW50Q29uZGl0aW9uEjIKBHR5cGUYASABKA4yJC5vc2FjLnByaXZhdGUudjEuVGVuYW50Q29uZGl0aW9uVHlwZRIwCgZzdGF0dXMYAiABKA4yIC5vc2FjLnByaXZhdGUudjEuQ29uZGl0aW9uU3RhdHVzEjgKFGxhc3RfdHJhbnNpdGlvbl90aW1lGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBITCgZyZWFzb24YBCABKAlIAIgBARIUCgdtZXNzYWdlGAUgASgJSAGIAQE6Boq1GAIIAUIJCgdfcmVhc29uQgoKCF9tZXNzYWdlKp8BChNUZW5hbnRDb25kaXRpb25UeXBlEiUKIVRFTkFOVF9DT05ESVRJT05fVFlQRV9VTlNQRUNJRklFRBAAEjIKLlRFTkFOVF9DT05ESVRJT05fVFlQRV9ERUZBVUxUX05FVFdPUktJTkdfUkVBRFkQARIlCiFURU5BTlRfQ09ORElUSU9OX1RZUEVfVkFVTFRfUkVBRFkQAhoGirUYAggBKn8KC1RlbmFudFN0YXRlEhwKGFRFTkFOVF9TVEFURV9VTlNQRUNJRklFRBAAEhgKFFRFTkFOVF9TVEFURV9QRU5ESU5HEAESFwoTVEVOQU5UX1NUQVRFX1NZTkNFRBACEhcKE1RFTkFOVF9TVEFURV9GQUlMRUQQAxoGirUYAggBQhSKtRgQEg5vc2FjLnB1YmxpYy52MWIGcHJvdG8z", [file_buf_validate_validate, file_cleanapi_cleanapi, file_google_protobuf_timestamp, file_osac_private_v1_condition_status_type, file_osac_private_v1_metadata_type, file_osac_private_v1_break_glass_credentials_type, file_osac_private_v1_secret_type]);
 
 /**
+ * A tenant groups resources and users for a customer or business unit.
+ *
+ * buf:lint:ignore OSAC_OBJECT_SHAPE
+ *
  * @generated from message osac.private.v1.Tenant
  */
 export type Tenant = Message<"osac.private.v1.Tenant"> & {
   /**
+   * Unique identifier of the tenant.
+   *
    * @generated from field: string id = 1;
    */
   id: string;
@@ -90,6 +99,18 @@ export type TenantSpec = Message<"osac.private.v1.TenantSpec"> & {
    * @generated from field: repeated string domains = 1;
    */
   domains: string[];
+
+  /**
+   * Reference to a Secret resource containing break-glass account credentials.
+   *
+   * On Create the system generates break-glass credentials and returns them in status. The
+   * reconciler then stores them as a Secret and sets this field. Callers may also set it to an
+   * existing Secret; the referenced Secret must exist. The secret data must contain `username` and
+   * `password` entries.
+   *
+   * @generated from field: osac.private.v1.SecretLocalReference break_glass_credentials_secret = 2;
+   */
+  breakGlassCredentialsSecret?: SecretLocalReference | undefined;
 };
 
 /**
@@ -111,7 +132,8 @@ export type TenantStatus = Message<"osac.private.v1.TenantStatus"> & {
   /**
    * Break-glass account credentials.
    * Only populated on successful creation. These credentials must be stored securely.
-   * This field is not persisted and will be empty when reading existing tenants.
+   * This field is not persisted; Get and List responses omit it. The durable copy is the
+   * Secret referenced by spec.break_glass_credentials_secret.
    *
    * @generated from field: osac.private.v1.BreakGlassCredentials break_glass_credentials = 1;
    */

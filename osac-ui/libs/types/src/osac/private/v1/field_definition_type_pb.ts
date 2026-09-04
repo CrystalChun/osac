@@ -17,6 +17,7 @@
 
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_cleanapi_cleanapi } from "../../../cleanapi/cleanapi_pb";
 import type { Value } from "../../../google/protobuf/struct_pb";
 import { file_google_protobuf_struct } from "../../../google/protobuf/struct_pb";
 import type { Message } from "@bufbuild/protobuf";
@@ -25,7 +26,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/private/v1/field_definition_type.proto.
  */
 export const file_osac_private_v1_field_definition_type: GenFile = /*@__PURE__*/
-  fileDesc("Citvc2FjL3ByaXZhdGUvdjEvZmllbGRfZGVmaW5pdGlvbl90eXBlLnByb3RvEg9vc2FjLnByaXZhdGUudjEiiwEKD0ZpZWxkRGVmaW5pdGlvbhIMCgRwYXRoGAEgASgJEhQKDGRpc3BsYXlfbmFtZRgCIAEoCRIQCghlZGl0YWJsZRgDIAEoCBInCgdkZWZhdWx0GAQgASgLMhYuZ29vZ2xlLnByb3RvYnVmLlZhbHVlEhkKEXZhbGlkYXRpb25fc2NoZW1hGAUgASgJYgZwcm90bzM", [file_google_protobuf_struct]);
+  fileDesc("Citvc2FjL3ByaXZhdGUvdjEvZmllbGRfZGVmaW5pdGlvbl90eXBlLnByb3RvEg9vc2FjLnByaXZhdGUudjEiiwEKD0ZpZWxkRGVmaW5pdGlvbhIMCgRwYXRoGAEgASgJEhQKDGRpc3BsYXlfbmFtZRgCIAEoCRIQCghlZGl0YWJsZRgDIAEoCBInCgdkZWZhdWx0GAQgASgLMhYuZ29vZ2xlLnByb3RvYnVmLlZhbHVlEhkKEXZhbGlkYXRpb25fc2NoZW1hGAUgASgJQhSKtRgQEg5vc2FjLnB1YmxpYy52MWIGcHJvdG8z", [file_cleanapi_cleanapi, file_google_protobuf_struct]);
 
 /**
  * Defines a single field on the resource spec that a catalog item controls. Each field definition specifies whether

@@ -332,7 +332,7 @@ export const ComputeInstanceTemplates: GenService<{
     output: typeof ComputeInstanceTemplatesUpdateResponseSchema;
   },
   /**
-   * Delete a compute instance template.
+   * Deletes a compute instance template.
    *
    * @generated from rpc osac.public.v1.ComputeInstanceTemplates.Delete
    */

@@ -17,6 +17,7 @@
 
 import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_cleanapi_cleanapi } from "../../../cleanapi/cleanapi_pb";
 import { file_google_api_field_behavior } from "../../../google/api/field_behavior_pb";
 import type { Metadata } from "./metadata_type_pb";
 import { file_osac_private_v1_metadata_type } from "./metadata_type_pb";
@@ -28,7 +29,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/private/v1/external_ip_type.proto.
  */
 export const file_osac_private_v1_external_ip_type: GenFile = /*@__PURE__*/
-  fileDesc("CiZvc2FjL3ByaXZhdGUvdjEvZXh0ZXJuYWxfaXBfdHlwZS5wcm90bxIPb3NhYy5wcml2YXRlLnYxIqcBCgpFeHRlcm5hbElQEgoKAmlkGAEgASgJEisKCG1ldGFkYXRhGAIgASgLMhkub3NhYy5wcml2YXRlLnYxLk1ldGFkYXRhEi0KBHNwZWMYAyABKAsyHy5vc2FjLnByaXZhdGUudjEuRXh0ZXJuYWxJUFNwZWMSMQoGc3RhdHVzGAQgASgLMiEub3NhYy5wcml2YXRlLnYxLkV4dGVybmFsSVBTdGF0dXMiUAoORXh0ZXJuYWxJUFNwZWMSPgoEcG9vbBgBIAEoCzIoLm9zYWMucHJpdmF0ZS52MS5FeHRlcm5hbElQUG9vbFJlZmVyZW5jZUIG4EEC4EEFIsEBChBFeHRlcm5hbElQU3RhdHVzEjQKBXN0YXRlGAEgASgOMiAub3NhYy5wcml2YXRlLnYxLkV4dGVybmFsSVBTdGF0ZUID4EEDEhkKB21lc3NhZ2UYAiABKAlCA+BBA0gAiAEBEhAKA2h1YhgDIAEoCUID4EEDEhQKB2FkZHJlc3MYBCABKAlCA+BBAxIRCgRwb29sGAUgASgJQgPgQQMSFQoIYXR0YWNoZWQYBiABKAhCA+BBA0IKCghfbWVzc2FnZSI0ChhFeHRlcm5hbElQTG9jYWxSZWZlcmVuY2USCgoCaWQYASABKAkSDAoEbmFtZRgCIAEoCSqyAQoPRXh0ZXJuYWxJUFN0YXRlEiEKHUVYVEVSTkFMX0lQX1NUQVRFX1VOU1BFQ0lGSUVEEAASHQoZRVhURVJOQUxfSVBfU1RBVEVfUEVORElORxABEh8KG0VYVEVSTkFMX0lQX1NUQVRFX0FMTE9DQVRFRBACEhwKGEVYVEVSTkFMX0lQX1NUQVRFX0ZBSUxFRBADEh4KGkVYVEVSTkFMX0lQX1NUQVRFX0RFTEVUSU5HEARiBnByb3RvMw", [file_google_api_field_behavior, file_osac_private_v1_metadata_type, file_osac_private_v1_external_ip_pool_type]);
+  fileDesc("CiZvc2FjL3ByaXZhdGUvdjEvZXh0ZXJuYWxfaXBfdHlwZS5wcm90bxIPb3NhYy5wcml2YXRlLnYxIqcBCgpFeHRlcm5hbElQEgoKAmlkGAEgASgJEisKCG1ldGFkYXRhGAIgASgLMhkub3NhYy5wcml2YXRlLnYxLk1ldGFkYXRhEi0KBHNwZWMYAyABKAsyHy5vc2FjLnByaXZhdGUudjEuRXh0ZXJuYWxJUFNwZWMSMQoGc3RhdHVzGAQgASgLMiEub3NhYy5wcml2YXRlLnYxLkV4dGVybmFsSVBTdGF0dXMiUAoORXh0ZXJuYWxJUFNwZWMSPgoEcG9vbBgBIAEoCzIoLm9zYWMucHJpdmF0ZS52MS5FeHRlcm5hbElQUG9vbFJlZmVyZW5jZUIG4EEC4EEFIscBChBFeHRlcm5hbElQU3RhdHVzEjQKBXN0YXRlGAEgASgOMiAub3NhYy5wcml2YXRlLnYxLkV4dGVybmFsSVBTdGF0ZUID4EEDEhkKB21lc3NhZ2UYAiABKAlCA+BBA0gAiAEBEhQKB2FkZHJlc3MYAyABKAlCA+BBAxIRCgRwb29sGAQgASgJQgPgQQMSFQoIYXR0YWNoZWQYBSABKAhCA+BBAxIWCgNodWIYBiABKAlCCeBBA4q1GAIIAUIKCghfbWVzc2FnZSI0ChhFeHRlcm5hbElQTG9jYWxSZWZlcmVuY2USCgoCaWQYASABKAkSDAoEbmFtZRgCIAEoCSqyAQoPRXh0ZXJuYWxJUFN0YXRlEiEKHUVYVEVSTkFMX0lQX1NUQVRFX1VOU1BFQ0lGSUVEEAASHQoZRVhURVJOQUxfSVBfU1RBVEVfUEVORElORxABEh8KG0VYVEVSTkFMX0lQX1NUQVRFX0FMTE9DQVRFRBACEhwKGEVYVEVSTkFMX0lQX1NUQVRFX0ZBSUxFRBADEh4KGkVYVEVSTkFMX0lQX1NUQVRFX0RFTEVUSU5HEARCFIq1GBASDm9zYWMucHVibGljLnYxYgZwcm90bzM", [file_cleanapi_cleanapi, file_google_api_field_behavior, file_osac_private_v1_metadata_type, file_osac_private_v1_external_ip_pool_type]);
 
 /**
  * Represents an external IP address allocated from an ExternalIPPool.
@@ -43,7 +44,7 @@ export const file_osac_private_v1_external_ip_type: GenFile = /*@__PURE__*/
  * ExternalIPAttachment currently exists for this ExternalIP.
  *
  * The lifecycle follows: PENDING (awaiting allocation) -> ALLOCATED (IP assigned).
- * FAILED is a terminal error state. DELETING is set during deprovisioning.
+ * FAILED is a terminal error state for provisioning failures. DELETING is set during deprovisioning.
  *
  * @generated from message osac.private.v1.ExternalIP
  */
@@ -138,22 +139,12 @@ export type ExternalIPStatus = Message<"osac.private.v1.ExternalIPStatus"> & {
   message?: string | undefined;
 
   /**
-   * Identifier of the hub cluster that this external IP is deployed to.
-   *
-   * Set by the fulfillment-service controller when reconciling the external IP to a Kubernetes CR
-   * on the target hub cluster. Used for tracking which cluster the IP resources reside on.
-   *
-   * @generated from field: string hub = 3;
-   */
-  hub: string;
-
-  /**
    * Allocated IP address from the parent pool's CIDR range.
    *
    * Populated once the IP transitions to ALLOCATED state. Remains stable for the lifetime of
    * the ExternalIP. Cleared only when the IP is deallocated.
    *
-   * @generated from field: string address = 4;
+   * @generated from field: string address = 3;
    */
   address: string;
 
@@ -162,7 +153,7 @@ export type ExternalIPStatus = Message<"osac.private.v1.ExternalIPStatus"> & {
    *
    * Mirrors spec.pool for convenience in status queries. Populated when the IP is allocated.
    *
-   * @generated from field: string pool = 5;
+   * @generated from field: string pool = 4;
    */
   pool: string;
 
@@ -173,9 +164,19 @@ export type ExternalIPStatus = Message<"osac.private.v1.ExternalIPStatus"> & {
    * Set to false when the ExternalIPAttachment is deleted. An ExternalIP with attached = true
    * cannot be deleted; the ExternalIPAttachment must be deleted first.
    *
-   * @generated from field: bool attached = 6;
+   * @generated from field: bool attached = 5;
    */
   attached: boolean;
+
+  /**
+   * Identifier of the hub cluster that this external IP is deployed to.
+   *
+   * Set by the fulfillment-service controller when reconciling the external IP to a Kubernetes CR
+   * on the target hub cluster. Used for tracking which cluster the IP resources reside on.
+   *
+   * @generated from field: string hub = 6;
+   */
+  hub: string;
 };
 
 /**
@@ -261,7 +262,8 @@ export enum ExternalIPState {
    *
    * On deletion of an ExternalIP, the system removes the MetalLB LoadBalancer Service and
    * returns the address to the pool. An ExternalIP cannot be deleted while attached
-   * (status.attached = true).
+   * (status.attached = true). The resource remains visible in this state until fully
+   * cleaned up.
    *
    * @generated from enum value: EXTERNAL_IP_STATE_DELETING = 4;
    */

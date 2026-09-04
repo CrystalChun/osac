@@ -17,6 +17,7 @@
 
 import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_cleanapi_cleanapi } from "../../../cleanapi/cleanapi_pb";
 import { file_google_api_field_behavior } from "../../../google/api/field_behavior_pb";
 import type { Metadata } from "./metadata_type_pb";
 import { file_osac_private_v1_metadata_type } from "./metadata_type_pb";
@@ -30,7 +31,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/private/v1/nat_gateway_type.proto.
  */
 export const file_osac_private_v1_nat_gateway_type: GenFile = /*@__PURE__*/
-  fileDesc("CiZvc2FjL3ByaXZhdGUvdjEvbmF0X2dhdGV3YXlfdHlwZS5wcm90bxIPb3NhYy5wcml2YXRlLnYxIqcBCgpOQVRHYXRld2F5EgoKAmlkGAEgASgJEisKCG1ldGFkYXRhGAIgASgLMhkub3NhYy5wcml2YXRlLnYxLk1ldGFkYXRhEi0KBHNwZWMYAyABKAsyHy5vc2FjLnByaXZhdGUudjEuTkFUR2F0ZXdheVNwZWMSMQoGc3RhdHVzGAQgASgLMiEub3NhYy5wcml2YXRlLnYxLk5BVEdhdGV3YXlTdGF0dXMiqAEKDk5BVEdhdGV3YXlTcGVjEk4KD3ZpcnR1YWxfbmV0d29yaxgBIAEoCzItLm9zYWMucHJpdmF0ZS52MS5WaXJ0dWFsTmV0d29ya0xvY2FsUmVmZXJlbmNlQgbgQQLgQQUSRgoLZXh0ZXJuYWxfaXAYAiABKAsyKS5vc2FjLnByaXZhdGUudjEuRXh0ZXJuYWxJUExvY2FsUmVmZXJlbmNlQgbgQQLgQQUigQEKEE5BVEdhdGV3YXlTdGF0dXMSNAoFc3RhdGUYASABKA4yIC5vc2FjLnByaXZhdGUudjEuTkFUR2F0ZXdheVN0YXRlQgPgQQMSGQoHbWVzc2FnZRgCIAEoCUID4EEDSACIAQESEAoDaHViGAMgASgJQgPgQQNCCgoIX21lc3NhZ2UqrgEKD05BVEdhdGV3YXlTdGF0ZRIhCh1OQVRfR0FURVdBWV9TVEFURV9VTlNQRUNJRklFRBAAEh0KGU5BVF9HQVRFV0FZX1NUQVRFX1BFTkRJTkcQARIbChdOQVRfR0FURVdBWV9TVEFURV9SRUFEWRACEhwKGE5BVF9HQVRFV0FZX1NUQVRFX0ZBSUxFRBADEh4KGk5BVF9HQVRFV0FZX1NUQVRFX0RFTEVUSU5HEARiBnByb3RvMw", [file_google_api_field_behavior, file_osac_private_v1_metadata_type, file_osac_private_v1_external_ip_type, file_osac_private_v1_virtual_network_type]);
+  fileDesc("CiZvc2FjL3ByaXZhdGUvdjEvbmF0X2dhdGV3YXlfdHlwZS5wcm90bxIPb3NhYy5wcml2YXRlLnYxIqcBCgpOQVRHYXRld2F5EgoKAmlkGAEgASgJEisKCG1ldGFkYXRhGAIgASgLMhkub3NhYy5wcml2YXRlLnYxLk1ldGFkYXRhEi0KBHNwZWMYAyABKAsyHy5vc2FjLnByaXZhdGUudjEuTkFUR2F0ZXdheVNwZWMSMQoGc3RhdHVzGAQgASgLMiEub3NhYy5wcml2YXRlLnYxLk5BVEdhdGV3YXlTdGF0dXMiqAEKDk5BVEdhdGV3YXlTcGVjEk4KD3ZpcnR1YWxfbmV0d29yaxgBIAEoCzItLm9zYWMucHJpdmF0ZS52MS5WaXJ0dWFsTmV0d29ya0xvY2FsUmVmZXJlbmNlQgbgQQLgQQUSRgoLZXh0ZXJuYWxfaXAYAiABKAsyKS5vc2FjLnByaXZhdGUudjEuRXh0ZXJuYWxJUExvY2FsUmVmZXJlbmNlQgbgQQLgQQUihwEKEE5BVEdhdGV3YXlTdGF0dXMSNAoFc3RhdGUYASABKA4yIC5vc2FjLnByaXZhdGUudjEuTkFUR2F0ZXdheVN0YXRlQgPgQQMSGQoHbWVzc2FnZRgCIAEoCUID4EEDSACIAQESFgoDaHViGAMgASgJQgngQQOKtRgCCAFCCgoIX21lc3NhZ2UqrgEKD05BVEdhdGV3YXlTdGF0ZRIhCh1OQVRfR0FURVdBWV9TVEFURV9VTlNQRUNJRklFRBAAEh0KGU5BVF9HQVRFV0FZX1NUQVRFX1BFTkRJTkcQARIbChdOQVRfR0FURVdBWV9TVEFURV9SRUFEWRACEhwKGE5BVF9HQVRFV0FZX1NUQVRFX0ZBSUxFRBADEh4KGk5BVF9HQVRFV0FZX1NUQVRFX0RFTEVUSU5HEARCFIq1GBASDm9zYWMucHVibGljLnYxYgZwcm90bzM", [file_cleanapi_cleanapi, file_google_api_field_behavior, file_osac_private_v1_metadata_type, file_osac_private_v1_external_ip_type, file_osac_private_v1_virtual_network_type]);
 
 /**
  * Represents a NAT gateway for outbound traffic (SNAT) from a VirtualNetwork.
@@ -48,7 +49,7 @@ export const file_osac_private_v1_nat_gateway_type: GenFile = /*@__PURE__*/
  * VirtualNetwork is rejected. All spec fields are immutable after creation.
  *
  * The lifecycle follows: PENDING (SNAT rule being configured) -> READY (egress active).
- * FAILED is a terminal error state. DELETING is set during deprovisioning.
+ * FAILED is a terminal error state for provisioning failures. DELETING is set during deprovisioning.
  *
  * @generated from message osac.private.v1.NATGateway
  */

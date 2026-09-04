@@ -27,13 +27,15 @@ import type { Metadata } from "./metadata_type_pb";
 import { file_osac_public_v1_metadata_type } from "./metadata_type_pb";
 import type { HostTypeReference } from "./host_type_type_pb";
 import { file_osac_public_v1_host_type_type } from "./host_type_type_pb";
+import type { SecretLocalReference } from "./secret_type_pb";
+import { file_osac_public_v1_secret_type } from "./secret_type_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file osac/public/v1/cluster_template_type.proto.
  */
 export const file_osac_public_v1_cluster_template_type: GenFile = /*@__PURE__*/
-  fileDesc("Cipvc2FjL3B1YmxpYy92MS9jbHVzdGVyX3RlbXBsYXRlX3R5cGUucHJvdG8SDm9zYWMucHVibGljLnYxIpQDCg9DbHVzdGVyVGVtcGxhdGUSCgoCaWQYASABKAkSKgoIbWV0YWRhdGEYAiABKAsyGC5vc2FjLnB1YmxpYy52MS5NZXRhZGF0YRINCgV0aXRsZRgDIAEoCRITCgtkZXNjcmlwdGlvbhgEIAEoCRJGCgpwYXJhbWV0ZXJzGAUgAygLMjIub3NhYy5wdWJsaWMudjEuQ2x1c3RlclRlbXBsYXRlUGFyYW1ldGVyRGVmaW5pdGlvbhJACglub2RlX3NldHMYBiADKAsyLS5vc2FjLnB1YmxpYy52MS5DbHVzdGVyVGVtcGxhdGUuTm9kZVNldHNFbnRyeRJCCg1zcGVjX2RlZmF1bHRzGAcgASgLMisub3NhYy5wdWJsaWMudjEuQ2x1c3RlclRlbXBsYXRlU3BlY0RlZmF1bHRzGlcKDU5vZGVTZXRzRW50cnkSCwoDa2V5GAEgASgJEjUKBXZhbHVlGAIgASgLMiYub3NhYy5wdWJsaWMudjEuQ2x1c3RlclRlbXBsYXRlTm9kZVNldDoCOAEinQEKIkNsdXN0ZXJUZW1wbGF0ZVBhcmFtZXRlckRlZmluaXRpb24SDAoEbmFtZRgBIAEoCRINCgV0aXRsZRgCIAEoCRITCgtkZXNjcmlwdGlvbhgDIAEoCRIQCghyZXF1aXJlZBgEIAEoCBIMCgR0eXBlGAUgASgJEiUKB2RlZmF1bHQYBiABKAsyFC5nb29nbGUucHJvdG9idWYuQW55IlwKFkNsdXN0ZXJUZW1wbGF0ZU5vZGVTZXQSNAoJaG9zdF90eXBlGAEgASgLMiEub3NhYy5wdWJsaWMudjEuSG9zdFR5cGVSZWZlcmVuY2USDAoEc2l6ZRgCIAEoBSLJAQobQ2x1c3RlclRlbXBsYXRlU3BlY0RlZmF1bHRzEhsKDnNzaF9wdWJsaWNfa2V5GAIgASgJSACIAQESNAoHbmV0d29yaxgEIAEoCzIeLm9zYWMucHVibGljLnYxLkNsdXN0ZXJOZXR3b3JrSAGIAQESOAoHdmVyc2lvbhgFIAEoCzInLm9zYWMucHVibGljLnYxLkNsdXN0ZXJWZXJzaW9uUmVmZXJlbmNlQhEKD19zc2hfcHVibGljX2tleUIKCghfbmV0d29yayJVChhDbHVzdGVyVGVtcGxhdGVSZWZlcmVuY2USCgoCaWQYASABKAkSDAoEbmFtZRgCIAEoCRIPCgdwcm9qZWN0GAMgASgJEg4KBnNoYXJlZBgEIAEoCGIGcHJvdG8z", [file_google_protobuf_any, file_osac_public_v1_cluster_common_type, file_osac_public_v1_cluster_version_type, file_osac_public_v1_metadata_type, file_osac_public_v1_host_type_type]);
+  fileDesc("Cipvc2FjL3B1YmxpYy92MS9jbHVzdGVyX3RlbXBsYXRlX3R5cGUucHJvdG8SDm9zYWMucHVibGljLnYxIpQDCg9DbHVzdGVyVGVtcGxhdGUSCgoCaWQYASABKAkSKgoIbWV0YWRhdGEYAiABKAsyGC5vc2FjLnB1YmxpYy52MS5NZXRhZGF0YRINCgV0aXRsZRgDIAEoCRITCgtkZXNjcmlwdGlvbhgEIAEoCRJGCgpwYXJhbWV0ZXJzGAUgAygLMjIub3NhYy5wdWJsaWMudjEuQ2x1c3RlclRlbXBsYXRlUGFyYW1ldGVyRGVmaW5pdGlvbhJACglub2RlX3NldHMYBiADKAsyLS5vc2FjLnB1YmxpYy52MS5DbHVzdGVyVGVtcGxhdGUuTm9kZVNldHNFbnRyeRJCCg1zcGVjX2RlZmF1bHRzGAcgASgLMisub3NhYy5wdWJsaWMudjEuQ2x1c3RlclRlbXBsYXRlU3BlY0RlZmF1bHRzGlcKDU5vZGVTZXRzRW50cnkSCwoDa2V5GAEgASgJEjUKBXZhbHVlGAIgASgLMiYub3NhYy5wdWJsaWMudjEuQ2x1c3RlclRlbXBsYXRlTm9kZVNldDoCOAEinQEKIkNsdXN0ZXJUZW1wbGF0ZVBhcmFtZXRlckRlZmluaXRpb24SDAoEbmFtZRgBIAEoCRINCgV0aXRsZRgCIAEoCRITCgtkZXNjcmlwdGlvbhgDIAEoCRIQCghyZXF1aXJlZBgEIAEoCBIMCgR0eXBlGAUgASgJEiUKB2RlZmF1bHQYBiABKAsyFC5nb29nbGUucHJvdG9idWYuQW55IlwKFkNsdXN0ZXJUZW1wbGF0ZU5vZGVTZXQSNAoJaG9zdF90eXBlGAEgASgLMiEub3NhYy5wdWJsaWMudjEuSG9zdFR5cGVSZWZlcmVuY2USDAoEc2l6ZRgCIAEoBSKeAgobQ2x1c3RlclRlbXBsYXRlU3BlY0RlZmF1bHRzEhsKDnNzaF9wdWJsaWNfa2V5GAIgASgJSACIAQESNAoHbmV0d29yaxgEIAEoCzIeLm9zYWMucHVibGljLnYxLkNsdXN0ZXJOZXR3b3JrSAGIAQESOAoHdmVyc2lvbhgFIAEoCzInLm9zYWMucHVibGljLnYxLkNsdXN0ZXJWZXJzaW9uUmVmZXJlbmNlEkAKEnB1bGxfc2VjcmV0X3NlY3JldBgGIAEoCzIkLm9zYWMucHVibGljLnYxLlNlY3JldExvY2FsUmVmZXJlbmNlQhEKD19zc2hfcHVibGljX2tleUIKCghfbmV0d29ya0oECAEQAlILcHVsbF9zZWNyZXQiVQoYQ2x1c3RlclRlbXBsYXRlUmVmZXJlbmNlEgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkSDwoHcHJvamVjdBgDIAEoCRIOCgZzaGFyZWQYBCABKAhiBnByb3RvMw", [file_google_protobuf_any, file_osac_public_v1_cluster_common_type, file_osac_public_v1_cluster_version_type, file_osac_public_v1_metadata_type, file_osac_public_v1_host_type_type, file_osac_public_v1_secret_type]);
 
 /**
  * A cluster template defines a type of cluster that can be created by the user. Note that the user doesn't create these
@@ -222,9 +224,6 @@ export const ClusterTemplateNodeSetSchema: GenMessage<ClusterTemplateNodeSet> = 
  * Default values for cluster spec fields. These are applied when a user creates a cluster without
  * providing explicit values. User-provided values always override these defaults.
  *
- * Note: pull_secret is excluded from the public API because it is a write-only field
- * (redacted in GET responses). The private API includes it for server-side default resolution.
- *
  * @generated from message osac.public.v1.ClusterTemplateSpecDefaults
  */
 export type ClusterTemplateSpecDefaults = Message<"osac.public.v1.ClusterTemplateSpecDefaults"> & {
@@ -251,6 +250,16 @@ export type ClusterTemplateSpecDefaults = Message<"osac.public.v1.ClusterTemplat
    * @generated from field: osac.public.v1.ClusterVersionReference version = 5;
    */
   version?: ClusterVersionReference | undefined;
+
+  /**
+   * Default Secret reference for pull secret credentials.
+   *
+   * When set, clusters created from this template will use this secret reference unless the user provides an explicit
+   * `pull_secret_secret` reference.
+   *
+   * @generated from field: osac.public.v1.SecretLocalReference pull_secret_secret = 6;
+   */
+  pullSecretSecret?: SecretLocalReference | undefined;
 };
 
 /**

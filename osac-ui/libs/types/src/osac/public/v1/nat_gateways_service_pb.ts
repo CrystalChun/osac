@@ -308,7 +308,7 @@ export const NATGateways: GenService<{
     output: typeof NATGatewaysCreateResponseSchema;
   },
   /**
-   * Updates an existing NAT gateway. Allows modifying metadata (labels, annotations).
+   * Updates an existing NAT gateway. The spec fields are immutable; only metadata (labels, annotations) can be changed.
    *
    * @generated from rpc osac.public.v1.NATGateways.Update
    */

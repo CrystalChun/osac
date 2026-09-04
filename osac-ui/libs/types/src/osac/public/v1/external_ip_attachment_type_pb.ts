@@ -50,9 +50,9 @@ export const file_osac_public_v1_external_ip_attachment_type: GenFile = /*@__PUR
  * external IP (API server or ingress). An ExternalIPAttachment can be created before the cluster
  * is ready and will activate automatically once the cluster's VIP is available.
  *
- * Lifecycle: PENDING (attach in progress) -> READY (attached and routing traffic).
- * FAILED is a terminal error state that retries via the standard provisioning lifecycle
- * with exponential backoff.
+ * Lifecycle: PENDING (attach in progress) -> READY (attached and routing traffic) -> DELETING
+ * (detach in progress). FAILED is a terminal error state that retries via the standard
+ * provisioning lifecycle with exponential backoff.
  *
  * @generated from message osac.public.v1.ExternalIPAttachment
  */
@@ -281,7 +281,8 @@ export enum ExternalIPAttachmentState {
   /**
    * The attachment is being provisioned (attach workflow in progress).
    *
-   * The system is binding the ExternalIP's allocated address to the target resource.
+   * The system is binding the ExternalIP's allocated address to the target resource. This
+   * involves creating DNAT rules or MetalLB LoadBalancer Services depending on the target type.
    *
    * @generated from enum value: EXTERNAL_IP_ATTACHMENT_STATE_PENDING = 1;
    */

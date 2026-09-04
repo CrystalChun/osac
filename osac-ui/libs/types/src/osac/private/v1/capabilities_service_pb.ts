@@ -17,6 +17,7 @@
 
 import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_cleanapi_cleanapi } from "../../../cleanapi/cleanapi_pb";
 import { file_google_api_annotations } from "../../../google/api/annotations_pb";
 import type { AuthnCapabilities } from "./authn_capabilities_type_pb";
 import { file_osac_private_v1_authn_capabilities_type } from "./authn_capabilities_type_pb";
@@ -26,7 +27,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/private/v1/capabilities_service.proto.
  */
 export const file_osac_private_v1_capabilities_service: GenFile = /*@__PURE__*/
-  fileDesc("Cipvc2FjL3ByaXZhdGUvdjEvY2FwYWJpbGl0aWVzX3NlcnZpY2UucHJvdG8SD29zYWMucHJpdmF0ZS52MSIYChZDYXBhYmlsaXRpZXNHZXRSZXF1ZXN0IkwKF0NhcGFiaWxpdGllc0dldFJlc3BvbnNlEjEKBWF1dGhuGAEgASgLMiIub3NhYy5wcml2YXRlLnYxLkF1dGhuQ2FwYWJpbGl0aWVzMo4BCgxDYXBhYmlsaXRpZXMSfgoDR2V0Eicub3NhYy5wcml2YXRlLnYxLkNhcGFiaWxpdGllc0dldFJlcXVlc3QaKC5vc2FjLnByaXZhdGUudjEuQ2FwYWJpbGl0aWVzR2V0UmVzcG9uc2UiJILT5JMCHhIcL2FwaS9wcml2YXRlL3YxL2NhcGFiaWxpdGllc2IGcHJvdG8z", [file_google_api_annotations, file_osac_private_v1_authn_capabilities_type]);
+  fileDesc("Cipvc2FjL3ByaXZhdGUvdjEvY2FwYWJpbGl0aWVzX3NlcnZpY2UucHJvdG8SD29zYWMucHJpdmF0ZS52MSIYChZDYXBhYmlsaXRpZXNHZXRSZXF1ZXN0IkwKF0NhcGFiaWxpdGllc0dldFJlc3BvbnNlEjEKBWF1dGhuGAEgASgLMiIub3NhYy5wcml2YXRlLnYxLkF1dGhuQ2FwYWJpbGl0aWVzMo4BCgxDYXBhYmlsaXRpZXMSfgoDR2V0Eicub3NhYy5wcml2YXRlLnYxLkNhcGFiaWxpdGllc0dldFJlcXVlc3QaKC5vc2FjLnByaXZhdGUudjEuQ2FwYWJpbGl0aWVzR2V0UmVzcG9uc2UiJILT5JMCHhIcL2FwaS9wcml2YXRlL3YxL2NhcGFiaWxpdGllc0IpirUYJRIOb3NhYy5wdWJsaWMudjEiE3ByaXZhdGU6ZnVsZmlsbG1lbnRiBnByb3RvMw", [file_cleanapi_cleanapi, file_google_api_annotations, file_osac_private_v1_authn_capabilities_type]);
 
 /**
  * Request message for the `Get` method of the `Capabilities` service.
@@ -66,7 +67,7 @@ export const CapabilitiesGetResponseSchema: GenMessage<CapabilitiesGetResponse> 
 
 /**
  * Provides information about the capabilities of the server, such as the list of trusted token issuers for
- * authentication. This is the private API equivalent and requires authentication.
+ * authentication.
  *
  * @generated from service osac.private.v1.Capabilities
  */

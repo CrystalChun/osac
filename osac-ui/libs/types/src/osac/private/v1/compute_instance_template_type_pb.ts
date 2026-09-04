@@ -17,10 +17,14 @@
 
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
+import { file_cleanapi_cleanapi } from "../../../cleanapi/cleanapi_pb";
 import type { Any } from "../../../google/protobuf/any_pb";
 import { file_google_protobuf_any } from "../../../google/protobuf/any_pb";
-import type { ComputeInstanceDisk, ComputeInstanceImage } from "./compute_instance_common_type_pb";
+import type { ComputeInstanceDisk, ComputeInstanceRunStrategy } from "./compute_instance_common_type_pb";
 import { file_osac_private_v1_compute_instance_common_type } from "./compute_instance_common_type_pb";
+import type { DiskImageReference } from "./disk_image_type_pb";
+import { file_osac_private_v1_disk_image_type } from "./disk_image_type_pb";
 import type { Metadata } from "./metadata_type_pb";
 import { file_osac_private_v1_metadata_type } from "./metadata_type_pb";
 import type { InstanceTypeReference } from "./instance_type_type_pb";
@@ -31,16 +35,19 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/private/v1/compute_instance_template_type.proto.
  */
 export const file_osac_private_v1_compute_instance_template_type: GenFile = /*@__PURE__*/
-  fileDesc("CjRvc2FjL3ByaXZhdGUvdjEvY29tcHV0ZV9pbnN0YW5jZV90ZW1wbGF0ZV90eXBlLnByb3RvEg9vc2FjLnByaXZhdGUudjEilAIKF0NvbXB1dGVJbnN0YW5jZVRlbXBsYXRlEgoKAmlkGAEgASgJEisKCG1ldGFkYXRhGAIgASgLMhkub3NhYy5wcml2YXRlLnYxLk1ldGFkYXRhEg0KBXRpdGxlGAMgASgJEhMKC2Rlc2NyaXB0aW9uGAQgASgJEk8KCnBhcmFtZXRlcnMYBSADKAsyOy5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlVGVtcGxhdGVQYXJhbWV0ZXJEZWZpbml0aW9uEksKDXNwZWNfZGVmYXVsdHMYBiABKAsyNC5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlVGVtcGxhdGVTcGVjRGVmYXVsdHMipQEKKkNvbXB1dGVJbnN0YW5jZVRlbXBsYXRlUGFyYW1ldGVyRGVmaW5pdGlvbhIMCgRuYW1lGAEgASgJEg0KBXRpdGxlGAIgASgJEhMKC2Rlc2NyaXB0aW9uGAMgASgJEhAKCHJlcXVpcmVkGAQgASgIEgwKBHR5cGUYBSABKAkSJQoHZGVmYXVsdBgGIAEoCzIULmdvb2dsZS5wcm90b2J1Zi5Bbnki6AIKI0NvbXB1dGVJbnN0YW5jZVRlbXBsYXRlU3BlY0RlZmF1bHRzEjkKBWltYWdlGAMgASgLMiUub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZUltYWdlSACIAQESPAoJYm9vdF9kaXNrGAQgASgLMiQub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZURpc2tIAYgBARIZCgxydW5fc3RyYXRlZ3kYBSABKAlIAogBARI9Cg1pbnN0YW5jZV90eXBlGAYgASgLMiYub3NhYy5wcml2YXRlLnYxLkluc3RhbmNlVHlwZVJlZmVyZW5jZRIXCgppc193aW5kb3dzGAcgASgISAOIAQFCCAoGX2ltYWdlQgwKCl9ib290X2Rpc2tCDwoNX3J1bl9zdHJhdGVneUINCgtfaXNfd2luZG93c0oECAEQAkoECAIQA1IFY29yZXNSCm1lbW9yeV9naWIiXQogQ29tcHV0ZUluc3RhbmNlVGVtcGxhdGVSZWZlcmVuY2USCgoCaWQYASABKAkSDAoEbmFtZRgCIAEoCRIPCgdwcm9qZWN0GAMgASgJEg4KBnNoYXJlZBgEIAEoCGIGcHJvdG8z", [file_google_protobuf_any, file_osac_private_v1_compute_instance_common_type, file_osac_private_v1_metadata_type, file_osac_private_v1_instance_type_type]);
+  fileDesc("CjRvc2FjL3ByaXZhdGUvdjEvY29tcHV0ZV9pbnN0YW5jZV90ZW1wbGF0ZV90eXBlLnByb3RvEg9vc2FjLnByaXZhdGUudjEilAIKF0NvbXB1dGVJbnN0YW5jZVRlbXBsYXRlEgoKAmlkGAEgASgJEisKCG1ldGFkYXRhGAIgASgLMhkub3NhYy5wcml2YXRlLnYxLk1ldGFkYXRhEg0KBXRpdGxlGAMgASgJEhMKC2Rlc2NyaXB0aW9uGAQgASgJEk8KCnBhcmFtZXRlcnMYBSADKAsyOy5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlVGVtcGxhdGVQYXJhbWV0ZXJEZWZpbml0aW9uEksKDXNwZWNfZGVmYXVsdHMYBiABKAsyNC5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlVGVtcGxhdGVTcGVjRGVmYXVsdHMipQEKKkNvbXB1dGVJbnN0YW5jZVRlbXBsYXRlUGFyYW1ldGVyRGVmaW5pdGlvbhIMCgRuYW1lGAEgASgJEg0KBXRpdGxlGAIgASgJEhMKC2Rlc2NyaXB0aW9uGAMgASgJEhAKCHJlcXVpcmVkGAQgASgIEgwKBHR5cGUYBSABKAkSJQoHZGVmYXVsdBgGIAEoCzIULmdvb2dsZS5wcm90b2J1Zi5BbnkiigMKI0NvbXB1dGVJbnN0YW5jZVRlbXBsYXRlU3BlY0RlZmF1bHRzEjwKCWJvb3RfZGlzaxgEIAEoCzIkLm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2VEaXNrSACIAQESUAoMcnVuX3N0cmF0ZWd5GAUgASgOMisub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZVJ1blN0cmF0ZWd5Qgi6SAWCAQIQAUgBiAEBEj0KDWluc3RhbmNlX3R5cGUYBiABKAsyJi5vc2FjLnByaXZhdGUudjEuSW5zdGFuY2VUeXBlUmVmZXJlbmNlEjcKCmRpc2tfaW1hZ2UYCCABKAsyIy5vc2FjLnByaXZhdGUudjEuRGlza0ltYWdlUmVmZXJlbmNlQgwKCl9ib290X2Rpc2tCDwoNX3J1bl9zdHJhdGVneUoECAEQAkoECAIQA0oECAMQBEoECAcQCFIFY29yZXNSCm1lbW9yeV9naWJSBWltYWdlUgppc193aW5kb3dzIl0KIENvbXB1dGVJbnN0YW5jZVRlbXBsYXRlUmVmZXJlbmNlEgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkSDwoHcHJvamVjdBgDIAEoCRIOCgZzaGFyZWQYBCABKAhCFIq1GBASDm9zYWMucHVibGljLnYxYgZwcm90bzM", [file_buf_validate_validate, file_cleanapi_cleanapi, file_google_protobuf_any, file_osac_private_v1_compute_instance_common_type, file_osac_private_v1_disk_image_type, file_osac_private_v1_metadata_type, file_osac_private_v1_instance_type_type]);
 
 /**
+ * A compute instance template defines a type of compute instance that can be created by the user. Note that the user doesn't create these
+ * templates: the system provides a collection of them, and the user chooses one.
+ *
  * buf:lint:ignore OSAC_OBJECT_SHAPE
  *
  * @generated from message osac.private.v1.ComputeInstanceTemplate
  */
 export type ComputeInstanceTemplate = Message<"osac.private.v1.ComputeInstanceTemplate"> & {
   /**
-   * Public data.
+   * Unique identifier of the template.
    *
    * @generated from field: string id = 1;
    */
@@ -52,16 +59,26 @@ export type ComputeInstanceTemplate = Message<"osac.private.v1.ComputeInstanceTe
   metadata?: Metadata | undefined;
 
   /**
+   * Human friendly short description of the template, only a few words, suitable for displaying in one single line on a
+   * UI or CLI.
+   *
    * @generated from field: string title = 3;
    */
   title: string;
 
   /**
+   * Human friendly long description of the template, using Markdown format.
+   *
    * @generated from field: string description = 4;
    */
   description: string;
 
   /**
+   * Definitions of the parameters that can be used to customize the template.
+   *
+   * Note that these are only the *definitions* of the parameters, not the actual values. The actual values are in the
+   * `spec.template_parameters` field of the compute instance.
+   *
    * @generated from field: repeated osac.private.v1.ComputeInstanceTemplateParameterDefinition parameters = 5;
    */
   parameters: ComputeInstanceTemplateParameterDefinition[];
@@ -85,35 +102,77 @@ export const ComputeInstanceTemplateSchema: GenMessage<ComputeInstanceTemplate> 
   messageDesc(file_osac_private_v1_compute_instance_template_type, 0);
 
 /**
+ * Contains type and documentation of a template parameter.
+ *
  * @generated from message osac.private.v1.ComputeInstanceTemplateParameterDefinition
  */
 export type ComputeInstanceTemplateParameterDefinition = Message<"osac.private.v1.ComputeInstanceTemplateParameterDefinition"> & {
   /**
+   * Name of the parameter.
+   *
+   * This is the name that should be used in the `template_parameters` field of the compute instance to assign a value to the
+   * parameter.
+   *
    * @generated from field: string name = 1;
    */
   name: string;
 
   /**
+   * Human friendly short description of the parameter, only a few words, suitable for displaying in one single line on
+   * a UI or CLI.
+   *
    * @generated from field: string title = 2;
    */
   title: string;
 
   /**
+   * Human friendly description of the parameter, using Markdown format.
+   *
    * @generated from field: string description = 3;
    */
   description: string;
 
   /**
+   * Indicates if this parameter is required or optional.
+   *
+   * Values for required parameters must be included when creating the compute instance, otherwise it will be rejected.
+   *
+   * Note that there may be other dependencies between parameters which may cause a compute instance to be rejected. For example,
+   * the allowed values of a parameter may depend on the value of another parameter. That kind of information will be in
+   * the `description` field.
+   *
    * @generated from field: bool required = 4;
    */
   required: boolean;
 
   /**
+   * Type of the parameter.
+   *
+   * The possible values are the same as those used by the `type_url` field of the `Any` type:
+   *
+   * | Type                           | Value                                             |
+   * |--------------------------------|---------------------------------------------------|
+   * | Boolean                        | `type.googleapis.com/google.protobuf.BoolValue`   |
+   * | Integer number, 32 bits        | `type.googleapis.com/google.protobuf.Int32Value`  |
+   * | Integer number, 64 bits        | `type.googleapis.com/google.protobuf.Int64Value`  |
+   * | Floating point number, 32 bits | `type.googleapis.com/google.protobuf.FloatValue`  |
+   * | Floating point number, 64 bits | `type.googleapis.com/google.protobuf.DoubleValue` |
+   * | String                         | `type.googleapis.com/google.protobuf.StringValue` |
+   * | Timestamp                      | `type.googleapis.com/google.protobuf.Timestamp`   |
+   * | Duration                       | `type.googleapis.com/google.protobuf.Duration`    |
+   * | Array of bytes                 | `type.googleapis.com/google.protobuf.BytesValue`  |
+   * | Any JSON value                 | `type.googleapis.com/google.protobuf.Value`       |
+   *
+   * When using the HTTP+JSON version of the API the value provided in the `template_parameters` field of the compute instance
+   * must be represented as documented in the (ProtoJSON format document)[https://protobuf.dev/programming-guides/json].
+   *
    * @generated from field: string type = 5;
    */
   type: string;
 
   /**
+   * Default value for optional parameters.
+   *
    * @generated from field: google.protobuf.Any default = 6;
    */
   default?: Any | undefined;
@@ -133,13 +192,6 @@ export const ComputeInstanceTemplateParameterDefinitionSchema: GenMessage<Comput
  */
 export type ComputeInstanceTemplateSpecDefaults = Message<"osac.private.v1.ComputeInstanceTemplateSpecDefaults"> & {
   /**
-   * Default image configuration.
-   *
-   * @generated from field: optional osac.private.v1.ComputeInstanceImage image = 3;
-   */
-  image?: ComputeInstanceImage | undefined;
-
-  /**
    * Default boot disk configuration.
    *
    * @generated from field: optional osac.private.v1.ComputeInstanceDisk boot_disk = 4;
@@ -149,9 +201,9 @@ export type ComputeInstanceTemplateSpecDefaults = Message<"osac.private.v1.Compu
   /**
    * Default run strategy.
    *
-   * @generated from field: optional string run_strategy = 5;
+   * @generated from field: optional osac.private.v1.ComputeInstanceRunStrategy run_strategy = 5;
    */
-  runStrategy?: string | undefined;
+  runStrategy?: ComputeInstanceRunStrategy | undefined;
 
   /**
    * Default instance type. Specifies the default compute configuration for instances
@@ -162,11 +214,11 @@ export type ComputeInstanceTemplateSpecDefaults = Message<"osac.private.v1.Compu
   instanceType?: InstanceTypeReference | undefined;
 
   /**
-   * Default guest OS type. When true, the VM runs Windows. When false or omitted, the VM runs Linux.
+   * Default DiskImage reference for instances created from this template.
    *
-   * @generated from field: optional bool is_windows = 7;
+   * @generated from field: osac.private.v1.DiskImageReference disk_image = 8;
    */
-  isWindows?: boolean | undefined;
+  diskImage?: DiskImageReference | undefined;
 };
 
 /**

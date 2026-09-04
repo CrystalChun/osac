@@ -1,7 +1,10 @@
 import { Stack, StackItem, Title } from '@patternfly/react-core';
 
+import { Secret } from '@osac/types';
+import { cel } from '@osac/ui-components/api/cel';
 import { InputField } from '@osac/ui-components/components/Form/InputField';
 import OsacForm from '@osac/ui-components/components/Form/OsacForm';
+import SecretSelectionField from '@osac/ui-components/components/Form/SecretSelectionField';
 
 import { useTranslation } from '../../../../hooks/useTranslation';
 
@@ -22,11 +25,10 @@ const IdpConfigurationStep = () => {
             fieldId="idp-client-id"
             isRequired
           />
-          <InputField
-            name="spec.config.clientSecret"
-            label={t('Client secret')}
-            fieldId="idp-client-secret"
-            type="password"
+          <SecretSelectionField
+            filter={cel<Secret>((filter) => filter.field('metadata.project').equals(''))}
+            label={t('Client secret secret')}
+            name="spec.config.clientSecretSecret.name"
             isRequired
           />
           <InputField

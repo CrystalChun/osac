@@ -17,13 +17,14 @@
 
 import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_cleanapi_cleanapi } from "../../../cleanapi/cleanapi_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file osac/private/v1/security_rule_type.proto.
  */
 export const file_osac_private_v1_security_rule_type: GenFile = /*@__PURE__*/
-  fileDesc("Cihvc2FjL3ByaXZhdGUvdjEvc2VjdXJpdHlfcnVsZV90eXBlLnByb3RvEg9vc2FjLnByaXZhdGUudjEizwEKDFNlY3VyaXR5UnVsZRIrCghwcm90b2NvbBgBIAEoDjIZLm9zYWMucHJpdmF0ZS52MS5Qcm90b2NvbBIWCglwb3J0X2Zyb20YAiABKAVIAIgBARIUCgdwb3J0X3RvGAMgASgFSAGIAQESFgoJaXB2NF9jaWRyGAQgASgJSAKIAQESFgoJaXB2Nl9jaWRyGAUgASgJSAOIAQFCDAoKX3BvcnRfZnJvbUIKCghfcG9ydF90b0IMCgpfaXB2NF9jaWRyQgwKCl9pcHY2X2NpZHIqbQoIUHJvdG9jb2wSGAoUUFJPVE9DT0xfVU5TUEVDSUZJRUQQABIQCgxQUk9UT0NPTF9UQ1AQARIQCgxQUk9UT0NPTF9VRFAQAhIRCg1QUk9UT0NPTF9JQ01QEAMSEAoMUFJPVE9DT0xfQUxMEARiBnByb3RvMw");
+  fileDesc("Cihvc2FjL3ByaXZhdGUvdjEvc2VjdXJpdHlfcnVsZV90eXBlLnByb3RvEg9vc2FjLnByaXZhdGUudjEizwEKDFNlY3VyaXR5UnVsZRIrCghwcm90b2NvbBgBIAEoDjIZLm9zYWMucHJpdmF0ZS52MS5Qcm90b2NvbBIWCglwb3J0X2Zyb20YAiABKAVIAIgBARIUCgdwb3J0X3RvGAMgASgFSAGIAQESFgoJaXB2NF9jaWRyGAQgASgJSAKIAQESFgoJaXB2Nl9jaWRyGAUgASgJSAOIAQFCDAoKX3BvcnRfZnJvbUIKCghfcG9ydF90b0IMCgpfaXB2NF9jaWRyQgwKCl9pcHY2X2NpZHIqbQoIUHJvdG9jb2wSGAoUUFJPVE9DT0xfVU5TUEVDSUZJRUQQABIQCgxQUk9UT0NPTF9UQ1AQARIQCgxQUk9UT0NPTF9VRFAQAhIRCg1QUk9UT0NPTF9JQ01QEAMSEAoMUFJPVE9DT0xfQUxMEARCFIq1GBASDm9zYWMucHVibGljLnYxYgZwcm90bzM", [file_cleanapi_cleanapi]);
 
 /**
  * Defines a single firewall rule for network traffic filtering.

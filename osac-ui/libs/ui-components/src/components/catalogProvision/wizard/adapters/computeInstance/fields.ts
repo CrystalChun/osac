@@ -1,6 +1,3 @@
-/** VMs are always created in the running state; stop/start is handled on the details page. */
-export const VM_CREATE_RUN_STRATEGY = 'Always' as const;
-
 export interface ComputeInstanceNetworkingValues {
   virtualNetwork: string;
   subnet: string;

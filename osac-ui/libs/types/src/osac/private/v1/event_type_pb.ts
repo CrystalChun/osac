@@ -17,6 +17,7 @@
 
 import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_cleanapi_cleanapi } from "../../../cleanapi/cleanapi_pb";
 import type { BareMetalInstanceCatalogItem } from "./baremetal_instance_catalog_item_type_pb";
 import { file_osac_private_v1_baremetal_instance_catalog_item_type } from "./baremetal_instance_catalog_item_type_pb";
 import type { BareMetalInstanceTemplate } from "./baremetal_instance_template_type_pb";
@@ -37,6 +38,8 @@ import type { ComputeInstanceTemplate } from "./compute_instance_template_type_p
 import { file_osac_private_v1_compute_instance_template_type } from "./compute_instance_template_type_pb";
 import type { ComputeInstance } from "./compute_instance_type_pb";
 import { file_osac_private_v1_compute_instance_type } from "./compute_instance_type_pb";
+import type { DiskImage } from "./disk_image_type_pb";
+import { file_osac_private_v1_disk_image_type } from "./disk_image_type_pb";
 import type { ExternalIPAttachment } from "./external_ip_attachment_type_pb";
 import { file_osac_private_v1_external_ip_attachment_type } from "./external_ip_attachment_type_pb";
 import type { ExternalIPPool } from "./external_ip_pool_type_pb";
@@ -87,7 +90,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/private/v1/event_type.proto.
  */
 export const file_osac_private_v1_event_type: GenFile = /*@__PURE__*/
-  fileDesc("CiBvc2FjL3ByaXZhdGUvdjEvZXZlbnRfdHlwZS5wcm90bxIPb3NhYy5wcml2YXRlLnYxIpsPCgVFdmVudBIKCgJpZBgBIAEoCRIoCgR0eXBlGAIgASgOMhoub3NhYy5wcml2YXRlLnYxLkV2ZW50VHlwZRIrCgdjbHVzdGVyGAMgASgLMhgub3NhYy5wcml2YXRlLnYxLkNsdXN0ZXJIABI8ChBjbHVzdGVyX3RlbXBsYXRlGAQgASgLMiAub3NhYy5wcml2YXRlLnYxLkNsdXN0ZXJUZW1wbGF0ZUgAEi4KCWhvc3RfdHlwZRgFIAEoCzIZLm9zYWMucHJpdmF0ZS52MS5Ib3N0VHlwZUgAEiMKA2h1YhgGIAEoCzIULm9zYWMucHJpdmF0ZS52MS5IdWJIABJNChljb21wdXRlX2luc3RhbmNlX3RlbXBsYXRlGAcgASgLMigub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZVRlbXBsYXRlSAASPAoQY29tcHV0ZV9pbnN0YW5jZRgIIAEoCzIgLm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2VIABI2Cg1uZXR3b3JrX2NsYXNzGAsgASgLMh0ub3NhYy5wcml2YXRlLnYxLk5ldHdvcmtDbGFzc0gAEikKBnN1Ym5ldBgMIAEoCzIXLm9zYWMucHJpdmF0ZS52MS5TdWJuZXRIABI6Cg92aXJ0dWFsX25ldHdvcmsYDSABKAsyHy5vc2FjLnByaXZhdGUudjEuVmlydHVhbE5ldHdvcmtIABI4Cg5zZWN1cml0eV9ncm91cBgOIAEoCzIeLm9zYWMucHJpdmF0ZS52MS5TZWN1cml0eUdyb3VwSAASJQoEdXNlchgTIAEoCzIVLm9zYWMucHJpdmF0ZS52MS5Vc2VySAASJQoEcm9sZRgUIAEoCzIVLm9zYWMucHJpdmF0ZS52MS5Sb2xlSAASNAoMcm9sZV9iaW5kaW5nGBUgASgLMhwub3NhYy5wcml2YXRlLnYxLlJvbGVCaW5kaW5nSAASQwoUY2x1c3Rlcl9jYXRhbG9nX2l0ZW0YFiABKAsyIy5vc2FjLnByaXZhdGUudjEuQ2x1c3RlckNhdGFsb2dJdGVtSAASVAodY29tcHV0ZV9pbnN0YW5jZV9jYXRhbG9nX2l0ZW0YFyABKAsyKy5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlQ2F0YWxvZ0l0ZW1IABIrCgdwcm9qZWN0GBggASgLMhgub3NhYy5wcml2YXRlLnYxLlByb2plY3RIABI2Cg1pbnN0YW5jZV90eXBlGBogASgLMh0ub3NhYy5wcml2YXRlLnYxLkluc3RhbmNlVHlwZUgAEkEKE2JhcmVfbWV0YWxfaW5zdGFuY2UYGyABKAsyIi5vc2FjLnByaXZhdGUudjEuQmFyZU1ldGFsSW5zdGFuY2VIABJSChxiYXJlX21ldGFsX2luc3RhbmNlX3RlbXBsYXRlGBwgASgLMioub3NhYy5wcml2YXRlLnYxLkJhcmVNZXRhbEluc3RhbmNlVGVtcGxhdGVIABJZCiBiYXJlX21ldGFsX2luc3RhbmNlX2NhdGFsb2dfaXRlbRgdIAEoCzItLm9zYWMucHJpdmF0ZS52MS5CYXJlTWV0YWxJbnN0YW5jZUNhdGFsb2dJdGVtSAASOgoPc3RvcmFnZV9iYWNrZW5kGB4gASgLMh8ub3NhYy5wcml2YXRlLnYxLlN0b3JhZ2VCYWNrZW5kSAASKQoGdGVuYW50GB8gASgLMhcub3NhYy5wcml2YXRlLnYxLlRlbmFudEgAEj4KEWlkZW50aXR5X3Byb3ZpZGVyGCAgASgLMiEub3NhYy5wcml2YXRlLnYxLklkZW50aXR5UHJvdmlkZXJIABJAChJwcm9qZWN0X21lbWJlcnNoaXAYISABKAsyIi5vc2FjLnByaXZhdGUudjEuUHJvamVjdE1lbWJlcnNoaXBIABI7ChBleHRlcm5hbF9pcF9wb29sGCIgASgLMh8ub3NhYy5wcml2YXRlLnYxLkV4dGVybmFsSVBQb29sSAASMgoLZXh0ZXJuYWxfaXAYIyABKAsyGy5vc2FjLnByaXZhdGUudjEuRXh0ZXJuYWxJUEgAEkcKFmV4dGVybmFsX2lwX2F0dGFjaG1lbnQYJCABKAsyJS5vc2FjLnByaXZhdGUudjEuRXh0ZXJuYWxJUEF0dGFjaG1lbnRIABIyCgtuYXRfZ2F0ZXdheRglIAEoCzIbLm9zYWMucHJpdmF0ZS52MS5OQVRHYXRld2F5SAASOgoPY2x1c3Rlcl92ZXJzaW9uGCYgASgLMh8ub3NhYy5wcml2YXRlLnYxLkNsdXN0ZXJWZXJzaW9uSAASNAoMc3RvcmFnZV90aWVyGCcgASgLMhwub3NhYy5wcml2YXRlLnYxLlN0b3JhZ2VUaWVySAASKQoGc2VjcmV0GCggASgLMhcub3NhYy5wcml2YXRlLnYxLlNlY3JldEgAEikKBnZvbHVtZRgpIAEoCzIXLm9zYWMucHJpdmF0ZS52MS5Wb2x1bWVIAEIJCgdwYXlsb2FkSgQIEBARSgQIERASSgQIEhATSgQIGRAaKqQBCglFdmVudFR5cGUSGgoWRVZFTlRfVFlQRV9VTlNQRUNJRklFRBAAEh0KGUVWRU5UX1RZUEVfT0JKRUNUX0NSRUFURUQQARIdChlFVkVOVF9UWVBFX09CSkVDVF9VUERBVEVEEAISHQoZRVZFTlRfVFlQRV9PQkpFQ1RfREVMRVRFRBADEh4KGkVWRU5UX1RZUEVfT0JKRUNUX1NJR05BTEVEEARiBnByb3RvMw", [file_osac_private_v1_baremetal_instance_catalog_item_type, file_osac_private_v1_baremetal_instance_template_type, file_osac_private_v1_baremetal_instance_type, file_osac_private_v1_cluster_catalog_item_type, file_osac_private_v1_cluster_template_type, file_osac_private_v1_cluster_version_type, file_osac_private_v1_cluster_type, file_osac_private_v1_compute_instance_catalog_item_type, file_osac_private_v1_compute_instance_template_type, file_osac_private_v1_compute_instance_type, file_osac_private_v1_external_ip_attachment_type, file_osac_private_v1_external_ip_pool_type, file_osac_private_v1_external_ip_type, file_osac_private_v1_host_type_type, file_osac_private_v1_hub_type, file_osac_private_v1_identity_provider_type, file_osac_private_v1_instance_type_type, file_osac_private_v1_nat_gateway_type, file_osac_private_v1_network_class_type, file_osac_private_v1_project_membership_type, file_osac_private_v1_project_type, file_osac_private_v1_tenant_type, file_osac_private_v1_role_binding_type, file_osac_private_v1_role_type, file_osac_private_v1_secret_type, file_osac_private_v1_security_group_type, file_osac_private_v1_storage_backend_type, file_osac_private_v1_storage_tier_type, file_osac_private_v1_subnet_type, file_osac_private_v1_user_type, file_osac_private_v1_virtual_network_type, file_osac_private_v1_volume_type]);
+  fileDesc("CiBvc2FjL3ByaXZhdGUvdjEvZXZlbnRfdHlwZS5wcm90bxIPb3NhYy5wcml2YXRlLnYxIs0QCgVFdmVudBIKCgJpZBgBIAEoCRIoCgR0eXBlGAIgASgOMhoub3NhYy5wcml2YXRlLnYxLkV2ZW50VHlwZRJBChNiYXJlX21ldGFsX2luc3RhbmNlGAMgASgLMiIub3NhYy5wcml2YXRlLnYxLkJhcmVNZXRhbEluc3RhbmNlSAASKwoHY2x1c3RlchgEIAEoCzIYLm9zYWMucHJpdmF0ZS52MS5DbHVzdGVySAASPAoQY2x1c3Rlcl90ZW1wbGF0ZRgFIAEoCzIgLm9zYWMucHJpdmF0ZS52MS5DbHVzdGVyVGVtcGxhdGVIABI6Cg9jbHVzdGVyX3ZlcnNpb24YBiABKAsyHy5vc2FjLnByaXZhdGUudjEuQ2x1c3RlclZlcnNpb25IABI8ChBjb21wdXRlX2luc3RhbmNlGAcgASgLMiAub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZUgAEk0KGWNvbXB1dGVfaW5zdGFuY2VfdGVtcGxhdGUYCCABKAsyKC5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlVGVtcGxhdGVIABIwCgpkaXNrX2ltYWdlGAkgASgLMhoub3NhYy5wcml2YXRlLnYxLkRpc2tJbWFnZUgAEi4KCWhvc3RfdHlwZRgKIAEoCzIZLm9zYWMucHJpdmF0ZS52MS5Ib3N0VHlwZUgAEjYKDWluc3RhbmNlX3R5cGUYCyABKAsyHS5vc2FjLnByaXZhdGUudjEuSW5zdGFuY2VUeXBlSAASKwoHcHJvamVjdBgMIAEoCzIYLm9zYWMucHJpdmF0ZS52MS5Qcm9qZWN0SAASJQoEcm9sZRgNIAEoCzIVLm9zYWMucHJpdmF0ZS52MS5Sb2xlSAASNAoMcm9sZV9iaW5kaW5nGA4gASgLMhwub3NhYy5wcml2YXRlLnYxLlJvbGVCaW5kaW5nSAASKQoGc2VjcmV0GA8gASgLMhcub3NhYy5wcml2YXRlLnYxLlNlY3JldEgAEikKBnRlbmFudBgQIAEoCzIXLm9zYWMucHJpdmF0ZS52MS5UZW5hbnRIABIrCgNodWIYESABKAsyFC5vc2FjLnByaXZhdGUudjEuSHViQgaKtRgCCAFIABI+Cg1uZXR3b3JrX2NsYXNzGBIgASgLMh0ub3NhYy5wcml2YXRlLnYxLk5ldHdvcmtDbGFzc0IGirUYAggBSAASMQoGc3VibmV0GBMgASgLMhcub3NhYy5wcml2YXRlLnYxLlN1Ym5ldEIGirUYAggBSAASQgoPdmlydHVhbF9uZXR3b3JrGBQgASgLMh8ub3NhYy5wcml2YXRlLnYxLlZpcnR1YWxOZXR3b3JrQgaKtRgCCAFIABJACg5zZWN1cml0eV9ncm91cBgVIAEoCzIeLm9zYWMucHJpdmF0ZS52MS5TZWN1cml0eUdyb3VwQgaKtRgCCAFIABItCgR1c2VyGBYgASgLMhUub3NhYy5wcml2YXRlLnYxLlVzZXJCBoq1GAIIAUgAEksKFGNsdXN0ZXJfY2F0YWxvZ19pdGVtGBcgASgLMiMub3NhYy5wcml2YXRlLnYxLkNsdXN0ZXJDYXRhbG9nSXRlbUIGirUYAggBSAASXAodY29tcHV0ZV9pbnN0YW5jZV9jYXRhbG9nX2l0ZW0YGCABKAsyKy5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlQ2F0YWxvZ0l0ZW1CBoq1GAIIAUgAEloKHGJhcmVfbWV0YWxfaW5zdGFuY2VfdGVtcGxhdGUYGSABKAsyKi5vc2FjLnByaXZhdGUudjEuQmFyZU1ldGFsSW5zdGFuY2VUZW1wbGF0ZUIGirUYAggBSAASYQogYmFyZV9tZXRhbF9pbnN0YW5jZV9jYXRhbG9nX2l0ZW0YGiABKAsyLS5vc2FjLnByaXZhdGUudjEuQmFyZU1ldGFsSW5zdGFuY2VDYXRhbG9nSXRlbUIGirUYAggBSAASQgoPc3RvcmFnZV9iYWNrZW5kGBsgASgLMh8ub3NhYy5wcml2YXRlLnYxLlN0b3JhZ2VCYWNrZW5kQgaKtRgCCAFIABJGChFpZGVudGl0eV9wcm92aWRlchgcIAEoCzIhLm9zYWMucHJpdmF0ZS52MS5JZGVudGl0eVByb3ZpZGVyQgaKtRgCCAFIABJIChJwcm9qZWN0X21lbWJlcnNoaXAYHSABKAsyIi5vc2FjLnByaXZhdGUudjEuUHJvamVjdE1lbWJlcnNoaXBCBoq1GAIIAUgAEkMKEGV4dGVybmFsX2lwX3Bvb2wYHiABKAsyHy5vc2FjLnByaXZhdGUudjEuRXh0ZXJuYWxJUFBvb2xCBoq1GAIIAUgAEjoKC2V4dGVybmFsX2lwGB8gASgLMhsub3NhYy5wcml2YXRlLnYxLkV4dGVybmFsSVBCBoq1GAIIAUgAEk8KFmV4dGVybmFsX2lwX2F0dGFjaG1lbnQYICABKAsyJS5vc2FjLnByaXZhdGUudjEuRXh0ZXJuYWxJUEF0dGFjaG1lbnRCBoq1GAIIAUgAEjoKC25hdF9nYXRld2F5GCEgASgLMhsub3NhYy5wcml2YXRlLnYxLk5BVEdhdGV3YXlCBoq1GAIIAUgAEjwKDHN0b3JhZ2VfdGllchgiIAEoCzIcLm9zYWMucHJpdmF0ZS52MS5TdG9yYWdlVGllckIGirUYAggBSAASMQoGdm9sdW1lGCMgASgLMhcub3NhYy5wcml2YXRlLnYxLlZvbHVtZUIGirUYAggBSABCCQoHcGF5bG9hZCqsAQoJRXZlbnRUeXBlEhoKFkVWRU5UX1RZUEVfVU5TUEVDSUZJRUQQABIdChlFVkVOVF9UWVBFX09CSkVDVF9DUkVBVEVEEAESHQoZRVZFTlRfVFlQRV9PQkpFQ1RfVVBEQVRFRBACEh0KGUVWRU5UX1RZUEVfT0JKRUNUX0RFTEVURUQQAxImChpFVkVOVF9UWVBFX09CSkVDVF9TSUdOQUxFRBAEGgaKtRgCCAFCFIq1GBASDm9zYWMucHVibGljLnYxYgZwcm90bzM", [file_cleanapi_cleanapi, file_osac_private_v1_baremetal_instance_catalog_item_type, file_osac_private_v1_baremetal_instance_template_type, file_osac_private_v1_baremetal_instance_type, file_osac_private_v1_cluster_catalog_item_type, file_osac_private_v1_cluster_template_type, file_osac_private_v1_cluster_version_type, file_osac_private_v1_cluster_type, file_osac_private_v1_compute_instance_catalog_item_type, file_osac_private_v1_compute_instance_template_type, file_osac_private_v1_compute_instance_type, file_osac_private_v1_disk_image_type, file_osac_private_v1_external_ip_attachment_type, file_osac_private_v1_external_ip_pool_type, file_osac_private_v1_external_ip_type, file_osac_private_v1_host_type_type, file_osac_private_v1_hub_type, file_osac_private_v1_identity_provider_type, file_osac_private_v1_instance_type_type, file_osac_private_v1_nat_gateway_type, file_osac_private_v1_network_class_type, file_osac_private_v1_project_membership_type, file_osac_private_v1_project_type, file_osac_private_v1_tenant_type, file_osac_private_v1_role_binding_type, file_osac_private_v1_role_type, file_osac_private_v1_secret_type, file_osac_private_v1_security_group_type, file_osac_private_v1_storage_backend_type, file_osac_private_v1_storage_tier_type, file_osac_private_v1_subnet_type, file_osac_private_v1_user_type, file_osac_private_v1_virtual_network_type, file_osac_private_v1_volume_type]);
 
 /**
  * Represents events delivered by the server.
@@ -116,193 +119,199 @@ export type Event = Message<"osac.private.v1.Event"> & {
    */
   payload: {
     /**
-     * @generated from field: osac.private.v1.Cluster cluster = 3;
-     */
-    value: Cluster;
-    case: "cluster";
-  } | {
-    /**
-     * @generated from field: osac.private.v1.ClusterTemplate cluster_template = 4;
-     */
-    value: ClusterTemplate;
-    case: "clusterTemplate";
-  } | {
-    /**
-     * @generated from field: osac.private.v1.HostType host_type = 5;
-     */
-    value: HostType;
-    case: "hostType";
-  } | {
-    /**
-     * @generated from field: osac.private.v1.Hub hub = 6;
-     */
-    value: Hub;
-    case: "hub";
-  } | {
-    /**
-     * @generated from field: osac.private.v1.ComputeInstanceTemplate compute_instance_template = 7;
-     */
-    value: ComputeInstanceTemplate;
-    case: "computeInstanceTemplate";
-  } | {
-    /**
-     * @generated from field: osac.private.v1.ComputeInstance compute_instance = 8;
-     */
-    value: ComputeInstance;
-    case: "computeInstance";
-  } | {
-    /**
-     * @generated from field: osac.private.v1.NetworkClass network_class = 11;
-     */
-    value: NetworkClass;
-    case: "networkClass";
-  } | {
-    /**
-     * @generated from field: osac.private.v1.Subnet subnet = 12;
-     */
-    value: Subnet;
-    case: "subnet";
-  } | {
-    /**
-     * @generated from field: osac.private.v1.VirtualNetwork virtual_network = 13;
-     */
-    value: VirtualNetwork;
-    case: "virtualNetwork";
-  } | {
-    /**
-     * @generated from field: osac.private.v1.SecurityGroup security_group = 14;
-     */
-    value: SecurityGroup;
-    case: "securityGroup";
-  } | {
-    /**
-     * @generated from field: osac.private.v1.User user = 19;
-     */
-    value: User;
-    case: "user";
-  } | {
-    /**
-     * @generated from field: osac.private.v1.Role role = 20;
-     */
-    value: Role;
-    case: "role";
-  } | {
-    /**
-     * @generated from field: osac.private.v1.RoleBinding role_binding = 21;
-     */
-    value: RoleBinding;
-    case: "roleBinding";
-  } | {
-    /**
-     * @generated from field: osac.private.v1.ClusterCatalogItem cluster_catalog_item = 22;
-     */
-    value: ClusterCatalogItem;
-    case: "clusterCatalogItem";
-  } | {
-    /**
-     * @generated from field: osac.private.v1.ComputeInstanceCatalogItem compute_instance_catalog_item = 23;
-     */
-    value: ComputeInstanceCatalogItem;
-    case: "computeInstanceCatalogItem";
-  } | {
-    /**
-     * @generated from field: osac.private.v1.Project project = 24;
-     */
-    value: Project;
-    case: "project";
-  } | {
-    /**
-     * @generated from field: osac.private.v1.InstanceType instance_type = 26;
-     */
-    value: InstanceType;
-    case: "instanceType";
-  } | {
-    /**
-     * @generated from field: osac.private.v1.BareMetalInstance bare_metal_instance = 27;
+     * @generated from field: osac.private.v1.BareMetalInstance bare_metal_instance = 3;
      */
     value: BareMetalInstance;
     case: "bareMetalInstance";
   } | {
     /**
-     * @generated from field: osac.private.v1.BareMetalInstanceTemplate bare_metal_instance_template = 28;
+     * @generated from field: osac.private.v1.Cluster cluster = 4;
      */
-    value: BareMetalInstanceTemplate;
-    case: "bareMetalInstanceTemplate";
+    value: Cluster;
+    case: "cluster";
   } | {
     /**
-     * @generated from field: osac.private.v1.BareMetalInstanceCatalogItem bare_metal_instance_catalog_item = 29;
+     * @generated from field: osac.private.v1.ClusterTemplate cluster_template = 5;
      */
-    value: BareMetalInstanceCatalogItem;
-    case: "bareMetalInstanceCatalogItem";
+    value: ClusterTemplate;
+    case: "clusterTemplate";
   } | {
     /**
-     * @generated from field: osac.private.v1.StorageBackend storage_backend = 30;
-     */
-    value: StorageBackend;
-    case: "storageBackend";
-  } | {
-    /**
-     * @generated from field: osac.private.v1.Tenant tenant = 31;
-     */
-    value: Tenant;
-    case: "tenant";
-  } | {
-    /**
-     * @generated from field: osac.private.v1.IdentityProvider identity_provider = 32;
-     */
-    value: IdentityProvider;
-    case: "identityProvider";
-  } | {
-    /**
-     * @generated from field: osac.private.v1.ProjectMembership project_membership = 33;
-     */
-    value: ProjectMembership;
-    case: "projectMembership";
-  } | {
-    /**
-     * @generated from field: osac.private.v1.ExternalIPPool external_ip_pool = 34;
-     */
-    value: ExternalIPPool;
-    case: "externalIpPool";
-  } | {
-    /**
-     * @generated from field: osac.private.v1.ExternalIP external_ip = 35;
-     */
-    value: ExternalIP;
-    case: "externalIp";
-  } | {
-    /**
-     * @generated from field: osac.private.v1.ExternalIPAttachment external_ip_attachment = 36;
-     */
-    value: ExternalIPAttachment;
-    case: "externalIpAttachment";
-  } | {
-    /**
-     * @generated from field: osac.private.v1.NATGateway nat_gateway = 37;
-     */
-    value: NATGateway;
-    case: "natGateway";
-  } | {
-    /**
-     * @generated from field: osac.private.v1.ClusterVersion cluster_version = 38;
+     * @generated from field: osac.private.v1.ClusterVersion cluster_version = 6;
      */
     value: ClusterVersion;
     case: "clusterVersion";
   } | {
     /**
-     * @generated from field: osac.private.v1.StorageTier storage_tier = 39;
+     * @generated from field: osac.private.v1.ComputeInstance compute_instance = 7;
      */
-    value: StorageTier;
-    case: "storageTier";
+    value: ComputeInstance;
+    case: "computeInstance";
   } | {
     /**
-     * @generated from field: osac.private.v1.Secret secret = 40;
+     * @generated from field: osac.private.v1.ComputeInstanceTemplate compute_instance_template = 8;
+     */
+    value: ComputeInstanceTemplate;
+    case: "computeInstanceTemplate";
+  } | {
+    /**
+     * @generated from field: osac.private.v1.DiskImage disk_image = 9;
+     */
+    value: DiskImage;
+    case: "diskImage";
+  } | {
+    /**
+     * @generated from field: osac.private.v1.HostType host_type = 10;
+     */
+    value: HostType;
+    case: "hostType";
+  } | {
+    /**
+     * @generated from field: osac.private.v1.InstanceType instance_type = 11;
+     */
+    value: InstanceType;
+    case: "instanceType";
+  } | {
+    /**
+     * @generated from field: osac.private.v1.Project project = 12;
+     */
+    value: Project;
+    case: "project";
+  } | {
+    /**
+     * @generated from field: osac.private.v1.Role role = 13;
+     */
+    value: Role;
+    case: "role";
+  } | {
+    /**
+     * @generated from field: osac.private.v1.RoleBinding role_binding = 14;
+     */
+    value: RoleBinding;
+    case: "roleBinding";
+  } | {
+    /**
+     * @generated from field: osac.private.v1.Secret secret = 15;
      */
     value: Secret;
     case: "secret";
   } | {
     /**
-     * @generated from field: osac.private.v1.Volume volume = 41;
+     * @generated from field: osac.private.v1.Tenant tenant = 16;
+     */
+    value: Tenant;
+    case: "tenant";
+  } | {
+    /**
+     * @generated from field: osac.private.v1.Hub hub = 17;
+     */
+    value: Hub;
+    case: "hub";
+  } | {
+    /**
+     * @generated from field: osac.private.v1.NetworkClass network_class = 18;
+     */
+    value: NetworkClass;
+    case: "networkClass";
+  } | {
+    /**
+     * @generated from field: osac.private.v1.Subnet subnet = 19;
+     */
+    value: Subnet;
+    case: "subnet";
+  } | {
+    /**
+     * @generated from field: osac.private.v1.VirtualNetwork virtual_network = 20;
+     */
+    value: VirtualNetwork;
+    case: "virtualNetwork";
+  } | {
+    /**
+     * @generated from field: osac.private.v1.SecurityGroup security_group = 21;
+     */
+    value: SecurityGroup;
+    case: "securityGroup";
+  } | {
+    /**
+     * @generated from field: osac.private.v1.User user = 22;
+     */
+    value: User;
+    case: "user";
+  } | {
+    /**
+     * @generated from field: osac.private.v1.ClusterCatalogItem cluster_catalog_item = 23;
+     */
+    value: ClusterCatalogItem;
+    case: "clusterCatalogItem";
+  } | {
+    /**
+     * @generated from field: osac.private.v1.ComputeInstanceCatalogItem compute_instance_catalog_item = 24;
+     */
+    value: ComputeInstanceCatalogItem;
+    case: "computeInstanceCatalogItem";
+  } | {
+    /**
+     * @generated from field: osac.private.v1.BareMetalInstanceTemplate bare_metal_instance_template = 25;
+     */
+    value: BareMetalInstanceTemplate;
+    case: "bareMetalInstanceTemplate";
+  } | {
+    /**
+     * @generated from field: osac.private.v1.BareMetalInstanceCatalogItem bare_metal_instance_catalog_item = 26;
+     */
+    value: BareMetalInstanceCatalogItem;
+    case: "bareMetalInstanceCatalogItem";
+  } | {
+    /**
+     * @generated from field: osac.private.v1.StorageBackend storage_backend = 27;
+     */
+    value: StorageBackend;
+    case: "storageBackend";
+  } | {
+    /**
+     * @generated from field: osac.private.v1.IdentityProvider identity_provider = 28;
+     */
+    value: IdentityProvider;
+    case: "identityProvider";
+  } | {
+    /**
+     * @generated from field: osac.private.v1.ProjectMembership project_membership = 29;
+     */
+    value: ProjectMembership;
+    case: "projectMembership";
+  } | {
+    /**
+     * @generated from field: osac.private.v1.ExternalIPPool external_ip_pool = 30;
+     */
+    value: ExternalIPPool;
+    case: "externalIpPool";
+  } | {
+    /**
+     * @generated from field: osac.private.v1.ExternalIP external_ip = 31;
+     */
+    value: ExternalIP;
+    case: "externalIp";
+  } | {
+    /**
+     * @generated from field: osac.private.v1.ExternalIPAttachment external_ip_attachment = 32;
+     */
+    value: ExternalIPAttachment;
+    case: "externalIpAttachment";
+  } | {
+    /**
+     * @generated from field: osac.private.v1.NATGateway nat_gateway = 33;
+     */
+    value: NATGateway;
+    case: "natGateway";
+  } | {
+    /**
+     * @generated from field: osac.private.v1.StorageTier storage_tier = 34;
+     */
+    value: StorageTier;
+    case: "storageTier";
+  } | {
+    /**
+     * @generated from field: osac.private.v1.Volume volume = 35;
      */
     value: Volume;
     case: "volume";

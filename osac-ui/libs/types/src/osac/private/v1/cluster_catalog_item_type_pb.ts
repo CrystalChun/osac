@@ -17,6 +17,7 @@
 
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_cleanapi_cleanapi } from "../../../cleanapi/cleanapi_pb";
 import type { ClusterTemplateReference } from "./cluster_template_type_pb";
 import { file_osac_private_v1_cluster_template_type } from "./cluster_template_type_pb";
 import type { FieldDefinition } from "./field_definition_type_pb";
@@ -29,7 +30,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/private/v1/cluster_catalog_item_type.proto.
  */
 export const file_osac_private_v1_cluster_catalog_item_type: GenFile = /*@__PURE__*/
-  fileDesc("Ci9vc2FjL3ByaXZhdGUvdjEvY2x1c3Rlcl9jYXRhbG9nX2l0ZW1fdHlwZS5wcm90bxIPb3NhYy5wcml2YXRlLnYxIo4CChJDbHVzdGVyQ2F0YWxvZ0l0ZW0SCgoCaWQYASABKAkSKwoIbWV0YWRhdGEYAiABKAsyGS5vc2FjLnByaXZhdGUudjEuTWV0YWRhdGESDQoFdGl0bGUYAyABKAkSEwoLZGVzY3JpcHRpb24YBCABKAkSOwoIdGVtcGxhdGUYBSABKAsyKS5vc2FjLnByaXZhdGUudjEuQ2x1c3RlclRlbXBsYXRlUmVmZXJlbmNlEhEKCXB1Ymxpc2hlZBgGIAEoCBIOCgZ0ZW5hbnQYByABKAkSOwoRZmllbGRfZGVmaW5pdGlvbnMYCCADKAsyIC5vc2FjLnByaXZhdGUudjEuRmllbGREZWZpbml0aW9uIlgKG0NsdXN0ZXJDYXRhbG9nSXRlbVJlZmVyZW5jZRIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJEg8KB3Byb2plY3QYAyABKAkSDgoGc2hhcmVkGAQgASgIYgZwcm90bzM", [file_osac_private_v1_cluster_template_type, file_osac_private_v1_field_definition_type, file_osac_private_v1_metadata_type]);
+  fileDesc("Ci9vc2FjL3ByaXZhdGUvdjEvY2x1c3Rlcl9jYXRhbG9nX2l0ZW1fdHlwZS5wcm90bxIPb3NhYy5wcml2YXRlLnYxIpYCChJDbHVzdGVyQ2F0YWxvZ0l0ZW0SCgoCaWQYASABKAkSKwoIbWV0YWRhdGEYAiABKAsyGS5vc2FjLnByaXZhdGUudjEuTWV0YWRhdGESDQoFdGl0bGUYAyABKAkSEwoLZGVzY3JpcHRpb24YBCABKAkSOwoIdGVtcGxhdGUYBSABKAsyKS5vc2FjLnByaXZhdGUudjEuQ2x1c3RlclRlbXBsYXRlUmVmZXJlbmNlEhEKCXB1Ymxpc2hlZBgGIAEoCBIWCgZ0ZW5hbnQYByABKAlCBoq1GAIIARI7ChFmaWVsZF9kZWZpbml0aW9ucxgIIAMoCzIgLm9zYWMucHJpdmF0ZS52MS5GaWVsZERlZmluaXRpb24iWAobQ2x1c3RlckNhdGFsb2dJdGVtUmVmZXJlbmNlEgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkSDwoHcHJvamVjdBgDIAEoCRIOCgZzaGFyZWQYBCABKAhCFIq1GBASDm9zYWMucHVibGljLnYxYgZwcm90bzM", [file_cleanapi_cleanapi, file_osac_private_v1_cluster_template_type, file_osac_private_v1_field_definition_type, file_osac_private_v1_metadata_type]);
 
 /**
  * A cluster catalog item defines a curated infrastructure offering that references an underlying cluster template.
@@ -41,6 +42,8 @@ export const file_osac_private_v1_cluster_catalog_item_type: GenFile = /*@__PURE
  */
 export type ClusterCatalogItem = Message<"osac.private.v1.ClusterCatalogItem"> & {
   /**
+   * Unique identifier of the catalog item.
+   *
    * @generated from field: string id = 1;
    */
   id: string;
@@ -72,8 +75,7 @@ export type ClusterCatalogItem = Message<"osac.private.v1.ClusterCatalogItem"> &
   template?: ClusterTemplateReference | undefined;
 
   /**
-   * Whether this catalog item is visible in the public API. Only published items are returned by the public List and
-   * Get endpoints (with the exception of unpublished items already referenced by an existing resource).
+   * Whether this catalog item is published.
    *
    * @generated from field: bool published = 6;
    */
