@@ -12,20 +12,18 @@ import {
   StackItem,
 } from '@patternfly/react-core';
 
-import type { Cluster } from '@osac/types';
-
 import { useFetchClusterPassword } from '../../../api/v1/cluster';
 import { useTranslation } from '../../../hooks/useTranslation';
 import { getErrorMessage } from '../../../utils/error';
 
 interface ClusterPasswordModalProps {
-  cluster: Cluster;
+  passwordSecretId: string;
   onClose: () => void;
 }
 
-const ClusterPasswordModal = ({ cluster, onClose }: ClusterPasswordModalProps) => {
+const ClusterPasswordModal = ({ passwordSecretId, onClose }: ClusterPasswordModalProps) => {
   const { t } = useTranslation();
-  const { password, isPending, error, retry } = useFetchClusterPassword(cluster.id);
+  const { password, isPending, error, retry } = useFetchClusterPassword(passwordSecretId);
 
   return (
     <Modal variant="small" isOpen onClose={onClose} aria-labelledby="cluster-password-title">

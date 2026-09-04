@@ -17,6 +17,8 @@
 
 import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
+import { file_google_api_field_behavior } from "../../../google/api/field_behavior_pb";
 import type { Any } from "../../../google/protobuf/any_pb";
 import { file_google_protobuf_any } from "../../../google/protobuf/any_pb";
 import type { Timestamp } from "../../../google/protobuf/timestamp_pb";
@@ -35,6 +37,8 @@ import type { Metadata } from "./metadata_type_pb";
 import { file_osac_public_v1_metadata_type } from "./metadata_type_pb";
 import type { HostTypeReference } from "./host_type_type_pb";
 import { file_osac_public_v1_host_type_type } from "./host_type_type_pb";
+import type { SecretLocalReference } from "./secret_type_pb";
+import { file_osac_public_v1_secret_type } from "./secret_type_pb";
 import type { SecurityGroupLocalReference } from "./security_group_type_pb";
 import { file_osac_public_v1_security_group_type } from "./security_group_type_pb";
 import type { SubnetLocalReference } from "./subnet_type_pb";
@@ -45,7 +49,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/public/v1/cluster_type.proto.
  */
 export const file_osac_public_v1_cluster_type: GenFile = /*@__PURE__*/
-  fileDesc("CiFvc2FjL3B1YmxpYy92MS9jbHVzdGVyX3R5cGUucHJvdG8SDm9zYWMucHVibGljLnYxIpsBCgdDbHVzdGVyEgoKAmlkGAEgASgJEioKCG1ldGFkYXRhGAIgASgLMhgub3NhYy5wdWJsaWMudjEuTWV0YWRhdGESKQoEc3BlYxgDIAEoCzIbLm9zYWMucHVibGljLnYxLkNsdXN0ZXJTcGVjEi0KBnN0YXR1cxgEIAEoCzIdLm9zYWMucHVibGljLnYxLkNsdXN0ZXJTdGF0dXMi2gUKC0NsdXN0ZXJTcGVjEjoKCHRlbXBsYXRlGAEgASgLMigub3NhYy5wdWJsaWMudjEuQ2x1c3RlclRlbXBsYXRlUmVmZXJlbmNlElAKE3RlbXBsYXRlX3BhcmFtZXRlcnMYAiADKAsyMy5vc2FjLnB1YmxpYy52MS5DbHVzdGVyU3BlYy5UZW1wbGF0ZVBhcmFtZXRlcnNFbnRyeRI8Cglub2RlX3NldHMYAyADKAsyKS5vc2FjLnB1YmxpYy52MS5DbHVzdGVyU3BlYy5Ob2RlU2V0c0VudHJ5EhgKC3B1bGxfc2VjcmV0GAQgASgJSACIAQESGwoOc3NoX3B1YmxpY19rZXkYBSABKAlIAYgBARI4Cgd2ZXJzaW9uGAYgASgLMicub3NhYy5wdWJsaWMudjEuQ2x1c3RlclZlcnNpb25SZWZlcmVuY2USNAoHbmV0d29yaxgHIAEoCzIeLm9zYWMucHVibGljLnYxLkNsdXN0ZXJOZXR3b3JrSAKIAQESQQoMY2F0YWxvZ19pdGVtGAggASgLMisub3NhYy5wdWJsaWMudjEuQ2x1c3RlckNhdGFsb2dJdGVtUmVmZXJlbmNlEkQKEm5ldHdvcmtfYXR0YWNobWVudBgJIAEoCzIoLm9zYWMucHVibGljLnYxLkNsdXN0ZXJOZXR3b3JrQXR0YWNobWVudBpPChdUZW1wbGF0ZVBhcmFtZXRlcnNFbnRyeRILCgNrZXkYASABKAkSIwoFdmFsdWUYAiABKAsyFC5nb29nbGUucHJvdG9idWYuQW55OgI4ARpPCg1Ob2RlU2V0c0VudHJ5EgsKA2tleRgBIAEoCRItCgV2YWx1ZRgCIAEoCzIeLm9zYWMucHVibGljLnYxLkNsdXN0ZXJOb2RlU2V0OgI4AUIOCgxfcHVsbF9zZWNyZXRCEQoPX3NzaF9wdWJsaWNfa2V5QgoKCF9uZXR3b3JrIrMDCg1DbHVzdGVyU3RhdHVzEisKBXN0YXRlGAEgASgOMhwub3NhYy5wdWJsaWMudjEuQ2x1c3RlclN0YXRlEjQKCmNvbmRpdGlvbnMYAiADKAsyIC5vc2FjLnB1YmxpYy52MS5DbHVzdGVyQ29uZGl0aW9uEg8KB2FwaV91cmwYAyABKAkSEwoLY29uc29sZV91cmwYBCABKAkSPgoJbm9kZV9zZXRzGAUgAygLMisub3NhYy5wdWJsaWMudjEuQ2x1c3RlclN0YXR1cy5Ob2RlU2V0c0VudHJ5EhQKDGFwaV9lbmRwb2ludBgGIAEoCRIYChBpbmdyZXNzX2VuZHBvaW50GAcgASgJEj4KFXN0YXRlX3RyYW5zaXRpb25fdGltZRgIIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBIAIgBARpPCg1Ob2RlU2V0c0VudHJ5EgsKA2tleRgBIAEoCRItCgV2YWx1ZRgCIAEoCzIeLm9zYWMucHVibGljLnYxLkNsdXN0ZXJOb2RlU2V0OgI4AUIYChZfc3RhdGVfdHJhbnNpdGlvbl90aW1lIvMBChBDbHVzdGVyQ29uZGl0aW9uEjIKBHR5cGUYASABKA4yJC5vc2FjLnB1YmxpYy52MS5DbHVzdGVyQ29uZGl0aW9uVHlwZRIvCgZzdGF0dXMYAiABKA4yHy5vc2FjLnB1YmxpYy52MS5Db25kaXRpb25TdGF0dXMSOAoUbGFzdF90cmFuc2l0aW9uX3RpbWUYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhMKBnJlYXNvbhgEIAEoCUgAiAEBEhQKB21lc3NhZ2UYBSABKAlIAYgBAUIJCgdfcmVhc29uQgoKCF9tZXNzYWdlIpYBChhDbHVzdGVyTmV0d29ya0F0dGFjaG1lbnQSNAoGc3VibmV0GAEgASgLMiQub3NhYy5wdWJsaWMudjEuU3VibmV0TG9jYWxSZWZlcmVuY2USRAoPc2VjdXJpdHlfZ3JvdXBzGAIgAygLMisub3NhYy5wdWJsaWMudjEuU2VjdXJpdHlHcm91cExvY2FsUmVmZXJlbmNlIlQKDkNsdXN0ZXJOb2RlU2V0EjQKCWhvc3RfdHlwZRgBIAEoCzIhLm9zYWMucHVibGljLnYxLkhvc3RUeXBlUmVmZXJlbmNlEgwKBHNpemUYAiABKAUiMQoVQ2x1c3RlckxvY2FsUmVmZXJlbmNlEgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkqvAEKDENsdXN0ZXJTdGF0ZRIdChlDTFVTVEVSX1NUQVRFX1VOU1BFQ0lGSUVEEAASHQoZQ0xVU1RFUl9TVEFURV9QUk9HUkVTU0lORxABEhcKE0NMVVNURVJfU1RBVEVfUkVBRFkQAhIYChRDTFVTVEVSX1NUQVRFX0ZBSUxFRBADEhoKFkNMVVNURVJfU1RBVEVfREVMRVRJTkcQBBIfChtDTFVTVEVSX1NUQVRFX0RFTEVURV9GQUlMRUQQBSrQAQoUQ2x1c3RlckNvbmRpdGlvblR5cGUSJgoiQ0xVU1RFUl9DT05ESVRJT05fVFlQRV9VTlNQRUNJRklFRBAAEiYKIkNMVVNURVJfQ09ORElUSU9OX1RZUEVfUFJPR1JFU1NJTkcQARIgChxDTFVTVEVSX0NPTkRJVElPTl9UWVBFX1JFQURZEAISIQodQ0xVU1RFUl9DT05ESVRJT05fVFlQRV9GQUlMRUQQAxIjCh9DTFVTVEVSX0NPTkRJVElPTl9UWVBFX0RFR1JBREVEEARiBnByb3RvMw", [file_google_protobuf_any, file_google_protobuf_timestamp, file_osac_public_v1_cluster_catalog_item_type, file_osac_public_v1_cluster_common_type, file_osac_public_v1_cluster_template_type, file_osac_public_v1_cluster_version_type, file_osac_public_v1_condition_status_type, file_osac_public_v1_metadata_type, file_osac_public_v1_host_type_type, file_osac_public_v1_security_group_type, file_osac_public_v1_subnet_type]);
+  fileDesc("CiFvc2FjL3B1YmxpYy92MS9jbHVzdGVyX3R5cGUucHJvdG8SDm9zYWMucHVibGljLnYxIpsBCgdDbHVzdGVyEgoKAmlkGAEgASgJEioKCG1ldGFkYXRhGAIgASgLMhgub3NhYy5wdWJsaWMudjEuTWV0YWRhdGESKQoEc3BlYxgDIAEoCzIbLm9zYWMucHVibGljLnYxLkNsdXN0ZXJTcGVjEi0KBnN0YXR1cxgEIAEoCzIdLm9zYWMucHVibGljLnYxLkNsdXN0ZXJTdGF0dXMi6wYKC0NsdXN0ZXJTcGVjEjoKCHRlbXBsYXRlGAEgASgLMigub3NhYy5wdWJsaWMudjEuQ2x1c3RlclRlbXBsYXRlUmVmZXJlbmNlElAKE3RlbXBsYXRlX3BhcmFtZXRlcnMYAiADKAsyMy5vc2FjLnB1YmxpYy52MS5DbHVzdGVyU3BlYy5UZW1wbGF0ZVBhcmFtZXRlcnNFbnRyeRI8Cglub2RlX3NldHMYAyADKAsyKS5vc2FjLnB1YmxpYy52MS5DbHVzdGVyU3BlYy5Ob2RlU2V0c0VudHJ5EhgKC3B1bGxfc2VjcmV0GAQgASgJSACIAQESGwoOc3NoX3B1YmxpY19rZXkYBSABKAlIAYgBARI4Cgd2ZXJzaW9uGAYgASgLMicub3NhYy5wdWJsaWMudjEuQ2x1c3RlclZlcnNpb25SZWZlcmVuY2USNAoHbmV0d29yaxgHIAEoCzIeLm9zYWMucHVibGljLnYxLkNsdXN0ZXJOZXR3b3JrSAKIAQESQQoMY2F0YWxvZ19pdGVtGAggASgLMisub3NhYy5wdWJsaWMudjEuQ2x1c3RlckNhdGFsb2dJdGVtUmVmZXJlbmNlEkQKEm5ldHdvcmtfYXR0YWNobWVudBgJIAEoCzIoLm9zYWMucHVibGljLnYxLkNsdXN0ZXJOZXR3b3JrQXR0YWNobWVudBItChthdXRvX2V4dGVybmFsX2lwX2F0dGFjaG1lbnQYCiABKAhCA+BBBUgDiAEBEkAKEnB1bGxfc2VjcmV0X3NlY3JldBgLIAEoCzIkLm9zYWMucHVibGljLnYxLlNlY3JldExvY2FsUmVmZXJlbmNlGk8KF1RlbXBsYXRlUGFyYW1ldGVyc0VudHJ5EgsKA2tleRgBIAEoCRIjCgV2YWx1ZRgCIAEoCzIULmdvb2dsZS5wcm90b2J1Zi5Bbnk6AjgBGk8KDU5vZGVTZXRzRW50cnkSCwoDa2V5GAEgASgJEi0KBXZhbHVlGAIgASgLMh4ub3NhYy5wdWJsaWMudjEuQ2x1c3Rlck5vZGVTZXQ6AjgBQg4KDF9wdWxsX3NlY3JldEIRCg9fc3NoX3B1YmxpY19rZXlCCgoIX25ldHdvcmtCHgocX2F1dG9fZXh0ZXJuYWxfaXBfYXR0YWNobWVudCKzBAoNQ2x1c3RlclN0YXR1cxIrCgVzdGF0ZRgBIAEoDjIcLm9zYWMucHVibGljLnYxLkNsdXN0ZXJTdGF0ZRI0Cgpjb25kaXRpb25zGAIgAygLMiAub3NhYy5wdWJsaWMudjEuQ2x1c3RlckNvbmRpdGlvbhIPCgdhcGlfdXJsGAMgASgJEhMKC2NvbnNvbGVfdXJsGAQgASgJEj4KCW5vZGVfc2V0cxgFIAMoCzIrLm9zYWMucHVibGljLnYxLkNsdXN0ZXJTdGF0dXMuTm9kZVNldHNFbnRyeRIUCgxhcGlfZW5kcG9pbnQYBiABKAkSGAoQaW5ncmVzc19lbmRwb2ludBgHIAEoCRI+ChVzdGF0ZV90cmFuc2l0aW9uX3RpbWUYCCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wSACIAQESPwoRa3ViZWNvbmZpZ19zZWNyZXQYCSABKAsyJC5vc2FjLnB1YmxpYy52MS5TZWNyZXRMb2NhbFJlZmVyZW5jZRI9Cg9wYXNzd29yZF9zZWNyZXQYCiABKAsyJC5vc2FjLnB1YmxpYy52MS5TZWNyZXRMb2NhbFJlZmVyZW5jZRpPCg1Ob2RlU2V0c0VudHJ5EgsKA2tleRgBIAEoCRItCgV2YWx1ZRgCIAEoCzIeLm9zYWMucHVibGljLnYxLkNsdXN0ZXJOb2RlU2V0OgI4AUIYChZfc3RhdGVfdHJhbnNpdGlvbl90aW1lIvMBChBDbHVzdGVyQ29uZGl0aW9uEjIKBHR5cGUYASABKA4yJC5vc2FjLnB1YmxpYy52MS5DbHVzdGVyQ29uZGl0aW9uVHlwZRIvCgZzdGF0dXMYAiABKA4yHy5vc2FjLnB1YmxpYy52MS5Db25kaXRpb25TdGF0dXMSOAoUbGFzdF90cmFuc2l0aW9uX3RpbWUYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhMKBnJlYXNvbhgEIAEoCUgAiAEBEhQKB21lc3NhZ2UYBSABKAlIAYgBAUIJCgdfcmVhc29uQgoKCF9tZXNzYWdlIpYBChhDbHVzdGVyTmV0d29ya0F0dGFjaG1lbnQSNAoGc3VibmV0GAEgASgLMiQub3NhYy5wdWJsaWMudjEuU3VibmV0TG9jYWxSZWZlcmVuY2USRAoPc2VjdXJpdHlfZ3JvdXBzGAIgAygLMisub3NhYy5wdWJsaWMudjEuU2VjdXJpdHlHcm91cExvY2FsUmVmZXJlbmNlImsKDkNsdXN0ZXJOb2RlU2V0EjQKCWhvc3RfdHlwZRgBIAEoCzIhLm9zYWMucHVibGljLnYxLkhvc3RUeXBlUmVmZXJlbmNlEhoKBHNpemUYAiABKAVCB7pIBBoCIABIAIgBAUIHCgVfc2l6ZSIxChVDbHVzdGVyTG9jYWxSZWZlcmVuY2USCgoCaWQYASABKAkSDAoEbmFtZRgCIAEoCSq8AQoMQ2x1c3RlclN0YXRlEh0KGUNMVVNURVJfU1RBVEVfVU5TUEVDSUZJRUQQABIdChlDTFVTVEVSX1NUQVRFX1BST0dSRVNTSU5HEAESFwoTQ0xVU1RFUl9TVEFURV9SRUFEWRACEhgKFENMVVNURVJfU1RBVEVfRkFJTEVEEAMSGgoWQ0xVU1RFUl9TVEFURV9ERUxFVElORxAEEh8KG0NMVVNURVJfU1RBVEVfREVMRVRFX0ZBSUxFRBAFKtABChRDbHVzdGVyQ29uZGl0aW9uVHlwZRImCiJDTFVTVEVSX0NPTkRJVElPTl9UWVBFX1VOU1BFQ0lGSUVEEAASJgoiQ0xVU1RFUl9DT05ESVRJT05fVFlQRV9QUk9HUkVTU0lORxABEiAKHENMVVNURVJfQ09ORElUSU9OX1RZUEVfUkVBRFkQAhIhCh1DTFVTVEVSX0NPTkRJVElPTl9UWVBFX0ZBSUxFRBADEiMKH0NMVVNURVJfQ09ORElUSU9OX1RZUEVfREVHUkFERUQQBGIGcHJvdG8z", [file_buf_validate_validate, file_google_api_field_behavior, file_google_protobuf_any, file_google_protobuf_timestamp, file_osac_public_v1_cluster_catalog_item_type, file_osac_public_v1_cluster_common_type, file_osac_public_v1_cluster_template_type, file_osac_public_v1_cluster_version_type, file_osac_public_v1_condition_status_type, file_osac_public_v1_metadata_type, file_osac_public_v1_host_type_type, file_osac_public_v1_secret_type, file_osac_public_v1_security_group_type, file_osac_public_v1_subnet_type]);
 
 /**
  * Contains the details of the cluster.
@@ -267,6 +271,27 @@ export type ClusterSpec = Message<"osac.public.v1.ClusterSpec"> & {
    * @generated from field: osac.public.v1.ClusterNetworkAttachment network_attachment = 9;
    */
   networkAttachment?: ClusterNetworkAttachment | undefined;
+
+  /**
+   * When true, the system automatically creates two ExternalIPs and two ExternalIPAttachments
+   * (one for the API server endpoint, one for the ingress endpoint) during cluster creation.
+   * The ExternalIP pool is selected automatically based on available capacity.
+   *
+   * This field is immutable after creation — it cannot be changed on update.
+   *
+   * @generated from field: optional bool auto_external_ip_attachment = 10;
+   */
+  autoExternalIpAttachment?: boolean | undefined;
+
+  /**
+   * Reference to a Secret resource containing pull secret credentials.
+   *
+   * Mutually exclusive with `pull_secret`. When set, the system resolves the referenced Secret to obtain the pull
+   * secret value. The referenced Secret must exist in the same tenant.
+   *
+   * @generated from field: osac.public.v1.SecretLocalReference pull_secret_secret = 11;
+   */
+  pullSecretSecret?: SecretLocalReference | undefined;
 };
 
 /**
@@ -395,6 +420,24 @@ export type ClusterStatus = Message<"osac.public.v1.ClusterStatus"> & {
    * @generated from field: optional google.protobuf.Timestamp state_transition_time = 8;
    */
   stateTransitionTime?: Timestamp | undefined;
+
+  /**
+   * Reference to a Secret containing the cluster's kubeconfig.
+   *
+   * System-populated after cluster provisioning.
+   *
+   * @generated from field: osac.public.v1.SecretLocalReference kubeconfig_secret = 9;
+   */
+  kubeconfigSecret?: SecretLocalReference | undefined;
+
+  /**
+   * Reference to a Secret containing the cluster's kubeadmin password.
+   *
+   * System-populated after cluster provisioning.
+   *
+   * @generated from field: osac.public.v1.SecretLocalReference password_secret = 10;
+   */
+  passwordSecret?: SecretLocalReference | undefined;
 };
 
 /**
@@ -533,9 +576,9 @@ export type ClusterNodeSet = Message<"osac.public.v1.ClusterNodeSet"> & {
   /**
    * Number of nodes of the set.
    *
-   * @generated from field: int32 size = 2;
+   * @generated from field: optional int32 size = 2;
    */
-  size: number;
+  size?: number | undefined;
 };
 
 /**
