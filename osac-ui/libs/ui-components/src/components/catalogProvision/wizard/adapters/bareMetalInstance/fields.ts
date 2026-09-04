@@ -9,11 +9,14 @@ import {
   readCatalogFieldDefinitions,
 } from '../../catalogOverlay';
 
-export const BM_SSH_KEY_WIRE_PATH = 'spec.ssh_public_key';
+export const BM_SSH_KEY_WIRE_PATH = 'ssh_public_key';
 export const BM_SSH_KEY_FORM_PATH = 'spec.sshKey';
 
-export const BM_USER_DATA_WIRE_PATH = 'spec.user_data';
+export const BM_USER_DATA_WIRE_PATH = 'user_data';
 export const BM_USER_DATA_FORM_PATH = 'spec.userData';
+
+export const BM_INSTANCE_TYPE_WIRE_PATH = 'instance_type.name';
+export const BM_INSTANCE_TYPE_FORM_PATH = 'spec.instanceType.name';
 
 export interface BareMetalInstanceWizardValues {
   catalogItemId: string;
@@ -24,6 +27,9 @@ export interface BareMetalInstanceWizardValues {
   spec: {
     sshKey: string;
     userData: string;
+    instanceType: {
+      name: string;
+    };
   };
 }
 
@@ -33,6 +39,9 @@ export const createEmptyBareMetalInstanceValues = (): BareMetalInstanceWizardVal
   spec: {
     sshKey: '',
     userData: '',
+    instanceType: {
+      name: '',
+    },
   },
 });
 
@@ -54,6 +63,12 @@ export const applyBmCatalogDefaults = (
     t('User data'),
   );
 
+  const instanceTypeOverlay = getCatalogFieldOverlay(
+    BM_INSTANCE_TYPE_WIRE_PATH,
+    definitions,
+    t('Instance type'),
+  );
+
   const sshDefault = overlayDefaultToFormValue(sshKeyOverlay);
   if (sshDefault !== undefined) {
     void helpers.setFieldValue(BM_SSH_KEY_FORM_PATH, sshDefault);
@@ -62,5 +77,10 @@ export const applyBmCatalogDefaults = (
   const userDataDefault = overlayDefaultToFormValue(userDataOverlay);
   if (userDataDefault !== undefined) {
     void helpers.setFieldValue(BM_USER_DATA_FORM_PATH, userDataDefault);
+  }
+
+  const instanceTypeDefault = overlayDefaultToFormValue(instanceTypeOverlay);
+  if (instanceTypeDefault !== undefined) {
+    void helpers.setFieldValue(BM_INSTANCE_TYPE_FORM_PATH, instanceTypeDefault);
   }
 };

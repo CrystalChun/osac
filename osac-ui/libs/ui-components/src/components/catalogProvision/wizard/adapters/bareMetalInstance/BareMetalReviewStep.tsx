@@ -11,6 +11,9 @@ import {
 } from '@patternfly/react-core';
 import { useFormikContext } from 'formik';
 
+import { BareMetalInstanceType, BareMetalInstanceTypes } from '@osac/types';
+import { cel } from '@osac/ui-components/api/cel';
+import { useListResource } from '@osac/ui-components/api/use-resource';
 import { useProjects } from '@osac/ui-components/api/v1/project';
 import { CatalogItem } from '@osac/ui-components/components/catalog/catalogItemDisplay';
 import {
@@ -35,7 +38,17 @@ export const BareMetalReviewStep = ({ catalogItem }: Props) => {
     filter: fullProjectPathToQueryFilter(values.metadata.project),
   });
 
-  if (isLoading) {
+  const {
+    data: instanceTypes,
+    isLoading: instanceTypesLoading,
+    error: instanceTypeError,
+  } = useListResource(BareMetalInstanceTypes, {
+    filter: cel<BareMetalInstanceType>((filter) =>
+      filter.field('metadata.name').equals(values.spec.instanceType.name),
+    ),
+  });
+
+  if (isLoading || instanceTypesLoading) {
     return (
       <Bullseye>
         <Spinner />
@@ -43,12 +56,21 @@ export const BareMetalReviewStep = ({ catalogItem }: Props) => {
     );
   }
 
+  const instanceType = instanceTypes?.items.length ? instanceTypes.items[0] : undefined;
+
   return (
     <Stack hasGutter>
       {!!error && (
         <StackItem>
           <Alert variant="warning" isInline title={t('Failed to fetch project')}>
             {getErrorMessage(error)}
+          </Alert>
+        </StackItem>
+      )}
+      {!!instanceTypeError && (
+        <StackItem>
+          <Alert variant="warning" isInline title={t('Failed to fetch instance type')}>
+            {getErrorMessage(instanceTypeError)}
           </Alert>
         </StackItem>
       )}
@@ -68,7 +90,7 @@ export const BareMetalReviewStep = ({ catalogItem }: Props) => {
           <DescriptionListGroup>
             <DescriptionListTerm>{t('Project')}</DescriptionListTerm>
             <DescriptionListDescription>
-              {data?.length === 1 ? getProjectName(data[0], t) : values.metadata.project}
+              {data?.length ? getProjectName(data[0], t) : '-'}
             </DescriptionListDescription>
           </DescriptionListGroup>
           <DescriptionListGroup>
@@ -81,6 +103,14 @@ export const BareMetalReviewStep = ({ catalogItem }: Props) => {
             <DescriptionListTerm>{t('SSH public key')}</DescriptionListTerm>
             <DescriptionListDescription>
               {formatReviewScalar(values.spec.sshKey)}
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+          <DescriptionListGroup>
+            <DescriptionListTerm>{t('Instance type')}</DescriptionListTerm>
+            <DescriptionListDescription>
+              {instanceType
+                ? `${instanceType.metadata?.name}${instanceType.spec?.description ? `(${instanceType.spec?.description})` : ''}`
+                : values.spec.instanceType.name || '-'}
             </DescriptionListDescription>
           </DescriptionListGroup>
           <DescriptionListGroup>

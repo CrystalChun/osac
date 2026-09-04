@@ -98,6 +98,9 @@ export const buildBareMetalInstanceStepSchema = (
       return yup.object({
         spec: yup.object({
           userData: fields.specUserData,
+          instanceType: yup.object({
+            name: yup.string().required(t('Instance type is required')),
+          }),
         }),
       });
     default:
