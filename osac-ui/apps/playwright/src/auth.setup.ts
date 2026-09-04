@@ -14,17 +14,38 @@ setup('authenticate', async ({ page }) => {
   // The app checks /api/login/info on load and, if unauthenticated, immediately
   // redirects the browser to Keycloak itself (apps/app-frontend/src/hooks/oidc-login.tsx)
   // — there is no login button to click first. This realm's theme is a two-step
-  // identifier-first flow: username + "Sign In" submits to a second screen with
-  // the password field, then the same "Sign In" label submits that too. Field/
-  // button names match Keycloak's default theme; a custom theme may differ.
+  // identifier-first flow: username + "Sign In" submits to a second screen.
+  // Field/button names match Keycloak's default theme; a custom theme may differ.
   await page.goto('/');
   await page.getByLabel('Username or email').fill(username);
   await page.getByRole('button', { name: 'Sign In' }).click();
+
+  // The first Keycloak brokers to a second Keycloak (identity provider), which
+  // presents its own login screen. That screen may show the username field
+  // again — re-enter the username there before the password. On a plain
+  // single-Keycloak two-step flow this field simply never reappears and we
+  // fall straight through to the password step.
+  const usernameField = page.getByLabel('Username or email');
+  const passwordField = page.locator('input[type="password"]');
+  await Promise.race([
+    usernameField.waitFor({ state: 'visible' }).catch(() => {}),
+    passwordField.waitFor({ state: 'visible' }).catch(() => {}),
+  ]);
+  if (await usernameField.isVisible().catch(() => false)) {
+    await usernameField.fill(username);
+    // If the second screen is identifier-first too (no password field yet),
+    // submit to advance to its password step.
+    if (!(await passwordField.isVisible().catch(() => false))) {
+      await page.getByRole('button', { name: 'Sign In' }).click();
+      await passwordField.waitFor({ state: 'visible' });
+    }
+  }
+
   // getByLabel('Password') is ambiguous — it also matches the theme's "Show
   // password" toggle button, which shares the same label association. A
   // native input[type=password] has no ARIA role, so getByRole('textbox')
   // won't match it either.
-  await page.locator('input[type="password"]').fill(password);
+  await passwordField.fill(password);
   await page.getByRole('button', { name: 'Sign In' }).click();
 
   await expect(page.getByRole('button', { name: 'Account menu' })).toBeVisible();

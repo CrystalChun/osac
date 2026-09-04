@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { ComputeInstance } from '@osac/types';
-import { ComputeInstanceState } from '@osac/types';
+import { ComputeInstanceState, ConsoleType } from '@osac/types';
 
 import VmConsoleTab from './VmConsoleTab';
 import { renderWithProviders } from '../../../test-utils/TestProviders';
@@ -17,6 +17,25 @@ vi.mock('../../Console/useConsoleSession', () => ({
 vi.mock('../../Console/novnc-rfb', () => ({
   loadVncRfbConstructor: vi.fn().mockResolvedValue(undefined),
 }));
+
+vi.mock('../../Console/xterm-loader', () => ({
+  loadXtermConstructors: vi.fn().mockResolvedValue({}),
+}));
+
+vi.mock('../../Console/SerialConsoleViewer', () => {
+  const MockSerialConsoleViewer = forwardRef<
+    { focus: () => void; pasteFromClipboard: () => Promise<void> },
+    unknown
+  >((_props, ref) => {
+    useImperativeHandle(ref, () => ({
+      focus: vi.fn(),
+      pasteFromClipboard: () => Promise.resolve(),
+    }));
+    return <div>Serial viewer</div>;
+  });
+  MockSerialConsoleViewer.displayName = 'MockSerialConsoleViewer';
+  return { default: MockSerialConsoleViewer };
+});
 
 // VncConsoleViewer is a static import in VmConsoleTab.tsx (no longer lazy), so vi.mock's
 // hoisting runs this factory before any of the test file's own top-level consts — anything
@@ -392,5 +411,49 @@ describe('VmConsoleTab', () => {
     rerender(<VmConsoleTab vm={{ ...runningVm }} />);
 
     expect(latestOnConnectedRef.current).toBe(firstOnConnected);
+  });
+
+  const lastConsoleType = () => vi.mocked(useConsoleSession).mock.calls.at(-1)?.[0].consoleType;
+
+  it('defaults to the VNC transport and mints a VNC ticket', () => {
+    vi.mocked(useConsoleSession).mockReturnValue({
+      connectionState: 'connecting',
+      connect: vi.fn(),
+      errorMessage: null,
+      errorKind: 'generic',
+      reportViewerError: vi.fn(),
+      takeOver: vi.fn(),
+      webSocket: {} as WebSocket,
+    });
+
+    renderTab(runningVm);
+
+    expect(screen.getByText('VNC viewer')).toBeInTheDocument();
+    expect(screen.queryByText('Serial viewer')).not.toBeInTheDocument();
+    expect(lastConsoleType()).toBe(ConsoleType.VNC);
+  });
+
+  it('switches to the serial viewer and mints a SERIAL ticket when Serial is selected', async () => {
+    const user = userEvent.setup();
+    vi.mocked(useConsoleSession).mockReturnValue({
+      connectionState: 'connecting',
+      connect: vi.fn(),
+      errorMessage: null,
+      errorKind: 'generic',
+      reportViewerError: vi.fn(),
+      takeOver: vi.fn(),
+      webSocket: {} as WebSocket,
+    });
+
+    renderTab(runningVm);
+    expect(screen.getByText('VNC viewer')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Select console type' }));
+    await user.click(screen.getByRole('option', { name: 'Serial console' }));
+
+    // Remounts on the new transport: serial viewer replaces VNC and the ticket type flips.
+    expect(screen.getByText('Serial viewer')).toBeInTheDocument();
+    expect(screen.queryByText('VNC viewer')).not.toBeInTheDocument();
+    expect(lastConsoleType()).toBe(ConsoleType.SERIAL);
   });
 });

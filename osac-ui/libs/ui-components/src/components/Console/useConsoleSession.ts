@@ -41,6 +41,8 @@ export interface UseConsoleSessionParams {
   resourceId: string;
   /** Whether the resource can currently accept a console connection. */
   isRunning: boolean;
+  /** Which console transport to mint the ticket for (VNC or serial). */
+  consoleType: ConsoleType;
 }
 
 export interface UseConsoleSessionResult {
@@ -65,6 +67,7 @@ export const useConsoleSession = ({
   resourceType,
   resourceId,
   isRunning,
+  consoleType,
 }: UseConsoleSessionParams): UseConsoleSessionResult => {
   const { t } = useTranslation();
   // The browser hides the HTTP status of a failed WebSocket handshake entirely (fires a
@@ -179,7 +182,7 @@ export const useConsoleSession = ({
         resourceType,
         resourceId,
         clientId: persistedClientId,
-        type: ConsoleType.VNC,
+        type: consoleType,
       });
       if (!isCurrentSession()) {
         return;

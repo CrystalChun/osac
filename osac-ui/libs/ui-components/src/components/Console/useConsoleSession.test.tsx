@@ -49,6 +49,7 @@ const runningParams: UseConsoleSessionParams = {
   resourceType: ConsoleResourceType.COMPUTE_INSTANCE,
   resourceId: 'vm-1',
   isRunning: true,
+  consoleType: ConsoleType.VNC,
 };
 
 const stoppedParams: UseConsoleSessionParams = {
@@ -337,6 +338,29 @@ describe('useConsoleSession', () => {
       { ifAvailable: true },
       expect.any(Function),
     );
+  });
+
+  it('mints the ticket for the requested console type', async () => {
+    const webSocket = createMockWebSocket();
+    mutateAsync.mockResolvedValue({ ticket: 'ticket-value' });
+    vi.mocked(openConsoleWebSocket).mockReturnValue(webSocket as unknown as WebSocket);
+
+    const { result } = renderHook(() =>
+      useConsoleSession({ ...runningParams, consoleType: ConsoleType.SERIAL }),
+    );
+
+    act(() => {
+      result.current.connect();
+    });
+    await waitFor(() => expect(result.current.connectionState).toBe('connected'));
+
+    const clientId = localStorage.getItem('osac-console-client-id');
+    expect(mutateAsync).toHaveBeenCalledWith({
+      resourceType: ConsoleResourceType.COMPUTE_INSTANCE,
+      resourceId: 'vm-1',
+      clientId,
+      type: ConsoleType.SERIAL,
+    });
   });
 
   it('takeOver() steals the lock and reconnects with the shared client id', async () => {
