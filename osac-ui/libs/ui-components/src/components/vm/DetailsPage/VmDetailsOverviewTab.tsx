@@ -3,6 +3,7 @@ import { Card, CardBody, CardTitle, Grid, GridItem } from '@patternfly/react-cor
 import type { ComputeInstance } from '@osac/types';
 
 import VmDetailsCard from './VmDetailsCard';
+import VmStorageCard from './VmStorageCard';
 import VmUserDataCard from './VmUserDataCard';
 import { useTranslation } from '../../../hooks/useTranslation';
 import { ResourceConditionsTable } from '../../Resource/ResourceConditionsTable';
@@ -31,6 +32,9 @@ const VmDetailsOverviewTab = ({ vm }: Props) => {
             />
           </CardBody>
         </Card>
+      </GridItem>
+      <GridItem span={12}>
+        <VmStorageCard vm={vm} />
       </GridItem>
       <GridItem span={12}>
         <VmUserDataCard vm={vm} />
