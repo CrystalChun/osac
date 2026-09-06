@@ -36,9 +36,6 @@ describe('VmNetworkingTab', () => {
         bootDisk: '',
         userData: '',
       },
-      bootDiskTierDisplay: '—',
-      additionalDiskRows: [],
-      storageRows: [],
       catalogItem: undefined,
     });
 
@@ -76,9 +73,6 @@ describe('VmNetworkingTab', () => {
         bootDisk: '',
         userData: '',
       },
-      bootDiskTierDisplay: '—',
-      additionalDiskRows: [],
-      storageRows: [],
       catalogItem: undefined,
     });
 

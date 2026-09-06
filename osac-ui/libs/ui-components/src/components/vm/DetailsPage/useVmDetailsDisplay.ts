@@ -2,7 +2,6 @@ import { useMemo } from 'react';
 
 import type { ComputeInstance } from '@osac/types';
 
-import { useVmStorageDisplay } from './useVmStorageDisplay';
 import { useComputeInstanceCatalogItem } from '../../../api/v1/compute-instance-catalog-item';
 import { useInstanceType } from '../../../api/v1/instance-types';
 import {
@@ -24,11 +23,6 @@ export type VmNetworkingRow = {
   securityGroups: string;
 };
 
-export type VmDiskRow = {
-  sizeGib: string;
-  tierDisplay: string;
-};
-
 export const useVmDetailsDisplay = (vm: ComputeInstance) => {
   const { t } = useTranslation();
   const catalogItemId = vm.spec?.catalogItem?.id;
@@ -40,7 +34,6 @@ export const useVmDetailsDisplay = (vm: ComputeInstance) => {
   const { data: virtualNetworks = [] } = useVirtualNetworks();
   const { data: subnets = [] } = useSubnets();
   const { data: securityGroups = [] } = useSecurityGroups();
-  const { storageRows } = useVmStorageDisplay(vm);
 
   const fieldLabels = useMemo(() => {
     const definitions = catalogItem ? readCatalogFieldDefinitions(catalogItem) : [];
@@ -89,17 +82,6 @@ export const useVmDetailsDisplay = (vm: ComputeInstance) => {
     });
   }, [vm.spec?.networkAttachments, subnets, virtualNetworks, securityGroups]);
 
-  const bootDiskTierDisplay = storageRows[0]?.storageTier ?? '—';
-
-  const additionalDiskRows = useMemo(
-    (): VmDiskRow[] =>
-      storageRows.slice(1).map((row, index) => ({
-        sizeGib: String(vm.spec?.additionalDisks?.[index]?.sizeGib ?? ''),
-        tierDisplay: row.storageTier,
-      })),
-    [storageRows, vm.spec?.additionalDisks],
-  );
-
   return {
     catalogItem,
     catalogItemId,
@@ -109,9 +91,6 @@ export const useVmDetailsDisplay = (vm: ComputeInstance) => {
     isInstanceTypeLoading,
     fieldLabels,
     networkingRows,
-    storageRows,
-    bootDiskTierDisplay,
-    additionalDiskRows,
     hasCatalogItem: Boolean(catalogItemId?.trim()),
   };
 };

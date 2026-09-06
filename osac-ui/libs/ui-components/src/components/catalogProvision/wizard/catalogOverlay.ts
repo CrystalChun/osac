@@ -215,13 +215,29 @@ interface StorageTierNameLookup {
   metadata?: { name?: string; displayName?: string };
 }
 
-export const resolveStorageTierDisplayName = (
-  storageTier: string | undefined,
+export const getStorageTierDisplayNameMap = (
   tiers: StorageTierNameLookup[] | undefined,
+): ReadonlyMap<string, string> =>
+  new Map(
+    (tiers ?? [])
+      .map((tier) => {
+        const name = tier.metadata?.name;
+        return name ? [name, tier.metadata?.displayName || name] : undefined;
+      })
+      .filter((entry): entry is [string, string] => Boolean(entry)),
+  );
+
+export const resolveStorageTierDisplayNameFromMap = (
+  storageTier: string | undefined,
+  tierDisplayNames: ReadonlyMap<string, string>,
 ): string => {
   if (!storageTier) {
     return formatReviewScalar(storageTier);
   }
-  const match = tiers?.find((tier) => tier.metadata?.name === storageTier);
-  return match?.metadata?.displayName || match?.metadata?.name || storageTier;
+  return tierDisplayNames.get(storageTier) || storageTier;
 };
+
+export const resolveStorageTierDisplayName = (
+  storageTier: string | undefined,
+  tiers: StorageTierNameLookup[] | undefined,
+): string => resolveStorageTierDisplayNameFromMap(storageTier, getStorageTierDisplayNameMap(tiers));

@@ -1,6 +1,10 @@
 import type { TFunction } from 'i18next';
 
-import { formatBootDiskSizeForReview, resolveStorageTierDisplayName } from './catalogOverlay';
+import {
+  formatBootDiskSizeForReview,
+  getStorageTierDisplayNameMap,
+  resolveStorageTierDisplayNameFromMap,
+} from './catalogOverlay';
 
 export interface StorageDiskValue {
   sizeGib?: unknown;
@@ -22,15 +26,19 @@ export const getVmStorageRows = (
   bootDisk: StorageDiskValue | undefined,
   additionalDisks: StorageDiskValue[] | undefined,
   storageTiers: StorageTierNameLookup[] | undefined,
-): VmStorageRow[] => [
-  {
-    name: t('Boot disk'),
-    size: formatBootDiskSizeForReview(bootDisk?.sizeGib),
-    storageTier: resolveStorageTierDisplayName(bootDisk?.storageTier, storageTiers),
-  },
-  ...(additionalDisks ?? []).map((disk, index) => ({
-    name: t('Additional disk {{number}}', { number: index + 1 }),
-    size: formatBootDiskSizeForReview(disk.sizeGib),
-    storageTier: resolveStorageTierDisplayName(disk.storageTier, storageTiers),
-  })),
-];
+): VmStorageRow[] => {
+  const tierDisplayNames = getStorageTierDisplayNameMap(storageTiers);
+
+  return [
+    {
+      name: t('Boot disk'),
+      size: formatBootDiskSizeForReview(bootDisk?.sizeGib),
+      storageTier: resolveStorageTierDisplayNameFromMap(bootDisk?.storageTier, tierDisplayNames),
+    },
+    ...(additionalDisks ?? []).map((disk, index) => ({
+      name: t('Additional disk {{number}}', { number: index + 1 }),
+      size: formatBootDiskSizeForReview(disk.sizeGib),
+      storageTier: resolveStorageTierDisplayNameFromMap(disk.storageTier, tierDisplayNames),
+    })),
+  ];
+};

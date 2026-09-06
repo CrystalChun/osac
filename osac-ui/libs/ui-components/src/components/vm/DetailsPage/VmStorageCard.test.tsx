@@ -1,35 +1,18 @@
 import { screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
-
-import type { ComputeInstance } from '@osac/types';
+import { describe, expect, it } from 'vitest';
 
 import VmStorageCard from './VmStorageCard';
 import { renderWithProviders } from '../../../test-utils/TestProviders';
 
-vi.mock('./useVmStorageDisplay', () => ({
-  useVmStorageDisplay: vi.fn(),
-}));
-
-const { useVmStorageDisplay } = await import('./useVmStorageDisplay');
-
 describe('VmStorageCard', () => {
   it('lists the boot disk and additional disks with their storage properties', () => {
-    vi.mocked(useVmStorageDisplay).mockReturnValue({
-      storageRows: [
-        { name: 'Boot disk', size: '40 GB', storageTier: 'Balanced' },
-        { name: 'Additional disk 1', size: '100 GB', storageTier: 'Fast SSD' },
-        { name: 'Additional disk 2', size: '20 GB', storageTier: 'Capacity' },
-      ],
-    });
-
     renderWithProviders(
       <VmStorageCard
-        vm={
-          {
-            id: 'vm-1',
-            spec: { bootDisk: { sizeGib: 40 } },
-          } as ComputeInstance
-        }
+        storageRows={[
+          { name: 'Boot disk', size: '40 GB', storageTier: 'Balanced' },
+          { name: 'Additional disk 1', size: '100 GB', storageTier: 'Fast SSD' },
+          { name: 'Additional disk 2', size: '20 GB', storageTier: 'Capacity' },
+        ]}
       />,
     );
 

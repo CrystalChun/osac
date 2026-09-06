@@ -15,15 +15,17 @@ import { useVmDetailsDisplay } from './useVmDetailsDisplay';
 import VmDetailsCatalogValue from './VmDetailsCatalogValue';
 import { useTranslation } from '../../../hooks/useTranslation';
 import { displayValue } from '../../../utils/detailFormatters';
+import type { VmStorageRow } from '../../catalogProvision/wizard/storageRows';
 import { Timestamp } from '../../Primitives/Timestamp';
 import { SubtleContent } from '../../SubtleContent/SubtleContent';
 import { formatInstanceTypeReviewLabelFromType } from '../utils';
 
 interface Props {
   vm: ComputeInstance;
+  storageRows: VmStorageRow[];
 }
 
-const VmDetailsCard = ({ vm }: Props) => {
+const VmDetailsCard = ({ vm, storageRows }: Props) => {
   const { t } = useTranslation();
   const {
     catalogItemId,
@@ -33,7 +35,6 @@ const VmDetailsCard = ({ vm }: Props) => {
     instanceTypeId,
     isInstanceTypeLoading,
     fieldLabels,
-    storageRows,
   } = useVmDetailsDisplay(vm);
 
   return (
@@ -100,11 +101,9 @@ const VmDetailsCard = ({ vm }: Props) => {
                   {storageRows[0]?.size ?? '—'}, {storageRows[0]?.storageTier ?? '—'}
                 </DescriptionListDescription>
               </DescriptionListGroup>
-              {storageRows.slice(1).map((disk, index) => (
-                <DescriptionListGroup key={index}>
-                  <DescriptionListTerm>
-                    {t('Additional disk {{number}}', { number: index + 1 })}
-                  </DescriptionListTerm>
+              {storageRows.slice(1).map((disk) => (
+                <DescriptionListGroup key={disk.name}>
+                  <DescriptionListTerm>{disk.name}</DescriptionListTerm>
                   <DescriptionListDescription>
                     {disk.size}, {disk.storageTier}
                   </DescriptionListDescription>

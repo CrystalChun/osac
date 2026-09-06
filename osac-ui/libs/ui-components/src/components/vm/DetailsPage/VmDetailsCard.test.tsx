@@ -66,8 +66,10 @@ const catalogVm: ComputeInstance = {
   },
 };
 
-const renderCard = (vm: ComputeInstance = catalogVm) =>
-  renderWithProviders(<VmDetailsCard vm={vm} />);
+const defaultStorageRows = [{ name: 'Boot disk', size: '40 GB', storageTier: 'Balanced' }];
+
+const renderCard = (vm: ComputeInstance = catalogVm, storageRows = defaultStorageRows) =>
+  renderWithProviders(<VmDetailsCard vm={vm} storageRows={storageRows} />);
 
 describe('VmDetailsCard', () => {
   it('shows catalog fields with full SSH key', () => {
@@ -107,9 +109,6 @@ describe('VmDetailsCard', () => {
         userData: 'User Data',
       },
       networkingRows: [],
-      bootDiskTierDisplay: 'Balanced',
-      additionalDiskRows: [],
-      storageRows: [{ name: 'Boot disk', size: '40 GB', storageTier: 'Balanced' }],
       catalogItem: undefined,
     });
 
@@ -143,9 +142,6 @@ describe('VmDetailsCard', () => {
         userData: 'User Data',
       },
       networkingRows: [],
-      bootDiskTierDisplay: '—',
-      additionalDiskRows: [],
-      storageRows: [{ name: 'Boot disk', size: '—', storageTier: '—' }],
       catalogItem: undefined,
     });
 
@@ -158,6 +154,12 @@ describe('VmDetailsCard', () => {
   });
 
   it('lists each additional disk with its resolved tier and exposes no edit control', () => {
+    const storageRows = [
+      { name: 'Boot disk', size: '40 GB', storageTier: 'Balanced' },
+      { name: 'Additional disk 1', size: '100 GB', storageTier: 'Fast SSD' },
+      { name: 'Additional disk 2', size: '20 GB', storageTier: 'legacy-tier' },
+    ];
+
     vi.mocked(useVmDetailsDisplay).mockReturnValue({
       catalogItemId: 'catalog-rhel-9',
       hasCatalogItem: true,
@@ -172,20 +174,10 @@ describe('VmDetailsCard', () => {
         userData: 'User Data',
       },
       networkingRows: [],
-      bootDiskTierDisplay: 'Balanced',
-      additionalDiskRows: [
-        { sizeGib: '100', tierDisplay: 'Fast SSD' },
-        { sizeGib: '20', tierDisplay: 'legacy-tier' },
-      ],
-      storageRows: [
-        { name: 'Boot disk', size: '40 GB', storageTier: 'Balanced' },
-        { name: 'Additional disk 1', size: '100 GB', storageTier: 'Fast SSD' },
-        { name: 'Additional disk 2', size: '20 GB', storageTier: 'legacy-tier' },
-      ],
       catalogItem: undefined,
     });
 
-    renderCard();
+    renderCard(catalogVm, storageRows);
 
     expect(screen.getByText('40 GB, Balanced')).toBeInTheDocument();
     expect(screen.getByText('Additional disk 1')).toBeInTheDocument();

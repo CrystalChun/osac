@@ -1,18 +1,15 @@
 import { Card, CardBody, CardTitle } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
-import type { ComputeInstance } from '@osac/types';
-
-import { useVmStorageDisplay } from './useVmStorageDisplay';
 import { useTranslation } from '../../../hooks/useTranslation';
+import type { VmStorageRow } from '../../catalogProvision/wizard/storageRows';
 
 interface VmStorageCardProps {
-  vm: ComputeInstance;
+  storageRows: VmStorageRow[];
 }
 
-const VmStorageCard = ({ vm }: VmStorageCardProps) => {
+const VmStorageCard = ({ storageRows }: VmStorageCardProps) => {
   const { t } = useTranslation();
-  const { storageRows } = useVmStorageDisplay(vm);
 
   return (
     <Card isFullHeight>

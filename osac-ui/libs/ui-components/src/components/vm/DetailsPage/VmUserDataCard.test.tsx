@@ -34,9 +34,6 @@ describe('VmUserDataCard', () => {
       instanceTypeId: undefined,
       isInstanceTypeLoading: false,
       networkingRows: [],
-      bootDiskTierDisplay: '—',
-      additionalDiskRows: [],
-      storageRows: [],
       catalogItem: undefined,
     });
   });
@@ -59,9 +56,6 @@ describe('VmUserDataCard', () => {
       instanceTypeId: undefined,
       isInstanceTypeLoading: false,
       networkingRows: [],
-      bootDiskTierDisplay: '—',
-      additionalDiskRows: [],
-      storageRows: [],
       catalogItem: undefined,
     });
     const { container } = renderCard({
