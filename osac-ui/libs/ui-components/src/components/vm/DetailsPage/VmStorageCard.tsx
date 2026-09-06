@@ -3,9 +3,8 @@ import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
 import type { ComputeInstance } from '@osac/types';
 
-import { useVmDetailsDisplay } from './useVmDetailsDisplay';
+import { useVmStorageDisplay } from './useVmStorageDisplay';
 import { useTranslation } from '../../../hooks/useTranslation';
-import { formatBootDiskSizeForReview } from '../../catalogProvision/wizard/catalogOverlay';
 
 interface VmStorageCardProps {
   vm: ComputeInstance;
@@ -13,19 +12,7 @@ interface VmStorageCardProps {
 
 const VmStorageCard = ({ vm }: VmStorageCardProps) => {
   const { t } = useTranslation();
-  const { bootDiskTierDisplay, additionalDiskRows } = useVmDetailsDisplay(vm);
-  const storageRows = [
-    {
-      name: t('Boot disk'),
-      size: formatBootDiskSizeForReview(vm.spec?.bootDisk?.sizeGib),
-      storageTier: bootDiskTierDisplay,
-    },
-    ...additionalDiskRows.map((disk, index) => ({
-      name: t('Additional disk {{number}}', { number: index + 1 }),
-      size: formatBootDiskSizeForReview(disk.sizeGib),
-      storageTier: disk.tierDisplay,
-    })),
-  ];
+  const { storageRows } = useVmStorageDisplay(vm);
 
   return (
     <Card isFullHeight>

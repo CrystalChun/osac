@@ -6,34 +6,20 @@ import type { ComputeInstance } from '@osac/types';
 import VmStorageCard from './VmStorageCard';
 import { renderWithProviders } from '../../../test-utils/TestProviders';
 
-vi.mock('./useVmDetailsDisplay', () => ({
-  useVmDetailsDisplay: vi.fn(),
+vi.mock('./useVmStorageDisplay', () => ({
+  useVmStorageDisplay: vi.fn(),
 }));
 
-const { useVmDetailsDisplay } = await import('./useVmDetailsDisplay');
+const { useVmStorageDisplay } = await import('./useVmStorageDisplay');
 
 describe('VmStorageCard', () => {
   it('lists the boot disk and additional disks with their storage properties', () => {
-    vi.mocked(useVmDetailsDisplay).mockReturnValue({
-      bootDiskTierDisplay: 'Balanced',
-      additionalDiskRows: [
-        { sizeGib: '100', tierDisplay: 'Fast SSD' },
-        { sizeGib: '20', tierDisplay: 'Capacity' },
+    vi.mocked(useVmStorageDisplay).mockReturnValue({
+      storageRows: [
+        { name: 'Boot disk', size: '40 GB', storageTier: 'Balanced' },
+        { name: 'Additional disk 1', size: '100 GB', storageTier: 'Fast SSD' },
+        { name: 'Additional disk 2', size: '20 GB', storageTier: 'Capacity' },
       ],
-      catalogItemId: undefined,
-      hasCatalogItem: false,
-      isCatalogItemLoading: false,
-      instanceType: undefined,
-      instanceTypeId: undefined,
-      isInstanceTypeLoading: false,
-      fieldLabels: {
-        sshPublicKey: '',
-        image: '',
-        bootDisk: '',
-        userData: '',
-      },
-      networkingRows: [],
-      catalogItem: undefined,
     });
 
     renderWithProviders(

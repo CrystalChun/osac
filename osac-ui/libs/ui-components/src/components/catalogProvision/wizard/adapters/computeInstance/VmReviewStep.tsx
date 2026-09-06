@@ -32,11 +32,8 @@ import { getErrorMessage } from '@osac/ui-components/utils/error';
 
 import { ComputeInstanceWizardValues } from './fields';
 import { useTranslation } from '../../../../../hooks/useTranslation';
-import {
-  formatBootDiskSizeForReview,
-  formatReviewScalar,
-  resolveStorageTierDisplayName,
-} from '../../catalogOverlay';
+import { formatReviewScalar } from '../../catalogOverlay';
+import { getVmStorageRows } from '../../storageRows';
 
 interface Props {
   catalogItem: CatalogItem | null;
@@ -96,6 +93,8 @@ export const VmReviewStep = ({ catalogItem }: Props) => {
       </Bullseye>
     );
   }
+
+  const storageRows = getVmStorageRows(t, values.spec.bootDisk, values.spec.additionalDisks, tiers);
 
   return (
     <Stack hasGutter>
@@ -224,21 +223,11 @@ export const VmReviewStep = ({ catalogItem }: Props) => {
       </StackItem>
       <StackItem>
         <DescriptionList isHorizontal isCompact aria-label={t('Storage')}>
-          <DescriptionListGroup>
-            <DescriptionListTerm>{t('Boot disk')}</DescriptionListTerm>
-            <DescriptionListDescription>
-              {formatBootDiskSizeForReview(values.spec.bootDisk.sizeGib)},{' '}
-              {resolveStorageTierDisplayName(values.spec.bootDisk.storageTier, tiers)}
-            </DescriptionListDescription>
-          </DescriptionListGroup>
-          {values.spec.additionalDisks.map((disk, index) => (
-            <DescriptionListGroup key={index}>
-              <DescriptionListTerm>
-                {t('Additional disk {{number}}', { number: index + 1 })}
-              </DescriptionListTerm>
+          {storageRows.map((row) => (
+            <DescriptionListGroup key={row.name}>
+              <DescriptionListTerm>{row.name}</DescriptionListTerm>
               <DescriptionListDescription>
-                {formatBootDiskSizeForReview(disk.sizeGib)},{' '}
-                {resolveStorageTierDisplayName(disk.storageTier, tiers)}
+                {row.size}, {row.storageTier}
               </DescriptionListDescription>
             </DescriptionListGroup>
           ))}

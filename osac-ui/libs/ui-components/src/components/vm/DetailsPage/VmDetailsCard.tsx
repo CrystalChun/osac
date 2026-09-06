@@ -15,7 +15,6 @@ import { useVmDetailsDisplay } from './useVmDetailsDisplay';
 import VmDetailsCatalogValue from './VmDetailsCatalogValue';
 import { useTranslation } from '../../../hooks/useTranslation';
 import { displayValue } from '../../../utils/detailFormatters';
-import { formatBootDiskSizeForReview } from '../../catalogProvision/wizard/catalogOverlay';
 import { Timestamp } from '../../Primitives/Timestamp';
 import { SubtleContent } from '../../SubtleContent/SubtleContent';
 import { formatInstanceTypeReviewLabelFromType } from '../utils';
@@ -34,8 +33,7 @@ const VmDetailsCard = ({ vm }: Props) => {
     instanceTypeId,
     isInstanceTypeLoading,
     fieldLabels,
-    bootDiskTierDisplay,
-    additionalDiskRows,
+    storageRows,
   } = useVmDetailsDisplay(vm);
 
   return (
@@ -99,16 +97,16 @@ const VmDetailsCard = ({ vm }: Props) => {
               <DescriptionListGroup>
                 <DescriptionListTerm>{fieldLabels.bootDisk}</DescriptionListTerm>
                 <DescriptionListDescription>
-                  {formatBootDiskSizeForReview(vm.spec?.bootDisk?.sizeGib)}, {bootDiskTierDisplay}
+                  {storageRows[0]?.size ?? '—'}, {storageRows[0]?.storageTier ?? '—'}
                 </DescriptionListDescription>
               </DescriptionListGroup>
-              {additionalDiskRows.map((disk, index) => (
+              {storageRows.slice(1).map((disk, index) => (
                 <DescriptionListGroup key={index}>
                   <DescriptionListTerm>
                     {t('Additional disk {{number}}', { number: index + 1 })}
                   </DescriptionListTerm>
                   <DescriptionListDescription>
-                    {formatBootDiskSizeForReview(disk.sizeGib)}, {disk.tierDisplay}
+                    {disk.size}, {disk.storageTier}
                   </DescriptionListDescription>
                 </DescriptionListGroup>
               ))}

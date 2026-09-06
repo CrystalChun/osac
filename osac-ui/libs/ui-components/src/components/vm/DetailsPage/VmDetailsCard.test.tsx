@@ -109,6 +109,7 @@ describe('VmDetailsCard', () => {
       networkingRows: [],
       bootDiskTierDisplay: 'Balanced',
       additionalDiskRows: [],
+      storageRows: [{ name: 'Boot disk', size: '40 GB', storageTier: 'Balanced' }],
       catalogItem: undefined,
     });
 
@@ -144,6 +145,7 @@ describe('VmDetailsCard', () => {
       networkingRows: [],
       bootDiskTierDisplay: '—',
       additionalDiskRows: [],
+      storageRows: [{ name: 'Boot disk', size: '—', storageTier: '—' }],
       catalogItem: undefined,
     });
 
@@ -174,6 +176,11 @@ describe('VmDetailsCard', () => {
       additionalDiskRows: [
         { sizeGib: '100', tierDisplay: 'Fast SSD' },
         { sizeGib: '20', tierDisplay: 'legacy-tier' },
+      ],
+      storageRows: [
+        { name: 'Boot disk', size: '40 GB', storageTier: 'Balanced' },
+        { name: 'Additional disk 1', size: '100 GB', storageTier: 'Fast SSD' },
+        { name: 'Additional disk 2', size: '20 GB', storageTier: 'legacy-tier' },
       ],
       catalogItem: undefined,
     });
