@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   MenuToggle,
   SearchInput,
@@ -20,6 +21,7 @@ import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
 import ListPage from '../Page/ListPage';
 import ListPageBody from '../Page/ListPageBody';
 import ProjectFilter from '../Page/ProjectFilter';
+import CreateButton from '../Primitives/CreateButton.tsx';
 import { Timestamp } from '../Primitives/Timestamp';
 import DeleteResourceModal from '../Resource/DeleteResourceModal';
 import ResourceNameField from '../Resource/ResourceNameField';
@@ -28,6 +30,7 @@ import { SubtleContent } from '../SubtleContent/SubtleContent';
 const SECRET_TYPE_LABEL = 'osac.openshift.io/secret-type';
 
 const SecretListPage = () => {
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const [deleteTarget, setDeleteTarget] = useState<Secret>();
   const [search, setSearch] = usePageFilter(SEARCH_PARAM);
@@ -60,6 +63,7 @@ const SecretListPage = () => {
         description={t(
           'Store credentials for use at launch. Encrypted at rest in the platform vault.',
         )}
+        actions={<CreateButton to="/secrets/create">{t('Create secret')}</CreateButton>}
         error={error}
       >
         <ListPageBody isLoading={isLoading} error={error}>
@@ -114,6 +118,10 @@ const SecretListPage = () => {
                     <Td dataLabel={t('Actions')} isActionCell>
                       <ActionsColumn
                         items={[
+                          {
+                            title: t('Edit'),
+                            onClick: () => navigate(`/secrets/${secret.id}/edit`),
+                          },
                           {
                             title: t('Delete'),
                             onClick: () => setDeleteTarget(secret),
