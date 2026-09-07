@@ -1,17 +1,14 @@
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@patternfly/react-core';
-
 import { ExternalIPPools } from '@osac/types/private';
 import { useListResource } from '@osac/ui-components/api/use-resource';
 import { ExternalIpPoolsTable } from '@osac/ui-components/components/networking/ExternalIpPoolsTable';
 import ListPage from '@osac/ui-components/components/Page/ListPage';
 import ListPageBody from '@osac/ui-components/components/Page/ListPageBody';
+import CreateButton from '@osac/ui-components/components/Primitives/CreateButton.tsx';
 import { SubtleContent } from '@osac/ui-components/components/SubtleContent/SubtleContent';
 import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
 
 export const ExternalIpPoolsListPage = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
 
   const { data, isLoading, error } = useListResource(ExternalIPPools);
   const pools = data?.items ?? [];
@@ -19,15 +16,13 @@ export const ExternalIpPoolsListPage = () => {
   return (
     <ListPage
       title={t('External IP pools')}
+      label={t('Infrastructure')}
       description={t('Manage external IP address pools for this cloud platform.')}
       error={error}
       actions={
-        <Button
-          variant="primary"
-          onClick={() => navigate('/admin/infrastructure/external-ip-pools/create')}
-        >
+        <CreateButton to="/admin/infrastructure/external-ip-pools/create">
           {t('Create pool')}
-        </Button>
+        </CreateButton>
       }
     >
       <ListPageBody isLoading={isLoading} error={error}>

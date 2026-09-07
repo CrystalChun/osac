@@ -1,8 +1,8 @@
-import { Link } from 'react-router-dom';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
 import type { ExternalIPPool, ExternalIPPoolStatus } from '@osac/types/private';
 import { IPFamily } from '@osac/types/private';
+import ResourceNameField from '@osac/ui-components/components/Resource/ResourceNameField.tsx';
 
 import ExternalIpPoolActionsMenu from './ExternalIpPoolActionsMenu';
 import ExternalIpPoolStatusLabel from './ExternalIpPoolStatusLabel';
@@ -56,9 +56,10 @@ export const ExternalIpPoolsTable = ({ pools }: ExternalIpPoolsTableProps) => {
         {pools.map((pool) => (
           <Tr key={pool.id}>
             <Td dataLabel={t('Name')}>
-              <Link to={`/admin/infrastructure/external-ip-pools/${pool.id}`}>
-                {pool.metadata?.name}
-              </Link>
+              <ResourceNameField
+                resource={pool}
+                detailsUrl={`/admin/infrastructure/external-ip-pools/${encodeURIComponent(pool.id)}`}
+              />
             </Td>
             <Td dataLabel={t('Status')}>
               <ExternalIpPoolStatusLabel state={pool.status?.state} />

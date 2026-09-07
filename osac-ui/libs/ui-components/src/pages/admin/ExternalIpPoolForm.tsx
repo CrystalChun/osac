@@ -29,26 +29,25 @@ import {
 } from '@osac/ui-components/components/Form/SelectField';
 import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
 import { getErrorMessage } from '@osac/ui-components/utils/error';
+import { buildCidrSchema, type CidrIpFamily } from '@osac/ui-components/validation/cidr-validation';
 import { resourceNameSchema } from '@osac/ui-components/validation/resource-name';
 
 export const POOLS_LIST_PATH = '/admin/infrastructure/external-ip-pools';
 
 // Form-value IP family is a string union so it maps cleanly onto the SelectField;
 // it is converted to the protobuf IPFamily enum only when building the request.
-type IpFamilyValue = 'ipv4' | 'ipv6';
-
 interface ExternalIpPoolFormValues {
   metadata: { name: string };
-  ipFamily: '' | IpFamilyValue;
+  ipFamily: '' | CidrIpFamily;
   cidrs: string[];
 }
 
-const IP_FAMILY_BY_VALUE: Record<IpFamilyValue, IPFamily> = {
+const IP_FAMILY_BY_VALUE: Record<CidrIpFamily, IPFamily> = {
   ipv4: IPFamily.IP_FAMILY_IPV4,
   ipv6: IPFamily.IP_FAMILY_IPV6,
 };
 
-const ipFamilyToValue = (family?: IPFamily): '' | IpFamilyValue => {
+const ipFamilyToValue = (family?: IPFamily): '' | CidrIpFamily => {
   switch (family) {
     case IPFamily.IP_FAMILY_IPV4:
       return 'ipv4';
@@ -59,36 +58,8 @@ const ipFamilyToValue = (family?: IPFamily): '' | IpFamilyValue => {
   }
 };
 
-const isValidIPv4 = (addr: string): boolean => {
-  const octets = addr.split('.');
-  if (octets.length !== 4) {
-    return false;
-  }
-  return octets.every((octet) => /^\d{1,3}$/.test(octet) && Number(octet) <= 255);
-};
-
-// Pragmatic IPv6 check — the server is the authority on exact validity/overlap; this only
-// catches obvious typos before submit.
-const isValidIPv6 = (addr: string): boolean => /^[0-9a-fA-F:]+$/.test(addr) && addr.includes(':');
-
-const isValidCidr = (value: string): boolean => {
-  const parts = value.split('/');
-  if (parts.length !== 2) {
-    return false;
-  }
-  const [addr, prefixStr] = parts;
-  if (!/^\d{1,3}$/.test(prefixStr)) {
-    return false;
-  }
-  const prefix = Number(prefixStr);
-  if (isValidIPv4(addr)) {
-    return prefix <= 32;
-  }
-  if (isValidIPv6(addr)) {
-    return prefix <= 128;
-  }
-  return false;
-};
+const cidrFieldSchema = (t: TFunction, ipFamily: CidrIpFamily) =>
+  buildCidrSchema(t, ipFamily).required(t('CIDR is required'));
 
 const getInitialValues = (pool?: ExternalIPPool): ExternalIpPoolFormValues => ({
   metadata: { name: pool?.metadata?.name ?? '' },
@@ -101,15 +72,15 @@ const getExternalIpPoolSchema = (t: TFunction) =>
     metadata: Yup.object({ name: resourceNameSchema(t) }),
     ipFamily: Yup.string().required(t('IP family is required')),
     cidrs: Yup.array()
-      .of(
-        Yup.string()
-          .required(t('CIDR is required'))
-          .test(
-            'cidr-format',
-            t('Enter a valid CIDR (e.g. 192.168.1.0/24)'),
-            (value) => !value || isValidCidr(value),
-          ),
-      )
+      .of(Yup.string().required(t('CIDR is required')))
+      .when('ipFamily', {
+        is: 'ipv4',
+        then: (schema) => schema.of(cidrFieldSchema(t, 'ipv4')),
+      })
+      .when('ipFamily', {
+        is: 'ipv6',
+        then: (schema) => schema.of(cidrFieldSchema(t, 'ipv6')),
+      })
       .min(1, t('At least one CIDR is required')),
   });
 

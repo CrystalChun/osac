@@ -71,6 +71,7 @@ describe('ExternalIpPoolsListPage', () => {
   it('renders the page header', () => {
     renderPage();
 
+    expect(screen.getByText('Infrastructure').closest('.pf-v6-c-label')).not.toBeNull();
     expect(screen.getByRole('heading', { name: 'External IP pools' })).toBeInTheDocument();
     expect(
       screen.getByText('Manage external IP address pools for this cloud platform.'),
@@ -140,12 +141,26 @@ describe('ExternalIpPoolsListPage', () => {
     expect(screen.queryByRole('table')).not.toBeInTheDocument();
   });
 
-  it('navigates to the create route when "Create pool" is clicked', async () => {
+  it('links Create pool to the create route', () => {
+    renderPage();
+
+    expect(screen.getByRole('link', { name: 'Create pool' })).toHaveAttribute(
+      'href',
+      '/admin/infrastructure/external-ip-pools/create',
+    );
+  });
+
+  it('navigates to the details route when View details is clicked', async () => {
     const { user } = renderPage();
 
-    await user.click(screen.getByRole('button', { name: 'Create pool' }));
+    await waitFor(() => {
+      expect(screen.getByText('prod-v4')).toBeInTheDocument();
+    });
 
-    expect(mockNavigate).toHaveBeenCalledWith('/admin/infrastructure/external-ip-pools/create');
+    await user.click(screen.getByRole('button', { name: 'Actions for prod-v4' }));
+    await user.click(screen.getByRole('menuitem', { name: 'View details' }));
+
+    expect(mockNavigate).toHaveBeenCalledWith('/admin/infrastructure/external-ip-pools/p-1');
   });
 
   it('navigates to the edit route with the correct ID when Edit is clicked', async () => {

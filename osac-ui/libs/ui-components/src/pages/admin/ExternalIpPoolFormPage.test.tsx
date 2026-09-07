@@ -154,7 +154,23 @@ describe('ExternalIpPoolFormPage', () => {
       await user.click(screen.getByRole('button', { name: 'Create' }));
 
       await waitFor(() => {
-        expect(screen.getByText('Enter a valid CIDR (e.g. 192.168.1.0/24)')).toBeInTheDocument();
+        expect(screen.getByText('Invalid IPv4 CIDR notation')).toBeInTheDocument();
+      });
+      expect(onExternalIPPoolCreate).not.toHaveBeenCalled();
+    });
+
+    it('rejects a CIDR that does not match the selected IP family', async () => {
+      const onExternalIPPoolCreate = vi.fn();
+      const { user } = renderCreatePage({ onExternalIPPoolCreate });
+
+      await user.type(screen.getByRole('textbox', { name: 'Name' }), 'prod-v4');
+      await user.click(screen.getByLabelText(/^IP family/));
+      await user.click(screen.getByRole('option', { name: 'IPv4' }));
+      await user.type(screen.getByRole('textbox', { name: 'CIDR 1' }), '2001:db8::/32');
+      await user.click(screen.getByRole('button', { name: 'Create' }));
+
+      await waitFor(() => {
+        expect(screen.getByText('Invalid IPv4 CIDR notation')).toBeInTheDocument();
       });
       expect(onExternalIPPoolCreate).not.toHaveBeenCalled();
     });
