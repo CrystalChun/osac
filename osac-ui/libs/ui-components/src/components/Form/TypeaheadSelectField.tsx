@@ -51,7 +51,7 @@ export const TypeaheadSelectField = ({
         noOptionsFoundMessage={noOptionsFoundMessage}
         onSelect={(_event, value) => {
           void helpers.setValue(String(value), true);
-          void helpers.setTouched(true);
+          void helpers.setTouched(true, false);
         }}
         onClearSelection={() => {
           void helpers.setValue('', true);

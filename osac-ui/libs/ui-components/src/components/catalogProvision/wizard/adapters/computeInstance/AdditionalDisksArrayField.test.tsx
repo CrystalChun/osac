@@ -2,6 +2,7 @@ import { create } from '@bufbuild/protobuf';
 import { screen, waitFor } from '@testing-library/react';
 import { Formik } from 'formik';
 import { describe, expect, it } from 'vitest';
+import * as yup from 'yup';
 
 import { StorageTierSchema, StorageTierState } from '@osac/types';
 
@@ -28,13 +29,31 @@ const selectTier = async (
   await user.click(await screen.findByRole('option', { name: optionName }));
 };
 
-const renderField = (initialDisks: { sizeGib: string; storageTier: string }[] = []) =>
+const renderField = (
+  initialDisks: { sizeGib: string; storageTier: string }[] = [],
+  withValidation = false,
+) =>
   renderWithProviders(
     <Formik
       initialValues={{
         ...createEmptyComputeInstanceValues(),
         spec: { ...createEmptyComputeInstanceValues().spec, additionalDisks: initialDisks },
       }}
+      initialTouched={
+        withValidation ? { spec: { additionalDisks: [{ storageTier: true }] } } : undefined
+      }
+      validateOnMount={withValidation}
+      validationSchema={
+        withValidation
+          ? yup.object({
+              spec: yup.object({
+                additionalDisks: yup.array(
+                  yup.object({ storageTier: yup.string().required('Storage tier is required') }),
+                ),
+              }),
+            })
+          : undefined
+      }
       onSubmit={() => undefined}
     >
       <AdditionalDisksArrayField />
@@ -92,6 +111,18 @@ describe('AdditionalDisksArrayField', () => {
     const comboboxes = screen.getAllByRole('combobox');
     expect(comboboxes[0]).toHaveValue('Fast SSD (default)');
     expect(comboboxes[1]).toHaveValue('Bulk Capacity');
+  });
+
+  it('clears a required error immediately after selecting an additional disk tier', async () => {
+    const { user } = renderField([{ sizeGib: '30', storageTier: '' }], true);
+
+    expect(await screen.findByText('Storage tier is required')).toBeInTheDocument();
+
+    await selectTier(user, 0, /Fast SSD/);
+
+    await waitFor(() =>
+      expect(screen.queryByText('Storage tier is required')).not.toBeInTheDocument(),
+    );
   });
 
   it('removes a row when its Remove action is clicked', async () => {
