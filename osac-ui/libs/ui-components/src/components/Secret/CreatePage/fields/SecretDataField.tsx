@@ -23,6 +23,7 @@ import { InputField } from '@osac/ui-components/components/Form/InputField';
 
 import { useTranslation } from '../../../../hooks/useTranslation';
 import { getVisibleFieldError } from '../../../Form/fieldError';
+import { downloadSecretBytes } from '../../utils';
 import {
   SECRET_FILE_MAX_BYTES,
   type SecretDataEntry,
@@ -34,19 +35,6 @@ interface SecretDataEntryFieldProps {
   entry: SecretDataEntry;
   index: number;
 }
-
-const downloadBytes = (bytes: Uint8Array, filename: string) => {
-  const blobBytes = new ArrayBuffer(bytes.byteLength);
-  new Uint8Array(blobBytes).set(bytes);
-  const url = URL.createObjectURL(new Blob([blobBytes], { type: 'application/octet-stream' }));
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
-};
 
 const SecretDataEntryField = ({ entry, index }: SecretDataEntryFieldProps) => {
   const { t } = useTranslation();
@@ -161,7 +149,7 @@ const SecretDataEntryField = ({ entry, index }: SecretDataEntryFieldProps) => {
               <Button
                 variant="link"
                 icon={<DownloadIcon />}
-                onClick={() => downloadBytes(fileValue, entry.key)}
+                onClick={() => downloadSecretBytes(fileValue, entry.key)}
               >
                 {t('Download current value')}
               </Button>
