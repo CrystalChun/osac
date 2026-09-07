@@ -21,9 +21,6 @@ export interface ComputeInstanceWizardValues {
   };
   spec: {
     sshPublicKey: string;
-    image: {
-      sourceRef: string;
-    };
     instanceType: string;
     userData: string;
     bootDisk: ComputeInstanceDiskValues;
@@ -37,7 +34,6 @@ export const VM_SSH_KEY_FORM_PATH = 'spec.sshPublicKey';
 export const vmSshPublicKeyWirePath = VM_SSH_KEY_WIRE_PATH;
 
 export const CONFIGURATION_CATALOG_PATHS = [
-  'spec.image.source_ref',
   'spec.user_data',
   'spec.boot_disk.size_gib',
   'spec.boot_disk.storage_tier',

@@ -16,11 +16,6 @@ import type { WizardStepId } from '../../stepIds';
 const buildComputeInstanceFieldDefinitions = (catalogItem: unknown, t: TFunction) => {
   const definitions = readCatalogFieldDefinitions(catalogItem);
 
-  const imageOverlay = getCatalogFieldOverlay(
-    'spec.image.source_ref',
-    definitions,
-    t('catalogProvision.vm.fields.image'),
-  );
   const userDataOverlay = getCatalogFieldOverlay(
     'spec.user_data',
     definitions,
@@ -52,14 +47,6 @@ const buildComputeInstanceFieldDefinitions = (catalogItem: unknown, t: TFunction
       sshKeyRequired,
       t('catalogProvision.validation.required'),
     ),
-    specImage: yup.object({
-      sourceRef: mergeCatalogValidation(
-        yup.string().trim(),
-        imageOverlay,
-        true,
-        t('catalogProvision.validation.imageRequired'),
-      ),
-    }),
     specInstanceType: yup.string().required(t('catalogProvision.validation.instanceTypeRequired')),
     specUserData: mergeCatalogValidation(
       userDataSchema(t),
@@ -139,7 +126,6 @@ export const buildComputeInstanceStepSchema = (
     case 'configuration':
       return yup.object({
         spec: yup.object({
-          image: fields.specImage,
           instanceType: fields.specInstanceType,
           userData: fields.specUserData,
         }),

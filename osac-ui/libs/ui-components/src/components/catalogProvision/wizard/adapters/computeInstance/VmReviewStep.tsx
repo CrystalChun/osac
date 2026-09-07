@@ -155,13 +155,6 @@ export const VmReviewStep = ({ catalogItem }: Props) => {
             </DescriptionListDescription>
           </DescriptionListGroup>
           <DescriptionListGroup>
-            <DescriptionListTerm>{t('VM image')}</DescriptionListTerm>
-            <DescriptionListDescription>
-              {formatReviewScalar(values.spec.image.sourceRef)}
-            </DescriptionListDescription>
-          </DescriptionListGroup>
-
-          <DescriptionListGroup>
             <DescriptionListTerm>{t('Instance type')}</DescriptionListTerm>
             <DescriptionListDescription>
               {formatInstanceTypeReviewLabelFromType(

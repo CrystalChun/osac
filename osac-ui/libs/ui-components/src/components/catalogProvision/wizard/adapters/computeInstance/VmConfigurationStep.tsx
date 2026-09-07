@@ -9,14 +9,8 @@ import {
   useInstanceTypes,
 } from '../../../../../api/v1/instance-types';
 import { useTranslation } from '../../../../../hooks/useTranslation';
-import { InputField } from '../../../../Form/InputField';
 import OsacForm from '../../../../Form/OsacForm';
 import { SelectField } from '../../../../Form/SelectField';
-import {
-  getCatalogFieldOverlay,
-  hasCatalogFieldDefinition,
-  readCatalogFieldDefinitions,
-} from '../../catalogOverlay';
 import UserDataField from '../../fields/UserDataField';
 
 interface Props {
@@ -45,25 +39,6 @@ export const VmConfigurationStep = ({ catalogItem }: Props) => {
     [instanceTypes, t],
   );
 
-  const definitions = useMemo(() => readCatalogFieldDefinitions(catalogItem), [catalogItem]);
-
-  const overlays = useMemo(
-    () => ({
-      image: getCatalogFieldOverlay(
-        'spec.image.source_ref',
-        definitions,
-        t('catalogProvision.vm.fields.image'),
-      ),
-      userData: getCatalogFieldOverlay(
-        'spec.user_data',
-        definitions,
-        t('catalogProvision.vm.fields.userData'),
-      ),
-      userDataRequired: hasCatalogFieldDefinition('spec.user_data', definitions),
-    }),
-    [definitions, t],
-  );
-
   if (!catalogItem) {
     return null;
   }
@@ -81,14 +56,6 @@ export const VmConfigurationStep = ({ catalogItem }: Props) => {
       ) : null}
       <StackItem>
         <OsacForm>
-          <InputField
-            name="spec.image.sourceRef"
-            label={overlays.image.label}
-            fieldId="vm-image-source-ref"
-            isRequired
-            helperText={t('catalogProvision.vm.fields.imageDescription')}
-            isDisabled={!overlays.image.editable}
-          />
           <SelectField
             name="spec.instanceType"
             label={t('catalogProvision.vm.fields.instanceType')}

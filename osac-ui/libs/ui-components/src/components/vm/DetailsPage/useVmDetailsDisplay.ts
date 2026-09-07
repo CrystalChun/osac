@@ -37,11 +37,6 @@ export const useVmDetailsDisplay = (vm: ComputeInstance) => {
 
   const fieldLabels = useMemo(() => {
     const definitions = catalogItem ? readCatalogFieldDefinitions(catalogItem) : [];
-    const imageOverlay = getCatalogFieldOverlay(
-      'spec.image.source_ref',
-      definitions,
-      t('catalogProvision.vm.fields.image'),
-    );
     const userDataOverlay = getCatalogFieldOverlay(
       'spec.user_data',
       definitions,
@@ -59,7 +54,6 @@ export const useVmDetailsDisplay = (vm: ComputeInstance) => {
     );
 
     return {
-      image: imageOverlay.label,
       userData: userDataOverlay.label,
       bootDisk: bootDiskOverlay.label,
       sshPublicKey: sshKeyOverlay.label,
