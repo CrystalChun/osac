@@ -23,9 +23,10 @@ import { formatInstanceTypeReviewLabelFromType } from '../utils';
 interface Props {
   vm: ComputeInstance;
   storageRows: VmStorageRow[];
+  isStorageTiersLoading?: boolean;
 }
 
-const VmDetailsCard = ({ vm, storageRows }: Props) => {
+const VmDetailsCard = ({ vm, storageRows, isStorageTiersLoading = false }: Props) => {
   const { t } = useTranslation();
   const {
     catalogItemId,
@@ -98,14 +99,20 @@ const VmDetailsCard = ({ vm, storageRows }: Props) => {
               <DescriptionListGroup>
                 <DescriptionListTerm>{fieldLabels.bootDisk}</DescriptionListTerm>
                 <DescriptionListDescription>
-                  {storageRows[0]?.size ?? '—'}, {storageRows[0]?.storageTier ?? '—'}
+                  {storageRows[0]?.size ?? '—'},{' '}
+                  {isStorageTiersLoading ? (
+                    <Skeleton width="100px" />
+                  ) : (
+                    (storageRows[0]?.storageTier ?? '—')
+                  )}
                 </DescriptionListDescription>
               </DescriptionListGroup>
               {storageRows.slice(1).map((disk) => (
                 <DescriptionListGroup key={disk.name}>
                   <DescriptionListTerm>{disk.name}</DescriptionListTerm>
                   <DescriptionListDescription>
-                    {disk.size}, {disk.storageTier}
+                    {disk.size},{' '}
+                    {isStorageTiersLoading ? <Skeleton width="100px" /> : disk.storageTier}
                   </DescriptionListDescription>
                 </DescriptionListGroup>
               ))}

@@ -12,7 +12,7 @@ export interface StorageDiskValue {
 }
 
 interface StorageTierNameLookup {
-  metadata?: { name?: string; displayName?: string };
+  metadata?: { name?: string };
 }
 
 export interface VmStorageRow {

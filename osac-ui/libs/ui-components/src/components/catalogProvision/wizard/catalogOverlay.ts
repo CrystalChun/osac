@@ -212,7 +212,7 @@ export const formatBootDiskSizeForReview = (value: unknown): string => {
 };
 
 interface StorageTierNameLookup {
-  metadata?: { name?: string; displayName?: string };
+  metadata?: { name?: string };
 }
 
 export const getStorageTierDisplayNameMap = (
@@ -222,7 +222,7 @@ export const getStorageTierDisplayNameMap = (
     (tiers ?? [])
       .map((tier) => {
         const name = tier.metadata?.name;
-        return name ? [name, tier.metadata?.displayName || name] : undefined;
+        return name ? [name, name] : undefined;
       })
       .filter((entry): entry is [string, string] => Boolean(entry)),
   );

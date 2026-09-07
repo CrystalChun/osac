@@ -85,11 +85,11 @@ describe('resolveStorageTierDisplayName', () => {
     expect(resolveStorageTierDisplayName('', tiers)).toBe('—');
   });
 
-  it('returns the matching tier display name', () => {
-    expect(resolveStorageTierDisplayName('balanced', tiers)).toBe('Balanced');
+  it('returns the matching tier name', () => {
+    expect(resolveStorageTierDisplayName('balanced', tiers)).toBe('balanced');
   });
 
-  it('falls back to the tier name when display name is empty', () => {
+  it('returns the tier name when resolving a known tier', () => {
     expect(resolveStorageTierDisplayName('performance', tiers)).toBe('performance');
   });
 

@@ -1,4 +1,4 @@
-import { Card, CardBody, CardTitle } from '@patternfly/react-core';
+import { Card, CardBody, CardTitle, Skeleton } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
 import { useTranslation } from '../../../hooks/useTranslation';
@@ -6,9 +6,10 @@ import type { VmStorageRow } from '../../catalogProvision/wizard/storageRows';
 
 interface VmStorageCardProps {
   storageRows: VmStorageRow[];
+  isStorageTiersLoading?: boolean;
 }
 
-const VmStorageCard = ({ storageRows }: VmStorageCardProps) => {
+const VmStorageCard = ({ storageRows, isStorageTiersLoading = false }: VmStorageCardProps) => {
   const { t } = useTranslation();
 
   return (
@@ -28,7 +29,9 @@ const VmStorageCard = ({ storageRows }: VmStorageCardProps) => {
               <Tr key={row.name}>
                 <Td dataLabel={t('Name')}>{row.name}</Td>
                 <Td dataLabel={t('Size')}>{row.size}</Td>
-                <Td dataLabel={t('Storage tier')}>{row.storageTier}</Td>
+                <Td dataLabel={t('Storage tier')}>
+                  {isStorageTiersLoading ? <Skeleton width="100px" /> : row.storageTier}
+                </Td>
               </Tr>
             ))}
           </Tbody>
