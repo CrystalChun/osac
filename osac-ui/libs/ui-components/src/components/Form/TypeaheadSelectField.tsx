@@ -49,9 +49,9 @@ export const TypeaheadSelectField = ({
         isDisabled={isDisabled}
         placeholder={placeholder}
         noOptionsFoundMessage={noOptionsFoundMessage}
-        onSelect={(_event, value) => {
-          void helpers.setValue(String(value), true);
-          void helpers.setTouched(true, false);
+        onSelect={async (_event, value) => {
+          await helpers.setValue(String(value), true);
+          await helpers.setTouched(true, false);
         }}
         onClearSelection={() => {
           void helpers.setValue('', true);
