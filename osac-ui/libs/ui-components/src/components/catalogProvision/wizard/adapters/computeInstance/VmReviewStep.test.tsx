@@ -1,22 +1,10 @@
-import { create } from '@bufbuild/protobuf';
 import { screen } from '@testing-library/react';
 import { Formik } from 'formik';
 import { describe, expect, it } from 'vitest';
 
-import { StorageTierSchema, StorageTierState } from '@osac/types';
-
 import { createEmptyComputeInstanceValues } from './payload';
 import { VmReviewStep } from './VmReviewStep';
 import { renderWithProviders } from '../../../../../test-utils/TestProviders';
-
-const makeTier = (name: string, displayName: string) =>
-  create(StorageTierSchema, {
-    id: `id-${name}`,
-    metadata: { name, displayName },
-    status: { state: StorageTierState.ACTIVE },
-  });
-
-const storageTiers = [makeTier('balanced', 'Balanced'), makeTier('fast', 'Fast SSD')];
 
 const renderReviewStep = (
   specOverrides: Partial<ReturnType<typeof createEmptyComputeInstanceValues>['spec']>,
@@ -29,7 +17,6 @@ const renderReviewStep = (
     >
       <VmReviewStep catalogItem={null} />
     </Formik>,
-    { apiFixtures: { publicStorageTiers: storageTiers } },
   );
 };
 

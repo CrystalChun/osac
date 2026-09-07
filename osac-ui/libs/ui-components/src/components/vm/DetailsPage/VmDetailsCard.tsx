@@ -15,19 +15,18 @@ import { useVmDetailsDisplay } from './useVmDetailsDisplay';
 import VmDetailsCatalogValue from './VmDetailsCatalogValue';
 import { useTranslation } from '../../../hooks/useTranslation';
 import { displayValue } from '../../../utils/detailFormatters';
-import type { VmStorageRow } from '../../catalogProvision/wizard/storageRows';
+import { getVmStorageRows } from '../../catalogProvision/wizard/storageRows';
 import { Timestamp } from '../../Primitives/Timestamp';
 import { SubtleContent } from '../../SubtleContent/SubtleContent';
 import { formatInstanceTypeReviewLabelFromType } from '../utils';
 
 interface Props {
   vm: ComputeInstance;
-  storageRows: VmStorageRow[];
-  isStorageTiersLoading?: boolean;
 }
 
-const VmDetailsCard = ({ vm, storageRows, isStorageTiersLoading = false }: Props) => {
+const VmDetailsCard = ({ vm }: Props) => {
   const { t } = useTranslation();
+  const storageRows = getVmStorageRows(t, vm.spec?.bootDisk, vm.spec?.additionalDisks);
   const {
     catalogItemId,
     hasCatalogItem,
@@ -99,20 +98,14 @@ const VmDetailsCard = ({ vm, storageRows, isStorageTiersLoading = false }: Props
               <DescriptionListGroup>
                 <DescriptionListTerm>{fieldLabels.bootDisk}</DescriptionListTerm>
                 <DescriptionListDescription>
-                  {storageRows[0]?.size ?? '—'},{' '}
-                  {isStorageTiersLoading ? (
-                    <Skeleton width="100px" />
-                  ) : (
-                    (storageRows[0]?.storageTier ?? '—')
-                  )}
+                  {storageRows[0]?.size ?? '—'}, {storageRows[0]?.storageTier ?? '—'}
                 </DescriptionListDescription>
               </DescriptionListGroup>
               {storageRows.slice(1).map((disk) => (
                 <DescriptionListGroup key={disk.name}>
                   <DescriptionListTerm>{disk.name}</DescriptionListTerm>
                   <DescriptionListDescription>
-                    {disk.size},{' '}
-                    {isStorageTiersLoading ? <Skeleton width="100px" /> : disk.storageTier}
+                    {disk.size}, {disk.storageTier}
                   </DescriptionListDescription>
                 </DescriptionListGroup>
               ))}

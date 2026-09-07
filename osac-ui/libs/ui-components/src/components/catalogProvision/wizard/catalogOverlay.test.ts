@@ -13,7 +13,6 @@ import {
   getCatalogFieldOverlay,
   hasCatalogFieldDefinition,
   mergeCatalogValidation,
-  resolveStorageTierDisplayName,
 } from './catalogOverlay';
 
 const definitions: CatalogFieldDefinition[] = [
@@ -71,31 +70,6 @@ describe('formatBootDiskSizeForReview', () => {
   it('returns em dash for empty values', () => {
     expect(formatBootDiskSizeForReview(undefined)).toBe('—');
     expect(formatBootDiskSizeForReview('')).toBe('—');
-  });
-});
-
-describe('resolveStorageTierDisplayName', () => {
-  const tiers = [
-    { metadata: { name: 'balanced', displayName: 'Balanced' } },
-    { metadata: { name: 'performance', displayName: '' } },
-  ];
-
-  it('returns em dash for an empty or undefined tier', () => {
-    expect(resolveStorageTierDisplayName(undefined, tiers)).toBe('—');
-    expect(resolveStorageTierDisplayName('', tiers)).toBe('—');
-  });
-
-  it('returns the matching tier name', () => {
-    expect(resolveStorageTierDisplayName('balanced', tiers)).toBe('balanced');
-  });
-
-  it('returns the tier name when resolving a known tier', () => {
-    expect(resolveStorageTierDisplayName('performance', tiers)).toBe('performance');
-  });
-
-  it('falls back to the raw value when no tier matches', () => {
-    expect(resolveStorageTierDisplayName('capacity', tiers)).toBe('capacity');
-    expect(resolveStorageTierDisplayName('capacity', undefined)).toBe('capacity');
   });
 });
 

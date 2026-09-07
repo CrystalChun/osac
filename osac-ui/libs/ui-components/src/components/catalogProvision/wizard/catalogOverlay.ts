@@ -210,34 +210,3 @@ export const formatBootDiskSizeForReview = (value: unknown): string => {
   }
   return `${formatted} GB`;
 };
-
-interface StorageTierNameLookup {
-  metadata?: { name?: string };
-}
-
-export const getStorageTierDisplayNameMap = (
-  tiers: StorageTierNameLookup[] | undefined,
-): ReadonlyMap<string, string> =>
-  new Map(
-    (tiers ?? [])
-      .map((tier) => {
-        const name = tier.metadata?.name;
-        return name ? [name, name] : undefined;
-      })
-      .filter((entry): entry is [string, string] => Boolean(entry)),
-  );
-
-export const resolveStorageTierDisplayNameFromMap = (
-  storageTier: string | undefined,
-  tierDisplayNames: ReadonlyMap<string, string>,
-): string => {
-  if (!storageTier) {
-    return formatReviewScalar(storageTier);
-  }
-  return tierDisplayNames.get(storageTier) || storageTier;
-};
-
-export const resolveStorageTierDisplayName = (
-  storageTier: string | undefined,
-  tiers: StorageTierNameLookup[] | undefined,
-): string => resolveStorageTierDisplayNameFromMap(storageTier, getStorageTierDisplayNameMap(tiers));

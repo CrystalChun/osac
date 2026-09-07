@@ -56,6 +56,7 @@ const catalogVm: ComputeInstance = {
     bootDisk: {
       $typeName: 'osac.public.v1.ComputeInstanceDisk',
       sizeGib: 40,
+      storageTier: 'balanced',
     },
     userData: '#cloud-config',
     additionalDisks: [],
@@ -66,10 +67,8 @@ const catalogVm: ComputeInstance = {
   },
 };
 
-const defaultStorageRows = [{ name: 'Boot disk', size: '40 GB', storageTier: 'Balanced' }];
-
-const renderCard = (vm: ComputeInstance = catalogVm, storageRows = defaultStorageRows) =>
-  renderWithProviders(<VmDetailsCard vm={vm} storageRows={storageRows} />);
+const renderCard = (vm: ComputeInstance = catalogVm) =>
+  renderWithProviders(<VmDetailsCard vm={vm} />);
 
 describe('VmDetailsCard', () => {
   it('shows catalog fields with full SSH key', () => {
@@ -117,7 +116,7 @@ describe('VmDetailsCard', () => {
     expect(screen.getByText('Details')).toBeInTheDocument();
     expect(screen.getByText('web-01')).toBeInTheDocument();
     expect(screen.getByText('ssh-rsa AAAA...')).toBeInTheDocument();
-    expect(screen.getByText('40 GB, Balanced')).toBeInTheDocument();
+    expect(screen.getByText('40 GB, balanced')).toBeInTheDocument();
     expect(screen.getByText('alice')).toBeInTheDocument();
     expect(screen.queryByText('User Data')).not.toBeInTheDocument();
     expect(screen.queryByText('Run strategy')).not.toBeInTheDocument();
@@ -154,11 +153,16 @@ describe('VmDetailsCard', () => {
   });
 
   it('lists each additional disk with its resolved tier and exposes no edit control', () => {
-    const storageRows = [
-      { name: 'Boot disk', size: '40 GB', storageTier: 'Balanced' },
-      { name: 'Additional disk 1', size: '100 GB', storageTier: 'Fast SSD' },
-      { name: 'Additional disk 2', size: '20 GB', storageTier: 'legacy-tier' },
-    ];
+    const vmWithAdditionalDisks = {
+      ...catalogVm,
+      spec: {
+        ...catalogVm.spec,
+        additionalDisks: [
+          { sizeGib: 100, storageTier: 'fast' },
+          { sizeGib: 20, storageTier: 'legacy-tier' },
+        ],
+      },
+    } as ComputeInstance;
 
     vi.mocked(useVmDetailsDisplay).mockReturnValue({
       catalogItemId: 'catalog-rhel-9',
@@ -177,11 +181,11 @@ describe('VmDetailsCard', () => {
       catalogItem: undefined,
     });
 
-    renderCard(catalogVm, storageRows);
+    renderCard(vmWithAdditionalDisks);
 
-    expect(screen.getByText('40 GB, Balanced')).toBeInTheDocument();
+    expect(screen.getByText('40 GB, balanced')).toBeInTheDocument();
     expect(screen.getByText('Additional disk 1')).toBeInTheDocument();
-    expect(screen.getByText('100 GB, Fast SSD')).toBeInTheDocument();
+    expect(screen.getByText('100 GB, fast')).toBeInTheDocument();
     expect(screen.getByText('Additional disk 2')).toBeInTheDocument();
     expect(screen.getByText('20 GB, legacy-tier')).toBeInTheDocument();
     expect(screen.queryAllByRole('combobox')).toHaveLength(0);

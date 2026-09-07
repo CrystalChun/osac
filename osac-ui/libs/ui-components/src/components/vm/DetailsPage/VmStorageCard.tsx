@@ -1,16 +1,18 @@
-import { Card, CardBody, CardTitle, Skeleton } from '@patternfly/react-core';
+import { Card, CardBody, CardTitle } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
+import type { ComputeInstance } from '@osac/types';
+
 import { useTranslation } from '../../../hooks/useTranslation';
-import type { VmStorageRow } from '../../catalogProvision/wizard/storageRows';
+import { getVmStorageRows } from '../../catalogProvision/wizard/storageRows';
 
 interface VmStorageCardProps {
-  storageRows: VmStorageRow[];
-  isStorageTiersLoading?: boolean;
+  vm: ComputeInstance;
 }
 
-const VmStorageCard = ({ storageRows, isStorageTiersLoading = false }: VmStorageCardProps) => {
+const VmStorageCard = ({ vm }: VmStorageCardProps) => {
   const { t } = useTranslation();
+  const storageRows = getVmStorageRows(t, vm.spec?.bootDisk, vm.spec?.additionalDisks);
 
   return (
     <Card isFullHeight>
@@ -29,9 +31,7 @@ const VmStorageCard = ({ storageRows, isStorageTiersLoading = false }: VmStorage
               <Tr key={row.name}>
                 <Td dataLabel={t('Name')}>{row.name}</Td>
                 <Td dataLabel={t('Size')}>{row.size}</Td>
-                <Td dataLabel={t('Storage tier')}>
-                  {isStorageTiersLoading ? <Skeleton width="100px" /> : row.storageTier}
-                </Td>
+                <Td dataLabel={t('Storage tier')}>{row.storageTier}</Td>
               </Tr>
             ))}
           </Tbody>
