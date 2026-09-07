@@ -29,7 +29,7 @@ import {
 } from '@osac/ui-components/components/Form/SelectField';
 import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
 import { getErrorMessage } from '@osac/ui-components/utils/error';
-import { buildCidrSchema, type CidrIpFamily } from '@osac/ui-components/validation/cidr-validation';
+import { type CidrIpFamily, buildCidrSchema } from '@osac/ui-components/validation/cidr-validation';
 import { resourceNameSchema } from '@osac/ui-components/validation/resource-name';
 
 export const POOLS_LIST_PATH = '/admin/infrastructure/external-ip-pools';
