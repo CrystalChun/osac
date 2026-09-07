@@ -11,23 +11,16 @@ import {
   useSubnets,
   useVirtualNetworks,
 } from '../../../api/v1/networking';
-import { useStorageTiers } from '../../../api/v1/storage-tiers';
 import { useTranslation } from '../../../hooks/useTranslation';
 import {
   getCatalogFieldOverlay,
   readCatalogFieldDefinitions,
-  resolveStorageTierDisplayName,
 } from '../../catalogProvision/wizard/catalogOverlay';
 
 export type VmNetworkingRow = {
   virtualNetwork: string;
   subnet: string;
   securityGroups: string;
-};
-
-export type VmDiskRow = {
-  sizeGib: string;
-  tierDisplay: string;
 };
 
 export const useVmDetailsDisplay = (vm: ComputeInstance) => {
@@ -41,7 +34,6 @@ export const useVmDetailsDisplay = (vm: ComputeInstance) => {
   const { data: virtualNetworks = [] } = useVirtualNetworks();
   const { data: subnets = [] } = useSubnets();
   const { data: securityGroups = [] } = useSecurityGroups();
-  const { data: storageTiers = [] } = useStorageTiers();
 
   const fieldLabels = useMemo(() => {
     const definitions = catalogItem ? readCatalogFieldDefinitions(catalogItem) : [];
@@ -90,20 +82,6 @@ export const useVmDetailsDisplay = (vm: ComputeInstance) => {
     });
   }, [vm.spec?.networkAttachments, subnets, virtualNetworks, securityGroups]);
 
-  const bootDiskTierDisplay = resolveStorageTierDisplayName(
-    vm.spec?.bootDisk?.storageTier,
-    storageTiers,
-  );
-
-  const additionalDiskRows = useMemo(
-    (): VmDiskRow[] =>
-      (vm.spec?.additionalDisks ?? []).map((disk) => ({
-        sizeGib: String(disk.sizeGib ?? ''),
-        tierDisplay: resolveStorageTierDisplayName(disk.storageTier, storageTiers),
-      })),
-    [vm.spec?.additionalDisks, storageTiers],
-  );
-
   return {
     catalogItem,
     catalogItemId,
@@ -113,8 +91,6 @@ export const useVmDetailsDisplay = (vm: ComputeInstance) => {
     isInstanceTypeLoading,
     fieldLabels,
     networkingRows,
-    bootDiskTierDisplay,
-    additionalDiskRows,
     hasCatalogItem: Boolean(catalogItemId?.trim()),
   };
 };

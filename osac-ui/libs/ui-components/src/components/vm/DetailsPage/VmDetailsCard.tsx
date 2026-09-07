@@ -15,7 +15,10 @@ import { useVmDetailsDisplay } from './useVmDetailsDisplay';
 import VmDetailsCatalogValue from './VmDetailsCatalogValue';
 import { useTranslation } from '../../../hooks/useTranslation';
 import { displayValue } from '../../../utils/detailFormatters';
-import { formatBootDiskSizeForReview } from '../../catalogProvision/wizard/catalogOverlay';
+import {
+  formatBootDiskSizeForReview,
+  formatReviewScalar,
+} from '../../catalogProvision/wizard/catalogOverlay';
 import { Timestamp } from '../../Primitives/Timestamp';
 import { SubtleContent } from '../../SubtleContent/SubtleContent';
 import { formatInstanceTypeReviewLabelFromType } from '../utils';
@@ -34,8 +37,6 @@ const VmDetailsCard = ({ vm }: Props) => {
     instanceTypeId,
     isInstanceTypeLoading,
     fieldLabels,
-    bootDiskTierDisplay,
-    additionalDiskRows,
   } = useVmDetailsDisplay(vm);
 
   return (
@@ -99,16 +100,18 @@ const VmDetailsCard = ({ vm }: Props) => {
               <DescriptionListGroup>
                 <DescriptionListTerm>{fieldLabels.bootDisk}</DescriptionListTerm>
                 <DescriptionListDescription>
-                  {formatBootDiskSizeForReview(vm.spec?.bootDisk?.sizeGib)}, {bootDiskTierDisplay}
+                  {formatBootDiskSizeForReview(vm.spec?.bootDisk?.sizeGib)},{' '}
+                  {formatReviewScalar(vm.spec?.bootDisk?.storageTier)}
                 </DescriptionListDescription>
               </DescriptionListGroup>
-              {additionalDiskRows.map((disk, index) => (
-                <DescriptionListGroup key={index}>
+              {(vm.spec?.additionalDisks ?? []).map((disk, index) => (
+                <DescriptionListGroup key={`additional-disk-${index}`}>
                   <DescriptionListTerm>
                     {t('Additional disk {{number}}', { number: index + 1 })}
                   </DescriptionListTerm>
                   <DescriptionListDescription>
-                    {formatBootDiskSizeForReview(disk.sizeGib)}, {disk.tierDisplay}
+                    {formatBootDiskSizeForReview(disk.sizeGib)},{' '}
+                    {formatReviewScalar(disk.storageTier)}
                   </DescriptionListDescription>
                 </DescriptionListGroup>
               ))}

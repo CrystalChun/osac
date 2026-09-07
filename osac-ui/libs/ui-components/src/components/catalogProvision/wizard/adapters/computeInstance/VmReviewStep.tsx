@@ -21,7 +21,6 @@ import {
   useVirtualNetwork,
 } from '@osac/ui-components/api/v1/networking';
 import { useProjects } from '@osac/ui-components/api/v1/project';
-import { useStorageTiers } from '@osac/ui-components/api/v1/storage-tiers';
 import { CatalogItem } from '@osac/ui-components/components/catalog/catalogItemDisplay';
 import {
   fullProjectPathToQueryFilter,
@@ -32,11 +31,8 @@ import { getErrorMessage } from '@osac/ui-components/utils/error';
 
 import { ComputeInstanceWizardValues } from './fields';
 import { useTranslation } from '../../../../../hooks/useTranslation';
-import {
-  formatBootDiskSizeForReview,
-  formatReviewScalar,
-  resolveStorageTierDisplayName,
-} from '../../catalogOverlay';
+import { formatReviewScalar } from '../../catalogOverlay';
+import { getVmStorageRows } from '../../storageRows';
 
 interface Props {
   catalogItem: CatalogItem | null;
@@ -80,22 +76,15 @@ export const VmReviewStep = ({ catalogItem }: Props) => {
     error: projectsError,
   } = useProjects({ filter: fullProjectPathToQueryFilter(values.metadata.project) });
 
-  const { data: tiers, isLoading: tiersLoading, error: tiersError } = useStorageTiers();
-
-  if (
-    instanceLoading ||
-    virtNetLoading ||
-    subnetLoading ||
-    scLoading ||
-    projectsLoading ||
-    tiersLoading
-  ) {
+  if (instanceLoading || virtNetLoading || subnetLoading || scLoading || projectsLoading) {
     return (
       <Bullseye>
         <Spinner />
       </Bullseye>
     );
   }
+
+  const storageRows = getVmStorageRows(t, values.spec.bootDisk, values.spec.additionalDisks);
 
   return (
     <Stack hasGutter>
@@ -132,13 +121,6 @@ export const VmReviewStep = ({ catalogItem }: Props) => {
         <StackItem>
           <Alert variant="warning" isInline title={t('Failed to fetch project')}>
             {getErrorMessage(projectsError)}
-          </Alert>
-        </StackItem>
-      )}
-      {!!tiersError && (
-        <StackItem>
-          <Alert variant="warning" isInline title={t('Failed to fetch storage tiers')}>
-            {getErrorMessage(tiersError)}
           </Alert>
         </StackItem>
       )}
@@ -224,21 +206,11 @@ export const VmReviewStep = ({ catalogItem }: Props) => {
       </StackItem>
       <StackItem>
         <DescriptionList isHorizontal isCompact aria-label={t('Storage')}>
-          <DescriptionListGroup>
-            <DescriptionListTerm>{t('Boot disk')}</DescriptionListTerm>
-            <DescriptionListDescription>
-              {formatBootDiskSizeForReview(values.spec.bootDisk.sizeGib)},{' '}
-              {resolveStorageTierDisplayName(values.spec.bootDisk.storageTier, tiers)}
-            </DescriptionListDescription>
-          </DescriptionListGroup>
-          {values.spec.additionalDisks.map((disk, index) => (
-            <DescriptionListGroup key={index}>
-              <DescriptionListTerm>
-                {t('Additional disk {{number}}', { number: index + 1 })}
-              </DescriptionListTerm>
+          {storageRows.map((row) => (
+            <DescriptionListGroup key={row.name}>
+              <DescriptionListTerm>{row.name}</DescriptionListTerm>
               <DescriptionListDescription>
-                {formatBootDiskSizeForReview(disk.sizeGib)},{' '}
-                {resolveStorageTierDisplayName(disk.storageTier, tiers)}
+                {row.size}, {row.storageTier}
               </DescriptionListDescription>
             </DescriptionListGroup>
           ))}
