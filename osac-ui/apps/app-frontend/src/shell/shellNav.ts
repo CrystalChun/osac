@@ -20,6 +20,7 @@ type NavRow = NavSection | NavLink;
 const getIdpManagerNav = (t: TFunction): NavRow[] => [
   { kind: 'link', id: 'idp', label: t('Identity providers'), path: '/tenant/identity-provider' },
   { kind: 'link', id: 'role-bindings', label: t('Role Bindings'), path: '/tenant/role-binding' },
+  getSecretsNav(t),
 ];
 
 const getAdminNav = (t: TFunction): NavRow[] => [
@@ -62,15 +63,27 @@ const getAdminNav = (t: TFunction): NavRow[] => [
     ],
   },
   getNetworkNav(t),
+  getSecretsNav(t),
 ];
 
-const getTenantAdminNav = (t: TFunction): NavRow[] => [...getBaseNav(t), getNetworkNav(t)];
+const getTenantAdminNav = (t: TFunction): NavRow[] => [
+  ...getBaseNav(t),
+  getNetworkNav(t),
+  getSecretsNav(t),
+];
 
 const getCatalogNav = (t: TFunction): NavRow => ({
   kind: 'link',
   id: 'catalog',
   label: t('Catalog'),
   path: '/catalog',
+});
+
+const getSecretsNav = (t: TFunction): NavRow => ({
+  kind: 'link',
+  id: 'secrets',
+  label: t('Secrets'),
+  path: '/secrets',
 });
 
 const getServicesNav = (t: TFunction): NavRow => ({
@@ -131,5 +144,5 @@ export const navRowsForRole = (role: UserRole, t: TFunction): NavRow[] => {
   }
 
   // 'tenant-user'
-  return [...getBaseNav(t), getNetworkNav(t)];
+  return [...getBaseNav(t), getNetworkNav(t), getSecretsNav(t)];
 };

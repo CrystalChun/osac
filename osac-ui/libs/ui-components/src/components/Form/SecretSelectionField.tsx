@@ -10,7 +10,7 @@ import { useTranslation } from '../../hooks/useTranslation';
 interface SecretSelectionFieldProps {
   name: string;
   label: string;
-  filter: string;
+  filter: string | undefined;
   isRequired?: boolean;
 }
 

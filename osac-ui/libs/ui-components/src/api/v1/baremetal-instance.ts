@@ -2,6 +2,7 @@ import { type MessageInitShape } from '@bufbuild/protobuf';
 import { keepPreviousData, useMutation } from '@tanstack/react-query';
 
 import {
+  type BareMetalInstance,
   BareMetalInstanceCatalogItems,
   BareMetalInstanceRunStrategy,
   BareMetalInstanceSchema,
@@ -16,7 +17,7 @@ import { type ApiQueryClient, useApiQuery, useApiQueryClient } from '../use-api-
 
 export const useBareMetalInstances = () => {
   const client = useApiFetch(BareMetalInstances);
-  const filter = useProjectFilterQuery();
+  const filter = useProjectFilterQuery<BareMetalInstance>();
   return useApiQuery({
     queryKey: apiQueryKey('v1/baremetal_instances', undefined, filter ? { filter } : undefined),
     queryFn: () => client.list({ filter }),

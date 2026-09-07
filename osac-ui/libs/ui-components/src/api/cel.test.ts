@@ -66,11 +66,32 @@ describe('cel', () => {
   });
 
   it('uses Boolean identities for empty operand lists', () => {
-    expect(cel<ExampleResource>((filter) => filter.and())).toBe('true');
+    expect(cel<ExampleResource>((filter) => filter.and())).toBeUndefined();
     expect(cel<ExampleResource>((filter) => filter.or())).toBe('false');
     expect(cel<ExampleResource>((filter) => filter.field('spec.tags').someEqualsAny([]))).toBe(
       'false',
     );
+  });
+
+  it('ignores undefined operands in and/or expressions', () => {
+    expect(
+      cel<ExampleResource>((filter) =>
+        filter.and(undefined, filter.field('id').equals('worker'), undefined),
+      ),
+    ).toBe('this.id == "worker"');
+    expect(
+      cel<ExampleResource>((filter) =>
+        filter.or(undefined, filter.field('id').equals('worker'), undefined),
+      ),
+    ).toBe('(this.id == "worker")');
+    expect(cel<ExampleResource>((filter) => filter.and(undefined, undefined))).toBeUndefined();
+    expect(cel<ExampleResource>((filter) => filter.or(undefined, undefined))).toBe('false');
+  });
+
+  it('returns undefined for an empty top-level expression', () => {
+    expect(cel<ExampleResource>(() => '')).toBeUndefined();
+    expect(cel<ExampleResource>(() => undefined)).toBeUndefined();
+    expect(cel<ExampleResource>((filter) => filter.group(filter.and()))).toBeUndefined();
   });
 
   it('checks field values against the generated resource shape', () => {
