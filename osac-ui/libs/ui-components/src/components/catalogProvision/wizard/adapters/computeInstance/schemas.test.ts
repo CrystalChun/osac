@@ -51,7 +51,6 @@ const emptyValues: ComputeInstanceWizardValues = {
   metadata: { name: '', project: '' },
   spec: {
     sshPublicKey: '',
-    image: { sourceRef: '' },
     instanceType: '',
     userData: '',
     bootDisk: { sizeGib: '', storageTier: '' },
@@ -165,7 +164,6 @@ describe('buildComputeInstanceStepSchema', () => {
         metadata: { name: 'web-01', project: '' },
         spec: {
           ...emptyValues.spec,
-          image: { sourceRef: 'quay.io/example/rhel9' },
           instanceType: 'standard-4-8',
           bootDisk: { sizeGib: 'not-a-number', storageTier: '' },
         },
@@ -201,7 +199,6 @@ describe('buildComputeInstanceStepSchema', () => {
         metadata: { name: 'web-01', project: '' },
         spec: {
           ...emptyValues.spec,
-          image: { sourceRef: 'quay.io/example/rhel9' },
         },
       },
       vmCatalogItem,
@@ -226,7 +223,6 @@ describe('buildComputeInstanceStepSchema', () => {
         metadata: { name: 'web-01', project: '' },
         spec: {
           ...emptyValues.spec,
-          image: { sourceRef: 'quay.io/example/rhel9' },
         },
       },
       vmCatalogItem,
@@ -344,7 +340,6 @@ describe('buildComputeInstanceStepSchema', () => {
         metadata: { name: 'web-01', project: '' },
         spec: {
           ...emptyValues.spec,
-          image: { sourceRef: 'quay.io/example/rhel9' },
           instanceType: 'standard-4-8',
           additionalDisks: [{ sizeGib: '100', storageTier: '' }],
         },

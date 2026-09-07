@@ -111,7 +111,7 @@ const advanceToConfigurationStep = async (
   await fillGeneralStep(user, vmName);
   await clickWizardNext(user);
   await waitFor(() => {
-    expect(screen.getByLabelText(/VM image/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/^Instance type/)).toBeInTheDocument();
   });
 };
 
@@ -553,7 +553,7 @@ const renderWizard = (options: RenderWizardOptions = {}) => {
 
 const expectConfigurationDefaults = async () => {
   await waitFor(() => {
-    expect(screen.getByLabelText(/VM image/)).toHaveValue('quay.io/example/rhel9');
+    expect(screen.getByLabelText(/^Instance type/)).toBeInTheDocument();
   });
 };
 
@@ -631,7 +631,6 @@ describe('CatalogProvisionWizard', () => {
 
     expect(onProvision.mock.calls[0][0]).toMatchObject({
       spec: {
-        image: { sourceRef: 'quay.io/example/rhel9' },
         runStrategy: 'Always',
         instanceType: { id: 'standard-4-8' },
         bootDisk: { sizeGib: 40 },
@@ -671,9 +670,6 @@ describe('CatalogProvisionWizard', () => {
     await clickWizardNext(user);
 
     releaseCatalogFetch();
-    await waitFor(() => {
-      expect(screen.getByLabelText(/VM image/)).toBeInTheDocument();
-    });
 
     await expectConfigurationDefaults();
   });
@@ -699,7 +695,7 @@ describe('CatalogProvisionWizard', () => {
     expect(nameInput).toHaveAttribute('aria-describedby', 'metadata-name-helper-error');
 
     expect(screen.getByLabelText(/^Name/)).toBeInTheDocument();
-    expect(screen.queryByLabelText(/VM image/)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/^Instance type/)).not.toBeInTheDocument();
   });
 
   it('closes immediately on Cancel when the wizard is pristine', async () => {
@@ -779,7 +775,7 @@ describe('CatalogProvisionWizard', () => {
     await clickWizardBack(user);
 
     await waitFor(() => {
-      expect(screen.getByLabelText(/VM image/)).toHaveValue('quay.io/example/rhel9');
+      expect(screen.getByLabelText(/^Instance type/)).toBeInTheDocument();
     });
   });
 
@@ -1015,7 +1011,6 @@ describe('CatalogProvisionWizard', () => {
     expect(onProvision.mock.calls[0][0]).toMatchObject({
       metadata: { name: 'web-01' },
       spec: {
-        image: { sourceRef: 'quay.io/example/rhel9' },
         instanceType: { id: 'standard-4-8' },
       },
     });
@@ -1055,7 +1050,7 @@ describe('CatalogProvisionWizard', () => {
     const { user } = renderWizard();
 
     await advanceToConfigurationStep(user, 'web-01', vmCatalogItem.title);
-    expect(screen.getByLabelText(/VM image/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/^Instance type/)).toBeInTheDocument();
     expect(screen.queryByLabelText(/Boot disk/)).not.toBeInTheDocument();
 
     await waitForConfigurationReady();
@@ -1065,7 +1060,7 @@ describe('CatalogProvisionWizard', () => {
       expect(screen.getByLabelText(/Boot disk/)).toBeInTheDocument();
     });
     expect(screen.getByText('Storage tier')).toBeInTheDocument();
-    expect(screen.queryByLabelText(/VM image/)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/^Instance type/)).not.toBeInTheDocument();
   });
 
   it('blocks Next on the Storage step until the boot disk size is valid', async () => {

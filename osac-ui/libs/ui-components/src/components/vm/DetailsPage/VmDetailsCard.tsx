@@ -76,12 +76,6 @@ const VmDetailsCard = ({ vm }: Props) => {
                 </DescriptionListDescription>
               </DescriptionListGroup>
               <DescriptionListGroup>
-                <DescriptionListTerm>{fieldLabels.image}</DescriptionListTerm>
-                <DescriptionListDescription>
-                  {displayValue(vm.spec?.image?.sourceRef)}
-                </DescriptionListDescription>
-              </DescriptionListGroup>
-              <DescriptionListGroup>
                 <DescriptionListTerm>
                   {t('catalogProvision.vm.fields.instanceType')}
                 </DescriptionListTerm>

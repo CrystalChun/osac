@@ -11,7 +11,6 @@ export const createEmptyComputeInstanceValues = (): ComputeInstanceWizardValues 
   metadata: { name: '', project: '' },
   spec: {
     sshPublicKey: '',
-    image: { sourceRef: '' },
     instanceType: '',
     userData: '',
     bootDisk: { sizeGib: '', storageTier: '' },
@@ -38,10 +37,6 @@ export const buildComputeInstanceCreatePayload = (
     },
     instanceType: {
       id: values.spec.instanceType,
-    },
-    image: {
-      sourceType: 'registry',
-      sourceRef: values.spec.image.sourceRef.trim(),
     },
     runStrategy: VM_CREATE_RUN_STRATEGY,
     networkAttachments: [

@@ -103,7 +103,6 @@ describe('VmDetailsCard', () => {
       isInstanceTypeLoading: false,
       fieldLabels: {
         sshPublicKey: 'SSH public key',
-        image: 'VM image',
         bootDisk: 'Boot disk',
         userData: 'User Data',
       },
@@ -136,7 +135,6 @@ describe('VmDetailsCard', () => {
       isInstanceTypeLoading: false,
       fieldLabels: {
         sshPublicKey: 'SSH public key',
-        image: 'VM image',
         bootDisk: 'Boot disk',
         userData: 'User Data',
       },
@@ -173,7 +171,6 @@ describe('VmDetailsCard', () => {
       isInstanceTypeLoading: false,
       fieldLabels: {
         sshPublicKey: 'SSH public key',
-        image: 'VM image',
         bootDisk: 'Boot disk',
         userData: 'User Data',
       },
