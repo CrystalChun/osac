@@ -15,7 +15,10 @@ import { useVmDetailsDisplay } from './useVmDetailsDisplay';
 import VmDetailsCatalogValue from './VmDetailsCatalogValue';
 import { useTranslation } from '../../../hooks/useTranslation';
 import { displayValue } from '../../../utils/detailFormatters';
-import { getVmStorageRows } from '../../catalogProvision/wizard/storageRows';
+import {
+  formatBootDiskSizeForReview,
+  formatReviewScalar,
+} from '../../catalogProvision/wizard/catalogOverlay';
 import { Timestamp } from '../../Primitives/Timestamp';
 import { SubtleContent } from '../../SubtleContent/SubtleContent';
 import { formatInstanceTypeReviewLabelFromType } from '../utils';
@@ -26,7 +29,6 @@ interface Props {
 
 const VmDetailsCard = ({ vm }: Props) => {
   const { t } = useTranslation();
-  const storageRows = getVmStorageRows(t, vm.spec?.bootDisk, vm.spec?.additionalDisks);
   const {
     catalogItemId,
     hasCatalogItem,
@@ -98,14 +100,18 @@ const VmDetailsCard = ({ vm }: Props) => {
               <DescriptionListGroup>
                 <DescriptionListTerm>{fieldLabels.bootDisk}</DescriptionListTerm>
                 <DescriptionListDescription>
-                  {storageRows[0]?.size ?? '—'}, {storageRows[0]?.storageTier ?? '—'}
+                  {formatBootDiskSizeForReview(vm.spec?.bootDisk?.sizeGib)},{' '}
+                  {formatReviewScalar(vm.spec?.bootDisk?.storageTier)}
                 </DescriptionListDescription>
               </DescriptionListGroup>
-              {storageRows.slice(1).map((disk) => (
-                <DescriptionListGroup key={disk.name}>
-                  <DescriptionListTerm>{disk.name}</DescriptionListTerm>
+              {(vm.spec?.additionalDisks ?? []).map((disk, index) => (
+                <DescriptionListGroup key={`additional-disk-${index}`}>
+                  <DescriptionListTerm>
+                    {t('Additional disk {{number}}', { number: index + 1 })}
+                  </DescriptionListTerm>
                   <DescriptionListDescription>
-                    {disk.size}, {disk.storageTier}
+                    {formatBootDiskSizeForReview(disk.sizeGib)},{' '}
+                    {formatReviewScalar(disk.storageTier)}
                   </DescriptionListDescription>
                 </DescriptionListGroup>
               ))}
