@@ -40,10 +40,7 @@ const makeTenant = (id: string, name: string): Tenant =>
 
 const defaultTenants = [makeTenant('t-1', 'acme'), makeTenant('t-2', 'globex')];
 
-const renderCreatePage = (
-  overrides?: MockTransportOverrides,
-  tenants: Tenant[] = defaultTenants,
-) =>
+const renderCreatePage = (overrides?: MockTransportOverrides, tenants: Tenant[] = defaultTenants) =>
   renderWithProviders(<ExternalIpPoolWizardPage />, {
     transportOverrides: overrides,
     apiFixtures: { tenants },

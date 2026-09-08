@@ -13,10 +13,10 @@ import {
 
 import type { ExternalIPPool } from '@osac/types/private';
 
+import ExternalIpPoolReviewColumn from './externalIpPool/ExternalIpPoolReviewColumn';
 import ExternalIpPoolCidrsSection from '../../components/networking/ExternalIpPoolCidrsSection';
 import { useTranslation } from '../../hooks/useTranslation';
 import { displayValue } from '../../utils/detailFormatters';
-import ExternalIpPoolReviewColumn from './externalIpPool/ExternalIpPoolReviewColumn';
 
 interface ExternalIpPoolDetailsPageContentProps {
   pool: ExternalIPPool;

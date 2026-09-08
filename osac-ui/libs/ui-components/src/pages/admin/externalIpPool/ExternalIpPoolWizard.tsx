@@ -10,8 +10,8 @@ import LeaveFormConfirmation from '@osac/ui-components/components/Form/LeaveForm
 import { OSACWizardFooter } from '@osac/ui-components/components/Wizard/OSACWizardFooter';
 import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
 
-import PoolStep from './PoolStep';
 import { toCreateRequest } from './payload';
+import PoolStep from './PoolStep';
 import ReviewStep from './ReviewStep';
 import TenantStep from './TenantStep';
 import { externalIpPoolStepHasErrors, getExternalIpPoolSchema } from './validation';
