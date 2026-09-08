@@ -1,8 +1,8 @@
 import { Route, Routes } from 'react-router-dom';
 
-import { ExternalIpPoolDetailsPage } from '@osac/ui-components/pages/admin/ExternalIpPoolDetailsPage';
-import { ExternalIpPoolsListPage } from '@osac/ui-components/pages/admin/ExternalIpPoolsListPage';
-import { ExternalIpPoolWizardPage } from '@osac/ui-components/pages/admin/ExternalIpPoolWizardPage';
+import { ExternalIpPoolDetailsPage } from './ExternalIpPoolDetailsPage';
+import { ExternalIpPoolsListPage } from './ExternalIpPoolsListPage';
+import { ExternalIpPoolWizardPage } from './ExternalIpPoolWizardPage';
 
 export const ExternalIpPoolRoutes = () => (
   <Routes>

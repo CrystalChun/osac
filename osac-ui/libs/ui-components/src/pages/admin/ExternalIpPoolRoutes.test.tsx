@@ -2,15 +2,15 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
-vi.mock('@osac/ui-components/pages/admin/ExternalIpPoolsListPage', () => ({
+vi.mock('./ExternalIpPoolsListPage', () => ({
   ExternalIpPoolsListPage: () => <h1>External IP pools</h1>,
 }));
 
-vi.mock('@osac/ui-components/pages/admin/ExternalIpPoolWizardPage', () => ({
+vi.mock('./ExternalIpPoolWizardPage', () => ({
   ExternalIpPoolWizardPage: () => <h1>External IP pool form</h1>,
 }));
 
-vi.mock('@osac/ui-components/pages/admin/ExternalIpPoolDetailsPage', () => ({
+vi.mock('./ExternalIpPoolDetailsPage', () => ({
   ExternalIpPoolDetailsPage: () => <h1>External IP pool details</h1>,
 }));
 

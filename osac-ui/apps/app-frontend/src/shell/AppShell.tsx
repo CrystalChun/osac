@@ -12,6 +12,7 @@ import SecretRoutes from '@osac/ui-components/components/Secret/SecretRoutes';
 import { VmDetailsPage } from '@osac/ui-components/components/vm/VmDetailsPage';
 import { useSession } from '@osac/ui-components/hooks/use-session';
 import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
+import { ExternalIpPoolRoutes } from '@osac/ui-components/pages/admin/ExternalIpPoolRoutes';
 import { SecurityGroupDetailPage } from '@osac/ui-components/pages/networking/SecurityGroupDetailPage';
 import { SecurityGroupsListPage } from '@osac/ui-components/pages/networking/SecurityGroupsListPage';
 import { VirtualNetworkDetailPage } from '@osac/ui-components/pages/networking/VirtualNetworkDetailPage';
@@ -24,7 +25,6 @@ import { VmListPage } from '@osac/ui-components/pages/tenant/VmListPage';
 
 import { BareMetalInstanceTypeRoutes } from './BareMetalInstanceTypeRoutes';
 import { DiskImageRoutes } from './DiskImageRoutes';
-import { ExternalIpPoolRoutes } from './ExternalIpPoolRoutes';
 import { InstanceTypeRoutes } from './InstanceTypeRoutes';
 import { ShellMasthead } from './ShellMasthead';
 import { defaultRouteForRole } from './shellRoutes';
