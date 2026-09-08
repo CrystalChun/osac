@@ -12,7 +12,7 @@ import SecretRoutes from '@osac/ui-components/components/Secret/SecretRoutes';
 import { VmDetailsPage } from '@osac/ui-components/components/vm/VmDetailsPage';
 import { useSession } from '@osac/ui-components/hooks/use-session';
 import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
-import { ExternalIpPoolRoutes } from '@osac/ui-components/pages/admin/ExternalIpPoolRoutes';
+import { ExternalIpPoolRoutes } from '@osac/ui-components/pages/admin/externalIpPool/ExternalIpPoolRoutes';
 import { SecurityGroupDetailPage } from '@osac/ui-components/pages/networking/SecurityGroupDetailPage';
 import { SecurityGroupsListPage } from '@osac/ui-components/pages/networking/SecurityGroupsListPage';
 import { VirtualNetworkDetailPage } from '@osac/ui-components/pages/networking/VirtualNetworkDetailPage';

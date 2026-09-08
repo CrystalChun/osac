@@ -5,7 +5,7 @@ import ResourceNameField from '@osac/ui-components/components/Resource/ResourceN
 
 import ExternalIpPoolActionsMenu from './ExternalIpPoolActionsMenu';
 import ExternalIpPoolStatusLabel from './ExternalIpPoolStatusLabel';
-import { useTranslation } from '../../hooks/useTranslation';
+import { useTranslation } from '../../../hooks/useTranslation';
 
 interface ExternalIpPoolsTableProps {
   pools: ExternalIPPool[];

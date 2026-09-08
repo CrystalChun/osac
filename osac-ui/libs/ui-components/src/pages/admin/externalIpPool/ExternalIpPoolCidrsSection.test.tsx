@@ -2,7 +2,7 @@ import { screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
 import ExternalIpPoolCidrsSection from './ExternalIpPoolCidrsSection';
-import { renderWithProviders } from '../../test-utils/TestProviders';
+import { renderWithProviders } from '../../../test-utils/TestProviders';
 
 describe('ExternalIpPoolCidrsSection', () => {
   it('renders a single CIDR without a more button', () => {

@@ -1,11 +1,12 @@
 import { ExternalIPPools } from '@osac/types/private';
 import { useListResource } from '@osac/ui-components/api/use-resource';
-import { ExternalIpPoolsTable } from '@osac/ui-components/components/networking/ExternalIpPoolsTable';
 import ListPage from '@osac/ui-components/components/Page/ListPage';
 import ListPageBody from '@osac/ui-components/components/Page/ListPageBody';
 import CreateButton from '@osac/ui-components/components/Primitives/CreateButton.tsx';
 import { SubtleContent } from '@osac/ui-components/components/SubtleContent/SubtleContent';
 import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
+
+import { ExternalIpPoolsTable } from './ExternalIpPoolsTable';
 
 export const ExternalIpPoolsListPage = () => {
   const { t } = useTranslation();

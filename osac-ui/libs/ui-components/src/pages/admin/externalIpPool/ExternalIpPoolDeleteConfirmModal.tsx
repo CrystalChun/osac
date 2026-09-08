@@ -2,8 +2,8 @@ import { ExternalIPPools } from '@osac/types/private';
 import type { ExternalIPPool } from '@osac/types/private';
 import DeleteResourceModal from '@osac/ui-components/components/Resource/DeleteResourceModal.tsx';
 
-import { useDeleteResource } from '../../api/use-resource';
-import { useTranslation } from '../../hooks/useTranslation';
+import { useDeleteResource } from '../../../api/use-resource';
+import { useTranslation } from '../../../hooks/useTranslation';
 
 interface ExternalIpPoolDeleteConfirmModalProps {
   pool: ExternalIPPool;

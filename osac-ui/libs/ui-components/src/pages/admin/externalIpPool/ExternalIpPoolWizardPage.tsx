@@ -10,8 +10,8 @@ import {
 
 import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
 
-import ExternalIpPoolWizard from './externalIpPool/ExternalIpPoolWizard';
-import { EXTERNAL_IP_POOLS_LIST_PATH } from './externalIpPool/values';
+import ExternalIpPoolWizard from './ExternalIpPoolWizard';
+import { EXTERNAL_IP_POOLS_LIST_PATH } from './values';
 
 export const ExternalIpPoolWizardPage = () => {
   const { t } = useTranslation();

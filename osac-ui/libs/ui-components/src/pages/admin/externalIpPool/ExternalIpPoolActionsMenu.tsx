@@ -6,7 +6,7 @@ import { EllipsisVIcon } from '@patternfly/react-icons/dist/esm/icons/ellipsis-v
 import type { ExternalIPPool } from '@osac/types/private';
 
 import ExternalIpPoolDeleteConfirmModal from './ExternalIpPoolDeleteConfirmModal';
-import { useTranslation } from '../../hooks/useTranslation';
+import { useTranslation } from '../../../hooks/useTranslation';
 
 interface ExternalIpPoolActionsMenuProps {
   pool: ExternalIPPool;

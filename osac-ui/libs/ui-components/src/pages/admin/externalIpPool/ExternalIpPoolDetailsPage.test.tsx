@@ -6,7 +6,7 @@ import type { ExternalIPPool } from '@osac/types/private';
 import { ExternalIPPoolState, IPFamily } from '@osac/types/private';
 
 import { ExternalIpPoolDetailsPage } from './ExternalIpPoolDetailsPage';
-import { renderWithProviders } from '../../test-utils/TestProviders';
+import { renderWithProviders } from '../../../test-utils/TestProviders';
 
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async (importOriginal) => {

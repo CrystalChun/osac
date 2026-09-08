@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Button, List, ListItem, Stack, StackItem, Title } from '@patternfly/react-core';
 
-import { useTranslation } from '../../hooks/useTranslation';
-import { SubtleContent } from '../SubtleContent/SubtleContent';
+import { SubtleContent } from '../../../components/SubtleContent/SubtleContent';
+import { useTranslation } from '../../../hooks/useTranslation';
 
 const CIDR_PREVIEW_COUNT = 1;
 
