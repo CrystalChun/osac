@@ -10,7 +10,7 @@ export const buildBareMetalInstanceCreatePayload = (
   const sshKey = values.spec.sshKey.trim();
   const userData = values.spec.userData.trim();
 
-  const bmi = {
+  const bmi: MessageInitShape<typeof BareMetalInstanceSchema> = {
     metadata: { name: values.metadata.name.trim(), project: values.metadata.project },
     spec: {
       catalogItem: {
@@ -19,6 +19,9 @@ export const buildBareMetalInstanceCreatePayload = (
       runStrategy: BareMetalInstanceRunStrategy.ALWAYS,
       ...(sshKey && { sshPublicKey: sshKey }),
       ...(userData && { userData }),
+      instanceType: {
+        name: values.spec.instanceType.name,
+      },
     },
   };
 

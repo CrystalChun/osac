@@ -18,6 +18,9 @@ describe('buildBareMetalInstanceCreatePayload', () => {
       spec: {
         catalogItem: { id: 'catalog-bm-1' },
         runStrategy: BareMetalInstanceRunStrategy.ALWAYS,
+        instanceType: {
+          name: '',
+        },
       },
     });
   });
