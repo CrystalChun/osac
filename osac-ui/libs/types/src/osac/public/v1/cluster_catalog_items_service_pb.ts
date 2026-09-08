@@ -28,7 +28,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/public/v1/cluster_catalog_items_service.proto.
  */
 export const file_osac_public_v1_cluster_catalog_items_service: GenFile = /*@__PURE__*/
-  fileDesc("CjJvc2FjL3B1YmxpYy92MS9jbHVzdGVyX2NhdGFsb2dfaXRlbXNfc2VydmljZS5wcm90bxIOb3NhYy5wdWJsaWMudjEinAEKHkNsdXN0ZXJDYXRhbG9nSXRlbXNMaXN0UmVxdWVzdBITCgZvZmZzZXQYASABKAVIAIgBARISCgVsaW1pdBgCIAEoBUgBiAEBEhMKBmZpbHRlchgDIAEoCUgCiAEBEhIKBW9yZGVyGAQgASgJSAOIAQFCCQoHX29mZnNldEIICgZfbGltaXRCCQoHX2ZpbHRlckIICgZfb3JkZXIicQofQ2x1c3RlckNhdGFsb2dJdGVtc0xpc3RSZXNwb25zZRIMCgRzaXplGAEgASgFEg0KBXRvdGFsGAIgASgFEjEKBWl0ZW1zGAMgAygLMiIub3NhYy5wdWJsaWMudjEuQ2x1c3RlckNhdGFsb2dJdGVtIisKHUNsdXN0ZXJDYXRhbG9nSXRlbXNHZXRSZXF1ZXN0EgoKAmlkGAEgASgJIlQKHkNsdXN0ZXJDYXRhbG9nSXRlbXNHZXRSZXNwb25zZRIyCgZvYmplY3QYASABKAsyIi5vc2FjLnB1YmxpYy52MS5DbHVzdGVyQ2F0YWxvZ0l0ZW0iVgogQ2x1c3RlckNhdGFsb2dJdGVtc0NyZWF0ZVJlcXVlc3QSMgoGb2JqZWN0GAEgASgLMiIub3NhYy5wdWJsaWMudjEuQ2x1c3RlckNhdGFsb2dJdGVtIlcKIUNsdXN0ZXJDYXRhbG9nSXRlbXNDcmVhdGVSZXNwb25zZRIyCgZvYmplY3QYASABKAsyIi5vc2FjLnB1YmxpYy52MS5DbHVzdGVyQ2F0YWxvZ0l0ZW0ilQEKIENsdXN0ZXJDYXRhbG9nSXRlbXNVcGRhdGVSZXF1ZXN0EjIKBm9iamVjdBgBIAEoCzIiLm9zYWMucHVibGljLnYxLkNsdXN0ZXJDYXRhbG9nSXRlbRIvCgt1cGRhdGVfbWFzaxgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5GaWVsZE1hc2sSDAoEbG9jaxgDIAEoCCJXCiFDbHVzdGVyQ2F0YWxvZ0l0ZW1zVXBkYXRlUmVzcG9uc2USMgoGb2JqZWN0GAEgASgLMiIub3NhYy5wdWJsaWMudjEuQ2x1c3RlckNhdGFsb2dJdGVtIi4KIENsdXN0ZXJDYXRhbG9nSXRlbXNEZWxldGVSZXF1ZXN0EgoKAmlkGAEgASgJIiMKIUNsdXN0ZXJDYXRhbG9nSXRlbXNEZWxldGVSZXNwb25zZTLzBgoTQ2x1c3RlckNhdGFsb2dJdGVtcxKaAQoETGlzdBIuLm9zYWMucHVibGljLnYxLkNsdXN0ZXJDYXRhbG9nSXRlbXNMaXN0UmVxdWVzdBovLm9zYWMucHVibGljLnYxLkNsdXN0ZXJDYXRhbG9nSXRlbXNMaXN0UmVzcG9uc2UiMYLT5JMCKxIpL2FwaS9mdWxmaWxsbWVudC92MS9jbHVzdGVyX2NhdGFsb2dfaXRlbXMSpAEKA0dldBItLm9zYWMucHVibGljLnYxLkNsdXN0ZXJDYXRhbG9nSXRlbXNHZXRSZXF1ZXN0Gi4ub3NhYy5wdWJsaWMudjEuQ2x1c3RlckNhdGFsb2dJdGVtc0dldFJlc3BvbnNlIj6C0+STAjhiBm9iamVjdBIuL2FwaS9mdWxmaWxsbWVudC92MS9jbHVzdGVyX2NhdGFsb2dfaXRlbXMve2lkfRKwAQoGQ3JlYXRlEjAub3NhYy5wdWJsaWMudjEuQ2x1c3RlckNhdGFsb2dJdGVtc0NyZWF0ZVJlcXVlc3QaMS5vc2FjLnB1YmxpYy52MS5DbHVzdGVyQ2F0YWxvZ0l0ZW1zQ3JlYXRlUmVzcG9uc2UiQYLT5JMCOzoGb2JqZWN0YgZvYmplY3QiKS9hcGkvZnVsZmlsbG1lbnQvdjEvY2x1c3Rlcl9jYXRhbG9nX2l0ZW1zErwBCgZVcGRhdGUSMC5vc2FjLnB1YmxpYy52MS5DbHVzdGVyQ2F0YWxvZ0l0ZW1zVXBkYXRlUmVxdWVzdBoxLm9zYWMucHVibGljLnYxLkNsdXN0ZXJDYXRhbG9nSXRlbXNVcGRhdGVSZXNwb25zZSJNgtPkkwJHOgZvYmplY3RiBm9iamVjdDI1L2FwaS9mdWxmaWxsbWVudC92MS9jbHVzdGVyX2NhdGFsb2dfaXRlbXMve29iamVjdC5pZH0SpQEKBkRlbGV0ZRIwLm9zYWMucHVibGljLnYxLkNsdXN0ZXJDYXRhbG9nSXRlbXNEZWxldGVSZXF1ZXN0GjEub3NhYy5wdWJsaWMudjEuQ2x1c3RlckNhdGFsb2dJdGVtc0RlbGV0ZVJlc3BvbnNlIjaC0+STAjAqLi9hcGkvZnVsZmlsbG1lbnQvdjEvY2x1c3Rlcl9jYXRhbG9nX2l0ZW1zL3tpZH1iBnByb3RvMw", [file_google_api_annotations, file_google_protobuf_field_mask, file_osac_public_v1_cluster_catalog_item_type]);
+  fileDesc("CjJvc2FjL3B1YmxpYy92MS9jbHVzdGVyX2NhdGFsb2dfaXRlbXNfc2VydmljZS5wcm90bxIOb3NhYy5wdWJsaWMudjEinAEKHkNsdXN0ZXJDYXRhbG9nSXRlbXNMaXN0UmVxdWVzdBITCgZvZmZzZXQYASABKAVIAIgBARISCgVsaW1pdBgCIAEoBUgBiAEBEhMKBmZpbHRlchgDIAEoCUgCiAEBEhIKBW9yZGVyGAQgASgJSAOIAQFCCQoHX29mZnNldEIICgZfbGltaXRCCQoHX2ZpbHRlckIICgZfb3JkZXIicQofQ2x1c3RlckNhdGFsb2dJdGVtc0xpc3RSZXNwb25zZRIMCgRzaXplGAEgASgFEg0KBXRvdGFsGAIgASgFEjEKBWl0ZW1zGAMgAygLMiIub3NhYy5wdWJsaWMudjEuQ2x1c3RlckNhdGFsb2dJdGVtIisKHUNsdXN0ZXJDYXRhbG9nSXRlbXNHZXRSZXF1ZXN0EgoKAmlkGAEgASgJIlQKHkNsdXN0ZXJDYXRhbG9nSXRlbXNHZXRSZXNwb25zZRIyCgZvYmplY3QYASABKAsyIi5vc2FjLnB1YmxpYy52MS5DbHVzdGVyQ2F0YWxvZ0l0ZW0iVgogQ2x1c3RlckNhdGFsb2dJdGVtc0NyZWF0ZVJlcXVlc3QSMgoGb2JqZWN0GAEgASgLMiIub3NhYy5wdWJsaWMudjEuQ2x1c3RlckNhdGFsb2dJdGVtIlcKIUNsdXN0ZXJDYXRhbG9nSXRlbXNDcmVhdGVSZXNwb25zZRIyCgZvYmplY3QYASABKAsyIi5vc2FjLnB1YmxpYy52MS5DbHVzdGVyQ2F0YWxvZ0l0ZW0iLgogQ2x1c3RlckNhdGFsb2dJdGVtc0RlbGV0ZVJlcXVlc3QSCgoCaWQYASABKAkiIwohQ2x1c3RlckNhdGFsb2dJdGVtc0RlbGV0ZVJlc3BvbnNlIpUBCiBDbHVzdGVyQ2F0YWxvZ0l0ZW1zVXBkYXRlUmVxdWVzdBIyCgZvYmplY3QYASABKAsyIi5vc2FjLnB1YmxpYy52MS5DbHVzdGVyQ2F0YWxvZ0l0ZW0SLwoLdXBkYXRlX21hc2sYAiABKAsyGi5nb29nbGUucHJvdG9idWYuRmllbGRNYXNrEgwKBGxvY2sYAyABKAgiVwohQ2x1c3RlckNhdGFsb2dJdGVtc1VwZGF0ZVJlc3BvbnNlEjIKBm9iamVjdBgBIAEoCzIiLm9zYWMucHVibGljLnYxLkNsdXN0ZXJDYXRhbG9nSXRlbTLzBgoTQ2x1c3RlckNhdGFsb2dJdGVtcxKaAQoETGlzdBIuLm9zYWMucHVibGljLnYxLkNsdXN0ZXJDYXRhbG9nSXRlbXNMaXN0UmVxdWVzdBovLm9zYWMucHVibGljLnYxLkNsdXN0ZXJDYXRhbG9nSXRlbXNMaXN0UmVzcG9uc2UiMYLT5JMCKxIpL2FwaS9mdWxmaWxsbWVudC92MS9jbHVzdGVyX2NhdGFsb2dfaXRlbXMSpAEKA0dldBItLm9zYWMucHVibGljLnYxLkNsdXN0ZXJDYXRhbG9nSXRlbXNHZXRSZXF1ZXN0Gi4ub3NhYy5wdWJsaWMudjEuQ2x1c3RlckNhdGFsb2dJdGVtc0dldFJlc3BvbnNlIj6C0+STAjhiBm9iamVjdBIuL2FwaS9mdWxmaWxsbWVudC92MS9jbHVzdGVyX2NhdGFsb2dfaXRlbXMve2lkfRKwAQoGQ3JlYXRlEjAub3NhYy5wdWJsaWMudjEuQ2x1c3RlckNhdGFsb2dJdGVtc0NyZWF0ZVJlcXVlc3QaMS5vc2FjLnB1YmxpYy52MS5DbHVzdGVyQ2F0YWxvZ0l0ZW1zQ3JlYXRlUmVzcG9uc2UiQYLT5JMCOzoGb2JqZWN0YgZvYmplY3QiKS9hcGkvZnVsZmlsbG1lbnQvdjEvY2x1c3Rlcl9jYXRhbG9nX2l0ZW1zEqUBCgZEZWxldGUSMC5vc2FjLnB1YmxpYy52MS5DbHVzdGVyQ2F0YWxvZ0l0ZW1zRGVsZXRlUmVxdWVzdBoxLm9zYWMucHVibGljLnYxLkNsdXN0ZXJDYXRhbG9nSXRlbXNEZWxldGVSZXNwb25zZSI2gtPkkwIwKi4vYXBpL2Z1bGZpbGxtZW50L3YxL2NsdXN0ZXJfY2F0YWxvZ19pdGVtcy97aWR9ErwBCgZVcGRhdGUSMC5vc2FjLnB1YmxpYy52MS5DbHVzdGVyQ2F0YWxvZ0l0ZW1zVXBkYXRlUmVxdWVzdBoxLm9zYWMucHVibGljLnYxLkNsdXN0ZXJDYXRhbG9nSXRlbXNVcGRhdGVSZXNwb25zZSJNgtPkkwJHOgZvYmplY3RiBm9iamVjdDI1L2FwaS9mdWxmaWxsbWVudC92MS9jbHVzdGVyX2NhdGFsb2dfaXRlbXMve29iamVjdC5pZH1iBnByb3RvMw", [file_google_api_annotations, file_google_protobuf_field_mask, file_osac_public_v1_cluster_catalog_item_type]);
 
 /**
  * @generated from message osac.public.v1.ClusterCatalogItemsListRequest
@@ -166,6 +166,36 @@ export const ClusterCatalogItemsCreateResponseSchema: GenMessage<ClusterCatalogI
   messageDesc(file_osac_public_v1_cluster_catalog_items_service, 5);
 
 /**
+ * @generated from message osac.public.v1.ClusterCatalogItemsDeleteRequest
+ */
+export type ClusterCatalogItemsDeleteRequest = Message<"osac.public.v1.ClusterCatalogItemsDeleteRequest"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+};
+
+/**
+ * Describes the message osac.public.v1.ClusterCatalogItemsDeleteRequest.
+ * Use `create(ClusterCatalogItemsDeleteRequestSchema)` to create a new message.
+ */
+export const ClusterCatalogItemsDeleteRequestSchema: GenMessage<ClusterCatalogItemsDeleteRequest> = /*@__PURE__*/
+  messageDesc(file_osac_public_v1_cluster_catalog_items_service, 6);
+
+/**
+ * @generated from message osac.public.v1.ClusterCatalogItemsDeleteResponse
+ */
+export type ClusterCatalogItemsDeleteResponse = Message<"osac.public.v1.ClusterCatalogItemsDeleteResponse"> & {
+};
+
+/**
+ * Describes the message osac.public.v1.ClusterCatalogItemsDeleteResponse.
+ * Use `create(ClusterCatalogItemsDeleteResponseSchema)` to create a new message.
+ */
+export const ClusterCatalogItemsDeleteResponseSchema: GenMessage<ClusterCatalogItemsDeleteResponse> = /*@__PURE__*/
+  messageDesc(file_osac_public_v1_cluster_catalog_items_service, 7);
+
+/**
  * @generated from message osac.public.v1.ClusterCatalogItemsUpdateRequest
  */
 export type ClusterCatalogItemsUpdateRequest = Message<"osac.public.v1.ClusterCatalogItemsUpdateRequest"> & {
@@ -194,7 +224,7 @@ export type ClusterCatalogItemsUpdateRequest = Message<"osac.public.v1.ClusterCa
  * Use `create(ClusterCatalogItemsUpdateRequestSchema)` to create a new message.
  */
 export const ClusterCatalogItemsUpdateRequestSchema: GenMessage<ClusterCatalogItemsUpdateRequest> = /*@__PURE__*/
-  messageDesc(file_osac_public_v1_cluster_catalog_items_service, 6);
+  messageDesc(file_osac_public_v1_cluster_catalog_items_service, 8);
 
 /**
  * @generated from message osac.public.v1.ClusterCatalogItemsUpdateResponse
@@ -211,36 +241,6 @@ export type ClusterCatalogItemsUpdateResponse = Message<"osac.public.v1.ClusterC
  * Use `create(ClusterCatalogItemsUpdateResponseSchema)` to create a new message.
  */
 export const ClusterCatalogItemsUpdateResponseSchema: GenMessage<ClusterCatalogItemsUpdateResponse> = /*@__PURE__*/
-  messageDesc(file_osac_public_v1_cluster_catalog_items_service, 7);
-
-/**
- * @generated from message osac.public.v1.ClusterCatalogItemsDeleteRequest
- */
-export type ClusterCatalogItemsDeleteRequest = Message<"osac.public.v1.ClusterCatalogItemsDeleteRequest"> & {
-  /**
-   * @generated from field: string id = 1;
-   */
-  id: string;
-};
-
-/**
- * Describes the message osac.public.v1.ClusterCatalogItemsDeleteRequest.
- * Use `create(ClusterCatalogItemsDeleteRequestSchema)` to create a new message.
- */
-export const ClusterCatalogItemsDeleteRequestSchema: GenMessage<ClusterCatalogItemsDeleteRequest> = /*@__PURE__*/
-  messageDesc(file_osac_public_v1_cluster_catalog_items_service, 8);
-
-/**
- * @generated from message osac.public.v1.ClusterCatalogItemsDeleteResponse
- */
-export type ClusterCatalogItemsDeleteResponse = Message<"osac.public.v1.ClusterCatalogItemsDeleteResponse"> & {
-};
-
-/**
- * Describes the message osac.public.v1.ClusterCatalogItemsDeleteResponse.
- * Use `create(ClusterCatalogItemsDeleteResponseSchema)` to create a new message.
- */
-export const ClusterCatalogItemsDeleteResponseSchema: GenMessage<ClusterCatalogItemsDeleteResponse> = /*@__PURE__*/
   messageDesc(file_osac_public_v1_cluster_catalog_items_service, 9);
 
 /**
@@ -278,16 +278,6 @@ export const ClusterCatalogItems: GenService<{
     output: typeof ClusterCatalogItemsCreateResponseSchema;
   },
   /**
-   * Updates an existing cluster catalog item.
-   *
-   * @generated from rpc osac.public.v1.ClusterCatalogItems.Update
-   */
-  update: {
-    methodKind: "unary";
-    input: typeof ClusterCatalogItemsUpdateRequestSchema;
-    output: typeof ClusterCatalogItemsUpdateResponseSchema;
-  },
-  /**
    * Deletes a cluster catalog item.
    *
    * @generated from rpc osac.public.v1.ClusterCatalogItems.Delete
@@ -296,6 +286,16 @@ export const ClusterCatalogItems: GenService<{
     methodKind: "unary";
     input: typeof ClusterCatalogItemsDeleteRequestSchema;
     output: typeof ClusterCatalogItemsDeleteResponseSchema;
+  },
+  /**
+   * Updates an existing cluster catalog item.
+   *
+   * @generated from rpc osac.public.v1.ClusterCatalogItems.Update
+   */
+  update: {
+    methodKind: "unary";
+    input: typeof ClusterCatalogItemsUpdateRequestSchema;
+    output: typeof ClusterCatalogItemsUpdateResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_osac_public_v1_cluster_catalog_items_service, 0);

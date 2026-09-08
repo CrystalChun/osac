@@ -14,20 +14,3 @@ export const isValidSshPublicKey = (value?: string): boolean => {
   }
   return !!trimSshPublicKey(value).match(SSH_PUBLIC_KEY_REGEX);
 };
-
-export const isValidPullSecret = (value?: string): boolean => {
-  if (!value?.trim()) {
-    return true;
-  }
-  try {
-    const pullSecret = JSON.parse(value) as { auths?: unknown };
-    return (
-      pullSecret !== null &&
-      typeof pullSecret === 'object' &&
-      pullSecret.auths !== null &&
-      typeof pullSecret.auths === 'object'
-    );
-  } catch {
-    return false;
-  }
-};

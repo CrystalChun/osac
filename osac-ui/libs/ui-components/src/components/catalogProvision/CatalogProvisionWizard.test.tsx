@@ -1,11 +1,16 @@
 import { create } from '@bufbuild/protobuf';
 import type { Transport } from '@connectrpc/connect';
 import type { RenderOptions } from '@testing-library/react';
-import { fireEvent, screen, waitFor, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import { UserEvent } from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 
-import type { ClusterCatalogItem, ComputeInstanceCatalogItem } from '@osac/types';
+import {
+  type ClusterCatalogItem,
+  type ComputeInstanceCatalogItem,
+  ComputeInstanceRunStrategy,
+  type Secret,
+} from '@osac/types';
 import {
   ClusterTemplateReferenceSchema,
   ComputeInstanceTemplateReferenceSchema,
@@ -27,16 +32,12 @@ import type {
 import { createMockConnectTransport } from '../../test-utils/createMockConnectTransport';
 import { renderWithProviders } from '../../test-utils/TestProviders';
 
-const fillClusterGeneralStep = async (
-  user: UserEvent,
-  name: string,
-  pullSecret = '{"auths":{}}',
-) => {
+const fillClusterGeneralStep = async (user: UserEvent, name: string) => {
   const nameInput = screen.getByLabelText(/^Name/);
   await user.clear(nameInput);
   await user.type(nameInput, name);
-  const pullSecretInput = screen.getByLabelText(/Pull secret/);
-  fireEvent.change(pullSecretInput, { target: { value: pullSecret } });
+  await user.click(screen.getByLabelText(/Pull secret secret/));
+  await user.click(screen.getByRole('option', { name: 'pull-secret' }));
 };
 
 const fillGeneralStep = async (user: UserEvent, name: string) => {
@@ -347,6 +348,25 @@ const multiFieldCatalogItem: ComputeInstanceCatalogItem = {
 };
 
 const apiFixtures: MockApiFixtures = {
+  secrets: [
+    {
+      $typeName: 'osac.public.v1.Secret',
+      id: 'pull-secret-id',
+      metadata: {
+        $typeName: 'osac.public.v1.Metadata',
+        displayName: '',
+        description: '',
+        annotations: {},
+        creator: '',
+        labels: {},
+        name: 'pull-secret',
+        project: '',
+        tenant: '',
+        version: 1,
+      },
+      data: {},
+    } as Secret,
+  ],
   catalogItems: [vmCatalogItem],
   clusterCatalogItems: [clusterCatalogItem],
   clusterTemplates: [
@@ -631,7 +651,7 @@ describe('CatalogProvisionWizard', () => {
 
     expect(onProvision.mock.calls[0][0]).toMatchObject({
       spec: {
-        runStrategy: 'Always',
+        runStrategy: ComputeInstanceRunStrategy.COMPUTE_INSTANCE_RUN_STRATEGY_ALWAYS,
         instanceType: { id: 'standard-4-8' },
         bootDisk: { sizeGib: 40 },
       },

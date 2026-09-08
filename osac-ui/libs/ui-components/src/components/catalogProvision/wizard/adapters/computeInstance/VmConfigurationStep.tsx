@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { Alert, Button, Stack, StackItem } from '@patternfly/react-core';
 
-import type { ComputeInstanceCatalogItem } from '@osac/types';
+import { type ComputeInstanceCatalogItem } from '@osac/types';
 import { formatInstanceTypeOptionLabel } from '@osac/ui-components/components/vm/utils';
 
 import {

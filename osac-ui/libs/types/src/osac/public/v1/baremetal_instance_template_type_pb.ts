@@ -17,6 +17,7 @@
 
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
 import type { Any } from "../../../google/protobuf/any_pb";
 import { file_google_protobuf_any } from "../../../google/protobuf/any_pb";
 import type { BareMetalInstanceImage } from "./baremetal_instance_common_type_pb";
@@ -29,7 +30,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/public/v1/baremetal_instance_template_type.proto.
  */
 export const file_osac_public_v1_baremetal_instance_template_type: GenFile = /*@__PURE__*/
-  fileDesc("CjVvc2FjL3B1YmxpYy92MS9iYXJlbWV0YWxfaW5zdGFuY2VfdGVtcGxhdGVfdHlwZS5wcm90bxIOb3NhYy5wdWJsaWMudjEiqgIKGUJhcmVNZXRhbEluc3RhbmNlVGVtcGxhdGUSCgoCaWQYASABKAkSKgoIbWV0YWRhdGEYAiABKAsyGC5vc2FjLnB1YmxpYy52MS5NZXRhZGF0YRINCgV0aXRsZRgDIAEoCRITCgtkZXNjcmlwdGlvbhgEIAEoCRJMCg1zcGVjX2RlZmF1bHRzGAUgASgLMjUub3NhYy5wdWJsaWMudjEuQmFyZU1ldGFsSW5zdGFuY2VUZW1wbGF0ZVNwZWNEZWZhdWx0cxJQCgpwYXJhbWV0ZXJzGAYgAygLMjwub3NhYy5wdWJsaWMudjEuQmFyZU1ldGFsSW5zdGFuY2VUZW1wbGF0ZVBhcmFtZXRlckRlZmluaXRpb24SEQoJaG9zdF90eXBlGAcgASgJIqcBCixCYXJlTWV0YWxJbnN0YW5jZVRlbXBsYXRlUGFyYW1ldGVyRGVmaW5pdGlvbhIMCgRuYW1lGAEgASgJEg0KBXRpdGxlGAIgASgJEhMKC2Rlc2NyaXB0aW9uGAMgASgJEhAKCHJlcXVpcmVkGAQgASgIEgwKBHR5cGUYBSABKAkSJQoHZGVmYXVsdBgGIAEoCzIULmdvb2dsZS5wcm90b2J1Zi5BbnkibQolQmFyZU1ldGFsSW5zdGFuY2VUZW1wbGF0ZVNwZWNEZWZhdWx0cxI6CgVpbWFnZRgBIAEoCzImLm9zYWMucHVibGljLnYxLkJhcmVNZXRhbEluc3RhbmNlSW1hZ2VIAIgBAUIICgZfaW1hZ2UiXwoiQmFyZU1ldGFsSW5zdGFuY2VUZW1wbGF0ZVJlZmVyZW5jZRIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJEg8KB3Byb2plY3QYAyABKAkSDgoGc2hhcmVkGAQgASgIYgZwcm90bzM", [file_google_protobuf_any, file_osac_public_v1_baremetal_instance_common_type, file_osac_public_v1_metadata_type]);
+  fileDesc("CjVvc2FjL3B1YmxpYy92MS9iYXJlbWV0YWxfaW5zdGFuY2VfdGVtcGxhdGVfdHlwZS5wcm90bxIOb3NhYy5wdWJsaWMudjEizgIKGUJhcmVNZXRhbEluc3RhbmNlVGVtcGxhdGUSLgoCaWQYASABKAlCIrpIH3IdEAEyGV5bYS16QS1aX11bYS16QS1aMC05Ll9dKiQSKgoIbWV0YWRhdGEYAiABKAsyGC5vc2FjLnB1YmxpYy52MS5NZXRhZGF0YRINCgV0aXRsZRgDIAEoCRITCgtkZXNjcmlwdGlvbhgEIAEoCRJMCg1zcGVjX2RlZmF1bHRzGAUgASgLMjUub3NhYy5wdWJsaWMudjEuQmFyZU1ldGFsSW5zdGFuY2VUZW1wbGF0ZVNwZWNEZWZhdWx0cxJQCgpwYXJhbWV0ZXJzGAYgAygLMjwub3NhYy5wdWJsaWMudjEuQmFyZU1ldGFsSW5zdGFuY2VUZW1wbGF0ZVBhcmFtZXRlckRlZmluaXRpb24SEQoJaG9zdF90eXBlGAcgASgJIqcBCixCYXJlTWV0YWxJbnN0YW5jZVRlbXBsYXRlUGFyYW1ldGVyRGVmaW5pdGlvbhIMCgRuYW1lGAEgASgJEg0KBXRpdGxlGAIgASgJEhMKC2Rlc2NyaXB0aW9uGAMgASgJEhAKCHJlcXVpcmVkGAQgASgIEgwKBHR5cGUYBSABKAkSJQoHZGVmYXVsdBgGIAEoCzIULmdvb2dsZS5wcm90b2J1Zi5BbnkibQolQmFyZU1ldGFsSW5zdGFuY2VUZW1wbGF0ZVNwZWNEZWZhdWx0cxI6CgVpbWFnZRgBIAEoCzImLm9zYWMucHVibGljLnYxLkJhcmVNZXRhbEluc3RhbmNlSW1hZ2VIAIgBAUIICgZfaW1hZ2UiXwoiQmFyZU1ldGFsSW5zdGFuY2VUZW1wbGF0ZVJlZmVyZW5jZRIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJEg8KB3Byb2plY3QYAyABKAkSDgoGc2hhcmVkGAQgASgIYgZwcm90bzM", [file_buf_validate_validate, file_google_protobuf_any, file_osac_public_v1_baremetal_instance_common_type, file_osac_public_v1_metadata_type]);
 
 /**
  * A bare metal instance template defines a hardware profile (host type, OS image, network configuration)
@@ -41,7 +42,8 @@ export const file_osac_public_v1_baremetal_instance_template_type: GenFile = /*@
  */
 export type BareMetalInstanceTemplate = Message<"osac.public.v1.BareMetalInstanceTemplate"> & {
   /**
-   * Unique identifier of the template.
+   * Unique identifier of the template. Must be a valid Ansible role name: letters, digits,
+   * underscores, and dots, starting with a letter or underscore (e.g., "osac.templates.bm_host_provisioning").
    *
    * @generated from field: string id = 1;
    */
@@ -74,11 +76,6 @@ export type BareMetalInstanceTemplate = Message<"osac.public.v1.BareMetalInstanc
   specDefaults?: BareMetalInstanceTemplateSpecDefaults | undefined;
 
   /**
-   * Definitions of the parameters that can be used to customize the template.
-   *
-   * Note that these are only the *definitions* of the parameters, not the actual values. The actual values are in the
-   * `spec.template_parameters` field of the bare metal instance.
-   *
    * @generated from field: repeated osac.public.v1.BareMetalInstanceTemplateParameterDefinition parameters = 6;
    */
   parameters: BareMetalInstanceTemplateParameterDefinition[];

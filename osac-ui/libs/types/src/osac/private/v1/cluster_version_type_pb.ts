@@ -18,6 +18,7 @@
 import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
+import { file_cleanapi_cleanapi } from "../../../cleanapi/cleanapi_pb";
 import { file_google_api_field_behavior } from "../../../google/api/field_behavior_pb";
 import type { Timestamp } from "../../../google/protobuf/timestamp_pb";
 import { file_google_protobuf_timestamp } from "../../../google/protobuf/timestamp_pb";
@@ -29,7 +30,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/private/v1/cluster_version_type.proto.
  */
 export const file_osac_private_v1_cluster_version_type: GenFile = /*@__PURE__*/
-  fileDesc("Cipvc2FjL3ByaXZhdGUvdjEvY2x1c3Rlcl92ZXJzaW9uX3R5cGUucHJvdG8SD29zYWMucHJpdmF0ZS52MSKcAQoZQ2x1c3RlclZlcnNpb25EZXByZWNhdGlvbhI+ChVkZXByZWNhdGlvbl90aW1lc3RhbXAYASABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgPgQQMSPwoWb2Jzb2xlc2NlbmNlX3RpbWVzdGFtcBgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCA+BBAyKzAQoOQ2x1c3RlclZlcnNpb24SCgoCaWQYASABKAkSKwoIbWV0YWRhdGEYAiABKAsyGS5vc2FjLnByaXZhdGUudjEuTWV0YWRhdGESMQoEc3BlYxgDIAEoCzIjLm9zYWMucHJpdmF0ZS52MS5DbHVzdGVyVmVyc2lvblNwZWMSNQoGc3RhdHVzGAQgASgLMiUub3NhYy5wcml2YXRlLnYxLkNsdXN0ZXJWZXJzaW9uU3RhdHVzIqwCChJDbHVzdGVyVmVyc2lvblNwZWMSHwoFaW1hZ2UYASABKAlCEOBBAuBBBbpIB3IFEAEYgAQSGQoHZW5hYmxlZBgCIAEoCEID4EEBSACIAQESHAoKaXNfZGVmYXVsdBgDIAEoCEID4EEBSAGIAQESOAoFc3RhdGUYBCABKA4yJC5vc2FjLnByaXZhdGUudjEuQ2x1c3RlclZlcnNpb25TdGF0ZUID4EEBEkQKC2RlcHJlY2F0aW9uGAUgASgLMioub3NhYy5wcml2YXRlLnYxLkNsdXN0ZXJWZXJzaW9uRGVwcmVjYXRpb25CA+BBARIhCgd2ZXJzaW9uGAYgASgJQhDgQQLgQQW6SAdyBRABGIACQgoKCF9lbmFibGVkQg0KC19pc19kZWZhdWx0IhYKFENsdXN0ZXJWZXJzaW9uU3RhdHVzIlQKF0NsdXN0ZXJWZXJzaW9uUmVmZXJlbmNlEgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkSDwoHcHJvamVjdBgDIAEoCRIOCgZzaGFyZWQYBCABKAgqqAEKE0NsdXN0ZXJWZXJzaW9uU3RhdGUSJQohQ0xVU1RFUl9WRVJTSU9OX1NUQVRFX1VOU1BFQ0lGSUVEEAASIAocQ0xVU1RFUl9WRVJTSU9OX1NUQVRFX0FDVElWRRABEiQKIENMVVNURVJfVkVSU0lPTl9TVEFURV9ERVBSRUNBVEVEEAISIgoeQ0xVU1RFUl9WRVJTSU9OX1NUQVRFX09CU09MRVRFEANiBnByb3RvMw", [file_buf_validate_validate, file_google_api_field_behavior, file_google_protobuf_timestamp, file_osac_private_v1_metadata_type]);
+  fileDesc("Cipvc2FjL3ByaXZhdGUvdjEvY2x1c3Rlcl92ZXJzaW9uX3R5cGUucHJvdG8SD29zYWMucHJpdmF0ZS52MSKcAQoZQ2x1c3RlclZlcnNpb25EZXByZWNhdGlvbhI+ChVkZXByZWNhdGlvbl90aW1lc3RhbXAYASABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgPgQQMSPwoWb2Jzb2xlc2NlbmNlX3RpbWVzdGFtcBgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCA+BBAyKzAQoOQ2x1c3RlclZlcnNpb24SCgoCaWQYASABKAkSKwoIbWV0YWRhdGEYAiABKAsyGS5vc2FjLnByaXZhdGUudjEuTWV0YWRhdGESMQoEc3BlYxgDIAEoCzIjLm9zYWMucHJpdmF0ZS52MS5DbHVzdGVyVmVyc2lvblNwZWMSNQoGc3RhdHVzGAQgASgLMiUub3NhYy5wcml2YXRlLnYxLkNsdXN0ZXJWZXJzaW9uU3RhdHVzIrICChJDbHVzdGVyVmVyc2lvblNwZWMSJQoFaW1hZ2UYASABKAlCFuBBAuBBBbpIB3IFEAEYgASKtRgCCAESGQoHZW5hYmxlZBgCIAEoCEID4EEBSACIAQESHAoKaXNfZGVmYXVsdBgDIAEoCEID4EEBSAGIAQESOAoFc3RhdGUYBCABKA4yJC5vc2FjLnByaXZhdGUudjEuQ2x1c3RlclZlcnNpb25TdGF0ZUID4EEBEkQKC2RlcHJlY2F0aW9uGAUgASgLMioub3NhYy5wcml2YXRlLnYxLkNsdXN0ZXJWZXJzaW9uRGVwcmVjYXRpb25CA+BBARIhCgd2ZXJzaW9uGAYgASgJQhDgQQLgQQW6SAdyBRABGIACQgoKCF9lbmFibGVkQg0KC19pc19kZWZhdWx0IhYKFENsdXN0ZXJWZXJzaW9uU3RhdHVzIlQKF0NsdXN0ZXJWZXJzaW9uUmVmZXJlbmNlEgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkSDwoHcHJvamVjdBgDIAEoCRIOCgZzaGFyZWQYBCABKAgqqAEKE0NsdXN0ZXJWZXJzaW9uU3RhdGUSJQohQ0xVU1RFUl9WRVJTSU9OX1NUQVRFX1VOU1BFQ0lGSUVEEAASIAocQ0xVU1RFUl9WRVJTSU9OX1NUQVRFX0FDVElWRRABEiQKIENMVVNURVJfVkVSU0lPTl9TVEFURV9ERVBSRUNBVEVEEAISIgoeQ0xVU1RFUl9WRVJTSU9OX1NUQVRFX09CU09MRVRFEANCFIq1GBASDm9zYWMucHVibGljLnYxYgZwcm90bzM", [file_buf_validate_validate, file_cleanapi_cleanapi, file_google_api_field_behavior, file_google_protobuf_timestamp, file_osac_private_v1_metadata_type]);
 
 /**
  * Contains deprecation details for a cluster version.
@@ -64,7 +65,7 @@ export const ClusterVersionDeprecationSchema: GenMessage<ClusterVersionDeprecati
   messageDesc(file_osac_private_v1_cluster_version_type, 0);
 
 /**
- * Contains the details about the cluster version that are available only for the system.
+ * Describes an OpenShift release version available for cluster provisioning.
  *
  * Cluster versions are admin-managed catalog entries that define which OpenShift versions are available. Users
  * select a cluster version when creating clusters, either directly via Cluster `spec.version` or
@@ -122,9 +123,9 @@ export const ClusterVersionSchema: GenMessage<ClusterVersion> = /*@__PURE__*/
 /**
  * Defines the desired configuration for a ClusterVersion.
  *
- * The spec contains admin-specified parameters that define the version catalog entry. The `image` and `version`
- * fields are immutable after creation. The `enabled`, `is_default`, `state`, and `deprecation` fields may be
- * updated to manage the version lifecycle.
+ * The spec contains admin-specified parameters that define the version catalog entry. The `version` field is
+ * immutable after creation. The `enabled`, `is_default`, `state`, and `deprecation` fields may be updated to
+ * manage the version lifecycle.
  *
  * @generated from message osac.private.v1.ClusterVersionSpec
  */

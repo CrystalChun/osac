@@ -17,13 +17,14 @@
 
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_cleanapi_cleanapi } from "../../../cleanapi/cleanapi_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file osac/private/v1/baremetal_instance_common_type.proto.
  */
 export const file_osac_private_v1_baremetal_instance_common_type: GenFile = /*@__PURE__*/
-  fileDesc("CjRvc2FjL3ByaXZhdGUvdjEvYmFyZW1ldGFsX2luc3RhbmNlX2NvbW1vbl90eXBlLnByb3RvEg9vc2FjLnByaXZhdGUudjEiQQoWQmFyZU1ldGFsSW5zdGFuY2VJbWFnZRITCgtzb3VyY2VfdHlwZRgBIAEoCRISCgpzb3VyY2VfcmVmGAIgASgJYgZwcm90bzM");
+  fileDesc("CjRvc2FjL3ByaXZhdGUvdjEvYmFyZW1ldGFsX2luc3RhbmNlX2NvbW1vbl90eXBlLnByb3RvEg9vc2FjLnByaXZhdGUudjEiQQoWQmFyZU1ldGFsSW5zdGFuY2VJbWFnZRITCgtzb3VyY2VfdHlwZRgBIAEoCRISCgpzb3VyY2VfcmVmGAIgASgJQhSKtRgQEg5vc2FjLnB1YmxpYy52MWIGcHJvdG8z", [file_cleanapi_cleanapi]);
 
 /**
  * Contains the image configuration for a bare metal instance.

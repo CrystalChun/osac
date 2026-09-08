@@ -17,6 +17,7 @@
 
 import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_cleanapi_cleanapi } from "../../../cleanapi/cleanapi_pb";
 import { file_google_api_annotations } from "../../../google/api/annotations_pb";
 import type { FieldMask } from "../../../google/protobuf/field_mask_pb";
 import { file_google_protobuf_field_mask } from "../../../google/protobuf/field_mask_pb";
@@ -28,26 +29,60 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/private/v1/compute_instance_templates_service.proto.
  */
 export const file_osac_private_v1_compute_instance_templates_service: GenFile = /*@__PURE__*/
-  fileDesc("Cjhvc2FjL3ByaXZhdGUvdjEvY29tcHV0ZV9pbnN0YW5jZV90ZW1wbGF0ZXNfc2VydmljZS5wcm90bxIPb3NhYy5wcml2YXRlLnYxIoMBCiNDb21wdXRlSW5zdGFuY2VUZW1wbGF0ZXNMaXN0UmVxdWVzdBITCgZvZmZzZXQYASABKAVIAIgBARISCgVsaW1pdBgCIAEoBUgBiAEBEhMKBmZpbHRlchgDIAEoCUgCiAEBQgkKB19vZmZzZXRCCAoGX2xpbWl0QgkKB19maWx0ZXIifAokQ29tcHV0ZUluc3RhbmNlVGVtcGxhdGVzTGlzdFJlc3BvbnNlEgwKBHNpemUYASABKAUSDQoFdG90YWwYAiABKAUSNwoFaXRlbXMYAyADKAsyKC5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlVGVtcGxhdGUiMAoiQ29tcHV0ZUluc3RhbmNlVGVtcGxhdGVzR2V0UmVxdWVzdBIKCgJpZBgBIAEoCSJfCiNDb21wdXRlSW5zdGFuY2VUZW1wbGF0ZXNHZXRSZXNwb25zZRI4CgZvYmplY3QYASABKAsyKC5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlVGVtcGxhdGUiYQolQ29tcHV0ZUluc3RhbmNlVGVtcGxhdGVzQ3JlYXRlUmVxdWVzdBI4CgZvYmplY3QYASABKAsyKC5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlVGVtcGxhdGUidAomQ29tcHV0ZUluc3RhbmNlVGVtcGxhdGVzQ3JlYXRlUmVzcG9uc2USOAoGb2JqZWN0GAEgASgLMigub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZVRlbXBsYXRlEhAKCHdhcm5pbmdzGAIgAygJIjMKJUNvbXB1dGVJbnN0YW5jZVRlbXBsYXRlc0RlbGV0ZVJlcXVlc3QSCgoCaWQYASABKAkiKAomQ29tcHV0ZUluc3RhbmNlVGVtcGxhdGVzRGVsZXRlUmVzcG9uc2UioAEKJUNvbXB1dGVJbnN0YW5jZVRlbXBsYXRlc1VwZGF0ZVJlcXVlc3QSOAoGb2JqZWN0GAEgASgLMigub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZVRlbXBsYXRlEi8KC3VwZGF0ZV9tYXNrGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLkZpZWxkTWFzaxIMCgRsb2NrGAMgASgIInQKJkNvbXB1dGVJbnN0YW5jZVRlbXBsYXRlc1VwZGF0ZVJlc3BvbnNlEjgKBm9iamVjdBgBIAEoCzIoLm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2VUZW1wbGF0ZRIQCgh3YXJuaW5ncxgCIAMoCSIzCiVDb21wdXRlSW5zdGFuY2VUZW1wbGF0ZXNTaWduYWxSZXF1ZXN0EgoKAmlkGAEgASgJIigKJkNvbXB1dGVJbnN0YW5jZVRlbXBsYXRlc1NpZ25hbFJlc3BvbnNlMrYIChhDb21wdXRlSW5zdGFuY2VUZW1wbGF0ZXMSpwEKBExpc3QSNC5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlVGVtcGxhdGVzTGlzdFJlcXVlc3QaNS5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlVGVtcGxhdGVzTGlzdFJlc3BvbnNlIjKC0+STAiwSKi9hcGkvcHJpdmF0ZS92MS9jb21wdXRlX2luc3RhbmNlX3RlbXBsYXRlcxKxAQoDR2V0EjMub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZVRlbXBsYXRlc0dldFJlcXVlc3QaNC5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlVGVtcGxhdGVzR2V0UmVzcG9uc2UiP4LT5JMCOWIGb2JqZWN0Ei8vYXBpL3ByaXZhdGUvdjEvY29tcHV0ZV9pbnN0YW5jZV90ZW1wbGF0ZXMve2lkfRK9AQoGQ3JlYXRlEjYub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZVRlbXBsYXRlc0NyZWF0ZVJlcXVlc3QaNy5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlVGVtcGxhdGVzQ3JlYXRlUmVzcG9uc2UiQoLT5JMCPDoGb2JqZWN0YgZvYmplY3QiKi9hcGkvcHJpdmF0ZS92MS9jb21wdXRlX2luc3RhbmNlX3RlbXBsYXRlcxKyAQoGRGVsZXRlEjYub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZVRlbXBsYXRlc0RlbGV0ZVJlcXVlc3QaNy5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlVGVtcGxhdGVzRGVsZXRlUmVzcG9uc2UiN4LT5JMCMSovL2FwaS9wcml2YXRlL3YxL2NvbXB1dGVfaW5zdGFuY2VfdGVtcGxhdGVzL3tpZH0SyQEKBlVwZGF0ZRI2Lm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2VUZW1wbGF0ZXNVcGRhdGVSZXF1ZXN0Gjcub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZVRlbXBsYXRlc1VwZGF0ZVJlc3BvbnNlIk6C0+STAkg6Bm9iamVjdGIGb2JqZWN0MjYvYXBpL3ByaXZhdGUvdjEvY29tcHV0ZV9pbnN0YW5jZV90ZW1wbGF0ZXMve29iamVjdC5pZH0SewoGU2lnbmFsEjYub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZVRlbXBsYXRlc1NpZ25hbFJlcXVlc3QaNy5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlVGVtcGxhdGVzU2lnbmFsUmVzcG9uc2UiAGIGcHJvdG8z", [file_google_api_annotations, file_google_protobuf_field_mask, file_osac_private_v1_compute_instance_template_type]);
+  fileDesc("Cjhvc2FjL3ByaXZhdGUvdjEvY29tcHV0ZV9pbnN0YW5jZV90ZW1wbGF0ZXNfc2VydmljZS5wcm90bxIPb3NhYy5wcml2YXRlLnYxIqEBCiNDb21wdXRlSW5zdGFuY2VUZW1wbGF0ZXNMaXN0UmVxdWVzdBITCgZvZmZzZXQYASABKAVIAIgBARISCgVsaW1pdBgCIAEoBUgBiAEBEhMKBmZpbHRlchgDIAEoCUgCiAEBEhIKBW9yZGVyGAQgASgJSAOIAQFCCQoHX29mZnNldEIICgZfbGltaXRCCQoHX2ZpbHRlckIICgZfb3JkZXIifAokQ29tcHV0ZUluc3RhbmNlVGVtcGxhdGVzTGlzdFJlc3BvbnNlEgwKBHNpemUYASABKAUSDQoFdG90YWwYAiABKAUSNwoFaXRlbXMYAyADKAsyKC5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlVGVtcGxhdGUiMAoiQ29tcHV0ZUluc3RhbmNlVGVtcGxhdGVzR2V0UmVxdWVzdBIKCgJpZBgBIAEoCSJfCiNDb21wdXRlSW5zdGFuY2VUZW1wbGF0ZXNHZXRSZXNwb25zZRI4CgZvYmplY3QYASABKAsyKC5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlVGVtcGxhdGUiYQolQ29tcHV0ZUluc3RhbmNlVGVtcGxhdGVzQ3JlYXRlUmVxdWVzdBI4CgZvYmplY3QYASABKAsyKC5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlVGVtcGxhdGUidAomQ29tcHV0ZUluc3RhbmNlVGVtcGxhdGVzQ3JlYXRlUmVzcG9uc2USOAoGb2JqZWN0GAEgASgLMigub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZVRlbXBsYXRlEhAKCHdhcm5pbmdzGAIgAygJIqABCiVDb21wdXRlSW5zdGFuY2VUZW1wbGF0ZXNVcGRhdGVSZXF1ZXN0EjgKBm9iamVjdBgBIAEoCzIoLm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2VUZW1wbGF0ZRIvCgt1cGRhdGVfbWFzaxgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5GaWVsZE1hc2sSDAoEbG9jaxgDIAEoCCJ0CiZDb21wdXRlSW5zdGFuY2VUZW1wbGF0ZXNVcGRhdGVSZXNwb25zZRI4CgZvYmplY3QYASABKAsyKC5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlVGVtcGxhdGUSEAoId2FybmluZ3MYAiADKAkiMwolQ29tcHV0ZUluc3RhbmNlVGVtcGxhdGVzRGVsZXRlUmVxdWVzdBIKCgJpZBgBIAEoCSIoCiZDb21wdXRlSW5zdGFuY2VUZW1wbGF0ZXNEZWxldGVSZXNwb25zZSI7CiVDb21wdXRlSW5zdGFuY2VUZW1wbGF0ZXNTaWduYWxSZXF1ZXN0EgoKAmlkGAEgASgJOgaKtRgCCAEiMAomQ29tcHV0ZUluc3RhbmNlVGVtcGxhdGVzU2lnbmFsUmVzcG9uc2U6Boq1GAIIATK9CAoYQ29tcHV0ZUluc3RhbmNlVGVtcGxhdGVzEqcBCgRMaXN0EjQub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZVRlbXBsYXRlc0xpc3RSZXF1ZXN0GjUub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZVRlbXBsYXRlc0xpc3RSZXNwb25zZSIygtPkkwIsEiovYXBpL3ByaXZhdGUvdjEvY29tcHV0ZV9pbnN0YW5jZV90ZW1wbGF0ZXMSsQEKA0dldBIzLm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2VUZW1wbGF0ZXNHZXRSZXF1ZXN0GjQub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZVRlbXBsYXRlc0dldFJlc3BvbnNlIj+C0+STAjliBm9iamVjdBIvL2FwaS9wcml2YXRlL3YxL2NvbXB1dGVfaW5zdGFuY2VfdGVtcGxhdGVzL3tpZH0SvQEKBkNyZWF0ZRI2Lm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2VUZW1wbGF0ZXNDcmVhdGVSZXF1ZXN0Gjcub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZVRlbXBsYXRlc0NyZWF0ZVJlc3BvbnNlIkKC0+STAjw6Bm9iamVjdGIGb2JqZWN0IiovYXBpL3ByaXZhdGUvdjEvY29tcHV0ZV9pbnN0YW5jZV90ZW1wbGF0ZXMSyQEKBlVwZGF0ZRI2Lm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2VUZW1wbGF0ZXNVcGRhdGVSZXF1ZXN0Gjcub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZVRlbXBsYXRlc1VwZGF0ZVJlc3BvbnNlIk6C0+STAkg6Bm9iamVjdGIGb2JqZWN0MjYvYXBpL3ByaXZhdGUvdjEvY29tcHV0ZV9pbnN0YW5jZV90ZW1wbGF0ZXMve29iamVjdC5pZH0SsgEKBkRlbGV0ZRI2Lm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2VUZW1wbGF0ZXNEZWxldGVSZXF1ZXN0Gjcub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZVRlbXBsYXRlc0RlbGV0ZVJlc3BvbnNlIjeC0+STAjEqLy9hcGkvcHJpdmF0ZS92MS9jb21wdXRlX2luc3RhbmNlX3RlbXBsYXRlcy97aWR9EoEBCgZTaWduYWwSNi5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlVGVtcGxhdGVzU2lnbmFsUmVxdWVzdBo3Lm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2VUZW1wbGF0ZXNTaWduYWxSZXNwb25zZSIGirUYAggBQimKtRglEg5vc2FjLnB1YmxpYy52MSITcHJpdmF0ZTpmdWxmaWxsbWVudGIGcHJvdG8z", [file_cleanapi_cleanapi, file_google_api_annotations, file_google_protobuf_field_mask, file_osac_private_v1_compute_instance_template_type]);
 
 /**
  * @generated from message osac.private.v1.ComputeInstanceTemplatesListRequest
  */
 export type ComputeInstanceTemplatesListRequest = Message<"osac.private.v1.ComputeInstanceTemplatesListRequest"> & {
   /**
+   * Index of the first result. If not specified the default value will be zero.
+   *
    * @generated from field: optional int32 offset = 1;
    */
   offset?: number | undefined;
 
   /**
+   * Maximum number of results to be returned by the server. When not specified all the results will be returned. Note
+   * that there may not be enough results to return, and that the server may decide, for performance reasons, to return
+   * less results than requested.
+   *
    * @generated from field: optional int32 limit = 2;
    */
   limit?: number | undefined;
 
   /**
+   * Filter criteria.
+   *
+   * The value of this parameter is a [CEL](https://cel.dev) expression used to select which objects to return. The
+   * built-in `this` variable refers to the object being tested and `now` refers to the current date and time. If the
+   * expression evaluates to `true` the object is included in the results. For example, to retrieve all templates with
+   * names starting with `large`:
+   *
+   *     this.metadata.name.startsWith("large")
+   *
+   * If this isn't provided, or if the value is empty, then all the templates that the user has permission to see will
+   * be returned. Not all CEL constructs are currently supported for implementation reasons; see the filter
+   * documentation (docs/FILTER.md) for the full details.
+   *
    * @generated from field: optional string filter = 3;
    */
   filter?: string | undefined;
+
+  /**
+   * Order criteria.
+   *
+   * The syntax of this parameter is similar to the syntax of the _order by_ clause of a SQL statement, but using the
+   * names of the attributes of the templated instead of the names of the columns of a table. For example, in order to
+   * sort the templates descending by title the value should be:
+   *
+   *     name desc
+   *
+   * If the parameter isn't provided, or if the value is empty, then the order of the results is undefined.
+   *
+   * @generated from field: optional string order = 4;
+   */
+  order?: string | undefined;
 };
 
 /**
@@ -62,16 +97,25 @@ export const ComputeInstanceTemplatesListRequestSchema: GenMessage<ComputeInstan
  */
 export type ComputeInstanceTemplatesListResponse = Message<"osac.private.v1.ComputeInstanceTemplatesListResponse"> & {
   /**
+   * Actual number of items returned. Note that this may be smaller than the value requested in the `limit` parameter
+   * of the request if there are not enough items, or of the system decides that returning that number of items isn't
+   * feasible or convenient for performance reasons.
+   *
    * @generated from field: int32 size = 1;
    */
   size: number;
 
   /**
+   * Total number of items of the collection that match the search criteria, regardless of the number of results
+   * requested with the `limit` parameter.
+   *
    * @generated from field: int32 total = 2;
    */
   total: number;
 
   /**
+   * List of results.
+   *
    * @generated from field: repeated osac.private.v1.ComputeInstanceTemplate items = 3;
    */
   items: ComputeInstanceTemplate[];
@@ -160,36 +204,6 @@ export const ComputeInstanceTemplatesCreateResponseSchema: GenMessage<ComputeIns
   messageDesc(file_osac_private_v1_compute_instance_templates_service, 5);
 
 /**
- * @generated from message osac.private.v1.ComputeInstanceTemplatesDeleteRequest
- */
-export type ComputeInstanceTemplatesDeleteRequest = Message<"osac.private.v1.ComputeInstanceTemplatesDeleteRequest"> & {
-  /**
-   * @generated from field: string id = 1;
-   */
-  id: string;
-};
-
-/**
- * Describes the message osac.private.v1.ComputeInstanceTemplatesDeleteRequest.
- * Use `create(ComputeInstanceTemplatesDeleteRequestSchema)` to create a new message.
- */
-export const ComputeInstanceTemplatesDeleteRequestSchema: GenMessage<ComputeInstanceTemplatesDeleteRequest> = /*@__PURE__*/
-  messageDesc(file_osac_private_v1_compute_instance_templates_service, 6);
-
-/**
- * @generated from message osac.private.v1.ComputeInstanceTemplatesDeleteResponse
- */
-export type ComputeInstanceTemplatesDeleteResponse = Message<"osac.private.v1.ComputeInstanceTemplatesDeleteResponse"> & {
-};
-
-/**
- * Describes the message osac.private.v1.ComputeInstanceTemplatesDeleteResponse.
- * Use `create(ComputeInstanceTemplatesDeleteResponseSchema)` to create a new message.
- */
-export const ComputeInstanceTemplatesDeleteResponseSchema: GenMessage<ComputeInstanceTemplatesDeleteResponse> = /*@__PURE__*/
-  messageDesc(file_osac_private_v1_compute_instance_templates_service, 7);
-
-/**
  * @generated from message osac.private.v1.ComputeInstanceTemplatesUpdateRequest
  */
 export type ComputeInstanceTemplatesUpdateRequest = Message<"osac.private.v1.ComputeInstanceTemplatesUpdateRequest"> & {
@@ -218,7 +232,7 @@ export type ComputeInstanceTemplatesUpdateRequest = Message<"osac.private.v1.Com
  * Use `create(ComputeInstanceTemplatesUpdateRequestSchema)` to create a new message.
  */
 export const ComputeInstanceTemplatesUpdateRequestSchema: GenMessage<ComputeInstanceTemplatesUpdateRequest> = /*@__PURE__*/
-  messageDesc(file_osac_private_v1_compute_instance_templates_service, 8);
+  messageDesc(file_osac_private_v1_compute_instance_templates_service, 6);
 
 /**
  * @generated from message osac.private.v1.ComputeInstanceTemplatesUpdateResponse
@@ -242,6 +256,36 @@ export type ComputeInstanceTemplatesUpdateResponse = Message<"osac.private.v1.Co
  * Use `create(ComputeInstanceTemplatesUpdateResponseSchema)` to create a new message.
  */
 export const ComputeInstanceTemplatesUpdateResponseSchema: GenMessage<ComputeInstanceTemplatesUpdateResponse> = /*@__PURE__*/
+  messageDesc(file_osac_private_v1_compute_instance_templates_service, 7);
+
+/**
+ * @generated from message osac.private.v1.ComputeInstanceTemplatesDeleteRequest
+ */
+export type ComputeInstanceTemplatesDeleteRequest = Message<"osac.private.v1.ComputeInstanceTemplatesDeleteRequest"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+};
+
+/**
+ * Describes the message osac.private.v1.ComputeInstanceTemplatesDeleteRequest.
+ * Use `create(ComputeInstanceTemplatesDeleteRequestSchema)` to create a new message.
+ */
+export const ComputeInstanceTemplatesDeleteRequestSchema: GenMessage<ComputeInstanceTemplatesDeleteRequest> = /*@__PURE__*/
+  messageDesc(file_osac_private_v1_compute_instance_templates_service, 8);
+
+/**
+ * @generated from message osac.private.v1.ComputeInstanceTemplatesDeleteResponse
+ */
+export type ComputeInstanceTemplatesDeleteResponse = Message<"osac.private.v1.ComputeInstanceTemplatesDeleteResponse"> & {
+};
+
+/**
+ * Describes the message osac.private.v1.ComputeInstanceTemplatesDeleteResponse.
+ * Use `create(ComputeInstanceTemplatesDeleteResponseSchema)` to create a new message.
+ */
+export const ComputeInstanceTemplatesDeleteResponseSchema: GenMessage<ComputeInstanceTemplatesDeleteResponse> = /*@__PURE__*/
   messageDesc(file_osac_private_v1_compute_instance_templates_service, 9);
 
 /**
@@ -279,6 +323,8 @@ export const ComputeInstanceTemplatesSignalResponseSchema: GenMessage<ComputeIns
  */
 export const ComputeInstanceTemplates: GenService<{
   /**
+   * Retrieves the list of compute instance templates.
+   *
    * @generated from rpc osac.private.v1.ComputeInstanceTemplates.List
    */
   list: {
@@ -287,6 +333,8 @@ export const ComputeInstanceTemplates: GenService<{
     output: typeof ComputeInstanceTemplatesListResponseSchema;
   },
   /**
+   * Retrieves the details of one specific compute instance template.
+   *
    * @generated from rpc osac.private.v1.ComputeInstanceTemplates.Get
    */
   get: {
@@ -295,6 +343,8 @@ export const ComputeInstanceTemplates: GenService<{
     output: typeof ComputeInstanceTemplatesGetResponseSchema;
   },
   /**
+   * Creates a new compute instance template.
+   *
    * @generated from rpc osac.private.v1.ComputeInstanceTemplates.Create
    */
   create: {
@@ -303,20 +353,24 @@ export const ComputeInstanceTemplates: GenService<{
     output: typeof ComputeInstanceTemplatesCreateResponseSchema;
   },
   /**
-   * @generated from rpc osac.private.v1.ComputeInstanceTemplates.Delete
-   */
-  delete: {
-    methodKind: "unary";
-    input: typeof ComputeInstanceTemplatesDeleteRequestSchema;
-    output: typeof ComputeInstanceTemplatesDeleteResponseSchema;
-  },
-  /**
+   * Updates an existing compute instance template.
+   *
    * @generated from rpc osac.private.v1.ComputeInstanceTemplates.Update
    */
   update: {
     methodKind: "unary";
     input: typeof ComputeInstanceTemplatesUpdateRequestSchema;
     output: typeof ComputeInstanceTemplatesUpdateResponseSchema;
+  },
+  /**
+   * Deletes a compute instance template.
+   *
+   * @generated from rpc osac.private.v1.ComputeInstanceTemplates.Delete
+   */
+  delete: {
+    methodKind: "unary";
+    input: typeof ComputeInstanceTemplatesDeleteRequestSchema;
+    output: typeof ComputeInstanceTemplatesDeleteResponseSchema;
   },
   /**
    * Indicates that something changed in the object or the system that may require reconciling the object.

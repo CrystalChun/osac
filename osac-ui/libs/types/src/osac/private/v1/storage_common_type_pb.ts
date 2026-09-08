@@ -17,12 +17,13 @@
 
 import type { GenEnum, GenFile } from "@bufbuild/protobuf/codegenv2";
 import { enumDesc, fileDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_cleanapi_cleanapi } from "../../../cleanapi/cleanapi_pb";
 
 /**
  * Describes the file osac/private/v1/storage_common_type.proto.
  */
 export const file_osac_private_v1_storage_common_type: GenFile = /*@__PURE__*/
-  fileDesc("Cilvc2FjL3ByaXZhdGUvdjEvc3RvcmFnZV9jb21tb25fdHlwZS5wcm90bxIPb3NhYy5wcml2YXRlLnYxKmkKD1N0b3JhZ2VQcm90b2NvbBIgChxTVE9SQUdFX1BST1RPQ09MX1VOU1BFQ0lGSUVEEAASGAoUU1RPUkFHRV9QUk9UT0NPTF9ORlMQARIaChZTVE9SQUdFX1BST1RPQ09MX0JMT0NLEAJiBnByb3RvMw");
+  fileDesc("Cilvc2FjL3ByaXZhdGUvdjEvc3RvcmFnZV9jb21tb25fdHlwZS5wcm90bxIPb3NhYy5wcml2YXRlLnYxKmkKD1N0b3JhZ2VQcm90b2NvbBIgChxTVE9SQUdFX1BST1RPQ09MX1VOU1BFQ0lGSUVEEAASGAoUU1RPUkFHRV9QUk9UT0NPTF9ORlMQARIaChZTVE9SQUdFX1BST1RPQ09MX0JMT0NLEAJCFIq1GBASDm9zYWMucHVibGljLnYxYgZwcm90bzM", [file_cleanapi_cleanapi]);
 
 /**
  * Identifies the storage protocol used by storage backends and volumes.

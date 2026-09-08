@@ -17,6 +17,7 @@
 
 import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_cleanapi_cleanapi } from "../../../cleanapi/cleanapi_pb";
 import { file_google_api_annotations } from "../../../google/api/annotations_pb";
 import type { FieldMask } from "../../../google/protobuf/field_mask_pb";
 import { file_google_protobuf_field_mask } from "../../../google/protobuf/field_mask_pb";
@@ -28,28 +29,57 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/private/v1/host_types_service.proto.
  */
 export const file_osac_private_v1_host_types_service: GenFile = /*@__PURE__*/
-  fileDesc("Cihvc2FjL3ByaXZhdGUvdjEvaG9zdF90eXBlc19zZXJ2aWNlLnByb3RvEg9vc2FjLnByaXZhdGUudjEikgEKFEhvc3RUeXBlc0xpc3RSZXF1ZXN0EhMKBm9mZnNldBgBIAEoBUgAiAEBEhIKBWxpbWl0GAIgASgFSAGIAQESEwoGZmlsdGVyGAMgASgJSAKIAQESEgoFb3JkZXIYBCABKAlIA4gBAUIJCgdfb2Zmc2V0QggKBl9saW1pdEIJCgdfZmlsdGVyQggKBl9vcmRlciJeChVIb3N0VHlwZXNMaXN0UmVzcG9uc2USDAoEc2l6ZRgBIAEoBRINCgV0b3RhbBgCIAEoBRIoCgVpdGVtcxgDIAMoCzIZLm9zYWMucHJpdmF0ZS52MS5Ib3N0VHlwZSIhChNIb3N0VHlwZXNHZXRSZXF1ZXN0EgoKAmlkGAEgASgJIkEKFEhvc3RUeXBlc0dldFJlc3BvbnNlEikKBm9iamVjdBgBIAEoCzIZLm9zYWMucHJpdmF0ZS52MS5Ib3N0VHlwZSJDChZIb3N0VHlwZXNDcmVhdGVSZXF1ZXN0EikKBm9iamVjdBgBIAEoCzIZLm9zYWMucHJpdmF0ZS52MS5Ib3N0VHlwZSJEChdIb3N0VHlwZXNDcmVhdGVSZXNwb25zZRIpCgZvYmplY3QYASABKAsyGS5vc2FjLnByaXZhdGUudjEuSG9zdFR5cGUiggEKFkhvc3RUeXBlc1VwZGF0ZVJlcXVlc3QSKQoGb2JqZWN0GAEgASgLMhkub3NhYy5wcml2YXRlLnYxLkhvc3RUeXBlEi8KC3VwZGF0ZV9tYXNrGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLkZpZWxkTWFzaxIMCgRsb2NrGAMgASgIIkQKF0hvc3RUeXBlc1VwZGF0ZVJlc3BvbnNlEikKBm9iamVjdBgBIAEoCzIZLm9zYWMucHJpdmF0ZS52MS5Ib3N0VHlwZSIkChZIb3N0VHlwZXNEZWxldGVSZXF1ZXN0EgoKAmlkGAEgASgJIhkKF0hvc3RUeXBlc0RlbGV0ZVJlc3BvbnNlIiQKFkhvc3RUeXBlc1NpZ25hbFJlcXVlc3QSCgoCaWQYASABKAkiGQoXSG9zdFR5cGVzU2lnbmFsUmVzcG9uc2UyogYKCUhvc3RUeXBlcxJ5CgRMaXN0EiUub3NhYy5wcml2YXRlLnYxLkhvc3RUeXBlc0xpc3RSZXF1ZXN0GiYub3NhYy5wcml2YXRlLnYxLkhvc3RUeXBlc0xpc3RSZXNwb25zZSIigtPkkwIcEhovYXBpL3ByaXZhdGUvdjEvaG9zdF90eXBlcxKDAQoDR2V0EiQub3NhYy5wcml2YXRlLnYxLkhvc3RUeXBlc0dldFJlcXVlc3QaJS5vc2FjLnByaXZhdGUudjEuSG9zdFR5cGVzR2V0UmVzcG9uc2UiL4LT5JMCKWIGb2JqZWN0Eh8vYXBpL3ByaXZhdGUvdjEvaG9zdF90eXBlcy97aWR9Eo8BCgZDcmVhdGUSJy5vc2FjLnByaXZhdGUudjEuSG9zdFR5cGVzQ3JlYXRlUmVxdWVzdBooLm9zYWMucHJpdmF0ZS52MS5Ib3N0VHlwZXNDcmVhdGVSZXNwb25zZSIygtPkkwIsOgZvYmplY3RiBm9iamVjdCIaL2FwaS9wcml2YXRlL3YxL2hvc3RfdHlwZXMSmwEKBlVwZGF0ZRInLm9zYWMucHJpdmF0ZS52MS5Ib3N0VHlwZXNVcGRhdGVSZXF1ZXN0Gigub3NhYy5wcml2YXRlLnYxLkhvc3RUeXBlc1VwZGF0ZVJlc3BvbnNlIj6C0+STAjg6Bm9iamVjdGIGb2JqZWN0MiYvYXBpL3ByaXZhdGUvdjEvaG9zdF90eXBlcy97b2JqZWN0LmlkfRKEAQoGRGVsZXRlEicub3NhYy5wcml2YXRlLnYxLkhvc3RUeXBlc0RlbGV0ZVJlcXVlc3QaKC5vc2FjLnByaXZhdGUudjEuSG9zdFR5cGVzRGVsZXRlUmVzcG9uc2UiJ4LT5JMCISofL2FwaS9wcml2YXRlL3YxL2hvc3RfdHlwZXMve2lkfRJdCgZTaWduYWwSJy5vc2FjLnByaXZhdGUudjEuSG9zdFR5cGVzU2lnbmFsUmVxdWVzdBooLm9zYWMucHJpdmF0ZS52MS5Ib3N0VHlwZXNTaWduYWxSZXNwb25zZSIAYgZwcm90bzM", [file_google_api_annotations, file_google_protobuf_field_mask, file_osac_private_v1_host_type_type]);
+  fileDesc("Cihvc2FjL3ByaXZhdGUvdjEvaG9zdF90eXBlc19zZXJ2aWNlLnByb3RvEg9vc2FjLnByaXZhdGUudjEikgEKFEhvc3RUeXBlc0xpc3RSZXF1ZXN0EhMKBm9mZnNldBgBIAEoBUgAiAEBEhIKBWxpbWl0GAIgASgFSAGIAQESEwoGZmlsdGVyGAMgASgJSAKIAQESEgoFb3JkZXIYBCABKAlIA4gBAUIJCgdfb2Zmc2V0QggKBl9saW1pdEIJCgdfZmlsdGVyQggKBl9vcmRlciJeChVIb3N0VHlwZXNMaXN0UmVzcG9uc2USDAoEc2l6ZRgBIAEoBRINCgV0b3RhbBgCIAEoBRIoCgVpdGVtcxgDIAMoCzIZLm9zYWMucHJpdmF0ZS52MS5Ib3N0VHlwZSIhChNIb3N0VHlwZXNHZXRSZXF1ZXN0EgoKAmlkGAEgASgJIkEKFEhvc3RUeXBlc0dldFJlc3BvbnNlEikKBm9iamVjdBgBIAEoCzIZLm9zYWMucHJpdmF0ZS52MS5Ib3N0VHlwZSJDChZIb3N0VHlwZXNDcmVhdGVSZXF1ZXN0EikKBm9iamVjdBgBIAEoCzIZLm9zYWMucHJpdmF0ZS52MS5Ib3N0VHlwZSJEChdIb3N0VHlwZXNDcmVhdGVSZXNwb25zZRIpCgZvYmplY3QYASABKAsyGS5vc2FjLnByaXZhdGUudjEuSG9zdFR5cGUiggEKFkhvc3RUeXBlc1VwZGF0ZVJlcXVlc3QSKQoGb2JqZWN0GAEgASgLMhkub3NhYy5wcml2YXRlLnYxLkhvc3RUeXBlEi8KC3VwZGF0ZV9tYXNrGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLkZpZWxkTWFzaxIMCgRsb2NrGAMgASgIIkQKF0hvc3RUeXBlc1VwZGF0ZVJlc3BvbnNlEikKBm9iamVjdBgBIAEoCzIZLm9zYWMucHJpdmF0ZS52MS5Ib3N0VHlwZSIkChZIb3N0VHlwZXNEZWxldGVSZXF1ZXN0EgoKAmlkGAEgASgJIhkKF0hvc3RUeXBlc0RlbGV0ZVJlc3BvbnNlIiwKFkhvc3RUeXBlc1NpZ25hbFJlcXVlc3QSCgoCaWQYASABKAk6Boq1GAIIASIhChdIb3N0VHlwZXNTaWduYWxSZXNwb25zZToGirUYAggBMqgGCglIb3N0VHlwZXMSeQoETGlzdBIlLm9zYWMucHJpdmF0ZS52MS5Ib3N0VHlwZXNMaXN0UmVxdWVzdBomLm9zYWMucHJpdmF0ZS52MS5Ib3N0VHlwZXNMaXN0UmVzcG9uc2UiIoLT5JMCHBIaL2FwaS9wcml2YXRlL3YxL2hvc3RfdHlwZXMSgwEKA0dldBIkLm9zYWMucHJpdmF0ZS52MS5Ib3N0VHlwZXNHZXRSZXF1ZXN0GiUub3NhYy5wcml2YXRlLnYxLkhvc3RUeXBlc0dldFJlc3BvbnNlIi+C0+STAiliBm9iamVjdBIfL2FwaS9wcml2YXRlL3YxL2hvc3RfdHlwZXMve2lkfRKPAQoGQ3JlYXRlEicub3NhYy5wcml2YXRlLnYxLkhvc3RUeXBlc0NyZWF0ZVJlcXVlc3QaKC5vc2FjLnByaXZhdGUudjEuSG9zdFR5cGVzQ3JlYXRlUmVzcG9uc2UiMoLT5JMCLDoGb2JqZWN0YgZvYmplY3QiGi9hcGkvcHJpdmF0ZS92MS9ob3N0X3R5cGVzEpsBCgZVcGRhdGUSJy5vc2FjLnByaXZhdGUudjEuSG9zdFR5cGVzVXBkYXRlUmVxdWVzdBooLm9zYWMucHJpdmF0ZS52MS5Ib3N0VHlwZXNVcGRhdGVSZXNwb25zZSI+gtPkkwI4OgZvYmplY3RiBm9iamVjdDImL2FwaS9wcml2YXRlL3YxL2hvc3RfdHlwZXMve29iamVjdC5pZH0ShAEKBkRlbGV0ZRInLm9zYWMucHJpdmF0ZS52MS5Ib3N0VHlwZXNEZWxldGVSZXF1ZXN0Gigub3NhYy5wcml2YXRlLnYxLkhvc3RUeXBlc0RlbGV0ZVJlc3BvbnNlIieC0+STAiEqHy9hcGkvcHJpdmF0ZS92MS9ob3N0X3R5cGVzL3tpZH0SYwoGU2lnbmFsEicub3NhYy5wcml2YXRlLnYxLkhvc3RUeXBlc1NpZ25hbFJlcXVlc3QaKC5vc2FjLnByaXZhdGUudjEuSG9zdFR5cGVzU2lnbmFsUmVzcG9uc2UiBoq1GAIIAUIpirUYJRIOb3NhYy5wdWJsaWMudjEiE3ByaXZhdGU6ZnVsZmlsbG1lbnRiBnByb3RvMw", [file_cleanapi_cleanapi, file_google_api_annotations, file_google_protobuf_field_mask, file_osac_private_v1_host_type_type]);
 
 /**
  * @generated from message osac.private.v1.HostTypesListRequest
  */
 export type HostTypesListRequest = Message<"osac.private.v1.HostTypesListRequest"> & {
   /**
+   * Index of the first result. If not specified the default value will be zero.
+   *
    * @generated from field: optional int32 offset = 1;
    */
   offset?: number | undefined;
 
   /**
+   * Maximum number of results to be returned by the server. When not specified all the results will be returned. Note
+   * that there may not be enough results to return, and that the server may decide, for performance reasons, to return
+   * less results than requested.
+   *
    * @generated from field: optional int32 limit = 2;
    */
   limit?: number | undefined;
 
   /**
+   * Filter criteria.
+   *
+   * The value of this parameter is a [CEL](https://cel.dev) expression used to select which objects to return. The
+   * built-in `this` variable refers to the object being tested and `now` refers to the current date and time. If the
+   * expression evaluates to `true` the object is included in the results. For example, to retrieve all host types
+   * with names starting with `gpu`:
+   *
+   *     this.metadata.name.startsWith("gpu")
+   *
+   * If this isn't provided, or if the value is empty, then all the host types that the user has permission to see
+   * will be returned. Not all CEL constructs are currently supported for implementation reasons; see the filter
+   * documentation (docs/FILTER.md) for the full details.
+   *
    * @generated from field: optional string filter = 3;
    */
   filter?: string | undefined;
 
   /**
+   * Order criteria.
+   *
+   * The syntax of this parameter is similar to the syntax of the _order by_ clause of a SQL statement, but using the
+   * names of the attributes of the host type instead of the names of the columns of a table. For example, in order to
+   * sort the templates descending by title the value should be:
+   *
+   *     name desc
+   *
+   * If the parameter isn't provided, or if the value is empty, then the order of the results is undefined.
+   *
    * @generated from field: optional string order = 4;
    */
   order?: string | undefined;
@@ -67,16 +97,25 @@ export const HostTypesListRequestSchema: GenMessage<HostTypesListRequest> = /*@_
  */
 export type HostTypesListResponse = Message<"osac.private.v1.HostTypesListResponse"> & {
   /**
+   * Actual number of items returned. Note that this may be smaller than the value requested in the `limit` parameter
+   * of the request if there are not enough items, or of the system decides that returning that number of items isn't
+   * feasible or convenient for performance reasons.
+   *
    * @generated from field: int32 size = 1;
    */
   size: number;
 
   /**
+   * Total number of items of the collection that match the search criteria, regardless of the number of results
+   * requested with the `limit` parameter.
+   *
    * @generated from field: int32 total = 2;
    */
   total: number;
 
   /**
+   * List of results.
+   *
    * @generated from field: repeated osac.private.v1.HostType items = 3;
    */
   items: HostType[];
@@ -270,6 +309,8 @@ export const HostTypesSignalResponseSchema: GenMessage<HostTypesSignalResponse> 
  */
 export const HostTypes: GenService<{
   /**
+   * Retrieves the list of host types.
+   *
    * @generated from rpc osac.private.v1.HostTypes.List
    */
   list: {
@@ -278,6 +319,8 @@ export const HostTypes: GenService<{
     output: typeof HostTypesListResponseSchema;
   },
   /**
+   * Retrieves the details of one specific host type.
+   *
    * @generated from rpc osac.private.v1.HostTypes.Get
    */
   get: {
@@ -286,6 +329,10 @@ export const HostTypes: GenService<{
     output: typeof HostTypesGetResponseSchema;
   },
   /**
+   * Creates a new host type.
+   *
+   * This method isn't allowed for regular users, only for the system itself.
+   *
    * @generated from rpc osac.private.v1.HostTypes.Create
    */
   create: {
@@ -294,6 +341,10 @@ export const HostTypes: GenService<{
     output: typeof HostTypesCreateResponseSchema;
   },
   /**
+   * Updates an existing host type.
+   *
+   * This method isn't allowed for regular users, only for the system itself.
+   *
    * @generated from rpc osac.private.v1.HostTypes.Update
    */
   update: {
@@ -302,6 +353,10 @@ export const HostTypes: GenService<{
     output: typeof HostTypesUpdateResponseSchema;
   },
   /**
+   * Delete a host type.
+   *
+   * This method isn't allowed for regular users, only for the system itself.
+   *
    * @generated from rpc osac.private.v1.HostTypes.Delete
    */
   delete: {

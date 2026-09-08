@@ -51,7 +51,7 @@ describe('buildClusterCreatePayload', () => {
       spec: {
         ...createEmptyClusterValues().spec,
         sshPublicKey: 'ssh-rsa AAAA',
-        pullSecret: '{"auths":{}}',
+        pullSecretSecret: { name: 'pull-secret' },
         versionName: '4-17-0',
         nodeSetRows: [
           {
@@ -72,7 +72,7 @@ describe('buildClusterCreatePayload', () => {
       spec: {
         catalogItem: { id: clusterCatalogItem.id },
         sshPublicKey: 'ssh-rsa AAAA',
-        pullSecret: '{"auths":{}}',
+        pullSecretSecret: { name: 'pull-secret' },
         version: { name: '4-17-0' },
         nodeSets: {
           acme_1tb: { hostType: { id: 'acme_1tb' }, size: 3 },
@@ -91,7 +91,7 @@ describe('buildClusterCreatePayload', () => {
       metadata: { name: 'empty-pools', project: '' },
       spec: {
         ...createEmptyClusterValues().spec,
-        pullSecret: 'secret',
+        pullSecretSecret: { name: 'secret' },
         versionName: '',
         nodeSetRows: [],
         network: { podCidr: '', serviceCidr: '' },
@@ -101,7 +101,7 @@ describe('buildClusterCreatePayload', () => {
     const payload = buildClusterCreatePayload(values, clusterCatalogItem);
     expect(payload.spec).toEqual({
       catalogItem: { id: clusterCatalogItem.id },
-      pullSecret: 'secret',
+      pullSecretSecret: { name: 'secret' },
     });
     expect(payload.spec).not.toHaveProperty('version');
     expect(payload.spec).not.toHaveProperty('nodeSets');
@@ -116,7 +116,7 @@ describe('buildClusterCreatePayload', () => {
       metadata: { name: 'filtered-pools', project: '' },
       spec: {
         ...createEmptyClusterValues().spec,
-        pullSecret: 'secret',
+        pullSecretSecret: { name: 'secret' },
         versionName: '4-17-0',
         nodeSetRows: [
           { ...row, hostType: '', size: '3' },
@@ -145,7 +145,7 @@ describe('buildClusterCreatePayload', () => {
       metadata: { name: 'my-cluster', project },
       spec: {
         ...createEmptyClusterValues().spec,
-        pullSecret: 'secret',
+        pullSecretSecret: { name: 'secret' },
       },
     };
 

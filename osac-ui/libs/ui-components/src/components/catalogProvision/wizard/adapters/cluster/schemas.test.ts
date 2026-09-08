@@ -49,7 +49,9 @@ const emptyValues: ClusterWizardValues = {
   metadata: { name: '', project: '' },
   spec: {
     sshPublicKey: '',
-    pullSecret: '',
+    pullSecretSecret: {
+      name: '',
+    },
     versionName: '',
     nodeSetRows: [],
     network: {
@@ -108,7 +110,9 @@ describe('buildClusterStepSchema', () => {
       metadata: { name: 'MyCluster', project: '' },
       spec: {
         ...emptyValues.spec,
-        pullSecret: '{"auths": {}}',
+        pullSecretSecret: {
+          name: 'foo',
+        },
       },
     });
     expect(errors).toEqual({
@@ -118,20 +122,23 @@ describe('buildClusterStepSchema', () => {
     });
   });
 
-  it('rejects malformed pull secret on general step', async () => {
+  it('rejects missing pull secret on general step', async () => {
     const errors = await validateStep('general', {
       ...emptyValues,
       catalogItemId: clusterCatalogItem.id,
       metadata: { name: 'my-cluster', project: '' },
       spec: {
         ...emptyValues.spec,
-        pullSecret: '{"foo":"bar"}',
+        pullSecretSecret: {
+          name: '',
+        },
       },
     });
     expect(errors).toEqual({
       spec: {
-        pullSecret:
-          'Invalid pull secret format. Paste the complete JSON from your Red Hat account pull secret.',
+        pullSecretSecret: {
+          name: 'Pull secret is required',
+        },
       },
     });
   });
@@ -143,7 +150,9 @@ describe('buildClusterStepSchema', () => {
       metadata: { name: 'my-cluster', project: '' },
       spec: {
         ...emptyValues.spec,
-        pullSecret: '{"auths": {}}',
+        pullSecretSecret: {
+          name: 'foo',
+        },
         sshPublicKey: 'not-a-key',
       },
     });
@@ -162,7 +171,7 @@ describe('buildClusterStepSchema', () => {
       metadata: { name: 'my-cluster', project: '' },
     });
     expect(errors).toEqual({
-      spec: { pullSecret: 'Pull secret is required' },
+      spec: { pullSecretSecret: { name: 'Pull secret is required' } },
     });
   });
 
@@ -176,7 +185,9 @@ describe('buildClusterStepSchema', () => {
         metadata: { name: 'my-cluster', project: '' },
         spec: {
           ...emptyValues.spec,
-          pullSecret: '{"auths": {}}',
+          pullSecretSecret: {
+            name: 'foo',
+          },
           versionName: '',
           nodeSetRows: [{ ...row, hostType: 'acme_1tb', size: '3' }],
         },
@@ -197,7 +208,9 @@ describe('buildClusterStepSchema', () => {
         metadata: { name: 'my-cluster', project: '' },
         spec: {
           ...emptyValues.spec,
-          pullSecret: '{"auths": {}}',
+          pullSecretSecret: {
+            name: 'foo',
+          },
           versionName: '4-17-0',
           nodeSetRows: [],
         },
@@ -219,7 +232,9 @@ describe('buildClusterStepSchema', () => {
         metadata: { name: 'my-cluster', project: '' },
         spec: {
           ...emptyValues.spec,
-          pullSecret: '{"auths": {}}',
+          pullSecretSecret: {
+            name: 'foo',
+          },
           versionName: '4-17-0',
           nodeSetRows: [
             {
@@ -249,7 +264,9 @@ describe('buildClusterStepSchema', () => {
         metadata: { name: 'my-cluster', project: '' },
         spec: {
           ...emptyValues.spec,
-          pullSecret: '{"auths": {}}',
+          pullSecretSecret: {
+            name: 'foo',
+          },
           versionName: '4-17-0',
           nodeSetRows: [
             {

@@ -17,6 +17,7 @@
 
 import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_cleanapi_cleanapi } from "../../../cleanapi/cleanapi_pb";
 import type { Metadata } from "./metadata_type_pb";
 import { file_osac_private_v1_metadata_type } from "./metadata_type_pb";
 import type { RoleReference } from "./role_type_pb";
@@ -29,7 +30,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/private/v1/role_binding_type.proto.
  */
 export const file_osac_private_v1_role_binding_type: GenFile = /*@__PURE__*/
-  fileDesc("Cidvc2FjL3ByaXZhdGUvdjEvcm9sZV9iaW5kaW5nX3R5cGUucHJvdG8SD29zYWMucHJpdmF0ZS52MSKqAQoLUm9sZUJpbmRpbmcSCgoCaWQYASABKAkSKwoIbWV0YWRhdGEYAiABKAsyGS5vc2FjLnByaXZhdGUudjEuTWV0YWRhdGESLgoEc3BlYxgDIAEoCzIgLm9zYWMucHJpdmF0ZS52MS5Sb2xlQmluZGluZ1NwZWMSMgoGc3RhdHVzGAQgASgLMiIub3NhYy5wcml2YXRlLnYxLlJvbGVCaW5kaW5nU3RhdHVzIm4KD1JvbGVCaW5kaW5nU3BlYxIsCgRyb2xlGAEgASgLMh4ub3NhYy5wcml2YXRlLnYxLlJvbGVSZWZlcmVuY2USLQoFdXNlcnMYAiADKAsyHi5vc2FjLnByaXZhdGUudjEuVXNlclJlZmVyZW5jZSKWAQoRUm9sZUJpbmRpbmdTdGF0dXMSMAoFc3RhdGUYASABKA4yIS5vc2FjLnByaXZhdGUudjEuUm9sZUJpbmRpbmdTdGF0ZRIUCgdtZXNzYWdlGAIgASgJSACIAQESLQoFdXNlcnMYAyADKAsyHi5vc2FjLnByaXZhdGUudjEuVXNlclJlZmVyZW5jZUIKCghfbWVzc2FnZSqTAQoQUm9sZUJpbmRpbmdTdGF0ZRIiCh5ST0xFX0JJTkRJTkdfU1RBVEVfVU5TUEVDSUZJRUQQABIeChpST0xFX0JJTkRJTkdfU1RBVEVfUEVORElORxABEhwKGFJPTEVfQklORElOR19TVEFURV9SRUFEWRACEh0KGVJPTEVfQklORElOR19TVEFURV9GQUlMRUQQA2IGcHJvdG8z", [file_osac_private_v1_metadata_type, file_osac_private_v1_role_type, file_osac_private_v1_user_type]);
+  fileDesc("Cidvc2FjL3ByaXZhdGUvdjEvcm9sZV9iaW5kaW5nX3R5cGUucHJvdG8SD29zYWMucHJpdmF0ZS52MSKqAQoLUm9sZUJpbmRpbmcSCgoCaWQYASABKAkSKwoIbWV0YWRhdGEYAiABKAsyGS5vc2FjLnByaXZhdGUudjEuTWV0YWRhdGESLgoEc3BlYxgDIAEoCzIgLm9zYWMucHJpdmF0ZS52MS5Sb2xlQmluZGluZ1NwZWMSMgoGc3RhdHVzGAQgASgLMiIub3NhYy5wcml2YXRlLnYxLlJvbGVCaW5kaW5nU3RhdHVzIm4KD1JvbGVCaW5kaW5nU3BlYxIsCgRyb2xlGAEgASgLMh4ub3NhYy5wcml2YXRlLnYxLlJvbGVSZWZlcmVuY2USLQoFdXNlcnMYAiADKAsyHi5vc2FjLnByaXZhdGUudjEuVXNlclJlZmVyZW5jZSKeAQoRUm9sZUJpbmRpbmdTdGF0dXMSMAoFc3RhdGUYASABKA4yIS5vc2FjLnByaXZhdGUudjEuUm9sZUJpbmRpbmdTdGF0ZRIUCgdtZXNzYWdlGAIgASgJSACIAQESNQoFdXNlcnMYAyADKAsyHi5vc2FjLnByaXZhdGUudjEuVXNlclJlZmVyZW5jZUIGirUYAggBQgoKCF9tZXNzYWdlKpMBChBSb2xlQmluZGluZ1N0YXRlEiIKHlJPTEVfQklORElOR19TVEFURV9VTlNQRUNJRklFRBAAEh4KGlJPTEVfQklORElOR19TVEFURV9QRU5ESU5HEAESHAoYUk9MRV9CSU5ESU5HX1NUQVRFX1JFQURZEAISHQoZUk9MRV9CSU5ESU5HX1NUQVRFX0ZBSUxFRBADQhSKtRgQEg5vc2FjLnB1YmxpYy52MWIGcHJvdG8z", [file_cleanapi_cleanapi, file_osac_private_v1_metadata_type, file_osac_private_v1_role_type, file_osac_private_v1_user_type]);
 
 /**
  * Represents a binding between a role and a set of users.
@@ -37,8 +38,6 @@ export const file_osac_private_v1_role_binding_type: GenFile = /*@__PURE__*/
  * A RoleBinding grants the permissions defined by its referenced role to the users listed in its spec. This is
  * the mechanism by which roles are assigned to users, enabling those users to perform the actions permitted by
  * the role.
- *
- * Users are referenced by their internal User object IDs.
  *
  * @generated from message osac.private.v1.RoleBinding
  */

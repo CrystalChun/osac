@@ -28,7 +28,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/public/v1/users_service.proto.
  */
 export const file_osac_public_v1_users_service: GenFile = /*@__PURE__*/
-  fileDesc("CiJvc2FjL3B1YmxpYy92MS91c2Vyc19zZXJ2aWNlLnByb3RvEg5vc2FjLnB1YmxpYy52MSKOAQoQVXNlcnNMaXN0UmVxdWVzdBITCgZvZmZzZXQYASABKAVIAIgBARISCgVsaW1pdBgCIAEoBUgBiAEBEhMKBmZpbHRlchgDIAEoCUgCiAEBEhIKBW9yZGVyGAQgASgJSAOIAQFCCQoHX29mZnNldEIICgZfbGltaXRCCQoHX2ZpbHRlckIICgZfb3JkZXIiVQoRVXNlcnNMaXN0UmVzcG9uc2USDAoEc2l6ZRgBIAEoBRINCgV0b3RhbBgCIAEoBRIjCgVpdGVtcxgDIAMoCzIULm9zYWMucHVibGljLnYxLlVzZXIiHQoPVXNlcnNHZXRSZXF1ZXN0EgoKAmlkGAEgASgJIjgKEFVzZXJzR2V0UmVzcG9uc2USJAoGb2JqZWN0GAEgASgLMhQub3NhYy5wdWJsaWMudjEuVXNlciI6ChJVc2Vyc0NyZWF0ZVJlcXVlc3QSJAoGb2JqZWN0GAEgASgLMhQub3NhYy5wdWJsaWMudjEuVXNlciI7ChNVc2Vyc0NyZWF0ZVJlc3BvbnNlEiQKBm9iamVjdBgBIAEoCzIULm9zYWMucHVibGljLnYxLlVzZXIieQoSVXNlcnNVcGRhdGVSZXF1ZXN0EiQKBm9iamVjdBgBIAEoCzIULm9zYWMucHVibGljLnYxLlVzZXISLwoLdXBkYXRlX21hc2sYAiABKAsyGi5nb29nbGUucHJvdG9idWYuRmllbGRNYXNrEgwKBGxvY2sYAyABKAgiOwoTVXNlcnNVcGRhdGVSZXNwb25zZRIkCgZvYmplY3QYASABKAsyFC5vc2FjLnB1YmxpYy52MS5Vc2VyIiAKElVzZXJzRGVsZXRlUmVxdWVzdBIKCgJpZBgBIAEoCSIVChNVc2Vyc0RlbGV0ZVJlc3BvbnNlMoYFCgVVc2VycxJuCgRMaXN0EiAub3NhYy5wdWJsaWMudjEuVXNlcnNMaXN0UmVxdWVzdBohLm9zYWMucHVibGljLnYxLlVzZXJzTGlzdFJlc3BvbnNlIiGC0+STAhsSGS9hcGkvZnVsZmlsbG1lbnQvdjEvdXNlcnMSeAoDR2V0Eh8ub3NhYy5wdWJsaWMudjEuVXNlcnNHZXRSZXF1ZXN0GiAub3NhYy5wdWJsaWMudjEuVXNlcnNHZXRSZXNwb25zZSIugtPkkwIoYgZvYmplY3QSHi9hcGkvZnVsZmlsbG1lbnQvdjEvdXNlcnMve2lkfRKEAQoGQ3JlYXRlEiIub3NhYy5wdWJsaWMudjEuVXNlcnNDcmVhdGVSZXF1ZXN0GiMub3NhYy5wdWJsaWMudjEuVXNlcnNDcmVhdGVSZXNwb25zZSIxgtPkkwIrOgZvYmplY3RiBm9iamVjdCIZL2FwaS9mdWxmaWxsbWVudC92MS91c2VycxKQAQoGVXBkYXRlEiIub3NhYy5wdWJsaWMudjEuVXNlcnNVcGRhdGVSZXF1ZXN0GiMub3NhYy5wdWJsaWMudjEuVXNlcnNVcGRhdGVSZXNwb25zZSI9gtPkkwI3OgZvYmplY3RiBm9iamVjdDIlL2FwaS9mdWxmaWxsbWVudC92MS91c2Vycy97b2JqZWN0LmlkfRJ5CgZEZWxldGUSIi5vc2FjLnB1YmxpYy52MS5Vc2Vyc0RlbGV0ZVJlcXVlc3QaIy5vc2FjLnB1YmxpYy52MS5Vc2Vyc0RlbGV0ZVJlc3BvbnNlIiaC0+STAiAqHi9hcGkvZnVsZmlsbG1lbnQvdjEvdXNlcnMve2lkfWIGcHJvdG8z", [file_google_api_annotations, file_google_protobuf_field_mask, file_osac_public_v1_user_type]);
+  fileDesc("CiJvc2FjL3B1YmxpYy92MS91c2Vyc19zZXJ2aWNlLnByb3RvEg5vc2FjLnB1YmxpYy52MSKOAQoQVXNlcnNMaXN0UmVxdWVzdBITCgZvZmZzZXQYASABKAVIAIgBARISCgVsaW1pdBgCIAEoBUgBiAEBEhMKBmZpbHRlchgDIAEoCUgCiAEBEhIKBW9yZGVyGAQgASgJSAOIAQFCCQoHX29mZnNldEIICgZfbGltaXRCCQoHX2ZpbHRlckIICgZfb3JkZXIiVQoRVXNlcnNMaXN0UmVzcG9uc2USDAoEc2l6ZRgBIAEoBRINCgV0b3RhbBgCIAEoBRIjCgVpdGVtcxgDIAMoCzIULm9zYWMucHVibGljLnYxLlVzZXIiHQoPVXNlcnNHZXRSZXF1ZXN0EgoKAmlkGAEgASgJIjgKEFVzZXJzR2V0UmVzcG9uc2USJAoGb2JqZWN0GAEgASgLMhQub3NhYy5wdWJsaWMudjEuVXNlciI6ChJVc2Vyc0NyZWF0ZVJlcXVlc3QSJAoGb2JqZWN0GAEgASgLMhQub3NhYy5wdWJsaWMudjEuVXNlciI7ChNVc2Vyc0NyZWF0ZVJlc3BvbnNlEiQKBm9iamVjdBgBIAEoCzIULm9zYWMucHVibGljLnYxLlVzZXIiIAoSVXNlcnNEZWxldGVSZXF1ZXN0EgoKAmlkGAEgASgJIhUKE1VzZXJzRGVsZXRlUmVzcG9uc2UieQoSVXNlcnNVcGRhdGVSZXF1ZXN0EiQKBm9iamVjdBgBIAEoCzIULm9zYWMucHVibGljLnYxLlVzZXISLwoLdXBkYXRlX21hc2sYAiABKAsyGi5nb29nbGUucHJvdG9idWYuRmllbGRNYXNrEgwKBGxvY2sYAyABKAgiOwoTVXNlcnNVcGRhdGVSZXNwb25zZRIkCgZvYmplY3QYASABKAsyFC5vc2FjLnB1YmxpYy52MS5Vc2VyMoYFCgVVc2VycxJuCgRMaXN0EiAub3NhYy5wdWJsaWMudjEuVXNlcnNMaXN0UmVxdWVzdBohLm9zYWMucHVibGljLnYxLlVzZXJzTGlzdFJlc3BvbnNlIiGC0+STAhsSGS9hcGkvZnVsZmlsbG1lbnQvdjEvdXNlcnMSeAoDR2V0Eh8ub3NhYy5wdWJsaWMudjEuVXNlcnNHZXRSZXF1ZXN0GiAub3NhYy5wdWJsaWMudjEuVXNlcnNHZXRSZXNwb25zZSIugtPkkwIoYgZvYmplY3QSHi9hcGkvZnVsZmlsbG1lbnQvdjEvdXNlcnMve2lkfRKEAQoGQ3JlYXRlEiIub3NhYy5wdWJsaWMudjEuVXNlcnNDcmVhdGVSZXF1ZXN0GiMub3NhYy5wdWJsaWMudjEuVXNlcnNDcmVhdGVSZXNwb25zZSIxgtPkkwIrOgZvYmplY3RiBm9iamVjdCIZL2FwaS9mdWxmaWxsbWVudC92MS91c2VycxJ5CgZEZWxldGUSIi5vc2FjLnB1YmxpYy52MS5Vc2Vyc0RlbGV0ZVJlcXVlc3QaIy5vc2FjLnB1YmxpYy52MS5Vc2Vyc0RlbGV0ZVJlc3BvbnNlIiaC0+STAiAqHi9hcGkvZnVsZmlsbG1lbnQvdjEvdXNlcnMve2lkfRKQAQoGVXBkYXRlEiIub3NhYy5wdWJsaWMudjEuVXNlcnNVcGRhdGVSZXF1ZXN0GiMub3NhYy5wdWJsaWMudjEuVXNlcnNVcGRhdGVSZXNwb25zZSI9gtPkkwI3OgZvYmplY3RiBm9iamVjdDIlL2FwaS9mdWxmaWxsbWVudC92MS91c2Vycy97b2JqZWN0LmlkfWIGcHJvdG8z", [file_google_api_annotations, file_google_protobuf_field_mask, file_osac_public_v1_user_type]);
 
 /**
  * @generated from message osac.public.v1.UsersListRequest
@@ -186,6 +186,36 @@ export const UsersCreateResponseSchema: GenMessage<UsersCreateResponse> = /*@__P
   messageDesc(file_osac_public_v1_users_service, 5);
 
 /**
+ * @generated from message osac.public.v1.UsersDeleteRequest
+ */
+export type UsersDeleteRequest = Message<"osac.public.v1.UsersDeleteRequest"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+};
+
+/**
+ * Describes the message osac.public.v1.UsersDeleteRequest.
+ * Use `create(UsersDeleteRequestSchema)` to create a new message.
+ */
+export const UsersDeleteRequestSchema: GenMessage<UsersDeleteRequest> = /*@__PURE__*/
+  messageDesc(file_osac_public_v1_users_service, 6);
+
+/**
+ * @generated from message osac.public.v1.UsersDeleteResponse
+ */
+export type UsersDeleteResponse = Message<"osac.public.v1.UsersDeleteResponse"> & {
+};
+
+/**
+ * Describes the message osac.public.v1.UsersDeleteResponse.
+ * Use `create(UsersDeleteResponseSchema)` to create a new message.
+ */
+export const UsersDeleteResponseSchema: GenMessage<UsersDeleteResponse> = /*@__PURE__*/
+  messageDesc(file_osac_public_v1_users_service, 7);
+
+/**
  * @generated from message osac.public.v1.UsersUpdateRequest
  */
 export type UsersUpdateRequest = Message<"osac.public.v1.UsersUpdateRequest"> & {
@@ -214,7 +244,7 @@ export type UsersUpdateRequest = Message<"osac.public.v1.UsersUpdateRequest"> & 
  * Use `create(UsersUpdateRequestSchema)` to create a new message.
  */
 export const UsersUpdateRequestSchema: GenMessage<UsersUpdateRequest> = /*@__PURE__*/
-  messageDesc(file_osac_public_v1_users_service, 6);
+  messageDesc(file_osac_public_v1_users_service, 8);
 
 /**
  * @generated from message osac.public.v1.UsersUpdateResponse
@@ -231,36 +261,6 @@ export type UsersUpdateResponse = Message<"osac.public.v1.UsersUpdateResponse"> 
  * Use `create(UsersUpdateResponseSchema)` to create a new message.
  */
 export const UsersUpdateResponseSchema: GenMessage<UsersUpdateResponse> = /*@__PURE__*/
-  messageDesc(file_osac_public_v1_users_service, 7);
-
-/**
- * @generated from message osac.public.v1.UsersDeleteRequest
- */
-export type UsersDeleteRequest = Message<"osac.public.v1.UsersDeleteRequest"> & {
-  /**
-   * @generated from field: string id = 1;
-   */
-  id: string;
-};
-
-/**
- * Describes the message osac.public.v1.UsersDeleteRequest.
- * Use `create(UsersDeleteRequestSchema)` to create a new message.
- */
-export const UsersDeleteRequestSchema: GenMessage<UsersDeleteRequest> = /*@__PURE__*/
-  messageDesc(file_osac_public_v1_users_service, 8);
-
-/**
- * @generated from message osac.public.v1.UsersDeleteResponse
- */
-export type UsersDeleteResponse = Message<"osac.public.v1.UsersDeleteResponse"> & {
-};
-
-/**
- * Describes the message osac.public.v1.UsersDeleteResponse.
- * Use `create(UsersDeleteResponseSchema)` to create a new message.
- */
-export const UsersDeleteResponseSchema: GenMessage<UsersDeleteResponse> = /*@__PURE__*/
   messageDesc(file_osac_public_v1_users_service, 9);
 
 /**
@@ -298,16 +298,6 @@ export const Users: GenService<{
     output: typeof UsersCreateResponseSchema;
   },
   /**
-   * Updates an existing user.
-   *
-   * @generated from rpc osac.public.v1.Users.Update
-   */
-  update: {
-    methodKind: "unary";
-    input: typeof UsersUpdateRequestSchema;
-    output: typeof UsersUpdateResponseSchema;
-  },
-  /**
    * Deletes a user.
    *
    * @generated from rpc osac.public.v1.Users.Delete
@@ -316,6 +306,16 @@ export const Users: GenService<{
     methodKind: "unary";
     input: typeof UsersDeleteRequestSchema;
     output: typeof UsersDeleteResponseSchema;
+  },
+  /**
+   * Updates an existing user.
+   *
+   * @generated from rpc osac.public.v1.Users.Update
+   */
+  update: {
+    methodKind: "unary";
+    input: typeof UsersUpdateRequestSchema;
+    output: typeof UsersUpdateResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_osac_public_v1_users_service, 0);

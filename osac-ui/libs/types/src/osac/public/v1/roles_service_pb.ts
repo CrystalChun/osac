@@ -314,7 +314,7 @@ export const RolesDeleteResponseSchema: GenMessage<RolesDeleteResponse> = /*@__P
  *
  * Roles represent named permission sets that can be assigned to groups. The system comes with a set of predefined
  * roles such as `cloud-provider-admin`, `cloud-provider-reader`, `tenant-admin`, `tenant-reader`, and `tenant-user`.
- * Only administrators can create, update, or delete roles. Regular users can only get and list them.
+ * Only administrators can create, update, or delete roles. Regular users can only list and get roles.
  *
  * @generated from service osac.public.v1.Roles
  */
@@ -340,9 +340,7 @@ export const Roles: GenService<{
     output: typeof RolesGetResponseSchema;
   },
   /**
-   * Creates a new role.
-   *
-   * This method isn't allowed for regular users, only for administrators.
+   * Creates a new role. This operation is only available to administrators.
    *
    * @generated from rpc osac.public.v1.Roles.Create
    */
@@ -352,9 +350,7 @@ export const Roles: GenService<{
     output: typeof RolesCreateResponseSchema;
   },
   /**
-   * Updates an existing role.
-   *
-   * This method isn't allowed for regular users, only for administrators.
+   * Updates an existing role. This operation is only available to administrators.
    *
    * @generated from rpc osac.public.v1.Roles.Update
    */
@@ -364,9 +360,7 @@ export const Roles: GenService<{
     output: typeof RolesUpdateResponseSchema;
   },
   /**
-   * Deletes a role.
-   *
-   * This method isn't allowed for regular users, only for administrators.
+   * Deletes a role. This operation is only available to administrators.
    *
    * @generated from rpc osac.public.v1.Roles.Delete
    */

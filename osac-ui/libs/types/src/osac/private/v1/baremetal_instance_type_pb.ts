@@ -18,6 +18,7 @@
 import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
+import { file_cleanapi_cleanapi } from "../../../cleanapi/cleanapi_pb";
 import { file_google_api_field_behavior } from "../../../google/api/field_behavior_pb";
 import type { Any } from "../../../google/protobuf/any_pb";
 import { file_google_protobuf_any } from "../../../google/protobuf/any_pb";
@@ -27,6 +28,10 @@ import type { BareMetalInstanceCatalogItemReference } from "./baremetal_instance
 import { file_osac_private_v1_baremetal_instance_catalog_item_type } from "./baremetal_instance_catalog_item_type_pb";
 import type { BareMetalInstanceImage } from "./baremetal_instance_common_type_pb";
 import { file_osac_private_v1_baremetal_instance_common_type } from "./baremetal_instance_common_type_pb";
+import type { BareMetalInstanceTemplateReference } from "./baremetal_instance_template_type_pb";
+import { file_osac_private_v1_baremetal_instance_template_type } from "./baremetal_instance_template_type_pb";
+import type { BareMetalInstanceTypeLocalReference } from "./baremetal_instance_type_type_pb";
+import { file_osac_private_v1_baremetal_instance_type_type } from "./baremetal_instance_type_type_pb";
 import type { ConditionStatus } from "./condition_status_type_pb";
 import { file_osac_private_v1_condition_status_type } from "./condition_status_type_pb";
 import type { Metadata } from "./metadata_type_pb";
@@ -41,7 +46,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/private/v1/baremetal_instance_type.proto.
  */
 export const file_osac_private_v1_baremetal_instance_type: GenFile = /*@__PURE__*/
-  fileDesc("Ci1vc2FjL3ByaXZhdGUvdjEvYmFyZW1ldGFsX2luc3RhbmNlX3R5cGUucHJvdG8SD29zYWMucHJpdmF0ZS52MSK8AQoRQmFyZU1ldGFsSW5zdGFuY2USCgoCaWQYASABKAkSKwoIbWV0YWRhdGEYAiABKAsyGS5vc2FjLnByaXZhdGUudjEuTWV0YWRhdGESNAoEc3BlYxgDIAEoCzImLm9zYWMucHJpdmF0ZS52MS5CYXJlTWV0YWxJbnN0YW5jZVNwZWMSOAoGc3RhdHVzGAQgASgLMigub3NhYy5wcml2YXRlLnYxLkJhcmVNZXRhbEluc3RhbmNlU3RhdHVzIuIBChpCYXJlTWV0YWxOZXR3b3JrQXR0YWNobWVudBI1CgZzdWJuZXQYASABKAsyJS5vc2FjLnByaXZhdGUudjEuU3VibmV0TG9jYWxSZWZlcmVuY2USRQoPc2VjdXJpdHlfZ3JvdXBzGAIgAygLMiwub3NhYy5wcml2YXRlLnYxLlNlY3VyaXR5R3JvdXBMb2NhbFJlZmVyZW5jZRIWCglpbnRlcmZhY2UYAyABKAlIAIgBARIUCgdwcmltYXJ5GAQgASgISAGIAQFCDAoKX2ludGVyZmFjZUIKCghfcHJpbWFyeSKpBwoVQmFyZU1ldGFsSW5zdGFuY2VTcGVjElEKDGNhdGFsb2dfaXRlbRgBIAEoCzI2Lm9zYWMucHJpdmF0ZS52MS5CYXJlTWV0YWxJbnN0YW5jZUNhdGFsb2dJdGVtUmVmZXJlbmNlQgPgQQUSIAoOc3NoX3B1YmxpY19rZXkYAiABKAlCA+BBBUgAiAEBEhsKCXVzZXJfZGF0YRgDIAEoCUID4EEFSAGIAQESSAoMcnVuX3N0cmF0ZWd5GAQgASgOMi0ub3NhYy5wcml2YXRlLnYxLkJhcmVNZXRhbEluc3RhbmNlUnVuU3RyYXRlZ3lIAogBARIXCg9yZXN0YXJ0X3RyaWdnZXIYBSABKAMSYAoTdGVtcGxhdGVfcGFyYW1ldGVycxgGIAMoCzI+Lm9zYWMucHJpdmF0ZS52MS5CYXJlTWV0YWxJbnN0YW5jZVNwZWMuVGVtcGxhdGVQYXJhbWV0ZXJzRW50cnlCA+BBBRJACgVpbWFnZRgHIAEoCzInLm9zYWMucHJpdmF0ZS52MS5CYXJlTWV0YWxJbnN0YW5jZUltYWdlQgPgQQVIA4gBARJIChNuZXR3b3JrX2F0dGFjaG1lbnRzGAggAygLMisub3NhYy5wcml2YXRlLnYxLkJhcmVNZXRhbE5ldHdvcmtBdHRhY2htZW50EigKG2F1dG9fZXh0ZXJuYWxfaXBfYXR0YWNobWVudBgJIAEoCEID4EEFGk8KF1RlbXBsYXRlUGFyYW1ldGVyc0VudHJ5EgsKA2tleRgBIAEoCRIjCgV2YWx1ZRgCIAEoCzIULmdvb2dsZS5wcm90b2J1Zi5Bbnk6AjgBOvUBukjxARruAQolYmFyZW1ldGFsX2luc3RhbmNlX3ByaW1hcnlfYXR0YWNobWVudBJad2hlbiBtdWx0aXBsZSBuZXR3b3JrIGF0dGFjaG1lbnRzIGFyZSBzcGVjaWZpZWQsIGV4YWN0bHkgb25lIG11c3QgaGF2ZSBwcmltYXJ5IHNldCB0byB0cnVlGml0aGlzLm5ldHdvcmtfYXR0YWNobWVudHMuc2l6ZSgpIDw9IDEgfHwgdGhpcy5uZXR3b3JrX2F0dGFjaG1lbnRzLmZpbHRlcihhLCBhLnByaW1hcnkgPT0gdHJ1ZSkuc2l6ZSgpID09IDFCEQoPX3NzaF9wdWJsaWNfa2V5QgwKCl91c2VyX2RhdGFCDwoNX3J1bl9zdHJhdGVneUIICgZfaW1hZ2UikAIKF0JhcmVNZXRhbEluc3RhbmNlU3RhdHVzEjYKBXN0YXRlGAEgASgOMicub3NhYy5wcml2YXRlLnYxLkJhcmVNZXRhbEluc3RhbmNlU3RhdGUSPwoKY29uZGl0aW9ucxgCIAMoCzIrLm9zYWMucHJpdmF0ZS52MS5CYXJlTWV0YWxJbnN0YW5jZUNvbmRpdGlvbhIXCg9yZXN0YXJ0X3RyaWdnZXIYAyABKAMSCwoDaHViGAQgASgJElYKG25ldHdvcmtfYXR0YWNobWVudF9zdGF0dXNlcxgFIAMoCzIxLm9zYWMucHJpdmF0ZS52MS5CYXJlTWV0YWxOZXR3b3JrQXR0YWNobWVudFN0YXR1cyJuCiBCYXJlTWV0YWxOZXR3b3JrQXR0YWNobWVudFN0YXR1cxIRCglpbnRlcmZhY2UYASABKAkSEgoKc3VibmV0X3JlZhgCIAEoCRISCgppcF9hZGRyZXNzGAMgASgJEg8KB3ByaW1hcnkYBCABKAgiiQIKGkJhcmVNZXRhbEluc3RhbmNlQ29uZGl0aW9uEj0KBHR5cGUYASABKA4yLy5vc2FjLnByaXZhdGUudjEuQmFyZU1ldGFsSW5zdGFuY2VDb25kaXRpb25UeXBlEjAKBnN0YXR1cxgCIAEoDjIgLm9zYWMucHJpdmF0ZS52MS5Db25kaXRpb25TdGF0dXMSOAoUbGFzdF90cmFuc2l0aW9uX3RpbWUYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhMKBnJlYXNvbhgEIAEoCUgAiAEBEhQKB21lc3NhZ2UYBSABKAlIAYgBAUIJCgdfcmVhc29uQgoKCF9tZXNzYWdlIjsKH0JhcmVNZXRhbEluc3RhbmNlTG9jYWxSZWZlcmVuY2USCgoCaWQYASABKAkSDAoEbmFtZRgCIAEoCSqqAQocQmFyZU1ldGFsSW5zdGFuY2VSdW5TdHJhdGVneRIwCixCQVJFX01FVEFMX0lOU1RBTkNFX1JVTl9TVFJBVEVHWV9VTlNQRUNJRklFRBAAEisKJ0JBUkVfTUVUQUxfSU5TVEFOQ0VfUlVOX1NUUkFURUdZX0FMV0FZUxABEisKJ0JBUkVfTUVUQUxfSU5TVEFOQ0VfUlVOX1NUUkFURUdZX0hBTFRFRBACKtsCChZCYXJlTWV0YWxJbnN0YW5jZVN0YXRlEikKJUJBUkVfTUVUQUxfSU5TVEFOQ0VfU1RBVEVfVU5TUEVDSUZJRUQQABIqCiZCQVJFX01FVEFMX0lOU1RBTkNFX1NUQVRFX1BST1ZJU0lPTklORxABEiUKIUJBUkVfTUVUQUxfSU5TVEFOQ0VfU1RBVEVfUlVOTklORxACEiQKIEJBUkVfTUVUQUxfSU5TVEFOQ0VfU1RBVEVfRkFJTEVEEAMSJgoiQkFSRV9NRVRBTF9JTlNUQU5DRV9TVEFURV9ERUxFVElORxAEEiYKIkJBUkVfTUVUQUxfSU5TVEFOQ0VfU1RBVEVfU1RBUlRJTkcQBRImCiJCQVJFX01FVEFMX0lOU1RBTkNFX1NUQVRFX1NUT1BQSU5HEAYSJQohQkFSRV9NRVRBTF9JTlNUQU5DRV9TVEFURV9TVE9QUEVEEAcqoAMKHkJhcmVNZXRhbEluc3RhbmNlQ29uZGl0aW9uVHlwZRIyCi5CQVJFX01FVEFMX0lOU1RBTkNFX0NPTkRJVElPTl9UWVBFX1VOU1BFQ0lGSUVEEAASMgouQkFSRV9NRVRBTF9JTlNUQU5DRV9DT05ESVRJT05fVFlQRV9QUk9WSVNJT05FRBABEjwKOEJBUkVfTUVUQUxfSU5TVEFOQ0VfQ09ORElUSU9OX1RZUEVfQ09ORklHVVJBVElPTl9BUFBMSUVEEAISLAooQkFSRV9NRVRBTF9JTlNUQU5DRV9DT05ESVRJT05fVFlQRV9SRUFEWRADEjoKNkJBUkVfTUVUQUxfSU5TVEFOQ0VfQ09ORElUSU9OX1RZUEVfUkVTVEFSVF9JTl9QUk9HUkVTUxAEEjUKMUJBUkVfTUVUQUxfSU5TVEFOQ0VfQ09ORElUSU9OX1RZUEVfUkVTVEFSVF9GQUlMRUQQBRI3CjNCQVJFX01FVEFMX0lOU1RBTkNFX0NPTkRJVElPTl9UWVBFX1JFU1RBUlRfUkVRVUlSRUQQBmIGcHJvdG8z", [file_buf_validate_validate, file_google_api_field_behavior, file_google_protobuf_any, file_google_protobuf_timestamp, file_osac_private_v1_baremetal_instance_catalog_item_type, file_osac_private_v1_baremetal_instance_common_type, file_osac_private_v1_condition_status_type, file_osac_private_v1_metadata_type, file_osac_private_v1_security_group_type, file_osac_private_v1_subnet_type]);
+  fileDesc("Ci1vc2FjL3ByaXZhdGUvdjEvYmFyZW1ldGFsX2luc3RhbmNlX3R5cGUucHJvdG8SD29zYWMucHJpdmF0ZS52MSK8AQoRQmFyZU1ldGFsSW5zdGFuY2USCgoCaWQYASABKAkSKwoIbWV0YWRhdGEYAiABKAsyGS5vc2FjLnByaXZhdGUudjEuTWV0YWRhdGESNAoEc3BlYxgDIAEoCzImLm9zYWMucHJpdmF0ZS52MS5CYXJlTWV0YWxJbnN0YW5jZVNwZWMSOAoGc3RhdHVzGAQgASgLMigub3NhYy5wcml2YXRlLnYxLkJhcmVNZXRhbEluc3RhbmNlU3RhdHVzIvEBChpCYXJlTWV0YWxOZXR3b3JrQXR0YWNobWVudBI6CgZzdWJuZXQYASABKAsyJS5vc2FjLnByaXZhdGUudjEuU3VibmV0TG9jYWxSZWZlcmVuY2VCA+BBBRJFCg9zZWN1cml0eV9ncm91cHMYAiADKAsyLC5vc2FjLnByaXZhdGUudjEuU2VjdXJpdHlHcm91cExvY2FsUmVmZXJlbmNlEhsKCWludGVyZmFjZRgDIAEoCUID4EEFSACIAQESGQoHcHJpbWFyeRgEIAEoCEID4EEFSAGIAQFCDAoKX2ludGVyZmFjZUIKCghfcHJpbWFyeSLsCAoVQmFyZU1ldGFsSW5zdGFuY2VTcGVjElEKDGNhdGFsb2dfaXRlbRgBIAEoCzI2Lm9zYWMucHJpdmF0ZS52MS5CYXJlTWV0YWxJbnN0YW5jZUNhdGFsb2dJdGVtUmVmZXJlbmNlQgPgQQUSIAoOc3NoX3B1YmxpY19rZXkYAiABKAlCA+BBBUgAiAEBEhsKCXVzZXJfZGF0YRgDIAEoCUID4EEFSAGIAQESSAoMcnVuX3N0cmF0ZWd5GAQgASgOMi0ub3NhYy5wcml2YXRlLnYxLkJhcmVNZXRhbEluc3RhbmNlUnVuU3RyYXRlZ3lIAogBARIXCg9yZXN0YXJ0X3RyaWdnZXIYBSABKAMSYAoTdGVtcGxhdGVfcGFyYW1ldGVycxgGIAMoCzI+Lm9zYWMucHJpdmF0ZS52MS5CYXJlTWV0YWxJbnN0YW5jZVNwZWMuVGVtcGxhdGVQYXJhbWV0ZXJzRW50cnlCA+BBBRJACgVpbWFnZRgHIAEoCzInLm9zYWMucHJpdmF0ZS52MS5CYXJlTWV0YWxJbnN0YW5jZUltYWdlQgPgQQVIA4gBARJIChNuZXR3b3JrX2F0dGFjaG1lbnRzGAggAygLMisub3NhYy5wcml2YXRlLnYxLkJhcmVNZXRhbE5ldHdvcmtBdHRhY2htZW50Ei0KG2F1dG9fZXh0ZXJuYWxfaXBfYXR0YWNobWVudBgJIAEoCEID4EEFSASIAQESSgoIdGVtcGxhdGUYCiABKAsyMy5vc2FjLnByaXZhdGUudjEuQmFyZU1ldGFsSW5zdGFuY2VUZW1wbGF0ZVJlZmVyZW5jZUID4EEFElAKDWluc3RhbmNlX3R5cGUYCyABKAsyNC5vc2FjLnByaXZhdGUudjEuQmFyZU1ldGFsSW5zdGFuY2VUeXBlTG9jYWxSZWZlcmVuY2VCA+BBBRpPChdUZW1wbGF0ZVBhcmFtZXRlcnNFbnRyeRILCgNrZXkYASABKAkSIwoFdmFsdWUYAiABKAsyFC5nb29nbGUucHJvdG9idWYuQW55OgI4ATr1AbpI8QEa7gEKJWJhcmVtZXRhbF9pbnN0YW5jZV9wcmltYXJ5X2F0dGFjaG1lbnQSWndoZW4gbXVsdGlwbGUgbmV0d29yayBhdHRhY2htZW50cyBhcmUgc3BlY2lmaWVkLCBleGFjdGx5IG9uZSBtdXN0IGhhdmUgcHJpbWFyeSBzZXQgdG8gdHJ1ZRppdGhpcy5uZXR3b3JrX2F0dGFjaG1lbnRzLnNpemUoKSA8PSAxIHx8IHRoaXMubmV0d29ya19hdHRhY2htZW50cy5maWx0ZXIoYSwgYS5wcmltYXJ5ID09IHRydWUpLnNpemUoKSA9PSAxQhEKD19zc2hfcHVibGljX2tleUIMCgpfdXNlcl9kYXRhQg8KDV9ydW5fc3RyYXRlZ3lCCAoGX2ltYWdlQh4KHF9hdXRvX2V4dGVybmFsX2lwX2F0dGFjaG1lbnQi4AIKF0JhcmVNZXRhbEluc3RhbmNlU3RhdHVzEjYKBXN0YXRlGAEgASgOMicub3NhYy5wcml2YXRlLnYxLkJhcmVNZXRhbEluc3RhbmNlU3RhdGUSPwoKY29uZGl0aW9ucxgCIAMoCzIrLm9zYWMucHJpdmF0ZS52MS5CYXJlTWV0YWxJbnN0YW5jZUNvbmRpdGlvbhIXCg9yZXN0YXJ0X3RyaWdnZXIYAyABKAMSVgobbmV0d29ya19hdHRhY2htZW50X3N0YXR1c2VzGAQgAygLMjEub3NhYy5wcml2YXRlLnYxLkJhcmVNZXRhbE5ldHdvcmtBdHRhY2htZW50U3RhdHVzEjkKCGhhcmR3YXJlGAUgASgLMiIub3NhYy5wcml2YXRlLnYxLkJhcmVNZXRhbEhhcmR3YXJlSACIAQESEwoDaHViGAYgASgJQgaKtRgCCAFCCwoJX2hhcmR3YXJlIm4KIEJhcmVNZXRhbE5ldHdvcmtBdHRhY2htZW50U3RhdHVzEhEKCWludGVyZmFjZRgBIAEoCRISCgpzdWJuZXRfcmVmGAIgASgJEhIKCmlwX2FkZHJlc3MYAyABKAkSDwoHcHJpbWFyeRgEIAEoCCIhChJCYXJlTWV0YWxOSUNTdGF0dXMSCwoDbWFjGAEgASgJIkYKEUJhcmVNZXRhbEhhcmR3YXJlEjEKBG5pY3MYASADKAsyIy5vc2FjLnByaXZhdGUudjEuQmFyZU1ldGFsTklDU3RhdHVzIokCChpCYXJlTWV0YWxJbnN0YW5jZUNvbmRpdGlvbhI9CgR0eXBlGAEgASgOMi8ub3NhYy5wcml2YXRlLnYxLkJhcmVNZXRhbEluc3RhbmNlQ29uZGl0aW9uVHlwZRIwCgZzdGF0dXMYAiABKA4yIC5vc2FjLnByaXZhdGUudjEuQ29uZGl0aW9uU3RhdHVzEjgKFGxhc3RfdHJhbnNpdGlvbl90aW1lGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBITCgZyZWFzb24YBCABKAlIAIgBARIUCgdtZXNzYWdlGAUgASgJSAGIAQFCCQoHX3JlYXNvbkIKCghfbWVzc2FnZSI7Ch9CYXJlTWV0YWxJbnN0YW5jZUxvY2FsUmVmZXJlbmNlEgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkqqgEKHEJhcmVNZXRhbEluc3RhbmNlUnVuU3RyYXRlZ3kSMAosQkFSRV9NRVRBTF9JTlNUQU5DRV9SVU5fU1RSQVRFR1lfVU5TUEVDSUZJRUQQABIrCidCQVJFX01FVEFMX0lOU1RBTkNFX1JVTl9TVFJBVEVHWV9BTFdBWVMQARIrCidCQVJFX01FVEFMX0lOU1RBTkNFX1JVTl9TVFJBVEVHWV9IQUxURUQQAirbAgoWQmFyZU1ldGFsSW5zdGFuY2VTdGF0ZRIpCiVCQVJFX01FVEFMX0lOU1RBTkNFX1NUQVRFX1VOU1BFQ0lGSUVEEAASKgomQkFSRV9NRVRBTF9JTlNUQU5DRV9TVEFURV9QUk9WSVNJT05JTkcQARIlCiFCQVJFX01FVEFMX0lOU1RBTkNFX1NUQVRFX1JVTk5JTkcQAhIkCiBCQVJFX01FVEFMX0lOU1RBTkNFX1NUQVRFX0ZBSUxFRBADEiYKIkJBUkVfTUVUQUxfSU5TVEFOQ0VfU1RBVEVfREVMRVRJTkcQBBImCiJCQVJFX01FVEFMX0lOU1RBTkNFX1NUQVRFX1NUQVJUSU5HEAUSJgoiQkFSRV9NRVRBTF9JTlNUQU5DRV9TVEFURV9TVE9QUElORxAGEiUKIUJBUkVfTUVUQUxfSU5TVEFOQ0VfU1RBVEVfU1RPUFBFRBAHKqADCh5CYXJlTWV0YWxJbnN0YW5jZUNvbmRpdGlvblR5cGUSMgouQkFSRV9NRVRBTF9JTlNUQU5DRV9DT05ESVRJT05fVFlQRV9VTlNQRUNJRklFRBAAEjIKLkJBUkVfTUVUQUxfSU5TVEFOQ0VfQ09ORElUSU9OX1RZUEVfUFJPVklTSU9ORUQQARI8CjhCQVJFX01FVEFMX0lOU1RBTkNFX0NPTkRJVElPTl9UWVBFX0NPTkZJR1VSQVRJT05fQVBQTElFRBACEiwKKEJBUkVfTUVUQUxfSU5TVEFOQ0VfQ09ORElUSU9OX1RZUEVfUkVBRFkQAxI6CjZCQVJFX01FVEFMX0lOU1RBTkNFX0NPTkRJVElPTl9UWVBFX1JFU1RBUlRfSU5fUFJPR1JFU1MQBBI1CjFCQVJFX01FVEFMX0lOU1RBTkNFX0NPTkRJVElPTl9UWVBFX1JFU1RBUlRfRkFJTEVEEAUSNwozQkFSRV9NRVRBTF9JTlNUQU5DRV9DT05ESVRJT05fVFlQRV9SRVNUQVJUX1JFUVVJUkVEEAZCFIq1GBASDm9zYWMucHVibGljLnYxYgZwcm90bzM", [file_buf_validate_validate, file_cleanapi_cleanapi, file_google_api_field_behavior, file_google_protobuf_any, file_google_protobuf_timestamp, file_osac_private_v1_baremetal_instance_catalog_item_type, file_osac_private_v1_baremetal_instance_common_type, file_osac_private_v1_baremetal_instance_template_type, file_osac_private_v1_baremetal_instance_type_type, file_osac_private_v1_condition_status_type, file_osac_private_v1_metadata_type, file_osac_private_v1_security_group_type, file_osac_private_v1_subnet_type]);
 
 /**
  * Contains the details of a bare metal instance.
@@ -135,7 +140,11 @@ export const BareMetalNetworkAttachmentSchema: GenMessage<BareMetalNetworkAttach
  */
 export type BareMetalInstanceSpec = Message<"osac.private.v1.BareMetalInstanceSpec"> & {
   /**
-   * Reference to the BareMetalInstanceCatalogItem. Required on create; immutable after creation.
+   * Reference to the BareMetalInstanceCatalogItem. Either `catalog_item` or `template` is required on create.
+   *
+   * Mutually exclusive with `template`.
+   *
+   * This can't be modified after the bare metal instance is created.
    *
    * @generated from field: osac.private.v1.BareMetalInstanceCatalogItemReference catalog_item = 1;
    */
@@ -176,6 +185,43 @@ export type BareMetalInstanceSpec = Message<"osac.private.v1.BareMetalInstanceSp
   restartTrigger: bigint;
 
   /**
+   * Values of the template parameters passed to the provisioning template.
+   *
+   * When using the HTTP+JSON version of the API the values must be represented as documented in the [ProtoJSON format
+   * document](https://protobuf.dev/programming-guides/json). For example, if the template has a `disk_layout`
+   * parameter of string type, the complete bare metal instance should be represented like this:
+   *
+   * ```json
+   * {
+   *   "spec": {
+   *     "catalog_item": "gpu-node",
+   *     "template_parameters": {
+   *       "disk_layout": {
+   *         "@type": "type.googleapis.com/google.protobuf.StringValue",
+   *         "value": "raid1"
+   *       }
+   *     }
+   *   }
+   * }
+   * ```
+   *
+   * The possible values of the `@type` are the same as those used by the `type_url` field of the `Any` type:
+   *
+   * | Type                           | Value                                             |
+   * |--------------------------------|---------------------------------------------------|
+   * | Boolean                        | `type.googleapis.com/google.protobuf.BoolValue`   |
+   * | Integer number, 32 bits        | `type.googleapis.com/google.protobuf.Int32Value`  |
+   * | Integer number, 64 bits        | `type.googleapis.com/google.protobuf.Int64Value`  |
+   * | Floating point number, 32 bits | `type.googleapis.com/google.protobuf.FloatValue`  |
+   * | Floating point number, 64 bits | `type.googleapis.com/google.protobuf.DoubleValue` |
+   * | String                         | `type.googleapis.com/google.protobuf.StringValue` |
+   * | Timestamp                      | `type.googleapis.com/google.protobuf.Timestamp`   |
+   * | Duration                       | `type.googleapis.com/google.protobuf.Duration`    |
+   * | Array of bytes                 | `type.googleapis.com/google.protobuf.BytesValue`  |
+   * | Any JSON value                 | `type.googleapis.com/google.protobuf.Value`       |
+   *
+   * These parameters can't be modified after the bare metal instance is created.
+   *
    * @generated from field: map<string, google.protobuf.Any> template_parameters = 6;
    */
   templateParameters: { [key: string]: Any };
@@ -201,9 +247,30 @@ export type BareMetalInstanceSpec = Message<"osac.private.v1.BareMetalInstanceSp
    * with an ExternalIPAttachment for this instance atomically during creation.
    * Immutable after creation.
    *
-   * @generated from field: bool auto_external_ip_attachment = 9;
+   * @generated from field: optional bool auto_external_ip_attachment = 9;
    */
-  autoExternalIpAttachment: boolean;
+  autoExternalIpAttachment?: boolean | undefined;
+
+  /**
+   * Reference to the bare metal instance template. Either `template` or `catalog_item` is required on create.
+   *
+   * Mutually exclusive with `catalog_item`.
+   *
+   * This can't be modified after the bare metal instance is created.
+   *
+   * @generated from field: osac.private.v1.BareMetalInstanceTemplateReference template = 10;
+   */
+  template?: BareMetalInstanceTemplateReference | undefined;
+
+  /**
+   * Reference to a BareMetalInstanceType. Optional; immutable after creation.
+   * When set, the system resolves this to the instance type's host_label_selector and maps it
+   * to the CRD's Selector.HostSelector for host selection. When omitted, host selection falls
+   * back to the catalog item's template host_type.
+   *
+   * @generated from field: osac.private.v1.BareMetalInstanceTypeLocalReference instance_type = 11;
+   */
+  instanceType?: BareMetalInstanceTypeLocalReference | undefined;
 };
 
 /**
@@ -242,19 +309,27 @@ export type BareMetalInstanceStatus = Message<"osac.private.v1.BareMetalInstance
   restartTrigger: bigint;
 
   /**
-   * Identifier of the hub that was selected for this bare metal instance.
-   *
-   * @generated from field: string hub = 4;
-   */
-  hub: string;
-
-  /**
    * Runtime networking state for each network attachment.
    * Populated by the operator after DHCP lease discovery and synced via the feedback controller.
    *
-   * @generated from field: repeated osac.private.v1.BareMetalNetworkAttachmentStatus network_attachment_statuses = 5;
+   * @generated from field: repeated osac.private.v1.BareMetalNetworkAttachmentStatus network_attachment_statuses = 4;
    */
   networkAttachmentStatuses: BareMetalNetworkAttachmentStatus[];
+
+  /**
+   * Physical hardware metadata fetched from the inventory backend at allocation time.
+   * Absent until the inventory backend provides NIC data.
+   *
+   * @generated from field: optional osac.private.v1.BareMetalHardware hardware = 5;
+   */
+  hardware?: BareMetalHardware | undefined;
+
+  /**
+   * Identifier of the hub that was selected for this bare metal instance.
+   *
+   * @generated from field: string hub = 6;
+   */
+  hub: string;
 };
 
 /**
@@ -307,6 +382,50 @@ export const BareMetalNetworkAttachmentStatusSchema: GenMessage<BareMetalNetwork
   messageDesc(file_osac_private_v1_baremetal_instance_type, 4);
 
 /**
+ * Physical NIC MAC address discovered from the inventory backend.
+ * buf:lint:ignore OSAC_OBJECT_SHAPE
+ *
+ * @generated from message osac.private.v1.BareMetalNICStatus
+ */
+export type BareMetalNICStatus = Message<"osac.private.v1.BareMetalNICStatus"> & {
+  /**
+   * Hardware MAC address, lowercased (e.g. "aa:bb:cc:dd:ee:ff").
+   *
+   * @generated from field: string mac = 1;
+   */
+  mac: string;
+};
+
+/**
+ * Describes the message osac.private.v1.BareMetalNICStatus.
+ * Use `create(BareMetalNICStatusSchema)` to create a new message.
+ */
+export const BareMetalNICStatusSchema: GenMessage<BareMetalNICStatus> = /*@__PURE__*/
+  messageDesc(file_osac_private_v1_baremetal_instance_type, 5);
+
+/**
+ * Physical hardware metadata fetched from the inventory backend at allocation time.
+ * buf:lint:ignore OSAC_OBJECT_SHAPE
+ *
+ * @generated from message osac.private.v1.BareMetalHardware
+ */
+export type BareMetalHardware = Message<"osac.private.v1.BareMetalHardware"> & {
+  /**
+   * Physical network interfaces reported by the inventory backend.
+   *
+   * @generated from field: repeated osac.private.v1.BareMetalNICStatus nics = 1;
+   */
+  nics: BareMetalNICStatus[];
+};
+
+/**
+ * Describes the message osac.private.v1.BareMetalHardware.
+ * Use `create(BareMetalHardwareSchema)` to create a new message.
+ */
+export const BareMetalHardwareSchema: GenMessage<BareMetalHardware> = /*@__PURE__*/
+  messageDesc(file_osac_private_v1_baremetal_instance_type, 6);
+
+/**
  * Contains the details of a condition that describes the status of a bare metal instance.
  *
  * @generated from message osac.private.v1.BareMetalInstanceCondition
@@ -343,7 +462,7 @@ export type BareMetalInstanceCondition = Message<"osac.private.v1.BareMetalInsta
  * Use `create(BareMetalInstanceConditionSchema)` to create a new message.
  */
 export const BareMetalInstanceConditionSchema: GenMessage<BareMetalInstanceCondition> = /*@__PURE__*/
-  messageDesc(file_osac_private_v1_baremetal_instance_type, 5);
+  messageDesc(file_osac_private_v1_baremetal_instance_type, 7);
 
 /**
  * Local reference to a BareMetalInstance resource.
@@ -367,7 +486,7 @@ export type BareMetalInstanceLocalReference = Message<"osac.private.v1.BareMetal
  * Use `create(BareMetalInstanceLocalReferenceSchema)` to create a new message.
  */
 export const BareMetalInstanceLocalReferenceSchema: GenMessage<BareMetalInstanceLocalReference> = /*@__PURE__*/
-  messageDesc(file_osac_private_v1_baremetal_instance_type, 6);
+  messageDesc(file_osac_private_v1_baremetal_instance_type, 8);
 
 /**
  * Run strategy for the bare metal instance.

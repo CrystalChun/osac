@@ -17,12 +17,13 @@
 
 import type { GenEnum, GenFile } from "@bufbuild/protobuf/codegenv2";
 import { enumDesc, fileDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_cleanapi_cleanapi } from "../../../cleanapi/cleanapi_pb";
 
 /**
  * Describes the file osac/private/v1/condition_status_type.proto.
  */
 export const file_osac_private_v1_condition_status_type: GenFile = /*@__PURE__*/
-  fileDesc("Citvc2FjL3ByaXZhdGUvdjEvY29uZGl0aW9uX3N0YXR1c190eXBlLnByb3RvEg9vc2FjLnByaXZhdGUudjEqagoPQ29uZGl0aW9uU3RhdHVzEiAKHENPTkRJVElPTl9TVEFUVVNfVU5TUEVDSUZJRUQQABIZChVDT05ESVRJT05fU1RBVFVTX1RSVUUQARIaChZDT05ESVRJT05fU1RBVFVTX0ZBTFNFEAJiBnByb3RvMw");
+  fileDesc("Citvc2FjL3ByaXZhdGUvdjEvY29uZGl0aW9uX3N0YXR1c190eXBlLnByb3RvEg9vc2FjLnByaXZhdGUudjEqagoPQ29uZGl0aW9uU3RhdHVzEiAKHENPTkRJVElPTl9TVEFUVVNfVU5TUEVDSUZJRUQQABIZChVDT05ESVRJT05fU1RBVFVTX1RSVUUQARIaChZDT05ESVRJT05fU1RBVFVTX0ZBTFNFEAJCFIq1GBASDm9zYWMucHVibGljLnYxYgZwcm90bzM", [file_cleanapi_cleanapi]);
 
 /**
  * @generated from enum osac.private.v1.ConditionStatus

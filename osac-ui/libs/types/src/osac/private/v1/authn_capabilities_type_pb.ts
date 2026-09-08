@@ -17,13 +17,14 @@
 
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_cleanapi_cleanapi } from "../../../cleanapi/cleanapi_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file osac/private/v1/authn_capabilities_type.proto.
  */
 export const file_osac_private_v1_authn_capabilities_type: GenFile = /*@__PURE__*/
-  fileDesc("Ci1vc2FjL3ByaXZhdGUvdjEvYXV0aG5fY2FwYWJpbGl0aWVzX3R5cGUucHJvdG8SD29zYWMucHJpdmF0ZS52MSIyChFBdXRobkNhcGFiaWxpdGllcxIdChV0cnVzdGVkX3Rva2VuX2lzc3VlcnMYASADKAliBnByb3RvMw");
+  fileDesc("Ci1vc2FjL3ByaXZhdGUvdjEvYXV0aG5fY2FwYWJpbGl0aWVzX3R5cGUucHJvdG8SD29zYWMucHJpdmF0ZS52MSIyChFBdXRobkNhcGFiaWxpdGllcxIdChV0cnVzdGVkX3Rva2VuX2lzc3VlcnMYASADKAlCFIq1GBASDm9zYWMucHVibGljLnYxYgZwcm90bzM", [file_cleanapi_cleanapi]);
 
 /**
  * Contains the information that helps client know how authentication is managed by the server.
@@ -33,6 +34,17 @@ export const file_osac_private_v1_authn_capabilities_type: GenFile = /*@__PURE__
 export type AuthnCapabilities = Message<"osac.private.v1.AuthnCapabilities"> & {
   /**
    * A list of the OAuth issuers whose access tokens are accepted by the server for authentication.
+   *
+   * This means that the client can select one of this and then use the OAuth discovery endpoint to find the details of
+   * the OAuth server. For example if the value is `https://my.oauth.com` then the client can obtain the details of the
+   * authorizatoin server going to the following URL:
+   *
+   *   https://my.oauth.com/.well-known/oauth-authorization-server
+   *
+   * The discovery process is defined in [RFC 8414](https://datatracker.ietf.org/doc/html/rfc8414).
+   *
+   * Note that having an access token issued by one of this servers doesn't guarantee that the requests from the user
+   * will be accepted: it will still be subject to authorization checks that may grant or deny access.
    *
    * @generated from field: repeated string trusted_token_issuers = 1;
    */

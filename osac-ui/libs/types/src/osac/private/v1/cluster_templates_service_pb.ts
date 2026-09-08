@@ -17,6 +17,7 @@
 
 import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_cleanapi_cleanapi } from "../../../cleanapi/cleanapi_pb";
 import { file_google_api_annotations } from "../../../google/api/annotations_pb";
 import type { FieldMask } from "../../../google/protobuf/field_mask_pb";
 import { file_google_protobuf_field_mask } from "../../../google/protobuf/field_mask_pb";
@@ -28,26 +29,60 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/private/v1/cluster_templates_service.proto.
  */
 export const file_osac_private_v1_cluster_templates_service: GenFile = /*@__PURE__*/
-  fileDesc("Ci9vc2FjL3ByaXZhdGUvdjEvY2x1c3Rlcl90ZW1wbGF0ZXNfc2VydmljZS5wcm90bxIPb3NhYy5wcml2YXRlLnYxInsKG0NsdXN0ZXJUZW1wbGF0ZXNMaXN0UmVxdWVzdBITCgZvZmZzZXQYASABKAVIAIgBARISCgVsaW1pdBgCIAEoBUgBiAEBEhMKBmZpbHRlchgDIAEoCUgCiAEBQgkKB19vZmZzZXRCCAoGX2xpbWl0QgkKB19maWx0ZXIibAocQ2x1c3RlclRlbXBsYXRlc0xpc3RSZXNwb25zZRIMCgRzaXplGAEgASgFEg0KBXRvdGFsGAIgASgFEi8KBWl0ZW1zGAMgAygLMiAub3NhYy5wcml2YXRlLnYxLkNsdXN0ZXJUZW1wbGF0ZSIoChpDbHVzdGVyVGVtcGxhdGVzR2V0UmVxdWVzdBIKCgJpZBgBIAEoCSJPChtDbHVzdGVyVGVtcGxhdGVzR2V0UmVzcG9uc2USMAoGb2JqZWN0GAEgASgLMiAub3NhYy5wcml2YXRlLnYxLkNsdXN0ZXJUZW1wbGF0ZSJRCh1DbHVzdGVyVGVtcGxhdGVzQ3JlYXRlUmVxdWVzdBIwCgZvYmplY3QYASABKAsyIC5vc2FjLnByaXZhdGUudjEuQ2x1c3RlclRlbXBsYXRlIlIKHkNsdXN0ZXJUZW1wbGF0ZXNDcmVhdGVSZXNwb25zZRIwCgZvYmplY3QYASABKAsyIC5vc2FjLnByaXZhdGUudjEuQ2x1c3RlclRlbXBsYXRlIisKHUNsdXN0ZXJUZW1wbGF0ZXNEZWxldGVSZXF1ZXN0EgoKAmlkGAEgASgJIiAKHkNsdXN0ZXJUZW1wbGF0ZXNEZWxldGVSZXNwb25zZSKQAQodQ2x1c3RlclRlbXBsYXRlc1VwZGF0ZVJlcXVlc3QSMAoGb2JqZWN0GAEgASgLMiAub3NhYy5wcml2YXRlLnYxLkNsdXN0ZXJUZW1wbGF0ZRIvCgt1cGRhdGVfbWFzaxgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5GaWVsZE1hc2sSDAoEbG9jaxgDIAEoCCJSCh5DbHVzdGVyVGVtcGxhdGVzVXBkYXRlUmVzcG9uc2USMAoGb2JqZWN0GAEgASgLMiAub3NhYy5wcml2YXRlLnYxLkNsdXN0ZXJUZW1wbGF0ZSIrCh1DbHVzdGVyVGVtcGxhdGVzU2lnbmFsUmVxdWVzdBIKCgJpZBgBIAEoCSIgCh5DbHVzdGVyVGVtcGxhdGVzU2lnbmFsUmVzcG9uc2UyoQcKEENsdXN0ZXJUZW1wbGF0ZXMSjgEKBExpc3QSLC5vc2FjLnByaXZhdGUudjEuQ2x1c3RlclRlbXBsYXRlc0xpc3RSZXF1ZXN0Gi0ub3NhYy5wcml2YXRlLnYxLkNsdXN0ZXJUZW1wbGF0ZXNMaXN0UmVzcG9uc2UiKYLT5JMCIxIhL2FwaS9wcml2YXRlL3YxL2NsdXN0ZXJfdGVtcGxhdGVzEpgBCgNHZXQSKy5vc2FjLnByaXZhdGUudjEuQ2x1c3RlclRlbXBsYXRlc0dldFJlcXVlc3QaLC5vc2FjLnByaXZhdGUudjEuQ2x1c3RlclRlbXBsYXRlc0dldFJlc3BvbnNlIjaC0+STAjBiBm9iamVjdBImL2FwaS9wcml2YXRlL3YxL2NsdXN0ZXJfdGVtcGxhdGVzL3tpZH0SpAEKBkNyZWF0ZRIuLm9zYWMucHJpdmF0ZS52MS5DbHVzdGVyVGVtcGxhdGVzQ3JlYXRlUmVxdWVzdBovLm9zYWMucHJpdmF0ZS52MS5DbHVzdGVyVGVtcGxhdGVzQ3JlYXRlUmVzcG9uc2UiOYLT5JMCMzoGb2JqZWN0YgZvYmplY3QiIS9hcGkvcHJpdmF0ZS92MS9jbHVzdGVyX3RlbXBsYXRlcxKZAQoGRGVsZXRlEi4ub3NhYy5wcml2YXRlLnYxLkNsdXN0ZXJUZW1wbGF0ZXNEZWxldGVSZXF1ZXN0Gi8ub3NhYy5wcml2YXRlLnYxLkNsdXN0ZXJUZW1wbGF0ZXNEZWxldGVSZXNwb25zZSIugtPkkwIoKiYvYXBpL3ByaXZhdGUvdjEvY2x1c3Rlcl90ZW1wbGF0ZXMve2lkfRKwAQoGVXBkYXRlEi4ub3NhYy5wcml2YXRlLnYxLkNsdXN0ZXJUZW1wbGF0ZXNVcGRhdGVSZXF1ZXN0Gi8ub3NhYy5wcml2YXRlLnYxLkNsdXN0ZXJUZW1wbGF0ZXNVcGRhdGVSZXNwb25zZSJFgtPkkwI/OgZvYmplY3RiBm9iamVjdDItL2FwaS9wcml2YXRlL3YxL2NsdXN0ZXJfdGVtcGxhdGVzL3tvYmplY3QuaWR9EmsKBlNpZ25hbBIuLm9zYWMucHJpdmF0ZS52MS5DbHVzdGVyVGVtcGxhdGVzU2lnbmFsUmVxdWVzdBovLm9zYWMucHJpdmF0ZS52MS5DbHVzdGVyVGVtcGxhdGVzU2lnbmFsUmVzcG9uc2UiAGIGcHJvdG8z", [file_google_api_annotations, file_google_protobuf_field_mask, file_osac_private_v1_cluster_template_type]);
+  fileDesc("Ci9vc2FjL3ByaXZhdGUvdjEvY2x1c3Rlcl90ZW1wbGF0ZXNfc2VydmljZS5wcm90bxIPb3NhYy5wcml2YXRlLnYxIpkBChtDbHVzdGVyVGVtcGxhdGVzTGlzdFJlcXVlc3QSEwoGb2Zmc2V0GAEgASgFSACIAQESEgoFbGltaXQYAiABKAVIAYgBARITCgZmaWx0ZXIYAyABKAlIAogBARISCgVvcmRlchgEIAEoCUgDiAEBQgkKB19vZmZzZXRCCAoGX2xpbWl0QgkKB19maWx0ZXJCCAoGX29yZGVyImwKHENsdXN0ZXJUZW1wbGF0ZXNMaXN0UmVzcG9uc2USDAoEc2l6ZRgBIAEoBRINCgV0b3RhbBgCIAEoBRIvCgVpdGVtcxgDIAMoCzIgLm9zYWMucHJpdmF0ZS52MS5DbHVzdGVyVGVtcGxhdGUiKAoaQ2x1c3RlclRlbXBsYXRlc0dldFJlcXVlc3QSCgoCaWQYASABKAkiTwobQ2x1c3RlclRlbXBsYXRlc0dldFJlc3BvbnNlEjAKBm9iamVjdBgBIAEoCzIgLm9zYWMucHJpdmF0ZS52MS5DbHVzdGVyVGVtcGxhdGUiUQodQ2x1c3RlclRlbXBsYXRlc0NyZWF0ZVJlcXVlc3QSMAoGb2JqZWN0GAEgASgLMiAub3NhYy5wcml2YXRlLnYxLkNsdXN0ZXJUZW1wbGF0ZSJSCh5DbHVzdGVyVGVtcGxhdGVzQ3JlYXRlUmVzcG9uc2USMAoGb2JqZWN0GAEgASgLMiAub3NhYy5wcml2YXRlLnYxLkNsdXN0ZXJUZW1wbGF0ZSIrCh1DbHVzdGVyVGVtcGxhdGVzRGVsZXRlUmVxdWVzdBIKCgJpZBgBIAEoCSIgCh5DbHVzdGVyVGVtcGxhdGVzRGVsZXRlUmVzcG9uc2UikAEKHUNsdXN0ZXJUZW1wbGF0ZXNVcGRhdGVSZXF1ZXN0EjAKBm9iamVjdBgBIAEoCzIgLm9zYWMucHJpdmF0ZS52MS5DbHVzdGVyVGVtcGxhdGUSLwoLdXBkYXRlX21hc2sYAiABKAsyGi5nb29nbGUucHJvdG9idWYuRmllbGRNYXNrEgwKBGxvY2sYAyABKAgiUgoeQ2x1c3RlclRlbXBsYXRlc1VwZGF0ZVJlc3BvbnNlEjAKBm9iamVjdBgBIAEoCzIgLm9zYWMucHJpdmF0ZS52MS5DbHVzdGVyVGVtcGxhdGUiMwodQ2x1c3RlclRlbXBsYXRlc1NpZ25hbFJlcXVlc3QSCgoCaWQYASABKAk6Boq1GAIIASIoCh5DbHVzdGVyVGVtcGxhdGVzU2lnbmFsUmVzcG9uc2U6Boq1GAIIATKnBwoQQ2x1c3RlclRlbXBsYXRlcxKOAQoETGlzdBIsLm9zYWMucHJpdmF0ZS52MS5DbHVzdGVyVGVtcGxhdGVzTGlzdFJlcXVlc3QaLS5vc2FjLnByaXZhdGUudjEuQ2x1c3RlclRlbXBsYXRlc0xpc3RSZXNwb25zZSIpgtPkkwIjEiEvYXBpL3ByaXZhdGUvdjEvY2x1c3Rlcl90ZW1wbGF0ZXMSmAEKA0dldBIrLm9zYWMucHJpdmF0ZS52MS5DbHVzdGVyVGVtcGxhdGVzR2V0UmVxdWVzdBosLm9zYWMucHJpdmF0ZS52MS5DbHVzdGVyVGVtcGxhdGVzR2V0UmVzcG9uc2UiNoLT5JMCMGIGb2JqZWN0EiYvYXBpL3ByaXZhdGUvdjEvY2x1c3Rlcl90ZW1wbGF0ZXMve2lkfRKkAQoGQ3JlYXRlEi4ub3NhYy5wcml2YXRlLnYxLkNsdXN0ZXJUZW1wbGF0ZXNDcmVhdGVSZXF1ZXN0Gi8ub3NhYy5wcml2YXRlLnYxLkNsdXN0ZXJUZW1wbGF0ZXNDcmVhdGVSZXNwb25zZSI5gtPkkwIzOgZvYmplY3RiBm9iamVjdCIhL2FwaS9wcml2YXRlL3YxL2NsdXN0ZXJfdGVtcGxhdGVzEpkBCgZEZWxldGUSLi5vc2FjLnByaXZhdGUudjEuQ2x1c3RlclRlbXBsYXRlc0RlbGV0ZVJlcXVlc3QaLy5vc2FjLnByaXZhdGUudjEuQ2x1c3RlclRlbXBsYXRlc0RlbGV0ZVJlc3BvbnNlIi6C0+STAigqJi9hcGkvcHJpdmF0ZS92MS9jbHVzdGVyX3RlbXBsYXRlcy97aWR9ErABCgZVcGRhdGUSLi5vc2FjLnByaXZhdGUudjEuQ2x1c3RlclRlbXBsYXRlc1VwZGF0ZVJlcXVlc3QaLy5vc2FjLnByaXZhdGUudjEuQ2x1c3RlclRlbXBsYXRlc1VwZGF0ZVJlc3BvbnNlIkWC0+STAj86Bm9iamVjdGIGb2JqZWN0Mi0vYXBpL3ByaXZhdGUvdjEvY2x1c3Rlcl90ZW1wbGF0ZXMve29iamVjdC5pZH0ScQoGU2lnbmFsEi4ub3NhYy5wcml2YXRlLnYxLkNsdXN0ZXJUZW1wbGF0ZXNTaWduYWxSZXF1ZXN0Gi8ub3NhYy5wcml2YXRlLnYxLkNsdXN0ZXJUZW1wbGF0ZXNTaWduYWxSZXNwb25zZSIGirUYAggBQimKtRglEg5vc2FjLnB1YmxpYy52MSITcHJpdmF0ZTpmdWxmaWxsbWVudGIGcHJvdG8z", [file_cleanapi_cleanapi, file_google_api_annotations, file_google_protobuf_field_mask, file_osac_private_v1_cluster_template_type]);
 
 /**
  * @generated from message osac.private.v1.ClusterTemplatesListRequest
  */
 export type ClusterTemplatesListRequest = Message<"osac.private.v1.ClusterTemplatesListRequest"> & {
   /**
+   * Index of the first result. If not specified the default value will be zero.
+   *
    * @generated from field: optional int32 offset = 1;
    */
   offset?: number | undefined;
 
   /**
+   * Maximum number of results to be returned by the server. When not specified all the results will be returned. Note
+   * that there may not be enough results to return, and that the server may decide, for performance reasons, to return
+   * less results than requested.
+   *
    * @generated from field: optional int32 limit = 2;
    */
   limit?: number | undefined;
 
   /**
+   * Filter criteria.
+   *
+   * The value of this parameter is a [CEL](https://cel.dev) expression used to select which objects to return. The
+   * built-in `this` variable refers to the object being tested and `now` refers to the current date and time. If the
+   * expression evaluates to `true` the object is included in the results. For example, to retrieve all templates with
+   * names starting with `large`:
+   *
+   *     this.metadata.name.startsWith("large")
+   *
+   * If this isn't provided, or if the value is empty, then all the templates that the user has permission to see will
+   * be returned. Not all CEL constructs are currently supported for implementation reasons; see the filter
+   * documentation (docs/FILTER.md) for the full details.
+   *
    * @generated from field: optional string filter = 3;
    */
   filter?: string | undefined;
+
+  /**
+   * Order criteria.
+   *
+   * The syntax of this parameter is similar to the syntax of the _order by_ clause of a SQL statement, but using the
+   * names of the attributes of the templated instead of the names of the columns of a table. For example, in order to
+   * sort the templates descending by title the value should be:
+   *
+   *     name desc
+   *
+   * If the parameter isn't provided, or if the value is empty, then the order of the results is undefined.
+   *
+   * @generated from field: optional string order = 4;
+   */
+  order?: string | undefined;
 };
 
 /**
@@ -62,16 +97,25 @@ export const ClusterTemplatesListRequestSchema: GenMessage<ClusterTemplatesListR
  */
 export type ClusterTemplatesListResponse = Message<"osac.private.v1.ClusterTemplatesListResponse"> & {
   /**
+   * Actual number of items returned. Note that this may be smaller than the value requested in the `limit` parameter
+   * of the request if there are not enough items, or of the system decides that returning that number of items isn't
+   * feasible or convenient for performance reasons.
+   *
    * @generated from field: int32 size = 1;
    */
   size: number;
 
   /**
+   * Total number of items of the collection that match the search criteria, regardless of the number of results
+   * requested with the `limit` parameter.
+   *
    * @generated from field: int32 total = 2;
    */
   total: number;
 
   /**
+   * List of results.
+   *
    * @generated from field: repeated osac.private.v1.ClusterTemplate items = 3;
    */
   items: ClusterTemplate[];
@@ -265,6 +309,8 @@ export const ClusterTemplatesSignalResponseSchema: GenMessage<ClusterTemplatesSi
  */
 export const ClusterTemplates: GenService<{
   /**
+   * Retrieves the list of cluster templates.
+   *
    * @generated from rpc osac.private.v1.ClusterTemplates.List
    */
   list: {
@@ -273,6 +319,8 @@ export const ClusterTemplates: GenService<{
     output: typeof ClusterTemplatesListResponseSchema;
   },
   /**
+   * Retrieves the details of one specific cluster template.
+   *
    * @generated from rpc osac.private.v1.ClusterTemplates.Get
    */
   get: {
@@ -281,6 +329,8 @@ export const ClusterTemplates: GenService<{
     output: typeof ClusterTemplatesGetResponseSchema;
   },
   /**
+   * Creates a new cluster template.
+   *
    * @generated from rpc osac.private.v1.ClusterTemplates.Create
    */
   create: {
@@ -289,6 +339,8 @@ export const ClusterTemplates: GenService<{
     output: typeof ClusterTemplatesCreateResponseSchema;
   },
   /**
+   * Deletes a cluster template.
+   *
    * @generated from rpc osac.private.v1.ClusterTemplates.Delete
    */
   delete: {
@@ -297,6 +349,8 @@ export const ClusterTemplates: GenService<{
     output: typeof ClusterTemplatesDeleteResponseSchema;
   },
   /**
+   * Updates an existing cluster template.
+   *
    * @generated from rpc osac.private.v1.ClusterTemplates.Update
    */
   update: {

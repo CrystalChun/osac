@@ -17,12 +17,13 @@
 
 import type { GenEnum, GenFile } from "@bufbuild/protobuf/codegenv2";
 import { enumDesc, fileDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_cleanapi_cleanapi } from "../../../cleanapi/cleanapi_pb";
 
 /**
  * Describes the file osac/private/v1/ip_family_type.proto.
  */
 export const file_osac_private_v1_ip_family_type: GenFile = /*@__PURE__*/
-  fileDesc("CiRvc2FjL3ByaXZhdGUvdjEvaXBfZmFtaWx5X3R5cGUucHJvdG8SD29zYWMucHJpdmF0ZS52MSpNCghJUEZhbWlseRIZChVJUF9GQU1JTFlfVU5TUEVDSUZJRUQQABISCg5JUF9GQU1JTFlfSVBWNBABEhIKDklQX0ZBTUlMWV9JUFY2EAJiBnByb3RvMw");
+  fileDesc("CiRvc2FjL3ByaXZhdGUvdjEvaXBfZmFtaWx5X3R5cGUucHJvdG8SD29zYWMucHJpdmF0ZS52MSpNCghJUEZhbWlseRIZChVJUF9GQU1JTFlfVU5TUEVDSUZJRUQQABISCg5JUF9GQU1JTFlfSVBWNBABEhIKDklQX0ZBTUlMWV9JUFY2EAJCFIq1GBASDm9zYWMucHVibGljLnYxYgZwcm90bzM", [file_cleanapi_cleanapi]);
 
 /**
  * IP address family for IP pools.

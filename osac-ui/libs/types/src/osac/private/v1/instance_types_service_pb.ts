@@ -17,6 +17,7 @@
 
 import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_cleanapi_cleanapi } from "../../../cleanapi/cleanapi_pb";
 import { file_google_api_annotations } from "../../../google/api/annotations_pb";
 import type { FieldMask } from "../../../google/protobuf/field_mask_pb";
 import { file_google_protobuf_field_mask } from "../../../google/protobuf/field_mask_pb";
@@ -28,28 +29,57 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/private/v1/instance_types_service.proto.
  */
 export const file_osac_private_v1_instance_types_service: GenFile = /*@__PURE__*/
-  fileDesc("Cixvc2FjL3ByaXZhdGUvdjEvaW5zdGFuY2VfdHlwZXNfc2VydmljZS5wcm90bxIPb3NhYy5wcml2YXRlLnYxIpYBChhJbnN0YW5jZVR5cGVzTGlzdFJlcXVlc3QSEwoGb2Zmc2V0GAEgASgFSACIAQESEgoFbGltaXQYAiABKAVIAYgBARITCgZmaWx0ZXIYAyABKAlIAogBARISCgVvcmRlchgEIAEoCUgDiAEBQgkKB19vZmZzZXRCCAoGX2xpbWl0QgkKB19maWx0ZXJCCAoGX29yZGVyImYKGUluc3RhbmNlVHlwZXNMaXN0UmVzcG9uc2USDAoEc2l6ZRgBIAEoBRINCgV0b3RhbBgCIAEoBRIsCgVpdGVtcxgDIAMoCzIdLm9zYWMucHJpdmF0ZS52MS5JbnN0YW5jZVR5cGUiJQoXSW5zdGFuY2VUeXBlc0dldFJlcXVlc3QSCgoCaWQYASABKAkiSQoYSW5zdGFuY2VUeXBlc0dldFJlc3BvbnNlEi0KBm9iamVjdBgBIAEoCzIdLm9zYWMucHJpdmF0ZS52MS5JbnN0YW5jZVR5cGUiSwoaSW5zdGFuY2VUeXBlc0NyZWF0ZVJlcXVlc3QSLQoGb2JqZWN0GAEgASgLMh0ub3NhYy5wcml2YXRlLnYxLkluc3RhbmNlVHlwZSJMChtJbnN0YW5jZVR5cGVzQ3JlYXRlUmVzcG9uc2USLQoGb2JqZWN0GAEgASgLMh0ub3NhYy5wcml2YXRlLnYxLkluc3RhbmNlVHlwZSKKAQoaSW5zdGFuY2VUeXBlc1VwZGF0ZVJlcXVlc3QSLQoGb2JqZWN0GAEgASgLMh0ub3NhYy5wcml2YXRlLnYxLkluc3RhbmNlVHlwZRIvCgt1cGRhdGVfbWFzaxgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5GaWVsZE1hc2sSDAoEbG9jaxgDIAEoCCJMChtJbnN0YW5jZVR5cGVzVXBkYXRlUmVzcG9uc2USLQoGb2JqZWN0GAEgASgLMh0ub3NhYy5wcml2YXRlLnYxLkluc3RhbmNlVHlwZSIoChpJbnN0YW5jZVR5cGVzRGVsZXRlUmVxdWVzdBIKCgJpZBgBIAEoCSIdChtJbnN0YW5jZVR5cGVzRGVsZXRlUmVzcG9uc2UiKAoaSW5zdGFuY2VUeXBlc1NpZ25hbFJlcXVlc3QSCgoCaWQYASABKAkiHQobSW5zdGFuY2VUeXBlc1NpZ25hbFJlc3BvbnNlMusGCg1JbnN0YW5jZVR5cGVzEoUBCgRMaXN0Eikub3NhYy5wcml2YXRlLnYxLkluc3RhbmNlVHlwZXNMaXN0UmVxdWVzdBoqLm9zYWMucHJpdmF0ZS52MS5JbnN0YW5jZVR5cGVzTGlzdFJlc3BvbnNlIiaC0+STAiASHi9hcGkvcHJpdmF0ZS92MS9pbnN0YW5jZV90eXBlcxKPAQoDR2V0Eigub3NhYy5wcml2YXRlLnYxLkluc3RhbmNlVHlwZXNHZXRSZXF1ZXN0Gikub3NhYy5wcml2YXRlLnYxLkluc3RhbmNlVHlwZXNHZXRSZXNwb25zZSIzgtPkkwItYgZvYmplY3QSIy9hcGkvcHJpdmF0ZS92MS9pbnN0YW5jZV90eXBlcy97aWR9EpsBCgZDcmVhdGUSKy5vc2FjLnByaXZhdGUudjEuSW5zdGFuY2VUeXBlc0NyZWF0ZVJlcXVlc3QaLC5vc2FjLnByaXZhdGUudjEuSW5zdGFuY2VUeXBlc0NyZWF0ZVJlc3BvbnNlIjaC0+STAjA6Bm9iamVjdGIGb2JqZWN0Ih4vYXBpL3ByaXZhdGUvdjEvaW5zdGFuY2VfdHlwZXMSpwEKBlVwZGF0ZRIrLm9zYWMucHJpdmF0ZS52MS5JbnN0YW5jZVR5cGVzVXBkYXRlUmVxdWVzdBosLm9zYWMucHJpdmF0ZS52MS5JbnN0YW5jZVR5cGVzVXBkYXRlUmVzcG9uc2UiQoLT5JMCPDoGb2JqZWN0YgZvYmplY3QyKi9hcGkvcHJpdmF0ZS92MS9pbnN0YW5jZV90eXBlcy97b2JqZWN0LmlkfRKQAQoGRGVsZXRlEisub3NhYy5wcml2YXRlLnYxLkluc3RhbmNlVHlwZXNEZWxldGVSZXF1ZXN0Giwub3NhYy5wcml2YXRlLnYxLkluc3RhbmNlVHlwZXNEZWxldGVSZXNwb25zZSIrgtPkkwIlKiMvYXBpL3ByaXZhdGUvdjEvaW5zdGFuY2VfdHlwZXMve2lkfRJlCgZTaWduYWwSKy5vc2FjLnByaXZhdGUudjEuSW5zdGFuY2VUeXBlc1NpZ25hbFJlcXVlc3QaLC5vc2FjLnByaXZhdGUudjEuSW5zdGFuY2VUeXBlc1NpZ25hbFJlc3BvbnNlIgBiBnByb3RvMw", [file_google_api_annotations, file_google_protobuf_field_mask, file_osac_private_v1_instance_type_type]);
+  fileDesc("Cixvc2FjL3ByaXZhdGUvdjEvaW5zdGFuY2VfdHlwZXNfc2VydmljZS5wcm90bxIPb3NhYy5wcml2YXRlLnYxIpYBChhJbnN0YW5jZVR5cGVzTGlzdFJlcXVlc3QSEwoGb2Zmc2V0GAEgASgFSACIAQESEgoFbGltaXQYAiABKAVIAYgBARITCgZmaWx0ZXIYAyABKAlIAogBARISCgVvcmRlchgEIAEoCUgDiAEBQgkKB19vZmZzZXRCCAoGX2xpbWl0QgkKB19maWx0ZXJCCAoGX29yZGVyImYKGUluc3RhbmNlVHlwZXNMaXN0UmVzcG9uc2USDAoEc2l6ZRgBIAEoBRINCgV0b3RhbBgCIAEoBRIsCgVpdGVtcxgDIAMoCzIdLm9zYWMucHJpdmF0ZS52MS5JbnN0YW5jZVR5cGUiJQoXSW5zdGFuY2VUeXBlc0dldFJlcXVlc3QSCgoCaWQYASABKAkiSQoYSW5zdGFuY2VUeXBlc0dldFJlc3BvbnNlEi0KBm9iamVjdBgBIAEoCzIdLm9zYWMucHJpdmF0ZS52MS5JbnN0YW5jZVR5cGUiSwoaSW5zdGFuY2VUeXBlc0NyZWF0ZVJlcXVlc3QSLQoGb2JqZWN0GAEgASgLMh0ub3NhYy5wcml2YXRlLnYxLkluc3RhbmNlVHlwZSJMChtJbnN0YW5jZVR5cGVzQ3JlYXRlUmVzcG9uc2USLQoGb2JqZWN0GAEgASgLMh0ub3NhYy5wcml2YXRlLnYxLkluc3RhbmNlVHlwZSKKAQoaSW5zdGFuY2VUeXBlc1VwZGF0ZVJlcXVlc3QSLQoGb2JqZWN0GAEgASgLMh0ub3NhYy5wcml2YXRlLnYxLkluc3RhbmNlVHlwZRIvCgt1cGRhdGVfbWFzaxgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5GaWVsZE1hc2sSDAoEbG9jaxgDIAEoCCJMChtJbnN0YW5jZVR5cGVzVXBkYXRlUmVzcG9uc2USLQoGb2JqZWN0GAEgASgLMh0ub3NhYy5wcml2YXRlLnYxLkluc3RhbmNlVHlwZSIoChpJbnN0YW5jZVR5cGVzRGVsZXRlUmVxdWVzdBIKCgJpZBgBIAEoCSIdChtJbnN0YW5jZVR5cGVzRGVsZXRlUmVzcG9uc2UiMAoaSW5zdGFuY2VUeXBlc1NpZ25hbFJlcXVlc3QSCgoCaWQYASABKAk6Boq1GAIIASIlChtJbnN0YW5jZVR5cGVzU2lnbmFsUmVzcG9uc2U6Boq1GAIIATLxBgoNSW5zdGFuY2VUeXBlcxKFAQoETGlzdBIpLm9zYWMucHJpdmF0ZS52MS5JbnN0YW5jZVR5cGVzTGlzdFJlcXVlc3QaKi5vc2FjLnByaXZhdGUudjEuSW5zdGFuY2VUeXBlc0xpc3RSZXNwb25zZSImgtPkkwIgEh4vYXBpL3ByaXZhdGUvdjEvaW5zdGFuY2VfdHlwZXMSjwEKA0dldBIoLm9zYWMucHJpdmF0ZS52MS5JbnN0YW5jZVR5cGVzR2V0UmVxdWVzdBopLm9zYWMucHJpdmF0ZS52MS5JbnN0YW5jZVR5cGVzR2V0UmVzcG9uc2UiM4LT5JMCLWIGb2JqZWN0EiMvYXBpL3ByaXZhdGUvdjEvaW5zdGFuY2VfdHlwZXMve2lkfRKbAQoGQ3JlYXRlEisub3NhYy5wcml2YXRlLnYxLkluc3RhbmNlVHlwZXNDcmVhdGVSZXF1ZXN0Giwub3NhYy5wcml2YXRlLnYxLkluc3RhbmNlVHlwZXNDcmVhdGVSZXNwb25zZSI2gtPkkwIwOgZvYmplY3RiBm9iamVjdCIeL2FwaS9wcml2YXRlL3YxL2luc3RhbmNlX3R5cGVzEqcBCgZVcGRhdGUSKy5vc2FjLnByaXZhdGUudjEuSW5zdGFuY2VUeXBlc1VwZGF0ZVJlcXVlc3QaLC5vc2FjLnByaXZhdGUudjEuSW5zdGFuY2VUeXBlc1VwZGF0ZVJlc3BvbnNlIkKC0+STAjw6Bm9iamVjdGIGb2JqZWN0MiovYXBpL3ByaXZhdGUvdjEvaW5zdGFuY2VfdHlwZXMve29iamVjdC5pZH0SkAEKBkRlbGV0ZRIrLm9zYWMucHJpdmF0ZS52MS5JbnN0YW5jZVR5cGVzRGVsZXRlUmVxdWVzdBosLm9zYWMucHJpdmF0ZS52MS5JbnN0YW5jZVR5cGVzRGVsZXRlUmVzcG9uc2UiK4LT5JMCJSojL2FwaS9wcml2YXRlL3YxL2luc3RhbmNlX3R5cGVzL3tpZH0SawoGU2lnbmFsEisub3NhYy5wcml2YXRlLnYxLkluc3RhbmNlVHlwZXNTaWduYWxSZXF1ZXN0Giwub3NhYy5wcml2YXRlLnYxLkluc3RhbmNlVHlwZXNTaWduYWxSZXNwb25zZSIGirUYAggBQimKtRglEg5vc2FjLnB1YmxpYy52MSITcHJpdmF0ZTpmdWxmaWxsbWVudGIGcHJvdG8z", [file_cleanapi_cleanapi, file_google_api_annotations, file_google_protobuf_field_mask, file_osac_private_v1_instance_type_type]);
 
 /**
  * @generated from message osac.private.v1.InstanceTypesListRequest
  */
 export type InstanceTypesListRequest = Message<"osac.private.v1.InstanceTypesListRequest"> & {
   /**
+   * Index of the first result. If not specified the default value will be zero.
+   *
    * @generated from field: optional int32 offset = 1;
    */
   offset?: number | undefined;
 
   /**
+   * Maximum number of results to be returned by the server. When not specified all the results will be returned. Note
+   * that there may not be enough results to return, and that the server may decide, for performance reasons, to return
+   * less results than requested.
+   *
    * @generated from field: optional int32 limit = 2;
    */
   limit?: number | undefined;
 
   /**
+   * Filter criteria.
+   *
+   * The value of this parameter is a [CEL](https://cel.dev) expression used to select which objects to return. The
+   * built-in `this` variable refers to the object being tested and `now` refers to the current date and time. If the
+   * expression evaluates to `true` the object is included in the results. For example, to retrieve all instance types
+   * with names starting with `standard`:
+   *
+   *     this.metadata.name.startsWith("standard")
+   *
+   * If this isn't provided, or if the value is empty, then all the instance types that the user has permission to see
+   * will be returned. Not all CEL constructs are currently supported for implementation reasons; see the filter
+   * documentation (docs/FILTER.md) for the full details.
+   *
    * @generated from field: optional string filter = 3;
    */
   filter?: string | undefined;
 
   /**
+   * Order criteria.
+   *
+   * The syntax of this parameter is similar to the syntax of the _order by_ clause of a SQL statement, but using the
+   * names of the attributes of the instance type instead of the names of the columns of a table. For example, in order
+   * to sort the instance types descending by name the value should be:
+   *
+   *     name desc
+   *
+   * If the parameter isn't provided, or if the value is empty, then the order of the results is undefined.
+   *
    * @generated from field: optional string order = 4;
    */
   order?: string | undefined;
@@ -67,16 +97,25 @@ export const InstanceTypesListRequestSchema: GenMessage<InstanceTypesListRequest
  */
 export type InstanceTypesListResponse = Message<"osac.private.v1.InstanceTypesListResponse"> & {
   /**
+   * Actual number of items returned. Note that this may be smaller than the value requested in the `limit` parameter
+   * of the request if there are not enough items, or of the system decides that returning that number of items isn't
+   * feasible or convenient for performance reasons.
+   *
    * @generated from field: int32 size = 1;
    */
   size: number;
 
   /**
+   * Total number of items of the collection that match the search criteria, regardless of the number of results
+   * requested with the `limit` parameter.
+   *
    * @generated from field: int32 total = 2;
    */
   total: number;
 
   /**
+   * List of results.
+   *
    * @generated from field: repeated osac.private.v1.InstanceType items = 3;
    */
   items: InstanceType[];
@@ -270,6 +309,8 @@ export const InstanceTypesSignalResponseSchema: GenMessage<InstanceTypesSignalRe
  */
 export const InstanceTypes: GenService<{
   /**
+   * Retrieves the list of instance types.
+   *
    * @generated from rpc osac.private.v1.InstanceTypes.List
    */
   list: {
@@ -278,6 +319,8 @@ export const InstanceTypes: GenService<{
     output: typeof InstanceTypesListResponseSchema;
   },
   /**
+   * Retrieves the details of one specific instance type.
+   *
    * @generated from rpc osac.private.v1.InstanceTypes.Get
    */
   get: {
@@ -286,6 +329,10 @@ export const InstanceTypes: GenService<{
     output: typeof InstanceTypesGetResponseSchema;
   },
   /**
+   * Creates a new instance type.
+   *
+   * This method isn't allowed for regular users, only for the system itself.
+   *
    * @generated from rpc osac.private.v1.InstanceTypes.Create
    */
   create: {
@@ -294,6 +341,10 @@ export const InstanceTypes: GenService<{
     output: typeof InstanceTypesCreateResponseSchema;
   },
   /**
+   * Updates an existing instance type.
+   *
+   * This method isn't allowed for regular users, only for the system itself.
+   *
    * @generated from rpc osac.private.v1.InstanceTypes.Update
    */
   update: {
@@ -302,6 +353,10 @@ export const InstanceTypes: GenService<{
     output: typeof InstanceTypesUpdateResponseSchema;
   },
   /**
+   * Deletes an instance type.
+   *
+   * This method isn't allowed for regular users, only for the system itself.
+   *
    * @generated from rpc osac.private.v1.InstanceTypes.Delete
    */
   delete: {

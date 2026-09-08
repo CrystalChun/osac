@@ -32,7 +32,7 @@ export const file_osac_public_v1_authn_capabilities_type: GenFile = /*@__PURE__*
  */
 export type AuthnCapabilities = Message<"osac.public.v1.AuthnCapabilities"> & {
   /**
-   * A list of the OAuth issuers whose access tokens are accepted by the server.
+   * A list of the OAuth issuers whose access tokens are accepted by the server for authentication.
    *
    * This means that the client can select one of this and then use the OAuth discovery endpoint to find the details of
    * the OAuth server. For example if the value is `https://my.oauth.com` then the client can obtain the details of the

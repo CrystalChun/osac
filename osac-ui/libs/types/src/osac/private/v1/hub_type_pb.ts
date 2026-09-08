@@ -17,15 +17,18 @@
 
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_cleanapi_cleanapi } from "../../../cleanapi/cleanapi_pb";
 import type { Metadata } from "./metadata_type_pb";
 import { file_osac_private_v1_metadata_type } from "./metadata_type_pb";
+import type { SecretLocalReference } from "./secret_type_pb";
+import { file_osac_private_v1_secret_type } from "./secret_type_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file osac/private/v1/hub_type.proto.
  */
 export const file_osac_private_v1_hub_type: GenFile = /*@__PURE__*/
-  fileDesc("Ch5vc2FjL3ByaXZhdGUvdjEvaHViX3R5cGUucHJvdG8SD29zYWMucHJpdmF0ZS52MSKSAQoDSHViEgoKAmlkGAEgASgJEisKCG1ldGFkYXRhGAIgASgLMhkub3NhYy5wcml2YXRlLnYxLk1ldGFkYXRhEiYKBHNwZWMYAyABKAsyGC5vc2FjLnByaXZhdGUudjEuSHViU3BlYxIqCgZzdGF0dXMYBCABKAsyGi5vc2FjLnByaXZhdGUudjEuSHViU3RhdHVzIjAKB0h1YlNwZWMSEgoKa3ViZWNvbmZpZxgDIAEoDBIRCgluYW1lc3BhY2UYBCABKAkiCwoJSHViU3RhdHVzYgZwcm90bzM", [file_osac_private_v1_metadata_type]);
+  fileDesc("Ch5vc2FjL3ByaXZhdGUvdjEvaHViX3R5cGUucHJvdG8SD29zYWMucHJpdmF0ZS52MSKSAQoDSHViEgoKAmlkGAEgASgJEisKCG1ldGFkYXRhGAIgASgLMhkub3NhYy5wcml2YXRlLnYxLk1ldGFkYXRhEiYKBHNwZWMYAyABKAsyGC5vc2FjLnByaXZhdGUudjEuSHViU3BlYxIqCgZzdGF0dXMYBCABKAsyGi5vc2FjLnByaXZhdGUudjEuSHViU3RhdHVzInIKB0h1YlNwZWMSEgoKa3ViZWNvbmZpZxgDIAEoDBIRCgluYW1lc3BhY2UYBCABKAkSQAoRa3ViZWNvbmZpZ19zZWNyZXQYBSABKAsyJS5vc2FjLnByaXZhdGUudjEuU2VjcmV0TG9jYWxSZWZlcmVuY2UiCwoJSHViU3RhdHVzQgaKtRgCCAFiBnByb3RvMw", [file_cleanapi_cleanapi, file_osac_private_v1_metadata_type, file_osac_private_v1_secret_type]);
 
 /**
  * Contains the details of a hub.
@@ -78,6 +81,8 @@ export type HubSpec = Message<"osac.private.v1.HubSpec"> & {
   /**
    * The Kubeconfig containing the address and credentials that the service will use to connect to the hub.
    *
+   * Mutually exclusive with `kubeconfig_secret`.
+   *
    * @generated from field: bytes kubeconfig = 3;
    */
   kubeconfig: Uint8Array;
@@ -88,6 +93,16 @@ export type HubSpec = Message<"osac.private.v1.HubSpec"> & {
    * @generated from field: string namespace = 4;
    */
   namespace: string;
+
+  /**
+   * Reference to a Secret resource containing kubeconfig credentials.
+   *
+   * Mutually exclusive with `kubeconfig`. When set, the system resolves the referenced Secret and reads the
+   * `kubeconfig` data key. The referenced Secret must exist in the same tenant.
+   *
+   * @generated from field: osac.private.v1.SecretLocalReference kubeconfig_secret = 5;
+   */
+  kubeconfigSecret?: SecretLocalReference | undefined;
 };
 
 /**

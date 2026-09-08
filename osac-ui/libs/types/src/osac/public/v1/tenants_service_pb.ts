@@ -28,7 +28,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/public/v1/tenants_service.proto.
  */
 export const file_osac_public_v1_tenants_service: GenFile = /*@__PURE__*/
-  fileDesc("CiRvc2FjL3B1YmxpYy92MS90ZW5hbnRzX3NlcnZpY2UucHJvdG8SDm9zYWMucHVibGljLnYxIpABChJUZW5hbnRzTGlzdFJlcXVlc3QSEwoGb2Zmc2V0GAEgASgFSACIAQESEgoFbGltaXQYAiABKAVIAYgBARITCgZmaWx0ZXIYAyABKAlIAogBARISCgVvcmRlchgEIAEoCUgDiAEBQgkKB19vZmZzZXRCCAoGX2xpbWl0QgkKB19maWx0ZXJCCAoGX29yZGVyIlkKE1RlbmFudHNMaXN0UmVzcG9uc2USDAoEc2l6ZRgBIAEoBRINCgV0b3RhbBgCIAEoBRIlCgVpdGVtcxgDIAMoCzIWLm9zYWMucHVibGljLnYxLlRlbmFudCIfChFUZW5hbnRzR2V0UmVxdWVzdBIKCgJpZBgBIAEoCSI8ChJUZW5hbnRzR2V0UmVzcG9uc2USJgoGb2JqZWN0GAEgASgLMhYub3NhYy5wdWJsaWMudjEuVGVuYW50Ij4KFFRlbmFudHNDcmVhdGVSZXF1ZXN0EiYKBm9iamVjdBgBIAEoCzIWLm9zYWMucHVibGljLnYxLlRlbmFudCI/ChVUZW5hbnRzQ3JlYXRlUmVzcG9uc2USJgoGb2JqZWN0GAEgASgLMhYub3NhYy5wdWJsaWMudjEuVGVuYW50In0KFFRlbmFudHNVcGRhdGVSZXF1ZXN0EiYKBm9iamVjdBgBIAEoCzIWLm9zYWMucHVibGljLnYxLlRlbmFudBIvCgt1cGRhdGVfbWFzaxgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5GaWVsZE1hc2sSDAoEbG9jaxgDIAEoCCI/ChVUZW5hbnRzVXBkYXRlUmVzcG9uc2USJgoGb2JqZWN0GAEgASgLMhYub3NhYy5wdWJsaWMudjEuVGVuYW50IiIKFFRlbmFudHNEZWxldGVSZXF1ZXN0EgoKAmlkGAEgASgJIhcKFVRlbmFudHNEZWxldGVSZXNwb25zZTKmBQoHVGVuYW50cxJ0CgRMaXN0EiIub3NhYy5wdWJsaWMudjEuVGVuYW50c0xpc3RSZXF1ZXN0GiMub3NhYy5wdWJsaWMudjEuVGVuYW50c0xpc3RSZXNwb25zZSIjgtPkkwIdEhsvYXBpL2Z1bGZpbGxtZW50L3YxL3RlbmFudHMSfgoDR2V0EiEub3NhYy5wdWJsaWMudjEuVGVuYW50c0dldFJlcXVlc3QaIi5vc2FjLnB1YmxpYy52MS5UZW5hbnRzR2V0UmVzcG9uc2UiMILT5JMCKmIGb2JqZWN0EiAvYXBpL2Z1bGZpbGxtZW50L3YxL3RlbmFudHMve2lkfRKKAQoGQ3JlYXRlEiQub3NhYy5wdWJsaWMudjEuVGVuYW50c0NyZWF0ZVJlcXVlc3QaJS5vc2FjLnB1YmxpYy52MS5UZW5hbnRzQ3JlYXRlUmVzcG9uc2UiM4LT5JMCLToGb2JqZWN0YgZvYmplY3QiGy9hcGkvZnVsZmlsbG1lbnQvdjEvdGVuYW50cxKWAQoGVXBkYXRlEiQub3NhYy5wdWJsaWMudjEuVGVuYW50c1VwZGF0ZVJlcXVlc3QaJS5vc2FjLnB1YmxpYy52MS5UZW5hbnRzVXBkYXRlUmVzcG9uc2UiP4LT5JMCOToGb2JqZWN0YgZvYmplY3QyJy9hcGkvZnVsZmlsbG1lbnQvdjEvdGVuYW50cy97b2JqZWN0LmlkfRJ/CgZEZWxldGUSJC5vc2FjLnB1YmxpYy52MS5UZW5hbnRzRGVsZXRlUmVxdWVzdBolLm9zYWMucHVibGljLnYxLlRlbmFudHNEZWxldGVSZXNwb25zZSIogtPkkwIiKiAvYXBpL2Z1bGZpbGxtZW50L3YxL3RlbmFudHMve2lkfWIGcHJvdG8z", [file_google_api_annotations, file_google_protobuf_field_mask, file_osac_public_v1_tenant_type]);
+  fileDesc("CiRvc2FjL3B1YmxpYy92MS90ZW5hbnRzX3NlcnZpY2UucHJvdG8SDm9zYWMucHVibGljLnYxIpABChJUZW5hbnRzTGlzdFJlcXVlc3QSEwoGb2Zmc2V0GAEgASgFSACIAQESEgoFbGltaXQYAiABKAVIAYgBARITCgZmaWx0ZXIYAyABKAlIAogBARISCgVvcmRlchgEIAEoCUgDiAEBQgkKB19vZmZzZXRCCAoGX2xpbWl0QgkKB19maWx0ZXJCCAoGX29yZGVyIlkKE1RlbmFudHNMaXN0UmVzcG9uc2USDAoEc2l6ZRgBIAEoBRINCgV0b3RhbBgCIAEoBRIlCgVpdGVtcxgDIAMoCzIWLm9zYWMucHVibGljLnYxLlRlbmFudCIfChFUZW5hbnRzR2V0UmVxdWVzdBIKCgJpZBgBIAEoCSI8ChJUZW5hbnRzR2V0UmVzcG9uc2USJgoGb2JqZWN0GAEgASgLMhYub3NhYy5wdWJsaWMudjEuVGVuYW50Ij4KFFRlbmFudHNDcmVhdGVSZXF1ZXN0EiYKBm9iamVjdBgBIAEoCzIWLm9zYWMucHVibGljLnYxLlRlbmFudCI/ChVUZW5hbnRzQ3JlYXRlUmVzcG9uc2USJgoGb2JqZWN0GAEgASgLMhYub3NhYy5wdWJsaWMudjEuVGVuYW50IiIKFFRlbmFudHNEZWxldGVSZXF1ZXN0EgoKAmlkGAEgASgJIhcKFVRlbmFudHNEZWxldGVSZXNwb25zZSJ9ChRUZW5hbnRzVXBkYXRlUmVxdWVzdBImCgZvYmplY3QYASABKAsyFi5vc2FjLnB1YmxpYy52MS5UZW5hbnQSLwoLdXBkYXRlX21hc2sYAiABKAsyGi5nb29nbGUucHJvdG9idWYuRmllbGRNYXNrEgwKBGxvY2sYAyABKAgiPwoVVGVuYW50c1VwZGF0ZVJlc3BvbnNlEiYKBm9iamVjdBgBIAEoCzIWLm9zYWMucHVibGljLnYxLlRlbmFudDKmBQoHVGVuYW50cxJ0CgRMaXN0EiIub3NhYy5wdWJsaWMudjEuVGVuYW50c0xpc3RSZXF1ZXN0GiMub3NhYy5wdWJsaWMudjEuVGVuYW50c0xpc3RSZXNwb25zZSIjgtPkkwIdEhsvYXBpL2Z1bGZpbGxtZW50L3YxL3RlbmFudHMSfgoDR2V0EiEub3NhYy5wdWJsaWMudjEuVGVuYW50c0dldFJlcXVlc3QaIi5vc2FjLnB1YmxpYy52MS5UZW5hbnRzR2V0UmVzcG9uc2UiMILT5JMCKmIGb2JqZWN0EiAvYXBpL2Z1bGZpbGxtZW50L3YxL3RlbmFudHMve2lkfRKKAQoGQ3JlYXRlEiQub3NhYy5wdWJsaWMudjEuVGVuYW50c0NyZWF0ZVJlcXVlc3QaJS5vc2FjLnB1YmxpYy52MS5UZW5hbnRzQ3JlYXRlUmVzcG9uc2UiM4LT5JMCLToGb2JqZWN0YgZvYmplY3QiGy9hcGkvZnVsZmlsbG1lbnQvdjEvdGVuYW50cxJ/CgZEZWxldGUSJC5vc2FjLnB1YmxpYy52MS5UZW5hbnRzRGVsZXRlUmVxdWVzdBolLm9zYWMucHVibGljLnYxLlRlbmFudHNEZWxldGVSZXNwb25zZSIogtPkkwIiKiAvYXBpL2Z1bGZpbGxtZW50L3YxL3RlbmFudHMve2lkfRKWAQoGVXBkYXRlEiQub3NhYy5wdWJsaWMudjEuVGVuYW50c1VwZGF0ZVJlcXVlc3QaJS5vc2FjLnB1YmxpYy52MS5UZW5hbnRzVXBkYXRlUmVzcG9uc2UiP4LT5JMCOToGb2JqZWN0YgZvYmplY3QyJy9hcGkvZnVsZmlsbG1lbnQvdjEvdGVuYW50cy97b2JqZWN0LmlkfWIGcHJvdG8z", [file_google_api_annotations, file_google_protobuf_field_mask, file_osac_public_v1_tenant_type]);
 
 /**
  * @generated from message osac.public.v1.TenantsListRequest
@@ -185,6 +185,36 @@ export const TenantsCreateResponseSchema: GenMessage<TenantsCreateResponse> = /*
   messageDesc(file_osac_public_v1_tenants_service, 5);
 
 /**
+ * @generated from message osac.public.v1.TenantsDeleteRequest
+ */
+export type TenantsDeleteRequest = Message<"osac.public.v1.TenantsDeleteRequest"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+};
+
+/**
+ * Describes the message osac.public.v1.TenantsDeleteRequest.
+ * Use `create(TenantsDeleteRequestSchema)` to create a new message.
+ */
+export const TenantsDeleteRequestSchema: GenMessage<TenantsDeleteRequest> = /*@__PURE__*/
+  messageDesc(file_osac_public_v1_tenants_service, 6);
+
+/**
+ * @generated from message osac.public.v1.TenantsDeleteResponse
+ */
+export type TenantsDeleteResponse = Message<"osac.public.v1.TenantsDeleteResponse"> & {
+};
+
+/**
+ * Describes the message osac.public.v1.TenantsDeleteResponse.
+ * Use `create(TenantsDeleteResponseSchema)` to create a new message.
+ */
+export const TenantsDeleteResponseSchema: GenMessage<TenantsDeleteResponse> = /*@__PURE__*/
+  messageDesc(file_osac_public_v1_tenants_service, 7);
+
+/**
  * @generated from message osac.public.v1.TenantsUpdateRequest
  */
 export type TenantsUpdateRequest = Message<"osac.public.v1.TenantsUpdateRequest"> & {
@@ -213,7 +243,7 @@ export type TenantsUpdateRequest = Message<"osac.public.v1.TenantsUpdateRequest"
  * Use `create(TenantsUpdateRequestSchema)` to create a new message.
  */
 export const TenantsUpdateRequestSchema: GenMessage<TenantsUpdateRequest> = /*@__PURE__*/
-  messageDesc(file_osac_public_v1_tenants_service, 6);
+  messageDesc(file_osac_public_v1_tenants_service, 8);
 
 /**
  * @generated from message osac.public.v1.TenantsUpdateResponse
@@ -230,36 +260,6 @@ export type TenantsUpdateResponse = Message<"osac.public.v1.TenantsUpdateRespons
  * Use `create(TenantsUpdateResponseSchema)` to create a new message.
  */
 export const TenantsUpdateResponseSchema: GenMessage<TenantsUpdateResponse> = /*@__PURE__*/
-  messageDesc(file_osac_public_v1_tenants_service, 7);
-
-/**
- * @generated from message osac.public.v1.TenantsDeleteRequest
- */
-export type TenantsDeleteRequest = Message<"osac.public.v1.TenantsDeleteRequest"> & {
-  /**
-   * @generated from field: string id = 1;
-   */
-  id: string;
-};
-
-/**
- * Describes the message osac.public.v1.TenantsDeleteRequest.
- * Use `create(TenantsDeleteRequestSchema)` to create a new message.
- */
-export const TenantsDeleteRequestSchema: GenMessage<TenantsDeleteRequest> = /*@__PURE__*/
-  messageDesc(file_osac_public_v1_tenants_service, 8);
-
-/**
- * @generated from message osac.public.v1.TenantsDeleteResponse
- */
-export type TenantsDeleteResponse = Message<"osac.public.v1.TenantsDeleteResponse"> & {
-};
-
-/**
- * Describes the message osac.public.v1.TenantsDeleteResponse.
- * Use `create(TenantsDeleteResponseSchema)` to create a new message.
- */
-export const TenantsDeleteResponseSchema: GenMessage<TenantsDeleteResponse> = /*@__PURE__*/
   messageDesc(file_osac_public_v1_tenants_service, 9);
 
 /**
@@ -297,16 +297,6 @@ export const Tenants: GenService<{
     output: typeof TenantsCreateResponseSchema;
   },
   /**
-   * Updates an existing tenant.
-   *
-   * @generated from rpc osac.public.v1.Tenants.Update
-   */
-  update: {
-    methodKind: "unary";
-    input: typeof TenantsUpdateRequestSchema;
-    output: typeof TenantsUpdateResponseSchema;
-  },
-  /**
    * Deletes a tenant.
    *
    * @generated from rpc osac.public.v1.Tenants.Delete
@@ -315,6 +305,16 @@ export const Tenants: GenService<{
     methodKind: "unary";
     input: typeof TenantsDeleteRequestSchema;
     output: typeof TenantsDeleteResponseSchema;
+  },
+  /**
+   * Updates an existing tenant.
+   *
+   * @generated from rpc osac.public.v1.Tenants.Update
+   */
+  update: {
+    methodKind: "unary";
+    input: typeof TenantsUpdateRequestSchema;
+    output: typeof TenantsUpdateResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_osac_public_v1_tenants_service, 0);

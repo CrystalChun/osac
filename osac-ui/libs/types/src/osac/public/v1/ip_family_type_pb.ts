@@ -38,14 +38,14 @@ export enum IPFamily {
   IP_FAMILY_UNSPECIFIED = 0,
 
   /**
-   * IPv4 address family.
+   * IPv4 address family. CIDRs must be valid IPv4 CIDR notation.
    *
    * @generated from enum value: IP_FAMILY_IPV4 = 1;
    */
   IP_FAMILY_IPV4 = 1,
 
   /**
-   * IPv6 address family.
+   * IPv6 address family. CIDRs must be valid IPv6 CIDR notation.
    *
    * @generated from enum value: IP_FAMILY_IPV6 = 2;
    */

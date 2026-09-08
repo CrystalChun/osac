@@ -17,6 +17,7 @@
 
 import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_cleanapi_cleanapi } from "../../../cleanapi/cleanapi_pb";
 import { file_google_api_annotations } from "../../../google/api/annotations_pb";
 import type { FieldMask } from "../../../google/protobuf/field_mask_pb";
 import { file_google_protobuf_field_mask } from "../../../google/protobuf/field_mask_pb";
@@ -28,28 +29,57 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/private/v1/baremetal_instance_types_service.proto.
  */
 export const file_osac_private_v1_baremetal_instance_types_service: GenFile = /*@__PURE__*/
-  fileDesc("CjZvc2FjL3ByaXZhdGUvdjEvYmFyZW1ldGFsX2luc3RhbmNlX3R5cGVzX3NlcnZpY2UucHJvdG8SD29zYWMucHJpdmF0ZS52MSKfAQohQmFyZU1ldGFsSW5zdGFuY2VUeXBlc0xpc3RSZXF1ZXN0EhMKBm9mZnNldBgBIAEoBUgAiAEBEhIKBWxpbWl0GAIgASgFSAGIAQESEwoGZmlsdGVyGAMgASgJSAKIAQESEgoFb3JkZXIYBCABKAlIA4gBAUIJCgdfb2Zmc2V0QggKBl9saW1pdEIJCgdfZmlsdGVyQggKBl9vcmRlciJ4CiJCYXJlTWV0YWxJbnN0YW5jZVR5cGVzTGlzdFJlc3BvbnNlEgwKBHNpemUYASABKAUSDQoFdG90YWwYAiABKAUSNQoFaXRlbXMYAyADKAsyJi5vc2FjLnByaXZhdGUudjEuQmFyZU1ldGFsSW5zdGFuY2VUeXBlIi4KIEJhcmVNZXRhbEluc3RhbmNlVHlwZXNHZXRSZXF1ZXN0EgoKAmlkGAEgASgJIlsKIUJhcmVNZXRhbEluc3RhbmNlVHlwZXNHZXRSZXNwb25zZRI2CgZvYmplY3QYASABKAsyJi5vc2FjLnByaXZhdGUudjEuQmFyZU1ldGFsSW5zdGFuY2VUeXBlIl0KI0JhcmVNZXRhbEluc3RhbmNlVHlwZXNDcmVhdGVSZXF1ZXN0EjYKBm9iamVjdBgBIAEoCzImLm9zYWMucHJpdmF0ZS52MS5CYXJlTWV0YWxJbnN0YW5jZVR5cGUiXgokQmFyZU1ldGFsSW5zdGFuY2VUeXBlc0NyZWF0ZVJlc3BvbnNlEjYKBm9iamVjdBgBIAEoCzImLm9zYWMucHJpdmF0ZS52MS5CYXJlTWV0YWxJbnN0YW5jZVR5cGUinAEKI0JhcmVNZXRhbEluc3RhbmNlVHlwZXNVcGRhdGVSZXF1ZXN0EjYKBm9iamVjdBgBIAEoCzImLm9zYWMucHJpdmF0ZS52MS5CYXJlTWV0YWxJbnN0YW5jZVR5cGUSLwoLdXBkYXRlX21hc2sYAiABKAsyGi5nb29nbGUucHJvdG9idWYuRmllbGRNYXNrEgwKBGxvY2sYAyABKAgiXgokQmFyZU1ldGFsSW5zdGFuY2VUeXBlc1VwZGF0ZVJlc3BvbnNlEjYKBm9iamVjdBgBIAEoCzImLm9zYWMucHJpdmF0ZS52MS5CYXJlTWV0YWxJbnN0YW5jZVR5cGUiMQojQmFyZU1ldGFsSW5zdGFuY2VUeXBlc0RlbGV0ZVJlcXVlc3QSCgoCaWQYASABKAkiJgokQmFyZU1ldGFsSW5zdGFuY2VUeXBlc0RlbGV0ZVJlc3BvbnNlIjEKI0JhcmVNZXRhbEluc3RhbmNlVHlwZXNTaWduYWxSZXF1ZXN0EgoKAmlkGAEgASgJIiYKJEJhcmVNZXRhbEluc3RhbmNlVHlwZXNTaWduYWxSZXNwb25zZTKXCAoWQmFyZU1ldGFsSW5zdGFuY2VUeXBlcxKiAQoETGlzdBIyLm9zYWMucHJpdmF0ZS52MS5CYXJlTWV0YWxJbnN0YW5jZVR5cGVzTGlzdFJlcXVlc3QaMy5vc2FjLnByaXZhdGUudjEuQmFyZU1ldGFsSW5zdGFuY2VUeXBlc0xpc3RSZXNwb25zZSIxgtPkkwIrEikvYXBpL3ByaXZhdGUvdjEvYmFyZV9tZXRhbF9pbnN0YW5jZV90eXBlcxKsAQoDR2V0EjEub3NhYy5wcml2YXRlLnYxLkJhcmVNZXRhbEluc3RhbmNlVHlwZXNHZXRSZXF1ZXN0GjIub3NhYy5wcml2YXRlLnYxLkJhcmVNZXRhbEluc3RhbmNlVHlwZXNHZXRSZXNwb25zZSI+gtPkkwI4YgZvYmplY3QSLi9hcGkvcHJpdmF0ZS92MS9iYXJlX21ldGFsX2luc3RhbmNlX3R5cGVzL3tpZH0SuAEKBkNyZWF0ZRI0Lm9zYWMucHJpdmF0ZS52MS5CYXJlTWV0YWxJbnN0YW5jZVR5cGVzQ3JlYXRlUmVxdWVzdBo1Lm9zYWMucHJpdmF0ZS52MS5CYXJlTWV0YWxJbnN0YW5jZVR5cGVzQ3JlYXRlUmVzcG9uc2UiQYLT5JMCOzoGb2JqZWN0YgZvYmplY3QiKS9hcGkvcHJpdmF0ZS92MS9iYXJlX21ldGFsX2luc3RhbmNlX3R5cGVzEsQBCgZVcGRhdGUSNC5vc2FjLnByaXZhdGUudjEuQmFyZU1ldGFsSW5zdGFuY2VUeXBlc1VwZGF0ZVJlcXVlc3QaNS5vc2FjLnByaXZhdGUudjEuQmFyZU1ldGFsSW5zdGFuY2VUeXBlc1VwZGF0ZVJlc3BvbnNlIk2C0+STAkc6Bm9iamVjdGIGb2JqZWN0MjUvYXBpL3ByaXZhdGUvdjEvYmFyZV9tZXRhbF9pbnN0YW5jZV90eXBlcy97b2JqZWN0LmlkfRKtAQoGRGVsZXRlEjQub3NhYy5wcml2YXRlLnYxLkJhcmVNZXRhbEluc3RhbmNlVHlwZXNEZWxldGVSZXF1ZXN0GjUub3NhYy5wcml2YXRlLnYxLkJhcmVNZXRhbEluc3RhbmNlVHlwZXNEZWxldGVSZXNwb25zZSI2gtPkkwIwKi4vYXBpL3ByaXZhdGUvdjEvYmFyZV9tZXRhbF9pbnN0YW5jZV90eXBlcy97aWR9EncKBlNpZ25hbBI0Lm9zYWMucHJpdmF0ZS52MS5CYXJlTWV0YWxJbnN0YW5jZVR5cGVzU2lnbmFsUmVxdWVzdBo1Lm9zYWMucHJpdmF0ZS52MS5CYXJlTWV0YWxJbnN0YW5jZVR5cGVzU2lnbmFsUmVzcG9uc2UiAGIGcHJvdG8z", [file_google_api_annotations, file_google_protobuf_field_mask, file_osac_private_v1_baremetal_instance_type_type]);
+  fileDesc("CjZvc2FjL3ByaXZhdGUvdjEvYmFyZW1ldGFsX2luc3RhbmNlX3R5cGVzX3NlcnZpY2UucHJvdG8SD29zYWMucHJpdmF0ZS52MSKfAQohQmFyZU1ldGFsSW5zdGFuY2VUeXBlc0xpc3RSZXF1ZXN0EhMKBm9mZnNldBgBIAEoBUgAiAEBEhIKBWxpbWl0GAIgASgFSAGIAQESEwoGZmlsdGVyGAMgASgJSAKIAQESEgoFb3JkZXIYBCABKAlIA4gBAUIJCgdfb2Zmc2V0QggKBl9saW1pdEIJCgdfZmlsdGVyQggKBl9vcmRlciJ4CiJCYXJlTWV0YWxJbnN0YW5jZVR5cGVzTGlzdFJlc3BvbnNlEgwKBHNpemUYASABKAUSDQoFdG90YWwYAiABKAUSNQoFaXRlbXMYAyADKAsyJi5vc2FjLnByaXZhdGUudjEuQmFyZU1ldGFsSW5zdGFuY2VUeXBlIi4KIEJhcmVNZXRhbEluc3RhbmNlVHlwZXNHZXRSZXF1ZXN0EgoKAmlkGAEgASgJIlsKIUJhcmVNZXRhbEluc3RhbmNlVHlwZXNHZXRSZXNwb25zZRI2CgZvYmplY3QYASABKAsyJi5vc2FjLnByaXZhdGUudjEuQmFyZU1ldGFsSW5zdGFuY2VUeXBlImUKI0JhcmVNZXRhbEluc3RhbmNlVHlwZXNDcmVhdGVSZXF1ZXN0EjYKBm9iamVjdBgBIAEoCzImLm9zYWMucHJpdmF0ZS52MS5CYXJlTWV0YWxJbnN0YW5jZVR5cGU6Boq1GAIIASJmCiRCYXJlTWV0YWxJbnN0YW5jZVR5cGVzQ3JlYXRlUmVzcG9uc2USNgoGb2JqZWN0GAEgASgLMiYub3NhYy5wcml2YXRlLnYxLkJhcmVNZXRhbEluc3RhbmNlVHlwZToGirUYAggBIqQBCiNCYXJlTWV0YWxJbnN0YW5jZVR5cGVzVXBkYXRlUmVxdWVzdBI2CgZvYmplY3QYASABKAsyJi5vc2FjLnByaXZhdGUudjEuQmFyZU1ldGFsSW5zdGFuY2VUeXBlEi8KC3VwZGF0ZV9tYXNrGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLkZpZWxkTWFzaxIMCgRsb2NrGAMgASgIOgaKtRgCCAEiZgokQmFyZU1ldGFsSW5zdGFuY2VUeXBlc1VwZGF0ZVJlc3BvbnNlEjYKBm9iamVjdBgBIAEoCzImLm9zYWMucHJpdmF0ZS52MS5CYXJlTWV0YWxJbnN0YW5jZVR5cGU6Boq1GAIIASI5CiNCYXJlTWV0YWxJbnN0YW5jZVR5cGVzRGVsZXRlUmVxdWVzdBIKCgJpZBgBIAEoCToGirUYAggBIi4KJEJhcmVNZXRhbEluc3RhbmNlVHlwZXNEZWxldGVSZXNwb25zZToGirUYAggBIjkKI0JhcmVNZXRhbEluc3RhbmNlVHlwZXNTaWduYWxSZXF1ZXN0EgoKAmlkGAEgASgJOgaKtRgCCAEiLgokQmFyZU1ldGFsSW5zdGFuY2VUeXBlc1NpZ25hbFJlc3BvbnNlOgaKtRgCCAEyrwgKFkJhcmVNZXRhbEluc3RhbmNlVHlwZXMSogEKBExpc3QSMi5vc2FjLnByaXZhdGUudjEuQmFyZU1ldGFsSW5zdGFuY2VUeXBlc0xpc3RSZXF1ZXN0GjMub3NhYy5wcml2YXRlLnYxLkJhcmVNZXRhbEluc3RhbmNlVHlwZXNMaXN0UmVzcG9uc2UiMYLT5JMCKxIpL2FwaS9wcml2YXRlL3YxL2JhcmVfbWV0YWxfaW5zdGFuY2VfdHlwZXMSrAEKA0dldBIxLm9zYWMucHJpdmF0ZS52MS5CYXJlTWV0YWxJbnN0YW5jZVR5cGVzR2V0UmVxdWVzdBoyLm9zYWMucHJpdmF0ZS52MS5CYXJlTWV0YWxJbnN0YW5jZVR5cGVzR2V0UmVzcG9uc2UiPoLT5JMCOGIGb2JqZWN0Ei4vYXBpL3ByaXZhdGUvdjEvYmFyZV9tZXRhbF9pbnN0YW5jZV90eXBlcy97aWR9Er4BCgZDcmVhdGUSNC5vc2FjLnByaXZhdGUudjEuQmFyZU1ldGFsSW5zdGFuY2VUeXBlc0NyZWF0ZVJlcXVlc3QaNS5vc2FjLnByaXZhdGUudjEuQmFyZU1ldGFsSW5zdGFuY2VUeXBlc0NyZWF0ZVJlc3BvbnNlIkeKtRgCCAGC0+STAjs6Bm9iamVjdGIGb2JqZWN0IikvYXBpL3ByaXZhdGUvdjEvYmFyZV9tZXRhbF9pbnN0YW5jZV90eXBlcxLKAQoGVXBkYXRlEjQub3NhYy5wcml2YXRlLnYxLkJhcmVNZXRhbEluc3RhbmNlVHlwZXNVcGRhdGVSZXF1ZXN0GjUub3NhYy5wcml2YXRlLnYxLkJhcmVNZXRhbEluc3RhbmNlVHlwZXNVcGRhdGVSZXNwb25zZSJTirUYAggBgtPkkwJHOgZvYmplY3RiBm9iamVjdDI1L2FwaS9wcml2YXRlL3YxL2JhcmVfbWV0YWxfaW5zdGFuY2VfdHlwZXMve29iamVjdC5pZH0SswEKBkRlbGV0ZRI0Lm9zYWMucHJpdmF0ZS52MS5CYXJlTWV0YWxJbnN0YW5jZVR5cGVzRGVsZXRlUmVxdWVzdBo1Lm9zYWMucHJpdmF0ZS52MS5CYXJlTWV0YWxJbnN0YW5jZVR5cGVzRGVsZXRlUmVzcG9uc2UiPIq1GAIIAYLT5JMCMCouL2FwaS9wcml2YXRlL3YxL2JhcmVfbWV0YWxfaW5zdGFuY2VfdHlwZXMve2lkfRJ9CgZTaWduYWwSNC5vc2FjLnByaXZhdGUudjEuQmFyZU1ldGFsSW5zdGFuY2VUeXBlc1NpZ25hbFJlcXVlc3QaNS5vc2FjLnByaXZhdGUudjEuQmFyZU1ldGFsSW5zdGFuY2VUeXBlc1NpZ25hbFJlc3BvbnNlIgaKtRgCCAFCKYq1GCUSDm9zYWMucHVibGljLnYxIhNwcml2YXRlOmZ1bGZpbGxtZW50YgZwcm90bzM", [file_cleanapi_cleanapi, file_google_api_annotations, file_google_protobuf_field_mask, file_osac_private_v1_baremetal_instance_type_type]);
 
 /**
  * @generated from message osac.private.v1.BareMetalInstanceTypesListRequest
  */
 export type BareMetalInstanceTypesListRequest = Message<"osac.private.v1.BareMetalInstanceTypesListRequest"> & {
   /**
+   * Index of the first result. If not specified the default value will be zero.
+   *
    * @generated from field: optional int32 offset = 1;
    */
   offset?: number | undefined;
 
   /**
+   * Maximum number of results to be returned by the server. When not specified all the results will be returned. Note
+   * that there may not be enough results to return, and that the server may decide, for performance reasons, to return
+   * less results than requested.
+   *
    * @generated from field: optional int32 limit = 2;
    */
   limit?: number | undefined;
 
   /**
+   * Filter criteria.
+   *
+   * The value of this parameter is a [CEL](https://cel.dev) expression used to select which objects to return. The
+   * built-in `this` variable refers to the object being tested and `now` refers to the current date and time. If the
+   * expression evaluates to `true` the object is included in the results. For example, to retrieve all bare metal
+   * instance types with names starting with `gpu`:
+   *
+   *     this.metadata.name.startsWith("gpu")
+   *
+   * If this isn't provided, or if the value is empty, then all the bare metal instance types that the user has
+   * permission to see will be returned. Not all CEL constructs are currently supported for implementation reasons; see
+   * the filter documentation (docs/FILTER.md) for the full details.
+   *
    * @generated from field: optional string filter = 3;
    */
   filter?: string | undefined;
 
   /**
+   * Order criteria.
+   *
+   * The syntax of this parameter is similar to the syntax of the _order by_ clause of a SQL statement, but using the
+   * names of the attributes of the bare metal instance type instead of the names of the columns of a table. For
+   * example, in order to sort the bare metal instance types descending by name the value should be:
+   *
+   *     name desc
+   *
+   * If the parameter isn't provided, or if the value is empty, then the order of the results is undefined.
+   *
    * @generated from field: optional string order = 4;
    */
   order?: string | undefined;
@@ -67,16 +97,25 @@ export const BareMetalInstanceTypesListRequestSchema: GenMessage<BareMetalInstan
  */
 export type BareMetalInstanceTypesListResponse = Message<"osac.private.v1.BareMetalInstanceTypesListResponse"> & {
   /**
+   * Actual number of items returned. Note that this may be smaller than the value requested in the `limit` parameter
+   * of the request if there are not enough items, or of the system decides that returning that number of items isn't
+   * feasible or convenient for performance reasons.
+   *
    * @generated from field: int32 size = 1;
    */
   size: number;
 
   /**
+   * Total number of items of the collection that match the search criteria, regardless of the number of results
+   * requested with the `limit` parameter.
+   *
    * @generated from field: int32 total = 2;
    */
   total: number;
 
   /**
+   * List of results.
+   *
    * @generated from field: repeated osac.private.v1.BareMetalInstanceType items = 3;
    */
   items: BareMetalInstanceType[];
@@ -276,6 +315,8 @@ export const BareMetalInstanceTypesSignalResponseSchema: GenMessage<BareMetalIns
  */
 export const BareMetalInstanceTypes: GenService<{
   /**
+   * Retrieves the list of bare metal instance types.
+   *
    * @generated from rpc osac.private.v1.BareMetalInstanceTypes.List
    */
   list: {
@@ -284,6 +325,8 @@ export const BareMetalInstanceTypes: GenService<{
     output: typeof BareMetalInstanceTypesListResponseSchema;
   },
   /**
+   * Retrieves the details of one specific bare metal instance type.
+   *
    * @generated from rpc osac.private.v1.BareMetalInstanceTypes.Get
    */
   get: {

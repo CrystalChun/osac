@@ -17,6 +17,7 @@
 
 import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_cleanapi_cleanapi } from "../../../cleanapi/cleanapi_pb";
 import { file_google_api_annotations } from "../../../google/api/annotations_pb";
 import type { Event } from "./event_type_pb";
 import { file_osac_private_v1_event_type } from "./event_type_pb";
@@ -26,13 +27,27 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/private/v1/events_service.proto.
  */
 export const file_osac_private_v1_events_service: GenFile = /*@__PURE__*/
-  fileDesc("CiRvc2FjL3ByaXZhdGUvdjEvZXZlbnRzX3NlcnZpY2UucHJvdG8SD29zYWMucHJpdmF0ZS52MSI0ChJFdmVudHNXYXRjaFJlcXVlc3QSEwoGZmlsdGVyGAEgASgJSACIAQFCCQoHX2ZpbHRlciI8ChNFdmVudHNXYXRjaFJlc3BvbnNlEiUKBWV2ZW50GAEgASgLMhYub3NhYy5wcml2YXRlLnYxLkV2ZW50MoQBCgZFdmVudHMSegoFV2F0Y2gSIy5vc2FjLnByaXZhdGUudjEuRXZlbnRzV2F0Y2hSZXF1ZXN0GiQub3NhYy5wcml2YXRlLnYxLkV2ZW50c1dhdGNoUmVzcG9uc2UiJILT5JMCHhIcL2FwaS9wcml2YXRlL3YxL2V2ZW50cy93YXRjaDABYgZwcm90bzM", [file_google_api_annotations, file_osac_private_v1_event_type]);
+  fileDesc("CiRvc2FjL3ByaXZhdGUvdjEvZXZlbnRzX3NlcnZpY2UucHJvdG8SD29zYWMucHJpdmF0ZS52MSI0ChJFdmVudHNXYXRjaFJlcXVlc3QSEwoGZmlsdGVyGAEgASgJSACIAQFCCQoHX2ZpbHRlciI8ChNFdmVudHNXYXRjaFJlc3BvbnNlEiUKBWV2ZW50GAEgASgLMhYub3NhYy5wcml2YXRlLnYxLkV2ZW50MoQBCgZFdmVudHMSegoFV2F0Y2gSIy5vc2FjLnByaXZhdGUudjEuRXZlbnRzV2F0Y2hSZXF1ZXN0GiQub3NhYy5wcml2YXRlLnYxLkV2ZW50c1dhdGNoUmVzcG9uc2UiJILT5JMCHhIcL2FwaS9wcml2YXRlL3YxL2V2ZW50cy93YXRjaDABQiSKtRggEg5vc2FjLnB1YmxpYy52MSIOcHJpdmF0ZTpldmVudHNiBnByb3RvMw", [file_cleanapi_cleanapi, file_google_api_annotations, file_osac_private_v1_event_type]);
 
 /**
  * @generated from message osac.private.v1.EventsWatchRequest
  */
 export type EventsWatchRequest = Message<"osac.private.v1.EventsWatchRequest"> & {
   /**
+   * Filter criteria.
+   *
+   * The value of this parameter is a [CEL](https://cel.dev) boolean expression. The `event` variable will contain the
+   * fields of the event. If the result of the expression is `true` then the event will be sent by the server. For
+   * example, to receive only the events that indicate that a cluster order has been modified and is now in the
+   * fulfilled state:
+   *
+   * ```
+   * event.type == EVENT_TYPE_OBJECT_CREATED && event.cluster_order.status.state == CLUSTER_ORDER_STATE_FULFILLED
+   * ```
+   *
+   * If this isn't provided, or if the value is empty, then all the events that the user has permission to see will be
+   * sent by the server.
+   *
    * @generated from field: optional string filter = 1;
    */
   filter?: string | undefined;
@@ -67,6 +82,13 @@ export const EventsWatchResponseSchema: GenMessage<EventsWatchResponse> = /*@__P
  */
 export const Events: GenService<{
   /**
+   * Start watching events.
+   *
+   * Note that the server doesn't make any guarantee about the delivery or order of these events. In particular events
+   * that happen while the client is disconnected will not be delivered. Clients should consider using other mechanisms
+   * to ensure that they process objects correctly. For example, they can combine this watch mechanism with periodic
+   * redconciliation of all the objects.
+   *
    * @generated from rpc osac.private.v1.Events.Watch
    */
   watch: {

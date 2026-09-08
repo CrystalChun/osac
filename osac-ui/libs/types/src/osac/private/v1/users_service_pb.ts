@@ -17,6 +17,7 @@
 
 import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_cleanapi_cleanapi } from "../../../cleanapi/cleanapi_pb";
 import { file_google_api_annotations } from "../../../google/api/annotations_pb";
 import type { FieldMask } from "../../../google/protobuf/field_mask_pb";
 import { file_google_protobuf_field_mask } from "../../../google/protobuf/field_mask_pb";
@@ -28,26 +29,53 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/private/v1/users_service.proto.
  */
 export const file_osac_private_v1_users_service: GenFile = /*@__PURE__*/
-  fileDesc("CiNvc2FjL3ByaXZhdGUvdjEvdXNlcnNfc2VydmljZS5wcm90bxIPb3NhYy5wcml2YXRlLnYxInAKEFVzZXJzTGlzdFJlcXVlc3QSEwoGb2Zmc2V0GAEgASgFSACIAQESEgoFbGltaXQYAiABKAVIAYgBARITCgZmaWx0ZXIYAyABKAlIAogBAUIJCgdfb2Zmc2V0QggKBl9saW1pdEIJCgdfZmlsdGVyIlYKEVVzZXJzTGlzdFJlc3BvbnNlEgwKBHNpemUYASABKAUSDQoFdG90YWwYAiABKAUSJAoFaXRlbXMYAyADKAsyFS5vc2FjLnByaXZhdGUudjEuVXNlciIdCg9Vc2Vyc0dldFJlcXVlc3QSCgoCaWQYASABKAkiOQoQVXNlcnNHZXRSZXNwb25zZRIlCgZvYmplY3QYASABKAsyFS5vc2FjLnByaXZhdGUudjEuVXNlciI7ChJVc2Vyc0NyZWF0ZVJlcXVlc3QSJQoGb2JqZWN0GAEgASgLMhUub3NhYy5wcml2YXRlLnYxLlVzZXIiPAoTVXNlcnNDcmVhdGVSZXNwb25zZRIlCgZvYmplY3QYASABKAsyFS5vc2FjLnByaXZhdGUudjEuVXNlciIgChJVc2Vyc0RlbGV0ZVJlcXVlc3QSCgoCaWQYASABKAkiFQoTVXNlcnNEZWxldGVSZXNwb25zZSJ6ChJVc2Vyc1VwZGF0ZVJlcXVlc3QSJQoGb2JqZWN0GAEgASgLMhUub3NhYy5wcml2YXRlLnYxLlVzZXISLwoLdXBkYXRlX21hc2sYAiABKAsyGi5nb29nbGUucHJvdG9idWYuRmllbGRNYXNrEgwKBGxvY2sYAyABKAgiPAoTVXNlcnNVcGRhdGVSZXNwb25zZRIlCgZvYmplY3QYASABKAsyFS5vc2FjLnByaXZhdGUudjEuVXNlciIgChJVc2Vyc1NpZ25hbFJlcXVlc3QSCgoCaWQYASABKAkiFQoTVXNlcnNTaWduYWxSZXNwb25zZTLTBQoFVXNlcnMSbAoETGlzdBIhLm9zYWMucHJpdmF0ZS52MS5Vc2Vyc0xpc3RSZXF1ZXN0GiIub3NhYy5wcml2YXRlLnYxLlVzZXJzTGlzdFJlc3BvbnNlIh2C0+STAhcSFS9hcGkvcHJpdmF0ZS92MS91c2VycxJ2CgNHZXQSIC5vc2FjLnByaXZhdGUudjEuVXNlcnNHZXRSZXF1ZXN0GiEub3NhYy5wcml2YXRlLnYxLlVzZXJzR2V0UmVzcG9uc2UiKoLT5JMCJGIGb2JqZWN0EhovYXBpL3ByaXZhdGUvdjEvdXNlcnMve2lkfRKCAQoGQ3JlYXRlEiMub3NhYy5wcml2YXRlLnYxLlVzZXJzQ3JlYXRlUmVxdWVzdBokLm9zYWMucHJpdmF0ZS52MS5Vc2Vyc0NyZWF0ZVJlc3BvbnNlIi2C0+STAic6Bm9iamVjdGIGb2JqZWN0IhUvYXBpL3ByaXZhdGUvdjEvdXNlcnMSdwoGRGVsZXRlEiMub3NhYy5wcml2YXRlLnYxLlVzZXJzRGVsZXRlUmVxdWVzdBokLm9zYWMucHJpdmF0ZS52MS5Vc2Vyc0RlbGV0ZVJlc3BvbnNlIiKC0+STAhwqGi9hcGkvcHJpdmF0ZS92MS91c2Vycy97aWR9Eo4BCgZVcGRhdGUSIy5vc2FjLnByaXZhdGUudjEuVXNlcnNVcGRhdGVSZXF1ZXN0GiQub3NhYy5wcml2YXRlLnYxLlVzZXJzVXBkYXRlUmVzcG9uc2UiOYLT5JMCMzoGb2JqZWN0YgZvYmplY3QyIS9hcGkvcHJpdmF0ZS92MS91c2Vycy97b2JqZWN0LmlkfRJVCgZTaWduYWwSIy5vc2FjLnByaXZhdGUudjEuVXNlcnNTaWduYWxSZXF1ZXN0GiQub3NhYy5wcml2YXRlLnYxLlVzZXJzU2lnbmFsUmVzcG9uc2UiAGIGcHJvdG8z", [file_google_api_annotations, file_google_protobuf_field_mask, file_osac_private_v1_user_type]);
+  fileDesc("CiNvc2FjL3ByaXZhdGUvdjEvdXNlcnNfc2VydmljZS5wcm90bxIPb3NhYy5wcml2YXRlLnYxIo4BChBVc2Vyc0xpc3RSZXF1ZXN0EhMKBm9mZnNldBgBIAEoBUgAiAEBEhIKBWxpbWl0GAIgASgFSAGIAQESEwoGZmlsdGVyGAMgASgJSAKIAQESEgoFb3JkZXIYBCABKAlIA4gBAUIJCgdfb2Zmc2V0QggKBl9saW1pdEIJCgdfZmlsdGVyQggKBl9vcmRlciJWChFVc2Vyc0xpc3RSZXNwb25zZRIMCgRzaXplGAEgASgFEg0KBXRvdGFsGAIgASgFEiQKBWl0ZW1zGAMgAygLMhUub3NhYy5wcml2YXRlLnYxLlVzZXIiHQoPVXNlcnNHZXRSZXF1ZXN0EgoKAmlkGAEgASgJIjkKEFVzZXJzR2V0UmVzcG9uc2USJQoGb2JqZWN0GAEgASgLMhUub3NhYy5wcml2YXRlLnYxLlVzZXIiOwoSVXNlcnNDcmVhdGVSZXF1ZXN0EiUKBm9iamVjdBgBIAEoCzIVLm9zYWMucHJpdmF0ZS52MS5Vc2VyIjwKE1VzZXJzQ3JlYXRlUmVzcG9uc2USJQoGb2JqZWN0GAEgASgLMhUub3NhYy5wcml2YXRlLnYxLlVzZXIiIAoSVXNlcnNEZWxldGVSZXF1ZXN0EgoKAmlkGAEgASgJIhUKE1VzZXJzRGVsZXRlUmVzcG9uc2UiegoSVXNlcnNVcGRhdGVSZXF1ZXN0EiUKBm9iamVjdBgBIAEoCzIVLm9zYWMucHJpdmF0ZS52MS5Vc2VyEi8KC3VwZGF0ZV9tYXNrGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLkZpZWxkTWFzaxIMCgRsb2NrGAMgASgIIjwKE1VzZXJzVXBkYXRlUmVzcG9uc2USJQoGb2JqZWN0GAEgASgLMhUub3NhYy5wcml2YXRlLnYxLlVzZXIiKAoSVXNlcnNTaWduYWxSZXF1ZXN0EgoKAmlkGAEgASgJOgaKtRgCCAEiHQoTVXNlcnNTaWduYWxSZXNwb25zZToGirUYAggBMtkFCgVVc2VycxJsCgRMaXN0EiEub3NhYy5wcml2YXRlLnYxLlVzZXJzTGlzdFJlcXVlc3QaIi5vc2FjLnByaXZhdGUudjEuVXNlcnNMaXN0UmVzcG9uc2UiHYLT5JMCFxIVL2FwaS9wcml2YXRlL3YxL3VzZXJzEnYKA0dldBIgLm9zYWMucHJpdmF0ZS52MS5Vc2Vyc0dldFJlcXVlc3QaIS5vc2FjLnByaXZhdGUudjEuVXNlcnNHZXRSZXNwb25zZSIqgtPkkwIkYgZvYmplY3QSGi9hcGkvcHJpdmF0ZS92MS91c2Vycy97aWR9EoIBCgZDcmVhdGUSIy5vc2FjLnByaXZhdGUudjEuVXNlcnNDcmVhdGVSZXF1ZXN0GiQub3NhYy5wcml2YXRlLnYxLlVzZXJzQ3JlYXRlUmVzcG9uc2UiLYLT5JMCJzoGb2JqZWN0YgZvYmplY3QiFS9hcGkvcHJpdmF0ZS92MS91c2VycxJ3CgZEZWxldGUSIy5vc2FjLnByaXZhdGUudjEuVXNlcnNEZWxldGVSZXF1ZXN0GiQub3NhYy5wcml2YXRlLnYxLlVzZXJzRGVsZXRlUmVzcG9uc2UiIoLT5JMCHCoaL2FwaS9wcml2YXRlL3YxL3VzZXJzL3tpZH0SjgEKBlVwZGF0ZRIjLm9zYWMucHJpdmF0ZS52MS5Vc2Vyc1VwZGF0ZVJlcXVlc3QaJC5vc2FjLnByaXZhdGUudjEuVXNlcnNVcGRhdGVSZXNwb25zZSI5gtPkkwIzOgZvYmplY3RiBm9iamVjdDIhL2FwaS9wcml2YXRlL3YxL3VzZXJzL3tvYmplY3QuaWR9ElsKBlNpZ25hbBIjLm9zYWMucHJpdmF0ZS52MS5Vc2Vyc1NpZ25hbFJlcXVlc3QaJC5vc2FjLnByaXZhdGUudjEuVXNlcnNTaWduYWxSZXNwb25zZSIGirUYAggBQimKtRglEg5vc2FjLnB1YmxpYy52MSITcHJpdmF0ZTpmdWxmaWxsbWVudGIGcHJvdG8z", [file_cleanapi_cleanapi, file_google_api_annotations, file_google_protobuf_field_mask, file_osac_private_v1_user_type]);
 
 /**
  * @generated from message osac.private.v1.UsersListRequest
  */
 export type UsersListRequest = Message<"osac.private.v1.UsersListRequest"> & {
   /**
+   * Index of the first result. If not specified the default value will be zero.
+   *
    * @generated from field: optional int32 offset = 1;
    */
   offset?: number | undefined;
 
   /**
+   * Maximum number of results to be returned by the server. When not specified all the results will be returned. Note
+   * that there may not be enough results to return, and that the server may decide, for performance reasons, to return
+   * less results than requested.
+   *
    * @generated from field: optional int32 limit = 2;
    */
   limit?: number | undefined;
 
   /**
+   * Filter criteria.
+   *
+   * The value of this parameter is a [CEL](https://cel.dev) expression used to select which objects to return.
+   * If this isn't provided, or if the value is empty, then all the users that the caller has permission to see will be
+   * returned.
+   *
    * @generated from field: optional string filter = 3;
    */
   filter?: string | undefined;
+
+  /**
+   * Order criteria.
+   *
+   * The syntax of this parameter is similar to the syntax of the _order by_ clause of a SQL statement, but using the
+   * names of the attributes of the user instead of the names of the columns of a table. For example, in order to
+   * sort the users descending by username the value should be:
+   *
+   *     username desc
+   *
+   * If the parameter isn't provided, or if the value is empty, then the order of the results is undefined.
+   *
+   * @generated from field: optional string order = 4;
+   */
+  order?: string | undefined;
 };
 
 /**
@@ -62,16 +90,22 @@ export const UsersListRequestSchema: GenMessage<UsersListRequest> = /*@__PURE__*
  */
 export type UsersListResponse = Message<"osac.private.v1.UsersListResponse"> & {
   /**
+   * Actual number of items returned.
+   *
    * @generated from field: int32 size = 1;
    */
   size: number;
 
   /**
+   * Total number of items matching the search criteria.
+   *
    * @generated from field: int32 total = 2;
    */
   total: number;
 
   /**
+   * List of users.
+   *
    * @generated from field: repeated osac.private.v1.User items = 3;
    */
   items: User[];
@@ -265,6 +299,8 @@ export const UsersSignalResponseSchema: GenMessage<UsersSignalResponse> = /*@__P
  */
 export const Users: GenService<{
   /**
+   * Retrieves the list of users.
+   *
    * @generated from rpc osac.private.v1.Users.List
    */
   list: {
@@ -273,6 +309,8 @@ export const Users: GenService<{
     output: typeof UsersListResponseSchema;
   },
   /**
+   * Retrieves the details of one specific user.
+   *
    * @generated from rpc osac.private.v1.Users.Get
    */
   get: {
@@ -281,6 +319,8 @@ export const Users: GenService<{
     output: typeof UsersGetResponseSchema;
   },
   /**
+   * Creates a new user.
+   *
    * @generated from rpc osac.private.v1.Users.Create
    */
   create: {
@@ -289,6 +329,8 @@ export const Users: GenService<{
     output: typeof UsersCreateResponseSchema;
   },
   /**
+   * Deletes a user.
+   *
    * @generated from rpc osac.private.v1.Users.Delete
    */
   delete: {
@@ -297,6 +339,8 @@ export const Users: GenService<{
     output: typeof UsersDeleteResponseSchema;
   },
   /**
+   * Updates an existing user.
+   *
    * @generated from rpc osac.private.v1.Users.Update
    */
   update: {

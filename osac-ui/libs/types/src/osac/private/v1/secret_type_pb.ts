@@ -17,6 +17,8 @@
 
 import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
+import { file_cleanapi_cleanapi } from "../../../cleanapi/cleanapi_pb";
 import type { Metadata } from "./metadata_type_pb";
 import { file_osac_private_v1_metadata_type } from "./metadata_type_pb";
 import type { Message } from "@bufbuild/protobuf";
@@ -25,15 +27,17 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/private/v1/secret_type.proto.
  */
 export const file_osac_private_v1_secret_type: GenFile = /*@__PURE__*/
-  fileDesc("CiFvc2FjL3ByaXZhdGUvdjEvc2VjcmV0X3R5cGUucHJvdG8SD29zYWMucHJpdmF0ZS52MSKbAQoGU2VjcmV0EgoKAmlkGAEgASgJEisKCG1ldGFkYXRhGAIgASgLMhkub3NhYy5wcml2YXRlLnYxLk1ldGFkYXRhEikKBHNwZWMYAyABKAsyGy5vc2FjLnByaXZhdGUudjEuU2VjcmV0U3BlYxItCgZzdGF0dXMYBCABKAsyHS5vc2FjLnByaXZhdGUudjEuU2VjcmV0U3RhdHVzIpYCCgpTZWNyZXRTcGVjEjMKBGRhdGEYASADKAsyJS5vc2FjLnByaXZhdGUudjEuU2VjcmV0U3BlYy5EYXRhRW50cnkSLwoHYmFja2VuZBgCIAEoDjIeLm9zYWMucHJpdmF0ZS52MS5TZWNyZXRCYWNrZW5kEkEKC2Nvb3JkaW5hdGVzGAMgAygLMiwub3NhYy5wcml2YXRlLnYxLlNlY3JldFNwZWMuQ29vcmRpbmF0ZXNFbnRyeRorCglEYXRhRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgMOgI4ARoyChBDb29yZGluYXRlc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEiiwEKDFNlY3JldFN0YXR1cxJGCg1yZXNvbHZlZF9kYXRhGAEgAygLMi8ub3NhYy5wcml2YXRlLnYxLlNlY3JldFN0YXR1cy5SZXNvbHZlZERhdGFFbnRyeRozChFSZXNvbHZlZERhdGFFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAw6AjgBKmEKDVNlY3JldEJhY2tlbmQSHgoaU0VDUkVUX0JBQ0tFTkRfVU5TUEVDSUZJRUQQABIYChRTRUNSRVRfQkFDS0VORF9WQVVMVBABEhYKElNFQ1JFVF9CQUNLRU5EX0hVQhACYgZwcm90bzM", [file_osac_private_v1_metadata_type]);
+  fileDesc("CiFvc2FjL3ByaXZhdGUvdjEvc2VjcmV0X3R5cGUucHJvdG8SD29zYWMucHJpdmF0ZS52MSLhAgoGU2VjcmV0EgoKAmlkGAEgASgJEisKCG1ldGFkYXRhGAIgASgLMhkub3NhYy5wcml2YXRlLnYxLk1ldGFkYXRhEj0KBGRhdGEYAyADKAsyIS5vc2FjLnByaXZhdGUudjEuU2VjcmV0LkRhdGFFbnRyeUIMukgJmgEGIgRyAhABEjcKB2JhY2tlbmQYBCABKA4yHi5vc2FjLnByaXZhdGUudjEuU2VjcmV0QmFja2VuZEIGirUYAggBEkUKC2Nvb3JkaW5hdGVzGAUgAygLMigub3NhYy5wcml2YXRlLnYxLlNlY3JldC5Db29yZGluYXRlc0VudHJ5QgaKtRgCCAEaKwoJRGF0YUVudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoDDoCOAEaMgoQQ29vcmRpbmF0ZXNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBIjAKFFNlY3JldExvY2FsUmVmZXJlbmNlEgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkqaQoNU2VjcmV0QmFja2VuZBIeChpTRUNSRVRfQkFDS0VORF9VTlNQRUNJRklFRBAAEhgKFFNFQ1JFVF9CQUNLRU5EX1ZBVUxUEAESFgoSU0VDUkVUX0JBQ0tFTkRfSFVCEAIaBoq1GAIIAUIUirUYEBIOb3NhYy5wdWJsaWMudjFiBnByb3RvMw", [file_buf_validate_validate, file_cleanapi_cleanapi, file_osac_private_v1_metadata_type]);
 
 /**
  * Represents a secret containing opaque key-value data.
  *
  * Secrets store sensitive information such as TLS certificates, pull secrets, and credentials. Each secret holds a map
- * of named binary values and optionally references a storage backend (such as Vault or Hub) for external secret
- * management. The `coordinates` field carries backend-specific location metadata used to resolve the secret in the
- * external system.
+ * of named binary values. For example, a TLS secret might contain entries named `tls.crt` and `tls.key`.
+ *
+ * Secrets are scoped to a tenant and can be referenced by other resources that require sensitive configuration data.
+ *
+ * buf:lint:ignore OSAC_OBJECT_SHAPE
  *
  * @generated from message osac.private.v1.Secret
  */
@@ -53,18 +57,28 @@ export type Secret = Message<"osac.private.v1.Secret"> & {
   metadata?: Metadata | undefined;
 
   /**
-   * Desired state of the secret.
+   * Opaque key-value data. Each key identifies a named entry (for example, `crt` or `key`) and the
+   * corresponding value is the raw secret material. Populated in Get responses; omitted from List and
+   * mutating responses.
    *
-   * @generated from field: osac.private.v1.SecretSpec spec = 3;
+   * @generated from field: map<string, bytes> data = 3;
    */
-  spec?: SecretSpec | undefined;
+  data: { [key: string]: Uint8Array };
 
   /**
-   * Observed state of the secret, populated by the server.
+   * Storage backend used to manage this secret.
+   * Optionally references a storage backend (such as Vault or Hub) for external secret.
    *
-   * @generated from field: osac.private.v1.SecretStatus status = 4;
+   * @generated from field: osac.private.v1.SecretBackend backend = 4;
    */
-  status?: SecretStatus | undefined;
+  backend: SecretBackend;
+
+  /**
+   * Backend-specific location metadata used to resolve the secret in the external system.
+   *
+   * @generated from field: map<string, string> coordinates = 5;
+   */
+  coordinates: { [key: string]: string };
 };
 
 /**
@@ -75,61 +89,28 @@ export const SecretSchema: GenMessage<Secret> = /*@__PURE__*/
   messageDesc(file_osac_private_v1_secret_type, 0);
 
 /**
- * Desired state of a secret.
+ * Local reference to a Secret resource.
  *
- * @generated from message osac.private.v1.SecretSpec
+ * @generated from message osac.private.v1.SecretLocalReference
  */
-export type SecretSpec = Message<"osac.private.v1.SecretSpec"> & {
+export type SecretLocalReference = Message<"osac.private.v1.SecretLocalReference"> & {
   /**
-   * Opaque key-value data. Each key identifies a named entry (for example, `crt` or `key`) and the
-   * corresponding value is the raw secret material.
-   *
-   * @generated from field: map<string, bytes> data = 1;
+   * @generated from field: string id = 1;
    */
-  data: { [key: string]: Uint8Array };
+  id: string;
 
   /**
-   * Storage backend used to manage this secret.
-   *
-   * @generated from field: osac.private.v1.SecretBackend backend = 2;
+   * @generated from field: string name = 2;
    */
-  backend: SecretBackend;
-
-  /**
-   * Backend-specific location metadata.
-   *
-   * @generated from field: map<string, string> coordinates = 3;
-   */
-  coordinates: { [key: string]: string };
+  name: string;
 };
 
 /**
- * Describes the message osac.private.v1.SecretSpec.
- * Use `create(SecretSpecSchema)` to create a new message.
+ * Describes the message osac.private.v1.SecretLocalReference.
+ * Use `create(SecretLocalReferenceSchema)` to create a new message.
  */
-export const SecretSpecSchema: GenMessage<SecretSpec> = /*@__PURE__*/
+export const SecretLocalReferenceSchema: GenMessage<SecretLocalReference> = /*@__PURE__*/
   messageDesc(file_osac_private_v1_secret_type, 1);
-
-/**
- * Observed state of a secret, populated by the server.
- *
- * @generated from message osac.private.v1.SecretStatus
- */
-export type SecretStatus = Message<"osac.private.v1.SecretStatus"> & {
-  /**
-   * The secret's resolved key-value data. Present in Get responses; omitted from List responses.
-   *
-   * @generated from field: map<string, bytes> resolved_data = 1;
-   */
-  resolvedData: { [key: string]: Uint8Array };
-};
-
-/**
- * Describes the message osac.private.v1.SecretStatus.
- * Use `create(SecretStatusSchema)` to create a new message.
- */
-export const SecretStatusSchema: GenMessage<SecretStatus> = /*@__PURE__*/
-  messageDesc(file_osac_private_v1_secret_type, 2);
 
 /**
  * Storage backends for secret management.

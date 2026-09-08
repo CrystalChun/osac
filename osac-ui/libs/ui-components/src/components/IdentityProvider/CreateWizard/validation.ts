@@ -17,7 +17,9 @@ export const getIdentityProviderSchema = (t: TFunction, isEdit: boolean) =>
       description: Yup.string(),
       config: Yup.object({
         clientId: Yup.string().required(t('Client ID is required')),
-        clientSecret: Yup.string().required(t('Client secret is required')),
+        clientSecretSecret: Yup.object({
+          name: Yup.string().required(t('Client secret is required')),
+        }),
         issuer: urlSchema(t).required(t('Issuer is required')),
         authorizationUrl: urlSchema(t).required(t('Authorization URL is required')),
         tokenUrl: Yup.string()
@@ -42,7 +44,7 @@ export const idpStepHasErrors = (
       return Boolean(
         errors.spec?.config?.authorizationUrl ||
         errors.spec?.config?.clientId ||
-        errors.spec?.config?.clientSecret ||
+        errors.spec?.config?.clientSecretSecret?.name ||
         errors.spec?.config?.defaultScopes ||
         errors.spec?.config?.issuer ||
         errors.spec?.config?.issuer ||

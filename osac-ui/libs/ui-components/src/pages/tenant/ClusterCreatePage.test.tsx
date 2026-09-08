@@ -1,10 +1,10 @@
 import { Route, Routes } from 'react-router-dom';
 import { create } from '@bufbuild/protobuf';
-import { fireEvent, screen, waitFor, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import { UserEvent } from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 
-import type { Cluster, ClusterCatalogItem, ClustersCreateResponse } from '@osac/types';
+import type { Cluster, ClusterCatalogItem, ClustersCreateResponse, Secret } from '@osac/types';
 import {
   ClusterCatalogItemReferenceSchema,
   ClusterTemplateReferenceSchema,
@@ -15,16 +15,12 @@ import { ClusterCreatePage } from './ClusterCreatePage';
 import type { MockApiFixtures } from '../../test-utils/createMockConnectTransport';
 import { renderWithProviders } from '../../test-utils/TestProviders';
 
-const fillClusterGeneralStep = async (
-  user: UserEvent,
-  name: string,
-  pullSecret = '{"auths":{}}',
-) => {
+const fillClusterGeneralStep = async (user: UserEvent, name: string) => {
   const nameInput = screen.getByLabelText(/^Name/);
   await user.clear(nameInput);
   await user.type(nameInput, name);
-  const pullSecretInput = screen.getByLabelText(/Pull secret/);
-  fireEvent.change(pullSecretInput, { target: { value: pullSecret } });
+  await user.click(screen.getByLabelText(/Pull secret secret/));
+  await user.click(screen.getByRole('option', { name: 'pull-secret' }));
 };
 
 const fillClusterNodeSetRow = async (user: UserEvent, hostTypeLabel = 'ACME 1TB', size = '3') => {
@@ -116,6 +112,25 @@ const createdCluster: Cluster = {
 };
 
 const apiFixtures: MockApiFixtures = {
+  secrets: [
+    {
+      $typeName: 'osac.public.v1.Secret',
+      id: 'pull-secret-id',
+      metadata: {
+        $typeName: 'osac.public.v1.Metadata',
+        displayName: '',
+        description: '',
+        annotations: {},
+        creator: '',
+        labels: {},
+        name: 'pull-secret',
+        project: '',
+        tenant: '',
+        version: 1,
+      },
+      data: {},
+    } as Secret,
+  ],
   clusterCatalogItems: [clusterCatalogItem],
   clusterTemplates: [
     {
@@ -215,9 +230,6 @@ describe('ClusterCreatePage', () => {
     await clickWizardNext(user);
     await fillClusterGeneralStep(user, 'my-cluster');
     await clickWizardNext(user);
-    await waitFor(() => {
-      expect(screen.getByLabelText(/^Version/)).toBeInTheDocument();
-    });
     await fillClusterNodeSetRow(user);
     await clickWizardNext(user);
     await clickWizardNext(user);

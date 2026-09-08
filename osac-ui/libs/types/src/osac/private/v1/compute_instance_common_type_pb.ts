@@ -15,43 +15,17 @@
 // @generated from file osac/private/v1/compute_instance_common_type.proto (package osac.private.v1, syntax proto3)
 /* eslint-disable */
 
-import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
-import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
+import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
+import { file_cleanapi_cleanapi } from "../../../cleanapi/cleanapi_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file osac/private/v1/compute_instance_common_type.proto.
  */
 export const file_osac_private_v1_compute_instance_common_type: GenFile = /*@__PURE__*/
-  fileDesc("CjJvc2FjL3ByaXZhdGUvdjEvY29tcHV0ZV9pbnN0YW5jZV9jb21tb25fdHlwZS5wcm90bxIPb3NhYy5wcml2YXRlLnYxIj8KFENvbXB1dGVJbnN0YW5jZUltYWdlEhMKC3NvdXJjZV90eXBlGAEgASgJEhIKCnNvdXJjZV9yZWYYAiABKAkiUwoTQ29tcHV0ZUluc3RhbmNlRGlzaxIQCghzaXplX2dpYhgBIAEoBRIZCgxzdG9yYWdlX3RpZXIYAiABKAlIAIgBAUIPCg1fc3RvcmFnZV90aWVyYgZwcm90bzM");
-
-/**
- * Contains the image configuration for a compute instance.
- *
- * @generated from message osac.private.v1.ComputeInstanceImage
- */
-export type ComputeInstanceImage = Message<"osac.private.v1.ComputeInstanceImage"> & {
-  /**
-   * Image source type (e.g. "registry").
-   *
-   * @generated from field: string source_type = 1;
-   */
-  sourceType: string;
-
-  /**
-   * Image reference (e.g. OCI image URL).
-   *
-   * @generated from field: string source_ref = 2;
-   */
-  sourceRef: string;
-};
-
-/**
- * Describes the message osac.private.v1.ComputeInstanceImage.
- * Use `create(ComputeInstanceImageSchema)` to create a new message.
- */
-export const ComputeInstanceImageSchema: GenMessage<ComputeInstanceImage> = /*@__PURE__*/
-  messageDesc(file_osac_private_v1_compute_instance_common_type, 0);
+  fileDesc("CjJvc2FjL3ByaXZhdGUvdjEvY29tcHV0ZV9pbnN0YW5jZV9jb21tb25fdHlwZS5wcm90bxIPb3NhYy5wcml2YXRlLnYxIm4KE0NvbXB1dGVJbnN0YW5jZURpc2sSHgoIc2l6ZV9naWIYASABKAVCB7pIBBoCIABIAIgBARIZCgxzdG9yYWdlX3RpZXIYAiABKAlIAYgBAUILCglfc2l6ZV9naWJCDwoNX3N0b3JhZ2VfdGllciq7AQoaQ29tcHV0ZUluc3RhbmNlUnVuU3RyYXRlZ3kSLQopQ09NUFVURV9JTlNUQU5DRV9SVU5fU1RSQVRFR1lfVU5TUEVDSUZJRUQQABIoCiRDT01QVVRFX0lOU1RBTkNFX1JVTl9TVFJBVEVHWV9BTFdBWVMQARIoCiRDT01QVVRFX0lOU1RBTkNFX1JVTl9TVFJBVEVHWV9IQUxURUQQAhIKCgZBbHdheXMQARIKCgZIYWx0ZWQQAhoCEAFCFIq1GBASDm9zYWMucHVibGljLnYxYgZwcm90bzM", [file_buf_validate_validate, file_cleanapi_cleanapi]);
 
 /**
  * Contains the disk configuration for a compute instance.
@@ -62,9 +36,9 @@ export type ComputeInstanceDisk = Message<"osac.private.v1.ComputeInstanceDisk">
   /**
    * Disk size in GiB.
    *
-   * @generated from field: int32 size_gib = 1;
+   * @generated from field: optional int32 size_gib = 1;
    */
-  sizeGib: number;
+  sizeGib?: number | undefined;
 
   /**
    * Storage tier name (e.g., "standard", "fast", "archive").
@@ -79,5 +53,56 @@ export type ComputeInstanceDisk = Message<"osac.private.v1.ComputeInstanceDisk">
  * Use `create(ComputeInstanceDiskSchema)` to create a new message.
  */
 export const ComputeInstanceDiskSchema: GenMessage<ComputeInstanceDisk> = /*@__PURE__*/
-  messageDesc(file_osac_private_v1_compute_instance_common_type, 1);
+  messageDesc(file_osac_private_v1_compute_instance_common_type, 0);
+
+/**
+ * Run strategy for the compute instance.
+ *
+ * @generated from enum osac.private.v1.ComputeInstanceRunStrategy
+ */
+export enum ComputeInstanceRunStrategy {
+  /**
+   * @generated from enum value: COMPUTE_INSTANCE_RUN_STRATEGY_UNSPECIFIED = 0;
+   */
+  COMPUTE_INSTANCE_RUN_STRATEGY_UNSPECIFIED = 0,
+
+  /**
+   * The instance is kept powered on.
+   *
+   * @generated from enum value: COMPUTE_INSTANCE_RUN_STRATEGY_ALWAYS = 1;
+   */
+  COMPUTE_INSTANCE_RUN_STRATEGY_ALWAYS = 1,
+
+  /**
+   * The instance is powered off.
+   *
+   * @generated from enum value: COMPUTE_INSTANCE_RUN_STRATEGY_HALTED = 2;
+   */
+  COMPUTE_INSTANCE_RUN_STRATEGY_HALTED = 2,
+
+  /**
+   * TODO: Remove aliases once osac-test-infra sends canonical enum names.
+   * Aliases let protojson accept short names ("Always", "Halted") alongside
+   * canonical names, avoiding a chicken-and-egg with the separate test repo.
+   * buf:lint:ignore ENUM_VALUE_UPPER_SNAKE_CASE
+   * buf:lint:ignore ENUM_VALUE_PREFIX
+   *
+   * @generated from enum value: Always = 1;
+   */
+  Always = 1,
+
+  /**
+   * buf:lint:ignore ENUM_VALUE_UPPER_SNAKE_CASE
+   * buf:lint:ignore ENUM_VALUE_PREFIX
+   *
+   * @generated from enum value: Halted = 2;
+   */
+  Halted = 2,
+}
+
+/**
+ * Describes the enum osac.private.v1.ComputeInstanceRunStrategy.
+ */
+export const ComputeInstanceRunStrategySchema: GenEnum<ComputeInstanceRunStrategy> = /*@__PURE__*/
+  enumDesc(file_osac_private_v1_compute_instance_common_type, 0);
 

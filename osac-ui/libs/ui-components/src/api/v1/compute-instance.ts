@@ -8,6 +8,7 @@ import {
   ComputeInstances,
   type ComputeInstancesListResponse,
 } from '@osac/types';
+import { ComputeInstanceRunStrategy } from '@osac/types';
 import { useProjectFilterQuery } from '@osac/ui-components/hooks/use-project-filter-query';
 
 import { useApiFetch } from '../api-context';
@@ -87,12 +88,12 @@ const buildPowerPatchBody = (
   switch (powerAction) {
     case 'stop':
       return {
-        spec: { runStrategy: 'Halted' },
+        spec: { runStrategy: ComputeInstanceRunStrategy.COMPUTE_INSTANCE_RUN_STRATEGY_HALTED },
         status: { state: ComputeInstanceState.STOPPED },
       };
     case 'start':
       return {
-        spec: { runStrategy: 'Always' },
+        spec: { runStrategy: ComputeInstanceRunStrategy.COMPUTE_INSTANCE_RUN_STRATEGY_ALWAYS },
         status: { state: ComputeInstanceState.RUNNING },
       };
     case 'restart':

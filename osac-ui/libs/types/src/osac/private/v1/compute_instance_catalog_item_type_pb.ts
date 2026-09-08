@@ -17,6 +17,7 @@
 
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_cleanapi_cleanapi } from "../../../cleanapi/cleanapi_pb";
 import type { ComputeInstanceTemplateReference } from "./compute_instance_template_type_pb";
 import { file_osac_private_v1_compute_instance_template_type } from "./compute_instance_template_type_pb";
 import type { FieldDefinition } from "./field_definition_type_pb";
@@ -29,7 +30,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/private/v1/compute_instance_catalog_item_type.proto.
  */
 export const file_osac_private_v1_compute_instance_catalog_item_type: GenFile = /*@__PURE__*/
-  fileDesc("Cjhvc2FjL3ByaXZhdGUvdjEvY29tcHV0ZV9pbnN0YW5jZV9jYXRhbG9nX2l0ZW1fdHlwZS5wcm90bxIPb3NhYy5wcml2YXRlLnYxIp4CChpDb21wdXRlSW5zdGFuY2VDYXRhbG9nSXRlbRIKCgJpZBgBIAEoCRIrCghtZXRhZGF0YRgCIAEoCzIZLm9zYWMucHJpdmF0ZS52MS5NZXRhZGF0YRINCgV0aXRsZRgDIAEoCRITCgtkZXNjcmlwdGlvbhgEIAEoCRJDCgh0ZW1wbGF0ZRgFIAEoCzIxLm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2VUZW1wbGF0ZVJlZmVyZW5jZRIRCglwdWJsaXNoZWQYBiABKAgSDgoGdGVuYW50GAcgASgJEjsKEWZpZWxkX2RlZmluaXRpb25zGAggAygLMiAub3NhYy5wcml2YXRlLnYxLkZpZWxkRGVmaW5pdGlvbiJgCiNDb21wdXRlSW5zdGFuY2VDYXRhbG9nSXRlbVJlZmVyZW5jZRIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJEg8KB3Byb2plY3QYAyABKAkSDgoGc2hhcmVkGAQgASgIYgZwcm90bzM", [file_osac_private_v1_compute_instance_template_type, file_osac_private_v1_field_definition_type, file_osac_private_v1_metadata_type]);
+  fileDesc("Cjhvc2FjL3ByaXZhdGUvdjEvY29tcHV0ZV9pbnN0YW5jZV9jYXRhbG9nX2l0ZW1fdHlwZS5wcm90bxIPb3NhYy5wcml2YXRlLnYxIqYCChpDb21wdXRlSW5zdGFuY2VDYXRhbG9nSXRlbRIKCgJpZBgBIAEoCRIrCghtZXRhZGF0YRgCIAEoCzIZLm9zYWMucHJpdmF0ZS52MS5NZXRhZGF0YRINCgV0aXRsZRgDIAEoCRITCgtkZXNjcmlwdGlvbhgEIAEoCRJDCgh0ZW1wbGF0ZRgFIAEoCzIxLm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2VUZW1wbGF0ZVJlZmVyZW5jZRIRCglwdWJsaXNoZWQYBiABKAgSFgoGdGVuYW50GAcgASgJQgaKtRgCCAESOwoRZmllbGRfZGVmaW5pdGlvbnMYCCADKAsyIC5vc2FjLnByaXZhdGUudjEuRmllbGREZWZpbml0aW9uImAKI0NvbXB1dGVJbnN0YW5jZUNhdGFsb2dJdGVtUmVmZXJlbmNlEgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkSDwoHcHJvamVjdBgDIAEoCRIOCgZzaGFyZWQYBCABKAhCFIq1GBASDm9zYWMucHVibGljLnYxYgZwcm90bzM", [file_cleanapi_cleanapi, file_osac_private_v1_compute_instance_template_type, file_osac_private_v1_field_definition_type, file_osac_private_v1_metadata_type]);
 
 /**
  * A compute instance catalog item defines a curated infrastructure offering that references an underlying compute
@@ -41,6 +42,8 @@ export const file_osac_private_v1_compute_instance_catalog_item_type: GenFile = 
  */
 export type ComputeInstanceCatalogItem = Message<"osac.private.v1.ComputeInstanceCatalogItem"> & {
   /**
+   * Unique identifier of the catalog item.
+   *
    * @generated from field: string id = 1;
    */
   id: string;
@@ -72,7 +75,7 @@ export type ComputeInstanceCatalogItem = Message<"osac.private.v1.ComputeInstanc
   template?: ComputeInstanceTemplateReference | undefined;
 
   /**
-   * Whether this catalog item is visible in the public API.
+   * Whether this catalog item is published.
    *
    * @generated from field: bool published = 6;
    */

@@ -28,13 +28,15 @@ export const file_osac_public_v1_field_definition_type: GenFile = /*@__PURE__*/
   fileDesc("Cipvc2FjL3B1YmxpYy92MS9maWVsZF9kZWZpbml0aW9uX3R5cGUucHJvdG8SDm9zYWMucHVibGljLnYxIosBCg9GaWVsZERlZmluaXRpb24SDAoEcGF0aBgBIAEoCRIUCgxkaXNwbGF5X25hbWUYAiABKAkSEAoIZWRpdGFibGUYAyABKAgSJwoHZGVmYXVsdBgEIAEoCzIWLmdvb2dsZS5wcm90b2J1Zi5WYWx1ZRIZChF2YWxpZGF0aW9uX3NjaGVtYRgFIAEoCWIGcHJvdG8z", [file_google_protobuf_struct]);
 
 /**
- * Defines a single field on the resource spec that a catalog item controls.
+ * Defines a single field on the resource spec that a catalog item controls. Each field definition specifies whether
+ * the user can set the field, what default value to apply, and optional JSON Schema validation constraints.
  *
  * @generated from message osac.public.v1.FieldDefinition
  */
 export type FieldDefinition = Message<"osac.public.v1.FieldDefinition"> & {
   /**
-   * Dot-notation path referencing a field in the resource spec.
+   * Dot-notation path referencing a field in the resource spec. For example: "spec.network.pod_cidr" or
+   * "spec.node_sets.workers.size". Wildcards are not supported.
    *
    * @generated from field: string path = 1;
    */
@@ -48,21 +50,24 @@ export type FieldDefinition = Message<"osac.public.v1.FieldDefinition"> & {
   displayName: string;
 
   /**
-   * Whether the user is allowed to set this field.
+   * Whether the user is allowed to set this field. When false, the field value is always taken from the default and
+   * any user-provided value is overridden.
    *
    * @generated from field: bool editable = 3;
    */
   editable: boolean;
 
   /**
-   * Default value for this field.
+   * Default value for this field. Applied when the user does not provide a value (for editable fields) or always
+   * applied (for non-editable fields).
    *
    * @generated from field: google.protobuf.Value default = 4;
    */
   default?: Value | undefined;
 
   /**
-   * Optional JSON Schema (draft 2020-12) for validating user-provided values of editable fields.
+   * Optional JSON Schema (draft 2020-12) for validating user-provided values of editable fields. The schema is stored
+   * as a JSON string. When empty, no validation is performed beyond type checking.
    *
    * @generated from field: string validation_schema = 5;
    */

@@ -17,6 +17,7 @@
 
 import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_cleanapi_cleanapi } from "../../../cleanapi/cleanapi_pb";
 import { file_google_api_annotations } from "../../../google/api/annotations_pb";
 import type { FieldMask } from "../../../google/protobuf/field_mask_pb";
 import { file_google_protobuf_field_mask } from "../../../google/protobuf/field_mask_pb";
@@ -28,30 +29,31 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/private/v1/identity_providers_service.proto.
  */
 export const file_osac_private_v1_identity_providers_service: GenFile = /*@__PURE__*/
-  fileDesc("CjBvc2FjL3ByaXZhdGUvdjEvaWRlbnRpdHlfcHJvdmlkZXJzX3NlcnZpY2UucHJvdG8SD29zYWMucHJpdmF0ZS52MSJ8ChxJZGVudGl0eVByb3ZpZGVyc0xpc3RSZXF1ZXN0EhMKBm9mZnNldBgBIAEoBUgAiAEBEhIKBWxpbWl0GAIgASgFSAGIAQESEwoGZmlsdGVyGAMgASgJSAKIAQFCCQoHX29mZnNldEIICgZfbGltaXRCCQoHX2ZpbHRlciJuCh1JZGVudGl0eVByb3ZpZGVyc0xpc3RSZXNwb25zZRIMCgRzaXplGAEgASgFEg0KBXRvdGFsGAIgASgFEjAKBWl0ZW1zGAMgAygLMiEub3NhYy5wcml2YXRlLnYxLklkZW50aXR5UHJvdmlkZXIiKQobSWRlbnRpdHlQcm92aWRlcnNHZXRSZXF1ZXN0EgoKAmlkGAEgASgJIlEKHElkZW50aXR5UHJvdmlkZXJzR2V0UmVzcG9uc2USMQoGb2JqZWN0GAEgASgLMiEub3NhYy5wcml2YXRlLnYxLklkZW50aXR5UHJvdmlkZXIiUwoeSWRlbnRpdHlQcm92aWRlcnNDcmVhdGVSZXF1ZXN0EjEKBm9iamVjdBgBIAEoCzIhLm9zYWMucHJpdmF0ZS52MS5JZGVudGl0eVByb3ZpZGVyIlQKH0lkZW50aXR5UHJvdmlkZXJzQ3JlYXRlUmVzcG9uc2USMQoGb2JqZWN0GAEgASgLMiEub3NhYy5wcml2YXRlLnYxLklkZW50aXR5UHJvdmlkZXIikgEKHklkZW50aXR5UHJvdmlkZXJzVXBkYXRlUmVxdWVzdBIxCgZvYmplY3QYASABKAsyIS5vc2FjLnByaXZhdGUudjEuSWRlbnRpdHlQcm92aWRlchIvCgt1cGRhdGVfbWFzaxgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5GaWVsZE1hc2sSDAoEbG9jaxgDIAEoCCJUCh9JZGVudGl0eVByb3ZpZGVyc1VwZGF0ZVJlc3BvbnNlEjEKBm9iamVjdBgBIAEoCzIhLm9zYWMucHJpdmF0ZS52MS5JZGVudGl0eVByb3ZpZGVyIiwKHklkZW50aXR5UHJvdmlkZXJzRGVsZXRlUmVxdWVzdBIKCgJpZBgBIAEoCSIhCh9JZGVudGl0eVByb3ZpZGVyc0RlbGV0ZVJlc3BvbnNlIiwKHklkZW50aXR5UHJvdmlkZXJzU2lnbmFsUmVxdWVzdBIKCgJpZBgBIAEoCSIhCh9JZGVudGl0eVByb3ZpZGVyc1NpZ25hbFJlc3BvbnNlMqMHChFJZGVudGl0eVByb3ZpZGVycxKfAQoGQ3JlYXRlEi8ub3NhYy5wcml2YXRlLnYxLklkZW50aXR5UHJvdmlkZXJzQ3JlYXRlUmVxdWVzdBowLm9zYWMucHJpdmF0ZS52MS5JZGVudGl0eVByb3ZpZGVyc0NyZWF0ZVJlc3BvbnNlIjKC0+STAiw6Bm9iamVjdCIiL2FwaS9wcml2YXRlL3YxL2lkZW50aXR5X3Byb3ZpZGVycxKRAQoETGlzdBItLm9zYWMucHJpdmF0ZS52MS5JZGVudGl0eVByb3ZpZGVyc0xpc3RSZXF1ZXN0Gi4ub3NhYy5wcml2YXRlLnYxLklkZW50aXR5UHJvdmlkZXJzTGlzdFJlc3BvbnNlIiqC0+STAiQSIi9hcGkvcHJpdmF0ZS92MS9pZGVudGl0eV9wcm92aWRlcnMSmwEKA0dldBIsLm9zYWMucHJpdmF0ZS52MS5JZGVudGl0eVByb3ZpZGVyc0dldFJlcXVlc3QaLS5vc2FjLnByaXZhdGUudjEuSWRlbnRpdHlQcm92aWRlcnNHZXRSZXNwb25zZSI3gtPkkwIxYgZvYmplY3QSJy9hcGkvcHJpdmF0ZS92MS9pZGVudGl0eV9wcm92aWRlcnMve2lkfRKrAQoGVXBkYXRlEi8ub3NhYy5wcml2YXRlLnYxLklkZW50aXR5UHJvdmlkZXJzVXBkYXRlUmVxdWVzdBowLm9zYWMucHJpdmF0ZS52MS5JZGVudGl0eVByb3ZpZGVyc1VwZGF0ZVJlc3BvbnNlIj6C0+STAjg6Bm9iamVjdDIuL2FwaS9wcml2YXRlL3YxL2lkZW50aXR5X3Byb3ZpZGVycy97b2JqZWN0LmlkfRKcAQoGRGVsZXRlEi8ub3NhYy5wcml2YXRlLnYxLklkZW50aXR5UHJvdmlkZXJzRGVsZXRlUmVxdWVzdBowLm9zYWMucHJpdmF0ZS52MS5JZGVudGl0eVByb3ZpZGVyc0RlbGV0ZVJlc3BvbnNlIi+C0+STAikqJy9hcGkvcHJpdmF0ZS92MS9pZGVudGl0eV9wcm92aWRlcnMve2lkfRJtCgZTaWduYWwSLy5vc2FjLnByaXZhdGUudjEuSWRlbnRpdHlQcm92aWRlcnNTaWduYWxSZXF1ZXN0GjAub3NhYy5wcml2YXRlLnYxLklkZW50aXR5UHJvdmlkZXJzU2lnbmFsUmVzcG9uc2UiAGIGcHJvdG8z", [file_google_api_annotations, file_google_protobuf_field_mask, file_osac_private_v1_identity_provider_type]);
+  fileDesc("CjBvc2FjL3ByaXZhdGUvdjEvaWRlbnRpdHlfcHJvdmlkZXJzX3NlcnZpY2UucHJvdG8SD29zYWMucHJpdmF0ZS52MSJ8ChxJZGVudGl0eVByb3ZpZGVyc0xpc3RSZXF1ZXN0EhMKBm9mZnNldBgBIAEoBUgAiAEBEhIKBWxpbWl0GAIgASgFSAGIAQESEwoGZmlsdGVyGAMgASgJSAKIAQFCCQoHX29mZnNldEIICgZfbGltaXRCCQoHX2ZpbHRlciJuCh1JZGVudGl0eVByb3ZpZGVyc0xpc3RSZXNwb25zZRIMCgRzaXplGAEgASgFEg0KBXRvdGFsGAIgASgFEjAKBWl0ZW1zGAMgAygLMiEub3NhYy5wcml2YXRlLnYxLklkZW50aXR5UHJvdmlkZXIiKQobSWRlbnRpdHlQcm92aWRlcnNHZXRSZXF1ZXN0EgoKAmlkGAEgASgJIlEKHElkZW50aXR5UHJvdmlkZXJzR2V0UmVzcG9uc2USMQoGb2JqZWN0GAEgASgLMiEub3NhYy5wcml2YXRlLnYxLklkZW50aXR5UHJvdmlkZXIiUwoeSWRlbnRpdHlQcm92aWRlcnNDcmVhdGVSZXF1ZXN0EjEKBm9iamVjdBgBIAEoCzIhLm9zYWMucHJpdmF0ZS52MS5JZGVudGl0eVByb3ZpZGVyIlQKH0lkZW50aXR5UHJvdmlkZXJzQ3JlYXRlUmVzcG9uc2USMQoGb2JqZWN0GAEgASgLMiEub3NhYy5wcml2YXRlLnYxLklkZW50aXR5UHJvdmlkZXIikgEKHklkZW50aXR5UHJvdmlkZXJzVXBkYXRlUmVxdWVzdBIxCgZvYmplY3QYASABKAsyIS5vc2FjLnByaXZhdGUudjEuSWRlbnRpdHlQcm92aWRlchIvCgt1cGRhdGVfbWFzaxgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5GaWVsZE1hc2sSDAoEbG9jaxgDIAEoCCJUCh9JZGVudGl0eVByb3ZpZGVyc1VwZGF0ZVJlc3BvbnNlEjEKBm9iamVjdBgBIAEoCzIhLm9zYWMucHJpdmF0ZS52MS5JZGVudGl0eVByb3ZpZGVyIiwKHklkZW50aXR5UHJvdmlkZXJzRGVsZXRlUmVxdWVzdBIKCgJpZBgBIAEoCSIhCh9JZGVudGl0eVByb3ZpZGVyc0RlbGV0ZVJlc3BvbnNlIjQKHklkZW50aXR5UHJvdmlkZXJzU2lnbmFsUmVxdWVzdBIKCgJpZBgBIAEoCToGirUYAggBIikKH0lkZW50aXR5UHJvdmlkZXJzU2lnbmFsUmVzcG9uc2U6Boq1GAIIATKpBwoRSWRlbnRpdHlQcm92aWRlcnMSnwEKBkNyZWF0ZRIvLm9zYWMucHJpdmF0ZS52MS5JZGVudGl0eVByb3ZpZGVyc0NyZWF0ZVJlcXVlc3QaMC5vc2FjLnByaXZhdGUudjEuSWRlbnRpdHlQcm92aWRlcnNDcmVhdGVSZXNwb25zZSIygtPkkwIsOgZvYmplY3QiIi9hcGkvcHJpdmF0ZS92MS9pZGVudGl0eV9wcm92aWRlcnMSkQEKBExpc3QSLS5vc2FjLnByaXZhdGUudjEuSWRlbnRpdHlQcm92aWRlcnNMaXN0UmVxdWVzdBouLm9zYWMucHJpdmF0ZS52MS5JZGVudGl0eVByb3ZpZGVyc0xpc3RSZXNwb25zZSIqgtPkkwIkEiIvYXBpL3ByaXZhdGUvdjEvaWRlbnRpdHlfcHJvdmlkZXJzEpsBCgNHZXQSLC5vc2FjLnByaXZhdGUudjEuSWRlbnRpdHlQcm92aWRlcnNHZXRSZXF1ZXN0Gi0ub3NhYy5wcml2YXRlLnYxLklkZW50aXR5UHJvdmlkZXJzR2V0UmVzcG9uc2UiN4LT5JMCMWIGb2JqZWN0EicvYXBpL3ByaXZhdGUvdjEvaWRlbnRpdHlfcHJvdmlkZXJzL3tpZH0SqwEKBlVwZGF0ZRIvLm9zYWMucHJpdmF0ZS52MS5JZGVudGl0eVByb3ZpZGVyc1VwZGF0ZVJlcXVlc3QaMC5vc2FjLnByaXZhdGUudjEuSWRlbnRpdHlQcm92aWRlcnNVcGRhdGVSZXNwb25zZSI+gtPkkwI4OgZvYmplY3QyLi9hcGkvcHJpdmF0ZS92MS9pZGVudGl0eV9wcm92aWRlcnMve29iamVjdC5pZH0SnAEKBkRlbGV0ZRIvLm9zYWMucHJpdmF0ZS52MS5JZGVudGl0eVByb3ZpZGVyc0RlbGV0ZVJlcXVlc3QaMC5vc2FjLnByaXZhdGUudjEuSWRlbnRpdHlQcm92aWRlcnNEZWxldGVSZXNwb25zZSIvgtPkkwIpKicvYXBpL3ByaXZhdGUvdjEvaWRlbnRpdHlfcHJvdmlkZXJzL3tpZH0ScwoGU2lnbmFsEi8ub3NhYy5wcml2YXRlLnYxLklkZW50aXR5UHJvdmlkZXJzU2lnbmFsUmVxdWVzdBowLm9zYWMucHJpdmF0ZS52MS5JZGVudGl0eVByb3ZpZGVyc1NpZ25hbFJlc3BvbnNlIgaKtRgCCAFCKYq1GCUSDm9zYWMucHVibGljLnYxIhNwcml2YXRlOmZ1bGZpbGxtZW50YgZwcm90bzM", [file_cleanapi_cleanapi, file_google_api_annotations, file_google_protobuf_field_mask, file_osac_private_v1_identity_provider_type]);
 
 /**
- * Request to list all identity providers.
+ * Request to list identity providers for a tenant.
  *
  * @generated from message osac.private.v1.IdentityProvidersListRequest
  */
 export type IdentityProvidersListRequest = Message<"osac.private.v1.IdentityProvidersListRequest"> & {
   /**
-   * Index of the first result.
+   * Index of the first result. If not specified the default value will be zero.
    *
    * @generated from field: optional int32 offset = 1;
    */
   offset?: number | undefined;
 
   /**
-   * Maximum number of results.
+   * Maximum number of results to be returned by the server.
    *
    * @generated from field: optional int32 limit = 2;
    */
   limit?: number | undefined;
 
   /**
-   * Filter criteria.
+   * Filter criteria. CEL expression to filter identity providers.
+   * Use metadata.tenant to scope to a specific tenant.
    *
    * @generated from field: optional string filter = 3;
    */
@@ -79,7 +81,7 @@ export type IdentityProvidersListResponse = Message<"osac.private.v1.IdentityPro
   size: number;
 
   /**
-   * Total number of items.
+   * Total number of items that match the search criteria.
    *
    * @generated from field: int32 total = 2;
    */
@@ -313,7 +315,10 @@ export const IdentityProvidersSignalResponseSchema: GenMessage<IdentityProviders
   messageDesc(file_osac_private_v1_identity_providers_service, 11);
 
 /**
- * IdentityProviders service provides internal operations for managing identity providers.
+ * IdentityProviders service provides operations for managing tenant identity providers.
+ * Users can only access identity providers for their tenant.
+ * Identity providers enable users to authenticate using their existing corporate credentials
+ * (LDAP, Active Directory, OIDC, SAML, etc.).
  *
  * @generated from service osac.private.v1.IdentityProviders
  */
@@ -329,7 +334,7 @@ export const IdentityProviders: GenService<{
     output: typeof IdentityProvidersCreateResponseSchema;
   },
   /**
-   * Lists all identity providers.
+   * Lists identity providers assigned to a tenant.
    * Use filter with metadata.tenant to scope to a specific tenant.
    *
    * @generated from rpc osac.private.v1.IdentityProviders.List

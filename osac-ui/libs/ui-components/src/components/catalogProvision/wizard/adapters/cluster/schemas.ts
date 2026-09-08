@@ -7,7 +7,6 @@ import { resourceNameSchema } from '@osac/ui-components/validation/resource-name
 import type { ClusterNodeSetRow } from './fields';
 import {
   CLUSTER_POD_CIDR_WIRE_PATH,
-  CLUSTER_PULL_SECRET_WIRE_PATH,
   CLUSTER_SERVICE_CIDR_WIRE_PATH,
   CLUSTER_SSH_KEY_WIRE_PATH,
   CLUSTER_VERSION_WIRE_PATH,
@@ -23,7 +22,7 @@ import {
   mergeCatalogValidation,
   readCatalogFieldDefinitions,
 } from '../../catalogOverlay';
-import { isValidPullSecret, isValidSshPublicKey } from '../../fields/credentialValidation';
+import { isValidSshPublicKey } from '../../fields/credentialValidation';
 import type { WizardStepId } from '../../stepIds';
 
 const nodeSetRowSchema = (t: TFunction) =>
@@ -46,11 +45,6 @@ const buildClusterFieldDefinitions = (catalogItem: unknown, t: TFunction) => {
     CLUSTER_SSH_KEY_WIRE_PATH,
     definitions,
     t('SSH public key'),
-  );
-  const pullSecretOverlay = getCatalogFieldOverlay(
-    CLUSTER_PULL_SECRET_WIRE_PATH,
-    definitions,
-    t('Pull secret'),
   );
   const versionOverlay = getCatalogFieldOverlay(
     CLUSTER_VERSION_WIRE_PATH,
@@ -87,21 +81,6 @@ const buildClusterFieldDefinitions = (catalogItem: unknown, t: TFunction) => {
       sshKeyOverlay,
       sshKeyRequired,
       t('This field is required'),
-    ),
-    specPullSecret: mergeCatalogValidation(
-      yup
-        .string()
-        .trim()
-        .test(
-          'pull-secret',
-          t(
-            'Invalid pull secret format. Paste the complete JSON from your Red Hat account pull secret.',
-          ),
-          (value) => isValidPullSecret(value),
-        ),
-      pullSecretOverlay,
-      true,
-      t('Pull secret is required'),
     ),
     specVersionName: mergeCatalogValidation(
       yup.string().trim(),
@@ -171,7 +150,9 @@ export const buildClusterStepSchema = (
         }),
         spec: yup.object({
           sshPublicKey: fields.specSshPublicKey,
-          pullSecret: fields.specPullSecret,
+          pullSecretSecret: yup.object({
+            name: yup.string().required(t('Pull secret is required')),
+          }),
         }),
       });
     case 'configuration':

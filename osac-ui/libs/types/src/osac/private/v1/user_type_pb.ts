@@ -17,6 +17,7 @@
 
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_cleanapi_cleanapi } from "../../../cleanapi/cleanapi_pb";
 import type { Timestamp } from "../../../google/protobuf/timestamp_pb";
 import { file_google_protobuf_timestamp } from "../../../google/protobuf/timestamp_pb";
 import type { ConditionStatus } from "./condition_status_type_pb";
@@ -29,7 +30,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/private/v1/user_type.proto.
  */
 export const file_osac_private_v1_user_type: GenFile = /*@__PURE__*/
-  fileDesc("Ch9vc2FjL3ByaXZhdGUvdjEvdXNlcl90eXBlLnByb3RvEg9vc2FjLnByaXZhdGUudjEilQEKBFVzZXISCgoCaWQYASABKAkSKwoIbWV0YWRhdGEYAiABKAsyGS5vc2FjLnByaXZhdGUudjEuTWV0YWRhdGESJwoEc3BlYxgDIAEoCzIZLm9zYWMucHJpdmF0ZS52MS5Vc2VyU3BlYxIrCgZzdGF0dXMYBCABKAsyGy5vc2FjLnByaXZhdGUudjEuVXNlclN0YXR1cyKIAQoIVXNlclNwZWMSEAoIdXNlcm5hbWUYASABKAkSDQoFZW1haWwYAiABKAkSDwoHZW5hYmxlZBgDIAEoCBI6CgtjcmVkZW50aWFscxgEIAEoCzIgLm9zYWMucHJpdmF0ZS52MS5Vc2VyQ3JlZGVudGlhbHNIAIgBAUIOCgxfY3JlZGVudGlhbHMiUQoPVXNlckNyZWRlbnRpYWxzEhUKCHBhc3N3b3JkGAEgASgJSACIAQESGgoSdGVtcG9yYXJ5X3Bhc3N3b3JkGAIgASgIQgsKCV9wYXNzd29yZCJpCgpVc2VyU3RhdHVzEg0KBXBoYXNlGAEgASgJEjIKCmNvbmRpdGlvbnMYAiADKAsyHi5vc2FjLnByaXZhdGUudjEuVXNlckNvbmRpdGlvbhIYChBrZXljbG9ha191c2VyX2lkGAMgASgJIssBCg1Vc2VyQ29uZGl0aW9uEgwKBHR5cGUYASABKAkSMAoGc3RhdHVzGAIgASgOMiAub3NhYy5wcml2YXRlLnYxLkNvbmRpdGlvblN0YXR1cxI4ChRsYXN0X3RyYW5zaXRpb25fdGltZRgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEwoGcmVhc29uGAQgASgJSACIAQESFAoHbWVzc2FnZRgFIAEoCUgBiAEBQgkKB19yZWFzb25CCgoIX21lc3NhZ2UiSgoNVXNlclJlZmVyZW5jZRIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJEg8KB3Byb2plY3QYAyABKAkSDgoGc2hhcmVkGAQgASgIYgZwcm90bzM", [file_google_protobuf_timestamp, file_osac_private_v1_condition_status_type, file_osac_private_v1_metadata_type]);
+  fileDesc("Ch9vc2FjL3ByaXZhdGUvdjEvdXNlcl90eXBlLnByb3RvEg9vc2FjLnByaXZhdGUudjEilQEKBFVzZXISCgoCaWQYASABKAkSKwoIbWV0YWRhdGEYAiABKAsyGS5vc2FjLnByaXZhdGUudjEuTWV0YWRhdGESJwoEc3BlYxgDIAEoCzIZLm9zYWMucHJpdmF0ZS52MS5Vc2VyU3BlYxIrCgZzdGF0dXMYBCABKAsyGy5vc2FjLnByaXZhdGUudjEuVXNlclN0YXR1cyKIAQoIVXNlclNwZWMSEAoIdXNlcm5hbWUYASABKAkSDQoFZW1haWwYAiABKAkSDwoHZW5hYmxlZBgDIAEoCBI6CgtjcmVkZW50aWFscxgEIAEoCzIgLm9zYWMucHJpdmF0ZS52MS5Vc2VyQ3JlZGVudGlhbHNIAIgBAUIOCgxfY3JlZGVudGlhbHMiUQoPVXNlckNyZWRlbnRpYWxzEhUKCHBhc3N3b3JkGAEgASgJSACIAQESGgoSdGVtcG9yYXJ5X3Bhc3N3b3JkGAIgASgIQgsKCV9wYXNzd29yZCJxCgpVc2VyU3RhdHVzEg0KBXBoYXNlGAEgASgJEjIKCmNvbmRpdGlvbnMYAiADKAsyHi5vc2FjLnByaXZhdGUudjEuVXNlckNvbmRpdGlvbhIgChBrZXljbG9ha191c2VyX2lkGAMgASgJQgaKtRgCCAEiywEKDVVzZXJDb25kaXRpb24SDAoEdHlwZRgBIAEoCRIwCgZzdGF0dXMYAiABKA4yIC5vc2FjLnByaXZhdGUudjEuQ29uZGl0aW9uU3RhdHVzEjgKFGxhc3RfdHJhbnNpdGlvbl90aW1lGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBITCgZyZWFzb24YBCABKAlIAIgBARIUCgdtZXNzYWdlGAUgASgJSAGIAQFCCQoHX3JlYXNvbkIKCghfbWVzc2FnZSJKCg1Vc2VyUmVmZXJlbmNlEgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkSDwoHcHJvamVjdBgDIAEoCRIOCgZzaGFyZWQYBCABKAhCFIq1GBASDm9zYWMucHVibGljLnYxYgZwcm90bzM", [file_cleanapi_cleanapi, file_google_protobuf_timestamp, file_osac_private_v1_condition_status_type, file_osac_private_v1_metadata_type]);
 
 /**
  * A user in a tenant's identity provider.
@@ -122,12 +123,17 @@ export type UserCredentials = Message<"osac.private.v1.UserCredentials"> & {
   /**
    * Password for the user.
    *
+   * SECURITY: This field contains sensitive data:
+   * - Only transmitted over TLS
+   * - Never returned in responses
+   * - Clear from memory after use
+   *
    * @generated from field: optional string password = 1;
    */
   password?: string | undefined;
 
   /**
-   * Whether the password is temporary and must be changed on first login.
+   * Whether the password is temporary and must be changed on first login. Only applicable when password is provided.
    *
    * @generated from field: bool temporary_password = 2;
    */
@@ -155,7 +161,7 @@ export type UserStatus = Message<"osac.private.v1.UserStatus"> & {
   phase: string;
 
   /**
-   * Additional conditions.
+   * Additional conditions about the user's state.
    *
    * @generated from field: repeated osac.private.v1.UserCondition conditions = 2;
    */
@@ -184,26 +190,36 @@ export const UserStatusSchema: GenMessage<UserStatus> = /*@__PURE__*/
  */
 export type UserCondition = Message<"osac.private.v1.UserCondition"> & {
   /**
+   * Type of the condition.
+   *
    * @generated from field: string type = 1;
    */
   type: string;
 
   /**
+   * Status of the condition.
+   *
    * @generated from field: osac.private.v1.ConditionStatus status = 2;
    */
   status: ConditionStatus;
 
   /**
+   * Last time the condition was updated.
+   *
    * @generated from field: google.protobuf.Timestamp last_transition_time = 3;
    */
   lastTransitionTime?: Timestamp | undefined;
 
   /**
+   * Reason for the condition's last transition.
+   *
    * @generated from field: optional string reason = 4;
    */
   reason?: string | undefined;
 
   /**
+   * Human-readable message about the transition.
+   *
    * @generated from field: optional string message = 5;
    */
   message?: string | undefined;

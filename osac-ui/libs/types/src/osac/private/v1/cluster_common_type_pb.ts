@@ -17,13 +17,14 @@
 
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_cleanapi_cleanapi } from "../../../cleanapi/cleanapi_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file osac/private/v1/cluster_common_type.proto.
  */
 export const file_osac_private_v1_cluster_common_type: GenFile = /*@__PURE__*/
-  fileDesc("Cilvc2FjL3ByaXZhdGUvdjEvY2x1c3Rlcl9jb21tb25fdHlwZS5wcm90bxIPb3NhYy5wcml2YXRlLnYxImAKDkNsdXN0ZXJOZXR3b3JrEhUKCHBvZF9jaWRyGAEgASgJSACIAQESGQoMc2VydmljZV9jaWRyGAIgASgJSAGIAQFCCwoJX3BvZF9jaWRyQg8KDV9zZXJ2aWNlX2NpZHJiBnByb3RvMw");
+  fileDesc("Cilvc2FjL3ByaXZhdGUvdjEvY2x1c3Rlcl9jb21tb25fdHlwZS5wcm90bxIPb3NhYy5wcml2YXRlLnYxImAKDkNsdXN0ZXJOZXR3b3JrEhUKCHBvZF9jaWRyGAEgASgJSACIAQESGQoMc2VydmljZV9jaWRyGAIgASgJSAGIAQFCCwoJX3BvZF9jaWRyQg8KDV9zZXJ2aWNlX2NpZHJCFIq1GBASDm9zYWMucHVibGljLnYxYgZwcm90bzM", [file_cleanapi_cleanapi]);
 
 /**
  * Networking configuration for a cluster.
@@ -32,11 +33,19 @@ export const file_osac_private_v1_cluster_common_type: GenFile = /*@__PURE__*/
  */
 export type ClusterNetwork = Message<"osac.private.v1.ClusterNetwork"> & {
   /**
+   * CIDR for the cluster's pod network.
+   *
+   * Must be valid CIDR notation. If not provided, defaults to `10.128.0.0/14`.
+   *
    * @generated from field: optional string pod_cidr = 1;
    */
   podCidr?: string | undefined;
 
   /**
+   * CIDR for the cluster's service network.
+   *
+   * Must be valid CIDR notation. If not provided, defaults to `172.30.0.0/16`.
+   *
    * @generated from field: optional string service_cidr = 2;
    */
   serviceCidr?: string | undefined;

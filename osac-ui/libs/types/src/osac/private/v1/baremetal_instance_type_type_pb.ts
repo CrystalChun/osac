@@ -18,6 +18,7 @@
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
+import { file_cleanapi_cleanapi } from "../../../cleanapi/cleanapi_pb";
 import type { Metadata } from "./metadata_type_pb";
 import { file_osac_private_v1_metadata_type } from "./metadata_type_pb";
 import type { Message } from "@bufbuild/protobuf";
@@ -26,18 +27,18 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/private/v1/baremetal_instance_type_type.proto.
  */
 export const file_osac_private_v1_baremetal_instance_type_type: GenFile = /*@__PURE__*/
-  fileDesc("CjJvc2FjL3ByaXZhdGUvdjEvYmFyZW1ldGFsX2luc3RhbmNlX3R5cGVfdHlwZS5wcm90bxIPb3NhYy5wcml2YXRlLnYxItABChVCYXJlTWV0YWxJbnN0YW5jZVR5cGUSCgoCaWQYASABKAkSKwoIbWV0YWRhdGEYAiABKAsyGS5vc2FjLnByaXZhdGUudjEuTWV0YWRhdGESQAoEc3BlYxgDIAEoCzIqLm9zYWMucHJpdmF0ZS52MS5CYXJlTWV0YWxJbnN0YW5jZVR5cGVTcGVjQga6SAPIAQESPAoGc3RhdHVzGAQgASgLMiwub3NhYy5wcml2YXRlLnYxLkJhcmVNZXRhbEluc3RhbmNlVHlwZVN0YXR1cyLAAQoZQmFyZU1ldGFsSW5zdGFuY2VUeXBlU3BlYxJACghoYXJkd2FyZRgBIAEoCzImLm9zYWMucHJpdmF0ZS52MS5CYXJlTWV0YWxIYXJkd2FyZVNwZWNCBrpIA8gBARJMChNob3N0X2xhYmVsX3NlbGVjdG9yGAIgASgLMicub3NhYy5wcml2YXRlLnYxLkJhcmVNZXRhbExhYmVsU2VsZWN0b3JCBrpIA8gBARITCgtkZXNjcmlwdGlvbhgDIAEoCSIdChtCYXJlTWV0YWxJbnN0YW5jZVR5cGVTdGF0dXMipgEKFkJhcmVNZXRhbExhYmVsU2VsZWN0b3ISWAoMbWF0Y2hfbGFiZWxzGAEgAygLMjgub3NhYy5wcml2YXRlLnYxLkJhcmVNZXRhbExhYmVsU2VsZWN0b3IuTWF0Y2hMYWJlbHNFbnRyeUIIukgFmgECCAEaMgoQTWF0Y2hMYWJlbHNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBIsgEChVCYXJlTWV0YWxIYXJkd2FyZVNwZWMSNgoDY3B1GAEgASgLMiEub3NhYy5wcml2YXRlLnYxLkJhcmVNZXRhbENQVVNwZWNCBrpIA8gBARI8CgZtZW1vcnkYAiABKAsyJC5vc2FjLnByaXZhdGUudjEuQmFyZU1ldGFsTWVtb3J5U3BlY0IGukgDyAEBEjEKBWRpc2tzGAMgAygLMiIub3NhYy5wcml2YXRlLnYxLkJhcmVNZXRhbERpc2tTcGVjEj8KDGFjY2VsZXJhdG9ycxgEIAMoCzIpLm9zYWMucHJpdmF0ZS52MS5CYXJlTWV0YWxBY2NlbGVyYXRvclNwZWMSQAoNbmV0d29ya19wb3J0cxgFIAMoCzIpLm9zYWMucHJpdmF0ZS52MS5CYXJlTWV0YWxOZXR3b3JrUG9ydFNwZWMSTgoMY2FwYWJpbGl0aWVzGAYgAygLMjgub3NhYy5wcml2YXRlLnYxLkJhcmVNZXRhbEhhcmR3YXJlU3BlYy5DYXBhYmlsaXRpZXNFbnRyeRozChFDYXBhYmlsaXRpZXNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBOn66SHsaeQooaGFyZHdhcmVfc3BlYy5uZXR3b3JrX3BvcnRzX3VuaXF1ZV9uYW1lcxIhbmV0d29yayBwb3J0IG5hbWVzIG11c3QgYmUgdW5pcXVlGip0aGlzLm5ldHdvcmtfcG9ydHMubWFwKHAsIHAubmFtZSkudW5pcXVlKCkiewoQQmFyZU1ldGFsQ1BVU3BlYxIWCgVjb3JlcxgBIAEoBUIHukgEGgIgABIdCgxhcmNoaXRlY3R1cmUYAiABKAlCB7pIBHICEAESDQoFbW9kZWwYAyABKAkSIQoQdGhyZWFkc19wZXJfY29yZRgEIAEoBUIHukgEGgIgACI+ChNCYXJlTWV0YWxNZW1vcnlTcGVjEhkKCHRvdGFsX2diGAEgASgDQge6SAQiAiAAEgwKBHR5cGUYAiABKAkiZAoRQmFyZU1ldGFsRGlza1NwZWMSFQoEdHlwZRgBIAEoCUIHukgEcgIQARIcCgtjYXBhY2l0eV9nYhgCIAEoA0IHukgEIgIgABIaCglpbnRlcmZhY2UYAyABKAlCB7pIBHICEAEimAEKGEJhcmVNZXRhbEFjY2VsZXJhdG9yU3BlYxIVCgR0eXBlGAEgASgJQge6SARyAhABEhYKBW1vZGVsGAIgASgJQge6SARyAhABEhMKBnZlbmRvchgDIAEoCUgAiAEBEh8KCW1lbW9yeV9nYhgEIAEoBUIHukgEGgIgAEgBiAEBQgkKB192ZW5kb3JCDAoKX21lbW9yeV9nYiJ3ChhCYXJlTWV0YWxOZXR3b3JrUG9ydFNwZWMSFQoEbmFtZRgBIAEoCUIHukgEcgIQARIVCgRyb2xlGAIgASgJQge6SARyAhABEhUKBHR5cGUYAyABKAlCB7pIBHICEAESFgoFc3BlZWQYBCABKAlCB7pIBHICEAFiBnByb3RvMw", [file_buf_validate_validate, file_osac_private_v1_metadata_type]);
+  fileDesc("CjJvc2FjL3ByaXZhdGUvdjEvYmFyZW1ldGFsX2luc3RhbmNlX3R5cGVfdHlwZS5wcm90bxIPb3NhYy5wcml2YXRlLnYxItABChVCYXJlTWV0YWxJbnN0YW5jZVR5cGUSCgoCaWQYASABKAkSKwoIbWV0YWRhdGEYAiABKAsyGS5vc2FjLnByaXZhdGUudjEuTWV0YWRhdGESQAoEc3BlYxgDIAEoCzIqLm9zYWMucHJpdmF0ZS52MS5CYXJlTWV0YWxJbnN0YW5jZVR5cGVTcGVjQga6SAPIAQESPAoGc3RhdHVzGAQgASgLMiwub3NhYy5wcml2YXRlLnYxLkJhcmVNZXRhbEluc3RhbmNlVHlwZVN0YXR1cyLGAQoZQmFyZU1ldGFsSW5zdGFuY2VUeXBlU3BlYxJACghoYXJkd2FyZRgBIAEoCzImLm9zYWMucHJpdmF0ZS52MS5CYXJlTWV0YWxIYXJkd2FyZVNwZWNCBrpIA8gBARITCgtkZXNjcmlwdGlvbhgCIAEoCRJSChNob3N0X2xhYmVsX3NlbGVjdG9yGAMgASgLMicub3NhYy5wcml2YXRlLnYxLkJhcmVNZXRhbExhYmVsU2VsZWN0b3JCDLpIA8gBAYq1GAIIASIdChtCYXJlTWV0YWxJbnN0YW5jZVR5cGVTdGF0dXMirgEKFkJhcmVNZXRhbExhYmVsU2VsZWN0b3ISWAoMbWF0Y2hfbGFiZWxzGAEgAygLMjgub3NhYy5wcml2YXRlLnYxLkJhcmVNZXRhbExhYmVsU2VsZWN0b3IuTWF0Y2hMYWJlbHNFbnRyeUIIukgFmgECCAEaMgoQTWF0Y2hMYWJlbHNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBOgaKtRgCCAEiyAQKFUJhcmVNZXRhbEhhcmR3YXJlU3BlYxI2CgNjcHUYASABKAsyIS5vc2FjLnByaXZhdGUudjEuQmFyZU1ldGFsQ1BVU3BlY0IGukgDyAEBEjwKBm1lbW9yeRgCIAEoCzIkLm9zYWMucHJpdmF0ZS52MS5CYXJlTWV0YWxNZW1vcnlTcGVjQga6SAPIAQESMQoFZGlza3MYAyADKAsyIi5vc2FjLnByaXZhdGUudjEuQmFyZU1ldGFsRGlza1NwZWMSPwoMYWNjZWxlcmF0b3JzGAQgAygLMikub3NhYy5wcml2YXRlLnYxLkJhcmVNZXRhbEFjY2VsZXJhdG9yU3BlYxJACg1uZXR3b3JrX3BvcnRzGAUgAygLMikub3NhYy5wcml2YXRlLnYxLkJhcmVNZXRhbE5ldHdvcmtQb3J0U3BlYxJOCgxjYXBhYmlsaXRpZXMYBiADKAsyOC5vc2FjLnByaXZhdGUudjEuQmFyZU1ldGFsSGFyZHdhcmVTcGVjLkNhcGFiaWxpdGllc0VudHJ5GjMKEUNhcGFiaWxpdGllc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAE6frpIexp5CihoYXJkd2FyZV9zcGVjLm5ldHdvcmtfcG9ydHNfdW5pcXVlX25hbWVzEiFuZXR3b3JrIHBvcnQgbmFtZXMgbXVzdCBiZSB1bmlxdWUaKnRoaXMubmV0d29ya19wb3J0cy5tYXAocCwgcC5uYW1lKS51bmlxdWUoKSJ7ChBCYXJlTWV0YWxDUFVTcGVjEhYKBWNvcmVzGAEgASgFQge6SAQaAiAAEh0KDGFyY2hpdGVjdHVyZRgCIAEoCUIHukgEcgIQARINCgVtb2RlbBgDIAEoCRIhChB0aHJlYWRzX3Blcl9jb3JlGAQgASgFQge6SAQaAiAAIj4KE0JhcmVNZXRhbE1lbW9yeVNwZWMSGQoIdG90YWxfZ2IYASABKANCB7pIBCICIAASDAoEdHlwZRgCIAEoCSJkChFCYXJlTWV0YWxEaXNrU3BlYxIVCgR0eXBlGAEgASgJQge6SARyAhABEhwKC2NhcGFjaXR5X2diGAIgASgDQge6SAQiAiAAEhoKCWludGVyZmFjZRgDIAEoCUIHukgEcgIQASKYAQoYQmFyZU1ldGFsQWNjZWxlcmF0b3JTcGVjEhUKBHR5cGUYASABKAlCB7pIBHICEAESFgoFbW9kZWwYAiABKAlCB7pIBHICEAESEwoGdmVuZG9yGAMgASgJSACIAQESHwoJbWVtb3J5X2diGAQgASgFQge6SAQaAiAASAGIAQFCCQoHX3ZlbmRvckIMCgpfbWVtb3J5X2diIj8KI0JhcmVNZXRhbEluc3RhbmNlVHlwZUxvY2FsUmVmZXJlbmNlEgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkidwoYQmFyZU1ldGFsTmV0d29ya1BvcnRTcGVjEhUKBG5hbWUYASABKAlCB7pIBHICEAESFQoEcm9sZRgCIAEoCUIHukgEcgIQARIVCgR0eXBlGAMgASgJQge6SARyAhABEhYKBXNwZWVkGAQgASgJQge6SARyAhABQhSKtRgQEg5vc2FjLnB1YmxpYy52MWIGcHJvdG8z", [file_buf_validate_validate, file_cleanapi_cleanapi, file_osac_private_v1_metadata_type]);
 
 /**
- * Contains the details about the bare metal instance type that are available only for the system.
+ * Describes a pre-configured bare metal hardware type that can be referenced by name when provisioning
+ * bare metal instances.
  *
- * BareMetalInstanceTypes are admin-managed catalog resources that define pre-configured bare metal
- * hardware types referenced by name when provisioning bare metal instances. Cloud Provider Admins
- * control the available configurations through this private API.
+ * BareMetalInstanceTypes are admin-managed catalog resources. Tenant users select a type by name instead
+ * of specifying raw hardware requirements. Cloud Provider Admins control the available configurations
+ * through the private API.
  *
- * The `spec` contains the hardware specifications and host label selector. The `status` contains
- * the current state of the bare metal instance type, is provided by the system and can't be
- * modified by the user.
+ * The `spec` contains the hardware specifications. The `status` contains the current state of the
+ * bare metal instance type, is provided by the system and can't be modified by the user.
  *
  * @generated from message osac.private.v1.BareMetalInstanceType
  */
@@ -73,7 +74,7 @@ export const BareMetalInstanceTypeSchema: GenMessage<BareMetalInstanceType> = /*
   messageDesc(file_osac_private_v1_baremetal_instance_type_type, 0);
 
 /**
- * Defines the hardware specifications and host label selector for a BareMetalInstanceType.
+ * Defines the hardware specifications for a BareMetalInstanceType.
  *
  * @generated from message osac.private.v1.BareMetalInstanceTypeSpec
  */
@@ -86,19 +87,19 @@ export type BareMetalInstanceTypeSpec = Message<"osac.private.v1.BareMetalInstan
   hardware?: BareMetalHardwareSpec | undefined;
 
   /**
+   * Human-readable description of the bare metal instance type.
+   *
+   * @generated from field: string description = 2;
+   */
+  description: string;
+
+  /**
    * Label selector for matching inventory hosts. Required.
    * Labels are passed directly to the inventory backend using backend-native naming conventions.
    *
-   * @generated from field: osac.private.v1.BareMetalLabelSelector host_label_selector = 2;
+   * @generated from field: osac.private.v1.BareMetalLabelSelector host_label_selector = 3;
    */
   hostLabelSelector?: BareMetalLabelSelector | undefined;
-
-  /**
-   * Human-readable description of the bare metal instance type.
-   *
-   * @generated from field: string description = 3;
-   */
-  description: string;
 };
 
 /**
@@ -349,6 +350,30 @@ export const BareMetalAcceleratorSpecSchema: GenMessage<BareMetalAcceleratorSpec
   messageDesc(file_osac_private_v1_baremetal_instance_type_type, 8);
 
 /**
+ * Local reference to a BareMetalInstanceType resource.
+ *
+ * @generated from message osac.private.v1.BareMetalInstanceTypeLocalReference
+ */
+export type BareMetalInstanceTypeLocalReference = Message<"osac.private.v1.BareMetalInstanceTypeLocalReference"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string name = 2;
+   */
+  name: string;
+};
+
+/**
+ * Describes the message osac.private.v1.BareMetalInstanceTypeLocalReference.
+ * Use `create(BareMetalInstanceTypeLocalReferenceSchema)` to create a new message.
+ */
+export const BareMetalInstanceTypeLocalReferenceSchema: GenMessage<BareMetalInstanceTypeLocalReference> = /*@__PURE__*/
+  messageDesc(file_osac_private_v1_baremetal_instance_type_type, 9);
+
+/**
  * Describes a network port in a bare metal instance type.
  *
  * Port roles: fabric (tenant data traffic), management (control plane),
@@ -392,5 +417,5 @@ export type BareMetalNetworkPortSpec = Message<"osac.private.v1.BareMetalNetwork
  * Use `create(BareMetalNetworkPortSpecSchema)` to create a new message.
  */
 export const BareMetalNetworkPortSpecSchema: GenMessage<BareMetalNetworkPortSpec> = /*@__PURE__*/
-  messageDesc(file_osac_private_v1_baremetal_instance_type_type, 9);
+  messageDesc(file_osac_private_v1_baremetal_instance_type_type, 10);
 

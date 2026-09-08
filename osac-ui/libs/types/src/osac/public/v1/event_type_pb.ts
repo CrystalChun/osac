@@ -21,35 +21,37 @@ import type { BareMetalInstance } from "./baremetal_instance_type_pb";
 import { file_osac_public_v1_baremetal_instance_type } from "./baremetal_instance_type_pb";
 import type { ClusterTemplate } from "./cluster_template_type_pb";
 import { file_osac_public_v1_cluster_template_type } from "./cluster_template_type_pb";
-import type { Cluster } from "./cluster_type_pb";
-import { file_osac_public_v1_cluster_type } from "./cluster_type_pb";
 import type { ClusterVersion } from "./cluster_version_type_pb";
 import { file_osac_public_v1_cluster_version_type } from "./cluster_version_type_pb";
+import type { Cluster } from "./cluster_type_pb";
+import { file_osac_public_v1_cluster_type } from "./cluster_type_pb";
 import type { ComputeInstanceTemplate } from "./compute_instance_template_type_pb";
 import { file_osac_public_v1_compute_instance_template_type } from "./compute_instance_template_type_pb";
 import type { ComputeInstance } from "./compute_instance_type_pb";
 import { file_osac_public_v1_compute_instance_type } from "./compute_instance_type_pb";
+import type { DiskImage } from "./disk_image_type_pb";
+import { file_osac_public_v1_disk_image_type } from "./disk_image_type_pb";
 import type { HostType } from "./host_type_type_pb";
 import { file_osac_public_v1_host_type_type } from "./host_type_type_pb";
 import type { InstanceType } from "./instance_type_type_pb";
 import { file_osac_public_v1_instance_type_type } from "./instance_type_type_pb";
-import type { RoleBinding } from "./role_binding_type_pb";
-import { file_osac_public_v1_role_binding_type } from "./role_binding_type_pb";
 import type { Project } from "./project_type_pb";
 import { file_osac_public_v1_project_type } from "./project_type_pb";
-import type { Secret } from "./secret_type_pb";
-import { file_osac_public_v1_secret_type } from "./secret_type_pb";
-import type { Role } from "./role_type_pb";
-import { file_osac_public_v1_role_type } from "./role_type_pb";
 import type { Tenant } from "./tenant_type_pb";
 import { file_osac_public_v1_tenant_type } from "./tenant_type_pb";
+import type { RoleBinding } from "./role_binding_type_pb";
+import { file_osac_public_v1_role_binding_type } from "./role_binding_type_pb";
+import type { Role } from "./role_type_pb";
+import { file_osac_public_v1_role_type } from "./role_type_pb";
+import type { Secret } from "./secret_type_pb";
+import { file_osac_public_v1_secret_type } from "./secret_type_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file osac/public/v1/event_type.proto.
  */
 export const file_osac_public_v1_event_type: GenFile = /*@__PURE__*/
-  fileDesc("Ch9vc2FjL3B1YmxpYy92MS9ldmVudF90eXBlLnByb3RvEg5vc2FjLnB1YmxpYy52MSL5BQoFRXZlbnQSCgoCaWQYASABKAkSJwoEdHlwZRgCIAEoDjIZLm9zYWMucHVibGljLnYxLkV2ZW50VHlwZRIqCgdjbHVzdGVyGAMgASgLMhcub3NhYy5wdWJsaWMudjEuQ2x1c3RlckgAEjsKEGNsdXN0ZXJfdGVtcGxhdGUYBCABKAsyHy5vc2FjLnB1YmxpYy52MS5DbHVzdGVyVGVtcGxhdGVIABItCglob3N0X3R5cGUYBSABKAsyGC5vc2FjLnB1YmxpYy52MS5Ib3N0VHlwZUgAEkwKGWNvbXB1dGVfaW5zdGFuY2VfdGVtcGxhdGUYByABKAsyJy5vc2FjLnB1YmxpYy52MS5Db21wdXRlSW5zdGFuY2VUZW1wbGF0ZUgAEjsKEGNvbXB1dGVfaW5zdGFuY2UYCCABKAsyHy5vc2FjLnB1YmxpYy52MS5Db21wdXRlSW5zdGFuY2VIABIkCgRyb2xlGAkgASgLMhQub3NhYy5wdWJsaWMudjEuUm9sZUgAEjMKDHJvbGVfYmluZGluZxgKIAEoCzIbLm9zYWMucHVibGljLnYxLlJvbGVCaW5kaW5nSAASKgoHcHJvamVjdBgLIAEoCzIXLm9zYWMucHVibGljLnYxLlByb2plY3RIABI1Cg1pbnN0YW5jZV90eXBlGAwgASgLMhwub3NhYy5wdWJsaWMudjEuSW5zdGFuY2VUeXBlSAASKAoGdGVuYW50GA0gASgLMhYub3NhYy5wdWJsaWMudjEuVGVuYW50SAASOQoPY2x1c3Rlcl92ZXJzaW9uGA4gASgLMh4ub3NhYy5wdWJsaWMudjEuQ2x1c3RlclZlcnNpb25IABJAChNiYXJlX21ldGFsX2luc3RhbmNlGA8gASgLMiEub3NhYy5wdWJsaWMudjEuQmFyZU1ldGFsSW5zdGFuY2VIABIoCgZzZWNyZXQYECABKAsyFi5vc2FjLnB1YmxpYy52MS5TZWNyZXRIAEIJCgdwYXlsb2FkKoQBCglFdmVudFR5cGUSGgoWRVZFTlRfVFlQRV9VTlNQRUNJRklFRBAAEh0KGUVWRU5UX1RZUEVfT0JKRUNUX0NSRUFURUQQARIdChlFVkVOVF9UWVBFX09CSkVDVF9VUERBVEVEEAISHQoZRVZFTlRfVFlQRV9PQkpFQ1RfREVMRVRFRBADYgZwcm90bzM", [file_osac_public_v1_baremetal_instance_type, file_osac_public_v1_cluster_template_type, file_osac_public_v1_cluster_type, file_osac_public_v1_cluster_version_type, file_osac_public_v1_compute_instance_template_type, file_osac_public_v1_compute_instance_type, file_osac_public_v1_host_type_type, file_osac_public_v1_instance_type_type, file_osac_public_v1_role_binding_type, file_osac_public_v1_project_type, file_osac_public_v1_secret_type, file_osac_public_v1_role_type, file_osac_public_v1_tenant_type]);
+  fileDesc("Ch9vc2FjL3B1YmxpYy92MS9ldmVudF90eXBlLnByb3RvEg5vc2FjLnB1YmxpYy52MSKqBgoFRXZlbnQSCgoCaWQYASABKAkSJwoEdHlwZRgCIAEoDjIZLm9zYWMucHVibGljLnYxLkV2ZW50VHlwZRJAChNiYXJlX21ldGFsX2luc3RhbmNlGAMgASgLMiEub3NhYy5wdWJsaWMudjEuQmFyZU1ldGFsSW5zdGFuY2VIABIqCgdjbHVzdGVyGAQgASgLMhcub3NhYy5wdWJsaWMudjEuQ2x1c3RlckgAEjsKEGNsdXN0ZXJfdGVtcGxhdGUYBSABKAsyHy5vc2FjLnB1YmxpYy52MS5DbHVzdGVyVGVtcGxhdGVIABI5Cg9jbHVzdGVyX3ZlcnNpb24YBiABKAsyHi5vc2FjLnB1YmxpYy52MS5DbHVzdGVyVmVyc2lvbkgAEjsKEGNvbXB1dGVfaW5zdGFuY2UYByABKAsyHy5vc2FjLnB1YmxpYy52MS5Db21wdXRlSW5zdGFuY2VIABJMChljb21wdXRlX2luc3RhbmNlX3RlbXBsYXRlGAggASgLMicub3NhYy5wdWJsaWMudjEuQ29tcHV0ZUluc3RhbmNlVGVtcGxhdGVIABIvCgpkaXNrX2ltYWdlGAkgASgLMhkub3NhYy5wdWJsaWMudjEuRGlza0ltYWdlSAASLQoJaG9zdF90eXBlGAogASgLMhgub3NhYy5wdWJsaWMudjEuSG9zdFR5cGVIABI1Cg1pbnN0YW5jZV90eXBlGAsgASgLMhwub3NhYy5wdWJsaWMudjEuSW5zdGFuY2VUeXBlSAASKgoHcHJvamVjdBgMIAEoCzIXLm9zYWMucHVibGljLnYxLlByb2plY3RIABIkCgRyb2xlGA0gASgLMhQub3NhYy5wdWJsaWMudjEuUm9sZUgAEjMKDHJvbGVfYmluZGluZxgOIAEoCzIbLm9zYWMucHVibGljLnYxLlJvbGVCaW5kaW5nSAASKAoGc2VjcmV0GA8gASgLMhYub3NhYy5wdWJsaWMudjEuU2VjcmV0SAASKAoGdGVuYW50GBAgASgLMhYub3NhYy5wdWJsaWMudjEuVGVuYW50SABCCQoHcGF5bG9hZCqEAQoJRXZlbnRUeXBlEhoKFkVWRU5UX1RZUEVfVU5TUEVDSUZJRUQQABIdChlFVkVOVF9UWVBFX09CSkVDVF9DUkVBVEVEEAESHQoZRVZFTlRfVFlQRV9PQkpFQ1RfVVBEQVRFRBACEh0KGUVWRU5UX1RZUEVfT0JKRUNUX0RFTEVURUQQA2IGcHJvdG8z", [file_osac_public_v1_baremetal_instance_type, file_osac_public_v1_cluster_template_type, file_osac_public_v1_cluster_version_type, file_osac_public_v1_cluster_type, file_osac_public_v1_compute_instance_template_type, file_osac_public_v1_compute_instance_type, file_osac_public_v1_disk_image_type, file_osac_public_v1_host_type_type, file_osac_public_v1_instance_type_type, file_osac_public_v1_project_type, file_osac_public_v1_tenant_type, file_osac_public_v1_role_binding_type, file_osac_public_v1_role_type, file_osac_public_v1_secret_type]);
 
 /**
  * Represents events delivered by the server.
@@ -78,82 +80,88 @@ export type Event = Message<"osac.public.v1.Event"> & {
    */
   payload: {
     /**
-     * @generated from field: osac.public.v1.Cluster cluster = 3;
-     */
-    value: Cluster;
-    case: "cluster";
-  } | {
-    /**
-     * @generated from field: osac.public.v1.ClusterTemplate cluster_template = 4;
-     */
-    value: ClusterTemplate;
-    case: "clusterTemplate";
-  } | {
-    /**
-     * @generated from field: osac.public.v1.HostType host_type = 5;
-     */
-    value: HostType;
-    case: "hostType";
-  } | {
-    /**
-     * @generated from field: osac.public.v1.ComputeInstanceTemplate compute_instance_template = 7;
-     */
-    value: ComputeInstanceTemplate;
-    case: "computeInstanceTemplate";
-  } | {
-    /**
-     * @generated from field: osac.public.v1.ComputeInstance compute_instance = 8;
-     */
-    value: ComputeInstance;
-    case: "computeInstance";
-  } | {
-    /**
-     * @generated from field: osac.public.v1.Role role = 9;
-     */
-    value: Role;
-    case: "role";
-  } | {
-    /**
-     * @generated from field: osac.public.v1.RoleBinding role_binding = 10;
-     */
-    value: RoleBinding;
-    case: "roleBinding";
-  } | {
-    /**
-     * @generated from field: osac.public.v1.Project project = 11;
-     */
-    value: Project;
-    case: "project";
-  } | {
-    /**
-     * @generated from field: osac.public.v1.InstanceType instance_type = 12;
-     */
-    value: InstanceType;
-    case: "instanceType";
-  } | {
-    /**
-     * @generated from field: osac.public.v1.Tenant tenant = 13;
-     */
-    value: Tenant;
-    case: "tenant";
-  } | {
-    /**
-     * @generated from field: osac.public.v1.ClusterVersion cluster_version = 14;
-     */
-    value: ClusterVersion;
-    case: "clusterVersion";
-  } | {
-    /**
-     * @generated from field: osac.public.v1.BareMetalInstance bare_metal_instance = 15;
+     * @generated from field: osac.public.v1.BareMetalInstance bare_metal_instance = 3;
      */
     value: BareMetalInstance;
     case: "bareMetalInstance";
   } | {
     /**
-     * @generated from field: osac.public.v1.Secret secret = 16;
+     * @generated from field: osac.public.v1.Cluster cluster = 4;
+     */
+    value: Cluster;
+    case: "cluster";
+  } | {
+    /**
+     * @generated from field: osac.public.v1.ClusterTemplate cluster_template = 5;
+     */
+    value: ClusterTemplate;
+    case: "clusterTemplate";
+  } | {
+    /**
+     * @generated from field: osac.public.v1.ClusterVersion cluster_version = 6;
+     */
+    value: ClusterVersion;
+    case: "clusterVersion";
+  } | {
+    /**
+     * @generated from field: osac.public.v1.ComputeInstance compute_instance = 7;
+     */
+    value: ComputeInstance;
+    case: "computeInstance";
+  } | {
+    /**
+     * @generated from field: osac.public.v1.ComputeInstanceTemplate compute_instance_template = 8;
+     */
+    value: ComputeInstanceTemplate;
+    case: "computeInstanceTemplate";
+  } | {
+    /**
+     * @generated from field: osac.public.v1.DiskImage disk_image = 9;
+     */
+    value: DiskImage;
+    case: "diskImage";
+  } | {
+    /**
+     * @generated from field: osac.public.v1.HostType host_type = 10;
+     */
+    value: HostType;
+    case: "hostType";
+  } | {
+    /**
+     * @generated from field: osac.public.v1.InstanceType instance_type = 11;
+     */
+    value: InstanceType;
+    case: "instanceType";
+  } | {
+    /**
+     * @generated from field: osac.public.v1.Project project = 12;
+     */
+    value: Project;
+    case: "project";
+  } | {
+    /**
+     * @generated from field: osac.public.v1.Role role = 13;
+     */
+    value: Role;
+    case: "role";
+  } | {
+    /**
+     * @generated from field: osac.public.v1.RoleBinding role_binding = 14;
+     */
+    value: RoleBinding;
+    case: "roleBinding";
+  } | {
+    /**
+     * @generated from field: osac.public.v1.Secret secret = 15;
      */
     value: Secret;
     case: "secret";
+  } | {
+    /**
+     * @generated from field: osac.public.v1.Tenant tenant = 16;
+     */
+    value: Tenant;
+    case: "tenant";
   } | { case: undefined; value?: undefined };
 };
 

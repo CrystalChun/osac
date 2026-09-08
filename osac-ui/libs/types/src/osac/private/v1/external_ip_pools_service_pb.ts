@@ -17,6 +17,7 @@
 
 import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_cleanapi_cleanapi } from "../../../cleanapi/cleanapi_pb";
 import { file_google_api_annotations } from "../../../google/api/annotations_pb";
 import type { FieldMask } from "../../../google/protobuf/field_mask_pb";
 import { file_google_protobuf_field_mask } from "../../../google/protobuf/field_mask_pb";
@@ -28,7 +29,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/private/v1/external_ip_pools_service.proto.
  */
 export const file_osac_private_v1_external_ip_pools_service: GenFile = /*@__PURE__*/
-  fileDesc("Ci9vc2FjL3ByaXZhdGUvdjEvZXh0ZXJuYWxfaXBfcG9vbHNfc2VydmljZS5wcm90bxIPb3NhYy5wcml2YXRlLnYxIpgBChpFeHRlcm5hbElQUG9vbHNMaXN0UmVxdWVzdBITCgZvZmZzZXQYASABKAVIAIgBARISCgVsaW1pdBgCIAEoBUgBiAEBEhMKBmZpbHRlchgDIAEoCUgCiAEBEhIKBW9yZGVyGAQgASgJSAOIAQFCCQoHX29mZnNldEIICgZfbGltaXRCCQoHX2ZpbHRlckIICgZfb3JkZXIiagobRXh0ZXJuYWxJUFBvb2xzTGlzdFJlc3BvbnNlEgwKBHNpemUYASABKAUSDQoFdG90YWwYAiABKAUSLgoFaXRlbXMYAyADKAsyHy5vc2FjLnByaXZhdGUudjEuRXh0ZXJuYWxJUFBvb2wiJwoZRXh0ZXJuYWxJUFBvb2xzR2V0UmVxdWVzdBIKCgJpZBgBIAEoCSJNChpFeHRlcm5hbElQUG9vbHNHZXRSZXNwb25zZRIvCgZvYmplY3QYASABKAsyHy5vc2FjLnByaXZhdGUudjEuRXh0ZXJuYWxJUFBvb2wiTwocRXh0ZXJuYWxJUFBvb2xzQ3JlYXRlUmVxdWVzdBIvCgZvYmplY3QYASABKAsyHy5vc2FjLnByaXZhdGUudjEuRXh0ZXJuYWxJUFBvb2wiUAodRXh0ZXJuYWxJUFBvb2xzQ3JlYXRlUmVzcG9uc2USLwoGb2JqZWN0GAEgASgLMh8ub3NhYy5wcml2YXRlLnYxLkV4dGVybmFsSVBQb29sIo4BChxFeHRlcm5hbElQUG9vbHNVcGRhdGVSZXF1ZXN0Ei8KBm9iamVjdBgBIAEoCzIfLm9zYWMucHJpdmF0ZS52MS5FeHRlcm5hbElQUG9vbBIvCgt1cGRhdGVfbWFzaxgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5GaWVsZE1hc2sSDAoEbG9jaxgDIAEoCCJQCh1FeHRlcm5hbElQUG9vbHNVcGRhdGVSZXNwb25zZRIvCgZvYmplY3QYASABKAsyHy5vc2FjLnByaXZhdGUudjEuRXh0ZXJuYWxJUFBvb2wiKgocRXh0ZXJuYWxJUFBvb2xzRGVsZXRlUmVxdWVzdBIKCgJpZBgBIAEoCSIfCh1FeHRlcm5hbElQUG9vbHNEZWxldGVSZXNwb25zZSIqChxFeHRlcm5hbElQUG9vbHNTaWduYWxSZXF1ZXN0EgoKAmlkGAEgASgJIh8KHUV4dGVybmFsSVBQb29sc1NpZ25hbFJlc3BvbnNlMpQHCg9FeHRlcm5hbElQUG9vbHMSjAEKBExpc3QSKy5vc2FjLnByaXZhdGUudjEuRXh0ZXJuYWxJUFBvb2xzTGlzdFJlcXVlc3QaLC5vc2FjLnByaXZhdGUudjEuRXh0ZXJuYWxJUFBvb2xzTGlzdFJlc3BvbnNlIimC0+STAiMSIS9hcGkvcHJpdmF0ZS92MS9leHRlcm5hbF9pcF9wb29scxKWAQoDR2V0Eioub3NhYy5wcml2YXRlLnYxLkV4dGVybmFsSVBQb29sc0dldFJlcXVlc3QaKy5vc2FjLnByaXZhdGUudjEuRXh0ZXJuYWxJUFBvb2xzR2V0UmVzcG9uc2UiNoLT5JMCMGIGb2JqZWN0EiYvYXBpL3ByaXZhdGUvdjEvZXh0ZXJuYWxfaXBfcG9vbHMve2lkfRKiAQoGQ3JlYXRlEi0ub3NhYy5wcml2YXRlLnYxLkV4dGVybmFsSVBQb29sc0NyZWF0ZVJlcXVlc3QaLi5vc2FjLnByaXZhdGUudjEuRXh0ZXJuYWxJUFBvb2xzQ3JlYXRlUmVzcG9uc2UiOYLT5JMCMzoGb2JqZWN0YgZvYmplY3QiIS9hcGkvcHJpdmF0ZS92MS9leHRlcm5hbF9pcF9wb29scxKuAQoGVXBkYXRlEi0ub3NhYy5wcml2YXRlLnYxLkV4dGVybmFsSVBQb29sc1VwZGF0ZVJlcXVlc3QaLi5vc2FjLnByaXZhdGUudjEuRXh0ZXJuYWxJUFBvb2xzVXBkYXRlUmVzcG9uc2UiRYLT5JMCPzoGb2JqZWN0YgZvYmplY3QyLS9hcGkvcHJpdmF0ZS92MS9leHRlcm5hbF9pcF9wb29scy97b2JqZWN0LmlkfRKXAQoGRGVsZXRlEi0ub3NhYy5wcml2YXRlLnYxLkV4dGVybmFsSVBQb29sc0RlbGV0ZVJlcXVlc3QaLi5vc2FjLnByaXZhdGUudjEuRXh0ZXJuYWxJUFBvb2xzRGVsZXRlUmVzcG9uc2UiLoLT5JMCKComL2FwaS9wcml2YXRlL3YxL2V4dGVybmFsX2lwX3Bvb2xzL3tpZH0SaQoGU2lnbmFsEi0ub3NhYy5wcml2YXRlLnYxLkV4dGVybmFsSVBQb29sc1NpZ25hbFJlcXVlc3QaLi5vc2FjLnByaXZhdGUudjEuRXh0ZXJuYWxJUFBvb2xzU2lnbmFsUmVzcG9uc2UiAGIGcHJvdG8z", [file_google_api_annotations, file_google_protobuf_field_mask, file_osac_private_v1_external_ip_pool_type]);
+  fileDesc("Ci9vc2FjL3ByaXZhdGUvdjEvZXh0ZXJuYWxfaXBfcG9vbHNfc2VydmljZS5wcm90bxIPb3NhYy5wcml2YXRlLnYxIqABChpFeHRlcm5hbElQUG9vbHNMaXN0UmVxdWVzdBITCgZvZmZzZXQYASABKAVIAIgBARISCgVsaW1pdBgCIAEoBUgBiAEBEhMKBmZpbHRlchgDIAEoCUgCiAEBEhoKBW9yZGVyGAQgASgJQgaKtRgCCAFIA4gBAUIJCgdfb2Zmc2V0QggKBl9saW1pdEIJCgdfZmlsdGVyQggKBl9vcmRlciJqChtFeHRlcm5hbElQUG9vbHNMaXN0UmVzcG9uc2USDAoEc2l6ZRgBIAEoBRINCgV0b3RhbBgCIAEoBRIuCgVpdGVtcxgDIAMoCzIfLm9zYWMucHJpdmF0ZS52MS5FeHRlcm5hbElQUG9vbCInChlFeHRlcm5hbElQUG9vbHNHZXRSZXF1ZXN0EgoKAmlkGAEgASgJIk0KGkV4dGVybmFsSVBQb29sc0dldFJlc3BvbnNlEi8KBm9iamVjdBgBIAEoCzIfLm9zYWMucHJpdmF0ZS52MS5FeHRlcm5hbElQUG9vbCJXChxFeHRlcm5hbElQUG9vbHNDcmVhdGVSZXF1ZXN0Ei8KBm9iamVjdBgBIAEoCzIfLm9zYWMucHJpdmF0ZS52MS5FeHRlcm5hbElQUG9vbDoGirUYAggBIlgKHUV4dGVybmFsSVBQb29sc0NyZWF0ZVJlc3BvbnNlEi8KBm9iamVjdBgBIAEoCzIfLm9zYWMucHJpdmF0ZS52MS5FeHRlcm5hbElQUG9vbDoGirUYAggBIpYBChxFeHRlcm5hbElQUG9vbHNVcGRhdGVSZXF1ZXN0Ei8KBm9iamVjdBgBIAEoCzIfLm9zYWMucHJpdmF0ZS52MS5FeHRlcm5hbElQUG9vbBIvCgt1cGRhdGVfbWFzaxgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5GaWVsZE1hc2sSDAoEbG9jaxgDIAEoCDoGirUYAggBIlgKHUV4dGVybmFsSVBQb29sc1VwZGF0ZVJlc3BvbnNlEi8KBm9iamVjdBgBIAEoCzIfLm9zYWMucHJpdmF0ZS52MS5FeHRlcm5hbElQUG9vbDoGirUYAggBIjIKHEV4dGVybmFsSVBQb29sc0RlbGV0ZVJlcXVlc3QSCgoCaWQYASABKAk6Boq1GAIIASInCh1FeHRlcm5hbElQUG9vbHNEZWxldGVSZXNwb25zZToGirUYAggBIjIKHEV4dGVybmFsSVBQb29sc1NpZ25hbFJlcXVlc3QSCgoCaWQYASABKAk6Boq1GAIIASInCh1FeHRlcm5hbElQUG9vbHNTaWduYWxSZXNwb25zZToGirUYAggBMqwHCg9FeHRlcm5hbElQUG9vbHMSjAEKBExpc3QSKy5vc2FjLnByaXZhdGUudjEuRXh0ZXJuYWxJUFBvb2xzTGlzdFJlcXVlc3QaLC5vc2FjLnByaXZhdGUudjEuRXh0ZXJuYWxJUFBvb2xzTGlzdFJlc3BvbnNlIimC0+STAiMSIS9hcGkvcHJpdmF0ZS92MS9leHRlcm5hbF9pcF9wb29scxKWAQoDR2V0Eioub3NhYy5wcml2YXRlLnYxLkV4dGVybmFsSVBQb29sc0dldFJlcXVlc3QaKy5vc2FjLnByaXZhdGUudjEuRXh0ZXJuYWxJUFBvb2xzR2V0UmVzcG9uc2UiNoLT5JMCMGIGb2JqZWN0EiYvYXBpL3ByaXZhdGUvdjEvZXh0ZXJuYWxfaXBfcG9vbHMve2lkfRKoAQoGQ3JlYXRlEi0ub3NhYy5wcml2YXRlLnYxLkV4dGVybmFsSVBQb29sc0NyZWF0ZVJlcXVlc3QaLi5vc2FjLnByaXZhdGUudjEuRXh0ZXJuYWxJUFBvb2xzQ3JlYXRlUmVzcG9uc2UiP4q1GAIIAYLT5JMCMzoGb2JqZWN0YgZvYmplY3QiIS9hcGkvcHJpdmF0ZS92MS9leHRlcm5hbF9pcF9wb29scxK0AQoGVXBkYXRlEi0ub3NhYy5wcml2YXRlLnYxLkV4dGVybmFsSVBQb29sc1VwZGF0ZVJlcXVlc3QaLi5vc2FjLnByaXZhdGUudjEuRXh0ZXJuYWxJUFBvb2xzVXBkYXRlUmVzcG9uc2UiS4q1GAIIAYLT5JMCPzoGb2JqZWN0YgZvYmplY3QyLS9hcGkvcHJpdmF0ZS92MS9leHRlcm5hbF9pcF9wb29scy97b2JqZWN0LmlkfRKdAQoGRGVsZXRlEi0ub3NhYy5wcml2YXRlLnYxLkV4dGVybmFsSVBQb29sc0RlbGV0ZVJlcXVlc3QaLi5vc2FjLnByaXZhdGUudjEuRXh0ZXJuYWxJUFBvb2xzRGVsZXRlUmVzcG9uc2UiNIq1GAIIAYLT5JMCKComL2FwaS9wcml2YXRlL3YxL2V4dGVybmFsX2lwX3Bvb2xzL3tpZH0SbwoGU2lnbmFsEi0ub3NhYy5wcml2YXRlLnYxLkV4dGVybmFsSVBQb29sc1NpZ25hbFJlcXVlc3QaLi5vc2FjLnByaXZhdGUudjEuRXh0ZXJuYWxJUFBvb2xzU2lnbmFsUmVzcG9uc2UiBoq1GAIIAUIpirUYJRIOb3NhYy5wdWJsaWMudjEiE3ByaXZhdGU6ZnVsZmlsbG1lbnRiBnByb3RvMw", [file_cleanapi_cleanapi, file_google_api_annotations, file_google_protobuf_field_mask, file_osac_private_v1_external_ip_pool_type]);
 
 /**
  * @generated from message osac.private.v1.ExternalIPPoolsListRequest
@@ -42,9 +43,7 @@ export type ExternalIPPoolsListRequest = Message<"osac.private.v1.ExternalIPPool
   offset?: number | undefined;
 
   /**
-   * Maximum number of results to be returned by the server. When not specified all the results will be returned. Note
-   * that there may not be enough results to return, and that the server may decide, for performance reasons, to return
-   * less results than requested.
+   * Maximum number of results to be returned by the server. When not specified all the results will be returned.
    *
    * @generated from field: optional int32 limit = 2;
    */
@@ -60,9 +59,7 @@ export type ExternalIPPoolsListRequest = Message<"osac.private.v1.ExternalIPPool
    *
    *     this.spec.ip_family == IP_FAMILY_IPV4
    *
-   * If this isn't provided, or if the value is empty, then all the external IP pools that the user has permission to see
-   * will be returned. Not all CEL constructs are currently supported for implementation reasons; see the filter
-   * documentation (docs/FILTER.md) for the full details.
+   * If this isn't provided, or if the value is empty, then all pools visible to the user are returned.
    *
    * @generated from field: optional string filter = 3;
    */
@@ -96,17 +93,14 @@ export const ExternalIPPoolsListRequestSchema: GenMessage<ExternalIPPoolsListReq
  */
 export type ExternalIPPoolsListResponse = Message<"osac.private.v1.ExternalIPPoolsListResponse"> & {
   /**
-   * Actual number of items returned. Note that this may be smaller than the value requested in the `limit` parameter
-   * of the request if there are not enough items, or if the system decides that returning that number of items isn't
-   * feasible or convenient for performance reasons.
+   * Actual number of items returned.
    *
    * @generated from field: int32 size = 1;
    */
   size: number;
 
   /**
-   * Total number of items of the collection that match the search criteria, regardless of the number of results
-   * requested with the `limit` parameter.
+   * Total number of items matching the search criteria.
    *
    * @generated from field: int32 total = 2;
    */
@@ -308,7 +302,7 @@ export const ExternalIPPoolsSignalResponseSchema: GenMessage<ExternalIPPoolsSign
  */
 export const ExternalIPPools: GenService<{
   /**
-   * Retrieves the list of external IP pools.
+   * Retrieves the list of external IP pools visible to the caller.
    *
    * @generated from rpc osac.private.v1.ExternalIPPools.List
    */

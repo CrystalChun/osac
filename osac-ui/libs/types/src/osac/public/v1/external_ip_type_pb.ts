@@ -43,7 +43,7 @@ export const file_osac_public_v1_external_ip_type: GenFile = /*@__PURE__*/
  * ExternalIPAttachment currently exists for this ExternalIP.
  *
  * The lifecycle follows: PENDING (awaiting allocation) -> ALLOCATED (IP assigned).
- * FAILED is a terminal error state for provisioning failures.
+ * FAILED is a terminal error state for provisioning failures. DELETING is set during deprovisioning.
  *
  * @generated from message osac.public.v1.ExternalIP
  */
@@ -202,7 +202,7 @@ export const ExternalIPLocalReferenceSchema: GenMessage<ExternalIPLocalReference
 /**
  * Lifecycle states for ExternalIP resources.
  *
- * State transitions: UNSPECIFIED -> PENDING -> ALLOCATED.
+ * State transitions: UNSPECIFIED -> PENDING -> ALLOCATED. On deletion: ALLOCATED -> DELETING.
  * FAILED is a terminal error state for provisioning failures.
  *
  * @generated from enum osac.public.v1.ExternalIPState
@@ -239,8 +239,8 @@ export enum ExternalIPState {
   /**
    * Provisioning failed. Check status.message for error details.
    *
-   * This is a terminal error state. The ExternalIP may require deletion and recreation,
-   * or an administrator can retry via the private API Signal RPC.
+   * This is a terminal error state. The ExternalIP may require manual intervention
+   * (e.g., deleting and recreating) or a Signal RPC to retry the operation.
    *
    * @generated from enum value: EXTERNAL_IP_STATE_FAILED = 3;
    */

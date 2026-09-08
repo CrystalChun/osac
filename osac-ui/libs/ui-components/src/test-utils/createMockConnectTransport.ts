@@ -33,6 +33,7 @@ import type {
   StorageTiersListRequest as PublicStorageTiersListRequest,
   Role,
   RoleBinding,
+  Secret,
   SecurityGroup,
   Subnet,
   User,
@@ -61,6 +62,7 @@ import {
   StorageTiersListResponseSchema as PublicStorageTiersListResponseSchema,
   RoleBindings,
   Roles,
+  Secrets,
   SecurityGroups,
   Subnets,
   Users,
@@ -146,6 +148,7 @@ export type MockApiFixtures = {
   publicStorageTiers?: PublicStorageTier[];
   roles?: Role[];
   roleBindings?: RoleBinding[];
+  secrets?: Secret[];
   users?: User[];
 };
 
@@ -364,6 +367,7 @@ export const createMockConnectTransport = (
   const publicStorageTiers = fixtures.publicStorageTiers ?? [];
   const roles = fixtures.roles ?? [];
   const roleBindingsFixtures = fixtures.roleBindings ?? [];
+  const secrets = fixtures.secrets ?? [];
   const usersFixtures = fixtures.users ?? [];
 
   return wrapWithAuthInterceptor(
@@ -379,6 +383,13 @@ export const createMockConnectTransport = (
         list: () => ({ items: clusterCatalogItems }),
         get: (req) => ({
           object: clusterCatalogItems.find((i) => i.id === req.id),
+        }),
+      });
+
+      router.service(Secrets, {
+        list: () => ({ items: secrets, size: secrets.length, total: secrets.length }),
+        get: (req) => ({
+          object: secrets.find((secret) => secret.id === req.id),
         }),
       });
 

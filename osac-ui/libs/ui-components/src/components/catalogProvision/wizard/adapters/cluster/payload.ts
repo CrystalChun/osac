@@ -10,7 +10,9 @@ export const createEmptyClusterValues = (): ClusterWizardValues => ({
   metadata: { name: '', project: '' },
   spec: {
     sshPublicKey: '',
-    pullSecret: '',
+    pullSecretSecret: {
+      name: '',
+    },
     versionName: '',
     nodeSetRows: [createEmptyNodeSetRow()],
     network: {
@@ -28,7 +30,9 @@ export const buildClusterCreatePayload = (
     catalogItem: {
       id: catalogItem.id,
     },
-    pullSecret: values.spec.pullSecret.trim(),
+    pullSecretSecret: {
+      name: values.spec.pullSecretSecret.name,
+    },
   };
 
   const sshPublicKey = values.spec.sshPublicKey.trim();

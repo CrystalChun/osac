@@ -17,15 +17,18 @@
 
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
 import type { Metadata } from "./metadata_type_pb";
 import { file_osac_public_v1_metadata_type } from "./metadata_type_pb";
+import type { SecretLocalReference } from "./secret_type_pb";
+import { file_osac_public_v1_secret_type } from "./secret_type_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file osac/public/v1/tenant_type.proto.
  */
 export const file_osac_public_v1_tenant_type: GenFile = /*@__PURE__*/
-  fileDesc("CiBvc2FjL3B1YmxpYy92MS90ZW5hbnRfdHlwZS5wcm90bxIOb3NhYy5wdWJsaWMudjEiagoGVGVuYW50EgoKAmlkGAEgASgJEioKCG1ldGFkYXRhGAIgASgLMhgub3NhYy5wdWJsaWMudjEuTWV0YWRhdGESKAoEc3BlYxgDIAEoCzIaLm9zYWMucHVibGljLnYxLlRlbmFudFNwZWMiHQoKVGVuYW50U3BlYxIPCgdkb21haW5zGAEgAygJYgZwcm90bzM", [file_osac_public_v1_metadata_type]);
+  fileDesc("CiBvc2FjL3B1YmxpYy92MS90ZW5hbnRfdHlwZS5wcm90bxIOb3NhYy5wdWJsaWMudjEiagoGVGVuYW50EgoKAmlkGAEgASgJEioKCG1ldGFkYXRhGAIgASgLMhgub3NhYy5wdWJsaWMudjEuTWV0YWRhdGESKAoEc3BlYxgDIAEoCzIaLm9zYWMucHVibGljLnYxLlRlbmFudFNwZWMi0wQKClRlbmFudFNwZWMS9gMKB2RvbWFpbnMYASADKAlC5AO6SOADkgHcAxgBItcDugF4Cg5ub3RfaXBfYWRkcmVzcxIpbXVzdCBiZSBhIEROUyBob3N0bmFtZSwgbm90IGFuIElQIGFkZHJlc3MaOyF0aGlzLm1hdGNoZXMoJ15bMC05Ll0rJCcpICYmICF0aGlzLm1hdGNoZXMoJ15bMC05YS1mOl0rJCcpugFZCg5taW5fdHdvX2xhYmVscxIzbXVzdCBoYXZlIGF0IGxlYXN0IHR3byBsYWJlbHMgKGUuZy4sICdleGFtcGxlLmNvbScpGhJ0aGlzLmNvbnRhaW5zKCcuJym6AfUBChB2YWxpZF9kbnNfbGFiZWxzEmRhbGwgbGFiZWxzIG11c3QgYmUgdmFsaWQgRE5TIGxhYmVscyAobG93ZXJjYXNlIGEtei8wLTkvaHlwaGVuLCBtYXggNjMgY2hhcnMsIGFscGhhbnVtZXJpYyBzdGFydC9lbmQpGnt0aGlzLnNwbGl0KCcuJykuYWxsKGxhYmVsLCBsYWJlbC5zaXplKCkgPiAwICYmIGxhYmVsLnNpemUoKSA8PSA2MyAmJiBsYWJlbC5tYXRjaGVzKCdeW2EtejAtOV0oW2EtejAtOS1dezAsNjF9W2EtejAtOV0pPyQnKSlyBRABGP0BEkwKHmJyZWFrX2dsYXNzX2NyZWRlbnRpYWxzX3NlY3JldBgCIAEoCzIkLm9zYWMucHVibGljLnYxLlNlY3JldExvY2FsUmVmZXJlbmNlYgZwcm90bzM", [file_buf_validate_validate, file_osac_public_v1_metadata_type, file_osac_public_v1_secret_type]);
 
 /**
  * A tenant groups resources and users for a customer or business unit.
@@ -71,9 +74,31 @@ export type TenantSpec = Message<"osac.public.v1.TenantSpec"> & {
    * valid DNS hostname with only lowercase labels, for example `example.com` or `corp.example.org`. Uppercase letters
    * are rejected. Domains must be globally unique across all tenants.
    *
+   * Validation rules:
+   * - Each domain must be non-empty and at most 253 characters
+   * - Must be a DNS hostname (not an IP address)
+   * - Must have at least two labels (e.g., "example.com", not just "example")
+   * - Each label must be a valid DNS label:
+   *   - Max 63 characters
+   *   - Lowercase letters (a-z), digits (0-9), and hyphens (-) only
+   *   - Must start and end with alphanumeric characters
+   * - No duplicate domains in the list
+   *
    * @generated from field: repeated string domains = 1;
    */
   domains: string[];
+
+  /**
+   * Reference to a Secret resource containing break-glass account credentials.
+   *
+   * On Create the system generates break-glass credentials and returns them in status. The
+   * reconciler then stores them as a Secret and sets this field. Callers may also set it to an
+   * existing Secret; the referenced Secret must exist. The secret data must contain `username` and
+   * `password` entries.
+   *
+   * @generated from field: osac.public.v1.SecretLocalReference break_glass_credentials_secret = 2;
+   */
+  breakGlassCredentialsSecret?: SecretLocalReference | undefined;
 };
 
 /**

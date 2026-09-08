@@ -20,15 +20,13 @@ import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_google_api_field_behavior } from "../../../google/api/field_behavior_pb";
 import type { Metadata } from "./metadata_type_pb";
 import { file_osac_public_v1_metadata_type } from "./metadata_type_pb";
-import type { NetworkClassReference } from "./network_class_type_pb";
-import { file_osac_public_v1_network_class_type } from "./network_class_type_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file osac/public/v1/virtual_network_type.proto.
  */
 export const file_osac_public_v1_virtual_network_type: GenFile = /*@__PURE__*/
-  fileDesc("Cilvc2FjL3B1YmxpYy92MS92aXJ0dWFsX25ldHdvcmtfdHlwZS5wcm90bxIOb3NhYy5wdWJsaWMudjEisAEKDlZpcnR1YWxOZXR3b3JrEgoKAmlkGAEgASgJEioKCG1ldGFkYXRhGAIgASgLMhgub3NhYy5wdWJsaWMudjEuTWV0YWRhdGESMAoEc3BlYxgDIAEoCzIiLm9zYWMucHVibGljLnYxLlZpcnR1YWxOZXR3b3JrU3BlYxI0CgZzdGF0dXMYBCABKAsyJC5vc2FjLnB1YmxpYy52MS5WaXJ0dWFsTmV0d29ya1N0YXR1cyLEAQoSVmlydHVhbE5ldHdvcmtTcGVjEkQKDW5ldHdvcmtfY2xhc3MYAiABKAsyJS5vc2FjLnB1YmxpYy52MS5OZXR3b3JrQ2xhc3NSZWZlcmVuY2VCBuBBAeBBBRIbCglpcHY0X2NpZHIYAyABKAlCA+BBBUgAiAEBEhsKCWlwdjZfY2lkchgEIAEoCUID4EEFSAGIAQFCDAoKX2lwdjRfY2lkckIMCgpfaXB2Nl9jaWRySgQIBRAGUgxjYXBhYmlsaXRpZXMibAoUVmlydHVhbE5ldHdvcmtTdGF0dXMSMgoFc3RhdGUYASABKA4yIy5vc2FjLnB1YmxpYy52MS5WaXJ0dWFsTmV0d29ya1N0YXRlEhQKB21lc3NhZ2UYAiABKAlIAIgBAUIKCghfbWVzc2FnZSI4ChxWaXJ0dWFsTmV0d29ya0xvY2FsUmVmZXJlbmNlEgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkqogEKE1ZpcnR1YWxOZXR3b3JrU3RhdGUSJQohVklSVFVBTF9ORVRXT1JLX1NUQVRFX1VOU1BFQ0lGSUVEEAASIQodVklSVFVBTF9ORVRXT1JLX1NUQVRFX1BFTkRJTkcQARIfChtWSVJUVUFMX05FVFdPUktfU1RBVEVfUkVBRFkQAhIgChxWSVJUVUFMX05FVFdPUktfU1RBVEVfRkFJTEVEEANiBnByb3RvMw", [file_google_api_field_behavior, file_osac_public_v1_metadata_type, file_osac_public_v1_network_class_type]);
+  fileDesc("Cilvc2FjL3B1YmxpYy92MS92aXJ0dWFsX25ldHdvcmtfdHlwZS5wcm90bxIOb3NhYy5wdWJsaWMudjEisAEKDlZpcnR1YWxOZXR3b3JrEgoKAmlkGAEgASgJEioKCG1ldGFkYXRhGAIgASgLMhgub3NhYy5wdWJsaWMudjEuTWV0YWRhdGESMAoEc3BlYxgDIAEoCzIiLm9zYWMucHVibGljLnYxLlZpcnR1YWxOZXR3b3JrU3BlYxI0CgZzdGF0dXMYBCABKAsyJC5vc2FjLnB1YmxpYy52MS5WaXJ0dWFsTmV0d29ya1N0YXR1cyJqChJWaXJ0dWFsTmV0d29ya1NwZWMSGwoJaXB2NF9jaWRyGAEgASgJQgPgQQVIAIgBARIbCglpcHY2X2NpZHIYAiABKAlCA+BBBUgBiAEBQgwKCl9pcHY0X2NpZHJCDAoKX2lwdjZfY2lkciJsChRWaXJ0dWFsTmV0d29ya1N0YXR1cxIyCgVzdGF0ZRgBIAEoDjIjLm9zYWMucHVibGljLnYxLlZpcnR1YWxOZXR3b3JrU3RhdGUSFAoHbWVzc2FnZRgCIAEoCUgAiAEBQgoKCF9tZXNzYWdlIjgKHFZpcnR1YWxOZXR3b3JrTG9jYWxSZWZlcmVuY2USCgoCaWQYASABKAkSDAoEbmFtZRgCIAEoCSqiAQoTVmlydHVhbE5ldHdvcmtTdGF0ZRIlCiFWSVJUVUFMX05FVFdPUktfU1RBVEVfVU5TUEVDSUZJRUQQABIhCh1WSVJUVUFMX05FVFdPUktfU1RBVEVfUEVORElORxABEh8KG1ZJUlRVQUxfTkVUV09SS19TVEFURV9SRUFEWRACEiAKHFZJUlRVQUxfTkVUV09SS19TVEFURV9GQUlMRUQQA2IGcHJvdG8z", [file_google_api_field_behavior, file_osac_public_v1_metadata_type]);
 
 /**
  * Represents a tenant-isolated virtual network.
@@ -96,20 +94,6 @@ export const VirtualNetworkSchema: GenMessage<VirtualNetwork> = /*@__PURE__*/
  */
 export type VirtualNetworkSpec = Message<"osac.public.v1.VirtualNetworkSpec"> & {
   /**
-   * NetworkClass to use for this network.
-   *
-   * The selected NetworkClass determines the network type and available capabilities.
-   * The NetworkClass must support the IP addressing mode implied by whichever of ipv4_cidr and ipv6_cidr
-   * are set below.
-   *
-   * If omitted on creation and a default NetworkClass is configured, the default is used;
-   * otherwise creation fails. Once set, this field is immutable.
-   *
-   * @generated from field: osac.public.v1.NetworkClassReference network_class = 2;
-   */
-  networkClass?: NetworkClassReference | undefined;
-
-  /**
    * IPv4 CIDR block for this network. Optional for IPv6-only networks. Immutable after creation.
    *
    * Must be valid CIDR notation. Validation enforced at service layer.
@@ -119,7 +103,7 @@ export type VirtualNetworkSpec = Message<"osac.public.v1.VirtualNetworkSpec"> & 
    *
    * Leave empty when creating an IPv6-only network.
    *
-   * @generated from field: optional string ipv4_cidr = 3;
+   * @generated from field: optional string ipv4_cidr = 1;
    */
   ipv4Cidr?: string | undefined;
 
@@ -133,7 +117,7 @@ export type VirtualNetworkSpec = Message<"osac.public.v1.VirtualNetworkSpec"> & 
    *
    * Leave empty when creating an IPv4-only network.
    *
-   * @generated from field: optional string ipv6_cidr = 4;
+   * @generated from field: optional string ipv6_cidr = 2;
    */
   ipv6Cidr?: string | undefined;
 };

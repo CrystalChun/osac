@@ -47,11 +47,6 @@ const catalogVm: ComputeInstance = {
     $typeName: 'osac.public.v1.ComputeInstanceSpec',
     catalogItem: create(ComputeInstanceCatalogItemReferenceSchema, { id: 'catalog-rhel-9' }),
     sshPublicKey: 'ssh-rsa AAAA...',
-    image: {
-      $typeName: 'osac.public.v1.ComputeInstanceImage',
-      sourceRef: 'quay.io/example/rhel9',
-      sourceType: '',
-    },
     instanceType: create(InstanceTypeReferenceSchema, { id: 'standard-4-8' }),
     bootDisk: {
       $typeName: 'osac.public.v1.ComputeInstanceDisk',

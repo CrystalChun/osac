@@ -17,6 +17,7 @@
 
 import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_cleanapi_cleanapi } from "../../../cleanapi/cleanapi_pb";
 import { file_google_api_annotations } from "../../../google/api/annotations_pb";
 import type { FieldMask } from "../../../google/protobuf/field_mask_pb";
 import { file_google_protobuf_field_mask } from "../../../google/protobuf/field_mask_pb";
@@ -28,26 +29,60 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/private/v1/compute_instances_service.proto.
  */
 export const file_osac_private_v1_compute_instances_service: GenFile = /*@__PURE__*/
-  fileDesc("Ci9vc2FjL3ByaXZhdGUvdjEvY29tcHV0ZV9pbnN0YW5jZXNfc2VydmljZS5wcm90bxIPb3NhYy5wcml2YXRlLnYxInsKG0NvbXB1dGVJbnN0YW5jZXNMaXN0UmVxdWVzdBITCgZvZmZzZXQYASABKAVIAIgBARISCgVsaW1pdBgCIAEoBUgBiAEBEhMKBmZpbHRlchgDIAEoCUgCiAEBQgkKB19vZmZzZXRCCAoGX2xpbWl0QgkKB19maWx0ZXIibAocQ29tcHV0ZUluc3RhbmNlc0xpc3RSZXNwb25zZRIMCgRzaXplGAEgASgFEg0KBXRvdGFsGAIgASgFEi8KBWl0ZW1zGAMgAygLMiAub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZSIoChpDb21wdXRlSW5zdGFuY2VzR2V0UmVxdWVzdBIKCgJpZBgBIAEoCSJPChtDb21wdXRlSW5zdGFuY2VzR2V0UmVzcG9uc2USMAoGb2JqZWN0GAEgASgLMiAub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZSJRCh1Db21wdXRlSW5zdGFuY2VzQ3JlYXRlUmVxdWVzdBIwCgZvYmplY3QYASABKAsyIC5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlImQKHkNvbXB1dGVJbnN0YW5jZXNDcmVhdGVSZXNwb25zZRIwCgZvYmplY3QYASABKAsyIC5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlEhAKCHdhcm5pbmdzGAIgAygJIisKHUNvbXB1dGVJbnN0YW5jZXNEZWxldGVSZXF1ZXN0EgoKAmlkGAEgASgJIiAKHkNvbXB1dGVJbnN0YW5jZXNEZWxldGVSZXNwb25zZSKQAQodQ29tcHV0ZUluc3RhbmNlc1VwZGF0ZVJlcXVlc3QSMAoGb2JqZWN0GAEgASgLMiAub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZRIvCgt1cGRhdGVfbWFzaxgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5GaWVsZE1hc2sSDAoEbG9jaxgDIAEoCCJSCh5Db21wdXRlSW5zdGFuY2VzVXBkYXRlUmVzcG9uc2USMAoGb2JqZWN0GAEgASgLMiAub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZSIrCh1Db21wdXRlSW5zdGFuY2VzU2lnbmFsUmVxdWVzdBIKCgJpZBgBIAEoCSIgCh5Db21wdXRlSW5zdGFuY2VzU2lnbmFsUmVzcG9uc2UyoQcKEENvbXB1dGVJbnN0YW5jZXMSjgEKBExpc3QSLC5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlc0xpc3RSZXF1ZXN0Gi0ub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZXNMaXN0UmVzcG9uc2UiKYLT5JMCIxIhL2FwaS9wcml2YXRlL3YxL2NvbXB1dGVfaW5zdGFuY2VzEpgBCgNHZXQSKy5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlc0dldFJlcXVlc3QaLC5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlc0dldFJlc3BvbnNlIjaC0+STAjBiBm9iamVjdBImL2FwaS9wcml2YXRlL3YxL2NvbXB1dGVfaW5zdGFuY2VzL3tpZH0SpAEKBkNyZWF0ZRIuLm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2VzQ3JlYXRlUmVxdWVzdBovLm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2VzQ3JlYXRlUmVzcG9uc2UiOYLT5JMCMzoGb2JqZWN0YgZvYmplY3QiIS9hcGkvcHJpdmF0ZS92MS9jb21wdXRlX2luc3RhbmNlcxKZAQoGRGVsZXRlEi4ub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZXNEZWxldGVSZXF1ZXN0Gi8ub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZXNEZWxldGVSZXNwb25zZSIugtPkkwIoKiYvYXBpL3ByaXZhdGUvdjEvY29tcHV0ZV9pbnN0YW5jZXMve2lkfRKwAQoGVXBkYXRlEi4ub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZXNVcGRhdGVSZXF1ZXN0Gi8ub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZXNVcGRhdGVSZXNwb25zZSJFgtPkkwI/OgZvYmplY3RiBm9iamVjdDItL2FwaS9wcml2YXRlL3YxL2NvbXB1dGVfaW5zdGFuY2VzL3tvYmplY3QuaWR9EmsKBlNpZ25hbBIuLm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2VzU2lnbmFsUmVxdWVzdBovLm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2VzU2lnbmFsUmVzcG9uc2UiAGIGcHJvdG8z", [file_google_api_annotations, file_google_protobuf_field_mask, file_osac_private_v1_compute_instance_type]);
+  fileDesc("Ci9vc2FjL3ByaXZhdGUvdjEvY29tcHV0ZV9pbnN0YW5jZXNfc2VydmljZS5wcm90bxIPb3NhYy5wcml2YXRlLnYxIpkBChtDb21wdXRlSW5zdGFuY2VzTGlzdFJlcXVlc3QSEwoGb2Zmc2V0GAEgASgFSACIAQESEgoFbGltaXQYAiABKAVIAYgBARITCgZmaWx0ZXIYAyABKAlIAogBARISCgVvcmRlchgEIAEoCUgDiAEBQgkKB19vZmZzZXRCCAoGX2xpbWl0QgkKB19maWx0ZXJCCAoGX29yZGVyImwKHENvbXB1dGVJbnN0YW5jZXNMaXN0UmVzcG9uc2USDAoEc2l6ZRgBIAEoBRINCgV0b3RhbBgCIAEoBRIvCgVpdGVtcxgDIAMoCzIgLm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2UiKAoaQ29tcHV0ZUluc3RhbmNlc0dldFJlcXVlc3QSCgoCaWQYASABKAkiTwobQ29tcHV0ZUluc3RhbmNlc0dldFJlc3BvbnNlEjAKBm9iamVjdBgBIAEoCzIgLm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2UiUQodQ29tcHV0ZUluc3RhbmNlc0NyZWF0ZVJlcXVlc3QSMAoGb2JqZWN0GAEgASgLMiAub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZSJkCh5Db21wdXRlSW5zdGFuY2VzQ3JlYXRlUmVzcG9uc2USMAoGb2JqZWN0GAEgASgLMiAub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZRIQCgh3YXJuaW5ncxgCIAMoCSKQAQodQ29tcHV0ZUluc3RhbmNlc1VwZGF0ZVJlcXVlc3QSMAoGb2JqZWN0GAEgASgLMiAub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZRIvCgt1cGRhdGVfbWFzaxgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5GaWVsZE1hc2sSDAoEbG9jaxgDIAEoCCJSCh5Db21wdXRlSW5zdGFuY2VzVXBkYXRlUmVzcG9uc2USMAoGb2JqZWN0GAEgASgLMiAub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZSIrCh1Db21wdXRlSW5zdGFuY2VzRGVsZXRlUmVxdWVzdBIKCgJpZBgBIAEoCSIgCh5Db21wdXRlSW5zdGFuY2VzRGVsZXRlUmVzcG9uc2UiMwodQ29tcHV0ZUluc3RhbmNlc1NpZ25hbFJlcXVlc3QSCgoCaWQYASABKAk6Boq1GAIIASIoCh5Db21wdXRlSW5zdGFuY2VzU2lnbmFsUmVzcG9uc2U6Boq1GAIIATKnBwoQQ29tcHV0ZUluc3RhbmNlcxKOAQoETGlzdBIsLm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2VzTGlzdFJlcXVlc3QaLS5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlc0xpc3RSZXNwb25zZSIpgtPkkwIjEiEvYXBpL3ByaXZhdGUvdjEvY29tcHV0ZV9pbnN0YW5jZXMSmAEKA0dldBIrLm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2VzR2V0UmVxdWVzdBosLm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2VzR2V0UmVzcG9uc2UiNoLT5JMCMGIGb2JqZWN0EiYvYXBpL3ByaXZhdGUvdjEvY29tcHV0ZV9pbnN0YW5jZXMve2lkfRKkAQoGQ3JlYXRlEi4ub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZXNDcmVhdGVSZXF1ZXN0Gi8ub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZXNDcmVhdGVSZXNwb25zZSI5gtPkkwIzOgZvYmplY3RiBm9iamVjdCIhL2FwaS9wcml2YXRlL3YxL2NvbXB1dGVfaW5zdGFuY2VzErABCgZVcGRhdGUSLi5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlc1VwZGF0ZVJlcXVlc3QaLy5vc2FjLnByaXZhdGUudjEuQ29tcHV0ZUluc3RhbmNlc1VwZGF0ZVJlc3BvbnNlIkWC0+STAj86Bm9iamVjdGIGb2JqZWN0Mi0vYXBpL3ByaXZhdGUvdjEvY29tcHV0ZV9pbnN0YW5jZXMve29iamVjdC5pZH0SmQEKBkRlbGV0ZRIuLm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2VzRGVsZXRlUmVxdWVzdBovLm9zYWMucHJpdmF0ZS52MS5Db21wdXRlSW5zdGFuY2VzRGVsZXRlUmVzcG9uc2UiLoLT5JMCKComL2FwaS9wcml2YXRlL3YxL2NvbXB1dGVfaW5zdGFuY2VzL3tpZH0ScQoGU2lnbmFsEi4ub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZXNTaWduYWxSZXF1ZXN0Gi8ub3NhYy5wcml2YXRlLnYxLkNvbXB1dGVJbnN0YW5jZXNTaWduYWxSZXNwb25zZSIGirUYAggBQimKtRglEg5vc2FjLnB1YmxpYy52MSITcHJpdmF0ZTpmdWxmaWxsbWVudGIGcHJvdG8z", [file_cleanapi_cleanapi, file_google_api_annotations, file_google_protobuf_field_mask, file_osac_private_v1_compute_instance_type]);
 
 /**
  * @generated from message osac.private.v1.ComputeInstancesListRequest
  */
 export type ComputeInstancesListRequest = Message<"osac.private.v1.ComputeInstancesListRequest"> & {
   /**
+   * Index of the first result. If not specified the default value will be zero.
+   *
    * @generated from field: optional int32 offset = 1;
    */
   offset?: number | undefined;
 
   /**
+   * Maximum number of results to be returned by the server. When not specified all the results will be returned. Note
+   * that there may not be enough results to return, and that the server may decide, for performance reasons, to return
+   * less results than requested.
+   *
    * @generated from field: optional int32 limit = 2;
    */
   limit?: number | undefined;
 
   /**
+   * Filter criteria.
+   *
+   * The value of this parameter is a [CEL](https://cel.dev) expression used to select which objects to return. The
+   * built-in `this` variable refers to the object being tested and `now` refers to the current date and time. If the
+   * expression evaluates to `true` the object is included in the results. For example, to retrieve all compute
+   * instances with names starting with `my`:
+   *
+   *     this.metadata.name.startsWith("my")
+   *
+   * If this isn't provided, or if the value is empty, then all the compute instances that the user has permission to
+   * see will be returned. Not all CEL constructs are currently supported for implementation reasons; see the filter
+   * documentation (docs/FILTER.md) for the full details.
+   *
    * @generated from field: optional string filter = 3;
    */
   filter?: string | undefined;
+
+  /**
+   * Order criteria.
+   *
+   * The syntax of this parameter is similar to the syntax of the _order by_ clause of a SQL statement, but using the
+   * names of the attributes of the compute instance instead of the names of the columns of a table. For example, in order to
+   * sort the compute instances descending by the Internal IP address the value should be:
+   *
+   *     internal_ip_address desc
+   *
+   * If the parameter isn't provided, or if the value is empty, then the order of the results is undefined.
+   *
+   * @generated from field: optional string order = 4;
+   */
+  order?: string | undefined;
 };
 
 /**
@@ -62,16 +97,25 @@ export const ComputeInstancesListRequestSchema: GenMessage<ComputeInstancesListR
  */
 export type ComputeInstancesListResponse = Message<"osac.private.v1.ComputeInstancesListResponse"> & {
   /**
+   * Actual number of items returned. Note that this may be smaller than the value requested in the `limit` parameter
+   * of the request if there are not enough items, or of the system decides that returning that number of items isn't
+   * feasible or convenient for performance reasons.
+   *
    * @generated from field: int32 size = 1;
    */
   size: number;
 
   /**
+   * Total number of items of the collection that match the search criteria, regardless of the number of results
+   * requested with the `limit` parameter.
+   *
    * @generated from field: int32 total = 2;
    */
   total: number;
 
   /**
+   * List of results.
+   *
    * @generated from field: repeated osac.private.v1.ComputeInstance items = 3;
    */
   items: ComputeInstance[];
@@ -161,36 +205,6 @@ export const ComputeInstancesCreateResponseSchema: GenMessage<ComputeInstancesCr
   messageDesc(file_osac_private_v1_compute_instances_service, 5);
 
 /**
- * @generated from message osac.private.v1.ComputeInstancesDeleteRequest
- */
-export type ComputeInstancesDeleteRequest = Message<"osac.private.v1.ComputeInstancesDeleteRequest"> & {
-  /**
-   * @generated from field: string id = 1;
-   */
-  id: string;
-};
-
-/**
- * Describes the message osac.private.v1.ComputeInstancesDeleteRequest.
- * Use `create(ComputeInstancesDeleteRequestSchema)` to create a new message.
- */
-export const ComputeInstancesDeleteRequestSchema: GenMessage<ComputeInstancesDeleteRequest> = /*@__PURE__*/
-  messageDesc(file_osac_private_v1_compute_instances_service, 6);
-
-/**
- * @generated from message osac.private.v1.ComputeInstancesDeleteResponse
- */
-export type ComputeInstancesDeleteResponse = Message<"osac.private.v1.ComputeInstancesDeleteResponse"> & {
-};
-
-/**
- * Describes the message osac.private.v1.ComputeInstancesDeleteResponse.
- * Use `create(ComputeInstancesDeleteResponseSchema)` to create a new message.
- */
-export const ComputeInstancesDeleteResponseSchema: GenMessage<ComputeInstancesDeleteResponse> = /*@__PURE__*/
-  messageDesc(file_osac_private_v1_compute_instances_service, 7);
-
-/**
  * @generated from message osac.private.v1.ComputeInstancesUpdateRequest
  */
 export type ComputeInstancesUpdateRequest = Message<"osac.private.v1.ComputeInstancesUpdateRequest"> & {
@@ -219,7 +233,7 @@ export type ComputeInstancesUpdateRequest = Message<"osac.private.v1.ComputeInst
  * Use `create(ComputeInstancesUpdateRequestSchema)` to create a new message.
  */
 export const ComputeInstancesUpdateRequestSchema: GenMessage<ComputeInstancesUpdateRequest> = /*@__PURE__*/
-  messageDesc(file_osac_private_v1_compute_instances_service, 8);
+  messageDesc(file_osac_private_v1_compute_instances_service, 6);
 
 /**
  * @generated from message osac.private.v1.ComputeInstancesUpdateResponse
@@ -236,6 +250,36 @@ export type ComputeInstancesUpdateResponse = Message<"osac.private.v1.ComputeIns
  * Use `create(ComputeInstancesUpdateResponseSchema)` to create a new message.
  */
 export const ComputeInstancesUpdateResponseSchema: GenMessage<ComputeInstancesUpdateResponse> = /*@__PURE__*/
+  messageDesc(file_osac_private_v1_compute_instances_service, 7);
+
+/**
+ * @generated from message osac.private.v1.ComputeInstancesDeleteRequest
+ */
+export type ComputeInstancesDeleteRequest = Message<"osac.private.v1.ComputeInstancesDeleteRequest"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+};
+
+/**
+ * Describes the message osac.private.v1.ComputeInstancesDeleteRequest.
+ * Use `create(ComputeInstancesDeleteRequestSchema)` to create a new message.
+ */
+export const ComputeInstancesDeleteRequestSchema: GenMessage<ComputeInstancesDeleteRequest> = /*@__PURE__*/
+  messageDesc(file_osac_private_v1_compute_instances_service, 8);
+
+/**
+ * @generated from message osac.private.v1.ComputeInstancesDeleteResponse
+ */
+export type ComputeInstancesDeleteResponse = Message<"osac.private.v1.ComputeInstancesDeleteResponse"> & {
+};
+
+/**
+ * Describes the message osac.private.v1.ComputeInstancesDeleteResponse.
+ * Use `create(ComputeInstancesDeleteResponseSchema)` to create a new message.
+ */
+export const ComputeInstancesDeleteResponseSchema: GenMessage<ComputeInstancesDeleteResponse> = /*@__PURE__*/
   messageDesc(file_osac_private_v1_compute_instances_service, 9);
 
 /**
@@ -273,6 +317,8 @@ export const ComputeInstancesSignalResponseSchema: GenMessage<ComputeInstancesSi
  */
 export const ComputeInstances: GenService<{
   /**
+   * Retrieves the list of compute instances.
+   *
    * @generated from rpc osac.private.v1.ComputeInstances.List
    */
   list: {
@@ -281,6 +327,8 @@ export const ComputeInstances: GenService<{
     output: typeof ComputeInstancesListResponseSchema;
   },
   /**
+   * Retrieves the details of one specific compute instance.
+   *
    * @generated from rpc osac.private.v1.ComputeInstances.Get
    */
   get: {
@@ -289,6 +337,8 @@ export const ComputeInstances: GenService<{
     output: typeof ComputeInstancesGetResponseSchema;
   },
   /**
+   * Creates a new compute instance.
+   *
    * @generated from rpc osac.private.v1.ComputeInstances.Create
    */
   create: {
@@ -297,20 +347,24 @@ export const ComputeInstances: GenService<{
     output: typeof ComputeInstancesCreateResponseSchema;
   },
   /**
-   * @generated from rpc osac.private.v1.ComputeInstances.Delete
-   */
-  delete: {
-    methodKind: "unary";
-    input: typeof ComputeInstancesDeleteRequestSchema;
-    output: typeof ComputeInstancesDeleteResponseSchema;
-  },
-  /**
+   * Updates an existing compute instance.
+   *
    * @generated from rpc osac.private.v1.ComputeInstances.Update
    */
   update: {
     methodKind: "unary";
     input: typeof ComputeInstancesUpdateRequestSchema;
     output: typeof ComputeInstancesUpdateResponseSchema;
+  },
+  /**
+   * Deletes a compute instance.
+   *
+   * @generated from rpc osac.private.v1.ComputeInstances.Delete
+   */
+  delete: {
+    methodKind: "unary";
+    input: typeof ComputeInstancesDeleteRequestSchema;
+    output: typeof ComputeInstancesDeleteResponseSchema;
   },
   /**
    * Indicates that something changed in the object or the system that may require reconciling the object.

@@ -17,6 +17,7 @@
 
 import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_cleanapi_cleanapi } from "../../../cleanapi/cleanapi_pb";
 import { file_google_api_annotations } from "../../../google/api/annotations_pb";
 import type { FieldMask } from "../../../google/protobuf/field_mask_pb";
 import { file_google_protobuf_field_mask } from "../../../google/protobuf/field_mask_pb";
@@ -28,7 +29,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/private/v1/roles_service.proto.
  */
 export const file_osac_private_v1_roles_service: GenFile = /*@__PURE__*/
-  fileDesc("CiNvc2FjL3ByaXZhdGUvdjEvcm9sZXNfc2VydmljZS5wcm90bxIPb3NhYy5wcml2YXRlLnYxIo4BChBSb2xlc0xpc3RSZXF1ZXN0EhMKBm9mZnNldBgBIAEoBUgAiAEBEhIKBWxpbWl0GAIgASgFSAGIAQESEwoGZmlsdGVyGAMgASgJSAKIAQESEgoFb3JkZXIYBCABKAlIA4gBAUIJCgdfb2Zmc2V0QggKBl9saW1pdEIJCgdfZmlsdGVyQggKBl9vcmRlciJWChFSb2xlc0xpc3RSZXNwb25zZRIMCgRzaXplGAEgASgFEg0KBXRvdGFsGAIgASgFEiQKBWl0ZW1zGAMgAygLMhUub3NhYy5wcml2YXRlLnYxLlJvbGUiHQoPUm9sZXNHZXRSZXF1ZXN0EgoKAmlkGAEgASgJIjkKEFJvbGVzR2V0UmVzcG9uc2USJQoGb2JqZWN0GAEgASgLMhUub3NhYy5wcml2YXRlLnYxLlJvbGUiOwoSUm9sZXNDcmVhdGVSZXF1ZXN0EiUKBm9iamVjdBgBIAEoCzIVLm9zYWMucHJpdmF0ZS52MS5Sb2xlIjwKE1JvbGVzQ3JlYXRlUmVzcG9uc2USJQoGb2JqZWN0GAEgASgLMhUub3NhYy5wcml2YXRlLnYxLlJvbGUiegoSUm9sZXNVcGRhdGVSZXF1ZXN0EiUKBm9iamVjdBgBIAEoCzIVLm9zYWMucHJpdmF0ZS52MS5Sb2xlEi8KC3VwZGF0ZV9tYXNrGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLkZpZWxkTWFzaxIMCgRsb2NrGAMgASgIIjwKE1JvbGVzVXBkYXRlUmVzcG9uc2USJQoGb2JqZWN0GAEgASgLMhUub3NhYy5wcml2YXRlLnYxLlJvbGUiIAoSUm9sZXNEZWxldGVSZXF1ZXN0EgoKAmlkGAEgASgJIhUKE1JvbGVzRGVsZXRlUmVzcG9uc2UiIAoSUm9sZXNTaWduYWxSZXF1ZXN0EgoKAmlkGAEgASgJIhUKE1JvbGVzU2lnbmFsUmVzcG9uc2Uy0wUKBVJvbGVzEmwKBExpc3QSIS5vc2FjLnByaXZhdGUudjEuUm9sZXNMaXN0UmVxdWVzdBoiLm9zYWMucHJpdmF0ZS52MS5Sb2xlc0xpc3RSZXNwb25zZSIdgtPkkwIXEhUvYXBpL3ByaXZhdGUvdjEvcm9sZXMSdgoDR2V0EiAub3NhYy5wcml2YXRlLnYxLlJvbGVzR2V0UmVxdWVzdBohLm9zYWMucHJpdmF0ZS52MS5Sb2xlc0dldFJlc3BvbnNlIiqC0+STAiRiBm9iamVjdBIaL2FwaS9wcml2YXRlL3YxL3JvbGVzL3tpZH0SggEKBkNyZWF0ZRIjLm9zYWMucHJpdmF0ZS52MS5Sb2xlc0NyZWF0ZVJlcXVlc3QaJC5vc2FjLnByaXZhdGUudjEuUm9sZXNDcmVhdGVSZXNwb25zZSItgtPkkwInOgZvYmplY3RiBm9iamVjdCIVL2FwaS9wcml2YXRlL3YxL3JvbGVzEo4BCgZVcGRhdGUSIy5vc2FjLnByaXZhdGUudjEuUm9sZXNVcGRhdGVSZXF1ZXN0GiQub3NhYy5wcml2YXRlLnYxLlJvbGVzVXBkYXRlUmVzcG9uc2UiOYLT5JMCMzoGb2JqZWN0YgZvYmplY3QyIS9hcGkvcHJpdmF0ZS92MS9yb2xlcy97b2JqZWN0LmlkfRJ3CgZEZWxldGUSIy5vc2FjLnByaXZhdGUudjEuUm9sZXNEZWxldGVSZXF1ZXN0GiQub3NhYy5wcml2YXRlLnYxLlJvbGVzRGVsZXRlUmVzcG9uc2UiIoLT5JMCHCoaL2FwaS9wcml2YXRlL3YxL3JvbGVzL3tpZH0SVQoGU2lnbmFsEiMub3NhYy5wcml2YXRlLnYxLlJvbGVzU2lnbmFsUmVxdWVzdBokLm9zYWMucHJpdmF0ZS52MS5Sb2xlc1NpZ25hbFJlc3BvbnNlIgBiBnByb3RvMw", [file_google_api_annotations, file_google_protobuf_field_mask, file_osac_private_v1_role_type]);
+  fileDesc("CiNvc2FjL3ByaXZhdGUvdjEvcm9sZXNfc2VydmljZS5wcm90bxIPb3NhYy5wcml2YXRlLnYxIo4BChBSb2xlc0xpc3RSZXF1ZXN0EhMKBm9mZnNldBgBIAEoBUgAiAEBEhIKBWxpbWl0GAIgASgFSAGIAQESEwoGZmlsdGVyGAMgASgJSAKIAQESEgoFb3JkZXIYBCABKAlIA4gBAUIJCgdfb2Zmc2V0QggKBl9saW1pdEIJCgdfZmlsdGVyQggKBl9vcmRlciJWChFSb2xlc0xpc3RSZXNwb25zZRIMCgRzaXplGAEgASgFEg0KBXRvdGFsGAIgASgFEiQKBWl0ZW1zGAMgAygLMhUub3NhYy5wcml2YXRlLnYxLlJvbGUiHQoPUm9sZXNHZXRSZXF1ZXN0EgoKAmlkGAEgASgJIjkKEFJvbGVzR2V0UmVzcG9uc2USJQoGb2JqZWN0GAEgASgLMhUub3NhYy5wcml2YXRlLnYxLlJvbGUiOwoSUm9sZXNDcmVhdGVSZXF1ZXN0EiUKBm9iamVjdBgBIAEoCzIVLm9zYWMucHJpdmF0ZS52MS5Sb2xlIjwKE1JvbGVzQ3JlYXRlUmVzcG9uc2USJQoGb2JqZWN0GAEgASgLMhUub3NhYy5wcml2YXRlLnYxLlJvbGUiegoSUm9sZXNVcGRhdGVSZXF1ZXN0EiUKBm9iamVjdBgBIAEoCzIVLm9zYWMucHJpdmF0ZS52MS5Sb2xlEi8KC3VwZGF0ZV9tYXNrGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLkZpZWxkTWFzaxIMCgRsb2NrGAMgASgIIjwKE1JvbGVzVXBkYXRlUmVzcG9uc2USJQoGb2JqZWN0GAEgASgLMhUub3NhYy5wcml2YXRlLnYxLlJvbGUiIAoSUm9sZXNEZWxldGVSZXF1ZXN0EgoKAmlkGAEgASgJIhUKE1JvbGVzRGVsZXRlUmVzcG9uc2UiKAoSUm9sZXNTaWduYWxSZXF1ZXN0EgoKAmlkGAEgASgJOgaKtRgCCAEiHQoTUm9sZXNTaWduYWxSZXNwb25zZToGirUYAggBMtkFCgVSb2xlcxJsCgRMaXN0EiEub3NhYy5wcml2YXRlLnYxLlJvbGVzTGlzdFJlcXVlc3QaIi5vc2FjLnByaXZhdGUudjEuUm9sZXNMaXN0UmVzcG9uc2UiHYLT5JMCFxIVL2FwaS9wcml2YXRlL3YxL3JvbGVzEnYKA0dldBIgLm9zYWMucHJpdmF0ZS52MS5Sb2xlc0dldFJlcXVlc3QaIS5vc2FjLnByaXZhdGUudjEuUm9sZXNHZXRSZXNwb25zZSIqgtPkkwIkYgZvYmplY3QSGi9hcGkvcHJpdmF0ZS92MS9yb2xlcy97aWR9EoIBCgZDcmVhdGUSIy5vc2FjLnByaXZhdGUudjEuUm9sZXNDcmVhdGVSZXF1ZXN0GiQub3NhYy5wcml2YXRlLnYxLlJvbGVzQ3JlYXRlUmVzcG9uc2UiLYLT5JMCJzoGb2JqZWN0YgZvYmplY3QiFS9hcGkvcHJpdmF0ZS92MS9yb2xlcxKOAQoGVXBkYXRlEiMub3NhYy5wcml2YXRlLnYxLlJvbGVzVXBkYXRlUmVxdWVzdBokLm9zYWMucHJpdmF0ZS52MS5Sb2xlc1VwZGF0ZVJlc3BvbnNlIjmC0+STAjM6Bm9iamVjdGIGb2JqZWN0MiEvYXBpL3ByaXZhdGUvdjEvcm9sZXMve29iamVjdC5pZH0SdwoGRGVsZXRlEiMub3NhYy5wcml2YXRlLnYxLlJvbGVzRGVsZXRlUmVxdWVzdBokLm9zYWMucHJpdmF0ZS52MS5Sb2xlc0RlbGV0ZVJlc3BvbnNlIiKC0+STAhwqGi9hcGkvcHJpdmF0ZS92MS9yb2xlcy97aWR9ElsKBlNpZ25hbBIjLm9zYWMucHJpdmF0ZS52MS5Sb2xlc1NpZ25hbFJlcXVlc3QaJC5vc2FjLnByaXZhdGUudjEuUm9sZXNTaWduYWxSZXNwb25zZSIGirUYAggBQimKtRglEg5vc2FjLnB1YmxpYy52MSITcHJpdmF0ZTpmdWxmaWxsbWVudGIGcHJvdG8z", [file_cleanapi_cleanapi, file_google_api_annotations, file_google_protobuf_field_mask, file_osac_private_v1_role_type]);
 
 /**
  * Request message for listing roles.
@@ -350,7 +351,7 @@ export const RolesSignalResponseSchema: GenMessage<RolesSignalResponse> = /*@__P
  *
  * Roles represent named permission sets that can be assigned to groups. The system comes with a set of predefined
  * roles such as `cloud-provider-admin`, `cloud-provider-reader`, `tenant-admin`, `tenant-reader`, and `tenant-user`.
- * Only administrators can create, update, or delete roles.
+ * Only administrators can create, update, or delete roles. Regular users can only list and get roles.
  *
  * @generated from service osac.private.v1.Roles
  */
@@ -376,7 +377,7 @@ export const Roles: GenService<{
     output: typeof RolesGetResponseSchema;
   },
   /**
-   * Creates a new role.
+   * Creates a new role. This operation is only available to administrators.
    *
    * @generated from rpc osac.private.v1.Roles.Create
    */
@@ -386,7 +387,7 @@ export const Roles: GenService<{
     output: typeof RolesCreateResponseSchema;
   },
   /**
-   * Updates an existing role.
+   * Updates an existing role. This operation is only available to administrators.
    *
    * @generated from rpc osac.private.v1.Roles.Update
    */
@@ -396,7 +397,7 @@ export const Roles: GenService<{
     output: typeof RolesUpdateResponseSchema;
   },
   /**
-   * Deletes a role.
+   * Deletes a role. This operation is only available to administrators.
    *
    * @generated from rpc osac.private.v1.Roles.Delete
    */

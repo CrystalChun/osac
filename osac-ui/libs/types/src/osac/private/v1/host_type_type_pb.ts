@@ -17,6 +17,7 @@
 
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_cleanapi_cleanapi } from "../../../cleanapi/cleanapi_pb";
 import type { Metadata } from "./metadata_type_pb";
 import { file_osac_private_v1_metadata_type } from "./metadata_type_pb";
 import type { Message } from "@bufbuild/protobuf";
@@ -25,30 +26,48 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/private/v1/host_type_type.proto.
  */
 export const file_osac_private_v1_host_type_type: GenFile = /*@__PURE__*/
-  fileDesc("CiRvc2FjL3ByaXZhdGUvdjEvaG9zdF90eXBlX3R5cGUucHJvdG8SD29zYWMucHJpdmF0ZS52MSKeAQoISG9zdFR5cGUSCgoCaWQYASABKAkSKwoIbWV0YWRhdGEYAiABKAsyGS5vc2FjLnByaXZhdGUudjEuTWV0YWRhdGESDQoFdGl0bGUYAyABKAkSEwoLZGVzY3JpcHRpb24YBCABKAkSNQoKaW50ZXJmYWNlcxgFIAMoCzIhLm9zYWMucHJpdmF0ZS52MS5OZXR3b3JrSW50ZXJmYWNlIkMKEE5ldHdvcmtJbnRlcmZhY2USDAoEbmFtZRgBIAEoCRIMCgRyb2xlGAIgASgJEhMKC2Rlc2NyaXB0aW9uGAMgASgJIk4KEUhvc3RUeXBlUmVmZXJlbmNlEgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkSDwoHcHJvamVjdBgDIAEoCRIOCgZzaGFyZWQYBCABKAhiBnByb3RvMw", [file_osac_private_v1_metadata_type]);
+  fileDesc("CiRvc2FjL3ByaXZhdGUvdjEvaG9zdF90eXBlX3R5cGUucHJvdG8SD29zYWMucHJpdmF0ZS52MSKeAQoISG9zdFR5cGUSCgoCaWQYASABKAkSKwoIbWV0YWRhdGEYAiABKAsyGS5vc2FjLnByaXZhdGUudjEuTWV0YWRhdGESDQoFdGl0bGUYAyABKAkSEwoLZGVzY3JpcHRpb24YBCABKAkSNQoKaW50ZXJmYWNlcxgFIAMoCzIhLm9zYWMucHJpdmF0ZS52MS5OZXR3b3JrSW50ZXJmYWNlIkMKEE5ldHdvcmtJbnRlcmZhY2USDAoEbmFtZRgBIAEoCRIMCgRyb2xlGAIgASgJEhMKC2Rlc2NyaXB0aW9uGAMgASgJIk4KEUhvc3RUeXBlUmVmZXJlbmNlEgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkSDwoHcHJvamVjdBgDIAEoCRIOCgZzaGFyZWQYBCABKAhCFIq1GBASDm9zYWMucHVibGljLnYxYgZwcm90bzM", [file_cleanapi_cleanapi, file_osac_private_v1_metadata_type]);
 
 /**
+ * Describes a set of hosts that share characteristics.
+ *
+ * For example there could be a host type `acme_1tb` to describe the set of hosts manufactured by ACME and with 1 TiB
+ * of RAM, and another `ibm_mi300x` to describe the set of hosts manufactured by IBM and with a MI300X GPU.
+ *
+ * This is similar to the _instance type_ concept used by many cloud providers.
+ *
+ * The detailed characteristics of the host (CPU, memory, GPU, etc) will be in the `description` field.
+ *
  * buf:lint:ignore OSAC_OBJECT_SHAPE
  *
  * @generated from message osac.private.v1.HostType
  */
 export type HostType = Message<"osac.private.v1.HostType"> & {
   /**
+   * Unique identifier of the type.
+   *
    * @generated from field: string id = 1;
    */
   id: string;
 
   /**
+   * Metadata of the host type.
+   *
    * @generated from field: osac.private.v1.Metadata metadata = 2;
    */
   metadata?: Metadata | undefined;
 
   /**
+   * Human friendly short description of the host type, only a few words, suitable for displaying in one single
+   * line on a UI or CLI.
+   *
    * @generated from field: string title = 3;
    */
   title: string;
 
   /**
+   * Human friendly long description of the host type, using Markdown format.
+   *
    * @generated from field: string description = 4;
    */
   description: string;

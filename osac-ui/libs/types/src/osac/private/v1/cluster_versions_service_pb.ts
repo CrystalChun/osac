@@ -17,6 +17,7 @@
 
 import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_cleanapi_cleanapi } from "../../../cleanapi/cleanapi_pb";
 import { file_google_api_annotations } from "../../../google/api/annotations_pb";
 import type { FieldMask } from "../../../google/protobuf/field_mask_pb";
 import { file_google_protobuf_field_mask } from "../../../google/protobuf/field_mask_pb";
@@ -28,28 +29,57 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/private/v1/cluster_versions_service.proto.
  */
 export const file_osac_private_v1_cluster_versions_service: GenFile = /*@__PURE__*/
-  fileDesc("Ci5vc2FjL3ByaXZhdGUvdjEvY2x1c3Rlcl92ZXJzaW9uc19zZXJ2aWNlLnByb3RvEg9vc2FjLnByaXZhdGUudjEimAEKGkNsdXN0ZXJWZXJzaW9uc0xpc3RSZXF1ZXN0EhMKBm9mZnNldBgBIAEoBUgAiAEBEhIKBWxpbWl0GAIgASgFSAGIAQESEwoGZmlsdGVyGAMgASgJSAKIAQESEgoFb3JkZXIYBCABKAlIA4gBAUIJCgdfb2Zmc2V0QggKBl9saW1pdEIJCgdfZmlsdGVyQggKBl9vcmRlciJqChtDbHVzdGVyVmVyc2lvbnNMaXN0UmVzcG9uc2USDAoEc2l6ZRgBIAEoBRINCgV0b3RhbBgCIAEoBRIuCgVpdGVtcxgDIAMoCzIfLm9zYWMucHJpdmF0ZS52MS5DbHVzdGVyVmVyc2lvbiInChlDbHVzdGVyVmVyc2lvbnNHZXRSZXF1ZXN0EgoKAmlkGAEgASgJIk0KGkNsdXN0ZXJWZXJzaW9uc0dldFJlc3BvbnNlEi8KBm9iamVjdBgBIAEoCzIfLm9zYWMucHJpdmF0ZS52MS5DbHVzdGVyVmVyc2lvbiJPChxDbHVzdGVyVmVyc2lvbnNDcmVhdGVSZXF1ZXN0Ei8KBm9iamVjdBgBIAEoCzIfLm9zYWMucHJpdmF0ZS52MS5DbHVzdGVyVmVyc2lvbiJQCh1DbHVzdGVyVmVyc2lvbnNDcmVhdGVSZXNwb25zZRIvCgZvYmplY3QYASABKAsyHy5vc2FjLnByaXZhdGUudjEuQ2x1c3RlclZlcnNpb24ijgEKHENsdXN0ZXJWZXJzaW9uc1VwZGF0ZVJlcXVlc3QSLwoGb2JqZWN0GAEgASgLMh8ub3NhYy5wcml2YXRlLnYxLkNsdXN0ZXJWZXJzaW9uEi8KC3VwZGF0ZV9tYXNrGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLkZpZWxkTWFzaxIMCgRsb2NrGAMgASgIIlAKHUNsdXN0ZXJWZXJzaW9uc1VwZGF0ZVJlc3BvbnNlEi8KBm9iamVjdBgBIAEoCzIfLm9zYWMucHJpdmF0ZS52MS5DbHVzdGVyVmVyc2lvbiIqChxDbHVzdGVyVmVyc2lvbnNEZWxldGVSZXF1ZXN0EgoKAmlkGAEgASgJIh8KHUNsdXN0ZXJWZXJzaW9uc0RlbGV0ZVJlc3BvbnNlIioKHENsdXN0ZXJWZXJzaW9uc1NpZ25hbFJlcXVlc3QSCgoCaWQYASABKAkiHwodQ2x1c3RlclZlcnNpb25zU2lnbmFsUmVzcG9uc2UyjwcKD0NsdXN0ZXJWZXJzaW9ucxKLAQoETGlzdBIrLm9zYWMucHJpdmF0ZS52MS5DbHVzdGVyVmVyc2lvbnNMaXN0UmVxdWVzdBosLm9zYWMucHJpdmF0ZS52MS5DbHVzdGVyVmVyc2lvbnNMaXN0UmVzcG9uc2UiKILT5JMCIhIgL2FwaS9wcml2YXRlL3YxL2NsdXN0ZXJfdmVyc2lvbnMSlQEKA0dldBIqLm9zYWMucHJpdmF0ZS52MS5DbHVzdGVyVmVyc2lvbnNHZXRSZXF1ZXN0Gisub3NhYy5wcml2YXRlLnYxLkNsdXN0ZXJWZXJzaW9uc0dldFJlc3BvbnNlIjWC0+STAi9iBm9iamVjdBIlL2FwaS9wcml2YXRlL3YxL2NsdXN0ZXJfdmVyc2lvbnMve2lkfRKhAQoGQ3JlYXRlEi0ub3NhYy5wcml2YXRlLnYxLkNsdXN0ZXJWZXJzaW9uc0NyZWF0ZVJlcXVlc3QaLi5vc2FjLnByaXZhdGUudjEuQ2x1c3RlclZlcnNpb25zQ3JlYXRlUmVzcG9uc2UiOILT5JMCMjoGb2JqZWN0YgZvYmplY3QiIC9hcGkvcHJpdmF0ZS92MS9jbHVzdGVyX3ZlcnNpb25zEq0BCgZVcGRhdGUSLS5vc2FjLnByaXZhdGUudjEuQ2x1c3RlclZlcnNpb25zVXBkYXRlUmVxdWVzdBouLm9zYWMucHJpdmF0ZS52MS5DbHVzdGVyVmVyc2lvbnNVcGRhdGVSZXNwb25zZSJEgtPkkwI+OgZvYmplY3RiBm9iamVjdDIsL2FwaS9wcml2YXRlL3YxL2NsdXN0ZXJfdmVyc2lvbnMve29iamVjdC5pZH0SlgEKBkRlbGV0ZRItLm9zYWMucHJpdmF0ZS52MS5DbHVzdGVyVmVyc2lvbnNEZWxldGVSZXF1ZXN0Gi4ub3NhYy5wcml2YXRlLnYxLkNsdXN0ZXJWZXJzaW9uc0RlbGV0ZVJlc3BvbnNlIi2C0+STAicqJS9hcGkvcHJpdmF0ZS92MS9jbHVzdGVyX3ZlcnNpb25zL3tpZH0SaQoGU2lnbmFsEi0ub3NhYy5wcml2YXRlLnYxLkNsdXN0ZXJWZXJzaW9uc1NpZ25hbFJlcXVlc3QaLi5vc2FjLnByaXZhdGUudjEuQ2x1c3RlclZlcnNpb25zU2lnbmFsUmVzcG9uc2UiAGIGcHJvdG8z", [file_google_api_annotations, file_google_protobuf_field_mask, file_osac_private_v1_cluster_version_type]);
+  fileDesc("Ci5vc2FjL3ByaXZhdGUvdjEvY2x1c3Rlcl92ZXJzaW9uc19zZXJ2aWNlLnByb3RvEg9vc2FjLnByaXZhdGUudjEimAEKGkNsdXN0ZXJWZXJzaW9uc0xpc3RSZXF1ZXN0EhMKBm9mZnNldBgBIAEoBUgAiAEBEhIKBWxpbWl0GAIgASgFSAGIAQESEwoGZmlsdGVyGAMgASgJSAKIAQESEgoFb3JkZXIYBCABKAlIA4gBAUIJCgdfb2Zmc2V0QggKBl9saW1pdEIJCgdfZmlsdGVyQggKBl9vcmRlciJqChtDbHVzdGVyVmVyc2lvbnNMaXN0UmVzcG9uc2USDAoEc2l6ZRgBIAEoBRINCgV0b3RhbBgCIAEoBRIuCgVpdGVtcxgDIAMoCzIfLm9zYWMucHJpdmF0ZS52MS5DbHVzdGVyVmVyc2lvbiInChlDbHVzdGVyVmVyc2lvbnNHZXRSZXF1ZXN0EgoKAmlkGAEgASgJIk0KGkNsdXN0ZXJWZXJzaW9uc0dldFJlc3BvbnNlEi8KBm9iamVjdBgBIAEoCzIfLm9zYWMucHJpdmF0ZS52MS5DbHVzdGVyVmVyc2lvbiJPChxDbHVzdGVyVmVyc2lvbnNDcmVhdGVSZXF1ZXN0Ei8KBm9iamVjdBgBIAEoCzIfLm9zYWMucHJpdmF0ZS52MS5DbHVzdGVyVmVyc2lvbiJQCh1DbHVzdGVyVmVyc2lvbnNDcmVhdGVSZXNwb25zZRIvCgZvYmplY3QYASABKAsyHy5vc2FjLnByaXZhdGUudjEuQ2x1c3RlclZlcnNpb24ijgEKHENsdXN0ZXJWZXJzaW9uc1VwZGF0ZVJlcXVlc3QSLwoGb2JqZWN0GAEgASgLMh8ub3NhYy5wcml2YXRlLnYxLkNsdXN0ZXJWZXJzaW9uEi8KC3VwZGF0ZV9tYXNrGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLkZpZWxkTWFzaxIMCgRsb2NrGAMgASgIIlAKHUNsdXN0ZXJWZXJzaW9uc1VwZGF0ZVJlc3BvbnNlEi8KBm9iamVjdBgBIAEoCzIfLm9zYWMucHJpdmF0ZS52MS5DbHVzdGVyVmVyc2lvbiIqChxDbHVzdGVyVmVyc2lvbnNEZWxldGVSZXF1ZXN0EgoKAmlkGAEgASgJIh8KHUNsdXN0ZXJWZXJzaW9uc0RlbGV0ZVJlc3BvbnNlIjIKHENsdXN0ZXJWZXJzaW9uc1NpZ25hbFJlcXVlc3QSCgoCaWQYASABKAk6Boq1GAIIASInCh1DbHVzdGVyVmVyc2lvbnNTaWduYWxSZXNwb25zZToGirUYAggBMpUHCg9DbHVzdGVyVmVyc2lvbnMSiwEKBExpc3QSKy5vc2FjLnByaXZhdGUudjEuQ2x1c3RlclZlcnNpb25zTGlzdFJlcXVlc3QaLC5vc2FjLnByaXZhdGUudjEuQ2x1c3RlclZlcnNpb25zTGlzdFJlc3BvbnNlIiiC0+STAiISIC9hcGkvcHJpdmF0ZS92MS9jbHVzdGVyX3ZlcnNpb25zEpUBCgNHZXQSKi5vc2FjLnByaXZhdGUudjEuQ2x1c3RlclZlcnNpb25zR2V0UmVxdWVzdBorLm9zYWMucHJpdmF0ZS52MS5DbHVzdGVyVmVyc2lvbnNHZXRSZXNwb25zZSI1gtPkkwIvYgZvYmplY3QSJS9hcGkvcHJpdmF0ZS92MS9jbHVzdGVyX3ZlcnNpb25zL3tpZH0SoQEKBkNyZWF0ZRItLm9zYWMucHJpdmF0ZS52MS5DbHVzdGVyVmVyc2lvbnNDcmVhdGVSZXF1ZXN0Gi4ub3NhYy5wcml2YXRlLnYxLkNsdXN0ZXJWZXJzaW9uc0NyZWF0ZVJlc3BvbnNlIjiC0+STAjI6Bm9iamVjdGIGb2JqZWN0IiAvYXBpL3ByaXZhdGUvdjEvY2x1c3Rlcl92ZXJzaW9ucxKtAQoGVXBkYXRlEi0ub3NhYy5wcml2YXRlLnYxLkNsdXN0ZXJWZXJzaW9uc1VwZGF0ZVJlcXVlc3QaLi5vc2FjLnByaXZhdGUudjEuQ2x1c3RlclZlcnNpb25zVXBkYXRlUmVzcG9uc2UiRILT5JMCPjoGb2JqZWN0YgZvYmplY3QyLC9hcGkvcHJpdmF0ZS92MS9jbHVzdGVyX3ZlcnNpb25zL3tvYmplY3QuaWR9EpYBCgZEZWxldGUSLS5vc2FjLnByaXZhdGUudjEuQ2x1c3RlclZlcnNpb25zRGVsZXRlUmVxdWVzdBouLm9zYWMucHJpdmF0ZS52MS5DbHVzdGVyVmVyc2lvbnNEZWxldGVSZXNwb25zZSItgtPkkwInKiUvYXBpL3ByaXZhdGUvdjEvY2x1c3Rlcl92ZXJzaW9ucy97aWR9Em8KBlNpZ25hbBItLm9zYWMucHJpdmF0ZS52MS5DbHVzdGVyVmVyc2lvbnNTaWduYWxSZXF1ZXN0Gi4ub3NhYy5wcml2YXRlLnYxLkNsdXN0ZXJWZXJzaW9uc1NpZ25hbFJlc3BvbnNlIgaKtRgCCAFCKYq1GCUSDm9zYWMucHVibGljLnYxIhNwcml2YXRlOmZ1bGZpbGxtZW50YgZwcm90bzM", [file_cleanapi_cleanapi, file_google_api_annotations, file_google_protobuf_field_mask, file_osac_private_v1_cluster_version_type]);
 
 /**
  * @generated from message osac.private.v1.ClusterVersionsListRequest
  */
 export type ClusterVersionsListRequest = Message<"osac.private.v1.ClusterVersionsListRequest"> & {
   /**
+   * Index of the first result. If not specified the default value will be zero.
+   *
    * @generated from field: optional int32 offset = 1;
    */
   offset?: number | undefined;
 
   /**
+   * Maximum number of results to be returned by the server. When not specified all the results will be returned. Note
+   * that there may not be enough results to return, and that the server may decide, for performance reasons, to return
+   * less results than requested.
+   *
    * @generated from field: optional int32 limit = 2;
    */
   limit?: number | undefined;
 
   /**
+   * Filter criteria.
+   *
+   * The value of this parameter is a [CEL](https://cel.dev) expression used to select which objects to return. The
+   * built-in `this` variable refers to the object being tested and `now` refers to the current date and time. If the
+   * expression evaluates to `true` the object is included in the results. For example, to retrieve all active cluster
+   * versions:
+   *
+   *     this.spec.state == CLUSTER_VERSION_STATE_ACTIVE
+   *
+   * If this isn't provided, or if the value is empty, then all the cluster versions that the user has permission to see
+   * will be returned. Not all CEL constructs are currently supported for implementation reasons; see the filter
+   * documentation (docs/FILTER.md) for the full details.
+   *
    * @generated from field: optional string filter = 3;
    */
   filter?: string | undefined;
 
   /**
+   * Order criteria.
+   *
+   * The syntax of this parameter is similar to the syntax of the _order by_ clause of a SQL statement, but using the
+   * names of the attributes of the cluster version instead of the names of the columns of a table. For example, in
+   * order to sort the cluster versions descending by name the value should be:
+   *
+   *     name desc
+   *
+   * If the parameter isn't provided, or if the value is empty, then the order of the results is undefined.
+   *
    * @generated from field: optional string order = 4;
    */
   order?: string | undefined;
@@ -67,16 +97,25 @@ export const ClusterVersionsListRequestSchema: GenMessage<ClusterVersionsListReq
  */
 export type ClusterVersionsListResponse = Message<"osac.private.v1.ClusterVersionsListResponse"> & {
   /**
+   * Actual number of items returned. Note that this may be smaller than the value requested in the `limit` parameter
+   * of the request if there are not enough items, or of the system decides that returning that number of items isn't
+   * feasible or convenient for performance reasons.
+   *
    * @generated from field: int32 size = 1;
    */
   size: number;
 
   /**
+   * Total number of items of the collection that match the search criteria, regardless of the number of results
+   * requested with the `limit` parameter.
+   *
    * @generated from field: int32 total = 2;
    */
   total: number;
 
   /**
+   * List of results.
+   *
    * @generated from field: repeated osac.private.v1.ClusterVersion items = 3;
    */
   items: ClusterVersion[];
@@ -290,8 +329,10 @@ export const ClusterVersions: GenService<{
     output: typeof ClusterVersionsGetResponseSchema;
   },
   /**
-   * Registers a new OpenShift version in the catalog. Requires `spec.version` and `spec.image`;
-   * `spec.enabled` defaults to true and `spec.state` defaults to ACTIVE.
+   * Registers a new OpenShift version in the catalog. Requires `spec.version`; `spec.enabled` defaults to true
+   * and `spec.state` defaults to ACTIVE.
+   *
+   * This method isn't allowed for regular users, only for the system itself.
    *
    * @generated from rpc osac.private.v1.ClusterVersions.Create
    */
@@ -302,7 +343,9 @@ export const ClusterVersions: GenService<{
   },
   /**
    * Updates a cluster version. Allows modifying lifecycle state, availability, and upgrade constraints. The
-   * `spec.version` and `spec.image` fields are immutable.
+   * `spec.version` field is immutable.
+   *
+   * This method isn't allowed for regular users, only for the system itself.
    *
    * @generated from rpc osac.private.v1.ClusterVersions.Update
    */
@@ -314,6 +357,8 @@ export const ClusterVersions: GenService<{
   /**
    * Removes a cluster version from the catalog. Rejected if the version is referenced by active clusters,
    * templates, or catalog items.
+   *
+   * This method isn't allowed for regular users, only for the system itself.
    *
    * @generated from rpc osac.private.v1.ClusterVersions.Delete
    */
