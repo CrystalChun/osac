@@ -10,9 +10,10 @@ import {
 
 import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
 
-import ExternalIpPoolForm, { POOLS_LIST_PATH } from './ExternalIpPoolForm';
+import ExternalIpPoolWizard from './externalIpPool/ExternalIpPoolWizard';
+import { EXTERNAL_IP_POOLS_LIST_PATH } from './externalIpPool/values';
 
-export const ExternalIpPoolFormPage = () => {
+export const ExternalIpPoolWizardPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
@@ -22,7 +23,7 @@ export const ExternalIpPoolFormPage = () => {
         <Stack hasGutter>
           <Breadcrumb>
             <BreadcrumbItem>
-              <Button variant="link" isInline onClick={() => navigate(POOLS_LIST_PATH)}>
+              <Button variant="link" isInline onClick={() => navigate(EXTERNAL_IP_POOLS_LIST_PATH)}>
                 {t('External IP pools')}
               </Button>
             </BreadcrumbItem>
@@ -33,7 +34,7 @@ export const ExternalIpPoolFormPage = () => {
           </Title>
         </Stack>
       </PageSection>
-      <ExternalIpPoolForm />
+      <ExternalIpPoolWizard />
     </>
   );
 };

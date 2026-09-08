@@ -1,0 +1,50 @@
+import {
+  DescriptionListDescription,
+  DescriptionListGroup,
+  DescriptionListTerm,
+} from '@patternfly/react-core';
+
+import type { ExternalIPPool } from '@osac/types/private';
+
+import ExternalIpPoolStatusLabel from '../../../components/networking/ExternalIpPoolStatusLabel';
+import { Timestamp } from '../../../components/Primitives/Timestamp';
+import ResourceDetailsColumn from '../../../components/Resource/ResourceDetailsColumn';
+import { useTranslation } from '../../../hooks/useTranslation';
+
+const SHARED_TENANT = 'shared';
+
+interface ExternalIpPoolReviewColumnProps {
+  pool: ExternalIPPool;
+}
+
+const ExternalIpPoolReviewColumn = ({ pool }: ExternalIpPoolReviewColumnProps) => {
+  const { t } = useTranslation();
+  const tenant = pool.metadata?.tenant;
+
+  return (
+    <ResourceDetailsColumn title={t('Overview')} ariaLabel={t('External IP pool overview')}>
+      <DescriptionListGroup>
+        <DescriptionListTerm>{t('Status')}</DescriptionListTerm>
+        <DescriptionListDescription>
+          <ExternalIpPoolStatusLabel state={pool.status?.state} />
+        </DescriptionListDescription>
+      </DescriptionListGroup>
+      <DescriptionListGroup>
+        <DescriptionListTerm>{t('Created')}</DescriptionListTerm>
+        <DescriptionListDescription>
+          <Timestamp value={pool.metadata?.creationTimestamp} />
+        </DescriptionListDescription>
+      </DescriptionListGroup>
+      {tenant ? (
+        <DescriptionListGroup>
+          <DescriptionListTerm>{t('Tenant')}</DescriptionListTerm>
+          <DescriptionListDescription>
+            {tenant === SHARED_TENANT ? t('Shared') : tenant}
+          </DescriptionListDescription>
+        </DescriptionListGroup>
+      ) : null}
+    </ResourceDetailsColumn>
+  );
+};
+
+export default ExternalIpPoolReviewColumn;

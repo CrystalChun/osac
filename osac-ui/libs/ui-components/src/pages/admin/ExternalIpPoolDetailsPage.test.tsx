@@ -23,12 +23,14 @@ const makePool = (
   ipFamily: IPFamily,
   cidrs: string[],
   tenant = 'shared',
+  description?: string,
 ): ExternalIPPool =>
   ({
     id,
     metadata: {
       name,
       tenant,
+      description,
       creationTimestamp: { seconds: BigInt(1700000000), nanos: 0 },
     },
     spec: { cidrs, ipFamily },
@@ -69,7 +71,9 @@ describe('ExternalIpPoolDetailsPage', () => {
     expect(screen.getByRole('heading', { name: 'Capacity' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'CIDRs' })).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'Assignment' })).not.toBeInTheDocument();
-    expect(screen.getByText('Routable address pool for tenant edge exposure.')).toBeInTheDocument();
+    expect(
+      screen.queryByText('Routable address pool for tenant edge exposure.'),
+    ).not.toBeInTheDocument();
     expect(screen.queryByText('Name')).not.toBeInTheDocument();
     expect(screen.getByLabelText('External IP pool overview').textContent).toMatch(
       /Status.*Created.*Tenant/s,
@@ -115,6 +119,24 @@ describe('ExternalIpPoolDetailsPage', () => {
     });
     expect(screen.getByText('acme')).toBeInTheDocument();
     expect(screen.queryByText('Shared')).not.toBeInTheDocument();
+  });
+
+  it('renders the header description from pool metadata', async () => {
+    renderPage('p-5', [
+      makePool(
+        'p-5',
+        'described-pool',
+        IPFamily.IP_FAMILY_IPV4,
+        ['10.0.0.0/24'],
+        'shared',
+        'Edge addresses for production.',
+      ),
+    ]);
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: 'described-pool' })).toBeInTheDocument();
+    });
+    expect(screen.getByText('Edge addresses for production.')).toBeInTheDocument();
   });
 
   it('renders a not-found state when the pool does not exist', async () => {

@@ -14,12 +14,9 @@ import {
 import type { ExternalIPPool } from '@osac/types/private';
 
 import ExternalIpPoolCidrsSection from '../../components/networking/ExternalIpPoolCidrsSection';
-import ExternalIpPoolStatusLabel from '../../components/networking/ExternalIpPoolStatusLabel';
-import ResourceOverviewColumn from '../../components/Resource/ResourceOverviewColumn';
 import { useTranslation } from '../../hooks/useTranslation';
 import { displayValue } from '../../utils/detailFormatters';
-
-const SHARED_TENANT = 'shared';
+import ExternalIpPoolReviewColumn from './externalIpPool/ExternalIpPoolReviewColumn';
 
 interface ExternalIpPoolDetailsPageContentProps {
   pool: ExternalIPPool;
@@ -28,24 +25,11 @@ interface ExternalIpPoolDetailsPageContentProps {
 const ExternalIpPoolDetailsPageContent = ({ pool }: ExternalIpPoolDetailsPageContentProps) => {
   const { t } = useTranslation();
   const cidrs = pool.spec?.cidrs ?? [];
-  const tenantId = pool.metadata?.tenant;
-  const isShared = !tenantId || tenantId === SHARED_TENANT;
 
   return (
     <PageSection hasBodyWrapper={false}>
       <Grid hasGutter>
-        <ResourceOverviewColumn
-          metadata={pool.metadata}
-          status={<ExternalIpPoolStatusLabel state={pool.status?.state} />}
-          ariaLabel={t('External IP pool overview')}
-        >
-          <DescriptionListGroup>
-            <DescriptionListTerm>{t('Tenant')}</DescriptionListTerm>
-            <DescriptionListDescription>
-              {isShared ? t('Shared') : tenantId}
-            </DescriptionListDescription>
-          </DescriptionListGroup>
-        </ResourceOverviewColumn>
+        <ExternalIpPoolReviewColumn pool={pool} />
 
         <GridItem md={4}>
           <Stack hasGutter>

@@ -6,8 +6,8 @@ vi.mock('@osac/ui-components/pages/admin/ExternalIpPoolsListPage', () => ({
   ExternalIpPoolsListPage: () => <h1>External IP pools</h1>,
 }));
 
-vi.mock('@osac/ui-components/pages/admin/ExternalIpPoolFormPage', () => ({
-  ExternalIpPoolFormPage: () => <h1>External IP pool form</h1>,
+vi.mock('@osac/ui-components/pages/admin/ExternalIpPoolWizardPage', () => ({
+  ExternalIpPoolWizardPage: () => <h1>External IP pool form</h1>,
 }));
 
 vi.mock('@osac/ui-components/pages/admin/ExternalIpPoolDetailsPage', () => ({
