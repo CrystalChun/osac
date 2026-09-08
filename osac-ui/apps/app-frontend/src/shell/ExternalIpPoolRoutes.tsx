@@ -9,6 +9,5 @@ export const ExternalIpPoolRoutes = () => (
     <Route index element={<ExternalIpPoolsListPage />} />
     <Route path="create" element={<ExternalIpPoolFormPage />} />
     <Route path=":id" element={<ExternalIpPoolDetailsPage />} />
-    <Route path=":id/edit" element={<ExternalIpPoolFormPage />} />
   </Routes>
 );

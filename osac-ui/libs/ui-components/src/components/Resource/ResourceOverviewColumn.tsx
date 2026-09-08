@@ -15,9 +15,15 @@ interface ResourceOverviewColumnProps {
   metadata?: Pick<Metadata, 'creationTimestamp'>;
   status?: ReactNode;
   ariaLabel?: string;
+  children?: ReactNode;
 }
 
-const ResourceOverviewColumn = ({ metadata, status, ariaLabel }: ResourceOverviewColumnProps) => {
+const ResourceOverviewColumn = ({
+  metadata,
+  status,
+  ariaLabel,
+  children,
+}: ResourceOverviewColumnProps) => {
   const { t } = useTranslation();
 
   return (
@@ -34,6 +40,7 @@ const ResourceOverviewColumn = ({ metadata, status, ariaLabel }: ResourceOvervie
           <Timestamp value={metadata?.creationTimestamp} />
         </DescriptionListDescription>
       </DescriptionListGroup>
+      {children}
     </ResourceDetailsColumn>
   );
 };

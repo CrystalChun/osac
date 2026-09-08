@@ -1,23 +1,16 @@
-import { Route, Routes } from 'react-router-dom';
 import { create } from '@bufbuild/protobuf';
 import { Code, ConnectError } from '@connectrpc/connect';
 import { screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
-  ExternalIPPoolSchema,
   type ExternalIPPoolsCreateRequest,
   ExternalIPPoolsCreateResponseSchema,
-  type ExternalIPPoolsUpdateRequest,
-  ExternalIPPoolsUpdateResponseSchema,
   IPFamily,
 } from '@osac/types/private';
 
 import { ExternalIpPoolFormPage } from './ExternalIpPoolFormPage';
-import type {
-  MockApiFixtures,
-  MockTransportOverrides,
-} from '../../test-utils/createMockConnectTransport';
+import type { MockTransportOverrides } from '../../test-utils/createMockConnectTransport';
 import { renderWithProviders } from '../../test-utils/TestProviders';
 
 const LIST_PATH = '/admin/infrastructure/external-ip-pools';
@@ -38,31 +31,6 @@ const renderCreatePage = (overrides?: MockTransportOverrides) =>
   renderWithProviders(<ExternalIpPoolFormPage />, {
     transportOverrides: overrides,
   });
-
-const EDIT_ROUTE_PATH = '/admin/infrastructure/external-ip-pools/:id/edit';
-const EDIT_PATH = '/admin/infrastructure/external-ip-pools/p-1/edit';
-
-const existingPool = create(ExternalIPPoolSchema, {
-  id: 'p-1',
-  metadata: { name: 'prod-v4', version: 7 },
-  spec: {
-    ipFamily: IPFamily.IP_FAMILY_IPV4,
-    cidrs: ['192.168.1.0/24', '10.0.5.0/28'],
-    implementationStrategy: 'metallb-l2',
-  },
-});
-
-const renderEditPage = (overrides?: MockTransportOverrides, apiFixtures?: MockApiFixtures) =>
-  renderWithProviders(
-    <Routes>
-      <Route path={EDIT_ROUTE_PATH} element={<ExternalIpPoolFormPage />} />
-    </Routes>,
-    {
-      routerEntries: [EDIT_PATH],
-      apiFixtures: { privateExternalIpPools: [existingPool], ...apiFixtures },
-      transportOverrides: overrides,
-    },
-  );
 
 describe('ExternalIpPoolFormPage', () => {
   beforeEach(() => {
@@ -232,101 +200,6 @@ describe('ExternalIpPoolFormPage', () => {
     it('navigates back to the list on cancel', async () => {
       const { user } = renderCreatePage();
 
-      await user.click(screen.getByRole('button', { name: 'Cancel' }));
-
-      expect(mockNavigate).toHaveBeenCalledWith(LIST_PATH);
-    });
-  });
-
-  describe('edit mode', () => {
-    it('shows a loading spinner before the pool has been fetched', () => {
-      renderEditPage();
-
-      expect(screen.getByRole('progressbar')).toBeInTheDocument();
-    });
-
-    it('renders the page prefilled with the pool name, IP family, and CIDRs', async () => {
-      renderEditPage();
-
-      await waitFor(() => {
-        expect(screen.getByRole('textbox', { name: 'Name' })).toHaveValue('prod-v4');
-      });
-      expect(screen.getByRole('heading', { name: 'Edit external IP pool' })).toBeInTheDocument();
-      expect(screen.getByLabelText(/^IP family/)).toHaveTextContent('IPv4');
-      expect(screen.getByRole('textbox', { name: 'CIDR 1' })).toHaveValue('192.168.1.0/24');
-      expect(screen.getByRole('textbox', { name: 'CIDR 2' })).toHaveValue('10.0.5.0/28');
-    });
-
-    it('renders IP family and CIDRs as disabled but keeps name editable', async () => {
-      renderEditPage();
-
-      await waitFor(() => {
-        expect(screen.getByRole('textbox', { name: 'Name' })).toBeInTheDocument();
-      });
-      expect(screen.getByRole('textbox', { name: 'Name' })).toBeEnabled();
-      expect(screen.getByLabelText(/^IP family/)).toBeDisabled();
-      expect(screen.getByRole('textbox', { name: 'CIDR 1' })).toBeDisabled();
-      expect(screen.getByRole('textbox', { name: 'CIDR 2' })).toBeDisabled();
-      expect(screen.queryByRole('button', { name: 'Add CIDR' })).not.toBeInTheDocument();
-    });
-
-    it('submits a name-only, lock-scoped update and navigates to the list', async () => {
-      let capturedRequest: ExternalIPPoolsUpdateRequest | undefined;
-      const { user } = renderEditPage({
-        onExternalIPPoolUpdate: (req) => {
-          capturedRequest = req;
-          return create(ExternalIPPoolsUpdateResponseSchema, { object: existingPool });
-        },
-      });
-
-      await waitFor(() => {
-        expect(screen.getByRole('textbox', { name: 'Name' })).toHaveValue('prod-v4');
-      });
-      await user.clear(screen.getByRole('textbox', { name: 'Name' }));
-      await user.type(screen.getByRole('textbox', { name: 'Name' }), 'prod-v4-renamed');
-      await user.click(screen.getByRole('button', { name: 'Save' }));
-
-      await waitFor(() => {
-        expect(mockNavigate).toHaveBeenCalledWith(LIST_PATH);
-      });
-
-      expect(capturedRequest?.object?.metadata?.name).toBe('prod-v4-renamed');
-      expect(capturedRequest?.object?.metadata?.version).toBe(7);
-      expect(capturedRequest?.lock).toBe(true);
-      // The shared useUpdateResource hook derives the update mask from the set
-      // object fields; the rename must be scoped by `metadata.name`.
-      expect(capturedRequest?.updateMask?.paths).toContain('metadata.name');
-    });
-
-    it('shows a submission error and does not navigate on a stale-version conflict', async () => {
-      const { user } = renderEditPage({
-        onExternalIPPoolUpdate: () => {
-          throw new ConnectError('External IP pool was modified by another request', Code.Aborted);
-        },
-      });
-
-      await waitFor(() => {
-        expect(screen.getByRole('textbox', { name: 'Name' })).toHaveValue('prod-v4');
-      });
-      await user.clear(screen.getByRole('textbox', { name: 'Name' }));
-      await user.type(screen.getByRole('textbox', { name: 'Name' }), 'prod-v4-renamed');
-      await user.click(screen.getByRole('button', { name: 'Save' }));
-
-      await waitFor(() => {
-        expect(screen.getByText('Failed to update external IP pool')).toBeInTheDocument();
-      });
-      expect(
-        screen.getByText('External IP pool was modified by another request'),
-      ).toBeInTheDocument();
-      expect(mockNavigate).not.toHaveBeenCalled();
-    });
-
-    it('navigates back to the list on cancel', async () => {
-      const { user } = renderEditPage();
-
-      await waitFor(() => {
-        expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
-      });
       await user.click(screen.getByRole('button', { name: 'Cancel' }));
 
       expect(mockNavigate).toHaveBeenCalledWith(LIST_PATH);

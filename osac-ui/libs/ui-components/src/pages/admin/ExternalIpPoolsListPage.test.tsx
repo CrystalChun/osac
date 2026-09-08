@@ -85,22 +85,24 @@ describe('ExternalIpPoolsListPage', () => {
       expect(screen.getByRole('columnheader', { name: 'Name' })).toBeInTheDocument();
     });
     expect(screen.getByRole('columnheader', { name: 'Status' })).toBeInTheDocument();
-    expect(screen.getByRole('columnheader', { name: 'IP family' })).toBeInTheDocument();
+    expect(screen.queryByRole('columnheader', { name: 'IP family' })).not.toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: 'CIDRs' })).toBeInTheDocument();
-    expect(screen.getByRole('columnheader', { name: 'Available / Total' })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: 'Available' })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: 'Total' })).toBeInTheDocument();
   });
 
-  it('renders a row per pool with name, IP family, CIDRs and capacity', async () => {
+  it('renders a row per pool with name, CIDRs, available, and total', async () => {
     renderPage();
 
     await waitFor(() => {
       expect(screen.getByText('prod-v4')).toBeInTheDocument();
     });
-    expect(screen.getByText('IPv4')).toBeInTheDocument();
+    expect(screen.queryByText('IPv4')).not.toBeInTheDocument();
     expect(screen.getByText('192.168.1.0/24')).toBeInTheDocument();
-    expect(screen.getByText('200 / 256')).toBeInTheDocument();
+    expect(screen.getByText('200')).toBeInTheDocument();
+    expect(screen.getByText('256')).toBeInTheDocument();
     expect(screen.getByText('dev-v6')).toBeInTheDocument();
-    expect(screen.getByText('IPv6')).toBeInTheDocument();
+    expect(screen.queryByText('IPv6')).not.toBeInTheDocument();
     expect(screen.getByText('2001:db8::/64')).toBeInTheDocument();
   });
 
@@ -161,19 +163,6 @@ describe('ExternalIpPoolsListPage', () => {
     await user.click(screen.getByRole('menuitem', { name: 'View details' }));
 
     expect(mockNavigate).toHaveBeenCalledWith('/admin/infrastructure/external-ip-pools/p-1');
-  });
-
-  it('navigates to the edit route with the correct ID when Edit is clicked', async () => {
-    const { user } = renderPage();
-
-    await waitFor(() => {
-      expect(screen.getByText('prod-v4')).toBeInTheDocument();
-    });
-
-    await user.click(screen.getByRole('button', { name: 'Actions for prod-v4' }));
-    await user.click(screen.getByText('Edit'));
-
-    expect(mockNavigate).toHaveBeenCalledWith('/admin/infrastructure/external-ip-pools/p-1/edit');
   });
 
   it('opens the delete confirmation dialog when Delete is clicked', async () => {

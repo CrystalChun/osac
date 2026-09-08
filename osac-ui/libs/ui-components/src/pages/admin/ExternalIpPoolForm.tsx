@@ -16,9 +16,8 @@ import { FieldArray, Formik } from 'formik';
 import type { TFunction } from 'i18next';
 import * as Yup from 'yup';
 
-import type { ExternalIPPool } from '@osac/types/private';
 import { ExternalIPPools, IPFamily } from '@osac/types/private';
-import { useCreateResource, useUpdateResource } from '@osac/ui-components/api/use-resource';
+import { useCreateResource } from '@osac/ui-components/api/use-resource';
 import NameField from '@osac/ui-components/components/catalogProvision/wizard/fields/NameField';
 import { InputField } from '@osac/ui-components/components/Form/InputField';
 import LeaveFormConfirmation from '@osac/ui-components/components/Form/LeaveFormConfirmation';
@@ -34,8 +33,6 @@ import { resourceNameSchema } from '@osac/ui-components/validation/resource-name
 
 export const POOLS_LIST_PATH = '/admin/infrastructure/external-ip-pools';
 
-// Form-value IP family is a string union so it maps cleanly onto the SelectField;
-// it is converted to the protobuf IPFamily enum only when building the request.
 interface ExternalIpPoolFormValues {
   metadata: { name: string };
   ipFamily: '' | CidrIpFamily;
@@ -47,24 +44,13 @@ const IP_FAMILY_BY_VALUE: Record<CidrIpFamily, IPFamily> = {
   ipv6: IPFamily.IP_FAMILY_IPV6,
 };
 
-const ipFamilyToValue = (family?: IPFamily): '' | CidrIpFamily => {
-  switch (family) {
-    case IPFamily.IP_FAMILY_IPV4:
-      return 'ipv4';
-    case IPFamily.IP_FAMILY_IPV6:
-      return 'ipv6';
-    default:
-      return '';
-  }
-};
-
 const cidrFieldSchema = (t: TFunction, ipFamily: CidrIpFamily) =>
   buildCidrSchema(t, ipFamily).required(t('CIDR is required'));
 
-const getInitialValues = (pool?: ExternalIPPool): ExternalIpPoolFormValues => ({
-  metadata: { name: pool?.metadata?.name ?? '' },
-  ipFamily: ipFamilyToValue(pool?.spec?.ipFamily),
-  cidrs: pool?.spec?.cidrs.length ? [...pool.spec.cidrs] : [''],
+const getInitialValues = (): ExternalIpPoolFormValues => ({
+  metadata: { name: '' },
+  ipFamily: '',
+  cidrs: [''],
 });
 
 const getExternalIpPoolSchema = (t: TFunction) =>
@@ -84,13 +70,10 @@ const getExternalIpPoolSchema = (t: TFunction) =>
       .min(1, t('At least one CIDR is required')),
   });
 
-const ExternalIpPoolForm = ({ pool }: { pool?: ExternalIPPool }) => {
+const ExternalIpPoolForm = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const isEdit = !!pool;
-  const { mutateAsync: createPool, error: createError } = useCreateResource(ExternalIPPools);
-  const { mutateAsync: updatePool, error: updateError } = useUpdateResource(ExternalIPPools);
-  const error = isEdit ? updateError : createError;
+  const { mutateAsync: createPool, error } = useCreateResource(ExternalIPPools);
 
   const ipFamilyOptions: SelectFieldOption[] = [
     { value: 'ipv4', label: t('IPv4') },
@@ -99,27 +82,17 @@ const ExternalIpPoolForm = ({ pool }: { pool?: ExternalIPPool }) => {
 
   const onSubmit = async (values: ExternalIpPoolFormValues) => {
     try {
-      if (pool) {
-        await updatePool({
-          object: {
-            id: pool.id,
-            metadata: { version: pool.metadata?.version ?? 0, name: values.metadata.name },
+      await createPool({
+        object: {
+          metadata: { name: values.metadata.name },
+          spec: {
+            ipFamily: values.ipFamily
+              ? IP_FAMILY_BY_VALUE[values.ipFamily]
+              : IPFamily.IP_FAMILY_UNSPECIFIED,
+            cidrs: values.cidrs,
           },
-          lock: true,
-        });
-      } else {
-        await createPool({
-          object: {
-            metadata: { name: values.metadata.name },
-            spec: {
-              ipFamily: values.ipFamily
-                ? IP_FAMILY_BY_VALUE[values.ipFamily]
-                : IPFamily.IP_FAMILY_UNSPECIFIED,
-              cidrs: values.cidrs,
-            },
-          },
-        });
-      }
+        },
+      });
       navigate(POOLS_LIST_PATH);
     } catch {
       // Surfaced via the mutation's own `error` state below; nothing further to do here.
@@ -129,7 +102,7 @@ const ExternalIpPoolForm = ({ pool }: { pool?: ExternalIPPool }) => {
   return (
     <PageSection hasBodyWrapper={false}>
       <Formik
-        initialValues={getInitialValues(pool)}
+        initialValues={getInitialValues()}
         validationSchema={getExternalIpPoolSchema(t)}
         onSubmit={onSubmit}
       >
@@ -144,7 +117,6 @@ const ExternalIpPoolForm = ({ pool }: { pool?: ExternalIPPool }) => {
                   label={t('IP family')}
                   fieldId="external-ip-pool-ip-family"
                   isRequired
-                  isDisabled={isEdit}
                   options={ipFamilyOptions}
                 />
                 <FormSection title={t('CIDRs')}>
@@ -158,9 +130,8 @@ const ExternalIpPoolForm = ({ pool }: { pool?: ExternalIPPool }) => {
                               label={t('CIDR {{number}}', { number: index + 1 })}
                               fieldId={`external-ip-pool-cidr-${index}`}
                               isRequired
-                              isDisabled={isEdit}
                             >
-                              {!isEdit && values.cidrs.length > 1 && (
+                              {values.cidrs.length > 1 && (
                                 <Button
                                   variant="plain"
                                   aria-label={t('Remove CIDR {{number}}', {
@@ -173,17 +144,15 @@ const ExternalIpPoolForm = ({ pool }: { pool?: ExternalIPPool }) => {
                             </InputField>
                           </StackItem>
                         ))}
-                        {!isEdit && (
-                          <StackItem>
-                            <Button
-                              variant="link"
-                              icon={<PlusCircleIcon />}
-                              onClick={() => helpers.push('')}
-                            >
-                              {t('Add CIDR')}
-                            </Button>
-                          </StackItem>
-                        )}
+                        <StackItem>
+                          <Button
+                            variant="link"
+                            icon={<PlusCircleIcon />}
+                            onClick={() => helpers.push('')}
+                          >
+                            {t('Add CIDR')}
+                          </Button>
+                        </StackItem>
                       </Stack>
                     )}
                   </FieldArray>
@@ -193,15 +162,7 @@ const ExternalIpPoolForm = ({ pool }: { pool?: ExternalIPPool }) => {
 
             {!!error && (
               <StackItem>
-                <Alert
-                  variant="danger"
-                  title={
-                    isEdit
-                      ? t('Failed to update external IP pool')
-                      : t('Failed to create external IP pool')
-                  }
-                  isInline
-                >
+                <Alert variant="danger" title={t('Failed to create external IP pool')} isInline>
                   {getErrorMessage(error)}
                 </Alert>
               </StackItem>
@@ -216,7 +177,7 @@ const ExternalIpPoolForm = ({ pool }: { pool?: ExternalIPPool }) => {
                       isDisabled={isSubmitting}
                       isLoading={isSubmitting}
                     >
-                      {isEdit ? t('Save') : t('Create')}
+                      {t('Create')}
                     </Button>
                   </ActionListItem>
                   <ActionListItem>

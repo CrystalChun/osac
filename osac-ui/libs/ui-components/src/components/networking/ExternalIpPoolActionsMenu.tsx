@@ -67,13 +67,7 @@ const ExternalIpPoolActionsMenu = ({
               {t('View details')}
             </DropdownItem>
           )}
-          <DropdownItem
-            value="edit"
-            onClick={() => navigate(`/admin/infrastructure/external-ip-pools/${pool.id}/edit`)}
-          >
-            {t('Edit')}
-          </DropdownItem>
-          <Divider component="li" />
+          {!isActionsToggle && <Divider component="li" />}
           <DropdownItem
             value="delete"
             isDanger

@@ -37,12 +37,6 @@ describe('ExternalIpPoolRoutes', () => {
     expect(screen.getByRole('heading', { name: 'External IP pool form' })).toBeInTheDocument();
   });
 
-  it('renders the form on the edit route', () => {
-    render(renderRoutes('/admin/infrastructure/external-ip-pools/p-1/edit'));
-
-    expect(screen.getByRole('heading', { name: 'External IP pool form' })).toBeInTheDocument();
-  });
-
   it('renders the details page on the id route', () => {
     render(renderRoutes('/admin/infrastructure/external-ip-pools/p-1'));
 

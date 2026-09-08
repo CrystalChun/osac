@@ -1,3 +1,8 @@
+import {
+  DescriptionListDescription,
+  DescriptionListGroup,
+  DescriptionListTerm,
+} from '@patternfly/react-core';
 import { screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
@@ -26,5 +31,18 @@ describe('ResourceOverviewColumn', () => {
 
     expect(screen.queryByText('Status')).not.toBeInTheDocument();
     expect(screen.getByText('Created')).toBeInTheDocument();
+  });
+
+  it('renders extra description-list groups after Created', () => {
+    renderWithProviders(
+      <ResourceOverviewColumn metadata={metadata}>
+        <DescriptionListGroup>
+          <DescriptionListTerm>Tenant</DescriptionListTerm>
+          <DescriptionListDescription>Shared</DescriptionListDescription>
+        </DescriptionListGroup>
+      </ResourceOverviewColumn>,
+    );
+
+    expect(screen.getByLabelText('Overview').textContent).toMatch(/Created.*Tenant/s);
   });
 });

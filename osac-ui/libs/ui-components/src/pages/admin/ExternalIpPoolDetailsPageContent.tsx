@@ -5,7 +5,6 @@ import {
   DescriptionListTerm,
   Grid,
   GridItem,
-  Label,
   PageSection,
   Stack,
   StackItem,
@@ -15,9 +14,7 @@ import {
 import type { ExternalIPPool } from '@osac/types/private';
 
 import ExternalIpPoolCidrsSection from '../../components/networking/ExternalIpPoolCidrsSection';
-import { ipFamilyLabel } from '../../components/networking/ExternalIpPoolsTable';
 import ExternalIpPoolStatusLabel from '../../components/networking/ExternalIpPoolStatusLabel';
-import ResourceDetailsColumn from '../../components/Resource/ResourceDetailsColumn';
 import ResourceOverviewColumn from '../../components/Resource/ResourceOverviewColumn';
 import { useTranslation } from '../../hooks/useTranslation';
 import { displayValue } from '../../utils/detailFormatters';
@@ -41,7 +38,14 @@ const ExternalIpPoolDetailsPageContent = ({ pool }: ExternalIpPoolDetailsPageCon
           metadata={pool.metadata}
           status={<ExternalIpPoolStatusLabel state={pool.status?.state} />}
           ariaLabel={t('External IP pool overview')}
-        />
+        >
+          <DescriptionListGroup>
+            <DescriptionListTerm>{t('Tenant')}</DescriptionListTerm>
+            <DescriptionListDescription>
+              {isShared ? t('Shared') : tenantId}
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+        </ResourceOverviewColumn>
 
         <GridItem md={4}>
           <Stack hasGutter>
@@ -53,47 +57,25 @@ const ExternalIpPoolDetailsPageContent = ({ pool }: ExternalIpPoolDetailsPageCon
             <StackItem>
               <DescriptionList isCompact aria-label={t('External IP pool capacity')}>
                 <DescriptionListGroup>
-                  <DescriptionListTerm>{t('IP family')}</DescriptionListTerm>
+                  <DescriptionListTerm>{t('Available')}</DescriptionListTerm>
                   <DescriptionListDescription>
-                    {ipFamilyLabel(pool.spec?.ipFamily)}
+                    {pool.status ? `${pool.status.available}` : displayValue()}
                   </DescriptionListDescription>
                 </DescriptionListGroup>
                 <DescriptionListGroup>
-                  <DescriptionListTerm>{t('Available / Total')}</DescriptionListTerm>
+                  <DescriptionListTerm>{t('Total')}</DescriptionListTerm>
                   <DescriptionListDescription>
-                    {pool.status
-                      ? `${pool.status.available} / ${pool.status.total}`
-                      : displayValue()}
-                  </DescriptionListDescription>
-                </DescriptionListGroup>
-                <DescriptionListGroup>
-                  <DescriptionListTerm>{t('Allocated')}</DescriptionListTerm>
-                  <DescriptionListDescription>
-                    {pool.status ? `${pool.status.allocated}` : displayValue()}
+                    {pool.status ? `${pool.status.total}` : displayValue()}
                   </DescriptionListDescription>
                 </DescriptionListGroup>
               </DescriptionList>
             </StackItem>
-            <StackItem>
-              <ExternalIpPoolCidrsSection cidrs={cidrs} />
-            </StackItem>
           </Stack>
         </GridItem>
 
-        <ResourceDetailsColumn title={t('Assignment')} ariaLabel={t('External IP pool assignment')}>
-          <DescriptionListGroup>
-            <DescriptionListTerm>{t('Tenant')}</DescriptionListTerm>
-            <DescriptionListDescription>
-              {isShared ? (
-                <Label color="green" isCompact>
-                  {t('Shared')}
-                </Label>
-              ) : (
-                tenantId
-              )}
-            </DescriptionListDescription>
-          </DescriptionListGroup>
-        </ResourceDetailsColumn>
+        <GridItem md={4}>
+          <ExternalIpPoolCidrsSection cidrs={cidrs} />
+        </GridItem>
       </Grid>
     </PageSection>
   );

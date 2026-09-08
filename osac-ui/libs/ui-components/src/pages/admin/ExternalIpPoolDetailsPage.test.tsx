@@ -59,7 +59,7 @@ describe('ExternalIpPoolDetailsPage', () => {
     mockNavigate.mockReset();
   });
 
-  it('renders pool details in overview, capacity, and assignment columns', async () => {
+  it('renders pool details in overview, capacity, and CIDRs columns', async () => {
     renderPage('p-1', [makePool('p-1', 'prod-v4', IPFamily.IP_FAMILY_IPV4, ['192.168.1.0/24'])]);
 
     await waitFor(() => {
@@ -67,20 +67,27 @@ describe('ExternalIpPoolDetailsPage', () => {
     });
     expect(screen.getByRole('heading', { name: 'Overview' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Capacity' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Assignment' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'CIDRs' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Assignment' })).not.toBeInTheDocument();
     expect(screen.getByText('Routable address pool for tenant edge exposure.')).toBeInTheDocument();
     expect(screen.queryByText('Name')).not.toBeInTheDocument();
     expect(screen.getByLabelText('External IP pool overview').textContent).toMatch(
-      /Status.*Created/s,
+      /Status.*Created.*Tenant/s,
     );
-    expect(screen.getByText('IPv4')).toBeInTheDocument();
-    expect(screen.getByText('200 / 256')).toBeInTheDocument();
+    expect(screen.queryByText('IP family')).not.toBeInTheDocument();
+    expect(screen.queryByText('IPv4')).not.toBeInTheDocument();
+    expect(screen.getByText('Available')).toBeInTheDocument();
+    expect(screen.getByText('200')).toBeInTheDocument();
+    expect(screen.getByText('Total')).toBeInTheDocument();
+    expect(screen.getByText('256')).toBeInTheDocument();
+    expect(screen.queryByText('Allocated')).not.toBeInTheDocument();
     expect(screen.queryByText('Implementation strategy')).not.toBeInTheDocument();
     expect(screen.getByText('Ready')).toBeInTheDocument();
     expect(screen.getByText('Shared')).toBeInTheDocument();
+    expect(screen.getByText('Shared').closest('.pf-v6-c-label')).toBeNull();
   });
 
-  it('lists CIDRs under a section without a more button when there are three or fewer', async () => {
+  it('shows one CIDR and a more button when the pool has more than one CIDR', async () => {
     renderPage('p-3', [
       makePool('p-3', 'multi', IPFamily.IP_FAMILY_IPV4, [
         '192.168.1.0/24',
@@ -94,9 +101,8 @@ describe('ExternalIpPoolDetailsPage', () => {
     });
     expect(screen.getByRole('heading', { name: 'CIDRs' })).toBeInTheDocument();
     expect(screen.getByText('192.168.1.0/24')).toBeInTheDocument();
-    expect(screen.getByText('10.0.5.0/28')).toBeInTheDocument();
-    expect(screen.getByText('172.16.0.0/24')).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /more/i })).not.toBeInTheDocument();
+    expect(screen.queryByText('10.0.5.0/28')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'More' })).toBeInTheDocument();
   });
 
   it('shows the tenant id when the pool is not in the shared tenant', async () => {
@@ -121,7 +127,7 @@ describe('ExternalIpPoolDetailsPage', () => {
     });
   });
 
-  it('navigates to the edit route when Edit is clicked', async () => {
+  it('does not offer Edit because pool spec and name are immutable', async () => {
     const { user } = renderPage('p-1', [
       makePool('p-1', 'prod-v4', IPFamily.IP_FAMILY_IPV4, ['192.168.1.0/24']),
     ]);
@@ -132,9 +138,8 @@ describe('ExternalIpPoolDetailsPage', () => {
 
     await user.click(screen.getByRole('button', { name: 'Actions' }));
     expect(screen.queryByRole('menuitem', { name: 'View details' })).not.toBeInTheDocument();
-    await user.click(screen.getByRole('menuitem', { name: 'Edit' }));
-
-    expect(mockNavigate).toHaveBeenCalledWith('/admin/infrastructure/external-ip-pools/p-1/edit');
+    expect(screen.queryByRole('menuitem', { name: 'Edit' })).not.toBeInTheDocument();
+    expect(screen.getByRole('menuitem', { name: 'Delete' })).toBeInTheDocument();
   });
 
   it('navigates to the list after a successful delete', async () => {

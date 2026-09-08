@@ -4,7 +4,7 @@ import { Button, List, ListItem, Stack, StackItem, Title } from '@patternfly/rea
 import { useTranslation } from '../../hooks/useTranslation';
 import { SubtleContent } from '../SubtleContent/SubtleContent';
 
-const CIDR_PREVIEW_COUNT = 3;
+const CIDR_PREVIEW_COUNT = 1;
 
 interface ExternalIpPoolCidrsSectionProps {
   cidrs: string[];
