@@ -10,22 +10,15 @@ import { useTranslation } from '../../hooks/useTranslation';
 
 interface ExternalIpPoolActionsMenuProps {
   pool: ExternalIPPool;
-  variant?: 'kebab' | 'actions';
-  onDeleted?: () => void;
 }
 
-const ExternalIpPoolActionsMenu = ({
-  pool,
-  variant = 'kebab',
-  onDeleted,
-}: ExternalIpPoolActionsMenuProps) => {
+const ExternalIpPoolActionsMenu = ({ pool }: ExternalIpPoolActionsMenuProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
   const poolName = pool.metadata?.name ?? pool.id;
-  const isActionsToggle = variant === 'actions';
 
   return (
     <>
@@ -33,10 +26,7 @@ const ExternalIpPoolActionsMenu = ({
         <ExternalIpPoolDeleteConfirmModal
           pool={pool}
           onClose={() => setDeleteOpen(false)}
-          onSuccess={() => {
-            setDeleteOpen(false);
-            onDeleted?.();
-          }}
+          onSuccess={() => setDeleteOpen(false)}
         />
       )}
       <Dropdown
@@ -46,28 +36,24 @@ const ExternalIpPoolActionsMenu = ({
         toggle={(ref) => (
           <MenuToggle
             ref={ref}
-            variant={isActionsToggle ? 'secondary' : 'plain'}
+            variant="plain"
             onClick={() => setOpen((o) => !o)}
             isExpanded={open}
-            aria-label={
-              isActionsToggle ? t('Actions') : t('Actions for {{name}}', { name: poolName })
-            }
+            aria-label={t('Actions for {{name}}', { name: poolName })}
           >
-            {isActionsToggle ? t('Actions') : <EllipsisVIcon />}
+            <EllipsisVIcon />
           </MenuToggle>
         )}
         popperProps={{ position: 'right' }}
       >
         <DropdownList>
-          {!isActionsToggle && (
-            <DropdownItem
-              value="view-details"
-              onClick={() => navigate(`/admin/infrastructure/external-ip-pools/${pool.id}`)}
-            >
-              {t('View details')}
-            </DropdownItem>
-          )}
-          {!isActionsToggle && <Divider component="li" />}
+          <DropdownItem
+            value="view-details"
+            onClick={() => navigate(`/admin/infrastructure/external-ip-pools/${pool.id}`)}
+          >
+            {t('View details')}
+          </DropdownItem>
+          <Divider component="li" />
           <DropdownItem
             value="delete"
             isDanger

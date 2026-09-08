@@ -1,11 +1,20 @@
+import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Divider, Flex, FlexItem, PageSection, Stack, StackItem } from '@patternfly/react-core';
+import {
+  Button,
+  Divider,
+  Flex,
+  FlexItem,
+  PageSection,
+  Stack,
+  StackItem,
+} from '@patternfly/react-core';
 
 import { ExternalIPPools } from '@osac/types/private';
 
 import ExternalIpPoolDetailsPageContent from './ExternalIpPoolDetailsPageContent';
 import { useGetResource } from '../../api/use-resource';
-import ExternalIpPoolActionsMenu from '../../components/networking/ExternalIpPoolActionsMenu';
+import ExternalIpPoolDeleteConfirmModal from '../../components/networking/ExternalIpPoolDeleteConfirmModal';
 import { ResourceDetailHeader } from '../../components/Resource/ResourceDetailHeader';
 import { ResourceDetailsPageError } from '../../components/Resource/ResourceDetailsPageError';
 import { ResourceDetailsPageLoading } from '../../components/Resource/ResourceDetailsPageLoading';
@@ -17,6 +26,7 @@ export const ExternalIpPoolDetailsPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { id = '' } = useParams<{ id: string }>();
+  const [deleteOpen, setDeleteOpen] = useState(false);
   const { data, isLoading, error, refetch } = useGetResource(ExternalIPPools, { id });
   const pool = data?.object;
 
@@ -55,6 +65,13 @@ export const ExternalIpPoolDetailsPage = () => {
 
   return (
     <>
+      {deleteOpen && (
+        <ExternalIpPoolDeleteConfirmModal
+          pool={pool}
+          onClose={() => setDeleteOpen(false)}
+          onSuccess={() => navigate(POOLS_LIST_PATH)}
+        />
+      )}
       <PageSection hasBodyWrapper={false}>
         <Stack hasGutter>
           <StackItem>
@@ -73,11 +90,9 @@ export const ExternalIpPoolDetailsPage = () => {
                 />
               </FlexItem>
               <FlexItem>
-                <ExternalIpPoolActionsMenu
-                  pool={pool}
-                  variant="actions"
-                  onDeleted={() => navigate(POOLS_LIST_PATH)}
-                />
+                <Button variant="danger" onClick={() => setDeleteOpen(true)}>
+                  {t('Delete')}
+                </Button>
               </FlexItem>
             </Flex>
           </StackItem>

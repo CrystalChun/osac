@@ -149,19 +149,16 @@ describe('ExternalIpPoolDetailsPage', () => {
     });
   });
 
-  it('does not offer Edit because pool spec and name are immutable', async () => {
-    const { user } = renderPage('p-1', [
-      makePool('p-1', 'prod-v4', IPFamily.IP_FAMILY_IPV4, ['192.168.1.0/24']),
-    ]);
+  it('offers a danger Delete button instead of an Actions menu', async () => {
+    renderPage('p-1', [makePool('p-1', 'prod-v4', IPFamily.IP_FAMILY_IPV4, ['192.168.1.0/24'])]);
 
     await waitFor(() => {
       expect(screen.getByRole('heading', { name: 'prod-v4' })).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole('button', { name: 'Actions' }));
-    expect(screen.queryByRole('menuitem', { name: 'View details' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Actions' })).not.toBeInTheDocument();
     expect(screen.queryByRole('menuitem', { name: 'Edit' })).not.toBeInTheDocument();
-    expect(screen.getByRole('menuitem', { name: 'Delete' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Delete' })).toHaveClass('pf-m-danger');
   });
 
   it('navigates to the list after a successful delete', async () => {
@@ -173,8 +170,7 @@ describe('ExternalIpPoolDetailsPage', () => {
       expect(screen.getByRole('heading', { name: 'prod-v4' })).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole('button', { name: 'Actions' }));
-    await user.click(screen.getByRole('menuitem', { name: 'Delete' }));
+    await user.click(screen.getByRole('button', { name: 'Delete' }));
     await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: /^Delete$/i }));
 
     await waitFor(() => {
