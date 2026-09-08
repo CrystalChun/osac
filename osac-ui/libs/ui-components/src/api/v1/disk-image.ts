@@ -59,7 +59,7 @@ const ALL_DISK_IMAGE_LIFECYCLE_VALUES = [
   DiskImageLifecycle.OBSOLETE,
 ];
 
-const lifecycleEqualsClause = (values: DiskImageLifecycle[]): CelFilter<DiskImage> =>
+const lifecycleEqualsClause = (values: DiskImageLifecycle[]): CelFilter<DiskImage> | undefined =>
   cel<DiskImage>((filter) =>
     values.length === 1
       ? filter.field('spec.lifecycle').equals(values[0])
@@ -107,9 +107,16 @@ export const buildDiskImageListFilter = (
       const lifecycleValues = selectedLifecycle.length
         ? [...selectedLifecycle, DiskImageLifecycle.OBSOLETE]
         : ALL_DISK_IMAGE_LIFECYCLE_VALUES;
-      clauses.push(lifecycleEqualsClause(lifecycleValues));
+
+      const clause = lifecycleEqualsClause(lifecycleValues);
+      if (clause) {
+        clauses.push(clause);
+      }
     } else if (selectedLifecycle.length) {
-      clauses.push(lifecycleEqualsClause(selectedLifecycle));
+      const clause = lifecycleEqualsClause(selectedLifecycle);
+      if (clause) {
+        clauses.push(clause);
+      }
     }
 
     return filter.and(...clauses);

@@ -1,11 +1,19 @@
-import { type ComputeInstance } from '@osac/types';
-
 import { useSession } from './use-session';
-import { cel } from '../api/cel';
+import { type CelFilter, cel } from '../api/cel';
 
-export const useProjectFilterQuery = () => {
+export interface ProjectScopedResource {
+  metadata?: {
+    project: string;
+  };
+}
+
+export const useProjectFilterQuery = <T extends ProjectScopedResource>():
+  | CelFilter<T>
+  | undefined => {
   const { projects } = useSession();
   return projects.length
-    ? cel<ComputeInstance>((filter) => filter.field('metadata.project').isIn(projects))
+    ? (cel<ProjectScopedResource>((filter) =>
+        filter.field('metadata.project').isIn(projects),
+      ) as CelFilter<T>)
     : undefined;
 };

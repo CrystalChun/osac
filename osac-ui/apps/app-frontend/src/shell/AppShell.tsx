@@ -8,6 +8,7 @@ import IdentityProviderRoutes from '@osac/ui-components/components/IdentityProvi
 import ProjectRoutes from '@osac/ui-components/components/Project/ProjectRoutes';
 import ProjectMembershipRoutes from '@osac/ui-components/components/ProjectMembership/ProjectMembershipRoutes';
 import RoleBindingRoutes from '@osac/ui-components/components/RoleBinding/RoleBindingRoutes';
+import SecretRoutes from '@osac/ui-components/components/Secret/SecretRoutes';
 import { VmDetailsPage } from '@osac/ui-components/components/vm/VmDetailsPage';
 import { useSession } from '@osac/ui-components/hooks/use-session';
 import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
@@ -212,6 +213,14 @@ export const AppShell = ({ logout }: { logout: () => Promise<void> }) => {
           element={
             <ShellRoute>
               <SecurityGroupDetailPage />
+            </ShellRoute>
+          }
+        />
+        <Route
+          path="/secrets/*"
+          element={
+            <ShellRoute>
+              <SecretRoutes />
             </ShellRoute>
           }
         />

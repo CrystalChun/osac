@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { type MessageInitShape } from '@bufbuild/protobuf';
 import { keepPreviousData, useMutation } from '@tanstack/react-query';
 
-import { ClusterSchema, Clusters, Secrets } from '@osac/types';
+import { Cluster, ClusterSchema, Clusters, Secrets } from '@osac/types';
 import { useProjectFilterQuery } from '@osac/ui-components/hooks/use-project-filter-query';
 
 import { useApiFetch } from '../api-context';
@@ -11,7 +11,7 @@ import { type ApiQueryClient, useApiQuery, useApiQueryClient } from '../use-api-
 
 export const useClusters = () => {
   const client = useApiFetch(Clusters);
-  const filter = useProjectFilterQuery();
+  const filter = useProjectFilterQuery<Cluster>();
   return useApiQuery({
     queryKey: apiQueryKey('v1/clusters', undefined, filter ? { filter } : undefined),
     queryFn: () => client.list({ filter }),

@@ -3,6 +3,7 @@ import { timestampNow } from '@bufbuild/protobuf/wkt';
 import { keepPreviousData, useMutation } from '@tanstack/react-query';
 
 import {
+  type ComputeInstance,
   ComputeInstanceSchema,
   ComputeInstanceState,
   ComputeInstances,
@@ -18,7 +19,7 @@ import { type ApiQueryClient, useApiQuery, useApiQueryClient } from '../use-api-
 
 export const useComputeInstances = () => {
   const client = useApiFetch(ComputeInstances);
-  const filter = useProjectFilterQuery();
+  const filter = useProjectFilterQuery<ComputeInstance>();
   return useApiQuery({
     queryKey: apiQueryKey('v1/compute_instances', undefined, filter ? { filter } : undefined),
     queryFn: () => client.list({ filter }),
