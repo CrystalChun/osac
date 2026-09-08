@@ -9,6 +9,8 @@ interface ResourceDetailsPageProps {
   parentTo: string;
   parentLabel: string;
   tabLabels?: string[];
+  cardCount?: number;
+  resourceLabel?: string;
 }
 
 const ResourceDetailsPage = ({
@@ -19,6 +21,8 @@ const ResourceDetailsPage = ({
   parentTo,
   parentLabel,
   tabLabels,
+  cardCount,
+  resourceLabel,
   children,
 }: React.PropsWithChildren<ResourceDetailsPageProps>) => {
   if (isLoading) {
@@ -27,6 +31,7 @@ const ResourceDetailsPage = ({
         parentTo={parentTo}
         parentLabel={parentLabel}
         tabLabels={tabLabels}
+        cardCount={cardCount}
       />
     );
   }
@@ -36,6 +41,7 @@ const ResourceDetailsPage = ({
       <ResourceDetailsPageError
         parentTo={parentTo}
         parentLabel={parentLabel}
+        resourceLabel={resourceLabel}
         error={error}
         onRetry={() => void refetch()}
       />
@@ -44,7 +50,12 @@ const ResourceDetailsPage = ({
 
   if (!found) {
     return (
-      <ResourceDetailsPageError parentTo={parentTo} parentLabel={parentLabel} variant="not-found" />
+      <ResourceDetailsPageError
+        parentTo={parentTo}
+        parentLabel={parentLabel}
+        resourceLabel={resourceLabel}
+        variant="not-found"
+      />
     );
   }
 
