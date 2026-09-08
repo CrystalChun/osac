@@ -336,6 +336,7 @@
   "Failed to fetch storage backend": "Failed to fetch storage backend",
   "Failed to fetch storage backends": "Failed to fetch storage backends",
   "Failed to fetch subnet": "Failed to fetch subnet",
+  "Failed to fetch tenants": "Failed to fetch tenants",
   "Failed to fetch virtual network": "Failed to fetch virtual network",
   "Failed to load cluster password": "Failed to load cluster password",
   "Failed to load graphical console viewer": "Failed to load graphical console viewer",

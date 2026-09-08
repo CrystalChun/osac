@@ -285,6 +285,7 @@ export type MockTransportOverrides = {
     req: IdentityProvidersUpdateRequest,
   ) => IdentityProvidersUpdateResponse;
   onTenantCreate?: (req: TenantsCreateRequest) => TenantsCreateResponse;
+  onTenantList?: () => never;
   onStorageBackendList?: (
     req: StorageBackendsListRequest,
   ) => MessageInitShape<typeof StorageBackendsListResponseSchema>;
@@ -791,11 +792,16 @@ export const createMockConnectTransport = (
       });
 
       router.service(PrivateTenants, {
-        list: () => ({
-          items: tenants,
-          size: tenants.length,
-          total: tenants.length,
-        }),
+        list: () => {
+          if (overrides.onTenantList) {
+            return overrides.onTenantList();
+          }
+          return {
+            items: tenants,
+            size: tenants.length,
+            total: tenants.length,
+          };
+        },
         get: (req) => ({
           object: tenants.find((t) => t.id === req.id),
         }),

@@ -6,13 +6,14 @@ import { useListResource } from '@osac/ui-components/api/use-resource';
 import OsacForm from '@osac/ui-components/components/Form/OsacForm';
 import { SelectField } from '@osac/ui-components/components/Form/SelectField';
 import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
+import { getErrorMessage } from '@osac/ui-components/utils/error';
 
 import type { ExternalIpPoolFormValues } from './values';
 
 const TenantStep = () => {
   const { t } = useTranslation();
   const { values } = useFormikContext<ExternalIpPoolFormValues>();
-  const { data: tenantsResponse, isLoading } = useListResource(Tenants);
+  const { data: tenantsResponse, isLoading, error } = useListResource(Tenants);
   const tenants = tenantsResponse?.items ?? [];
   const selectedTenant = tenants.find((tenant) => tenant.id === values.metadata.tenant);
 
@@ -31,7 +32,11 @@ const TenantStep = () => {
         </Content>
       </StackItem>
       <StackItem>
-        {!isLoading && tenants.length === 0 ? (
+        {error ? (
+          <Alert variant="danger" isInline title={t('Failed to fetch tenants')}>
+            {getErrorMessage(error)}
+          </Alert>
+        ) : !isLoading && tenants.length === 0 ? (
           <Alert variant="warning" isInline title={t('No registered tenants')}>
             <Content component="p">
               {t('Register a tenant before creating and assigning an external IP pool.')}

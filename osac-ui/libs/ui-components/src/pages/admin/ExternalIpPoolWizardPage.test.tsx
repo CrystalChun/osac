@@ -127,6 +127,30 @@ describe('ExternalIpPoolWizardPage', () => {
       expect(capturedRequest?.object?.spec?.cidrs).toEqual(['192.168.1.0/24']);
     }, 15000);
 
+    it('trims CIDR values in the create payload', async () => {
+      let capturedRequest: ExternalIPPoolsCreateRequest | undefined;
+      const { user } = renderCreatePage({
+        onExternalIPPoolCreate: (req) => {
+          capturedRequest = req;
+          return create(ExternalIPPoolsCreateResponseSchema, {
+            object: { id: 'new-external-ip-pool-1' },
+          });
+        },
+      });
+
+      await fillPoolStep(user, 'prod-v4', '  192.168.1.0/24  ');
+      await clickNext(user);
+      await fillTenantStep(user, 'acme');
+      await clickNext(user);
+      await screen.findByRole('heading', { name: 'Review' });
+      await user.click(screen.getByRole('button', { name: 'Create' }));
+
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith(LIST_PATH);
+      });
+      expect(capturedRequest?.object?.spec?.cidrs).toEqual(['192.168.1.0/24']);
+    }, 15000);
+
     it('blocks advancing past External IP pool for an invalid name', async () => {
       const onExternalIPPoolCreate = vi.fn();
       const { user } = renderCreatePage({ onExternalIPPoolCreate });
@@ -225,6 +249,21 @@ describe('ExternalIpPoolWizardPage', () => {
       expect(
         screen.getByText('Register a tenant before creating and assigning an external IP pool.'),
       ).toBeInTheDocument();
+    });
+
+    it('shows a fetch error instead of the empty-tenant warning when listing tenants fails', async () => {
+      const { user } = renderCreatePage({
+        onTenantList: () => {
+          throw new ConnectError('tenants unavailable', Code.Unavailable);
+        },
+      });
+
+      await fillPoolStep(user, 'prod-v4', '192.168.1.0/24');
+      await clickNext(user);
+
+      expect(await screen.findByText('Failed to fetch tenants')).toBeInTheDocument();
+      expect(screen.getByText('tenants unavailable')).toBeInTheDocument();
+      expect(screen.queryByText('No registered tenants')).not.toBeInTheDocument();
     });
 
     it('shows a form-level error and does not navigate when the name already exists', async () => {

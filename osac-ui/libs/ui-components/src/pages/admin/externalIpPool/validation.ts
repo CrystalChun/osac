@@ -8,7 +8,7 @@ import { resourceNameSchema } from '@osac/ui-components/validation/resource-name
 import type { ExternalIpPoolFormValues } from './values';
 
 const cidrFieldSchema = (t: TFunction, ipFamily: CidrIpFamily) =>
-  buildCidrSchema(t, ipFamily).required(t('CIDR is required'));
+  buildCidrSchema(t, ipFamily).trim().required(t('CIDR is required'));
 
 export const getExternalIpPoolSchema = (t: TFunction) =>
   Yup.object({

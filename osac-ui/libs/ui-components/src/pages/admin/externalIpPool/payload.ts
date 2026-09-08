@@ -18,7 +18,7 @@ export const toCreateRequest = (values: ExternalIpPoolFormValues) => ({
       ipFamily: values.ipFamily
         ? IP_FAMILY_BY_VALUE[values.ipFamily]
         : IPFamily.IP_FAMILY_UNSPECIFIED,
-      cidrs: values.cidrs,
+      cidrs: values.cidrs.map((cidr) => cidr.trim()),
     },
   },
 });
