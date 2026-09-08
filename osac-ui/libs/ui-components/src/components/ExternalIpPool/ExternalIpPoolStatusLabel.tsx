@@ -2,11 +2,11 @@ import type { TFunction } from 'i18next';
 
 import { ExternalIPPoolState } from '@osac/types/private';
 
+import { useTranslation } from '../../hooks/useTranslation';
 import {
   ResourceStatusLabel,
   type StatusLabelProps,
-} from '../../../components/Resource/ResourceStatusLabel';
-import { useTranslation } from '../../../hooks/useTranslation';
+} from '../Resource/ResourceStatusLabel';
 
 interface ExternalIpPoolStatusLabelProps {
   state?: ExternalIPPoolState;

@@ -14,11 +14,11 @@ import { ExternalIPPools } from '@osac/types/private';
 
 import ExternalIpPoolDeleteConfirmModal from './ExternalIpPoolDeleteConfirmModal';
 import ExternalIpPoolDetailsPageContent from './ExternalIpPoolDetailsPageContent';
-import { useGetResource } from '../../../api/use-resource';
-import { ResourceDetailHeader } from '../../../components/Resource/ResourceDetailHeader';
-import { ResourceDetailsPageError } from '../../../components/Resource/ResourceDetailsPageError';
-import { ResourceDetailsPageLoading } from '../../../components/Resource/ResourceDetailsPageLoading';
-import { useTranslation } from '../../../hooks/useTranslation';
+import { useGetResource } from '../../api/use-resource';
+import { useTranslation } from '../../hooks/useTranslation';
+import { ResourceDetailHeader } from '../Resource/ResourceDetailHeader';
+import { ResourceDetailsPageError } from '../Resource/ResourceDetailsPageError';
+import { ResourceDetailsPageLoading } from '../Resource/ResourceDetailsPageLoading';
 
 const POOLS_LIST_PATH = '/admin/infrastructure/external-ip-pools';
 

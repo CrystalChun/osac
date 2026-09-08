@@ -15,8 +15,8 @@ import type { ExternalIPPool } from '@osac/types/private';
 
 import ExternalIpPoolCidrsSection from './ExternalIpPoolCidrsSection';
 import ExternalIpPoolReviewColumn from './ExternalIpPoolReviewColumn';
-import { useTranslation } from '../../../hooks/useTranslation';
-import { displayValue } from '../../../utils/detailFormatters';
+import { useTranslation } from '../../hooks/useTranslation';
+import { displayValue } from '../../utils/detailFormatters';
 
 interface ExternalIpPoolDetailsPageContentProps {
   pool: ExternalIPPool;

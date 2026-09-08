@@ -13,8 +13,8 @@ import {
 } from '@osac/types/private';
 
 import { ExternalIpPoolWizardPage } from './ExternalIpPoolWizardPage';
-import type { MockTransportOverrides } from '../../../test-utils/createMockConnectTransport';
-import { renderWithProviders } from '../../../test-utils/TestProviders';
+import type { MockTransportOverrides } from '../../test-utils/createMockConnectTransport';
+import { renderWithProviders } from '../../test-utils/TestProviders';
 
 const LIST_PATH = '/admin/infrastructure/external-ip-pools';
 

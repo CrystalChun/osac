@@ -5,7 +5,7 @@ import type { ExternalIPPool } from '@osac/types/private';
 import { ExternalIPPoolState, IPFamily } from '@osac/types/private';
 
 import ExternalIpPoolReviewColumn from './ExternalIpPoolReviewColumn';
-import { renderWithProviders } from '../../../test-utils/TestProviders';
+import { renderWithProviders } from '../../test-utils/TestProviders';
 
 const makePool = (tenant?: string): ExternalIPPool =>
   ({

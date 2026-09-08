@@ -7,9 +7,9 @@ import {
 import type { ExternalIPPool } from '@osac/types/private';
 
 import ExternalIpPoolStatusLabel from './ExternalIpPoolStatusLabel';
-import ResourceDetailsColumn from './ResourceDetailsColumn';
-import { Timestamp } from '../../../components/Primitives/Timestamp';
-import { useTranslation } from '../../../hooks/useTranslation';
+import { useTranslation } from '../../hooks/useTranslation';
+import { Timestamp } from '../Primitives/Timestamp';
+import ResourceDetailsColumn from '../Resource/ResourceDetailsColumn';
 
 const SHARED_TENANT = 'shared';
 
