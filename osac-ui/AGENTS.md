@@ -27,12 +27,27 @@ FULFILLMENT_API_URL=https://... pnpm dev  # Go proxy + Vite on :5173
 ```
 
 **Key commands**:
-- `pnpm build` — TypeScript check + Vite build + Go binary
-- `pnpm test` — app-frontend Vitest tests, including ui-components tests via include globs
-- `pnpm lint` — ESLint + Prettier + i18n sync check (CI fails if out of sync)
+- `pnpm run typecheck` — `tsc --noEmit` in every package (including `*.test.ts` / `*.test.tsx`); **separate CI job** from lint and test
+- `pnpm lint` — ESLint + Prettier + i18n sync check (CI fails if out of sync); **does not typecheck**
+- `pnpm test` — app-frontend Vitest tests, including ui-components tests via include globs; **does not substitute for typecheck**
+- `pnpm build` — app-frontend production `tsc -b` (excludes test files) + Vite build + Go binary
 - `pnpm format` — Auto-fix linting and formatting issues
 - `pnpm gen-types` — Regenerate TypeScript from protobuf (libs/types)
 - `pnpm i18n` — Extract t() keys to libs/i18n/locales/en/translation.json
+
+### Pre-submit validation (CI parity)
+
+CI runs **separate** workflows for typecheck, lint, test, and container build. Passing one step does **not** mean the others pass. Before commit, push, or opening/updating a PR, run the full sequence:
+
+```bash
+pnpm run typecheck
+pnpm lint
+pnpm test
+```
+
+Run `pnpm build` when the change touches build config, imports across package boundaries, or you want local confirmation before the container-build job.
+
+**Common gap:** Vitest can pass while `pnpm run typecheck` fails — for example, invalid protobuf `create(...)` fixtures in `libs/ui-components/src/**/*.test.tsx`. Those test files are included in `@osac/ui-components`'s `tsc --noEmit`, but excluded from the app-frontend production build (`tsconfig.build.json`). Always run `pnpm run typecheck`; do not infer it from `pnpm test` or `pnpm lint` alone.
 
 **Container**:
 ```bash
@@ -181,7 +196,7 @@ export const getLabels = (t: TFunction) => ({
 - ESLint relaxes type safety rules for test files (no-unsafe-* off)
 - Testing libraries: @testing-library/react 16.x, @testing-library/jest-dom 6.x
 - No persisted E2E test suite in this repo, and no persisted UI-level E2E coverage anywhere: `osac-test-infra`'s CI-tracked E2E suites hit the fulfillment gRPC/REST API and Kubernetes CRs directly — no browser, nothing UI-related
-- CI runs lint, test, and container build; run `pnpm test` locally before submitting
+- CI runs typecheck, lint, test, and container build as **separate jobs**; run `pnpm run typecheck`, `pnpm lint`, and `pnpm test` locally before submitting (see [Pre-submit validation](#pre-submit-validation-ci-parity))
 
 ### Manual verification against a live cluster
 
@@ -287,7 +302,7 @@ pnpm build  # Builds frontend + proxy binary
 
 - Match existing formatting, import order, file layout, and naming in the touched package
 - No broad refactors unrelated to the current task; smallest diff that satisfies requirements
-- Run linters and tests before considering work done; fix new violations you introduce
+- Run the [pre-submit validation](#pre-submit-validation-ci-parity) sequence before considering work done; fix new violations you introduce
 
 ## Security
 
@@ -317,7 +332,7 @@ Assisted-by: Claude Code <noreply@anthropic.com>
 ```
 
 **PR review**:
-- CI must pass: lint (TS + Go), test, container build
+- CI must pass: typecheck, lint (TS + Go), test, container build
 - On main merge or tag: publish container image to ghcr.io
 - On `v*` tags: publish Helm chart to GHCR
 
@@ -329,7 +344,7 @@ Assisted-by: Claude Code <noreply@anthropic.com>
 
 **Code review expectations**:
 - Match existing formatting, import order, file layout, naming
-- Run linters and tests before submitting
+- Run the [pre-submit validation](#pre-submit-validation-ci-parity) sequence before submitting
 - Fix new violations you introduce
 - No secrets, tokens, or credentials in source
 - Sanitize user-controlled content
