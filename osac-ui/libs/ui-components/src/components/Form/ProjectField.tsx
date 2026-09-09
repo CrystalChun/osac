@@ -10,9 +10,10 @@ import { getFullProjectPath, getProjectName } from '../Project/utils';
 interface ProjectFieldProps {
   label?: string;
   onSelect?: SelectFieldProps['onSelect'];
+  isDisabled?: boolean;
 }
 
-const ProjectField = ({ label, onSelect }: ProjectFieldProps) => {
+const ProjectField = ({ label, onSelect, isDisabled }: ProjectFieldProps) => {
   const { t } = useTranslation();
   const { data: projects = [], isLoading, error } = useProjects();
   return (
@@ -27,7 +28,7 @@ const ProjectField = ({ label, onSelect }: ProjectFieldProps) => {
         }))}
         isRequired
         isLoading={isLoading}
-        isDisabled={!!error}
+        isDisabled={!!error || isDisabled}
         onSelect={onSelect}
       />
       {!!error && (
