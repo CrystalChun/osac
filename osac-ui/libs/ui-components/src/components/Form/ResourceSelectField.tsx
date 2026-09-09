@@ -26,7 +26,7 @@ export { emptyResourceSelectValue } from './resourceSelectValue';
 
 export interface ResourceListItem {
   id: string;
-  metadata?: { name?: string; displayName?: string };
+  metadata?: { name?: string };
 }
 
 export interface ResourceSelectFieldProps {
@@ -50,9 +50,6 @@ const resourceFromItem = (item: ResourceListItem): ResourceSelectValue => ({
   id: item.id,
   name: item.metadata?.name ?? '',
 });
-
-const resourceOptionLabel = (item: ResourceListItem): string =>
-  item.metadata?.displayName?.trim() || item.metadata?.name?.trim() || '';
 
 export const ResourceSelectField = ({
   name,
@@ -88,7 +85,7 @@ export const ResourceSelectField = ({
   const selectedId = field.value?.id ?? '';
   const selectedItem = items.find((item) => item.id === selectedId);
   const toggleLabel =
-    (selectedItem ? resourceOptionLabel(selectedItem) : field.value?.name) || effectivePlaceholder;
+    (selectedItem ? selectedItem.metadata?.name : field.value?.name) || effectivePlaceholder;
   const validated = error ? 'error' : 'default';
 
   useEffect(() => {
@@ -156,7 +153,7 @@ export const ResourceSelectField = ({
           <SelectList>
             {items.map((item) => (
               <SelectOption key={item.id} value={item.id}>
-                {resourceOptionLabel(item)}
+                {item.metadata?.name}
               </SelectOption>
             ))}
           </SelectList>

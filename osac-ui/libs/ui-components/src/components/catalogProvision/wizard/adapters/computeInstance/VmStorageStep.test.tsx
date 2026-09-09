@@ -87,11 +87,11 @@ describe('VmStorageStep', () => {
       { id: 'id-fast', name: 'fast' },
     );
 
-    await waitFor(() =>
-      expect(screen.getByLabelText(/^Storage tier/)).toHaveTextContent('Fast SSD'),
-    );
+    await waitFor(() => {
+      expect(screen.getByLabelText(/^Storage tier/)).toHaveTextContent('fast');
+      expect(screen.getByLabelText(/^Storage tier/)).not.toBeDisabled();
+    });
     expect(screen.queryByText('Locked by catalog')).not.toBeInTheDocument();
-    expect(screen.getByLabelText(/^Storage tier/)).not.toBeDisabled();
   });
 
   it('renders the tier read-only with a lock badge when the catalog locks it', async () => {
@@ -106,9 +106,7 @@ describe('VmStorageStep', () => {
       { id: 'id-fast', name: 'fast' },
     );
 
-    await waitFor(() =>
-      expect(screen.getByLabelText(/^Storage tier/)).toHaveTextContent('Fast SSD'),
-    );
+    await waitFor(() => expect(screen.getByLabelText(/^Storage tier/)).toHaveTextContent('fast'));
     expect(screen.getByText('Locked by catalog')).toBeInTheDocument();
     expect(screen.getByLabelText(/^Storage tier/)).toBeDisabled();
   });
@@ -140,6 +138,6 @@ describe('VmStorageStep — additional disks', () => {
 
     await waitFor(() => expect(screen.getAllByLabelText(/^Storage tier/)).toHaveLength(2));
     // Boot disk's picker renders before the additional-disks array field in this step.
-    expect(screen.getAllByLabelText(/^Storage tier/)[0]).toHaveTextContent('Fast SSD');
+    expect(screen.getAllByLabelText(/^Storage tier/)[0]).toHaveTextContent('fast');
   });
 });

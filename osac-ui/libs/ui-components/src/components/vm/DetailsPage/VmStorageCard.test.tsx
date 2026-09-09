@@ -10,7 +10,7 @@ describe('VmStorageCard', () => {
   it('lists the boot disk and additional disks with their storage properties', () => {
     const vm = {
       spec: {
-        bootDisk: { sizeGib: 40, storageTier: { name: 'balanced' } },
+        bootDisk: { sizeGib: 40, storageTier: { id: 'tier-balanced', name: 'balanced' } },
         additionalDisks: [
           { sizeGib: 100, storageTier: { name: 'fast' } },
           { sizeGib: 20, storageTier: { name: 'capacity' } },
@@ -26,7 +26,7 @@ describe('VmStorageCard', () => {
     expect(screen.getByRole('columnheader', { name: 'Storage tier' })).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: 'Boot disk' })).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: '40 GB' })).toBeInTheDocument();
-    expect(screen.getByRole('cell', { name: 'balanced' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: 'balanced (tier-balanced)' })).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: 'Additional disk 1' })).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: '100 GB' })).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: 'fast' })).toBeInTheDocument();

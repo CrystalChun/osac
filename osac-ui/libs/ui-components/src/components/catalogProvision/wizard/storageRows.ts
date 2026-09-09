@@ -10,8 +10,8 @@ export interface StorageDiskValue {
 export const formatStorageTierForDisplay = (value: unknown): string => {
   if (value && typeof value === 'object' && !Array.isArray(value)) {
     const ref = value as { name?: string; id?: string };
-    const name = ref.name?.trim() ?? '';
-    const id = ref.id?.trim() ?? '';
+    const name = typeof ref.name === 'string' ? ref.name.trim() : '';
+    const id = typeof ref.id === 'string' ? ref.id.trim() : '';
     if (name && id) {
       return `${name} (${id})`;
     }

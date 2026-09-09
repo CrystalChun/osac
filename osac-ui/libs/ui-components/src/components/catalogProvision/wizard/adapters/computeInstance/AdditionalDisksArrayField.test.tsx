@@ -115,12 +115,12 @@ describe('AdditionalDisksArrayField', () => {
     await user.click(screen.getByRole('button', { name: 'Add disk' }));
 
     await waitFor(() => expect(screen.getAllByLabelText(/^Storage tier/)).toHaveLength(2));
-    await selectTier(user, 0, 'Fast SSD');
-    await selectTier(user, 1, 'Bulk Capacity');
+    await selectTier(user, 0, 'fast');
+    await selectTier(user, 1, 'bulk');
 
     const toggles = screen.getAllByLabelText(/^Storage tier/);
-    expect(toggles[0]).toHaveTextContent('Fast SSD');
-    expect(toggles[1]).toHaveTextContent('Bulk Capacity');
+    expect(toggles[0]).toHaveTextContent('fast');
+    expect(toggles[1]).toHaveTextContent('bulk');
   });
 
   it('clears a required error immediately after selecting an additional disk tier', async () => {
@@ -131,7 +131,7 @@ describe('AdditionalDisksArrayField', () => {
 
     expect(await screen.findByText('Storage tier is required')).toBeInTheDocument();
 
-    await selectTier(user, 0, 'Fast SSD');
+    await selectTier(user, 0, 'fast');
 
     await waitFor(() =>
       expect(screen.queryByText('Storage tier is required')).not.toBeInTheDocument(),
@@ -171,9 +171,7 @@ describe('AdditionalDisksArrayField', () => {
     expect(screen.queryByText('No additional disks added.')).not.toBeInTheDocument();
     const sizeInput = screen.getByRole('spinbutton', { name: 'Size (GiB)' });
     expect(sizeInput).toHaveValue(40);
-    await waitFor(() =>
-      expect(screen.getByLabelText(/^Storage tier/)).toHaveTextContent('Fast SSD'),
-    );
+    await waitFor(() => expect(screen.getByLabelText(/^Storage tier/)).toHaveTextContent('fast'));
 
     await user.clear(sizeInput);
     await user.type(sizeInput, '60');

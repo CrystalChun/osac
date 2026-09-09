@@ -59,14 +59,14 @@ describe('StorageTierSelectField', () => {
 
     const toggle = await screen.findByLabelText(/^Storage tier/);
     await user.click(toggle);
-    await user.click(await screen.findByRole('option', { name: 'Bulk' }));
+    await user.click(await screen.findByRole('option', { name: 'bulk' }));
 
     await waitFor(() => {
       expect(screen.getByLabelText('selected-tier')).toHaveTextContent(
         '{"id":"id-bulk","name":"bulk"}',
       );
     });
-    expect(toggle).toHaveTextContent('Bulk');
+    expect(toggle).toHaveTextContent('bulk');
   });
 
   it('lists only active tiers', async () => {
@@ -84,8 +84,8 @@ describe('StorageTierSelectField', () => {
 
     const options = await screen.findAllByRole('option');
     expect(options).toHaveLength(2);
-    expect(screen.getByRole('option', { name: 'Fast SSD' })).toBeInTheDocument();
-    expect(screen.queryByRole('option', { name: 'Retired' })).not.toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'fast' })).toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: 'gone' })).not.toBeInTheDocument();
   });
 
   it('shows an empty warning when no tiers are available', async () => {
@@ -128,7 +128,7 @@ describe('StorageTierSelectField', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByLabelText(/^Storage tier/)).toHaveTextContent('Fast SSD');
+      expect(screen.getByLabelText(/^Storage tier/)).toHaveTextContent('fast');
     });
     expect(screen.getByText('Locked by catalog')).toBeInTheDocument();
     expect(screen.getByLabelText(/^Storage tier/)).toBeDisabled();

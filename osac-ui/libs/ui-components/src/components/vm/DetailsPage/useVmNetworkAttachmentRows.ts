@@ -2,7 +2,6 @@ import { useMemo } from 'react';
 
 import type { ComputeInstance } from '@osac/types';
 
-import { useInstanceType } from '../../../api/v1/instance-types';
 import {
   formatResourceIdForReview,
   formatResourceIdsForReview,
@@ -11,22 +10,18 @@ import {
   useVirtualNetworks,
 } from '../../../api/v1/networking';
 
-export type VmNetworkingRow = {
+export type VmNetworkAttachmentRow = {
   virtualNetwork: string;
   subnet: string;
   securityGroups: string;
 };
 
-export const useVmDetailsDisplay = (vm: ComputeInstance) => {
-  const catalogItemName = vm.spec?.catalogItem?.name?.trim() ?? '';
-  const instanceTypeId = vm.spec?.instanceType?.id;
-
-  const { data: instanceType, isLoading: isInstanceTypeLoading } = useInstanceType(instanceTypeId);
+export const useVmNetworkAttachmentRows = (vm: ComputeInstance): VmNetworkAttachmentRow[] => {
   const { data: virtualNetworks = [] } = useVirtualNetworks();
   const { data: subnets = [] } = useSubnets();
   const { data: securityGroups = [] } = useSecurityGroups();
 
-  const networkingRows = useMemo((): VmNetworkingRow[] => {
+  return useMemo((): VmNetworkAttachmentRow[] => {
     const attachments = vm.spec?.networkAttachments ?? [];
     return attachments.map((attachment) => {
       const subnet = subnets.find((item) => item.id === attachment.subnet?.id);
@@ -41,13 +36,4 @@ export const useVmDetailsDisplay = (vm: ComputeInstance) => {
       };
     });
   }, [vm.spec?.networkAttachments, subnets, virtualNetworks, securityGroups]);
-
-  return {
-    catalogItemName,
-    instanceType,
-    instanceTypeId,
-    isInstanceTypeLoading,
-    networkingRows,
-    hasCatalogItem: Boolean(catalogItemName || vm.spec?.catalogItem?.id?.trim()),
-  };
 };
