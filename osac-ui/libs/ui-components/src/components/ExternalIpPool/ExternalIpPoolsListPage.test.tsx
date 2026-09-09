@@ -40,7 +40,7 @@ const makePool = (
             total: capacity?.total ?? 0n,
             allocated: 0n,
             available: capacity?.available ?? 0n,
-            hub: {},
+            hub: '',
           }
         : undefined,
   });
