@@ -118,7 +118,6 @@
   "catalogProvision.vm.breadcrumbCreate": "Create",
   "catalogProvision.vm.fields.bootDisk": "Boot disk",
   "catalogProvision.vm.fields.instanceType": "Instance type",
-  "catalogProvision.vm.fields.name": "Name",
   "catalogProvision.vm.fields.securityGroup": "Security groups",
   "catalogProvision.vm.fields.sshKey": "SSH public key",
   "catalogProvision.vm.fields.subnet": "Subnet",

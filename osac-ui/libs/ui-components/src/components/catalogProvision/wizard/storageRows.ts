@@ -1,23 +1,13 @@
 import type { TFunction } from 'i18next';
 
-import { formatBootDiskSizeForReview, formatReviewScalar } from './catalogOverlay';
+import type { ComputeInstanceDisk, StorageTierReference } from '@osac/types';
 
-export interface StorageDiskValue {
-  sizeGib?: unknown;
-  storageTier?: unknown;
-}
+import { formatBootDiskSizeForReview } from './catalogOverlay';
+import { displayValue } from '../../../utils/detailFormatters';
 
-export const formatStorageTierForDisplay = (value: unknown): string => {
-  if (value && typeof value === 'object' && !Array.isArray(value)) {
-    const ref = value as { name?: string; id?: string };
-    const name = typeof ref.name === 'string' ? ref.name.trim() : '';
-    const id = typeof ref.id === 'string' ? ref.id.trim() : '';
-    if (name && id) {
-      return `${name} (${id})`;
-    }
-    return formatReviewScalar(name || id);
-  }
-  return formatReviewScalar(value);
+type StorageDisk = {
+  sizeGib?: ComputeInstanceDisk['sizeGib'] | string;
+  storageTier?: Pick<StorageTierReference, 'id' | 'name'>;
 };
 
 export interface VmStorageRow {
@@ -28,19 +18,19 @@ export interface VmStorageRow {
 
 export const getVmStorageRows = (
   t: TFunction,
-  bootDisk: StorageDiskValue | undefined,
-  additionalDisks: StorageDiskValue[] | undefined,
+  bootDisk: StorageDisk | undefined,
+  additionalDisks: StorageDisk[] | undefined,
 ): VmStorageRow[] => {
   return [
     {
       name: t('Boot disk'),
       size: formatBootDiskSizeForReview(bootDisk?.sizeGib),
-      storageTier: formatStorageTierForDisplay(bootDisk?.storageTier),
+      storageTier: displayValue(bootDisk?.storageTier?.name || bootDisk?.storageTier?.id),
     },
     ...(additionalDisks ?? []).map((disk, index) => ({
       name: t('Additional disk {{number}}', { number: index + 1 }),
       size: formatBootDiskSizeForReview(disk.sizeGib),
-      storageTier: formatStorageTierForDisplay(disk.storageTier),
+      storageTier: displayValue(disk.storageTier?.name || disk.storageTier?.id),
     })),
   ];
 };

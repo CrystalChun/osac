@@ -26,7 +26,7 @@ describe('VmStorageCard', () => {
     expect(screen.getByRole('columnheader', { name: 'Storage tier' })).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: 'Boot disk' })).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: '40 GB' })).toBeInTheDocument();
-    expect(screen.getByRole('cell', { name: 'balanced (tier-balanced)' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: 'balanced' })).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: 'Additional disk 1' })).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: '100 GB' })).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: 'fast' })).toBeInTheDocument();

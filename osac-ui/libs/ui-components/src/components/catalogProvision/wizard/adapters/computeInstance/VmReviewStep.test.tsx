@@ -28,8 +28,8 @@ describe('VmReviewStep — Storage section', () => {
     });
 
     expect(await screen.findByText('Storage')).toBeInTheDocument();
-    expect(screen.getByText('40 GB, balanced (id-balanced)')).toBeInTheDocument();
-    expect(screen.getByText('100 GB, fast (id-fast)')).toBeInTheDocument();
+    expect(screen.getByText('40 GB, balanced')).toBeInTheDocument();
+    expect(screen.getByText('100 GB, fast')).toBeInTheDocument();
   });
 
   it('falls back to the raw tier value when no tier matches', async () => {

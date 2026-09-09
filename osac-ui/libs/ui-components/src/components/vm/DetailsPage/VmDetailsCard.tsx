@@ -13,7 +13,6 @@ import type { ComputeInstance } from '@osac/types';
 import { useTranslation } from '../../../hooks/useTranslation';
 import { displayValue } from '../../../utils/detailFormatters';
 import { formatBootDiskSizeForReview } from '../../catalogProvision/wizard/catalogOverlay';
-import { formatStorageTierForDisplay } from '../../catalogProvision/wizard/storageRows';
 import { Timestamp } from '../../Primitives/Timestamp';
 
 interface Props {
@@ -37,7 +36,7 @@ const VmDetailsCard = ({ vm }: Props) => {
             </DescriptionListDescription>
           </DescriptionListGroup>
           <DescriptionListGroup>
-            <DescriptionListTerm>{t('catalogProvision.vm.fields.name')}</DescriptionListTerm>
+            <DescriptionListTerm>{t('Name')}</DescriptionListTerm>
             <DescriptionListDescription>
               {displayValue(vm.metadata?.name)}
             </DescriptionListDescription>
@@ -49,9 +48,7 @@ const VmDetailsCard = ({ vm }: Props) => {
             </DescriptionListDescription>
           </DescriptionListGroup>
           <DescriptionListGroup>
-            <DescriptionListTerm>
-              {t('catalogProvision.vm.fields.instanceType')}
-            </DescriptionListTerm>
+            <DescriptionListTerm>{t('Instance type')}</DescriptionListTerm>
             <DescriptionListDescription>
               {displayValue(instanceType?.name || instanceType?.id)}
             </DescriptionListDescription>
@@ -60,7 +57,9 @@ const VmDetailsCard = ({ vm }: Props) => {
             <DescriptionListTerm>{t('Boot disk')}</DescriptionListTerm>
             <DescriptionListDescription>
               {formatBootDiskSizeForReview(vm.spec?.bootDisk?.sizeGib)},{' '}
-              {formatStorageTierForDisplay(vm.spec?.bootDisk?.storageTier)}
+              {displayValue(
+                vm.spec?.bootDisk?.storageTier?.name || vm.spec?.bootDisk?.storageTier?.id,
+              )}
             </DescriptionListDescription>
           </DescriptionListGroup>
           {(vm.spec?.additionalDisks ?? []).map((disk, index) => (
@@ -70,7 +69,7 @@ const VmDetailsCard = ({ vm }: Props) => {
               </DescriptionListTerm>
               <DescriptionListDescription>
                 {formatBootDiskSizeForReview(disk.sizeGib)},{' '}
-                {formatStorageTierForDisplay(disk.storageTier)}
+                {displayValue(disk.storageTier?.name || disk.storageTier?.id)}
               </DescriptionListDescription>
             </DescriptionListGroup>
           ))}
