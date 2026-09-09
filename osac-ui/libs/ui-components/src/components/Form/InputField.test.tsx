@@ -1,9 +1,18 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { Formik } from 'formik';
-import { describe, expect, it, vi } from 'vitest';
+import { Formik, useFormikContext } from 'formik';
+import * as FormikModule from 'formik';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import type { MockInstance } from 'vitest';
 
 import { InputField } from './InputField';
+
+const originalUseField = FormikModule.useField;
+
+const FormikFieldObserver = ({ name, label }: { name: string; label: string }) => {
+  const { values } = useFormikContext<Record<string, string>>();
+  return <span aria-label={label}>{values[name] ?? ''}</span>;
+};
 
 const renderInput = (
   props: Partial<React.ComponentProps<typeof InputField>> = {},
@@ -16,6 +25,10 @@ const renderInput = (
   );
 
 describe('InputField', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it('forwards min, max, and step to the number input when provided', () => {
     renderInput({ min: 1, max: 16384, step: 1 });
 
@@ -53,10 +66,27 @@ describe('InputField', () => {
 
   it('does not trim number inputs on blur', async () => {
     const user = userEvent.setup();
+    let setValueSpy: MockInstance | undefined;
+    let latestValues: Record<string, string> = {};
+    const useFieldSpy = vi.spyOn(FormikModule, 'useField');
+    useFieldSpy.mockImplementation((...args) => {
+      const result = originalUseField(...args);
+      const [, , helpers] = result;
+      setValueSpy = vi.spyOn(helpers, 'setValue');
+      return result;
+    });
 
     render(
       <Formik initialValues={{ sizeGib: ' 30 ' }} onSubmit={() => undefined}>
-        <InputField name="sizeGib" label="Size (GiB)" fieldId="size-gib" type="number" />
+        {(formik) => {
+          latestValues = formik.values;
+          return (
+            <div>
+              <InputField name="sizeGib" label="Size (GiB)" fieldId="size-gib" type="number" />
+              <FormikFieldObserver name="sizeGib" label="Formik sizeGib" />
+            </div>
+          );
+        }}
       </Formik>,
     );
 
@@ -64,7 +94,11 @@ describe('InputField', () => {
     await user.click(input);
     await user.tab();
 
-    expect(input).toHaveValue(30);
+    if (setValueSpy === undefined) {
+      throw new Error('setValue spy was not attached');
+    }
+    expect(setValueSpy).not.toHaveBeenCalled();
+    expect(latestValues.sizeGib).toBe(screen.getByLabelText('Formik sizeGib').textContent);
   });
 
   it('does not trim multiline text on blur', async () => {
