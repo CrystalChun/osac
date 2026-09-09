@@ -2,6 +2,8 @@ import { MessageInitShape } from '@bufbuild/protobuf';
 import { useMutation } from '@tanstack/react-query';
 
 import {
+  type ExternalIP,
+  ExternalIPState,
   type SecurityGroup,
   SecurityGroupSchema,
   SecurityGroupState,
@@ -82,6 +84,14 @@ export const securityGroupFilterForVirtualNetworkList = (virtualNetworkId: strin
 export const VIRTUAL_NETWORK_READY_LIST_FILTER = cel<VirtualNetwork>((filter) =>
   filter.field('status.state').equals(VirtualNetworkState.READY),
 );
+
+export const unallocatedExternalIpFilter = () =>
+  cel<ExternalIP>((filter) =>
+    filter.and(
+      filter.field('status.state').equals(ExternalIPState.EXTERNAL_IP_STATE_ALLOCATED),
+      filter.field('status.attached').equals(false),
+    ),
+  );
 
 export const virtualNetworkScopeFilter = (virtualNetworkId: string) =>
   cel<Subnet>((filter) => filter.field('spec.virtualNetwork.id').equals(virtualNetworkId));

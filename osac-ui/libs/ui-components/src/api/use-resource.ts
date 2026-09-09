@@ -135,3 +135,9 @@ export const useDeleteResource = <Input extends DescMessage, Output extends Desc
     },
   });
 };
+
+export const useInvalidateServiceQueries = () => {
+  const queryClient = useQueryClient();
+  return (service: { typeName: string }) =>
+    queryClient.invalidateQueries({ queryKey: [service.typeName] });
+};

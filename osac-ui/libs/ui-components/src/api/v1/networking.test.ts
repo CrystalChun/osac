@@ -1,7 +1,7 @@
 import { QueryClient } from '@tanstack/react-query';
 import { describe, expect, it } from 'vitest';
 
-import { SecurityGroupState, SubnetState, VirtualNetworkState } from '@osac/types';
+import { ExternalIPState, SecurityGroupState, SubnetState, VirtualNetworkState } from '@osac/types';
 
 import {
   VIRTUAL_NETWORK_READY_LIST_FILTER,
@@ -10,6 +10,7 @@ import {
   invalidateVirtualNetworksQueries,
   securityGroupFilterForVirtualNetwork,
   securityGroupFilterForVirtualNetworkList,
+  unallocatedExternalIpFilter,
   virtualNetworkFilterForSubnetList,
   virtualNetworkScopeFilter,
 } from './networking';
@@ -19,6 +20,12 @@ describe('networking list filters', () => {
   it('filters virtual networks to ready state using enum integer', () => {
     expect(VIRTUAL_NETWORK_READY_LIST_FILTER).toBe(
       `this.status.state == ${VirtualNetworkState.READY}`,
+    );
+  });
+
+  it('filters external IPs to allocated and unattached', () => {
+    expect(unallocatedExternalIpFilter()).toBe(
+      `this.status.state == ${ExternalIPState.EXTERNAL_IP_STATE_ALLOCATED} && this.status.attached == false`,
     );
   });
 

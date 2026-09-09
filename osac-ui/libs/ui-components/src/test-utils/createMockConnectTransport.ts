@@ -19,6 +19,7 @@ import type {
   DiskImagesListRequest,
   DiskImagesUpdateRequest,
   DiskImagesUpdateResponse,
+  type ExternalIP,
   HostType,
   IdentityProvider,
   IdentityProvidersCreateRequest,
@@ -26,6 +27,7 @@ import type {
   IdentityProvidersUpdateRequest,
   IdentityProvidersUpdateResponse,
   InstanceType,
+  type NATGateway,
   Project,
   ProjectMembership,
   StorageTier as PublicStorageTier,
@@ -51,10 +53,13 @@ import {
   DiskImages,
   DiskImagesGetResponseSchema,
   DiskImagesListResponseSchema,
+  ExternalIPState,
+  ExternalIPs,
   HostTypes,
   IdentityProviders,
   InstanceTypeState,
   InstanceTypes,
+  NATGateways,
   ProjectMemberships,
   Projects,
   StorageTiers as PublicStorageTiers,
@@ -160,6 +165,8 @@ export type MockApiFixtures = {
   roleBindings?: RoleBinding[];
   secrets?: Secret[];
   users?: User[];
+  natGateways?: NATGateway[];
+  externalIps?: ExternalIP[];
 };
 
 export const wrapWithAuthInterceptor = (transport: Transport): Transport => {
@@ -204,6 +211,26 @@ const matchesVirtualNetworkScopeFilter = (
     return false;
   }
   return virtualNetwork === match[1];
+};
+
+const matchesUnallocatedExternalIpFilter = (
+  filter: string | undefined,
+  state: number | undefined,
+  attached: boolean | undefined,
+): boolean => {
+  if (!filter) {
+    return true;
+  }
+  if (
+    filter.includes('this.status.state ==') &&
+    state !== ExternalIPState.EXTERNAL_IP_STATE_ALLOCATED
+  ) {
+    return false;
+  }
+  if (filter.includes('this.status.attached == false') && attached !== false) {
+    return false;
+  }
+  return true;
 };
 
 const matchesInstanceTypeActiveFilter = (
@@ -388,6 +415,8 @@ export const createMockConnectTransport = (
   const roleBindingsFixtures = fixtures.roleBindings ?? [];
   const secrets = fixtures.secrets ?? [];
   const usersFixtures = fixtures.users ?? [];
+  const natGateways = [...(fixtures.natGateways ?? [])];
+  const externalIps = [...(fixtures.externalIps ?? [])];
 
   return wrapWithAuthInterceptor(
     createRouterTransport((router) => {
@@ -893,6 +922,62 @@ export const createMockConnectTransport = (
           object: { id: 'new-rb-1', ...req.object },
         }),
         delete: () => ({}),
+      });
+
+      router.service(NATGateways, {
+        list: (req) => ({
+          items: natGateways.filter((item) =>
+            matchesVirtualNetworkScopeFilter(req.filter, item.spec?.virtualNetwork?.id),
+          ),
+        }),
+        get: (req) => ({
+          object: natGateways.find((item) => item.id === req.id),
+        }),
+        create: (req) => {
+          const created = {
+            ...req.object,
+            id: req.object?.id || `nat-${natGateways.length + 1}`,
+          } as NATGateway;
+          natGateways.push(created);
+          return { object: created };
+        },
+        delete: (req) => {
+          const index = natGateways.findIndex((item) => item.id === req.id);
+          if (index >= 0) {
+            natGateways.splice(index, 1);
+          }
+          return {};
+        },
+      });
+
+      router.service(ExternalIPs, {
+        list: (req) => ({
+          items: externalIps.filter((item) =>
+            matchesUnallocatedExternalIpFilter(
+              req.filter,
+              item.status?.state,
+              item.status?.attached,
+            ),
+          ),
+        }),
+        get: (req) => ({
+          object: externalIps.find((item) => item.id === req.id),
+        }),
+        create: (req) => {
+          const created = {
+            ...req.object,
+            id: req.object?.id || `eip-${externalIps.length + 1}`,
+          } as ExternalIP;
+          externalIps.push(created);
+          return { object: created };
+        },
+        delete: (req) => {
+          const index = externalIps.findIndex((item) => item.id === req.id);
+          if (index >= 0) {
+            externalIps.splice(index, 1);
+          }
+          return {};
+        },
       });
 
       router.service(Users, {
