@@ -1,12 +1,16 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { Formik } from 'formik';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { InputField } from './InputField';
 
-const renderInput = (props: Partial<React.ComponentProps<typeof InputField>> = {}) =>
+const renderInput = (
+  props: Partial<React.ComponentProps<typeof InputField>> = {},
+  initialValues: Record<string, string> = { sizeGib: '30' },
+) =>
   render(
-    <Formik initialValues={{ sizeGib: '30' }} onSubmit={() => undefined}>
+    <Formik initialValues={initialValues} onSubmit={() => undefined}>
       <InputField name="sizeGib" label="Size (GiB)" fieldId="size-gib" type="number" {...props} />
     </Formik>,
   );
@@ -28,5 +32,54 @@ describe('InputField', () => {
     expect(input).not.toHaveAttribute('min');
     expect(input).not.toHaveAttribute('max');
     expect(input).not.toHaveAttribute('step');
+  });
+
+  it('trims free-text values on blur', async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn();
+
+    render(
+      <Formik initialValues={{ name: '  prod-v4  ' }} onSubmit={onSubmit}>
+        <InputField name="name" label="Name" fieldId="name" />
+      </Formik>,
+    );
+
+    const input = screen.getByRole('textbox', { name: 'Name' });
+    await user.click(input);
+    await user.tab();
+
+    expect(input).toHaveValue('prod-v4');
+  });
+
+  it('does not trim number inputs on blur', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <Formik initialValues={{ sizeGib: ' 30 ' }} onSubmit={() => undefined}>
+        <InputField name="sizeGib" label="Size (GiB)" fieldId="size-gib" type="number" />
+      </Formik>,
+    );
+
+    const input = screen.getByRole('spinbutton', { name: 'Size (GiB)' });
+    await user.click(input);
+    await user.tab();
+
+    expect(input).toHaveValue(30);
+  });
+
+  it('does not trim multiline text on blur', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <Formik initialValues={{ notes: '  hello  ' }} onSubmit={() => undefined}>
+        <InputField name="notes" label="Notes" fieldId="notes" multiline rows={3} />
+      </Formik>,
+    );
+
+    const input = screen.getByRole('textbox', { name: 'Notes' });
+    await user.click(input);
+    await user.tab();
+
+    expect(input).toHaveValue('  hello  ');
   });
 });

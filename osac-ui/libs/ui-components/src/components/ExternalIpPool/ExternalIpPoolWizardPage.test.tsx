@@ -17,6 +17,7 @@ import type { MockTransportOverrides } from '../../test-utils/createMockConnectT
 import { renderWithProviders } from '../../test-utils/TestProviders';
 
 const LIST_PATH = '/admin/infrastructure/external-ip-pools';
+const DETAILS_PATH = `${LIST_PATH}/new-external-ip-pool-1`;
 
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async (importOriginal) => {
@@ -117,7 +118,7 @@ describe('ExternalIpPoolWizardPage', () => {
       await user.click(screen.getByRole('button', { name: 'Create' }));
 
       await waitFor(() => {
-        expect(mockNavigate).toHaveBeenCalledWith(LIST_PATH);
+        expect(mockNavigate).toHaveBeenCalledWith(DETAILS_PATH);
       });
 
       expect(capturedRequest?.object?.metadata?.name).toBe('prod-v4');
@@ -164,7 +165,7 @@ describe('ExternalIpPoolWizardPage', () => {
       await user.click(screen.getByRole('button', { name: 'Create' }));
 
       await waitFor(() => {
-        expect(mockNavigate).toHaveBeenCalledWith(LIST_PATH);
+        expect(mockNavigate).toHaveBeenCalledWith(DETAILS_PATH);
       });
       expect(capturedRequest?.object?.spec?.cidrs).toEqual(['192.168.1.0/24']);
     }, 15000);

@@ -31,9 +31,7 @@ const ExternalIpPoolCidrsSection = ({ cidrs }: ExternalIpPoolCidrsSectionProps) 
             <StackItem>
               <List isPlain aria-label={t('CIDRs')}>
                 {visibleCidrs.map((cidr, index) => (
-                  <ListItem key={`${cidr}-${index}`}>
-                    <code>{cidr}</code>
-                  </ListItem>
+                  <ListItem key={`${cidr}-${index}`}>{cidr}</ListItem>
                 ))}
               </List>
             </StackItem>

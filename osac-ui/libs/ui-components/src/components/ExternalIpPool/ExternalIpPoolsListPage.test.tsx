@@ -1,8 +1,13 @@
+import { create } from '@bufbuild/protobuf';
 import { screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { ExternalIPPool } from '@osac/types/private';
-import { ExternalIPPoolState, IPFamily } from '@osac/types/private';
+import {
+  type ExternalIPPool,
+  ExternalIPPoolSchema,
+  ExternalIPPoolState,
+  IPFamily,
+} from '@osac/types/private';
 
 import { ExternalIpPoolsListPage } from './ExternalIpPoolsListPage';
 import { renderWithProviders } from '../../test-utils/TestProviders';
@@ -23,8 +28,8 @@ const makePool = (
   cidrs: string[],
   state?: ExternalIPPoolState,
   capacity?: { total: bigint; available: bigint },
-) =>
-  ({
+): ExternalIPPool =>
+  create(ExternalIPPoolSchema, {
     id,
     metadata: { name },
     spec: { cidrs, ipFamily, implementationStrategy: 'metallb-l2' },
@@ -35,9 +40,10 @@ const makePool = (
             total: capacity?.total ?? 0n,
             allocated: 0n,
             available: capacity?.available ?? 0n,
+            hub: {},
           }
         : undefined,
-  }) as ExternalIPPool;
+  });
 
 const defaultPools = [
   makePool(

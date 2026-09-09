@@ -41,11 +41,23 @@ export const InputField = ({
   step,
   children,
 }: React.PropsWithChildren<InputFieldProps>) => {
-  const [field, meta] = useField<string>(name);
+  const [field, meta, helpers] = useField<string>(name);
   const showValidationErrors = useShowFieldValidationErrors();
   const error = getVisibleFieldError(meta, showValidationErrors);
   const validated = error ? 'error' : 'default';
   const helperDescribedBy = getFormFieldHelperDescribedBy(fieldId, error, helperText);
+  const shouldTrimOnBlur = type === 'text' && !multiline;
+
+  const handleBlur = (event: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    field.onBlur(event);
+    if (shouldTrimOnBlur) {
+      const trimmed = (field.value ?? '').trim();
+      if (trimmed !== field.value) {
+        void helpers.setValue(trimmed);
+      }
+    }
+    onBlur?.();
+  };
 
   return (
     <FormGroup label={label} fieldId={fieldId} isRequired={isRequired}>
@@ -60,10 +72,7 @@ export const InputField = ({
           onChange={(_event, value) => {
             void field.onChange({ target: { name, value } });
           }}
-          onBlur={(event) => {
-            field.onBlur(event);
-            onBlur?.();
-          }}
+          onBlur={handleBlur}
           isDisabled={isDisabled}
           validated={validated}
           aria-invalid={error ? true : undefined}
@@ -84,10 +93,7 @@ export const InputField = ({
               onChange={(_event, value) => {
                 void field.onChange({ target: { name, value } });
               }}
-              onBlur={(event) => {
-                field.onBlur(event);
-                onBlur?.();
-              }}
+              onBlur={handleBlur}
               isDisabled={isDisabled}
               validated={validated}
               aria-invalid={error ? true : undefined}

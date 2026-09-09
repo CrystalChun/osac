@@ -18,6 +18,7 @@ import { externalIpPoolStepHasErrors, getExternalIpPoolSchema } from './validati
 import {
   EXTERNAL_IP_POOLS_LIST_PATH,
   type ExternalIpPoolFormValues,
+  externalIpPoolDetailsPath,
   getExternalIpPoolValues,
 } from './values';
 
@@ -29,8 +30,9 @@ const ExternalIpPoolWizard = () => {
 
   const onSubmit = async (values: ExternalIpPoolFormValues) => {
     try {
-      await createPool(toCreateRequest(values));
-      navigate(EXTERNAL_IP_POOLS_LIST_PATH);
+      const response = await createPool(toCreateRequest(values));
+      const id = response.object?.id;
+      navigate(id ? externalIpPoolDetailsPath(id) : EXTERNAL_IP_POOLS_LIST_PATH);
     } catch {
       // Surfaced via the mutation's own `error` state in the wizard footer.
     }
