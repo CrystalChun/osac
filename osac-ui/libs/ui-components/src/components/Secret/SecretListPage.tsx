@@ -13,21 +13,20 @@ import { ActionsColumn, Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/reac
 
 import { Secret, Secrets } from '@osac/types';
 import { cel } from '@osac/ui-components/api/cel';
-import { useDeleteResource, useListResource } from '@osac/ui-components/api/use-resource';
+import { useListResource } from '@osac/ui-components/api/use-resource';
 import { SEARCH_PARAM, usePageFilter } from '@osac/ui-components/hooks/use-page-filter';
 import { useProjectFilterQuery } from '@osac/ui-components/hooks/use-project-filter-query';
 import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
 
+import SecretDeleteModal from './SecretDeleteModal.tsx';
+import { getSecretType } from './utils.ts';
 import ListPage from '../Page/ListPage';
 import ListPageBody from '../Page/ListPageBody';
 import ProjectFilter from '../Page/ProjectFilter';
 import CreateButton from '../Primitives/CreateButton.tsx';
 import { Timestamp } from '../Primitives/Timestamp';
-import DeleteResourceModal from '../Resource/DeleteResourceModal';
 import ResourceNameField from '../Resource/ResourceNameField';
 import { SubtleContent } from '../SubtleContent/SubtleContent';
-
-const SECRET_TYPE_LABEL = 'osac.openshift.io/secret-type';
 
 const SecretListPage = () => {
   const navigate = useNavigate();
@@ -43,19 +42,14 @@ const SecretListPage = () => {
       ),
     ),
   });
-  const mutate = useDeleteResource(Secrets);
 
   return (
     <>
       {deleteTarget && (
-        <DeleteResourceModal
+        <SecretDeleteModal
+          secret={deleteTarget}
           onClose={() => setDeleteTarget(undefined)}
           onSuccess={() => setDeleteTarget(undefined)}
-          variables={{ id: deleteTarget.id }}
-          mutation={mutate}
-          resourceName={deleteTarget.metadata?.name || ''}
-          label={t('This permanently deletes the secret. This action cannot be undone.')}
-          errorLabel={t('Failed to delete secret')}
         />
       )}
       <ListPage
@@ -106,12 +100,10 @@ const SecretListPage = () => {
                 {data.items.map((secret) => (
                   <Tr key={secret.id}>
                     <Td dataLabel={t('Name')}>
-                      <ResourceNameField resource={secret} />
+                      <ResourceNameField resource={secret} detailsUrl={`/secrets/${secret.id}`} />
                     </Td>
                     <Td dataLabel={t('Project')}>{secret.metadata?.project || t('Default')}</Td>
-                    <Td dataLabel={t('Type')}>
-                      {secret.metadata?.labels[SECRET_TYPE_LABEL] || t('Generic')}
-                    </Td>
+                    <Td dataLabel={t('Type')}>{getSecretType(secret, t)}</Td>
                     <Td dataLabel={t('Created')}>
                       <Timestamp value={secret.metadata?.creationTimestamp} />
                     </Td>

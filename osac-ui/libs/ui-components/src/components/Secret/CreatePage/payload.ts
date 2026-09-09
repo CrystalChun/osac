@@ -52,5 +52,8 @@ export const buildSecretUpdatePayload = (
   values: SecretValues,
   secret: Secret,
 ): MessageInitShape<typeof SecretSchema> => ({
+  metadata: {
+    description: values.metadata.description,
+  },
   data: buildData(values.dataEntries, secret.data),
 });

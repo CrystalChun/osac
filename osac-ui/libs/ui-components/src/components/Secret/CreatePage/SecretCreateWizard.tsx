@@ -58,10 +58,11 @@ const SecretCreateWizard = ({ secret }: SecretCreateWizardProps) => {
             ...buildSecretUpdatePayload(values, secret),
           },
         });
+        navigate(`/secrets/${secret.id}`);
       } else {
-        await createAsync({ object: buildSecretCreatePayload(values) });
+        const resp = await createAsync({ object: buildSecretCreatePayload(values) });
+        navigate(resp.object?.id ? `/secrets/${resp.object.id}` : '/secrets');
       }
-      navigate('/secrets');
     } catch {
       // nothing to do, tanstack handles the error
     }
@@ -81,6 +82,13 @@ const SecretCreateWizard = ({ secret }: SecretCreateWizardProps) => {
                 {t('Secrets')}
               </Button>
             </BreadcrumbItem>
+            {secret && (
+              <BreadcrumbItem>
+                <Button variant="link" isInline onClick={() => navigate(`/secrets/${secret.id}`)}>
+                  {secret.metadata?.name}
+                </Button>
+              </BreadcrumbItem>
+            )}
             <BreadcrumbItem isActive>
               {secret ? t('Edit secret') : t('Create secret')}
             </BreadcrumbItem>
