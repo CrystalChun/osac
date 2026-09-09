@@ -19,7 +19,8 @@ import type {
   DiskImagesListRequest,
   DiskImagesUpdateRequest,
   DiskImagesUpdateResponse,
-  type ExternalIP,
+  ExternalIP,
+  ExternalIPsListRequest,
   HostType,
   IdentityProvider,
   IdentityProvidersCreateRequest,
@@ -27,7 +28,13 @@ import type {
   IdentityProvidersUpdateRequest,
   IdentityProvidersUpdateResponse,
   InstanceType,
-  type NATGateway,
+  NATGateway,
+  NATGatewaysCreateRequest,
+  NATGatewaysCreateResponse,
+  NATGatewaysDeleteRequest,
+  NATGatewaysDeleteResponse,
+  NATGatewaysListRequest,
+  NATGatewaysListResponse,
   Project,
   ProjectMembership,
   StorageTier as PublicStorageTier,
@@ -384,6 +391,14 @@ export type MockTransportOverrides = {
   onDiskImageCreate?: (req: DiskImagesCreateRequest) => DiskImagesCreateResponse;
   onDiskImageUpdate?: (req: DiskImagesUpdateRequest) => DiskImagesUpdateResponse;
   onDiskImageDelete?: (req: DiskImagesDeleteRequest) => DiskImagesDeleteResponse;
+  onNatGatewayList?: (req: NATGatewaysListRequest) => void;
+  onNatGatewayCreate?: (
+    req: NATGatewaysCreateRequest,
+  ) => NATGatewaysCreateResponse | Promise<NATGatewaysCreateResponse>;
+  onNatGatewayDelete?: (
+    req: NATGatewaysDeleteRequest,
+  ) => NATGatewaysDeleteResponse | Promise<NATGatewaysDeleteResponse>;
+  onExternalIpList?: (req: ExternalIPsListRequest) => void;
 };
 
 export const createMockConnectTransport = (
@@ -925,15 +940,21 @@ export const createMockConnectTransport = (
       });
 
       router.service(NATGateways, {
-        list: (req) => ({
-          items: natGateways.filter((item) =>
-            matchesVirtualNetworkScopeFilter(req.filter, item.spec?.virtualNetwork?.id),
-          ),
-        }),
+        list: (req) => {
+          overrides.onNatGatewayList?.(req);
+          return {
+            items: natGateways.filter((item) =>
+              matchesVirtualNetworkScopeFilter(req.filter, item.spec?.virtualNetwork?.id),
+            ),
+          } satisfies Pick<NATGatewaysListResponse, 'items'>;
+        },
         get: (req) => ({
           object: natGateways.find((item) => item.id === req.id),
         }),
-        create: (req) => {
+        create: async (req) => {
+          if (overrides.onNatGatewayCreate) {
+            return overrides.onNatGatewayCreate(req);
+          }
           const created = {
             ...req.object,
             id: req.object?.id || `nat-${natGateways.length + 1}`,
@@ -941,7 +962,10 @@ export const createMockConnectTransport = (
           natGateways.push(created);
           return { object: created };
         },
-        delete: (req) => {
+        delete: async (req) => {
+          if (overrides.onNatGatewayDelete) {
+            return overrides.onNatGatewayDelete(req);
+          }
           const index = natGateways.findIndex((item) => item.id === req.id);
           if (index >= 0) {
             natGateways.splice(index, 1);
@@ -951,15 +975,18 @@ export const createMockConnectTransport = (
       });
 
       router.service(ExternalIPs, {
-        list: (req) => ({
-          items: externalIps.filter((item) =>
-            matchesUnallocatedExternalIpFilter(
-              req.filter,
-              item.status?.state,
-              item.status?.attached,
+        list: (req) => {
+          overrides.onExternalIpList?.(req);
+          return {
+            items: externalIps.filter((item) =>
+              matchesUnallocatedExternalIpFilter(
+                req.filter,
+                item.status?.state,
+                item.status?.attached,
+              ),
             ),
-          ),
-        }),
+          };
+        },
         get: (req) => ({
           object: externalIps.find((item) => item.id === req.id),
         }),
