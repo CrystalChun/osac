@@ -14,7 +14,10 @@ export const getExternalIpPoolSchema = (t: TFunction) =>
   Yup.object({
     metadata: Yup.object({
       name: resourceNameSchema(t),
-      tenant: Yup.string().required(t('Tenant is required')),
+      tenant: Yup.object({
+        id: Yup.string().required(t('Tenant is required')),
+        name: Yup.string(),
+      }),
     }),
     ipFamily: Yup.string().required(t('IP family is required')),
     cidrs: Yup.array()

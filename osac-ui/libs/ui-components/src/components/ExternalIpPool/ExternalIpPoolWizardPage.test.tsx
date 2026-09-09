@@ -53,8 +53,7 @@ const clickNext = async (user: UserEvent) => {
 
 const fillPoolStep = async (user: UserEvent, name: string, cidr: string) => {
   await user.type(screen.getByRole('textbox', { name: 'Name' }), name);
-  await user.click(screen.getByLabelText(/^IP family/));
-  await user.click(screen.getByRole('option', { name: 'IPv4' }));
+  await user.click(screen.getByRole('radio', { name: 'ipv4' }));
   await user.type(screen.getByRole('textbox', { name: 'CIDR 1' }), cidr);
 };
 
@@ -111,7 +110,7 @@ describe('ExternalIpPoolWizardPage', () => {
       await fillValidWizard(user);
 
       expect(screen.getByText('prod-v4')).toBeInTheDocument();
-      expect(screen.getByText('IPv4')).toBeInTheDocument();
+      expect(screen.getByText('ipv4')).toBeInTheDocument();
       expect(screen.getByText('192.168.1.0/24')).toBeInTheDocument();
       expect(screen.getByText('acme')).toBeInTheDocument();
 
@@ -126,6 +125,25 @@ describe('ExternalIpPoolWizardPage', () => {
       expect(capturedRequest?.object?.spec?.ipFamily).toBe(IPFamily.IP_FAMILY_IPV4);
       expect(capturedRequest?.object?.spec?.cidrs).toEqual(['192.168.1.0/24']);
     }, 15000);
+
+    it('shows the auto-selected tenant name on Review when only one tenant exists', async () => {
+      const { user } = renderCreatePage(undefined, [makeTenant('t-1', 'acme')]);
+
+      await fillPoolStep(user, 'prod-v4', '192.168.1.0/24');
+      await clickNext(user);
+      await screen.findByRole('heading', { name: 'Tenant' });
+      await waitFor(() => {
+        expect(
+          screen.getByRole('button', {
+            name: (_accessibleName, element) => element.id === 'external-ip-pool-tenant',
+          }),
+        ).toHaveTextContent('acme');
+      });
+      await clickNext(user);
+
+      expect(await screen.findByRole('heading', { name: 'Review' })).toBeInTheDocument();
+      expect(screen.getByText('acme')).toBeInTheDocument();
+    });
 
     it('trims CIDR values in the create payload', async () => {
       let capturedRequest: ExternalIPPoolsCreateRequest | undefined;
@@ -183,13 +201,11 @@ describe('ExternalIpPoolWizardPage', () => {
       expect(screen.queryByRole('textbox', { name: 'CIDR 2' })).not.toBeInTheDocument();
     });
 
-    it('renders the IP family select with exactly IPv4 and IPv6 options', async () => {
-      const { user } = renderCreatePage();
+    it('renders the IP family radios for ipv4 and ipv6', () => {
+      renderCreatePage();
 
-      await user.click(screen.getByLabelText(/^IP family/));
-
-      const options = screen.getAllByRole('option');
-      expect(options.map((option) => option.textContent)).toEqual(['IPv4', 'IPv6']);
+      expect(screen.getByRole('radio', { name: 'ipv4' })).toBeInTheDocument();
+      expect(screen.getByRole('radio', { name: 'ipv6' })).toBeInTheDocument();
     });
 
     it('blocks advancing past External IP pool for a malformed CIDR', async () => {
@@ -249,6 +265,11 @@ describe('ExternalIpPoolWizardPage', () => {
       expect(
         screen.getByText('Register a tenant before creating and assigning an external IP pool.'),
       ).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', {
+          name: (_accessibleName, element) => element.id === 'external-ip-pool-tenant',
+        }),
+      ).toBeDisabled();
     });
 
     it('shows a fetch error instead of the empty-tenant warning when listing tenants fails', async () => {
@@ -264,6 +285,11 @@ describe('ExternalIpPoolWizardPage', () => {
       expect(await screen.findByText('Failed to fetch tenants')).toBeInTheDocument();
       expect(screen.getByText('tenants unavailable')).toBeInTheDocument();
       expect(screen.queryByText('No registered tenants')).not.toBeInTheDocument();
+      expect(
+        screen.getByRole('button', {
+          name: (_accessibleName, element) => element.id === 'external-ip-pool-tenant',
+        }),
+      ).toBeDisabled();
     });
 
     it('shows a form-level error and does not navigate when the name already exists', async () => {

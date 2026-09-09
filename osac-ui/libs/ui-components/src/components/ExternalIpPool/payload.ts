@@ -12,7 +12,7 @@ export const toCreateRequest = (values: ExternalIpPoolFormValues) => ({
   object: {
     metadata: {
       name: values.metadata.name,
-      tenant: values.metadata.tenant,
+      tenant: values.metadata.tenant.id,
     },
     spec: {
       ipFamily: values.ipFamily

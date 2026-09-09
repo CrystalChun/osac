@@ -28,10 +28,7 @@ export const ExternalIpPoolDetailsPage = () => {
       cardCount={3}
     >
       {pool && (
-        <ExternalIpPoolDetailsPageContent
-          pool={pool}
-          onDeleted={() => navigate(POOLS_LIST_PATH)}
-        />
+        <ExternalIpPoolDetailsPageContent pool={pool} onDeleted={() => navigate(POOLS_LIST_PATH)} />
       )}
     </ResourceDetailsPage>
   );

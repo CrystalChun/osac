@@ -1,21 +1,17 @@
-import { Alert, Content, Stack, StackItem, Title } from '@patternfly/react-core';
+import { Content, Stack, StackItem, Title } from '@patternfly/react-core';
 import { useFormikContext } from 'formik';
 
 import { Tenants } from '@osac/types/private';
-import { useListResource } from '@osac/ui-components/api/use-resource';
 import OsacForm from '@osac/ui-components/components/Form/OsacForm';
-import { SelectField } from '@osac/ui-components/components/Form/SelectField';
+import { ResourceSelectField } from '@osac/ui-components/components/Form/ResourceSelectField';
 import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
-import { getErrorMessage } from '@osac/ui-components/utils/error';
 
 import type { ExternalIpPoolFormValues } from './values';
 
 const TenantStep = () => {
   const { t } = useTranslation();
   const { values } = useFormikContext<ExternalIpPoolFormValues>();
-  const { data: tenantsResponse, isLoading, error } = useListResource(Tenants);
-  const tenants = tenantsResponse?.items ?? [];
-  const selectedTenant = tenants.find((tenant) => tenant.id === values.metadata.tenant);
+  const selectedTenantName = values.metadata.tenant.name;
 
   return (
     <Stack hasGutter>
@@ -32,40 +28,29 @@ const TenantStep = () => {
         </Content>
       </StackItem>
       <StackItem>
-        {error ? (
-          <Alert variant="danger" isInline title={t('Failed to fetch tenants')}>
-            {getErrorMessage(error)}
-          </Alert>
-        ) : !isLoading && tenants.length === 0 ? (
-          <Alert variant="warning" isInline title={t('No registered tenants')}>
+        <OsacForm>
+          <ResourceSelectField
+            name="metadata.tenant"
+            label={t('Tenant')}
+            fieldId="external-ip-pool-tenant"
+            service={Tenants}
+            isRequired
+            autoSelectSingleOption
+            placeholder={t('Select a tenant')}
+            loadErrorTitle={t('Failed to fetch tenants')}
+            emptyTitle={t('No registered tenants')}
+            emptyDescription={t(
+              'Register a tenant before creating and assigning an external IP pool.',
+            )}
+          />
+          {selectedTenantName ? (
             <Content component="p">
-              {t('Register a tenant before creating and assigning an external IP pool.')}
+              {t('{{tenant}} will receive this address pool for tenant edge exposure.', {
+                tenant: selectedTenantName,
+              })}
             </Content>
-          </Alert>
-        ) : (
-          <OsacForm>
-            <SelectField
-              name="metadata.tenant"
-              label={t('Tenant')}
-              fieldId="external-ip-pool-tenant"
-              isRequired
-              isLoading={isLoading}
-              autoSelectSingleOption
-              placeholder={t('Select a tenant')}
-              options={tenants.map((tenant) => ({
-                label: tenant.metadata?.name || tenant.id,
-                value: tenant.id,
-              }))}
-            />
-            {selectedTenant ? (
-              <Content component="p">
-                {t('{{tenant}} will receive this address pool for tenant edge exposure.', {
-                  tenant: selectedTenant.metadata?.name || selectedTenant.id,
-                })}
-              </Content>
-            ) : null}
-          </OsacForm>
-        )}
+          ) : null}
+        </OsacForm>
       </StackItem>
     </Stack>
   );

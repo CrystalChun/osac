@@ -6,10 +6,7 @@ import { FieldArray, useFormikContext } from 'formik';
 import NameField from '@osac/ui-components/components/catalogProvision/wizard/fields/NameField';
 import { InputField } from '@osac/ui-components/components/Form/InputField';
 import OsacForm from '@osac/ui-components/components/Form/OsacForm';
-import {
-  SelectField,
-  type SelectFieldOption,
-} from '@osac/ui-components/components/Form/SelectField';
+import { RadioButtonField } from '@osac/ui-components/components/Form/RadioButtonField';
 import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
 
 import type { ExternalIpPoolFormValues } from './values';
@@ -17,11 +14,6 @@ import type { ExternalIpPoolFormValues } from './values';
 const PoolStep = () => {
   const { t } = useTranslation();
   const { values } = useFormikContext<ExternalIpPoolFormValues>();
-
-  const ipFamilyOptions: SelectFieldOption[] = [
-    { value: 'ipv4', label: t('IPv4') },
-    { value: 'ipv6', label: t('IPv6') },
-  ];
 
   return (
     <Stack hasGutter>
@@ -40,12 +32,16 @@ const PoolStep = () => {
       <StackItem>
         <OsacForm>
           <NameField isDisabled={false} />
-          <SelectField
+          <RadioButtonField
             name="ipFamily"
             label={t('IP family')}
             fieldId="external-ip-pool-ip-family"
             isRequired
-            options={ipFamilyOptions}
+            isInline
+            options={[
+              { value: 'ipv4', label: 'ipv4' },
+              { value: 'ipv6', label: 'ipv6' },
+            ]}
           />
           <FormSection title={t('CIDRs')}>
             <FieldArray name="cidrs">
