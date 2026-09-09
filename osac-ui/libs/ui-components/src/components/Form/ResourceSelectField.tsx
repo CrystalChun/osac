@@ -88,8 +88,7 @@ export const ResourceSelectField = ({
   const selectedId = field.value?.id ?? '';
   const selectedItem = items.find((item) => item.id === selectedId);
   const toggleLabel =
-    (selectedItem ? resourceOptionLabel(selectedItem) : field.value?.name) ||
-    effectivePlaceholder;
+    (selectedItem ? resourceOptionLabel(selectedItem) : field.value?.name) || effectivePlaceholder;
   const validated = error ? 'error' : 'default';
 
   useEffect(() => {

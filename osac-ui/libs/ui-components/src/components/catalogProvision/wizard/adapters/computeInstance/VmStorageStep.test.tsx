@@ -87,7 +87,9 @@ describe('VmStorageStep', () => {
       { id: 'id-fast', name: 'fast' },
     );
 
-    await waitFor(() => expect(screen.getByLabelText(/^Storage tier/)).toHaveTextContent('Fast SSD'));
+    await waitFor(() =>
+      expect(screen.getByLabelText(/^Storage tier/)).toHaveTextContent('Fast SSD'),
+    );
     expect(screen.queryByText('Locked by catalog')).not.toBeInTheDocument();
     expect(screen.getByLabelText(/^Storage tier/)).not.toBeDisabled();
   });
@@ -104,7 +106,9 @@ describe('VmStorageStep', () => {
       { id: 'id-fast', name: 'fast' },
     );
 
-    await waitFor(() => expect(screen.getByLabelText(/^Storage tier/)).toHaveTextContent('Fast SSD'));
+    await waitFor(() =>
+      expect(screen.getByLabelText(/^Storage tier/)).toHaveTextContent('Fast SSD'),
+    );
     expect(screen.getByText('Locked by catalog')).toBeInTheDocument();
     expect(screen.getByLabelText(/^Storage tier/)).toBeDisabled();
   });

@@ -16,7 +16,7 @@ describe('VmStorageCard', () => {
           { sizeGib: 20, storageTier: { name: 'capacity' } },
         ],
       },
-    } as ComputeInstance;
+    } as unknown as ComputeInstance;
 
     renderWithProviders(<VmStorageCard vm={vm} />);
 

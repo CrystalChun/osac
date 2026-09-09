@@ -29,10 +29,7 @@ const renderField = (
   isLocked = false,
 ) =>
   renderWithProviders(
-    <Formik
-      initialValues={{ tier: initialTier, other: 'keep-me' }}
-      onSubmit={() => undefined}
-    >
+    <Formik initialValues={{ tier: initialTier, other: 'keep-me' }} onSubmit={() => undefined}>
       {({ values }) => (
         <>
           <StorageTierSelectField

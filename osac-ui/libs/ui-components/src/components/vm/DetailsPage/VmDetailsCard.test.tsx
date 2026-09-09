@@ -141,7 +141,7 @@ describe('VmDetailsCard', () => {
           { sizeGib: 20, storageTier: { name: 'legacy-tier' } },
         ],
       },
-    } as ComputeInstance;
+    } as unknown as ComputeInstance;
 
     vi.mocked(useVmDetailsDisplay).mockReturnValue({
       catalogItemName: 'RHEL 9 catalog',

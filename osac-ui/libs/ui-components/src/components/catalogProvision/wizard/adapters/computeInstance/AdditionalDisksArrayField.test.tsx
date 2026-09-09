@@ -44,7 +44,9 @@ const renderField = (
         spec: { ...createEmptyComputeInstanceValues().spec, additionalDisks: initialDisks },
       }}
       initialTouched={
-        withValidation ? { spec: { additionalDisks: [{ storageTier: true }] } } : undefined
+        withValidation
+          ? { spec: { additionalDisks: [{ storageTier: { id: true, name: true } }] } }
+          : undefined
       }
       validateOnMount={withValidation}
       validationSchema={
@@ -122,7 +124,10 @@ describe('AdditionalDisksArrayField', () => {
   });
 
   it('clears a required error immediately after selecting an additional disk tier', async () => {
-    const { user } = renderField([{ sizeGib: '30', storageTier: emptyResourceSelectValue() }], true);
+    const { user } = renderField(
+      [{ sizeGib: '30', storageTier: emptyResourceSelectValue() }],
+      true,
+    );
 
     expect(await screen.findByText('Storage tier is required')).toBeInTheDocument();
 
@@ -166,7 +171,9 @@ describe('AdditionalDisksArrayField', () => {
     expect(screen.queryByText('No additional disks added.')).not.toBeInTheDocument();
     const sizeInput = screen.getByRole('spinbutton', { name: 'Size (GiB)' });
     expect(sizeInput).toHaveValue(40);
-    await waitFor(() => expect(screen.getByLabelText(/^Storage tier/)).toHaveTextContent('Fast SSD'));
+    await waitFor(() =>
+      expect(screen.getByLabelText(/^Storage tier/)).toHaveTextContent('Fast SSD'),
+    );
 
     await user.clear(sizeInput);
     await user.type(sizeInput, '60');

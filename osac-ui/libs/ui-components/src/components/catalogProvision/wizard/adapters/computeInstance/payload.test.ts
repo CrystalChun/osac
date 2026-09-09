@@ -134,7 +134,9 @@ describe('buildComputeInstanceCreatePayload — disk storage tiers', () => {
   it('carries both the boot disk tier and each additional disk tier', () => {
     const values = baseValues();
     values.spec.bootDisk = { sizeGib: '20', storageTier: { id: 'id-fast', name: 'fast' } };
-    values.spec.additionalDisks = [{ sizeGib: '100', storageTier: { id: 'id-bulk', name: 'bulk' } }];
+    values.spec.additionalDisks = [
+      { sizeGib: '100', storageTier: { id: 'id-bulk', name: 'bulk' } },
+    ];
 
     const payload = buildComputeInstanceCreatePayload(values, vmCatalogItem);
 
@@ -185,7 +187,9 @@ describe('buildComputeInstanceCreatePayload — disk storage tiers', () => {
 
   it('still sends non-empty additional disks as usual when the catalog defines a default', () => {
     const values = baseValues();
-    values.spec.additionalDisks = [{ sizeGib: '100', storageTier: { id: 'id-bulk', name: 'bulk' } }];
+    values.spec.additionalDisks = [
+      { sizeGib: '100', storageTier: { id: 'id-bulk', name: 'bulk' } },
+    ];
 
     const payload = buildComputeInstanceCreatePayload(
       values,

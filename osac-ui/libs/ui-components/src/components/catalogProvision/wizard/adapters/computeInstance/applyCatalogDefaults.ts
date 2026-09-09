@@ -54,8 +54,7 @@ const additionalDisksOverlayToFormValue = (
     const record = entry && typeof entry === 'object' ? (entry as Record<string, unknown>) : {};
     return {
       sizeGib: fieldDefinitionDefaultToInputString(record.size_gib),
-      storageTier:
-        storageTierFromCatalogDefault(record.storage_tier) ?? emptyResourceSelectValue(),
+      storageTier: storageTierFromCatalogDefault(record.storage_tier) ?? emptyResourceSelectValue(),
     };
   });
 };
