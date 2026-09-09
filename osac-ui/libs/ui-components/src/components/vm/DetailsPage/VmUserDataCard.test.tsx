@@ -27,14 +27,11 @@ describe('VmUserDataCard', () => {
   beforeEach(() => {
     vi.mocked(useVmDetailsDisplay).mockReturnValue({
       hasCatalogItem: true,
-      fieldLabels: { userData: 'User Data', sshPublicKey: '', bootDisk: '' },
-      catalogItemId: 'catalog-rhel-9',
-      isCatalogItemLoading: false,
+      catalogItemName: 'RHEL 9 catalog',
       instanceType: undefined,
       instanceTypeId: undefined,
       isInstanceTypeLoading: false,
       networkingRows: [],
-      catalogItem: undefined,
     });
   });
 
@@ -49,14 +46,11 @@ describe('VmUserDataCard', () => {
   it('renders nothing when catalog item is missing', () => {
     vi.mocked(useVmDetailsDisplay).mockReturnValue({
       hasCatalogItem: false,
-      fieldLabels: { userData: 'User Data', sshPublicKey: '', bootDisk: '' },
-      catalogItemId: undefined,
-      isCatalogItemLoading: false,
+      catalogItemName: '',
       instanceType: undefined,
       instanceTypeId: undefined,
       isInstanceTypeLoading: false,
       networkingRows: [],
-      catalogItem: undefined,
     });
     const { container } = renderCard({
       id: 'vm-1',

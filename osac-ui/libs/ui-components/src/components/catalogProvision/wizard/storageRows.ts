@@ -4,8 +4,21 @@ import { formatBootDiskSizeForReview, formatReviewScalar } from './catalogOverla
 
 export interface StorageDiskValue {
   sizeGib?: unknown;
-  storageTier?: string;
+  storageTier?: unknown;
 }
+
+export const formatStorageTierForDisplay = (value: unknown): string => {
+  if (value && typeof value === 'object' && !Array.isArray(value)) {
+    const ref = value as { name?: string; id?: string };
+    const name = ref.name?.trim() ?? '';
+    const id = ref.id?.trim() ?? '';
+    if (name && id) {
+      return `${name} (${id})`;
+    }
+    return formatReviewScalar(name || id);
+  }
+  return formatReviewScalar(value);
+};
 
 export interface VmStorageRow {
   name: string;
@@ -22,12 +35,12 @@ export const getVmStorageRows = (
     {
       name: t('Boot disk'),
       size: formatBootDiskSizeForReview(bootDisk?.sizeGib),
-      storageTier: formatReviewScalar(bootDisk?.storageTier),
+      storageTier: formatStorageTierForDisplay(bootDisk?.storageTier),
     },
     ...(additionalDisks ?? []).map((disk, index) => ({
       name: t('Additional disk {{number}}', { number: index + 1 }),
       size: formatBootDiskSizeForReview(disk.sizeGib),
-      storageTier: formatReviewScalar(disk.storageTier),
+      storageTier: formatStorageTierForDisplay(disk.storageTier),
     })),
   ];
 };

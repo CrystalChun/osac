@@ -2,7 +2,6 @@ import { useMemo } from 'react';
 
 import type { ComputeInstance } from '@osac/types';
 
-import { useComputeInstanceCatalogItem } from '../../../api/v1/compute-instance-catalog-item';
 import { useInstanceType } from '../../../api/v1/instance-types';
 import {
   formatResourceIdForReview,
@@ -11,11 +10,6 @@ import {
   useSubnets,
   useVirtualNetworks,
 } from '../../../api/v1/networking';
-import { useTranslation } from '../../../hooks/useTranslation';
-import {
-  getCatalogFieldOverlay,
-  readCatalogFieldDefinitions,
-} from '../../catalogProvision/wizard/catalogOverlay';
 
 export type VmNetworkingRow = {
   virtualNetwork: string;
@@ -24,41 +18,13 @@ export type VmNetworkingRow = {
 };
 
 export const useVmDetailsDisplay = (vm: ComputeInstance) => {
-  const { t } = useTranslation();
-  const catalogItemId = vm.spec?.catalogItem?.id;
+  const catalogItemName = vm.spec?.catalogItem?.name?.trim() ?? '';
   const instanceTypeId = vm.spec?.instanceType?.id;
 
-  const { data: catalogItem, isLoading: isCatalogItemLoading } =
-    useComputeInstanceCatalogItem(catalogItemId);
   const { data: instanceType, isLoading: isInstanceTypeLoading } = useInstanceType(instanceTypeId);
   const { data: virtualNetworks = [] } = useVirtualNetworks();
   const { data: subnets = [] } = useSubnets();
   const { data: securityGroups = [] } = useSecurityGroups();
-
-  const fieldLabels = useMemo(() => {
-    const definitions = catalogItem ? readCatalogFieldDefinitions(catalogItem) : [];
-    const userDataOverlay = getCatalogFieldOverlay(
-      'spec.user_data',
-      definitions,
-      t('catalogProvision.vm.fields.userData'),
-    );
-    const bootDiskOverlay = getCatalogFieldOverlay(
-      'spec.boot_disk.size_gib',
-      definitions,
-      t('catalogProvision.vm.fields.bootDisk'),
-    );
-    const sshKeyOverlay = getCatalogFieldOverlay(
-      'ssh_public_key',
-      definitions,
-      t('catalogProvision.vm.fields.sshKey'),
-    );
-
-    return {
-      userData: userDataOverlay.label,
-      bootDisk: bootDiskOverlay.label,
-      sshPublicKey: sshKeyOverlay.label,
-    };
-  }, [catalogItem, t]);
 
   const networkingRows = useMemo((): VmNetworkingRow[] => {
     const attachments = vm.spec?.networkAttachments ?? [];
@@ -77,14 +43,11 @@ export const useVmDetailsDisplay = (vm: ComputeInstance) => {
   }, [vm.spec?.networkAttachments, subnets, virtualNetworks, securityGroups]);
 
   return {
-    catalogItem,
-    catalogItemId,
-    isCatalogItemLoading,
+    catalogItemName,
     instanceType,
     instanceTypeId,
     isInstanceTypeLoading,
-    fieldLabels,
     networkingRows,
-    hasCatalogItem: Boolean(catalogItemId?.trim()),
+    hasCatalogItem: Boolean(catalogItemName || vm.spec?.catalogItem?.id?.trim()),
   };
 };

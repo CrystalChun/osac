@@ -12,13 +12,10 @@ import {
 import type { ComputeInstance } from '@osac/types';
 
 import { useVmDetailsDisplay } from './useVmDetailsDisplay';
-import VmDetailsCatalogValue from './VmDetailsCatalogValue';
 import { useTranslation } from '../../../hooks/useTranslation';
 import { displayValue } from '../../../utils/detailFormatters';
-import {
-  formatBootDiskSizeForReview,
-  formatReviewScalar,
-} from '../../catalogProvision/wizard/catalogOverlay';
+import { formatBootDiskSizeForReview } from '../../catalogProvision/wizard/catalogOverlay';
+import { formatStorageTierForDisplay } from '../../catalogProvision/wizard/storageRows';
 import { Timestamp } from '../../Primitives/Timestamp';
 import { SubtleContent } from '../../SubtleContent/SubtleContent';
 import { formatInstanceTypeReviewLabelFromType } from '../utils';
@@ -29,15 +26,8 @@ interface Props {
 
 const VmDetailsCard = ({ vm }: Props) => {
   const { t } = useTranslation();
-  const {
-    catalogItemId,
-    hasCatalogItem,
-    isCatalogItemLoading,
-    instanceType,
-    instanceTypeId,
-    isInstanceTypeLoading,
-    fieldLabels,
-  } = useVmDetailsDisplay(vm);
+  const { hasCatalogItem, catalogItemName, instanceType, instanceTypeId, isInstanceTypeLoading } =
+    useVmDetailsDisplay(vm);
 
   return (
     <Card isFullHeight>
@@ -53,11 +43,7 @@ const VmDetailsCard = ({ vm }: Props) => {
             <DescriptionListGroup>
               <DescriptionListTerm>{t('Catalog item')}</DescriptionListTerm>
               <DescriptionListDescription>
-                {isCatalogItemLoading ? (
-                  <Skeleton width="150px" />
-                ) : (
-                  <VmDetailsCatalogValue catalogItemId={catalogItemId} />
-                )}
+                {displayValue(catalogItemName)}
               </DescriptionListDescription>
             </DescriptionListGroup>
           ) : null}
@@ -70,7 +56,7 @@ const VmDetailsCard = ({ vm }: Props) => {
           {hasCatalogItem ? (
             <>
               <DescriptionListGroup>
-                <DescriptionListTerm>{fieldLabels.sshPublicKey}</DescriptionListTerm>
+                <DescriptionListTerm>{t('SSH public key')}</DescriptionListTerm>
                 <DescriptionListDescription>
                   {displayValue(vm.spec?.sshPublicKey)}
                 </DescriptionListDescription>
@@ -92,10 +78,10 @@ const VmDetailsCard = ({ vm }: Props) => {
                 </DescriptionListDescription>
               </DescriptionListGroup>
               <DescriptionListGroup>
-                <DescriptionListTerm>{fieldLabels.bootDisk}</DescriptionListTerm>
+                <DescriptionListTerm>{t('Boot disk')}</DescriptionListTerm>
                 <DescriptionListDescription>
                   {formatBootDiskSizeForReview(vm.spec?.bootDisk?.sizeGib)},{' '}
-                  {formatReviewScalar(vm.spec?.bootDisk?.storageTier)}
+                  {formatStorageTierForDisplay(vm.spec?.bootDisk?.storageTier)}
                 </DescriptionListDescription>
               </DescriptionListGroup>
               {(vm.spec?.additionalDisks ?? []).map((disk, index) => (
@@ -105,7 +91,7 @@ const VmDetailsCard = ({ vm }: Props) => {
                   </DescriptionListTerm>
                   <DescriptionListDescription>
                     {formatBootDiskSizeForReview(disk.sizeGib)},{' '}
-                    {formatReviewScalar(disk.storageTier)}
+                    {formatStorageTierForDisplay(disk.storageTier)}
                   </DescriptionListDescription>
                 </DescriptionListGroup>
               ))}

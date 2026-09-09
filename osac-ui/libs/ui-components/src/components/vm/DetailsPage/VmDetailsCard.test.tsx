@@ -17,10 +17,6 @@ vi.mock('./useVmDetailsDisplay', () => ({
   useVmDetailsDisplay: vi.fn(),
 }));
 
-vi.mock('./VmDetailsCatalogValue', () => ({
-  default: ({ catalogItemId }: { catalogItemId?: string }) => <span>{catalogItemId}</span>,
-}));
-
 const { useVmDetailsDisplay } = await import('./useVmDetailsDisplay');
 
 const catalogVm: ComputeInstance = {
@@ -45,13 +41,16 @@ const catalogVm: ComputeInstance = {
   },
   spec: {
     $typeName: 'osac.public.v1.ComputeInstanceSpec',
-    catalogItem: create(ComputeInstanceCatalogItemReferenceSchema, { id: 'catalog-rhel-9' }),
+    catalogItem: create(ComputeInstanceCatalogItemReferenceSchema, {
+      id: 'catalog-rhel-9',
+      name: 'RHEL 9 catalog',
+    }),
     sshPublicKey: 'ssh-rsa AAAA...',
     instanceType: create(InstanceTypeReferenceSchema, { id: 'standard-4-8' }),
     bootDisk: {
       $typeName: 'osac.public.v1.ComputeInstanceDisk',
       sizeGib: 40,
-      storageTier: 'balanced',
+      storageTier: { $typeName: 'osac.public.v1.StorageTierReference', id: '', name: 'balanced' },
     },
     userData: '#cloud-config',
     additionalDisks: [],
@@ -68,9 +67,8 @@ const renderCard = (vm: ComputeInstance = catalogVm) =>
 describe('VmDetailsCard', () => {
   it('shows catalog fields with full SSH key', () => {
     vi.mocked(useVmDetailsDisplay).mockReturnValue({
-      catalogItemId: 'catalog-rhel-9',
       hasCatalogItem: true,
-      isCatalogItemLoading: false,
+      catalogItemName: 'RHEL 9 catalog',
       instanceType: {
         $typeName: 'osac.public.v1.InstanceType',
         id: 'standard-4-8',
@@ -96,18 +94,13 @@ describe('VmDetailsCard', () => {
       },
       instanceTypeId: 'standard-4-8',
       isInstanceTypeLoading: false,
-      fieldLabels: {
-        sshPublicKey: 'SSH public key',
-        bootDisk: 'Boot disk',
-        userData: 'User Data',
-      },
       networkingRows: [],
-      catalogItem: undefined,
     });
 
     renderCard();
 
     expect(screen.getByText('Details')).toBeInTheDocument();
+    expect(screen.getByText('RHEL 9 catalog')).toBeInTheDocument();
     expect(screen.getByText('web-01')).toBeInTheDocument();
     expect(screen.getByText('ssh-rsa AAAA...')).toBeInTheDocument();
     expect(screen.getByText('40 GB, balanced')).toBeInTheDocument();
@@ -122,19 +115,12 @@ describe('VmDetailsCard', () => {
 
   it('shows degraded message when catalog item is missing', () => {
     vi.mocked(useVmDetailsDisplay).mockReturnValue({
-      catalogItemId: undefined,
+      catalogItemName: '',
       hasCatalogItem: false,
-      isCatalogItemLoading: false,
       instanceType: undefined,
       instanceTypeId: undefined,
       isInstanceTypeLoading: false,
-      fieldLabels: {
-        sshPublicKey: 'SSH public key',
-        bootDisk: 'Boot disk',
-        userData: 'User Data',
-      },
       networkingRows: [],
-      catalogItem: undefined,
     });
 
     renderCard({ id: 'vm-2', metadata: { name: 'legacy-vm' } } as ComputeInstance);
@@ -151,26 +137,19 @@ describe('VmDetailsCard', () => {
       spec: {
         ...catalogVm.spec,
         additionalDisks: [
-          { sizeGib: 100, storageTier: 'fast' },
-          { sizeGib: 20, storageTier: 'legacy-tier' },
+          { sizeGib: 100, storageTier: { name: 'fast' } },
+          { sizeGib: 20, storageTier: { name: 'legacy-tier' } },
         ],
       },
     } as ComputeInstance;
 
     vi.mocked(useVmDetailsDisplay).mockReturnValue({
-      catalogItemId: 'catalog-rhel-9',
+      catalogItemName: 'RHEL 9 catalog',
       hasCatalogItem: true,
-      isCatalogItemLoading: false,
       instanceType: undefined,
       instanceTypeId: 'standard-4-8',
       isInstanceTypeLoading: false,
-      fieldLabels: {
-        sshPublicKey: 'SSH public key',
-        bootDisk: 'Boot disk',
-        userData: 'User Data',
-      },
       networkingRows: [],
-      catalogItem: undefined,
     });
 
     renderCard(vmWithAdditionalDisks);

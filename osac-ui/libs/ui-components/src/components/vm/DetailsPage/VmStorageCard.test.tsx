@@ -10,10 +10,10 @@ describe('VmStorageCard', () => {
   it('lists the boot disk and additional disks with their storage properties', () => {
     const vm = {
       spec: {
-        bootDisk: { sizeGib: 40, storageTier: 'balanced' },
+        bootDisk: { sizeGib: 40, storageTier: { name: 'balanced' } },
         additionalDisks: [
-          { sizeGib: 100, storageTier: 'fast' },
-          { sizeGib: 20, storageTier: 'capacity' },
+          { sizeGib: 100, storageTier: { name: 'fast' } },
+          { sizeGib: 20, storageTier: { name: 'capacity' } },
         ],
       },
     } as ComputeInstance;

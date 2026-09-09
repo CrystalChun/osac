@@ -24,18 +24,11 @@ describe('VmNetworkingTab', () => {
           securityGroups: 'web-sg, default-sg',
         },
       ],
-      catalogItemId: 'catalog-rhel-9',
+      catalogItemName: 'RHEL 9 catalog',
       hasCatalogItem: true,
-      isCatalogItemLoading: false,
       instanceType: undefined,
       instanceTypeId: undefined,
       isInstanceTypeLoading: false,
-      fieldLabels: {
-        sshPublicKey: '',
-        bootDisk: '',
-        userData: '',
-      },
-      catalogItem: undefined,
     });
 
     const vm = {
@@ -60,18 +53,11 @@ describe('VmNetworkingTab', () => {
   it('shows empty state when there are no attachments', () => {
     vi.mocked(useVmDetailsDisplay).mockReturnValue({
       networkingRows: [],
-      catalogItemId: undefined,
+      catalogItemName: '',
       hasCatalogItem: false,
-      isCatalogItemLoading: false,
       instanceType: undefined,
       instanceTypeId: undefined,
       isInstanceTypeLoading: false,
-      fieldLabels: {
-        sshPublicKey: '',
-        bootDisk: '',
-        userData: '',
-      },
-      catalogItem: undefined,
     });
 
     renderTab({ id: 'vm-1', spec: {} } as ComputeInstance);
