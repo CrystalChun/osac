@@ -1,19 +1,26 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
+  Content,
+  MenuToggle,
   SearchInput,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
 } from '@patternfly/react-core';
-import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
+import { EllipsisVIcon } from '@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon';
+import { ActionsColumn, Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
+import { ExternalIPs, type NATGateway, NATGateways, type VirtualNetwork } from '@osac/types';
 import CreateButton from '@osac/ui-components/components/Primitives/CreateButton.tsx';
 import ResourceNameField from '@osac/ui-components/components/Resource/ResourceNameField.tsx';
 import { SEARCH_PARAM, usePageFilter } from '@osac/ui-components/hooks/use-page-filter.ts';
 
+import { useListResource } from '../../api/use-resource';
 import { useSubnets, useVirtualNetworks } from '../../api/v1/networking';
+import { AttachNatGatewayModal } from '../../components/networking/AttachNatGatewayModal';
 import { CidrDisplay } from '../../components/networking/CidrDisplay';
+import { DetachNatGatewayModal } from '../../components/networking/DetachNatGatewayModal';
 import { VirtualNetworkCreateModal } from '../../components/networking/VirtualNetworkCreateModal';
 import { VirtualNetworkStatusLabel } from '../../components/networking/VirtualNetworkStatusLabel';
 import ListPage from '../../components/Page/ListPage';
@@ -25,11 +32,14 @@ export const VirtualNetworksListPage = () => {
   const { t } = useTranslation();
   const [search, setSearch] = usePageFilter(SEARCH_PARAM);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [attachTarget, setAttachTarget] = useState<VirtualNetwork>();
+  const [detachTarget, setDetachTarget] = useState<NATGateway>();
 
   const { data: virtualNetworks = [], isLoading, error } = useVirtualNetworks();
   const { data: allSubnets = [] } = useSubnets();
+  const { data: natGatewaysResponse } = useListResource(NATGateways);
+  const { data: externalIpsResponse } = useListResource(ExternalIPs);
 
-  // Count subnets per VN
   const subnetCountByVN = allSubnets.reduce(
     (acc, subnet) => {
       const vnId = subnet.spec?.virtualNetwork?.id;
@@ -40,6 +50,27 @@ export const VirtualNetworksListPage = () => {
     },
     {} as Record<string, number>,
   );
+
+  const natGatewayByVnId = useMemo(() => {
+    const byVnId: Record<string, NATGateway> = {};
+    for (const gateway of natGatewaysResponse?.items ?? []) {
+      const vnId = gateway.spec?.virtualNetwork?.id;
+      if (vnId && !byVnId[vnId]) {
+        byVnId[vnId] = gateway;
+      }
+    }
+    return byVnId;
+  }, [natGatewaysResponse?.items]);
+
+  const addressByExternalIpId = useMemo(() => {
+    const byId: Record<string, string> = {};
+    for (const ip of externalIpsResponse?.items ?? []) {
+      if (ip.id && ip.status?.address) {
+        byId[ip.id] = ip.status.address;
+      }
+    }
+    return byId;
+  }, [externalIpsResponse?.items]);
 
   const filteredVNs = virtualNetworks.filter((vn) => {
     const name = vn.metadata?.name ?? '';
@@ -87,11 +118,17 @@ export const VirtualNetworksListPage = () => {
                   <Th>{t('Status')}</Th>
                   <Th>{t('CIDR')}</Th>
                   <Th>{t('Subnets')}</Th>
+                  <Th>{t('NAT gateway')}</Th>
+                  <Th aria-label={t('Actions')} />
                 </Tr>
               </Thead>
               <Tbody>
                 {filteredVNs.map((vn) => {
                   const subnetCount = subnetCountByVN[vn.id] || 0;
+                  const natGateway = natGatewayByVnId[vn.id];
+                  const address = natGateway?.spec?.externalIp?.id
+                    ? addressByExternalIpId[natGateway.spec.externalIp.id]
+                    : undefined;
 
                   return (
                     <Tr key={vn.id}>
@@ -108,6 +145,52 @@ export const VirtualNetworksListPage = () => {
                         <CidrDisplay ipv4Cidr={vn.spec?.ipv4Cidr} ipv6Cidr={vn.spec?.ipv6Cidr} />
                       </Td>
                       <Td dataLabel={t('Subnets')}>{subnetCount}</Td>
+                      <Td dataLabel={t('NAT gateway')}>
+                        {natGateway ? (
+                          <>
+                            <Content component="p">
+                              {natGateway.metadata?.name ?? natGateway.id}
+                            </Content>
+                            <Content component="p">
+                              <code>{address ?? '—'}</code>
+                            </Content>
+                          </>
+                        ) : (
+                          <Content component="p">—</Content>
+                        )}
+                      </Td>
+                      <Td dataLabel={t('Actions')} isActionCell>
+                        <ActionsColumn
+                          items={
+                            natGateway
+                              ? [
+                                  {
+                                    title: t('Detach'),
+                                    onClick: () => setDetachTarget(natGateway),
+                                  },
+                                ]
+                              : [
+                                  {
+                                    title: t('Attach NAT Gateway'),
+                                    onClick: () => setAttachTarget(vn),
+                                  },
+                                ]
+                          }
+                          actionsToggle={({ onToggle, isOpen, toggleRef }) => (
+                            <MenuToggle
+                              ref={toggleRef}
+                              variant="plain"
+                              isExpanded={isOpen}
+                              onClick={onToggle}
+                              aria-label={t('Actions for {{name}}', {
+                                name: vn.metadata?.name ?? vn.id,
+                              })}
+                            >
+                              <EllipsisVIcon />
+                            </MenuToggle>
+                          )}
+                        />
+                      </Td>
                     </Tr>
                   );
                 })}
@@ -119,6 +202,18 @@ export const VirtualNetworksListPage = () => {
 
       {isCreateModalOpen && (
         <VirtualNetworkCreateModal onClose={() => setIsCreateModalOpen(false)} />
+      )}
+      {attachTarget && (
+        <AttachNatGatewayModal
+          virtualNetwork={attachTarget}
+          onClose={() => setAttachTarget(undefined)}
+        />
+      )}
+      {detachTarget && (
+        <DetachNatGatewayModal
+          natGateway={detachTarget}
+          onClose={() => setDetachTarget(undefined)}
+        />
       )}
     </>
   );

@@ -9,23 +9,32 @@ import {
   CardBody,
   CardHeader,
   CardTitle,
+  Content,
   DescriptionList,
   DescriptionListDescription,
   DescriptionListGroup,
   DescriptionListTerm,
+  Flex,
+  FlexItem,
+  Title,
 } from '@patternfly/react-core';
+import { PlusCircleIcon } from '@patternfly/react-icons/dist/esm/icons/plus-circle-icon';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
-import { VirtualNetworkState } from '@osac/types';
+import { ExternalIPs, type NATGateway, NATGateways, VirtualNetworkState } from '@osac/types';
 import CreateButton from '@osac/ui-components/components/Primitives/CreateButton.tsx';
 import ResourceNameField from '@osac/ui-components/components/Resource/ResourceNameField.tsx';
 
+import { useListResource } from '../../api/use-resource';
 import {
   useSecurityGroups,
   useSubnets,
   useVirtualNetwork,
   virtualNetworkScopeFilter,
 } from '../../api/v1/networking';
+import { AttachNatGatewayModal } from '../../components/networking/AttachNatGatewayModal';
+import { DetachNatGatewayModal } from '../../components/networking/DetachNatGatewayModal';
+import { NatGatewayStatusLabel } from '../../components/networking/NatGatewayStatusLabel';
 import { SecurityGroupCreateModal } from '../../components/networking/SecurityGroupCreateModal';
 import { SecurityGroupStatusLabel } from '../../components/networking/SecurityGroupStatusLabel';
 import { SubnetCreateModal } from '../../components/networking/SubnetCreateModal';
@@ -33,6 +42,7 @@ import { SubnetStatusLabel } from '../../components/networking/SubnetStatusLabel
 import { VirtualNetworkStatusLabel } from '../../components/networking/VirtualNetworkStatusLabel';
 import ListPage from '../../components/Page/ListPage';
 import ListPageBody from '../../components/Page/ListPageBody';
+import { Timestamp } from '../../components/Primitives/Timestamp';
 import { SubtleContent } from '../../components/SubtleContent/SubtleContent';
 import { useTranslation } from '../../hooks/useTranslation';
 import { getErrorMessage } from '../../utils/error';
@@ -43,6 +53,8 @@ export const VirtualNetworkDetailPage = () => {
   const { id = '' } = useParams<{ id: string }>();
   const [isSubnetModalOpen, setIsSubnetModalOpen] = useState(false);
   const [isSecurityGroupModalOpen, setIsSecurityGroupModalOpen] = useState(false);
+  const [isAttachModalOpen, setIsAttachModalOpen] = useState(false);
+  const [detachTarget, setDetachTarget] = useState<NATGateway>();
 
   const { data: vn, isLoading, error } = useVirtualNetwork(id);
   const {
@@ -59,6 +71,18 @@ export const VirtualNetworkDetailPage = () => {
   } = useSecurityGroups({
     filter: virtualNetworkScopeFilter(id),
   });
+  const { data: natGatewaysResponse } = useListResource(NATGateways, {
+    filter: virtualNetworkScopeFilter(id),
+  });
+  const natGateway = natGatewaysResponse?.items?.[0];
+  const { data: externalIpsResponse } = useListResource(
+    ExternalIPs,
+    {},
+    { enabled: Boolean(natGateway?.spec?.externalIp?.id) },
+  );
+  const natAddress = externalIpsResponse?.items?.find(
+    (ip) => ip.id === natGateway?.spec?.externalIp?.id,
+  )?.status?.address;
 
   const vnName = vn?.metadata?.name ?? id;
   const isFailed = vn?.status?.state === VirtualNetworkState.FAILED;
@@ -126,6 +150,71 @@ export const VirtualNetworkDetailPage = () => {
                   </DescriptionListGroup>
                 )}
               </DescriptionList>
+
+              <Flex
+                className="pf-v6-u-mt-lg"
+                justifyContent={{ default: 'justifyContentSpaceBetween' }}
+                alignItems={{ default: 'alignItemsCenter' }}
+              >
+                <FlexItem>
+                  <Title headingLevel="h2" size="md">
+                    {t('NAT gateway')}
+                  </Title>
+                </FlexItem>
+                <FlexItem>
+                  {natGateway ? (
+                    <Button variant="link" isInline onClick={() => setDetachTarget(natGateway)}>
+                      {t('Detach')}
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="link"
+                      isInline
+                      icon={<PlusCircleIcon />}
+                      onClick={() => setIsAttachModalOpen(true)}
+                    >
+                      {t('Attach')}
+                    </Button>
+                  )}
+                </FlexItem>
+              </Flex>
+              {natGateway ? (
+                <DescriptionList
+                  isCompact
+                  isHorizontal
+                  className="pf-v6-u-mt-md"
+                  aria-label={t('Attached NAT gateway')}
+                >
+                  <DescriptionListGroup>
+                    <DescriptionListTerm>{t('Name')}</DescriptionListTerm>
+                    <DescriptionListDescription>
+                      {natGateway.metadata?.name ?? natGateway.id}
+                    </DescriptionListDescription>
+                  </DescriptionListGroup>
+                  <DescriptionListGroup>
+                    <DescriptionListTerm>{t('Address')}</DescriptionListTerm>
+                    <DescriptionListDescription>
+                      <code>{natAddress ?? '—'}</code>
+                    </DescriptionListDescription>
+                  </DescriptionListGroup>
+                  <DescriptionListGroup>
+                    <DescriptionListTerm>{t('Status')}</DescriptionListTerm>
+                    <DescriptionListDescription>
+                      <NatGatewayStatusLabel state={natGateway.status?.state} />
+                    </DescriptionListDescription>
+                  </DescriptionListGroup>
+                  <DescriptionListGroup>
+                    <DescriptionListTerm>{t('Attached')}</DescriptionListTerm>
+                    <DescriptionListDescription>
+                      <Timestamp value={natGateway.metadata?.creationTimestamp} />
+                    </DescriptionListDescription>
+                  </DescriptionListGroup>
+                </DescriptionList>
+              ) : (
+                <Content component="p" className="pf-v6-u-mt-md">
+                  {t('No NAT gateway attached to this virtual network.')}
+                </Content>
+              )}
             </CardBody>
           </Card>
 
@@ -256,6 +345,15 @@ export const VirtualNetworkDetailPage = () => {
           onClose={() => setIsSubnetModalOpen(false)}
           parentVN={vn}
           existingSubnets={subnets}
+        />
+      )}
+      {isAttachModalOpen && vn && (
+        <AttachNatGatewayModal virtualNetwork={vn} onClose={() => setIsAttachModalOpen(false)} />
+      )}
+      {detachTarget && (
+        <DetachNatGatewayModal
+          natGateway={detachTarget}
+          onClose={() => setDetachTarget(undefined)}
         />
       )}
     </>
