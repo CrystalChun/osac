@@ -50,6 +50,12 @@ const getAdminNav = (t: TFunction): NavRow[] => [
       },
       {
         kind: 'link',
+        id: 'external-ip-pools',
+        label: t('External IP pools'),
+        path: '/admin/infrastructure/external-ip-pools',
+      },
+      {
+        kind: 'link',
         id: 'baremetal-instance-types',
         label: t('Bare metal instance types'),
         path: '/admin/infrastructure/baremetal-instance-types',

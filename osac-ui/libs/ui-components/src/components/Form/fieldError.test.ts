@@ -15,6 +15,14 @@ describe('getVisibleFieldError', () => {
     expect(getVisibleFieldError(meta(false, 'Name is required'), true)).toBe('Name is required');
   });
 
+  it('shows a nested id error when step validation is active', () => {
+    const objectMeta = {
+      touched: false,
+      error: { id: 'Tenant is required' },
+    } as unknown as FieldMetaProps<unknown>;
+    expect(getVisibleFieldError(objectMeta, true)).toBe('Tenant is required');
+  });
+
   it('hides error when field is untouched and step validation is inactive', () => {
     expect(getVisibleFieldError(meta(false, 'Name is required'), false)).toBeUndefined();
   });
