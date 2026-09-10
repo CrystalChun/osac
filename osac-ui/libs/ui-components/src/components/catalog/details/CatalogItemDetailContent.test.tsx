@@ -76,6 +76,7 @@ const vmItem: ComputeInstanceCatalogItem = {
       },
     },
   ],
+  templateParameters: {},
 };
 
 describe('CatalogItemDetailContent', () => {

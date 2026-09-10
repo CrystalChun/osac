@@ -25,6 +25,7 @@ describe('readCatalogItemFieldDefinitions', () => {
           validation_schema: '{"type":"integer","minimum":2}',
         },
       ],
+      templateParameters: {},
     };
 
     expect(readCatalogItemFieldDefinitions(wireItem)).toHaveLength(1);
@@ -50,6 +51,7 @@ describe('readCatalogItemFieldDefinitions', () => {
           default: { kind: { case: 'numberValue', value: 4 } },
         },
       ],
+      templateParameters: {},
     };
 
     expect(catalogItemFieldDefinitions(decodedItem)).toEqual([
@@ -119,6 +121,7 @@ describe('catalog display with wire field_definitions', () => {
           validationSchema: '',
         },
       ],
+      templateParameters: {},
     };
 
     expect(catalogItemResourceParts(wireItem)).toEqual([
@@ -181,6 +184,7 @@ describe('catalog display with wire field_definitions', () => {
           validationSchema: '',
         },
       ],
+      templateParameters: {},
     };
 
     expect(catalogItemResourceParts(wireItem)).toEqual(['fc430 Host Type', '2 Worker Count']);
@@ -196,6 +200,7 @@ describe('filterCatalogItemsBySearch', () => {
       title: 'Alpha VM',
       description: 'For testing',
       fieldDefinitions: [],
+      templateParameters: {},
       published: true,
       template: undefined,
     },
@@ -205,6 +210,7 @@ describe('filterCatalogItemsBySearch', () => {
       title: 'Beta Cluster',
       description: 'Production workload',
       fieldDefinitions: [],
+      templateParameters: {},
       published: true,
       template: undefined,
     },

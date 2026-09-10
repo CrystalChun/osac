@@ -23,6 +23,13 @@ import {
 import { getErrorMessage } from '@osac/ui-components/utils/error';
 
 import { BareMetalInstanceWizardValues } from './fields';
+import {
+  formatResourceIdsForReview,
+  resourceDisplayName,
+  useSecurityGroups,
+  useSubnets,
+  useVirtualNetworks,
+} from '../../../../../api/v1/networking';
 import { useTranslation } from '../../../../../hooks/useTranslation';
 import { formatReviewScalar } from '../../catalogOverlay';
 
@@ -48,6 +55,11 @@ export const BareMetalReviewStep = ({ catalogItem }: Props) => {
     ),
   });
 
+  // Fetch networking resources for review display
+  const { data: virtualNetworks = [] } = useVirtualNetworks();
+  const { data: subnets = [] } = useSubnets();
+  const { data: securityGroups = [] } = useSecurityGroups();
+
   if (isLoading || instanceTypesLoading) {
     return (
       <Bullseye>
@@ -57,6 +69,20 @@ export const BareMetalReviewStep = ({ catalogItem }: Props) => {
   }
 
   const instanceType = instanceTypes?.items.length ? instanceTypes.items[0] : undefined;
+
+  // Format networking summary
+  const networking = values.spec.networking;
+  const networkingSummary = networking.useDefaults
+    ? t('Using tenant default network')
+    : networking.attachments
+        .slice(0, 1)
+        .map((attachment) => {
+          const vn = virtualNetworks.find((v) => v.id === attachment.virtualNetwork);
+          const subnet = subnets.find((s) => s.id === attachment.subnet);
+          const sgNames = formatResourceIdsForReview(attachment.securityGroups, securityGroups);
+          return `${resourceDisplayName(vn?.metadata, vn?.id)} / ${resourceDisplayName(subnet?.metadata, subnet?.id)} / ${sgNames}`;
+        })
+        .join('\n');
 
   return (
     <Stack hasGutter>
@@ -117,6 +143,18 @@ export const BareMetalReviewStep = ({ catalogItem }: Props) => {
             <DescriptionListTerm>{t('User data')}</DescriptionListTerm>
             <DescriptionListDescription>
               {formatReviewScalar(values.spec.userData, true)}
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+          <DescriptionListGroup>
+            <DescriptionListTerm>{t('Networking')}</DescriptionListTerm>
+            <DescriptionListDescription style={{ whiteSpace: 'pre-line' }}>
+              {networkingSummary}
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+          <DescriptionListGroup>
+            <DescriptionListTerm>{t('External access')}</DescriptionListTerm>
+            <DescriptionListDescription>
+              {networking.attachExternalIp ? t('Enabled') : t('Disabled')}
             </DescriptionListDescription>
           </DescriptionListGroup>
         </DescriptionList>

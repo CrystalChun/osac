@@ -31,6 +31,7 @@ const vmCatalogItem: ComputeInstanceCatalogItem = {
   },
   published: true,
   fieldDefinitions: [],
+  templateParameters: {},
 };
 
 const catalogItemWithAdditionalDisksDefault: ComputeInstanceCatalogItem = {

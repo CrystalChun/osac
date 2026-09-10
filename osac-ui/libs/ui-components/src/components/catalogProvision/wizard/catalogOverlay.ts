@@ -200,6 +200,15 @@ export const formatReviewScalar = (value: unknown, sensitive = false): string =>
   if (typeof value === 'string' || typeof value === 'number' || typeof value === 'bigint') {
     return String(value);
   }
+  if (
+    typeof value === 'object' &&
+    value !== null &&
+    'name' in value &&
+    typeof value.name === 'string' &&
+    value.name
+  ) {
+    return value.name;
+  }
   return '—';
 };
 

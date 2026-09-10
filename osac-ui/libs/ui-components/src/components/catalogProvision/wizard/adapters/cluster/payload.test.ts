@@ -39,6 +39,7 @@ const clusterCatalogItem: ClusterCatalogItem = {
       validationSchema: '',
     },
   ],
+  templateParameters: {},
 };
 
 describe('buildClusterCreatePayload', () => {

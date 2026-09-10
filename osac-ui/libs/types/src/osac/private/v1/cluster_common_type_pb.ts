@@ -17,14 +17,19 @@
 
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
 import { file_cleanapi_cleanapi } from "../../../cleanapi/cleanapi_pb";
+import type { SecurityGroupLocalReference } from "./security_group_type_pb";
+import { file_osac_private_v1_security_group_type } from "./security_group_type_pb";
+import type { SubnetLocalReference } from "./subnet_type_pb";
+import { file_osac_private_v1_subnet_type } from "./subnet_type_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file osac/private/v1/cluster_common_type.proto.
  */
 export const file_osac_private_v1_cluster_common_type: GenFile = /*@__PURE__*/
-  fileDesc("Cilvc2FjL3ByaXZhdGUvdjEvY2x1c3Rlcl9jb21tb25fdHlwZS5wcm90bxIPb3NhYy5wcml2YXRlLnYxImAKDkNsdXN0ZXJOZXR3b3JrEhUKCHBvZF9jaWRyGAEgASgJSACIAQESGQoMc2VydmljZV9jaWRyGAIgASgJSAGIAQFCCwoJX3BvZF9jaWRyQg8KDV9zZXJ2aWNlX2NpZHJCFIq1GBASDm9zYWMucHVibGljLnYxYgZwcm90bzM", [file_cleanapi_cleanapi]);
+  fileDesc("Cilvc2FjL3ByaXZhdGUvdjEvY2x1c3Rlcl9jb21tb25fdHlwZS5wcm90bxIPb3NhYy5wcml2YXRlLnYxImAKDkNsdXN0ZXJOZXR3b3JrEhUKCHBvZF9jaWRyGAEgASgJSACIAQESGQoMc2VydmljZV9jaWRyGAIgASgJSAGIAQFCCwoJX3BvZF9jaWRyQg8KDV9zZXJ2aWNlX2NpZHIioAEKGENsdXN0ZXJOZXR3b3JrQXR0YWNobWVudBI9CgZzdWJuZXQYASABKAsyJS5vc2FjLnByaXZhdGUudjEuU3VibmV0TG9jYWxSZWZlcmVuY2VCBrpIA8gBARJFCg9zZWN1cml0eV9ncm91cHMYAiADKAsyLC5vc2FjLnByaXZhdGUudjEuU2VjdXJpdHlHcm91cExvY2FsUmVmZXJlbmNlQhSKtRgQEg5vc2FjLnB1YmxpYy52MWIGcHJvdG8z", [file_buf_validate_validate, file_cleanapi_cleanapi, file_osac_private_v1_security_group_type, file_osac_private_v1_subnet_type]);
 
 /**
  * Networking configuration for a cluster.
@@ -57,4 +62,42 @@ export type ClusterNetwork = Message<"osac.private.v1.ClusterNetwork"> & {
  */
 export const ClusterNetworkSchema: GenMessage<ClusterNetwork> = /*@__PURE__*/
   messageDesc(file_osac_private_v1_cluster_common_type, 0);
+
+/**
+ * Defines the network attachment for a cluster, connecting it to a tenant subnet with optional security groups.
+ *
+ * Unlike compute instances, which support multiple network attachments (one per virtual NIC), a cluster has a single
+ * network attachment shared by all node sets. The fabric interface for each node set is resolved automatically by the
+ * system from the node set's host type.
+ *
+ * @generated from message osac.private.v1.ClusterNetworkAttachment
+ */
+export type ClusterNetworkAttachment = Message<"osac.private.v1.ClusterNetworkAttachment"> & {
+  /**
+   * Reference to the subnet to connect the cluster to.
+   *
+   * The subnet must be in `READY` state at creation time.
+   *
+   * This can't be modified after the cluster is created.
+   *
+   * @generated from field: osac.private.v1.SubnetLocalReference subnet = 1;
+   */
+  subnet?: SubnetLocalReference | undefined;
+
+  /**
+   * References to the security groups to apply to the cluster's network attachment.
+   *
+   * All security groups must belong to the same virtual network as the subnet.
+   *
+   * @generated from field: repeated osac.private.v1.SecurityGroupLocalReference security_groups = 2;
+   */
+  securityGroups: SecurityGroupLocalReference[];
+};
+
+/**
+ * Describes the message osac.private.v1.ClusterNetworkAttachment.
+ * Use `create(ClusterNetworkAttachmentSchema)` to create a new message.
+ */
+export const ClusterNetworkAttachmentSchema: GenMessage<ClusterNetworkAttachment> = /*@__PURE__*/
+  messageDesc(file_osac_private_v1_cluster_common_type, 1);
 

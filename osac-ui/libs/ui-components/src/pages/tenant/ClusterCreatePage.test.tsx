@@ -85,6 +85,7 @@ const clusterCatalogItem: ClusterCatalogItem = {
       },
     },
   ],
+  templateParameters: {},
 };
 
 const createdCluster: Cluster = {

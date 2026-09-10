@@ -42,6 +42,7 @@ const clusterCatalogItem: ClusterCatalogItem = {
       validationSchema: '',
     },
   ],
+  templateParameters: {},
 };
 
 const emptyValues: ClusterWizardValues = {

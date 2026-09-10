@@ -37,6 +37,7 @@ import {
   getWizardOrderedSteps,
 } from './wizard/stepIds';
 import { CatalogStep } from './wizard/steps/WizardSteps';
+import { WizardValidationProvider } from './wizard/WizardValidationContext';
 
 export type {
   CatalogProvisionPayload,
@@ -447,6 +448,10 @@ const CatalogProvisionWizardForm = ({
     void adapter.onCatalogItemSelected?.(item, formik);
   }, [adapter, catalogItems, formik, initialCatalogItemId]);
 
+  const clearValidationAlert = useCallback(() => {
+    setValidationAlert(false);
+  }, [setValidationAlert]);
+
   return (
     <>
       {showCancelConfirm ? (
@@ -472,49 +477,51 @@ const CatalogProvisionWizardForm = ({
           </ModalFooter>
         </Modal>
       ) : null}
-      <PageSection
-        hasBodyWrapper={false}
-        type={PageSectionTypes.wizard}
-        aria-label={t(adapter.ariaLabelKey)}
-      >
-        <Wizard
-          key={wizardResetKey}
-          navAriaLabel={t('catalogProvision.wizard.navAria', {
-            title: t(adapter.wizardTitleKey),
-          })}
-          isVisitRequired
-          onStepChange={handleStepChange}
-          footer={
-            <WizardFooterWrapper>
-              <CatalogProvisionWizardFooter
-                formik={formik}
-                catalogItem={selectedCatalogItem}
-                setActiveStepId={setActiveStepId}
-                setProvisionError={setProvisionError}
-                setValidationAlert={setValidationAlert}
-                pending={pending}
-                setPending={setPending}
-                onProvision={onProvision}
-                buildCreatePayload={adapter.buildCreatePayload}
-                close={close}
-                requestClose={requestClose}
-              />
-            </WizardFooterWrapper>
-          }
+      <WizardValidationProvider clearValidationAlert={clearValidationAlert}>
+        <PageSection
+          hasBodyWrapper={false}
+          type={PageSectionTypes.wizard}
+          aria-label={t(adapter.ariaLabelKey)}
         >
-          {orderedSteps.map((stepId) => (
-            <WizardStep key={stepId} id={stepId} name={STEP_LABEL_KEYS(t)[stepId]}>
-              <WizardStepBody
-                adapter={adapter}
-                stepId={stepId}
-                catalogItem={selectedCatalogItem}
-                provisionError={provisionError}
-                validationAlert={validationAlert}
-              />
-            </WizardStep>
-          ))}
-        </Wizard>
-      </PageSection>
+          <Wizard
+            key={wizardResetKey}
+            navAriaLabel={t('catalogProvision.wizard.navAria', {
+              title: t(adapter.wizardTitleKey),
+            })}
+            isVisitRequired
+            onStepChange={handleStepChange}
+            footer={
+              <WizardFooterWrapper>
+                <CatalogProvisionWizardFooter
+                  formik={formik}
+                  catalogItem={selectedCatalogItem}
+                  setActiveStepId={setActiveStepId}
+                  setProvisionError={setProvisionError}
+                  setValidationAlert={setValidationAlert}
+                  pending={pending}
+                  setPending={setPending}
+                  onProvision={onProvision}
+                  buildCreatePayload={adapter.buildCreatePayload}
+                  close={close}
+                  requestClose={requestClose}
+                />
+              </WizardFooterWrapper>
+            }
+          >
+            {orderedSteps.map((stepId) => (
+              <WizardStep key={stepId} id={stepId} name={STEP_LABEL_KEYS(t)[stepId]}>
+                <WizardStepBody
+                  adapter={adapter}
+                  stepId={stepId}
+                  catalogItem={selectedCatalogItem}
+                  provisionError={provisionError}
+                  validationAlert={validationAlert}
+                />
+              </WizardStep>
+            ))}
+          </Wizard>
+        </PageSection>
+      </WizardValidationProvider>
     </>
   );
 };

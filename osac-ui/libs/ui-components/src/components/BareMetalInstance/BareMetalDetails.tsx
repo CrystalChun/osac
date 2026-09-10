@@ -16,6 +16,7 @@ import type { BareMetalInstance } from '@osac/types';
 
 import BareMetalActionButtons from './BareMetalActionButtons';
 import BareMetalDetailsCard from './BareMetalDetailsCard';
+import BareMetalNetworkingCard from './BareMetalNetworkingCard';
 import { BareMetalStatusLabel } from './BareMetalStatusLabel';
 import { useTranslation } from '../../hooks/useTranslation';
 import { ResourceConditionsTable } from '../Resource/ResourceConditionsTable';
@@ -60,23 +61,30 @@ const BareMetalDetails = ({ instance }: Props) => {
       </PageSection>
 
       <PageSection hasBodyWrapper={false}>
-        <Grid hasGutter>
-          <GridItem md={6}>
-            <BareMetalDetailsCard instance={instance} />
-          </GridItem>
-          <GridItem md={6}>
-            <Card isFullHeight>
-              <CardTitle>{t('Conditions')}</CardTitle>
-              <CardBody>
-                <ResourceConditionsTable
-                  ariaLabel={t('Bare metal instance conditions')}
-                  conditions={conditions}
-                  conditionResourceKind="bare_metal_instance"
-                />
-              </CardBody>
-            </Card>
-          </GridItem>
-        </Grid>
+        <Stack hasGutter>
+          <StackItem>
+            <Grid hasGutter>
+              <GridItem md={6}>
+                <BareMetalDetailsCard instance={instance} />
+              </GridItem>
+              <GridItem md={6}>
+                <Card isFullHeight>
+                  <CardTitle>{t('Conditions')}</CardTitle>
+                  <CardBody>
+                    <ResourceConditionsTable
+                      ariaLabel={t('Bare metal instance conditions')}
+                      conditions={conditions}
+                      conditionResourceKind="bare_metal_instance"
+                    />
+                  </CardBody>
+                </Card>
+              </GridItem>
+            </Grid>
+          </StackItem>
+          <StackItem>
+            <BareMetalNetworkingCard instance={instance} />
+          </StackItem>
+        </Stack>
       </PageSection>
     </>
   );

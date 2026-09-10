@@ -47,6 +47,7 @@ const clusterCatalogItem: ClusterCatalogItem = {
       },
     },
   ],
+  templateParameters: {},
 };
 
 describe('ClusterNetworkingStep', () => {

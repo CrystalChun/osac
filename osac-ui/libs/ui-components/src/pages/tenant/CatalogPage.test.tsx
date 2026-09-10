@@ -52,6 +52,7 @@ const vmCatalogItem: ComputeInstanceCatalogItem = {
       },
     },
   ],
+  templateParameters: {},
 };
 
 const clusterCatalogItem: ClusterCatalogItem = {
@@ -74,6 +75,7 @@ const clusterCatalogItem: ClusterCatalogItem = {
   template: create(ClusterTemplateReferenceSchema, { id: 'tpl-openshift-4' }),
   published: true,
   fieldDefinitions: [],
+  templateParameters: {},
 };
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));

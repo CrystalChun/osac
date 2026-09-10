@@ -17,11 +17,15 @@
 
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
 import { file_cleanapi_cleanapi } from "../../../cleanapi/cleanapi_pb";
+import { file_google_api_field_behavior } from "../../../google/api/field_behavior_pb";
 import type { ClusterTemplateReference } from "./cluster_template_type_pb";
 import { file_osac_private_v1_cluster_template_type } from "./cluster_template_type_pb";
 import type { FieldDefinition } from "./field_definition_type_pb";
 import { file_osac_private_v1_field_definition_type } from "./field_definition_type_pb";
+import type { BoolFieldPolicy, ClusterNetworkAttachmentFieldPolicy, ClusterVersionReferenceFieldPolicy, Int32FieldPolicy, SecretReferenceFieldPolicy, StringFieldPolicy, TemplateParameterPolicy } from "./field_policy_type_pb";
+import { file_osac_private_v1_field_policy_type } from "./field_policy_type_pb";
 import type { Metadata } from "./metadata_type_pb";
 import { file_osac_private_v1_metadata_type } from "./metadata_type_pb";
 import type { Message } from "@bufbuild/protobuf";
@@ -30,11 +34,11 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/private/v1/cluster_catalog_item_type.proto.
  */
 export const file_osac_private_v1_cluster_catalog_item_type: GenFile = /*@__PURE__*/
-  fileDesc("Ci9vc2FjL3ByaXZhdGUvdjEvY2x1c3Rlcl9jYXRhbG9nX2l0ZW1fdHlwZS5wcm90bxIPb3NhYy5wcml2YXRlLnYxIpYCChJDbHVzdGVyQ2F0YWxvZ0l0ZW0SCgoCaWQYASABKAkSKwoIbWV0YWRhdGEYAiABKAsyGS5vc2FjLnByaXZhdGUudjEuTWV0YWRhdGESDQoFdGl0bGUYAyABKAkSEwoLZGVzY3JpcHRpb24YBCABKAkSOwoIdGVtcGxhdGUYBSABKAsyKS5vc2FjLnByaXZhdGUudjEuQ2x1c3RlclRlbXBsYXRlUmVmZXJlbmNlEhEKCXB1Ymxpc2hlZBgGIAEoCBIWCgZ0ZW5hbnQYByABKAlCBoq1GAIIARI7ChFmaWVsZF9kZWZpbml0aW9ucxgIIAMoCzIgLm9zYWMucHJpdmF0ZS52MS5GaWVsZERlZmluaXRpb24iWAobQ2x1c3RlckNhdGFsb2dJdGVtUmVmZXJlbmNlEgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkSDwoHcHJvamVjdBgDIAEoCRIOCgZzaGFyZWQYBCABKAhCFIq1GBASDm9zYWMucHVibGljLnYxYgZwcm90bzM", [file_cleanapi_cleanapi, file_osac_private_v1_cluster_template_type, file_osac_private_v1_field_definition_type, file_osac_private_v1_metadata_type]);
+  fileDesc("Ci9vc2FjL3ByaXZhdGUvdjEvY2x1c3Rlcl9jYXRhbG9nX2l0ZW1fdHlwZS5wcm90bxIPb3NhYy5wcml2YXRlLnYxIqIEChJDbHVzdGVyQ2F0YWxvZ0l0ZW0SCgoCaWQYASABKAkSKwoIbWV0YWRhdGEYAiABKAsyGS5vc2FjLnByaXZhdGUudjEuTWV0YWRhdGESDQoFdGl0bGUYAyABKAkSEwoLZGVzY3JpcHRpb24YBCABKAkSSQoIdGVtcGxhdGUYBSABKAsyKS5vc2FjLnByaXZhdGUudjEuQ2x1c3RlclRlbXBsYXRlUmVmZXJlbmNlQgzgQQLgQQW6SAPIAQESEQoJcHVibGlzaGVkGAYgASgIEhYKBnRlbmFudBgHIAEoCUIGirUYAggBEj8KEWZpZWxkX2RlZmluaXRpb25zGAggAygLMiAub3NhYy5wcml2YXRlLnYxLkZpZWxkRGVmaW5pdGlvbkICGAESWAoTdGVtcGxhdGVfcGFyYW1ldGVycxgJIAMoCzI7Lm9zYWMucHJpdmF0ZS52MS5DbHVzdGVyQ2F0YWxvZ0l0ZW0uVGVtcGxhdGVQYXJhbWV0ZXJzRW50cnkSOQoGZmllbGRzGAogASgLMikub3NhYy5wcml2YXRlLnYxLkNsdXN0ZXJDYXRhbG9nSXRlbUZpZWxkcxpjChdUZW1wbGF0ZVBhcmFtZXRlcnNFbnRyeRILCgNrZXkYASABKAkSNwoFdmFsdWUYAiABKAsyKC5vc2FjLnByaXZhdGUudjEuVGVtcGxhdGVQYXJhbWV0ZXJQb2xpY3k6AjgBIt0EChhDbHVzdGVyQ2F0YWxvZ0l0ZW1GaWVsZHMSRAoHdmVyc2lvbhgBIAEoCzIzLm9zYWMucHJpdmF0ZS52MS5DbHVzdGVyVmVyc2lvblJlZmVyZW5jZUZpZWxkUG9saWN5EjoKDnNzaF9wdWJsaWNfa2V5GAIgASgLMiIub3NhYy5wcml2YXRlLnYxLlN0cmluZ0ZpZWxkUG9saWN5EkcKEnB1bGxfc2VjcmV0X3NlY3JldBgDIAEoCzIrLm9zYWMucHJpdmF0ZS52MS5TZWNyZXRSZWZlcmVuY2VGaWVsZFBvbGljeRI9CgduZXR3b3JrGAQgASgLMiwub3NhYy5wcml2YXRlLnYxLkNsdXN0ZXJOZXR3b3JrRmllbGRQb2xpY2llcxJKCglub2RlX3NldHMYBSADKAsyNy5vc2FjLnByaXZhdGUudjEuQ2x1c3RlckNhdGFsb2dJdGVtRmllbGRzLk5vZGVTZXRzRW50cnkSRQobYXV0b19leHRlcm5hbF9pcF9hdHRhY2htZW50GAYgASgLMiAub3NhYy5wcml2YXRlLnYxLkJvb2xGaWVsZFBvbGljeRJQChJuZXR3b3JrX2F0dGFjaG1lbnQYByABKAsyNC5vc2FjLnByaXZhdGUudjEuQ2x1c3Rlck5ldHdvcmtBdHRhY2htZW50RmllbGRQb2xpY3kaUgoNTm9kZVNldHNFbnRyeRILCgNrZXkYASABKAkSMAoFdmFsdWUYAiABKAsyIS5vc2FjLnByaXZhdGUudjEuSW50MzJGaWVsZFBvbGljeToCOAEijQEKG0NsdXN0ZXJOZXR3b3JrRmllbGRQb2xpY2llcxI0Cghwb2RfY2lkchgBIAEoCzIiLm9zYWMucHJpdmF0ZS52MS5TdHJpbmdGaWVsZFBvbGljeRI4CgxzZXJ2aWNlX2NpZHIYAiABKAsyIi5vc2FjLnByaXZhdGUudjEuU3RyaW5nRmllbGRQb2xpY3kiWAobQ2x1c3RlckNhdGFsb2dJdGVtUmVmZXJlbmNlEgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkSDwoHcHJvamVjdBgDIAEoCRIOCgZzaGFyZWQYBCABKAhCFIq1GBASDm9zYWMucHVibGljLnYxYgZwcm90bzM", [file_buf_validate_validate, file_cleanapi_cleanapi, file_google_api_field_behavior, file_osac_private_v1_cluster_template_type, file_osac_private_v1_field_definition_type, file_osac_private_v1_field_policy_type, file_osac_private_v1_metadata_type]);
 
 /**
  * A cluster catalog item defines a curated infrastructure offering that references an underlying cluster template.
- * Admins control which fields users can set, enforce defaults, and validate input via JSON Schema.
+ * Admins control typed resource-field and template-parameter policies, including locked values and defaults.
  *
  * buf:lint:ignore OSAC_OBJECT_SHAPE
  *
@@ -90,11 +94,27 @@ export type ClusterCatalogItem = Message<"osac.private.v1.ClusterCatalogItem"> &
   tenant: string;
 
   /**
-   * Definitions of the fields that users can or cannot set when creating a resource from this catalog item.
+   * Deprecated: definitions of the fields that users can or cannot set when creating a resource from this catalog item.
+   * Use `fields` and `template_parameters` instead.
    *
-   * @generated from field: repeated osac.private.v1.FieldDefinition field_definitions = 8;
+   * @generated from field: repeated osac.private.v1.FieldDefinition field_definitions = 8 [deprecated = true];
+   * @deprecated
    */
   fieldDefinitions: FieldDefinition[];
+
+  /**
+   * Policies that govern template parameters during resource creation.
+   *
+   * @generated from field: map<string, osac.private.v1.TemplateParameterPolicy> template_parameters = 9;
+   */
+  templateParameters: { [key: string]: TemplateParameterPolicy };
+
+  /**
+   * Policies that govern cluster fields during resource creation.
+   *
+   * @generated from field: osac.private.v1.ClusterCatalogItemFields fields = 10;
+   */
+  fields?: ClusterCatalogItemFields | undefined;
 };
 
 /**
@@ -103,6 +123,81 @@ export type ClusterCatalogItem = Message<"osac.private.v1.ClusterCatalogItem"> &
  */
 export const ClusterCatalogItemSchema: GenMessage<ClusterCatalogItem> = /*@__PURE__*/
   messageDesc(file_osac_private_v1_cluster_catalog_item_type, 0);
+
+/**
+ * Groups the policies for governable cluster fields.
+ *
+ * @generated from message osac.private.v1.ClusterCatalogItemFields
+ */
+export type ClusterCatalogItemFields = Message<"osac.private.v1.ClusterCatalogItemFields"> & {
+  /**
+   * @generated from field: osac.private.v1.ClusterVersionReferenceFieldPolicy version = 1;
+   */
+  version?: ClusterVersionReferenceFieldPolicy | undefined;
+
+  /**
+   * @generated from field: osac.private.v1.StringFieldPolicy ssh_public_key = 2;
+   */
+  sshPublicKey?: StringFieldPolicy | undefined;
+
+  /**
+   * @generated from field: osac.private.v1.SecretReferenceFieldPolicy pull_secret_secret = 3;
+   */
+  pullSecretSecret?: SecretReferenceFieldPolicy | undefined;
+
+  /**
+   * @generated from field: osac.private.v1.ClusterNetworkFieldPolicies network = 4;
+   */
+  network?: ClusterNetworkFieldPolicies | undefined;
+
+  /**
+   * @generated from field: map<string, osac.private.v1.Int32FieldPolicy> node_sets = 5;
+   */
+  nodeSets: { [key: string]: Int32FieldPolicy };
+
+  /**
+   * @generated from field: osac.private.v1.BoolFieldPolicy auto_external_ip_attachment = 6;
+   */
+  autoExternalIpAttachment?: BoolFieldPolicy | undefined;
+
+  /**
+   * Policy for the cluster's subnet and security-group attachment.
+   *
+   * @generated from field: osac.private.v1.ClusterNetworkAttachmentFieldPolicy network_attachment = 7;
+   */
+  networkAttachment?: ClusterNetworkAttachmentFieldPolicy | undefined;
+};
+
+/**
+ * Describes the message osac.private.v1.ClusterCatalogItemFields.
+ * Use `create(ClusterCatalogItemFieldsSchema)` to create a new message.
+ */
+export const ClusterCatalogItemFieldsSchema: GenMessage<ClusterCatalogItemFields> = /*@__PURE__*/
+  messageDesc(file_osac_private_v1_cluster_catalog_item_type, 1);
+
+/**
+ * Groups policies for governable cluster network fields.
+ *
+ * @generated from message osac.private.v1.ClusterNetworkFieldPolicies
+ */
+export type ClusterNetworkFieldPolicies = Message<"osac.private.v1.ClusterNetworkFieldPolicies"> & {
+  /**
+   * @generated from field: osac.private.v1.StringFieldPolicy pod_cidr = 1;
+   */
+  podCidr?: StringFieldPolicy | undefined;
+
+  /**
+   * @generated from field: osac.private.v1.StringFieldPolicy service_cidr = 2;
+   */
+  serviceCidr?: StringFieldPolicy | undefined;
+};
+
+/**
+ * Describes the message osac.private.v1.ClusterNetworkFieldPolicies.
+ * Use `create(ClusterNetworkFieldPoliciesSchema)` to create a new message.
+ */
+export const ClusterNetworkFieldPoliciesSchema: GenMessage<ClusterNetworkFieldPolicies> = /*@__PURE__*/
+  messageDesc(file_osac_private_v1_cluster_catalog_item_type, 2);
 
 /**
  * Reference to a ClusterCatalogItem resource.
@@ -136,5 +231,5 @@ export type ClusterCatalogItemReference = Message<"osac.private.v1.ClusterCatalo
  * Use `create(ClusterCatalogItemReferenceSchema)` to create a new message.
  */
 export const ClusterCatalogItemReferenceSchema: GenMessage<ClusterCatalogItemReference> = /*@__PURE__*/
-  messageDesc(file_osac_private_v1_cluster_catalog_item_type, 1);
+  messageDesc(file_osac_private_v1_cluster_catalog_item_type, 3);
 

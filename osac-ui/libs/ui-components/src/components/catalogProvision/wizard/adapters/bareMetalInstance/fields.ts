@@ -18,6 +18,22 @@ export const BM_USER_DATA_FORM_PATH = 'spec.userData';
 export const BM_INSTANCE_TYPE_WIRE_PATH = 'instance_type.name';
 export const BM_INSTANCE_TYPE_FORM_PATH = 'spec.instanceType.name';
 
+export const BM_NETWORK_ATTACHMENTS_WIRE_PATH = 'network_attachments';
+export const BM_AUTO_EXTERNAL_IP_WIRE_PATH = 'auto_external_ip_attachment';
+
+export interface BareMetalNetworkAttachmentRow {
+  id: string;
+  virtualNetwork: string;
+  subnet: string;
+  securityGroups: string[];
+}
+
+export interface BareMetalNetworkingFormValues {
+  useDefaults: boolean;
+  attachments: BareMetalNetworkAttachmentRow[];
+  attachExternalIp: boolean;
+}
+
 export interface BareMetalInstanceWizardValues {
   catalogItemId: string;
   metadata: {
@@ -30,8 +46,28 @@ export interface BareMetalInstanceWizardValues {
     instanceType: {
       name: string;
     };
+    networking: BareMetalNetworkingFormValues;
   };
 }
+
+let nextAttachmentId = 1;
+
+export const createNetworkAttachmentRowId = (): string => {
+  return `attachment-${nextAttachmentId++}`;
+};
+
+export const createEmptyNetworkAttachmentRow = (): BareMetalNetworkAttachmentRow => ({
+  id: createNetworkAttachmentRowId(),
+  virtualNetwork: '',
+  subnet: '',
+  securityGroups: [],
+});
+
+export const createEmptyBareMetalNetworkingValues = (): BareMetalNetworkingFormValues => ({
+  useDefaults: true,
+  attachments: [createEmptyNetworkAttachmentRow()],
+  attachExternalIp: false,
+});
 
 export const createEmptyBareMetalInstanceValues = (): BareMetalInstanceWizardValues => ({
   catalogItemId: '',
@@ -42,6 +78,7 @@ export const createEmptyBareMetalInstanceValues = (): BareMetalInstanceWizardVal
     instanceType: {
       name: '',
     },
+    networking: createEmptyBareMetalNetworkingValues(),
   },
 });
 

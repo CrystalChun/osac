@@ -2,6 +2,8 @@ import { useField, useFormikContext } from 'formik';
 
 import { CatalogItem } from '@osac/ui-components/components/catalog/catalogItemDisplay';
 
+import { useTranslation } from '../../../../hooks/useTranslation';
+import { InputField } from '../../../Form/InputField';
 import {
   getCatalogFieldOverlay,
   hasCatalogFieldDefinition,
@@ -9,8 +11,6 @@ import {
 } from '../catalogOverlay';
 import { CATALOG_PROVISION_MULTILINE_TEXTAREA } from '../constants';
 import { trimSshPublicKey } from './credentialValidation';
-import { useTranslation } from '../../../../hooks/useTranslation';
-import { InputField } from '../../../Form/InputField';
 
 interface SshKeyFieldProps {
   catalogItem: CatalogItem | null;

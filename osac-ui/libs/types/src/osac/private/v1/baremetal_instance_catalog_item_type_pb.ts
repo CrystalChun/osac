@@ -17,9 +17,13 @@
 
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
 import { file_cleanapi_cleanapi } from "../../../cleanapi/cleanapi_pb";
+import { file_google_api_field_behavior } from "../../../google/api/field_behavior_pb";
 import type { FieldDefinition } from "./field_definition_type_pb";
 import { file_osac_private_v1_field_definition_type } from "./field_definition_type_pb";
+import type { BareMetalInstanceImageFieldPolicy, BareMetalInstanceRunStrategyFieldPolicy, BareMetalInstanceTypeLocalReferenceFieldPolicy, BareMetalNetworkAttachmentListFieldPolicy, BoolFieldPolicy, DiskImageReferenceFieldPolicy, StringFieldPolicy, TemplateParameterPolicy } from "./field_policy_type_pb";
+import { file_osac_private_v1_field_policy_type } from "./field_policy_type_pb";
 import type { Metadata } from "./metadata_type_pb";
 import { file_osac_private_v1_metadata_type } from "./metadata_type_pb";
 import type { BareMetalInstanceTemplateReference } from "./baremetal_instance_template_type_pb";
@@ -30,11 +34,11 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/private/v1/baremetal_instance_catalog_item_type.proto.
  */
 export const file_osac_private_v1_baremetal_instance_catalog_item_type: GenFile = /*@__PURE__*/
-  fileDesc("Cjpvc2FjL3ByaXZhdGUvdjEvYmFyZW1ldGFsX2luc3RhbmNlX2NhdGFsb2dfaXRlbV90eXBlLnByb3RvEg9vc2FjLnByaXZhdGUudjEiqgIKHEJhcmVNZXRhbEluc3RhbmNlQ2F0YWxvZ0l0ZW0SCgoCaWQYASABKAkSKwoIbWV0YWRhdGEYAiABKAsyGS5vc2FjLnByaXZhdGUudjEuTWV0YWRhdGESDQoFdGl0bGUYAyABKAkSEwoLZGVzY3JpcHRpb24YBCABKAkSRQoIdGVtcGxhdGUYBSABKAsyMy5vc2FjLnByaXZhdGUudjEuQmFyZU1ldGFsSW5zdGFuY2VUZW1wbGF0ZVJlZmVyZW5jZRIRCglwdWJsaXNoZWQYBiABKAgSFgoGdGVuYW50GAcgASgJQgaKtRgCCAESOwoRZmllbGRfZGVmaW5pdGlvbnMYCCADKAsyIC5vc2FjLnByaXZhdGUudjEuRmllbGREZWZpbml0aW9uImIKJUJhcmVNZXRhbEluc3RhbmNlQ2F0YWxvZ0l0ZW1SZWZlcmVuY2USCgoCaWQYASABKAkSDAoEbmFtZRgCIAEoCRIPCgdwcm9qZWN0GAMgASgJEg4KBnNoYXJlZBgEIAEoCEIUirUYEBIOb3NhYy5wdWJsaWMudjFiBnByb3RvMw", [file_cleanapi_cleanapi, file_osac_private_v1_field_definition_type, file_osac_private_v1_metadata_type, file_osac_private_v1_baremetal_instance_template_type]);
+  fileDesc("Cjpvc2FjL3ByaXZhdGUvdjEvYmFyZW1ldGFsX2luc3RhbmNlX2NhdGFsb2dfaXRlbV90eXBlLnByb3RvEg9vc2FjLnByaXZhdGUudjEiygQKHEJhcmVNZXRhbEluc3RhbmNlQ2F0YWxvZ0l0ZW0SCgoCaWQYASABKAkSKwoIbWV0YWRhdGEYAiABKAsyGS5vc2FjLnByaXZhdGUudjEuTWV0YWRhdGESDQoFdGl0bGUYAyABKAkSEwoLZGVzY3JpcHRpb24YBCABKAkSUwoIdGVtcGxhdGUYBSABKAsyMy5vc2FjLnByaXZhdGUudjEuQmFyZU1ldGFsSW5zdGFuY2VUZW1wbGF0ZVJlZmVyZW5jZUIM4EEC4EEFukgDyAEBEhEKCXB1Ymxpc2hlZBgGIAEoCBIWCgZ0ZW5hbnQYByABKAlCBoq1GAIIARI/ChFmaWVsZF9kZWZpbml0aW9ucxgIIAMoCzIgLm9zYWMucHJpdmF0ZS52MS5GaWVsZERlZmluaXRpb25CAhgBEmIKE3RlbXBsYXRlX3BhcmFtZXRlcnMYCSADKAsyRS5vc2FjLnByaXZhdGUudjEuQmFyZU1ldGFsSW5zdGFuY2VDYXRhbG9nSXRlbS5UZW1wbGF0ZVBhcmFtZXRlcnNFbnRyeRJDCgZmaWVsZHMYCiABKAsyMy5vc2FjLnByaXZhdGUudjEuQmFyZU1ldGFsSW5zdGFuY2VDYXRhbG9nSXRlbUZpZWxkcxpjChdUZW1wbGF0ZVBhcmFtZXRlcnNFbnRyeRILCgNrZXkYASABKAkSNwoFdmFsdWUYAiABKAsyKC5vc2FjLnByaXZhdGUudjEuVGVtcGxhdGVQYXJhbWV0ZXJQb2xpY3k6AjgBIuYECiJCYXJlTWV0YWxJbnN0YW5jZUNhdGFsb2dJdGVtRmllbGRzEjoKDnNzaF9wdWJsaWNfa2V5GAEgASgLMiIub3NhYy5wcml2YXRlLnYxLlN0cmluZ0ZpZWxkUG9saWN5EjUKCXVzZXJfZGF0YRgCIAEoCzIiLm9zYWMucHJpdmF0ZS52MS5TdHJpbmdGaWVsZFBvbGljeRJOCgxydW5fc3RyYXRlZ3kYAyABKAsyOC5vc2FjLnByaXZhdGUudjEuQmFyZU1ldGFsSW5zdGFuY2VSdW5TdHJhdGVneUZpZWxkUG9saWN5EkEKBWltYWdlGAQgASgLMjIub3NhYy5wcml2YXRlLnYxLkJhcmVNZXRhbEluc3RhbmNlSW1hZ2VGaWVsZFBvbGljeRJXChNuZXR3b3JrX2F0dGFjaG1lbnRzGAUgASgLMjoub3NhYy5wcml2YXRlLnYxLkJhcmVNZXRhbE5ldHdvcmtBdHRhY2htZW50TGlzdEZpZWxkUG9saWN5EkUKG2F1dG9fZXh0ZXJuYWxfaXBfYXR0YWNobWVudBgGIAEoCzIgLm9zYWMucHJpdmF0ZS52MS5Cb29sRmllbGRQb2xpY3kSVgoNaW5zdGFuY2VfdHlwZRgHIAEoCzI/Lm9zYWMucHJpdmF0ZS52MS5CYXJlTWV0YWxJbnN0YW5jZVR5cGVMb2NhbFJlZmVyZW5jZUZpZWxkUG9saWN5EkIKCmRpc2tfaW1hZ2UYCCABKAsyLi5vc2FjLnByaXZhdGUudjEuRGlza0ltYWdlUmVmZXJlbmNlRmllbGRQb2xpY3kiYgolQmFyZU1ldGFsSW5zdGFuY2VDYXRhbG9nSXRlbVJlZmVyZW5jZRIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJEg8KB3Byb2plY3QYAyABKAkSDgoGc2hhcmVkGAQgASgIQhSKtRgQEg5vc2FjLnB1YmxpYy52MWIGcHJvdG8z", [file_buf_validate_validate, file_cleanapi_cleanapi, file_google_api_field_behavior, file_osac_private_v1_field_definition_type, file_osac_private_v1_field_policy_type, file_osac_private_v1_metadata_type, file_osac_private_v1_baremetal_instance_template_type]);
 
 /**
  * A bare metal instance catalog item defines a curated hardware offering that references an underlying bare metal
- * instance template. Admins control which fields users can set, enforce defaults, and validate input via JSON Schema.
+ * instance template. Admins control typed resource-field and template-parameter policies, including locked values and defaults.
  *
  * buf:lint:ignore OSAC_OBJECT_SHAPE
  *
@@ -89,11 +93,27 @@ export type BareMetalInstanceCatalogItem = Message<"osac.private.v1.BareMetalIns
   tenant: string;
 
   /**
-   * Definitions of the fields that users can or cannot set when creating a resource from this catalog item.
+   * Deprecated: definitions of the fields that users can or cannot set when creating a resource from this catalog item.
+   * Use `fields` and `template_parameters` instead.
    *
-   * @generated from field: repeated osac.private.v1.FieldDefinition field_definitions = 8;
+   * @generated from field: repeated osac.private.v1.FieldDefinition field_definitions = 8 [deprecated = true];
+   * @deprecated
    */
   fieldDefinitions: FieldDefinition[];
+
+  /**
+   * Policies that govern template parameters during resource creation.
+   *
+   * @generated from field: map<string, osac.private.v1.TemplateParameterPolicy> template_parameters = 9;
+   */
+  templateParameters: { [key: string]: TemplateParameterPolicy };
+
+  /**
+   * Policies that govern bare metal instance fields during resource creation.
+   *
+   * @generated from field: osac.private.v1.BareMetalInstanceCatalogItemFields fields = 10;
+   */
+  fields?: BareMetalInstanceCatalogItemFields | undefined;
 };
 
 /**
@@ -102,6 +122,64 @@ export type BareMetalInstanceCatalogItem = Message<"osac.private.v1.BareMetalIns
  */
 export const BareMetalInstanceCatalogItemSchema: GenMessage<BareMetalInstanceCatalogItem> = /*@__PURE__*/
   messageDesc(file_osac_private_v1_baremetal_instance_catalog_item_type, 0);
+
+/**
+ * Groups the policies for governable bare metal instance fields.
+ *
+ * @generated from message osac.private.v1.BareMetalInstanceCatalogItemFields
+ */
+export type BareMetalInstanceCatalogItemFields = Message<"osac.private.v1.BareMetalInstanceCatalogItemFields"> & {
+  /**
+   * @generated from field: osac.private.v1.StringFieldPolicy ssh_public_key = 1;
+   */
+  sshPublicKey?: StringFieldPolicy | undefined;
+
+  /**
+   * @generated from field: osac.private.v1.StringFieldPolicy user_data = 2;
+   */
+  userData?: StringFieldPolicy | undefined;
+
+  /**
+   * @generated from field: osac.private.v1.BareMetalInstanceRunStrategyFieldPolicy run_strategy = 3;
+   */
+  runStrategy?: BareMetalInstanceRunStrategyFieldPolicy | undefined;
+
+  /**
+   * @generated from field: osac.private.v1.BareMetalInstanceImageFieldPolicy image = 4;
+   */
+  image?: BareMetalInstanceImageFieldPolicy | undefined;
+
+  /**
+   * @generated from field: osac.private.v1.BareMetalNetworkAttachmentListFieldPolicy network_attachments = 5;
+   */
+  networkAttachments?: BareMetalNetworkAttachmentListFieldPolicy | undefined;
+
+  /**
+   * @generated from field: osac.private.v1.BoolFieldPolicy auto_external_ip_attachment = 6;
+   */
+  autoExternalIpAttachment?: BoolFieldPolicy | undefined;
+
+  /**
+   * Policy for the bare metal instance type selected for host placement.
+   *
+   * @generated from field: osac.private.v1.BareMetalInstanceTypeLocalReferenceFieldPolicy instance_type = 7;
+   */
+  instanceType?: BareMetalInstanceTypeLocalReferenceFieldPolicy | undefined;
+
+  /**
+   * Policy for the DiskImage used to provision the instance.
+   *
+   * @generated from field: osac.private.v1.DiskImageReferenceFieldPolicy disk_image = 8;
+   */
+  diskImage?: DiskImageReferenceFieldPolicy | undefined;
+};
+
+/**
+ * Describes the message osac.private.v1.BareMetalInstanceCatalogItemFields.
+ * Use `create(BareMetalInstanceCatalogItemFieldsSchema)` to create a new message.
+ */
+export const BareMetalInstanceCatalogItemFieldsSchema: GenMessage<BareMetalInstanceCatalogItemFields> = /*@__PURE__*/
+  messageDesc(file_osac_private_v1_baremetal_instance_catalog_item_type, 1);
 
 /**
  * Reference to a BareMetalInstanceCatalogItem resource.
@@ -135,5 +213,5 @@ export type BareMetalInstanceCatalogItemReference = Message<"osac.private.v1.Bar
  * Use `create(BareMetalInstanceCatalogItemReferenceSchema)` to create a new message.
  */
 export const BareMetalInstanceCatalogItemReferenceSchema: GenMessage<BareMetalInstanceCatalogItemReference> = /*@__PURE__*/
-  messageDesc(file_osac_private_v1_baremetal_instance_catalog_item_type, 1);
+  messageDesc(file_osac_private_v1_baremetal_instance_catalog_item_type, 2);
 

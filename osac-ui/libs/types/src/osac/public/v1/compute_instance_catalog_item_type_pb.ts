@@ -17,10 +17,14 @@
 
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
+import { file_google_api_field_behavior } from "../../../google/api/field_behavior_pb";
 import type { ComputeInstanceTemplateReference } from "./compute_instance_template_type_pb";
 import { file_osac_public_v1_compute_instance_template_type } from "./compute_instance_template_type_pb";
 import type { FieldDefinition } from "./field_definition_type_pb";
 import { file_osac_public_v1_field_definition_type } from "./field_definition_type_pb";
+import type { BoolFieldPolicy, ComputeInstanceDiskListFieldPolicy, ComputeInstanceRunStrategyFieldPolicy, ComputeNetworkAttachmentListFieldPolicy, DiskImageReferenceFieldPolicy, InstanceTypeReferenceFieldPolicy, Int32FieldPolicy, StorageTierReferenceFieldPolicy, StringFieldPolicy, TemplateParameterPolicy } from "./field_policy_type_pb";
+import { file_osac_public_v1_field_policy_type } from "./field_policy_type_pb";
 import type { Metadata } from "./metadata_type_pb";
 import { file_osac_public_v1_metadata_type } from "./metadata_type_pb";
 import type { Message } from "@bufbuild/protobuf";
@@ -29,11 +33,11 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file osac/public/v1/compute_instance_catalog_item_type.proto.
  */
 export const file_osac_public_v1_compute_instance_catalog_item_type: GenFile = /*@__PURE__*/
-  fileDesc("Cjdvc2FjL3B1YmxpYy92MS9jb21wdXRlX2luc3RhbmNlX2NhdGFsb2dfaXRlbV90eXBlLnByb3RvEg5vc2FjLnB1YmxpYy52MSKLAgoaQ29tcHV0ZUluc3RhbmNlQ2F0YWxvZ0l0ZW0SCgoCaWQYASABKAkSKgoIbWV0YWRhdGEYAiABKAsyGC5vc2FjLnB1YmxpYy52MS5NZXRhZGF0YRINCgV0aXRsZRgDIAEoCRITCgtkZXNjcmlwdGlvbhgEIAEoCRJCCgh0ZW1wbGF0ZRgFIAEoCzIwLm9zYWMucHVibGljLnYxLkNvbXB1dGVJbnN0YW5jZVRlbXBsYXRlUmVmZXJlbmNlEhEKCXB1Ymxpc2hlZBgGIAEoCBI6ChFmaWVsZF9kZWZpbml0aW9ucxgIIAMoCzIfLm9zYWMucHVibGljLnYxLkZpZWxkRGVmaW5pdGlvbiJgCiNDb21wdXRlSW5zdGFuY2VDYXRhbG9nSXRlbVJlZmVyZW5jZRIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJEg8KB3Byb2plY3QYAyABKAkSDgoGc2hhcmVkGAQgASgIYgZwcm90bzM", [file_osac_public_v1_compute_instance_template_type, file_osac_public_v1_field_definition_type, file_osac_public_v1_metadata_type]);
+  fileDesc("Cjdvc2FjL3B1YmxpYy92MS9jb21wdXRlX2luc3RhbmNlX2NhdGFsb2dfaXRlbV90eXBlLnByb3RvEg5vc2FjLnB1YmxpYy52MSKkBAoaQ29tcHV0ZUluc3RhbmNlQ2F0YWxvZ0l0ZW0SCgoCaWQYASABKAkSKgoIbWV0YWRhdGEYAiABKAsyGC5vc2FjLnB1YmxpYy52MS5NZXRhZGF0YRINCgV0aXRsZRgDIAEoCRITCgtkZXNjcmlwdGlvbhgEIAEoCRJQCgh0ZW1wbGF0ZRgFIAEoCzIwLm9zYWMucHVibGljLnYxLkNvbXB1dGVJbnN0YW5jZVRlbXBsYXRlUmVmZXJlbmNlQgzgQQLgQQW6SAPIAQESEQoJcHVibGlzaGVkGAYgASgIEj4KEWZpZWxkX2RlZmluaXRpb25zGAggAygLMh8ub3NhYy5wdWJsaWMudjEuRmllbGREZWZpbml0aW9uQgIYARJfChN0ZW1wbGF0ZV9wYXJhbWV0ZXJzGAkgAygLMkIub3NhYy5wdWJsaWMudjEuQ29tcHV0ZUluc3RhbmNlQ2F0YWxvZ0l0ZW0uVGVtcGxhdGVQYXJhbWV0ZXJzRW50cnkSQAoGZmllbGRzGAogASgLMjAub3NhYy5wdWJsaWMudjEuQ29tcHV0ZUluc3RhbmNlQ2F0YWxvZ0l0ZW1GaWVsZHMaYgoXVGVtcGxhdGVQYXJhbWV0ZXJzRW50cnkSCwoDa2V5GAEgASgJEjYKBXZhbHVlGAIgASgLMicub3NhYy5wdWJsaWMudjEuVGVtcGxhdGVQYXJhbWV0ZXJQb2xpY3k6AjgBIp8FCiBDb21wdXRlSW5zdGFuY2VDYXRhbG9nSXRlbUZpZWxkcxJBCgpkaXNrX2ltYWdlGAEgASgLMi0ub3NhYy5wdWJsaWMudjEuRGlza0ltYWdlUmVmZXJlbmNlRmllbGRQb2xpY3kSRwoNaW5zdGFuY2VfdHlwZRgCIAEoCzIwLm9zYWMucHVibGljLnYxLkluc3RhbmNlVHlwZVJlZmVyZW5jZUZpZWxkUG9saWN5EjkKDnNzaF9wdWJsaWNfa2V5GAMgASgLMiEub3NhYy5wdWJsaWMudjEuU3RyaW5nRmllbGRQb2xpY3kSRwoJYm9vdF9kaXNrGAQgASgLMjQub3NhYy5wdWJsaWMudjEuQ29tcHV0ZUluc3RhbmNlQm9vdERpc2tGaWVsZFBvbGljaWVzEksKDHJ1bl9zdHJhdGVneRgFIAEoCzI1Lm9zYWMucHVibGljLnYxLkNvbXB1dGVJbnN0YW5jZVJ1blN0cmF0ZWd5RmllbGRQb2xpY3kSNAoJdXNlcl9kYXRhGAYgASgLMiEub3NhYy5wdWJsaWMudjEuU3RyaW5nRmllbGRQb2xpY3kSVAoTbmV0d29ya19hdHRhY2htZW50cxgHIAEoCzI3Lm9zYWMucHVibGljLnYxLkNvbXB1dGVOZXR3b3JrQXR0YWNobWVudExpc3RGaWVsZFBvbGljeRJEChthdXRvX2V4dGVybmFsX2lwX2F0dGFjaG1lbnQYCCABKAsyHy5vc2FjLnB1YmxpYy52MS5Cb29sRmllbGRQb2xpY3kSTAoQYWRkaXRpb25hbF9kaXNrcxgJIAEoCzIyLm9zYWMucHVibGljLnYxLkNvbXB1dGVJbnN0YW5jZURpc2tMaXN0RmllbGRQb2xpY3kioQEKJENvbXB1dGVJbnN0YW5jZUJvb3REaXNrRmllbGRQb2xpY2llcxIyCghzaXplX2dpYhgBIAEoCzIgLm9zYWMucHVibGljLnYxLkludDMyRmllbGRQb2xpY3kSRQoMc3RvcmFnZV90aWVyGAIgASgLMi8ub3NhYy5wdWJsaWMudjEuU3RvcmFnZVRpZXJSZWZlcmVuY2VGaWVsZFBvbGljeSJgCiNDb21wdXRlSW5zdGFuY2VDYXRhbG9nSXRlbVJlZmVyZW5jZRIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJEg8KB3Byb2plY3QYAyABKAkSDgoGc2hhcmVkGAQgASgIYgZwcm90bzM", [file_buf_validate_validate, file_google_api_field_behavior, file_osac_public_v1_compute_instance_template_type, file_osac_public_v1_field_definition_type, file_osac_public_v1_field_policy_type, file_osac_public_v1_metadata_type]);
 
 /**
  * A compute instance catalog item defines a curated infrastructure offering that references an underlying compute
- * instance template. Admins control which fields users can set, enforce defaults, and validate input via JSON Schema.
+ * instance template. Admins control typed resource-field and template-parameter policies, including locked values and defaults.
  *
  * buf:lint:ignore OSAC_OBJECT_SHAPE
  *
@@ -81,11 +85,27 @@ export type ComputeInstanceCatalogItem = Message<"osac.public.v1.ComputeInstance
   published: boolean;
 
   /**
-   * Definitions of the fields that users can or cannot set when creating a resource from this catalog item.
+   * Deprecated: definitions of the fields that users can or cannot set when creating a resource from this catalog item.
+   * Use `fields` and `template_parameters` instead.
    *
-   * @generated from field: repeated osac.public.v1.FieldDefinition field_definitions = 8;
+   * @generated from field: repeated osac.public.v1.FieldDefinition field_definitions = 8 [deprecated = true];
+   * @deprecated
    */
   fieldDefinitions: FieldDefinition[];
+
+  /**
+   * Policies that govern template parameters during resource creation.
+   *
+   * @generated from field: map<string, osac.public.v1.TemplateParameterPolicy> template_parameters = 9;
+   */
+  templateParameters: { [key: string]: TemplateParameterPolicy };
+
+  /**
+   * Policies that govern compute instance fields during resource creation.
+   *
+   * @generated from field: osac.public.v1.ComputeInstanceCatalogItemFields fields = 10;
+   */
+  fields?: ComputeInstanceCatalogItemFields | undefined;
 };
 
 /**
@@ -94,6 +114,89 @@ export type ComputeInstanceCatalogItem = Message<"osac.public.v1.ComputeInstance
  */
 export const ComputeInstanceCatalogItemSchema: GenMessage<ComputeInstanceCatalogItem> = /*@__PURE__*/
   messageDesc(file_osac_public_v1_compute_instance_catalog_item_type, 0);
+
+/**
+ * Groups the policies for governable compute instance fields.
+ *
+ * @generated from message osac.public.v1.ComputeInstanceCatalogItemFields
+ */
+export type ComputeInstanceCatalogItemFields = Message<"osac.public.v1.ComputeInstanceCatalogItemFields"> & {
+  /**
+   * @generated from field: osac.public.v1.DiskImageReferenceFieldPolicy disk_image = 1;
+   */
+  diskImage?: DiskImageReferenceFieldPolicy | undefined;
+
+  /**
+   * @generated from field: osac.public.v1.InstanceTypeReferenceFieldPolicy instance_type = 2;
+   */
+  instanceType?: InstanceTypeReferenceFieldPolicy | undefined;
+
+  /**
+   * @generated from field: osac.public.v1.StringFieldPolicy ssh_public_key = 3;
+   */
+  sshPublicKey?: StringFieldPolicy | undefined;
+
+  /**
+   * @generated from field: osac.public.v1.ComputeInstanceBootDiskFieldPolicies boot_disk = 4;
+   */
+  bootDisk?: ComputeInstanceBootDiskFieldPolicies | undefined;
+
+  /**
+   * @generated from field: osac.public.v1.ComputeInstanceRunStrategyFieldPolicy run_strategy = 5;
+   */
+  runStrategy?: ComputeInstanceRunStrategyFieldPolicy | undefined;
+
+  /**
+   * @generated from field: osac.public.v1.StringFieldPolicy user_data = 6;
+   */
+  userData?: StringFieldPolicy | undefined;
+
+  /**
+   * @generated from field: osac.public.v1.ComputeNetworkAttachmentListFieldPolicy network_attachments = 7;
+   */
+  networkAttachments?: ComputeNetworkAttachmentListFieldPolicy | undefined;
+
+  /**
+   * @generated from field: osac.public.v1.BoolFieldPolicy auto_external_ip_attachment = 8;
+   */
+  autoExternalIpAttachment?: BoolFieldPolicy | undefined;
+
+  /**
+   * @generated from field: osac.public.v1.ComputeInstanceDiskListFieldPolicy additional_disks = 9;
+   */
+  additionalDisks?: ComputeInstanceDiskListFieldPolicy | undefined;
+};
+
+/**
+ * Describes the message osac.public.v1.ComputeInstanceCatalogItemFields.
+ * Use `create(ComputeInstanceCatalogItemFieldsSchema)` to create a new message.
+ */
+export const ComputeInstanceCatalogItemFieldsSchema: GenMessage<ComputeInstanceCatalogItemFields> = /*@__PURE__*/
+  messageDesc(file_osac_public_v1_compute_instance_catalog_item_type, 1);
+
+/**
+ * Groups policies for governable compute instance boot disk fields.
+ *
+ * @generated from message osac.public.v1.ComputeInstanceBootDiskFieldPolicies
+ */
+export type ComputeInstanceBootDiskFieldPolicies = Message<"osac.public.v1.ComputeInstanceBootDiskFieldPolicies"> & {
+  /**
+   * @generated from field: osac.public.v1.Int32FieldPolicy size_gib = 1;
+   */
+  sizeGib?: Int32FieldPolicy | undefined;
+
+  /**
+   * @generated from field: osac.public.v1.StorageTierReferenceFieldPolicy storage_tier = 2;
+   */
+  storageTier?: StorageTierReferenceFieldPolicy | undefined;
+};
+
+/**
+ * Describes the message osac.public.v1.ComputeInstanceBootDiskFieldPolicies.
+ * Use `create(ComputeInstanceBootDiskFieldPoliciesSchema)` to create a new message.
+ */
+export const ComputeInstanceBootDiskFieldPoliciesSchema: GenMessage<ComputeInstanceBootDiskFieldPolicies> = /*@__PURE__*/
+  messageDesc(file_osac_public_v1_compute_instance_catalog_item_type, 2);
 
 /**
  * Reference to a ComputeInstanceCatalogItem resource.
@@ -127,5 +230,5 @@ export type ComputeInstanceCatalogItemReference = Message<"osac.public.v1.Comput
  * Use `create(ComputeInstanceCatalogItemReferenceSchema)` to create a new message.
  */
 export const ComputeInstanceCatalogItemReferenceSchema: GenMessage<ComputeInstanceCatalogItemReference> = /*@__PURE__*/
-  messageDesc(file_osac_public_v1_compute_instance_catalog_item_type, 1);
+  messageDesc(file_osac_public_v1_compute_instance_catalog_item_type, 3);
 

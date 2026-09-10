@@ -262,6 +262,7 @@ const vmCatalogItem: ComputeInstanceCatalogItem = {
       },
     },
   ],
+  templateParameters: {},
 };
 
 const clusterCatalogItem: ClusterCatalogItem = {
@@ -296,6 +297,7 @@ const clusterCatalogItem: ClusterCatalogItem = {
       },
     },
   ],
+  templateParameters: {},
 };
 
 const catalogItemWithDistinctDefaults: ComputeInstanceCatalogItem = {
@@ -313,6 +315,7 @@ const catalogItemWithDistinctDefaults: ComputeInstanceCatalogItem = {
       },
     },
   ],
+  templateParameters: {},
 };
 
 const multiFieldCatalogItem: ComputeInstanceCatalogItem = {
@@ -355,6 +358,7 @@ const multiFieldCatalogItem: ComputeInstanceCatalogItem = {
       default: { $typeName: 'google.protobuf.Value', kind: { case: 'numberValue', value: 40 } },
     },
   ],
+  templateParameters: {},
 };
 
 const apiFixtures: MockApiFixtures = {

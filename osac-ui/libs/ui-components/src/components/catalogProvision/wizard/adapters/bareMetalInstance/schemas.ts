@@ -89,6 +89,7 @@ export const buildBareMetalInstanceStepSchema = (
       return yup.object({
         metadata: yup.object({
           name: fields.metadataName,
+          project: yup.string().required(t('Project is required')),
         }),
         spec: yup.object({
           sshKey: fields.specSshKey,
@@ -103,7 +104,42 @@ export const buildBareMetalInstanceStepSchema = (
           }),
         }),
       });
+    case 'networking':
+      return buildNetworkingSchema(t);
     default:
       return undefined;
   }
 };
+
+const buildAttachmentRowSchema = (t: TFunction) =>
+  yup.object({
+    id: yup.string().required(),
+    virtualNetwork: yup.string().required(t('Virtual network is required')),
+    subnet: yup.string().required(t('Subnet is required')),
+    securityGroups: yup
+      .array()
+      .of(yup.string().required())
+      .min(1, t('At least one security group is required')),
+  });
+
+const buildCustomAttachmentsSchema = (t: TFunction) =>
+  yup
+    .array()
+    .of(buildAttachmentRowSchema(t))
+    .min(1, t('At least one attachment is required'))
+    .length(1, t('Exactly one network attachment is required'));
+
+const buildNetworkingSchema = (t: TFunction) =>
+  yup.object({
+    spec: yup.object({
+      networking: yup.object({
+        useDefaults: yup.boolean().required(),
+        attachments: yup.array().when('useDefaults', {
+          is: false,
+          then: () => buildCustomAttachmentsSchema(t),
+          otherwise: () => yup.array(),
+        }),
+        attachExternalIp: yup.boolean().required(),
+      }),
+    }),
+  });

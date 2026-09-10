@@ -19,13 +19,13 @@ import { Project } from '@osac/types';
 import { useProject } from '@osac/ui-components/api/v1/project';
 import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
 
+import ProjectDetailsActionButtons from './ProjectDetailsActionButtons';
+import { Timestamp } from '../../Primitives/Timestamp';
+import ProjectMembership from '../../ProjectMembership/ProjectMembershipTable';
 import { ResourceDetailHeader } from '../../Resource/ResourceDetailHeader';
 import ResourceDetailsPage from '../../Resource/ResourceDetailsPage';
 import ProjectStatusLabel from '../ProjectStatusLabel';
 import { getProjectName } from '../utils';
-import ProjectDetailsActionButtons from './ProjectDetailsActionButtons';
-import { Timestamp } from '../../Primitives/Timestamp';
-import ProjectMembership from '../../ProjectMembership/ProjectMembershipTable';
 
 interface ProjectDetailsPageContentProps {
   project: Project;

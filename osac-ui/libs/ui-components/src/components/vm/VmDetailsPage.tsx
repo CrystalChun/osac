@@ -1,11 +1,11 @@
 import { useParams } from 'react-router-dom';
 
+import VmDetails from './DetailsPage/VmDetails';
+import { getVmDetailTabLabels } from './vm-detail-tabs';
 import { useComputeInstance } from '../../api/v1/compute-instance';
 import { useTranslation } from '../../hooks/useTranslation';
 import { ResourceDetailsPageError } from '../Resource/ResourceDetailsPageError';
 import { ResourceDetailsPageLoading } from '../Resource/ResourceDetailsPageLoading';
-import VmDetails from './DetailsPage/VmDetails';
-import { getVmDetailTabLabels } from './vm-detail-tabs';
 
 export const VmDetailsPage = () => {
   const { t } = useTranslation();

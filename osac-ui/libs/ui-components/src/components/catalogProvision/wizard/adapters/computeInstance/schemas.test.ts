@@ -45,6 +45,7 @@ const vmCatalogItem: ComputeInstanceCatalogItem = {
       },
     },
   ],
+  templateParameters: {},
 };
 
 const emptyValues: ComputeInstanceWizardValues = {

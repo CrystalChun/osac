@@ -1,6 +1,10 @@
-import { MessageInitShape } from '@bufbuild/protobuf';
+import { MessageInitShape, create } from '@bufbuild/protobuf';
 
-import { BareMetalInstanceRunStrategy, BareMetalInstanceSchema } from '@osac/types';
+import {
+  BareMetalInstanceRunStrategy,
+  BareMetalInstanceSchema,
+  BareMetalNetworkAttachmentSchema,
+} from '@osac/types';
 
 import type { BareMetalInstanceWizardValues } from './fields';
 
@@ -24,6 +28,30 @@ export const buildBareMetalInstanceCreatePayload = (
       },
     },
   };
+
+  // Add networking configuration
+  const networking = values.spec.networking;
+
+  // Only include networkAttachments if custom networking is enabled
+  if (!networking.useDefaults && networking.attachments.length > 0) {
+    bmi.spec = {
+      ...bmi.spec,
+      networkAttachments: networking.attachments.slice(0, 1).map((attachment) =>
+        create(BareMetalNetworkAttachmentSchema, {
+          subnet: { id: attachment.subnet },
+          securityGroups: attachment.securityGroups.map((id) => ({ id })),
+        }),
+      ),
+    };
+  }
+
+  // Add auto external IP attachment if enabled
+  if (networking.attachExternalIp) {
+    bmi.spec = {
+      ...bmi.spec,
+      autoExternalIpAttachment: true,
+    };
+  }
 
   return bmi;
 };

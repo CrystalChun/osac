@@ -53,6 +53,7 @@ const clusterCatalogItem: ClusterCatalogItem = {
       validationSchema: '',
     },
   ],
+  templateParameters: {},
 };
 
 const makeClusterVersion = (

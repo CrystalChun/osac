@@ -8,10 +8,10 @@ import KeyIcon from '@patternfly/react-icons/dist/esm/icons/key-icon';
 import { type Cluster, ClusterState } from '@osac/types';
 import { getErrorMessage } from '@osac/ui-components/utils/error';
 
+import ClusterPasswordModal from './ClusterPasswordModal';
 import { useDownloadKubeconfig } from '../../../api/v1/cluster';
 import { useTranslation } from '../../../hooks/useTranslation';
 import ClusterDeleteConfirmModal from '../ClusterDeleteConfirmModal';
-import ClusterPasswordModal from './ClusterPasswordModal';
 
 interface ClusterDetailsActionButtonsProps {
   cluster: Cluster;

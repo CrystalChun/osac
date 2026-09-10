@@ -7,6 +7,7 @@ import {
   ComputeInstanceCatalogItemReferenceSchema,
   ComputeInstanceTemplateReferenceSchema,
   InstanceTypeReferenceSchema,
+  StorageTierReferenceSchema,
 } from '@osac/types';
 
 import VmDetailsCard from './VmDetailsCard';
@@ -43,7 +44,7 @@ const catalogVm: ComputeInstance = {
     bootDisk: {
       $typeName: 'osac.public.v1.ComputeInstanceDisk',
       sizeGib: 40,
-      storageTier: { $typeName: 'osac.public.v1.StorageTierReference', id: '', name: 'balanced' },
+      storageTier: create(StorageTierReferenceSchema, { name: 'balanced' }),
     },
     userData: '#cloud-config',
     additionalDisks: [],
@@ -96,8 +97,16 @@ describe('VmDetailsCard', () => {
       spec: {
         ...catalogVm.spec,
         additionalDisks: [
-          { sizeGib: 100, storageTier: { name: 'fast' } },
-          { sizeGib: 20, storageTier: { name: 'legacy-tier' } },
+          {
+            $typeName: 'osac.public.v1.ComputeInstanceDisk',
+            sizeGib: 100,
+            storageTier: create(StorageTierReferenceSchema, { name: 'fast' }),
+          },
+          {
+            $typeName: 'osac.public.v1.ComputeInstanceDisk',
+            sizeGib: 20,
+            storageTier: create(StorageTierReferenceSchema, { name: 'legacy-tier' }),
+          },
         ],
       },
     } as unknown as ComputeInstance;

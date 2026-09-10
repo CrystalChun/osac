@@ -16,9 +16,7 @@ export const BareMetalDetailsPage = () => {
       <ResourceDetailsPageLoading
         parentTo="/bare-metal"
         parentLabel={t('Bare Metal')}
-        tabLabels={[t('Overview')]}
-        tabsId="bm-detail-tabs"
-        cardCount={2}
+        cardCount={3}
       />
     );
   }
