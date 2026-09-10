@@ -174,6 +174,11 @@ pnpm gen-types
 ```
 
 This generates the service descriptor and TypeScript types in `@osac/types`.
+To generate against a specific `osac` commit instead of `main`, pass its commit SHA:
+
+```bash
+pnpm gen-types <commit-sha>
+```
 
 ### 2. Register the route
 

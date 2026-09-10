@@ -27,6 +27,7 @@ import {
   BM_USER_DATA_WIRE_PATH,
   BareMetalInstanceWizardValues,
 } from './fields';
+import { getDiskImageName } from './utils';
 import { useTranslation } from '../../../../../hooks/useTranslation';
 import OsacForm from '../../../../Form/OsacForm';
 import { getCatalogFieldOverlay, readCatalogFieldDefinitions } from '../../catalogOverlay';
@@ -40,7 +41,7 @@ const InstanceTypeDescription = ({ instanceType }: { instanceType: BareMetalInst
   const disks = instanceType.spec?.hardware?.disks.map((a) => `${a.type} (${a.capacityGb})`);
 
   return (
-    <Gallery hasGutter>
+    <>
       <GalleryItem>
         <Card variant="secondary" isFullHeight>
           <CardTitle>{t('CPU')}</CardTitle>
@@ -105,7 +106,7 @@ const InstanceTypeDescription = ({ instanceType }: { instanceType: BareMetalInst
           </CardBody>
         </Card>
       </GalleryItem>
-    </Gallery>
+    </>
   );
 };
 
@@ -164,7 +165,15 @@ const BareMetalConfigurationStep = ({ catalogItem }: Props) => {
         </OsacForm>
       </StackItem>
       <StackItem>
-        {currentInstanceType && <InstanceTypeDescription instanceType={currentInstanceType} />}
+        <Gallery hasGutter>
+          {currentInstanceType && <InstanceTypeDescription instanceType={currentInstanceType} />}
+          <GalleryItem>
+            <Card variant="secondary" isFullHeight>
+              <CardTitle>{t('Disk image')}</CardTitle>
+              <CardBody>{getDiskImageName(catalogItem) || '-'}</CardBody>
+            </Card>
+          </GalleryItem>
+        </Gallery>
       </StackItem>
       <StackItem>
         <OsacForm>
