@@ -120,11 +120,11 @@ describe('navRowsForRole', () => {
     }
   });
 
-  it('IDP sections show for tenant-idp-manager', () => {
-    const idpLink = findLink('tenant-idp-manager', 'idp');
-    const roleBindingsLink = findLink('tenant-idp-manager', 'role-bindings');
-    expect(idpLink).toBeDefined();
-    expect(roleBindingsLink).toBeDefined();
+  it('IDP sections show for tenant-idp-manager and tenant-admin', () => {
+    for (const role of ['tenant-idp-manager', 'tenant-admin'] as UserRole[]) {
+      expect(findLink(role, 'idp')).toBeDefined();
+      expect(findLink(role, 'role-bindings')).toBeDefined();
+    }
 
     const catalogLink = findLink('tenant-idp-manager', 'catalog');
     expect(catalogLink).toBeUndefined();
