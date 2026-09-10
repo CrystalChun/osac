@@ -17,11 +17,12 @@ export type NavSection = {
 
 type NavRow = NavSection | NavLink;
 
-const getIdpManagerNav = (t: TFunction): NavRow[] => [
+const getIdpLinks = (t: TFunction): NavRow[] => [
   { kind: 'link', id: 'idp', label: t('Identity providers'), path: '/tenant/identity-provider' },
   { kind: 'link', id: 'role-bindings', label: t('Role Bindings'), path: '/tenant/role-binding' },
-  getSecretsNav(t),
 ];
+
+const getIdpManagerNav = (t: TFunction): NavRow[] => [...getIdpLinks(t), getSecretsNav(t)];
 
 const getAdminNav = (t: TFunction): NavRow[] => [
   ...getBaseNav(t),
@@ -74,6 +75,7 @@ const getAdminNav = (t: TFunction): NavRow[] => [
 
 const getTenantAdminNav = (t: TFunction): NavRow[] => [
   ...getBaseNav(t),
+  ...getIdpLinks(t),
   getNetworkNav(t),
   getSecretsNav(t),
 ];
