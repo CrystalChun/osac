@@ -62,6 +62,11 @@ with `--catalog-item` (CLI) or `catalog_item` (API), the server resolves the
 underlying template from the catalog item and enforces the catalog item's
 `field_definitions` against the user's request.
 
+Storage tier selection is part of the disk contract: every boot disk and every
+additional disk must resolve to a storage tier. See [Storage tier selection in
+the ComputeInstance Guide](computeinstance-guide.md#storage-tier-selection)
+for the precedence rules and provisioning troubleshooting.
+
 | Resource | Purpose | Managed by |
 |----------|---------|------------|
 | **ComputeInstanceTemplate** | Infrastructure blueprint for VM provisioning | Cloud Provider Admin |
@@ -249,6 +254,18 @@ field_definitions:
     editable: true
     default: 20
     validation_schema: '{"type":"number","minimum":10,"maximum":500}'
+  - path: boot_disk.storage_tier
+    display_name: Boot Disk Storage Tier
+    editable: true
+    default:
+      name: standard
+  - path: additional_disks
+    display_name: Additional Disks
+    editable: true
+    default:
+      - size_gib: 200
+        storage_tier:
+          name: archive
   - path: run_strategy
     display_name: Run Strategy
     editable: false
@@ -282,6 +299,8 @@ grpcurl $GRPCURL_FLAGS -H "Authorization: Bearer $TOKEN" -d '{
       {"path": "image.source_type", "display_name": "Image Source Type", "editable": false, "default": "registry"},
       {"path": "image.source_ref", "display_name": "Image", "editable": true, "default": "quay.io/containerdisks/fedora:latest"},
       {"path": "boot_disk.size_gib", "display_name": "Boot Disk Size (GiB)", "editable": true, "default": 20, "validation_schema": "{\"type\":\"number\",\"minimum\":10,\"maximum\":500}"},
+      {"path": "boot_disk.storage_tier", "display_name": "Boot Disk Storage Tier", "editable": true, "default": {"name": "standard"}},
+      {"path": "additional_disks", "display_name": "Additional Disks", "editable": true, "default": [{"size_gib": 200, "storage_tier": {"name": "archive"}}]},
       {"path": "run_strategy", "display_name": "Run Strategy", "editable": false, "default": "Always"},
       {"path": "user_data", "display_name": "Cloud-init User Data", "editable": true}
     ]
@@ -307,6 +326,8 @@ curl -fsS $CURL_FLAGS -X POST -H "Authorization: Bearer $TOKEN" \
     {"path": "image.source_type", "display_name": "Image Source Type", "editable": false, "default": "registry"},
     {"path": "image.source_ref", "display_name": "Image", "editable": true, "default": "quay.io/containerdisks/fedora:latest"},
     {"path": "boot_disk.size_gib", "display_name": "Boot Disk Size (GiB)", "editable": true, "default": 20, "validation_schema": "{\"type\":\"number\",\"minimum\":10,\"maximum\":500}"},
+    {"path": "boot_disk.storage_tier", "display_name": "Boot Disk Storage Tier", "editable": true, "default": {"name": "standard"}},
+    {"path": "additional_disks", "display_name": "Additional Disks", "editable": true, "default": [{"size_gib": 200, "storage_tier": {"name": "archive"}}]},
     {"path": "run_strategy", "display_name": "Run Strategy", "editable": false, "default": "Always"},
     {"path": "user_data", "display_name": "Cloud-init User Data", "editable": true}
   ]
@@ -496,7 +517,8 @@ ignored.
 | `image.source_type` | (part of `--image`) | `spec.image.source_type` | Image source type (e.g., `registry`) |
 | `image.source_ref` | `--image` | `spec.image.source_ref` | Image reference (e.g., OCI image URL) |
 | `boot_disk.size_gib` | `--boot-disk-size` | `spec.boot_disk.size_gib` | Boot disk size in GiB |
-| `additional_disks` | — | `spec.additional_disks` | Additional disk configurations |
+| `boot_disk.storage_tier` | `--boot-disk-storage-tier` | `spec.boot_disk.storage_tier` | Boot disk storage tier reference |
+| `additional_disks` | `--additional-disk` | `spec.additional_disks` | Complete list of additional disk configurations, including each disk's storage tier |
 | `network_attachments` | `--network-attachment` | `spec.network_attachments` | Network attachments (subnet + security groups per NIC) |
 
 These paths use dot notation for nested fields. For example,
@@ -512,7 +534,7 @@ can provide their own value:
 
 | `editable` | User provides value | Result |
 |------------|---------------------|--------|
-| `false` | Yes (via CLI flag or API field) | User's value is **silently overridden** by the catalog item default |
+| `false` | Yes (via CLI flag or API field) | Request is rejected with `field '<path>' is not editable` |
 | `false` | No | Catalog item default is applied |
 | `true` | Yes | User's value is accepted (validated against `validation_schema` if present) |
 | `true` | No | Catalog item default is applied (error if no default is defined) |
@@ -558,6 +580,10 @@ Example — restrict image references to a specific registry:
   validation_schema: '{"type":"string","pattern":"^quay\\.io/containerdisks/"}'
 ```
 
+For storage tier field-definition syntax, see the examples in the catalog item
+creation section above. The [ComputeInstance Guide's storage tier defaults](computeinstance-guide.md#configure-defaults)
+documents precedence and the complete-list behavior for `additional_disks`.
+
 ---
 
 ### Instance type
@@ -583,12 +609,13 @@ When a user creates a ComputeInstance with `--catalog-item` (CLI) or
 3. **Template resolution**: Sets the ComputeInstance's `template` to the
    template referenced by the catalog item.
 4. **Apply field definitions**: For each field definition:
-   - **Non-editable**: overrides any user-provided value with the default.
+   - **Non-editable**: rejects a user-provided value; otherwise applies the default.
    - **Editable with user value**: validates against `validation_schema` if
      present.
    - **Editable without user value**: applies the default.
-5. **Validate**: Validates the resulting spec (instance type state, network
-   attachments, etc.) and creates the resource.
+5. **Validate**: Validates the resulting spec, including the required storage
+   tier on every disk, instance type state, and network attachments, then
+   creates the resource.
 
 Fields not covered by any field definition pass through unchanged — the user
 can set them freely via CLI flags or API fields.
@@ -709,9 +736,12 @@ curl -fsS $CURL_FLAGS -X POST -H "Authorization: Bearer $TOKEN" \
 ```
 
 The server applies the catalog item's field definitions to your request.
-Non-editable fields use the catalog item's defaults regardless of what you
-pass. Editable fields accept your values, falling back to catalog item
-defaults for anything you omit.
+Non-editable fields reject user-provided values and use the catalog item's
+defaults. Editable fields accept your values, falling back to catalog item
+defaults for anything you omit. The boot disk tier must be present in the
+request, in the catalog item, or in the template's boot-disk defaults. Each
+additional disk must include a storage tier in the request or in the catalog
+item's complete `additional_disks` default.
 
 For the full VM creation walkthrough, see the
 [ComputeInstance Guide](computeinstance-guide.md).
@@ -732,8 +762,8 @@ administrator to verify the catalog item exists and has `published: true`.
 ### CLI flag or API field ignored for a non-editable field
 
 If you pass a CLI flag or API field for a field that the catalog item marks as
-non-editable, the server silently overrides your value with the catalog
-item's default. There is no error or warning — inspect the catalog item's
+non-editable, the server rejects the request with an error such as
+`field 'boot_disk.storage_tier' is not editable`. Inspect the catalog item's
 field definitions to see which fields are locked:
 
 ```bash
@@ -765,6 +795,14 @@ Error: field 'ssh_public_key' is required but no value was provided and no defau
 The catalog item has an editable field with no default, and you did not
 provide a value. Add the corresponding CLI flag (e.g., `--ssh-public-key`) or
 API field (e.g., `spec.ssh_public_key`) to your request.
+
+### Storage tier missing or unavailable
+
+If a catalog item does not define `boot_disk.storage_tier` or
+`additional_disks` correctly, the ComputeInstance may fail tier validation or
+provisioning. Inspect the catalog item's field definitions, then follow the
+[ComputeInstance Guide's storage tier troubleshooting](computeinstance-guide.md#validation-and-troubleshooting)
+for the exact validation errors, provisioning message, and recovery steps.
 
 ### Instance type is obsolete
 

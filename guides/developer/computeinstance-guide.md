@@ -4,10 +4,12 @@ This guide walks through creating a ComputeInstance (virtual machine) using the 
 or the gRPC / REST API.
 It assumes you already have a Tenant in `Ready` state (see [Tenant Setup Guide](tenant-setup.md))
 and networking resources set up (see [Networking Guide](networking-guide.md)).
+For per-disk storage tier selection, see [Storage tier selection](#storage-tier-selection).
 
 ## Contents
 
 - [Prerequisites](#prerequisites)
+- [Storage tier selection](#storage-tier-selection)
 - [Step 1: Find a Compute Instance Catalog Item](#step-1-find-a-compute-instance-catalog-item)
 - [Step 2: Choose an instance type](#step-2-choose-an-instance-type)
 - [Step 3: Create the ComputeInstance](#step-3-create-the-computeinstance)
@@ -45,6 +47,184 @@ and networking resources set up (see [Networking Guide](networking-guide.md)).
   (see [Compute Instance Catalog Items Guide](computeinstance-catalogitem-guide.md)).
 - At least one instance type is in `ACTIVE` state
   (see [Managing Instance Types](instancetype-guide.md)).
+- At least one storage tier is available to the tenant. Each disk must receive
+  a tier directly or through a catalog item or template default.
+
+---
+
+## Storage tier selection
+
+Storage tiers let a cloud provider offer different storage characteristics to
+ComputeInstance disks. A VM can use one tier for its boot disk and different
+tiers for its additional disks. For example, a database VM might use a
+performance tier for its boot disk and an archival tier for its data disk.
+
+This section covers selecting an available storage tier for a ComputeInstance.
+Creating and activating `StorageTier` resources and making them available
+through a tenant's resolved StorageClasses are provider administration tasks
+outside this guide.
+
+The setting is per disk. In the API, `storage_tier` is a
+`StorageTierReference`; examples use the tier's `name`.
+
+### Tier resolution
+
+The fulfillment service resolves each disk independently using this order:
+
+| Priority | Source | Fields |
+|----------|--------|--------|
+| 1 | User request | `boot_disk.storage_tier` or `additional_disks[i].storage_tier` |
+| 2 | ComputeInstanceCatalogItem default | `boot_disk.storage_tier` or the complete `additional_disks` list |
+| 3 | ComputeInstanceTemplate default | `spec_defaults.boot_disk.storage_tier` |
+
+An explicit user value takes precedence over a catalog or template default.
+Catalog item policies still apply: a non-editable field rejects a user value,
+while an editable field with a default accepts an override.
+
+Template defaults apply when the user omits a value and the CatalogItem has not
+already supplied one. However, an editable CatalogItem field without a default
+must be provided by the user. The current template default model supports a
+boot disk default; additional disks are defaulted as a complete list by a
+catalog item.
+
+Every disk that exists after resolution must have both a positive size and a
+non-empty storage tier. Boot and additional disks can use different tiers.
+
+### Configure defaults
+
+#### ComputeInstance template
+
+Set the boot disk default in the template's `spec_defaults`. A template
+default is a fallback, so a user value or catalog item default can replace it.
+
+```yaml
+spec_defaults:
+  boot_disk:
+    size_gib: 20
+    storage_tier:
+      name: standard
+```
+
+The template does not define a default for the `additional_disks` array. Use a
+catalog item when an offering should include additional disks by default.
+
+#### ComputeInstance catalog item
+
+Configure `boot_disk.storage_tier` and `additional_disks` field definitions
+in the [Compute Instance Catalog Items Guide](computeinstance-catalogitem-guide.md).
+That guide contains the CatalogItem-specific syntax and explains how editable
+fields, defaults, and complete additional-disk lists work.
+
+### Select tiers when creating a VM
+
+The CLI accepts a tier name for the boot disk and for every additional disk:
+
+```bash
+osac create computeinstance \
+  --name <computeinstance-name> \
+  --template <template-name> \
+  --instance-type <instance-type-name> \
+  --disk-image <disk-image-name> \
+  --boot-disk-size 20 \
+  --boot-disk-storage-tier fast \
+  --additional-disk size=200,storage-tier=archive
+```
+
+Repeat `--additional-disk` for more disks. The CLI requires
+`storage-tier=<name>` in every `--additional-disk` specification. The boot
+disk tier may be omitted when the applicable catalog-item policy does not
+require a user value and a catalog-item or template default supplies it. A
+template default does not satisfy an editable catalog field without a catalog
+default.
+
+The equivalent API shape is:
+
+```json
+{
+  "spec": {
+    "boot_disk": {
+      "size_gib": 20,
+      "storage_tier": {"name": "fast"}
+    },
+    "additional_disks": [
+      {
+        "size_gib": 200,
+        "storage_tier": {"name": "archive"}
+      }
+    ]
+  }
+}
+```
+
+After creation, the selected tier is part of the disk configuration and
+cannot be changed. To use another tier, create a new ComputeInstance.
+
+### Validation and troubleshooting
+
+#### Missing tier during request validation
+
+If no source supplies a tier, creation fails with `INVALID_ARGUMENT`. Typical
+messages are:
+
+```text
+boot_disk.storage_tier is required
+additional_disks[0].storage_tier is required
+```
+
+Check the request and then inspect the catalog item with:
+
+```bash
+osac get computeinstancecatalogitems <name-or-id> -o yaml
+```
+
+Verify that the catalog item has the correct path and default, or add the tier
+to the request. If the catalog item defines the path as editable without a
+default, the user must provide the value; the template default is not used as
+a substitute for that required catalog field.
+
+#### Field rejected by a catalog item
+
+If the request contains a storage-tier field path that the CatalogItem does
+not list in its field definitions, the server rejects the request with:
+
+```text
+fields not allowed by catalog item: boot_disk.storage_tier
+```
+
+Add the path to the catalog item, or remove the user-provided field and provide
+the value through a catalog or template default. If the field is locked, the
+request must not include an override.
+
+#### Tier unavailable for a tenant during provisioning
+
+AAP resolves the requested tier to a tenant-specific StorageClass during
+provisioning. If no matching StorageClass is available, the provisioning
+condition includes this exact error line:
+
+```text
+Storage tier "archive" is not available for tenant "<tenant>" (resolving additional disk 1).
+```
+
+The complete error also lists the available tiers after this sentence.
+
+Inspect the ComputeInstance status and the operator events:
+
+```bash
+kubectl describe computeinstance <computeinstance-name>
+kubectl get events --sort-by=.lastTimestamp
+```
+
+If the message says that no resolved storage tiers are available, check the
+Tenant `ClusterStorageReady` condition and the StorageClasses resolved for
+that tenant. A provider administrator must create or repair the tenant's
+storage configuration before retrying the VM.
+
+#### Tier cannot be changed
+
+The boot disk and additional disk configurations are immutable after creation.
+An update that changes a disk's tier is rejected with an error containing
+`disk is immutable` or `additional disks are immutable`. Create a replacement
+ComputeInstance when the workload needs a different tier.
 
 ---
 
@@ -164,6 +344,8 @@ osac create computeinstance \
   --image quay.io/containerdisks/fedora:latest \
   --ssh-public-key "$(cat ~/.ssh/id_ed25519.pub)" \
   --boot-disk-size 10 \
+  --boot-disk-storage-tier <boot-tier> \
+  --additional-disk size=50,storage-tier=<data-tier> \
   --network-attachment subnet=<subnet-id> \
   --run-strategy Always \
   --user-data '#cloud-config
@@ -190,8 +372,12 @@ grpcurl $GRPCURL_FLAGS -H "Authorization: Bearer $TOKEN" -d '{
       },
       "ssh_public_key": "<ssh-public-key>",
       "boot_disk": {
-        "size_gib": 10
+        "size_gib": 10,
+        "storage_tier": {"name": "<boot-tier>"}
       },
+      "additional_disks": [
+        {"size_gib": 50, "storage_tier": {"name": "<data-tier>"}}
+      ],
       "network_attachments": [
         {"subnet": "<subnet-id>"}
       ],
@@ -219,8 +405,12 @@ curl -fsS $CURL_FLAGS -X POST -H "Authorization: Bearer $TOKEN" \
     },
     "ssh_public_key": "<ssh-public-key>",
     "boot_disk": {
-      "size_gib": 10
+      "size_gib": 10,
+      "storage_tier": {"name": "<boot-tier>"}
     },
+    "additional_disks": [
+      {"size_gib": 50, "storage_tier": {"name": "<data-tier>"}}
+    ],
     "network_attachments": [
       {"subnet": "<subnet-id>"}
     ],
@@ -272,6 +462,12 @@ spec:
   ssh_public_key: <ssh-public-key>
   boot_disk:
     size_gib: 10
+    storage_tier:
+      name: <boot-tier>
+  additional_disks:
+    - size_gib: 50
+      storage_tier:
+        name: <data-tier>
   network_attachments:
     - subnet: <subnet-id>
   run_strategy: Always
