@@ -14,6 +14,28 @@ OSAC UI is the web console for the [Open Sovereign AI Cloud (OSAC)](https://gith
 | `deploy/chart/` | Helm chart for Kubernetes/OpenShift deployment |
 | `docs/` | Architecture and deployment documentation |
 
+## Verifying signatures
+
+Container images published to `ghcr.io/osac-project/osac-ui` and the Helm
+chart published to `oci://ghcr.io/osac-project/charts/ui` are signed
+keylessly with [cosign](https://docs.sigstore.dev/), using each workflow
+run's GitHub Actions OIDC identity via Fulcio/Rekor — no long-lived private
+key is involved. Verify by digest (`@sha256:...`), not by mutable tag:
+
+```bash
+cosign verify \
+  --certificate-identity-regexp '^https://github\.com/osac-project/osac-ui/\.github/workflows/publish-image\.yaml@refs/(heads/main|tags/v.+)$' \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+  ghcr.io/osac-project/osac-ui@sha256:<digest>
+
+cosign verify \
+  --certificate-identity-regexp '^https://github\.com/osac-project/osac-ui/\.github/workflows/publish-charts\.yaml@refs/heads/main$' \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+  ghcr.io/osac-project/charts/ui@sha256:<digest>
+```
+
+Resolve a tag to its digest with `helm pull oci://ghcr.io/osac-project/charts/ui --version <version>` (prints `Digest: sha256:...`) or `skopeo inspect docker://ghcr.io/osac-project/osac-ui:<tag>`.
+
 ## Quick start
 
 Prerequisites: Node.js 20+, pnpm 9+, Go 1.23+

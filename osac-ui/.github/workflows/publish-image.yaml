@@ -14,6 +14,10 @@ concurrency:
 permissions:
   contents: read
   packages: write
+  # cosign's keyless image signing below -- safe directly on this job, no
+  # pull_request exposure: this workflow only ever runs on push (main or a
+  # release tag).
+  id-token: write
 
 env:
   REGISTRY: ghcr.io
@@ -50,6 +54,7 @@ jobs:
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
 
       - name: Build and push Docker image
+        id: build
         uses: docker/build-push-action@v7
         with:
           context: .
@@ -57,3 +62,9 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Install cosign
+        uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6  # v4.1.2
+
+      - name: Sign image with cosign
+        run: cosign sign --yes "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build.outputs.digest }}"
