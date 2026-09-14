@@ -16,10 +16,13 @@ import {
   DescriptionListTerm,
   Flex,
   FlexItem,
+  Grid,
+  GridItem,
+  List,
+  ListItem,
+  Stack,
   Title,
 } from '@patternfly/react-core';
-import { PlusCircleIcon } from '@patternfly/react-icons/dist/esm/icons/plus-circle-icon';
-import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
 import { ExternalIPs, type NATGateway, NATGateways, VirtualNetworkState } from '@osac/types';
 import CreateButton from '@osac/ui-components/components/Primitives/CreateButton.tsx';
@@ -32,9 +35,8 @@ import {
   useVirtualNetwork,
   virtualNetworkScopeFilter,
 } from '../../api/v1/networking';
-import { AttachNatGatewayModal } from '../../components/networking/AttachNatGatewayModal';
 import { DetachNatGatewayModal } from '../../components/networking/DetachNatGatewayModal';
-import { NatGatewayStatusLabel } from '../../components/networking/NatGatewayStatusLabel';
+import NatGatewayCard from '../../components/networking/NatGatewayCard';
 import { SecurityGroupCreateModal } from '../../components/networking/SecurityGroupCreateModal';
 import { SecurityGroupStatusLabel } from '../../components/networking/SecurityGroupStatusLabel';
 import { SubnetCreateModal } from '../../components/networking/SubnetCreateModal';
@@ -53,7 +55,6 @@ export const VirtualNetworkDetailPage = () => {
   const { id = '' } = useParams<{ id: string }>();
   const [isSubnetModalOpen, setIsSubnetModalOpen] = useState(false);
   const [isSecurityGroupModalOpen, setIsSecurityGroupModalOpen] = useState(false);
-  const [isAttachModalOpen, setIsAttachModalOpen] = useState(false);
   const [detachTarget, setDetachTarget] = useState<NATGateway>();
 
   const { data: vn, isLoading, error } = useVirtualNetwork(id);
@@ -91,6 +92,7 @@ export const VirtualNetworkDetailPage = () => {
     <>
       <ListPage
         title={vnName}
+        description={t('View the virtual network configuration and related resources.')}
         breadcrumb={
           <Breadcrumb>
             <BreadcrumbItem>
@@ -112,224 +114,205 @@ export const VirtualNetworkDetailPage = () => {
               variant="danger"
               title={t('Provisioning failed')}
               isInline
-              style={{ marginBottom: '1rem' }}
+              className="pf-v6-u-mb-lg"
             >
               {vn.status.message}
             </Alert>
           )}
 
-          <Card style={{ marginBottom: '1rem' }}>
-            <CardTitle>{t('Details')}</CardTitle>
-            <CardBody>
-              <DescriptionList isHorizontal>
-                <DescriptionListGroup>
-                  <DescriptionListTerm>{t('IPv4 CIDR')}</DescriptionListTerm>
-                  <DescriptionListDescription>
-                    {vn?.spec?.ipv4Cidr ?? '—'}
-                  </DescriptionListDescription>
-                </DescriptionListGroup>
+          <Grid hasGutter>
+            <GridItem md={8}>
+              <Card className="pf-v6-u-mb-lg">
+                <CardTitle>{t('Details')}</CardTitle>
+                <CardBody>
+                  <Grid hasGutter>
+                    <GridItem md={6}>
+                      <Title headingLevel="h2" size="lg" className="pf-v6-u-mb-md">
+                        {t('Overview')}
+                      </Title>
+                      <DescriptionList isCompact aria-label={t('Overview')}>
+                        <DescriptionListGroup>
+                          <DescriptionListTerm>{t('Status')}</DescriptionListTerm>
+                          <DescriptionListDescription>
+                            <VirtualNetworkStatusLabel state={vn?.status?.state} />
+                          </DescriptionListDescription>
+                        </DescriptionListGroup>
+                        <DescriptionListGroup>
+                          <DescriptionListTerm>{t('Created')}</DescriptionListTerm>
+                          <DescriptionListDescription>
+                            <Timestamp value={vn?.metadata?.creationTimestamp} />
+                          </DescriptionListDescription>
+                        </DescriptionListGroup>
+                        {vn?.status?.message && !isFailed && (
+                          <DescriptionListGroup>
+                            <DescriptionListTerm>{t('Message')}</DescriptionListTerm>
+                            <DescriptionListDescription>
+                              {vn.status.message}
+                            </DescriptionListDescription>
+                          </DescriptionListGroup>
+                        )}
+                      </DescriptionList>
+                    </GridItem>
+                    <GridItem md={6}>
+                      <Title headingLevel="h2" size="lg" className="pf-v6-u-mb-md">
+                        {t('Configuration')}
+                      </Title>
+                      <DescriptionList isCompact aria-label={t('Configuration')}>
+                        <DescriptionListGroup>
+                          <DescriptionListTerm>{t('IPv4 CIDR')}</DescriptionListTerm>
+                          <DescriptionListDescription>
+                            <code>{vn?.spec?.ipv4Cidr ?? '—'}</code>
+                          </DescriptionListDescription>
+                        </DescriptionListGroup>
+                        <DescriptionListGroup>
+                          <DescriptionListTerm>{t('IPv6 CIDR')}</DescriptionListTerm>
+                          <DescriptionListDescription>
+                            <code>{vn?.spec?.ipv6Cidr ?? '—'}</code>
+                          </DescriptionListDescription>
+                        </DescriptionListGroup>
+                      </DescriptionList>
+                    </GridItem>
+                  </Grid>
+                </CardBody>
+              </Card>
 
-                {vn?.spec?.ipv6Cidr && (
-                  <DescriptionListGroup>
-                    <DescriptionListTerm>{t('IPv6 CIDR')}</DescriptionListTerm>
-                    <DescriptionListDescription>{vn.spec.ipv6Cidr}</DescriptionListDescription>
-                  </DescriptionListGroup>
-                )}
-
-                <DescriptionListGroup>
-                  <DescriptionListTerm>{t('Status')}</DescriptionListTerm>
-                  <DescriptionListDescription>
-                    <VirtualNetworkStatusLabel state={vn?.status?.state} />
-                  </DescriptionListDescription>
-                </DescriptionListGroup>
-
-                {vn?.status?.message && !isFailed && (
-                  <DescriptionListGroup>
-                    <DescriptionListTerm>{t('Message')}</DescriptionListTerm>
-                    <DescriptionListDescription>{vn.status.message}</DescriptionListDescription>
-                  </DescriptionListGroup>
-                )}
-              </DescriptionList>
-
-              <Flex
-                className="pf-v6-u-mt-lg"
-                justifyContent={{ default: 'justifyContentSpaceBetween' }}
-                alignItems={{ default: 'alignItemsCenter' }}
-              >
-                <FlexItem>
-                  <Title headingLevel="h2" size="md">
-                    {t('NAT gateway')}
-                  </Title>
-                </FlexItem>
-                <FlexItem>
-                  {natGateway ? (
-                    <Button variant="link" isInline onClick={() => setDetachTarget(natGateway)}>
-                      {t('Detach')}
-                    </Button>
-                  ) : (
-                    <Button
-                      variant="link"
-                      isInline
-                      icon={<PlusCircleIcon />}
-                      onClick={() => setIsAttachModalOpen(true)}
-                    >
-                      {t('Attach')}
-                    </Button>
-                  )}
-                </FlexItem>
-              </Flex>
-              {natGateway ? (
-                <DescriptionList
-                  isCompact
-                  isHorizontal
-                  className="pf-v6-u-mt-md"
-                  aria-label={t('Attached NAT gateway')}
+              <Card className="pf-v6-u-mb-lg">
+                <CardHeader
+                  actions={{
+                    actions: (
+                      <CreateButton variant="secondary" onClick={() => setIsSubnetModalOpen(true)}>
+                        {t('Create subnet')}
+                      </CreateButton>
+                    ),
+                  }}
                 >
-                  <DescriptionListGroup>
-                    <DescriptionListTerm>{t('Name')}</DescriptionListTerm>
-                    <DescriptionListDescription>
-                      {natGateway.metadata?.name ?? natGateway.id}
-                    </DescriptionListDescription>
-                  </DescriptionListGroup>
-                  <DescriptionListGroup>
-                    <DescriptionListTerm>{t('Address')}</DescriptionListTerm>
-                    <DescriptionListDescription>
-                      <code>{natAddress ?? '—'}</code>
-                    </DescriptionListDescription>
-                  </DescriptionListGroup>
-                  <DescriptionListGroup>
-                    <DescriptionListTerm>{t('Status')}</DescriptionListTerm>
-                    <DescriptionListDescription>
-                      <NatGatewayStatusLabel state={natGateway.status?.state} />
-                    </DescriptionListDescription>
-                  </DescriptionListGroup>
-                  <DescriptionListGroup>
-                    <DescriptionListTerm>{t('Attached')}</DescriptionListTerm>
-                    <DescriptionListDescription>
-                      <Timestamp value={natGateway.metadata?.creationTimestamp} />
-                    </DescriptionListDescription>
-                  </DescriptionListGroup>
-                </DescriptionList>
-              ) : (
-                <Content component="p" className="pf-v6-u-mt-md">
-                  {t('No NAT gateway attached to this virtual network.')}
-                </Content>
-              )}
-            </CardBody>
-          </Card>
+                  <CardTitle>{t('Subnets')}</CardTitle>
+                </CardHeader>
+                <CardBody>
+                  {isLoadingSubnets ? (
+                    <SubtleContent component="p">{t('Loading subnets...')}</SubtleContent>
+                  ) : subnetsError ? (
+                    <Alert variant="danger" title={t('Failed to load subnets')} isInline>
+                      {getErrorMessage(subnetsError)}
+                    </Alert>
+                  ) : subnets.length === 0 ? (
+                    <SubtleContent component="p">
+                      {t('No subnets yet. Create one to get started.')}
+                    </SubtleContent>
+                  ) : (
+                    <List isPlain aria-label={t('Subnets')}>
+                      {subnets.map((subnet) => (
+                        <ListItem key={subnet.id}>
+                          <Flex
+                            alignItems={{ default: 'alignItemsCenter' }}
+                            justifyContent={{ default: 'justifyContentSpaceBetween' }}
+                            gap={{ default: 'gapMd' }}
+                          >
+                            <FlexItem>
+                              <Stack hasGutter>
+                                <FlexItem>
+                                  <ResourceNameField resource={subnet} />
+                                </FlexItem>
+                                <FlexItem>
+                                  <Content component="small" className="pf-v6-u-color-text-subtle">
+                                    <code>{subnet.spec?.ipv4Cidr ?? '—'}</code>
+                                  </Content>
+                                </FlexItem>
+                              </Stack>
+                            </FlexItem>
+                            <FlexItem>
+                              <SubnetStatusLabel state={subnet.status?.state} />
+                            </FlexItem>
+                          </Flex>
+                        </ListItem>
+                      ))}
+                    </List>
+                  )}
+                </CardBody>
+              </Card>
 
-          <Card style={{ marginBottom: '1rem' }}>
-            <CardHeader
-              actions={{
-                actions: (
-                  <CreateButton variant="secondary" onClick={() => setIsSubnetModalOpen(true)}>
-                    {t('Create subnet')}
-                  </CreateButton>
-                ),
-              }}
-            >
-              <CardTitle>{t('Subnets')}</CardTitle>
-            </CardHeader>
-            <CardBody>
-              {isLoadingSubnets ? (
-                <SubtleContent component="p">{t('Loading subnets...')}</SubtleContent>
-              ) : subnetsError ? (
-                <Alert variant="danger" title={t('Failed to load subnets')} isInline>
-                  {getErrorMessage(subnetsError)}
-                </Alert>
-              ) : subnets.length === 0 ? (
-                <SubtleContent component="p">
-                  {t('No subnets yet. Create one to get started.')}
-                </SubtleContent>
-              ) : (
-                <Table aria-label={t('Subnets')} variant="compact" borders>
-                  <Thead>
-                    <Tr>
-                      <Th>{t('Name')}</Th>
-                      <Th>{t('Status')}</Th>
-                      <Th>{t('CIDR')}</Th>
-                    </Tr>
-                  </Thead>
-                  <Tbody>
-                    {subnets.map((subnet) => (
-                      <Tr key={subnet.id}>
-                        <Td dataLabel="Name">
-                          <ResourceNameField resource={subnet} />
-                        </Td>
-                        <Td dataLabel="Status">
-                          <SubnetStatusLabel state={subnet.status?.state} />
-                        </Td>
-                        <Td dataLabel="CIDR">{subnet.spec?.ipv4Cidr ?? '—'}</Td>
-                      </Tr>
-                    ))}
-                  </Tbody>
-                </Table>
-              )}
-            </CardBody>
-          </Card>
+              <Card>
+                <CardHeader
+                  actions={{
+                    actions: (
+                      <CreateButton
+                        variant="secondary"
+                        onClick={() => setIsSecurityGroupModalOpen(true)}
+                      >
+                        {t('Create security group')}
+                      </CreateButton>
+                    ),
+                  }}
+                >
+                  <CardTitle>{t('Security groups')}</CardTitle>
+                </CardHeader>
+                <CardBody>
+                  {isLoadingSecurityGroups ? (
+                    <SubtleContent component="p">{t('Loading security groups...')}</SubtleContent>
+                  ) : securityGroupsError ? (
+                    <Alert variant="danger" title={t('Failed to load security groups')} isInline>
+                      {getErrorMessage(securityGroupsError)}
+                    </Alert>
+                  ) : securityGroups.length === 0 ? (
+                    <SubtleContent component="p">
+                      {t('No security groups yet. Create one to get started.')}
+                    </SubtleContent>
+                  ) : (
+                    <List isPlain aria-label={t('Security groups')}>
+                      {securityGroups.map((sg) => {
+                        const ingressCount = sg.spec?.ingress?.length ?? 0;
+                        const egressCount = sg.spec?.egress?.length ?? 0;
 
-          <Card>
-            <CardHeader
-              actions={{
-                actions: (
-                  <CreateButton
-                    variant="secondary"
-                    onClick={() => setIsSecurityGroupModalOpen(true)}
-                  >
-                    {t('Create security group')}
-                  </CreateButton>
-                ),
-              }}
-            >
-              <CardTitle>{t('Security groups')}</CardTitle>
-            </CardHeader>
-            <CardBody>
-              {isLoadingSecurityGroups ? (
-                <SubtleContent component="p">{t('Loading security groups...')}</SubtleContent>
-              ) : securityGroupsError ? (
-                <Alert variant="danger" title={t('Failed to load security groups')} isInline>
-                  {getErrorMessage(securityGroupsError)}
-                </Alert>
-              ) : securityGroups.length === 0 ? (
-                <SubtleContent component="p">
-                  {t('No security groups yet. Create one to get started.')}
-                </SubtleContent>
-              ) : (
-                <Table aria-label={t('Security groups')} variant="compact" borders>
-                  <Thead>
-                    <Tr>
-                      <Th>{t('Name')}</Th>
-                      <Th>{t('Status')}</Th>
-                      <Th>{t('Inbound Rules')}</Th>
-                      <Th>{t('Outbound Rules')}</Th>
-                    </Tr>
-                  </Thead>
-                  <Tbody>
-                    {securityGroups.map((sg) => {
-                      const ingressCount = sg.spec?.ingress?.length ?? 0;
-                      const egressCount = sg.spec?.egress?.length ?? 0;
+                        return (
+                          <ListItem key={sg.id}>
+                            <Flex
+                              alignItems={{ default: 'alignItemsCenter' }}
+                              justifyContent={{ default: 'justifyContentSpaceBetween' }}
+                              gap={{ default: 'gapMd' }}
+                            >
+                              <FlexItem>
+                                <Stack hasGutter>
+                                  <FlexItem>
+                                    <ResourceNameField
+                                      resource={sg}
+                                      detailsUrl={`/networking/security-groups/${sg.id}`}
+                                    />
+                                  </FlexItem>
+                                  <FlexItem>
+                                    <Content
+                                      component="small"
+                                      className="pf-v6-u-color-text-subtle"
+                                    >
+                                      {t('In: {{ingress}} · Out: {{egress}}', {
+                                        ingress: ingressCount,
+                                        egress: egressCount,
+                                      })}
+                                    </Content>
+                                  </FlexItem>
+                                </Stack>
+                              </FlexItem>
+                              <FlexItem>
+                                <SecurityGroupStatusLabel state={sg.status?.state} />
+                              </FlexItem>
+                            </Flex>
+                          </ListItem>
+                        );
+                      })}
+                    </List>
+                  )}
+                </CardBody>
+              </Card>
+            </GridItem>
 
-                      return (
-                        <Tr key={sg.id}>
-                          <Td dataLabel={t('Name')}>
-                            <ResourceNameField
-                              resource={sg}
-                              detailsUrl={`/networking/security-groups/${sg.id}`}
-                            />
-                          </Td>
-                          <Td dataLabel={t('Status')}>
-                            <SecurityGroupStatusLabel state={sg.status?.state} />
-                          </Td>
-                          <Td dataLabel={t('Inbound Rules')}>{ingressCount}</Td>
-                          <Td dataLabel={t('Outbound Rules')}>{egressCount}</Td>
-                        </Tr>
-                      );
-                    })}
-                  </Tbody>
-                </Table>
-              )}
-            </CardBody>
-          </Card>
+            <GridItem md={4}>
+              <NatGatewayCard
+                natAddress={natAddress}
+                natGateway={natGateway}
+                onAttach={() => navigate(`/networking/virtual-networks/${id}/nat-gateway/attach`)}
+                onDetach={setDetachTarget}
+              />
+            </GridItem>
+          </Grid>
         </ListPageBody>
       </ListPage>
 
@@ -346,9 +329,6 @@ export const VirtualNetworkDetailPage = () => {
           parentVN={vn}
           existingSubnets={subnets}
         />
-      )}
-      {isAttachModalOpen && vn && (
-        <AttachNatGatewayModal virtualNetwork={vn} onClose={() => setIsAttachModalOpen(false)} />
       )}
       {detachTarget && (
         <DetachNatGatewayModal

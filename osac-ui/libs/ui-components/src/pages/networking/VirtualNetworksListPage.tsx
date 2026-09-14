@@ -1,26 +1,22 @@
 import { useMemo, useState } from 'react';
 import {
   Content,
-  MenuToggle,
   SearchInput,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
 } from '@patternfly/react-core';
-import { EllipsisVIcon } from '@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon';
-import { ActionsColumn, Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
+import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
-import { ExternalIPs, type NATGateway, NATGateways, type VirtualNetwork } from '@osac/types';
+import { ExternalIPs, type NATGateway, NATGateways } from '@osac/types';
 import CreateButton from '@osac/ui-components/components/Primitives/CreateButton.tsx';
 import ResourceNameField from '@osac/ui-components/components/Resource/ResourceNameField.tsx';
 import { SEARCH_PARAM, usePageFilter } from '@osac/ui-components/hooks/use-page-filter.ts';
 
 import { useListResource } from '../../api/use-resource';
 import { useSubnets, useVirtualNetworks } from '../../api/v1/networking';
-import { AttachNatGatewayModal } from '../../components/networking/AttachNatGatewayModal';
 import { CidrDisplay } from '../../components/networking/CidrDisplay';
-import { DetachNatGatewayModal } from '../../components/networking/DetachNatGatewayModal';
 import { VirtualNetworkCreateModal } from '../../components/networking/VirtualNetworkCreateModal';
 import { VirtualNetworkStatusLabel } from '../../components/networking/VirtualNetworkStatusLabel';
 import ListPage from '../../components/Page/ListPage';
@@ -32,8 +28,6 @@ export const VirtualNetworksListPage = () => {
   const { t } = useTranslation();
   const [search, setSearch] = usePageFilter(SEARCH_PARAM);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [attachTarget, setAttachTarget] = useState<VirtualNetwork>();
-  const [detachTarget, setDetachTarget] = useState<NATGateway>();
 
   const { data: virtualNetworks = [], isLoading, error } = useVirtualNetworks();
   const { data: allSubnets = [] } = useSubnets();
@@ -119,7 +113,6 @@ export const VirtualNetworksListPage = () => {
                   <Th>{t('CIDR')}</Th>
                   <Th>{t('Subnets')}</Th>
                   <Th>{t('NAT gateway')}</Th>
-                  <Th aria-label={t('Actions')} />
                 </Tr>
               </Thead>
               <Tbody>
@@ -159,38 +152,6 @@ export const VirtualNetworksListPage = () => {
                           <Content component="p">—</Content>
                         )}
                       </Td>
-                      <Td dataLabel={t('Actions')} isActionCell>
-                        <ActionsColumn
-                          items={
-                            natGateway
-                              ? [
-                                  {
-                                    title: t('Detach'),
-                                    onClick: () => setDetachTarget(natGateway),
-                                  },
-                                ]
-                              : [
-                                  {
-                                    title: t('Attach NAT Gateway'),
-                                    onClick: () => setAttachTarget(vn),
-                                  },
-                                ]
-                          }
-                          actionsToggle={({ onToggle, isOpen, toggleRef }) => (
-                            <MenuToggle
-                              ref={toggleRef}
-                              variant="plain"
-                              isExpanded={isOpen}
-                              onClick={onToggle}
-                              aria-label={t('Actions for {{name}}', {
-                                name: vn.metadata?.name ?? vn.id,
-                              })}
-                            >
-                              <EllipsisVIcon />
-                            </MenuToggle>
-                          )}
-                        />
-                      </Td>
                     </Tr>
                   );
                 })}
@@ -202,18 +163,6 @@ export const VirtualNetworksListPage = () => {
 
       {isCreateModalOpen && (
         <VirtualNetworkCreateModal onClose={() => setIsCreateModalOpen(false)} />
-      )}
-      {attachTarget && (
-        <AttachNatGatewayModal
-          virtualNetwork={attachTarget}
-          onClose={() => setAttachTarget(undefined)}
-        />
-      )}
-      {detachTarget && (
-        <DetachNatGatewayModal
-          natGateway={detachTarget}
-          onClose={() => setDetachTarget(undefined)}
-        />
       )}
     </>
   );

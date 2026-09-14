@@ -124,15 +124,4 @@ describe('VirtualNetworksListPage', () => {
       expect(listCalls).toBe(1);
     });
   });
-
-  it('offers Attach NAT Gateway when none is attached and Detach when one is', async () => {
-    const { user } = renderPage();
-
-    await user.click(await screen.findByRole('button', { name: 'Actions for vn-dev' }));
-    expect(screen.getByRole('menuitem', { name: 'Attach NAT Gateway' })).toBeInTheDocument();
-
-    await user.keyboard('{Escape}');
-    await user.click(screen.getByRole('button', { name: 'Actions for vn-prod' }));
-    expect(screen.getByRole('menuitem', { name: 'Detach' })).toBeInTheDocument();
-  });
 });

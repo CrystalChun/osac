@@ -1,21 +1,34 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import {
+  ActionList,
+  ActionListGroup,
+  ActionListItem,
   Alert,
+  Breadcrumb,
+  BreadcrumbItem,
   Button,
   Content,
+  DescriptionList,
+  DescriptionListDescription,
+  DescriptionListGroup,
+  DescriptionListTerm,
   FormGroup,
-  Modal,
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
+  PageSection,
+  PageSectionTypes,
   Stack,
   StackItem,
+  Title,
+  Wizard,
+  WizardFooterWrapper,
+  WizardStep,
+  useWizardContext,
 } from '@patternfly/react-core';
 import { Formik } from 'formik';
+import { useFormikContext } from 'formik';
 import type { TFunction } from 'i18next';
 import * as Yup from 'yup';
 
-import { ExternalIPs, NATGateways, type VirtualNetwork } from '@osac/types';
+import { ExternalIPState, ExternalIPs, NATGateways, type VirtualNetwork } from '@osac/types';
 
 import { useApiQueryClient } from '../../api/use-api-query';
 import {
@@ -49,6 +62,98 @@ interface AttachNatGatewayFormValues {
   externalIpId: string;
 }
 
+interface AttachNatGatewayWizardFooterProps {
+  error: unknown;
+  isBlocked: boolean;
+  onCancel: () => void;
+}
+
+const AttachNatGatewayWizardFooter = ({
+  error,
+  isBlocked,
+  onCancel,
+}: AttachNatGatewayWizardFooterProps) => {
+  const { t } = useTranslation();
+  const { activeStep, goToStepByIndex, steps } = useWizardContext();
+  const { isSubmitting, submitForm, validateForm } = useFormikContext<AttachNatGatewayFormValues>();
+  const [showValidationError, setShowValidationError] = useState(false);
+  const stepIndex = activeStep?.index ?? 1;
+  const isFirstStep = stepIndex <= 1;
+  const isLastStep = stepIndex >= steps.length;
+
+  const handleNext = async () => {
+    if (isSubmitting || isBlocked) {
+      return;
+    }
+
+    const errors = await validateForm();
+    if (Object.keys(errors).length > 0) {
+      setShowValidationError(true);
+      return;
+    }
+
+    setShowValidationError(false);
+    if (isLastStep) {
+      await submitForm();
+    } else {
+      goToStepByIndex(stepIndex + 1);
+    }
+  };
+
+  return (
+    <WizardFooterWrapper>
+      <Stack hasGutter>
+        {showValidationError && (
+          <StackItem>
+            <Alert
+              variant="danger"
+              isInline
+              title={t('Fix the highlighted errors before continuing.')}
+            />
+          </StackItem>
+        )}
+        {!!error && isLastStep && (
+          <StackItem>
+            <Alert variant="danger" title={t('Failed to attach NAT gateway')} isInline>
+              {getErrorMessage(error)}
+            </Alert>
+          </StackItem>
+        )}
+        <StackItem>
+          <ActionList>
+            <ActionListGroup>
+              <ActionListItem>
+                <Button
+                  variant="secondary"
+                  onClick={() => goToStepByIndex(stepIndex - 1)}
+                  isDisabled={isFirstStep || isSubmitting}
+                >
+                  {t('Back')}
+                </Button>
+              </ActionListItem>
+              <ActionListItem>
+                <Button
+                  variant="primary"
+                  onClick={() => void handleNext()}
+                  isDisabled={isBlocked || isSubmitting}
+                  isLoading={isSubmitting}
+                >
+                  {isLastStep ? t('Attach') : t('Next')}
+                </Button>
+              </ActionListItem>
+              <ActionListItem>
+                <Button variant="link" onClick={onCancel} isDisabled={isSubmitting}>
+                  {t('Cancel')}
+                </Button>
+              </ActionListItem>
+            </ActionListGroup>
+          </ActionList>
+        </StackItem>
+      </Stack>
+    </WizardFooterWrapper>
+  );
+};
+
 const validationSchema = (t: TFunction) =>
   Yup.object({
     metadata: Yup.object({
@@ -59,6 +164,7 @@ const validationSchema = (t: TFunction) =>
 
 export const AttachNatGatewayModal = ({ virtualNetwork, onClose }: AttachNatGatewayModalProps) => {
   const { t } = useTranslation();
+  const [currentStep, setCurrentStep] = useState('nat-gateway');
   const queryClient = useApiQueryClient();
   const invalidateService = useInvalidateServiceQueries();
   const {
@@ -73,7 +179,6 @@ export const AttachNatGatewayModal = ({ virtualNetwork, onClose }: AttachNatGate
       await invalidateVirtualNetworksQueries(queryClient);
     },
   });
-
   const usedExternalIpIds = useMemo(
     () =>
       new Set(
@@ -87,7 +192,12 @@ export const AttachNatGatewayModal = ({ virtualNetwork, onClose }: AttachNatGate
   const externalIpOptions = useMemo(
     () =>
       (externalIpResponse?.items ?? [])
-        .filter((ip) => ip.id && !usedExternalIpIds.has(ip.id))
+        .filter(
+          (ip) =>
+            ip.id &&
+            ip.status?.state === ExternalIPState.EXTERNAL_IP_STATE_ALLOCATED &&
+            !usedExternalIpIds.has(ip.id),
+        )
         .map((ip) => ({
           value: ip.id,
           label: `${ip.metadata?.name ?? ip.id} · ${ip.status?.address ?? '—'}`,
@@ -98,9 +208,17 @@ export const AttachNatGatewayModal = ({ virtualNetwork, onClose }: AttachNatGate
   const noExternalIpsAvailable =
     !isLoadingExternalIps && !externalIpsError && externalIpOptions.length === 0;
 
+  const handleClose = () => {
+    setCurrentStep('nat-gateway');
+    onClose();
+  };
+
   return (
     <Formik<AttachNatGatewayFormValues>
-      initialValues={{ metadata: { name: '' }, externalIpId: '' }}
+      initialValues={{
+        metadata: { name: '' },
+        externalIpId: '',
+      }}
       validationSchema={validationSchema(t)}
       onSubmit={async (values) => {
         try {
@@ -115,87 +233,138 @@ export const AttachNatGatewayModal = ({ virtualNetwork, onClose }: AttachNatGate
           });
           onClose();
         } catch {
-          // surfaced via createNatGateway.error
+          // surfaced via the mutation error state
         }
       }}
     >
-      {({ submitForm, isSubmitting }) => (
-        <Modal
-          variant="small"
-          isOpen
-          onClose={isSubmitting ? undefined : onClose}
-          aria-labelledby="attach-nat-gateway-title"
-        >
-          <ModalHeader title={t('Attach NAT gateway')} labelId="attach-nat-gateway-title" />
-          <ModalBody>
+      {({ isSubmitting, values }) => (
+        <>
+          <PageSection hasBodyWrapper={false}>
             <Stack hasGutter>
               <StackItem>
-                <Content component="p">
-                  {t('Provides outbound internet access for workloads in this virtual network.')}
-                </Content>
+                <Breadcrumb>
+                  <BreadcrumbItem>
+                    <Button variant="link" isInline onClick={handleClose}>
+                      {t('Virtual networks')}
+                    </Button>
+                  </BreadcrumbItem>
+                  <BreadcrumbItem isActive>{t('Attach NAT gateway')}</BreadcrumbItem>
+                </Breadcrumb>
               </StackItem>
-              {noExternalIpsAvailable && (
-                <StackItem>
-                  <Alert variant="warning" title={t('No unallocated external IPs')} isInline>
-                    {t(
-                      'Allocate an External IP that is not in use, or contact your administrator.',
-                    )}
-                  </Alert>
-                </StackItem>
-              )}
-              {!!externalIpsError && (
-                <StackItem>
-                  <Alert variant="danger" title={t('Error loading external IPs')} isInline>
-                    {getErrorMessage(externalIpsError)}
-                  </Alert>
-                </StackItem>
-              )}
               <StackItem>
-                <OsacForm>
-                  <FormGroup label={t('Virtual network')} fieldId="attach-nat-gateway-network">
-                    {virtualNetwork.metadata?.name ?? virtualNetwork.id}
-                  </FormGroup>
-                  <FormGroup label={t('IPv4 CIDR')} fieldId="attach-nat-gateway-cidr">
-                    <code>{virtualNetwork.spec?.ipv4Cidr ?? '—'}</code>
-                  </FormGroup>
-                  <NameField isDisabled={isSubmitting} />
-                  <SelectField
-                    name="externalIpId"
-                    label={t('External IP')}
-                    fieldId="attach-nat-gateway-external-ip"
-                    isRequired
-                    isLoading={isLoadingExternalIps}
-                    isDisabled={noExternalIpsAvailable || Boolean(externalIpsError)}
-                    placeholder={t('Select an external IP')}
-                    helperText={t('This IP becomes the SNAT source for the virtual network.')}
-                    options={externalIpOptions}
-                    autoSelectSingleOption
-                  />
-                </OsacForm>
+                <Title headingLevel="h1" size="3xl">
+                  {t('Attach NAT gateway')}
+                </Title>
               </StackItem>
-              {createNatGateway.error && (
-                <StackItem>
-                  <Alert variant="danger" title={t('Failed to attach NAT gateway')} isInline>
-                    {getErrorMessage(createNatGateway.error)}
-                  </Alert>
-                </StackItem>
-              )}
             </Stack>
-          </ModalBody>
-          <ModalFooter>
-            <Button variant="link" onClick={onClose} isDisabled={isSubmitting}>
-              {t('Cancel')}
-            </Button>
-            <Button
-              variant="primary"
-              onClick={submitForm}
-              isDisabled={isSubmitting || noExternalIpsAvailable || Boolean(externalIpsError)}
-              isLoading={isSubmitting}
+          </PageSection>
+          <PageSection
+            hasBodyWrapper={false}
+            isFilled
+            type={PageSectionTypes.wizard}
+            aria-label={t('Attach NAT gateway wizard')}
+          >
+            <Wizard
+              navAriaLabel={t('Attach NAT gateway steps')}
+              isVisitRequired
+              footer={
+                <AttachNatGatewayWizardFooter
+                  error={createNatGateway.error}
+                  isBlocked={noExternalIpsAvailable || Boolean(externalIpsError)}
+                  onCancel={handleClose}
+                />
+              }
+              onStepChange={(_, step) => setCurrentStep(step.id as string)}
             >
-              {t('Attach')}
-            </Button>
-          </ModalFooter>
-        </Modal>
+              <WizardStep id="nat-gateway" name={t('NAT gateway')}>
+                {currentStep === 'nat-gateway' && (
+                  <Stack hasGutter>
+                    <StackItem>
+                      <Content component="p">
+                        {t(
+                          'Provides outbound internet access for workloads in this virtual network.',
+                        )}
+                      </Content>
+                    </StackItem>
+                    {noExternalIpsAvailable && (
+                      <StackItem>
+                        <Alert variant="warning" title={t('No unallocated external IPs')} isInline>
+                          {t(
+                            'Allocate an External IP that is not in use, or contact your administrator.',
+                          )}
+                        </Alert>
+                      </StackItem>
+                    )}
+                    {!!externalIpsError && (
+                      <StackItem>
+                        <Alert variant="danger" title={t('Error loading external IPs')} isInline>
+                          {getErrorMessage(externalIpsError)}
+                        </Alert>
+                      </StackItem>
+                    )}
+                    <StackItem>
+                      <OsacForm>
+                        <FormGroup
+                          label={t('Virtual network')}
+                          fieldId="attach-nat-gateway-network"
+                        >
+                          {virtualNetwork.metadata?.name ?? virtualNetwork.id}
+                        </FormGroup>
+                        <FormGroup label={t('IPv4 CIDR')} fieldId="attach-nat-gateway-cidr">
+                          <code>{virtualNetwork.spec?.ipv4Cidr ?? '—'}</code>
+                        </FormGroup>
+                        <NameField isDisabled={isSubmitting} />
+                        <SelectField
+                          name="externalIpId"
+                          label={t('External IP')}
+                          fieldId="attach-nat-gateway-external-ip"
+                          isRequired
+                          isLoading={isLoadingExternalIps}
+                          isDisabled={noExternalIpsAvailable || Boolean(externalIpsError)}
+                          placeholder={t('Select an external IP')}
+                          helperText={t('Standard edge NAT for outbound internet access.')}
+                          options={externalIpOptions}
+                          autoSelectSingleOption
+                        />
+                      </OsacForm>
+                    </StackItem>
+                  </Stack>
+                )}
+              </WizardStep>
+              <WizardStep id="review" name={t('Review')}>
+                {currentStep === 'review' && (
+                  <DescriptionList isCompact aria-label={t('Review')}>
+                    <DescriptionListGroup>
+                      <DescriptionListTerm>{t('Virtual network')}</DescriptionListTerm>
+                      <DescriptionListDescription>
+                        {virtualNetwork.metadata?.name ?? virtualNetwork.id}
+                      </DescriptionListDescription>
+                    </DescriptionListGroup>
+                    <DescriptionListGroup>
+                      <DescriptionListTerm>{t('IPv4 CIDR')}</DescriptionListTerm>
+                      <DescriptionListDescription>
+                        <code>{virtualNetwork.spec?.ipv4Cidr ?? '—'}</code>
+                      </DescriptionListDescription>
+                    </DescriptionListGroup>
+                    <DescriptionListGroup>
+                      <DescriptionListTerm>{t('Name')}</DescriptionListTerm>
+                      <DescriptionListDescription>
+                        {values.metadata.name || '—'}
+                      </DescriptionListDescription>
+                    </DescriptionListGroup>
+                    <DescriptionListGroup>
+                      <DescriptionListTerm>{t('External IP')}</DescriptionListTerm>
+                      <DescriptionListDescription>
+                        {externalIpOptions.find((option) => option.value === values.externalIpId)
+                          ?.label ?? '—'}
+                      </DescriptionListDescription>
+                    </DescriptionListGroup>
+                  </DescriptionList>
+                )}
+              </WizardStep>
+            </Wizard>
+          </PageSection>
+        </>
       )}
     </Formik>
   );

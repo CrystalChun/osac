@@ -14,6 +14,7 @@ import {
   VirtualNetworkState,
 } from '@osac/types';
 
+import AttachNatGatewayWizardPage from './AttachNatGatewayWizardPage';
 import { VirtualNetworkDetailPage } from './VirtualNetworkDetailPage';
 import type { MockApiFixtures } from '../../test-utils/createMockConnectTransport';
 import { renderWithProviders } from '../../test-utils/TestProviders';
@@ -90,6 +91,10 @@ const attachedIp = {
 const renderPage = (fixtures: MockApiFixtures = {}) =>
   renderWithProviders(
     <Routes>
+      <Route
+        path="/networking/virtual-networks/:id/nat-gateway/attach"
+        element={<AttachNatGatewayWizardPage />}
+      />
       <Route path="/networking/virtual-networks/:id" element={<VirtualNetworkDetailPage />} />
     </Routes>,
     {
@@ -145,11 +150,27 @@ describe('VirtualNetworkDetailPage', () => {
     });
 
     expect(await screen.findByText('nat-egress')).toBeInTheDocument();
+    expect(screen.getByText('NAT gateway').closest('.pf-m-secondary')).toBeInTheDocument();
     expect(screen.getByText('203.0.113.10')).toBeInTheDocument();
     expect(screen.getAllByText('Ready').length).toBeGreaterThan(0);
     expect(screen.getByText('203.0.113.10').closest('code')).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Detach' }));
     expect(screen.getByRole('heading', { name: /Detach NAT gateway/ })).toBeInTheDocument();
+  });
+
+  it('disables Detach while the NAT gateway is deleting', async () => {
+    renderPage({
+      natGateways: [
+        {
+          ...attachedNat,
+          status: { state: NATGatewayState.NAT_GATEWAY_STATE_DELETING },
+        },
+      ],
+      externalIps: [attachedIp],
+    });
+
+    await screen.findByText('nat-egress');
+    expect(screen.getByRole('button', { name: 'Detach' })).toBeDisabled();
   });
 });

@@ -69,16 +69,25 @@ const renderModal = ({
   externalIps = mixedIps,
   natGateways = [existingNat],
   transportOverrides,
+  natGateway,
 }: {
   onClose?: () => void;
   externalIps?: ExternalIP[];
   natGateways?: NATGateway[];
   transportOverrides?: MockTransportOverrides;
+  natGateway?: NATGateway;
 } = {}) =>
-  renderWithProviders(<AttachNatGatewayModal virtualNetwork={virtualNetwork} onClose={onClose} />, {
-    apiFixtures: { externalIps, natGateways },
-    transportOverrides,
-  });
+  renderWithProviders(
+    <AttachNatGatewayModal
+      natGateway={natGateway}
+      virtualNetwork={virtualNetwork}
+      onClose={onClose}
+    />,
+    {
+      apiFixtures: { externalIps, natGateways },
+      transportOverrides,
+    },
+  );
 
 describe('AttachNatGatewayModal', () => {
   it('renders the lede and read-only virtual network fields', async () => {
@@ -120,7 +129,7 @@ describe('AttachNatGatewayModal', () => {
     });
 
     expect(await screen.findByText('No unallocated external IPs')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Attach' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled();
   });
 
   it('submits the NAT gateway name, virtual network id, and selected External IP', async () => {
@@ -140,6 +149,8 @@ describe('AttachNatGatewayModal', () => {
     await waitFor(() => {
       expect(screen.getByLabelText(/^External IP/)).toHaveTextContent('eip-free · 203.0.113.10');
     });
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    expect(screen.getByRole('button', { name: 'Attach' })).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Attach' }));
 
     await waitFor(() => {
@@ -147,7 +158,7 @@ describe('AttachNatGatewayModal', () => {
     });
     expect(createRequest?.object?.spec?.virtualNetwork?.id).toBe('vn-1');
     expect(createRequest?.object?.spec?.externalIp?.id).toBe('eip-free');
-    expect(onClose).toHaveBeenCalled();
+    await waitFor(() => expect(onClose).toHaveBeenCalled());
   });
 
   it('keeps the modal open when create fails', async () => {
@@ -165,6 +176,7 @@ describe('AttachNatGatewayModal', () => {
     await waitFor(() => {
       expect(screen.getByLabelText(/^External IP/)).toHaveTextContent('eip-free · 203.0.113.10');
     });
+    await user.click(screen.getByRole('button', { name: 'Next' }));
     await user.click(screen.getByRole('button', { name: 'Attach' }));
 
     expect(await screen.findByText('Failed to attach NAT gateway')).toBeInTheDocument();
