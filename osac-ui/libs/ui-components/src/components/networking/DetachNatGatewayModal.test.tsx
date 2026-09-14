@@ -1,5 +1,5 @@
-import { Code, ConnectError } from '@connectrpc/connect';
 import { create } from '@bufbuild/protobuf';
+import { Code, ConnectError } from '@connectrpc/connect';
 import { screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
