@@ -42,7 +42,7 @@ const formatNodeSetsForReview = (
     .map((row) => {
       const hostType = hostTypes.find((h) => h.id === row.hostType);
 
-      return `${row.id}: ${hostType?.title || hostType?.metadata?.name || row.hostType}: ${row.size}`;
+      return `${hostType?.title || hostType?.metadata?.name || row.hostType}: ${row.size}`;
     })
     .join(', ');
 };

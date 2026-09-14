@@ -50,6 +50,28 @@ export const CLUSTER_NETWORKING_CATALOG_PATHS = [
 
 export const createNodeSetRowId = (): string => crypto.randomUUID();
 
+export const createNodeSetId = (
+  hostType: string,
+  rows: ClusterNodeSetRow[],
+  rowIndex: number,
+): string => {
+  const currentRow = rows[rowIndex];
+  if (currentRow?.hostType === hostType && currentRow.id) {
+    return currentRow.id;
+  }
+
+  const usedIds = new Set(
+    rows
+      .filter((row, index) => index !== rowIndex && row.hostType === hostType)
+      .map((row) => row.id),
+  );
+  let suffix = 1;
+  while (usedIds.has(`${hostType}-${suffix}`)) {
+    suffix += 1;
+  }
+  return `${hostType}-${suffix}`;
+};
+
 export const createEmptyNodeSetRow = (): ClusterNodeSetRow => ({
   rowId: createNodeSetRowId(),
   id: '',

@@ -12,11 +12,10 @@ import PlusCircleIcon from '@patternfly/react-icons/dist/esm/icons/plus-circle-i
 import { useFormikContext } from 'formik';
 
 import type { ClusterWizardValues } from './fields';
-import { createEmptyNodeSetRow } from './fields';
+import { createEmptyNodeSetRow, createNodeSetId } from './fields';
 import { hostTypeDisplayName, useHostTypes } from '../../../../../api/v1/host-types';
 import { useTranslation } from '../../../../../hooks/useTranslation';
 import { getErrorMessage } from '../../../../../utils/error';
-import { InputField } from '../../../../Form/InputField';
 import { SelectField } from '../../../../Form/SelectField';
 import ClusterPoolSizeField from '../../fields/ClusterPoolSizeField';
 
@@ -30,12 +29,10 @@ const ClusterNodeSetsArrayField = () => {
     refetch: refetchHostTypes,
   } = useHostTypes();
 
-  const hostTypeOptions = () => {
-    return hostTypes.map((hostType) => ({
-      value: hostType.id,
-      label: hostTypeDisplayName(hostType),
-    }));
-  };
+  const hostTypeOptions = hostTypes.map((hostType) => ({
+    value: hostType.id,
+    label: hostTypeDisplayName(hostType),
+  }));
 
   const addRow = () => {
     void setFieldValue('spec.nodeSetRows', [...values.spec.nodeSetRows, createEmptyNodeSetRow()]);
@@ -85,20 +82,20 @@ const ClusterNodeSetsArrayField = () => {
               />
             }
           >
-            <InputField
-              name={`spec.nodeSetRows.${rowIndex}.id`}
-              label={t('Node set ID')}
-              fieldId={`cluster-node-set-id-${row.rowId}`}
-              isRequired
-            />
             <SelectField
               name={`spec.nodeSetRows.${rowIndex}.hostType`}
               label={t('Host type')}
               fieldId={`cluster-host-type-${row.rowId}`}
-              options={hostTypeOptions()}
+              options={hostTypeOptions}
               isRequired
               isLoading={hostTypesLoading}
               placeholder={t('Select host type')}
+              onSelect={(hostType) => {
+                void setFieldValue(
+                  `spec.nodeSetRows.${rowIndex}.id`,
+                  createNodeSetId(String(hostType), values.spec.nodeSetRows, rowIndex),
+                );
+              }}
             />
             <ClusterPoolSizeField rowIndex={rowIndex} isRequired />
           </FormFieldGroup>

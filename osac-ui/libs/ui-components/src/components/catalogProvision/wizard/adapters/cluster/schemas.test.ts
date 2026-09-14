@@ -315,7 +315,7 @@ describe('buildClusterStepSchema', () => {
     );
 
     expect(errors).toEqual({
-      spec: { nodeSetRows: 'Each node set ID must be unique' },
+      spec: { nodeSetRows: 'Node set configuration is invalid' },
     });
   });
 
@@ -339,7 +339,7 @@ describe('buildClusterStepSchema', () => {
 
     expect(errors).toEqual({
       spec: {
-        'nodeSetRows[0]': { id: 'Node set ID is required' },
+        'nodeSetRows[0]': { id: 'Node set configuration is invalid' },
       },
     });
   });

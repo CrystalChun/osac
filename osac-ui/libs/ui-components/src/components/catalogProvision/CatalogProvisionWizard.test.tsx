@@ -52,8 +52,6 @@ const fillClusterNodeSetRow = async (user: UserEvent, hostTypeLabel = 'ACME 1TB'
   await waitFor(() => {
     expect(screen.getByText('Node set 1')).toBeInTheDocument();
   });
-  const idInput = screen.getByRole('textbox', { name: /^Node set ID/ });
-  await user.type(idInput, 'workers');
   await user.click(screen.getByLabelText(/^Host type/));
   await user.click(screen.getByRole('option', { name: hostTypeLabel }));
   const sizeInput = screen.getByRole('spinbutton', { name: /^Nodes/ });
@@ -1142,7 +1140,7 @@ describe('CatalogProvisionWizard', () => {
     await advanceToClusterReviewStep(user, clusterCatalogItem.title);
 
     await waitFor(() => {
-      expect(screen.getByText('workers: ACME 1TB: 3')).toBeInTheDocument();
+      expect(screen.getByText('ACME 1TB: 3')).toBeInTheDocument();
     });
   });
 
@@ -1172,7 +1170,7 @@ describe('CatalogProvisionWizard', () => {
       },
     });
     expect(onProvision.mock.calls[0][0]).toHaveProperty('spec.nodeSets', {
-      workers: { hostType: { id: 'acme_1tb' }, size: 3 },
+      'acme_1tb-1': { hostType: { id: 'acme_1tb' }, size: 3 },
     });
   });
 });
