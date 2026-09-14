@@ -101,17 +101,6 @@ export const unallocatedExternalIpFilter = () =>
 export const virtualNetworkScopeFilter = (virtualNetworkId: string) =>
   cel<Subnet>((filter) => filter.field('spec.virtualNetwork.id').equals(virtualNetworkId));
 
-const buildNatGatewayByVirtualNetworkId = (natGateways: readonly NATGateway[]) => {
-  const byVnId: Record<string, NATGateway> = {};
-  for (const gateway of natGateways) {
-    const virtualNetworkId = gateway.spec?.virtualNetwork?.id;
-    if (virtualNetworkId && !byVnId[virtualNetworkId]) {
-      byVnId[virtualNetworkId] = gateway;
-    }
-  }
-  return byVnId;
-};
-
 const buildExternalIpAddressById = (externalIps: readonly ExternalIP[]) => {
   const byId: Record<string, string> = {};
   for (const ip of externalIps) {
@@ -120,6 +109,20 @@ const buildExternalIpAddressById = (externalIps: readonly ExternalIP[]) => {
     }
   }
   return byId;
+};
+
+const buildNatGatewayTuples = (
+  natGateways: readonly NATGateway[],
+  externalIps: readonly ExternalIP[],
+): Array<[NATGateway, string | undefined]> => {
+  const addressByExternalIpId = buildExternalIpAddressById(externalIps);
+
+  return natGateways.map((natGateway) => [
+    natGateway,
+    natGateway.spec?.externalIp?.id
+      ? addressByExternalIpId[natGateway.spec.externalIp.id]
+      : undefined,
+  ]);
 };
 
 export const useNatGateway = (virtualNetworkId: string) => {
@@ -143,16 +146,10 @@ export const useNatGateways = () => {
   const { data: natGatewaysResponse } = useListResource(NATGateways);
   const { data: externalIpsResponse } = useListResource(ExternalIPs);
 
-  return {
-    natGatewayByVnId: useMemo(
-      () => buildNatGatewayByVirtualNetworkId(natGatewaysResponse?.items ?? []),
-      [natGatewaysResponse?.items],
-    ),
-    addressByExternalIpId: useMemo(
-      () => buildExternalIpAddressById(externalIpsResponse?.items ?? []),
-      [externalIpsResponse?.items],
-    ),
-  };
+  return useMemo(
+    () => buildNatGatewayTuples(natGatewaysResponse?.items ?? [], externalIpsResponse?.items ?? []),
+    [natGatewaysResponse?.items, externalIpsResponse?.items],
+  );
 };
 
 export const resourceDisplayName = (metadata?: { name?: string }, id?: string): string =>

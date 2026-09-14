@@ -29,7 +29,7 @@ export const VirtualNetworksListPage = () => {
 
   const { data: virtualNetworks = [], isLoading, error } = useVirtualNetworks();
   const { data: allSubnets = [] } = useSubnets();
-  const { addressByExternalIpId, natGatewayByVnId } = useNatGateways();
+  const natGateways = useNatGateways();
 
   const subnetCountByVN = allSubnets.reduce(
     (acc, subnet) => {
@@ -94,10 +94,11 @@ export const VirtualNetworksListPage = () => {
               <Tbody>
                 {filteredVNs.map((vn) => {
                   const subnetCount = subnetCountByVN[vn.id] || 0;
-                  const natGateway = natGatewayByVnId[vn.id];
-                  const address = natGateway?.spec?.externalIp?.id
-                    ? addressByExternalIpId[natGateway.spec.externalIp.id]
-                    : undefined;
+                  const natGatewayTuple = natGateways.find(
+                    ([natGateway]) => natGateway.spec?.virtualNetwork?.id === vn.id,
+                  );
+                  const natGateway = natGatewayTuple?.[0];
+                  const address = natGatewayTuple?.[1];
 
                   return (
                     <Tr key={vn.id}>
