@@ -130,6 +130,8 @@ const buildNatGatewaysWithAddresses = (
   }));
 };
 
+// NAT Gateway attachments reference the External IP by ID instead of exposing its address,
+// so this hook joins the virtual-network-scoped NAT Gateway and External IP query results.
 export const useNatGateway = (virtualNetworkId: string) => {
   const natGatewaysQuery = useListResource(NATGateways, {
     filter: virtualNetworkScopeFilter(virtualNetworkId),
@@ -150,6 +152,8 @@ export const useNatGateway = (virtualNetworkId: string) => {
   };
 };
 
+// The list view needs a display-ready NAT Gateway and address for each virtual network.
+// Since those values come from separate backend resources, this hook joins both query results.
 export const useNatGateways = () => {
   const natGatewaysQuery = useListResource(NATGateways);
   const externalIpsQuery = useListResource(ExternalIPs);
