@@ -16,7 +16,6 @@ import {
   Grid,
   GridItem,
   Stack,
-  Title,
 } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
@@ -40,7 +39,6 @@ import { SubnetStatusLabel } from '../../components/networking/SubnetStatusLabel
 import { VirtualNetworkStatusLabel } from '../../components/networking/VirtualNetworkStatusLabel';
 import ListPage from '../../components/Page/ListPage';
 import ListPageBody from '../../components/Page/ListPageBody';
-import { Timestamp } from '../../components/Primitives/Timestamp';
 import { SubtleContent } from '../../components/SubtleContent/SubtleContent';
 import { useTranslation } from '../../hooks/useTranslation';
 import { getErrorMessage } from '../../utils/error';
@@ -106,54 +104,36 @@ export const VirtualNetworkDetailPage = () => {
                 <Card>
                   <CardTitle>{t('Details')}</CardTitle>
                   <CardBody>
-                    <Grid hasGutter>
-                      <GridItem md={6}>
-                        <Title headingLevel="h2" size="lg">
-                          {t('Overview')}
-                        </Title>
-                        <DescriptionList isCompact aria-label={t('Overview')}>
-                          <DescriptionListGroup>
-                            <DescriptionListTerm>{t('Status')}</DescriptionListTerm>
-                            <DescriptionListDescription>
-                              <VirtualNetworkStatusLabel state={vn?.status?.state} />
-                            </DescriptionListDescription>
-                          </DescriptionListGroup>
-                          <DescriptionListGroup>
-                            <DescriptionListTerm>{t('Created')}</DescriptionListTerm>
-                            <DescriptionListDescription>
-                              <Timestamp value={vn?.metadata?.creationTimestamp} />
-                            </DescriptionListDescription>
-                          </DescriptionListGroup>
-                          {vn?.status?.message && !isFailed && (
-                            <DescriptionListGroup>
-                              <DescriptionListTerm>{t('Message')}</DescriptionListTerm>
-                              <DescriptionListDescription>
-                                {vn.status.message}
-                              </DescriptionListDescription>
-                            </DescriptionListGroup>
-                          )}
-                        </DescriptionList>
-                      </GridItem>
-                      <GridItem md={6}>
-                        <Title headingLevel="h2" size="lg">
-                          {t('Configuration')}
-                        </Title>
-                        <DescriptionList isCompact aria-label={t('Configuration')}>
-                          <DescriptionListGroup>
-                            <DescriptionListTerm>{t('IPv4 CIDR')}</DescriptionListTerm>
-                            <DescriptionListDescription>
-                              <code>{vn?.spec?.ipv4Cidr ?? '—'}</code>
-                            </DescriptionListDescription>
-                          </DescriptionListGroup>
-                          <DescriptionListGroup>
-                            <DescriptionListTerm>{t('IPv6 CIDR')}</DescriptionListTerm>
-                            <DescriptionListDescription>
-                              <code>{vn?.spec?.ipv6Cidr ?? '—'}</code>
-                            </DescriptionListDescription>
-                          </DescriptionListGroup>
-                        </DescriptionList>
-                      </GridItem>
-                    </Grid>
+                    <DescriptionList isHorizontal>
+                      <DescriptionListGroup>
+                        <DescriptionListTerm>{t('IPv4 CIDR')}</DescriptionListTerm>
+                        <DescriptionListDescription>
+                          {vn?.spec?.ipv4Cidr ?? '—'}
+                        </DescriptionListDescription>
+                      </DescriptionListGroup>
+                      {vn?.spec?.ipv6Cidr && (
+                        <DescriptionListGroup>
+                          <DescriptionListTerm>{t('IPv6 CIDR')}</DescriptionListTerm>
+                          <DescriptionListDescription>
+                            {vn.spec.ipv6Cidr}
+                          </DescriptionListDescription>
+                        </DescriptionListGroup>
+                      )}
+                      <DescriptionListGroup>
+                        <DescriptionListTerm>{t('Status')}</DescriptionListTerm>
+                        <DescriptionListDescription>
+                          <VirtualNetworkStatusLabel state={vn?.status?.state} />
+                        </DescriptionListDescription>
+                      </DescriptionListGroup>
+                      {vn?.status?.message && !isFailed && (
+                        <DescriptionListGroup>
+                          <DescriptionListTerm>{t('Message')}</DescriptionListTerm>
+                          <DescriptionListDescription>
+                            {vn.status.message}
+                          </DescriptionListDescription>
+                        </DescriptionListGroup>
+                      )}
+                    </DescriptionList>
                   </CardBody>
                 </Card>
 
