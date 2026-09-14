@@ -23,6 +23,7 @@ interface DeleteResourceModalProps<TVariables> {
   resourceName: string;
   label: string;
   errorLabel: string;
+  actionLabel?: string;
   onClose: () => void;
   onSuccess?: () => void;
   mutation: DeleteMutation<TVariables>;
@@ -33,6 +34,7 @@ const DeleteResourceModal = <TVariables,>({
   resourceName,
   label,
   errorLabel,
+  actionLabel,
   onClose,
   onSuccess,
   mutation,
@@ -80,7 +82,7 @@ const DeleteResourceModal = <TVariables,>({
           isDisabled={isPending}
           isLoading={isPending}
         >
-          {t('Delete')}
+          {actionLabel ?? t('Delete')}
         </Button>
         <Button variant="link" onClick={() => handleClosing(onClose)} isDisabled={isPending}>
           {t('Cancel')}

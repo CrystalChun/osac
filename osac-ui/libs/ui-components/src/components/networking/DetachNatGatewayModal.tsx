@@ -26,6 +26,7 @@ export const DetachNatGatewayModal = ({ natGateway, onClose }: DetachNatGatewayM
         { name: natGateway.metadata?.name ?? natGateway.id },
       )}
       errorLabel={t('Failed to detach NAT gateway')}
+      actionLabel={t('Detach')}
       onClose={onClose}
       onSuccess={onClose}
       mutation={deleteNatGateway}

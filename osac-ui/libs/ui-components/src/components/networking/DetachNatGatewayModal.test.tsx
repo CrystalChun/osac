@@ -42,7 +42,7 @@ describe('DetachNatGatewayModal', () => {
     });
 
     expect(screen.getByRole('heading', { name: /Delete nat-egress\?/ })).toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: 'Delete' }));
+    await user.click(screen.getByRole('button', { name: 'Detach' }));
 
     await waitFor(() => {
       expect(deleteRequest?.id).toBe('nat-1');
@@ -61,13 +61,13 @@ describe('DetachNatGatewayModal', () => {
       },
     });
 
-    await user.click(screen.getByRole('button', { name: 'Delete' }));
+    await user.click(screen.getByRole('button', { name: 'Detach' }));
 
     expect(await screen.findByText('Failed to detach NAT gateway')).toBeInTheDocument();
     expect(screen.getByText('cannot detach while provisioning')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /Delete nat-egress\?/ })).toBeInTheDocument();
     expect(onClose).not.toHaveBeenCalled();
-    expect(screen.getByRole('button', { name: 'Delete' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Detach' })).toBeEnabled();
   });
 
   it('does not delete when Cancel is clicked', async () => {
