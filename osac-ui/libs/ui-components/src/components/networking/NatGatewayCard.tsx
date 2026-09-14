@@ -87,7 +87,7 @@ const NatGatewayCard = ({
               </DescriptionListDescription>
             </DescriptionListGroup>
             <DescriptionListGroup>
-              <DescriptionListTerm>{t('Public IP')}</DescriptionListTerm>
+              <DescriptionListTerm>{t('External IP')}</DescriptionListTerm>
               <DescriptionListDescription>
                 <code>{natAddress ?? '—'}</code>
               </DescriptionListDescription>
