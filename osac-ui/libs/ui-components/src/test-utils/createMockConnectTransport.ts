@@ -240,6 +240,17 @@ const matchesUnallocatedExternalIpFilter = (
   return true;
 };
 
+const matchesExternalIpIdsFilter = (
+  filter: string | undefined,
+  id: string | undefined,
+): boolean => {
+  if (!filter?.startsWith('this.id in ')) {
+    return true;
+  }
+  const ids = JSON.parse(filter.slice('this.id in '.length)) as string[];
+  return id !== undefined && ids.includes(id);
+};
+
 const matchesInstanceTypeActiveFilter = (
   filter: string | undefined,
   state: number | undefined,
@@ -978,12 +989,14 @@ export const createMockConnectTransport = (
         list: (req) => {
           overrides.onExternalIpList?.(req);
           return {
-            items: externalIps.filter((item) =>
-              matchesUnallocatedExternalIpFilter(
-                req.filter,
-                item.status?.state,
-                item.status?.attached,
-              ),
+            items: externalIps.filter(
+              (item) =>
+                matchesExternalIpIdsFilter(req.filter, item.id) &&
+                matchesUnallocatedExternalIpFilter(
+                  req.filter,
+                  item.status?.state,
+                  item.status?.attached,
+                ),
             ),
           };
         },

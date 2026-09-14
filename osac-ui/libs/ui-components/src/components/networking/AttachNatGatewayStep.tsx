@@ -17,6 +17,7 @@ export interface AttachNatGatewayStepProps {
   isLoadingExternalIps: boolean;
   externalIpsError: unknown;
   noExternalIpsAvailable: boolean;
+  hasNatGateway: boolean;
   externalIpOptions: AttachNatGatewayExternalIpOption[];
 }
 
@@ -25,6 +26,7 @@ const AttachNatGatewayStep = ({
   isLoadingExternalIps,
   externalIpsError,
   noExternalIpsAvailable,
+  hasNatGateway,
   externalIpOptions,
 }: AttachNatGatewayStepProps) => {
   const { t } = useTranslation();
@@ -41,6 +43,13 @@ const AttachNatGatewayStep = ({
         <StackItem>
           <Alert variant="warning" title={t('No unallocated external IPs')} isInline>
             {t('Allocate an External IP that is not in use, or contact your administrator.')}
+          </Alert>
+        </StackItem>
+      )}
+      {hasNatGateway && (
+        <StackItem>
+          <Alert variant="warning" title={t('NAT gateway already attached')} isInline>
+            {t('This virtual network already has a NAT gateway attached.')}
           </Alert>
         </StackItem>
       )}

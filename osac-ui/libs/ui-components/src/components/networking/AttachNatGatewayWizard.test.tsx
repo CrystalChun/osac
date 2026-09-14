@@ -127,6 +127,21 @@ describe('AttachNatGatewayWizard', () => {
     expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled();
   });
 
+  it('blocks attachment when the virtual network already has a NAT gateway', async () => {
+    renderModal({
+      natGateways: [
+        {
+          ...existingNat,
+          id: 'nat-current-network',
+          spec: { ...existingNat.spec, virtualNetwork: { id: 'vn-1' } },
+        } as NATGateway,
+      ],
+    });
+
+    expect(await screen.findByText('NAT gateway already attached')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled();
+  });
+
   it('submits the NAT gateway name, virtual network id, and selected External IP', async () => {
     const onClose = vi.fn();
     let createRequest: NATGatewaysCreateRequest | undefined;

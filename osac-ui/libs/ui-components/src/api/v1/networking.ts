@@ -103,6 +103,9 @@ export const unallocatedExternalIpFilter = () =>
     ),
   );
 
+export const externalIpIdsFilter = (ids: readonly string[]) =>
+  cel<ExternalIP>((filter) => filter.field('id').isIn(ids));
+
 export const virtualNetworkScopeFilter = (virtualNetworkId: string) =>
   cel<Subnet>((filter) => filter.field('spec.virtualNetwork.id').equals(virtualNetworkId));
 
@@ -147,7 +150,13 @@ export const useNatGateway = (virtualNetworkId: string) => {
   const { data: natGatewaysResponse } = natGatewaysQuery;
   const natGateway = natGatewaysResponse?.items?.[0];
   const externalIpId = natGateway?.spec?.externalIp?.id;
-  const externalIpsQuery = useListResource(ExternalIPs, {}, { enabled: Boolean(externalIpId) });
+  // NAT Gateways expose only the External IP ID. Scope the join query to that ID
+  // and request one result so pagination cannot omit the address we need.
+  const externalIpsQuery = useListResource(
+    ExternalIPs,
+    externalIpId ? { filter: externalIpIdsFilter([externalIpId]), limit: 1 } : {},
+    { enabled: Boolean(externalIpId) },
+  );
   const { data: externalIpsResponse } = externalIpsQuery;
   const natAddress = externalIpsResponse?.items?.find((ip) => ip.id === externalIpId)?.status
     ?.address;
@@ -165,8 +174,23 @@ export const useNatGateway = (virtualNetworkId: string) => {
 // and indexes the result by virtual network ID for direct component lookup.
 export const useNatGateways = () => {
   const natGatewaysQuery = useListResource(NATGateways);
-  const externalIpsQuery = useListResource(ExternalIPs);
   const { data: natGatewaysResponse } = natGatewaysQuery;
+  const externalIpIds = useMemo(
+    () =>
+      (natGatewaysResponse?.items ?? [])
+        .map((natGateway) => natGateway.spec?.externalIp?.id)
+        .filter((id): id is string => Boolean(id)),
+    [natGatewaysResponse?.items],
+  );
+  // NAT Gateways expose only External IP IDs. Fetch exactly those records and
+  // size the page to the reference count so no joined address is omitted.
+  const externalIpsQuery = useListResource(
+    ExternalIPs,
+    externalIpIds.length > 0
+      ? { filter: externalIpIdsFilter(externalIpIds), limit: externalIpIds.length }
+      : {},
+    { enabled: externalIpIds.length > 0 },
+  );
   const { data: externalIpsResponse } = externalIpsQuery;
 
   return {

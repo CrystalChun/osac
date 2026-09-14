@@ -71,7 +71,8 @@ export const AttachNatGatewayWizard = ({
     isLoading: isLoadingExternalIps,
     error: externalIpsError,
   } = useListResource(ExternalIPs, { filter: unallocatedExternalIpFilter() });
-  const { data: natGatewayResponse } = useListResource(NATGateways);
+  const { data: natGatewayResponse, isLoading: isLoadingNatGateways } =
+    useListResource(NATGateways);
   const createNatGateway = useCreateResource(NATGateways, {
     onSuccess: async () => {
       await invalidateService(ExternalIPs);
@@ -85,6 +86,9 @@ export const AttachNatGatewayWizard = ({
           .filter((id): id is string => Boolean(id)),
       ),
     [natGatewayResponse?.items],
+  );
+  const hasNatGateway = (natGatewayResponse?.items ?? []).some(
+    (gateway) => gateway.spec?.virtualNetwork?.id === virtualNetwork.id,
   );
 
   const externalIpOptions = useMemo(
@@ -119,6 +123,9 @@ export const AttachNatGatewayWizard = ({
       }}
       validationSchema={validationSchema(t)}
       onSubmit={async (values) => {
+        if (hasNatGateway) {
+          return;
+        }
         try {
           await createNatGateway.mutateAsync({
             object: {
@@ -170,7 +177,12 @@ export const AttachNatGatewayWizard = ({
                   onCancel={handleClose}
                   stepHasErrors={attachNatGatewayStepHasErrors}
                   error={createNatGateway.error}
-                  isNextDisabled={noExternalIpsAvailable || Boolean(externalIpsError)}
+                  isNextDisabled={
+                    isLoadingNatGateways ||
+                    hasNatGateway ||
+                    noExternalIpsAvailable ||
+                    Boolean(externalIpsError)
+                  }
                   submitLabel={t('Attach')}
                   errorTitle={t('Failed to attach NAT gateway')}
                 />
@@ -184,6 +196,7 @@ export const AttachNatGatewayWizard = ({
                     isLoadingExternalIps={isLoadingExternalIps}
                     externalIpsError={externalIpsError}
                     noExternalIpsAvailable={noExternalIpsAvailable}
+                    hasNatGateway={hasNatGateway}
                     externalIpOptions={externalIpOptions}
                   />
                 )}
