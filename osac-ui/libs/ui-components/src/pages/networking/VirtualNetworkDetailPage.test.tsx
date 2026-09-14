@@ -16,7 +16,6 @@ import {
 
 import AttachNatGatewayWizardPage from './AttachNatGatewayWizardPage';
 import { VirtualNetworkDetailPage } from './VirtualNetworkDetailPage';
-import { SessionProvider } from '../../hooks/use-session';
 import type { MockApiFixtures } from '../../test-utils/createMockConnectTransport';
 import { renderWithProviders } from '../../test-utils/TestProviders';
 
@@ -91,15 +90,13 @@ const attachedIp = {
 
 const renderPage = (fixtures: MockApiFixtures = {}) =>
   renderWithProviders(
-    <SessionProvider role="tenant-user" username="test-user" tenantId="tenant-1">
-      <Routes>
-        <Route
-          path="/networking/virtual-networks/:id/nat-gateway/attach"
-          element={<AttachNatGatewayWizardPage />}
-        />
-        <Route path="/networking/virtual-networks/:id" element={<VirtualNetworkDetailPage />} />
-      </Routes>
-    </SessionProvider>,
+    <Routes>
+      <Route
+        path="/networking/virtual-networks/:id/nat-gateway/attach"
+        element={<AttachNatGatewayWizardPage />}
+      />
+      <Route path="/networking/virtual-networks/:id" element={<VirtualNetworkDetailPage />} />
+    </Routes>,
     {
       routerEntries: ['/networking/virtual-networks/vn-1'],
       apiFixtures: {

@@ -93,9 +93,6 @@ export const unallocatedExternalIpFilter = () =>
     ),
   );
 
-export const externalIpTenantFilter = (tenantId: string) =>
-  cel<ExternalIP>((filter) => filter.field('metadata.tenant').equals(tenantId));
-
 export const virtualNetworkScopeFilter = (virtualNetworkId: string) =>
   cel<Subnet>((filter) => filter.field('spec.virtualNetwork.id').equals(virtualNetworkId));
 
