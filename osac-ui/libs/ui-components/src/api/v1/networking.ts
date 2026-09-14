@@ -116,18 +116,26 @@ const buildExternalIpAddressById = (externalIps: readonly ExternalIP[]) => {
   return byId;
 };
 
-const buildNatGatewaysWithAddresses = (
+const buildNatGatewaysByVirtualNetworkId = (
   natGateways: readonly NATGateway[],
   externalIps: readonly ExternalIP[],
-): NatGatewayWithAddress[] => {
+): Record<string, NatGatewayWithAddress> => {
   const addressByExternalIpId = buildExternalIpAddressById(externalIps);
+  const byVirtualNetworkId: Record<string, NatGatewayWithAddress> = {};
 
-  return natGateways.map((natGateway) => ({
-    natGateway,
-    address: natGateway.spec?.externalIp?.id
-      ? addressByExternalIpId[natGateway.spec.externalIp.id]
-      : undefined,
-  }));
+  for (const natGateway of natGateways) {
+    const virtualNetworkId = natGateway.spec?.virtualNetwork?.id;
+    if (virtualNetworkId && !byVirtualNetworkId[virtualNetworkId]) {
+      byVirtualNetworkId[virtualNetworkId] = {
+        natGateway,
+        address: natGateway.spec?.externalIp?.id
+          ? addressByExternalIpId[natGateway.spec.externalIp.id]
+          : undefined,
+      };
+    }
+  }
+
+  return byVirtualNetworkId;
 };
 
 // NAT Gateway attachments reference the External IP by ID instead of exposing its address,
@@ -153,7 +161,8 @@ export const useNatGateway = (virtualNetworkId: string) => {
 };
 
 // The list view needs a display-ready NAT Gateway and address for each virtual network.
-// Since those values come from separate backend resources, this hook joins both query results.
+// Since those values come from separate backend resources, this hook joins both query results
+// and indexes the result by virtual network ID for direct component lookup.
 export const useNatGateways = () => {
   const natGatewaysQuery = useListResource(NATGateways);
   const externalIpsQuery = useListResource(ExternalIPs);
@@ -161,9 +170,9 @@ export const useNatGateways = () => {
   const { data: externalIpsResponse } = externalIpsQuery;
 
   return {
-    natGateways: useMemo(
+    natGatewaysByVirtualNetworkId: useMemo(
       () =>
-        buildNatGatewaysWithAddresses(
+        buildNatGatewaysByVirtualNetworkId(
           natGatewaysResponse?.items ?? [],
           externalIpsResponse?.items ?? [],
         ),

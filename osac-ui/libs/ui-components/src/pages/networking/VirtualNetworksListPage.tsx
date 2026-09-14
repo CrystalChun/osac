@@ -30,7 +30,7 @@ export const VirtualNetworksListPage = () => {
   const { data: virtualNetworks = [], isLoading, error } = useVirtualNetworks();
   const { data: allSubnets = [] } = useSubnets();
   const {
-    natGateways,
+    natGatewaysByVirtualNetworkId,
     isLoading: isLoadingNatGateways,
     error: natGatewaysError,
   } = useNatGateways();
@@ -101,9 +101,7 @@ export const VirtualNetworksListPage = () => {
               <Tbody>
                 {filteredVNs.map((vn) => {
                   const subnetCount = subnetCountByVN[vn.id] || 0;
-                  const natGatewayWithAddress = natGateways.find(
-                    ({ natGateway }) => natGateway.spec?.virtualNetwork?.id === vn.id,
-                  );
+                  const natGatewayWithAddress = natGatewaysByVirtualNetworkId[vn.id];
                   const natGateway = natGatewayWithAddress?.natGateway;
                   const address = natGatewayWithAddress?.address;
 
