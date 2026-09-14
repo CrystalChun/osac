@@ -190,7 +190,7 @@ describe('buildClusterStepSchema', () => {
             name: 'foo',
           },
           versionName: '',
-          nodeSetRows: [{ ...row, hostType: 'acme_1tb', size: '3' }],
+          nodeSetRows: [{ ...row, id: 'workers', hostType: 'acme_1tb', size: '3' }],
         },
       },
       clusterCatalogItem,
@@ -240,6 +240,7 @@ describe('buildClusterStepSchema', () => {
           nodeSetRows: [
             {
               ...row,
+              id: 'workers',
               hostType: 'acme_1tb',
               size: '0',
             },
@@ -255,7 +256,7 @@ describe('buildClusterStepSchema', () => {
     });
   });
 
-  it('rejects duplicate host types on configuration step', async () => {
+  it('allows duplicate host types when node set IDs are distinct', async () => {
     const row = createEmptyNodeSetRow();
     const errors = await validateStep(
       'configuration',
@@ -273,12 +274,14 @@ describe('buildClusterStepSchema', () => {
             {
               ...row,
               rowId: 'row-1',
+              id: 'production',
               hostType: 'acme_1tb',
               size: '3',
             },
             {
               ...row,
               rowId: 'row-2',
+              id: 'development',
               hostType: 'acme_1tb',
               size: '2',
             },
@@ -287,8 +290,57 @@ describe('buildClusterStepSchema', () => {
       },
       clusterCatalogItem,
     );
+    expect(errors).toEqual({});
+  });
+
+  it('rejects duplicate node set IDs on configuration step', async () => {
+    const row = createEmptyNodeSetRow();
+    const errors = await validateStep(
+      'configuration',
+      {
+        ...emptyValues,
+        catalogItemId: clusterCatalogItem.id,
+        metadata: { name: 'my-cluster', project: '' },
+        spec: {
+          ...emptyValues.spec,
+          pullSecretSecret: { name: 'foo' },
+          versionName: '4-17-0',
+          nodeSetRows: [
+            { ...row, rowId: 'row-1', id: 'production', hostType: 'acme_1tb', size: '3' },
+            { ...row, rowId: 'row-2', id: 'production', hostType: 'acme_1tb', size: '2' },
+          ],
+        },
+      },
+      clusterCatalogItem,
+    );
+
     expect(errors).toEqual({
-      spec: { nodeSetRows: 'Each host type can only be selected once' },
+      spec: { nodeSetRows: 'Each node set ID must be unique' },
+    });
+  });
+
+  it('rejects empty node set IDs on configuration step', async () => {
+    const row = createEmptyNodeSetRow();
+    const errors = await validateStep(
+      'configuration',
+      {
+        ...emptyValues,
+        catalogItemId: clusterCatalogItem.id,
+        metadata: { name: 'my-cluster', project: '' },
+        spec: {
+          ...emptyValues.spec,
+          pullSecretSecret: { name: 'foo' },
+          versionName: '4-17-0',
+          nodeSetRows: [{ ...row, id: '', hostType: 'acme_1tb', size: '3' }],
+        },
+      },
+      clusterCatalogItem,
+    );
+
+    expect(errors).toEqual({
+      spec: {
+        'nodeSetRows[0]': { id: 'Node set ID is required' },
+      },
     });
   });
 

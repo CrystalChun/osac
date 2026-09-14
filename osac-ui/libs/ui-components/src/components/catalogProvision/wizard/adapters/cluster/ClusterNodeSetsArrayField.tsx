@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import {
   ActionGroup,
   Alert,
@@ -17,6 +16,7 @@ import { createEmptyNodeSetRow } from './fields';
 import { hostTypeDisplayName, useHostTypes } from '../../../../../api/v1/host-types';
 import { useTranslation } from '../../../../../hooks/useTranslation';
 import { getErrorMessage } from '../../../../../utils/error';
+import { InputField } from '../../../../Form/InputField';
 import { SelectField } from '../../../../Form/SelectField';
 import ClusterPoolSizeField from '../../fields/ClusterPoolSizeField';
 
@@ -30,22 +30,10 @@ const ClusterNodeSetsArrayField = () => {
     refetch: refetchHostTypes,
   } = useHostTypes();
 
-  const selectedHostTypeIds = useMemo(
-    () =>
-      new Set(
-        values.spec.nodeSetRows
-          .map((row) => row.hostType.trim())
-          .filter((hostTypeId) => hostTypeId.length > 0),
-      ),
-    [values.spec.nodeSetRows],
-  );
-
-  const hostTypeOptionsForRow = (rowIndex: number) => {
-    const currentHostTypeId = values.spec.nodeSetRows[rowIndex]?.hostType.trim() ?? '';
+  const hostTypeOptions = () => {
     return hostTypes.map((hostType) => ({
       value: hostType.id,
       label: hostTypeDisplayName(hostType),
-      isDisabled: selectedHostTypeIds.has(hostType.id) && hostType.id !== currentHostTypeId,
     }));
   };
 
@@ -97,11 +85,17 @@ const ClusterNodeSetsArrayField = () => {
               />
             }
           >
+            <InputField
+              name={`spec.nodeSetRows.${rowIndex}.id`}
+              label={t('Node set ID')}
+              fieldId={`cluster-node-set-id-${row.rowId}`}
+              isRequired
+            />
             <SelectField
               name={`spec.nodeSetRows.${rowIndex}.hostType`}
               label={t('Host type')}
               fieldId={`cluster-host-type-${row.rowId}`}
-              options={hostTypeOptionsForRow(rowIndex)}
+              options={hostTypeOptions()}
               isRequired
               isLoading={hostTypesLoading}
               placeholder={t('Select host type')}

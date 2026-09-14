@@ -28,6 +28,7 @@ import type { WizardStepId } from '../../stepIds';
 const nodeSetRowSchema = (t: TFunction) =>
   yup.object({
     rowId: yup.string().required(),
+    id: yup.string().trim().required(t('Node set ID is required')),
     hostType: yup.string().required(t('Host type is required')),
     size: yup
       .string()
@@ -92,9 +93,9 @@ const buildClusterFieldDefinitions = (catalogItem: unknown, t: TFunction) => {
       .array()
       .of(rowSchema)
       .min(1, t('At least one node set is required'))
-      .test('unique-host-types', t('Each host type can only be selected once'), (rows) => {
-        const hostTypeIds = (rows ?? []).map((row) => row?.hostType?.trim() ?? '').filter(Boolean);
-        return new Set(hostTypeIds).size === hostTypeIds.length;
+      .test('unique-node-set-ids', t('Each node set ID must be unique'), (rows) => {
+        const nodeSetIds = (rows ?? []).map((row) => row?.id?.trim() ?? '').filter(Boolean);
+        return new Set(nodeSetIds).size === nodeSetIds.length;
       }),
     specNetwork: yup.object({
       podCidr: mergeCatalogValidation(

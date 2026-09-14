@@ -1,5 +1,6 @@
 export interface ClusterNodeSetRow {
   rowId: string;
+  id: string;
   hostType: string;
   size: string;
 }
@@ -51,6 +52,7 @@ export const createNodeSetRowId = (): string => crypto.randomUUID();
 
 export const createEmptyNodeSetRow = (): ClusterNodeSetRow => ({
   rowId: createNodeSetRowId(),
+  id: '',
   hostType: '',
   size: '',
 });

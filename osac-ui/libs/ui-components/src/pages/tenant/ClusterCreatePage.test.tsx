@@ -27,6 +27,8 @@ const fillClusterNodeSetRow = async (user: UserEvent, hostTypeLabel = 'ACME 1TB'
   await waitFor(() => {
     expect(screen.getByText('Node set 1')).toBeInTheDocument();
   });
+  const idInput = screen.getByRole('textbox', { name: /^Node set ID/ });
+  await user.type(idInput, 'workers');
   await user.click(screen.getByLabelText(/^Host type/));
   await user.click(screen.getByRole('option', { name: hostTypeLabel }));
   const sizeInput = screen.getByRole('spinbutton', { name: /^Nodes/ });
