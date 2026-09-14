@@ -31,9 +31,8 @@ const NatGatewayCard = ({ natAddress, natGateway, onAttach, onDetach }: NatGatew
   const isDeleting = natGateway?.status?.state === NATGatewayState.NAT_GATEWAY_STATE_DELETING;
 
   return (
-    <Card variant="secondary" className="pf-v6-u-border-radius-md pf-v6-u-p-lg">
+    <Card variant="secondary">
       <CardHeader
-        className="pf-v6-u-p-0"
         actions={{
           actions: natGateway ? (
             <Button
@@ -51,10 +50,10 @@ const NatGatewayCard = ({ natAddress, natGateway, onAttach, onDetach }: NatGatew
           ),
         }}
       >
-        <CardTitle className="pf-v6-u-color-text-subtle">{t('NAT gateway')}</CardTitle>
+        <CardTitle>{t('NAT gateway')}</CardTitle>
       </CardHeader>
-      <Divider className="pf-v6-u-my-md" />
-      <CardBody className="pf-v6-u-p-0">
+      <Divider />
+      <CardBody>
         {natGateway ? (
           <DescriptionList isCompact aria-label={t('Attached NAT gateway')}>
             <DescriptionListGroup>

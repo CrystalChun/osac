@@ -99,24 +99,19 @@ export const VirtualNetworkDetailPage = () => {
       >
         <ListPageBody isLoading={isLoading} error={error}>
           {isFailed && vn?.status?.message && (
-            <Alert
-              variant="danger"
-              title={t('Provisioning failed')}
-              isInline
-              className="pf-v6-u-mb-lg"
-            >
+            <Alert variant="danger" title={t('Provisioning failed')} isInline>
               {vn.status.message}
             </Alert>
           )}
 
           <Grid hasGutter>
             <GridItem md={8}>
-              <Card className="pf-v6-u-mb-lg">
+              <Card>
                 <CardTitle>{t('Details')}</CardTitle>
                 <CardBody>
                   <Grid hasGutter>
                     <GridItem md={6}>
-                      <Title headingLevel="h2" size="lg" className="pf-v6-u-mb-md">
+                      <Title headingLevel="h2" size="lg">
                         {t('Overview')}
                       </Title>
                       <DescriptionList isCompact aria-label={t('Overview')}>
@@ -143,7 +138,7 @@ export const VirtualNetworkDetailPage = () => {
                       </DescriptionList>
                     </GridItem>
                     <GridItem md={6}>
-                      <Title headingLevel="h2" size="lg" className="pf-v6-u-mb-md">
+                      <Title headingLevel="h2" size="lg">
                         {t('Configuration')}
                       </Title>
                       <DescriptionList isCompact aria-label={t('Configuration')}>
@@ -165,7 +160,7 @@ export const VirtualNetworkDetailPage = () => {
                 </CardBody>
               </Card>
 
-              <Card className="pf-v6-u-mb-lg">
+              <Card>
                 <CardHeader
                   actions={{
                     actions: (
@@ -203,7 +198,7 @@ export const VirtualNetworkDetailPage = () => {
                                   <ResourceNameField resource={subnet} />
                                 </FlexItem>
                                 <FlexItem>
-                                  <Content component="small" className="pf-v6-u-color-text-subtle">
+                                  <Content component="small">
                                     <code>{subnet.spec?.ipv4Cidr ?? '—'}</code>
                                   </Content>
                                 </FlexItem>
@@ -268,10 +263,7 @@ export const VirtualNetworkDetailPage = () => {
                                     />
                                   </FlexItem>
                                   <FlexItem>
-                                    <Content
-                                      component="small"
-                                      className="pf-v6-u-color-text-subtle"
-                                    >
+                                    <Content component="small">
                                       {t('In: {{ingress}} · Out: {{egress}}', {
                                         ingress: ingressCount,
                                         egress: egressCount,
