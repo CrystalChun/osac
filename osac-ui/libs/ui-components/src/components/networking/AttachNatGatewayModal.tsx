@@ -1,8 +1,5 @@
 import { useMemo, useState } from 'react';
 import {
-  ActionList,
-  ActionListGroup,
-  ActionListItem,
   Alert,
   Breadcrumb,
   BreadcrumbItem,
@@ -19,12 +16,10 @@ import {
   StackItem,
   Title,
   Wizard,
-  WizardFooterWrapper,
   WizardStep,
-  useWizardContext,
 } from '@patternfly/react-core';
 import { Formik } from 'formik';
-import { useFormikContext } from 'formik';
+import type { FormikErrors } from 'formik';
 import type { TFunction } from 'i18next';
 import * as Yup from 'yup';
 
@@ -44,8 +39,10 @@ import { useTranslation } from '../../hooks/useTranslation';
 import { getErrorMessage } from '../../utils/error';
 import { resourceNameSchema } from '../../validation/resource-name';
 import NameField from '../catalogProvision/wizard/fields/NameField';
+import { FieldValidationProvider } from '../Form/FieldValidationContext';
 import OsacForm from '../Form/OsacForm';
 import { SelectField } from '../Form/SelectField';
+import { OSACWizardFooter } from '../Wizard/OSACWizardFooter';
 
 export interface AttachNatGatewayModalProps {
   virtualNetwork: Pick<VirtualNetwork, 'id'> & {
@@ -62,96 +59,15 @@ interface AttachNatGatewayFormValues {
   externalIpId: string;
 }
 
-interface AttachNatGatewayWizardFooterProps {
-  error: unknown;
-  isBlocked: boolean;
-  onCancel: () => void;
-}
+export const attachNatGatewayStepHasErrors = (
+  stepId: string,
+  errors: FormikErrors<AttachNatGatewayFormValues>,
+): boolean => {
+  if (stepId !== 'nat-gateway') {
+    return false;
+  }
 
-const AttachNatGatewayWizardFooter = ({
-  error,
-  isBlocked,
-  onCancel,
-}: AttachNatGatewayWizardFooterProps) => {
-  const { t } = useTranslation();
-  const { activeStep, goToStepByIndex, steps } = useWizardContext();
-  const { isSubmitting, submitForm, validateForm } = useFormikContext<AttachNatGatewayFormValues>();
-  const [showValidationError, setShowValidationError] = useState(false);
-  const stepIndex = activeStep?.index ?? 1;
-  const isFirstStep = stepIndex <= 1;
-  const isLastStep = stepIndex >= steps.length;
-
-  const handleNext = async () => {
-    if (isSubmitting || isBlocked) {
-      return;
-    }
-
-    const errors = await validateForm();
-    if (Object.keys(errors).length > 0) {
-      setShowValidationError(true);
-      return;
-    }
-
-    setShowValidationError(false);
-    if (isLastStep) {
-      await submitForm();
-    } else {
-      goToStepByIndex(stepIndex + 1);
-    }
-  };
-
-  return (
-    <WizardFooterWrapper>
-      <Stack hasGutter>
-        {showValidationError && (
-          <StackItem>
-            <Alert
-              variant="danger"
-              isInline
-              title={t('Fix the highlighted errors before continuing.')}
-            />
-          </StackItem>
-        )}
-        {!!error && isLastStep && (
-          <StackItem>
-            <Alert variant="danger" title={t('Failed to attach NAT gateway')} isInline>
-              {getErrorMessage(error)}
-            </Alert>
-          </StackItem>
-        )}
-        <StackItem>
-          <ActionList>
-            <ActionListGroup>
-              <ActionListItem>
-                <Button
-                  variant="secondary"
-                  onClick={() => goToStepByIndex(stepIndex - 1)}
-                  isDisabled={isFirstStep || isSubmitting}
-                >
-                  {t('Back')}
-                </Button>
-              </ActionListItem>
-              <ActionListItem>
-                <Button
-                  variant="primary"
-                  onClick={() => void handleNext()}
-                  isDisabled={isBlocked || isSubmitting}
-                  isLoading={isSubmitting}
-                >
-                  {isLastStep ? t('Attach') : t('Next')}
-                </Button>
-              </ActionListItem>
-              <ActionListItem>
-                <Button variant="link" onClick={onCancel} isDisabled={isSubmitting}>
-                  {t('Cancel')}
-                </Button>
-              </ActionListItem>
-            </ActionListGroup>
-          </ActionList>
-        </StackItem>
-      </Stack>
-    </WizardFooterWrapper>
-  );
+  return Boolean(errors.metadata?.name || errors.externalIpId);
 };
 
 const validationSchema = (t: TFunction) =>
@@ -176,7 +92,7 @@ export const AttachNatGatewayModal = ({ virtualNetwork, onClose }: AttachNatGate
   const createNatGateway = useCreateResource(NATGateways, {
     onSuccess: async () => {
       await invalidateService(ExternalIPs);
-      await invalidateVirtualNetworksQueries(queryClient);
+      await invalidateVirtualNetworksQueries(queryClient);      
     },
   });
   const usedExternalIpIds = useMemo(
@@ -238,7 +154,7 @@ export const AttachNatGatewayModal = ({ virtualNetwork, onClose }: AttachNatGate
       }}
     >
       {({ isSubmitting, values }) => (
-        <>
+        <FieldValidationProvider>
           <PageSection hasBodyWrapper={false}>
             <Stack hasGutter>
               <StackItem>
@@ -268,10 +184,13 @@ export const AttachNatGatewayModal = ({ virtualNetwork, onClose }: AttachNatGate
               navAriaLabel={t('Attach NAT gateway steps')}
               isVisitRequired
               footer={
-                <AttachNatGatewayWizardFooter
-                  error={createNatGateway.error}
-                  isBlocked={noExternalIpsAvailable || Boolean(externalIpsError)}
+                <OSACWizardFooter
                   onCancel={handleClose}
+                  stepHasErrors={attachNatGatewayStepHasErrors}
+                  error={createNatGateway.error}
+                  isNextDisabled={noExternalIpsAvailable || Boolean(externalIpsError)}
+                  submitLabel={t('Attach')}
+                  errorTitle={t('Failed to attach NAT gateway')}
                 />
               }
               onStepChange={(_, step) => setCurrentStep(step.id as string)}
@@ -364,7 +283,7 @@ export const AttachNatGatewayModal = ({ virtualNetwork, onClose }: AttachNatGate
               </WizardStep>
             </Wizard>
           </PageSection>
-        </>
+        </FieldValidationProvider>
       )}
     </Formik>
   );
