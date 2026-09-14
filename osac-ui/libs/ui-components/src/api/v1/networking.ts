@@ -1,9 +1,13 @@
+import { useMemo } from 'react';
 import { MessageInitShape } from '@bufbuild/protobuf';
 import { useMutation } from '@tanstack/react-query';
 
 import {
   type ExternalIP,
   ExternalIPState,
+  ExternalIPs,
+  type NATGateway,
+  NATGateways,
   type SecurityGroup,
   SecurityGroupSchema,
   SecurityGroupState,
@@ -22,6 +26,7 @@ import { useApiFetch } from '../api-context';
 import { cel } from '../cel';
 import { type ListParams, apiQueryKey } from '../types';
 import { type ApiQueryClient, useApiQuery, useApiQueryClient } from '../use-api-query';
+import { useListResource } from '../use-resource';
 
 type NetworkingQueryOptions = {
   enabled?: boolean;
@@ -95,6 +100,60 @@ export const unallocatedExternalIpFilter = () =>
 
 export const virtualNetworkScopeFilter = (virtualNetworkId: string) =>
   cel<Subnet>((filter) => filter.field('spec.virtualNetwork.id').equals(virtualNetworkId));
+
+const buildNatGatewayByVirtualNetworkId = (natGateways: readonly NATGateway[]) => {
+  const byVnId: Record<string, NATGateway> = {};
+  for (const gateway of natGateways) {
+    const virtualNetworkId = gateway.spec?.virtualNetwork?.id;
+    if (virtualNetworkId && !byVnId[virtualNetworkId]) {
+      byVnId[virtualNetworkId] = gateway;
+    }
+  }
+  return byVnId;
+};
+
+const buildExternalIpAddressById = (externalIps: readonly ExternalIP[]) => {
+  const byId: Record<string, string> = {};
+  for (const ip of externalIps) {
+    if (ip.id && ip.status?.address) {
+      byId[ip.id] = ip.status.address;
+    }
+  }
+  return byId;
+};
+
+export const useNatGateway = (virtualNetworkId: string) => {
+  const { data: natGatewaysResponse } = useListResource(NATGateways, {
+    filter: virtualNetworkScopeFilter(virtualNetworkId),
+  });
+  const natGateway = natGatewaysResponse?.items?.[0];
+  const externalIpId = natGateway?.spec?.externalIp?.id;
+  const { data: externalIpsResponse } = useListResource(
+    ExternalIPs,
+    {},
+    { enabled: Boolean(externalIpId) },
+  );
+  const natAddress = externalIpsResponse?.items?.find((ip) => ip.id === externalIpId)?.status
+    ?.address;
+
+  return { natGateway, natAddress };
+};
+
+export const useNatGateways = () => {
+  const { data: natGatewaysResponse } = useListResource(NATGateways);
+  const { data: externalIpsResponse } = useListResource(ExternalIPs);
+
+  return {
+    natGatewayByVnId: useMemo(
+      () => buildNatGatewayByVirtualNetworkId(natGatewaysResponse?.items ?? []),
+      [natGatewaysResponse?.items],
+    ),
+    addressByExternalIpId: useMemo(
+      () => buildExternalIpAddressById(externalIpsResponse?.items ?? []),
+      [externalIpsResponse?.items],
+    ),
+  };
+};
 
 export const resourceDisplayName = (metadata?: { name?: string }, id?: string): string =>
   metadata?.name?.trim() || id || '—';

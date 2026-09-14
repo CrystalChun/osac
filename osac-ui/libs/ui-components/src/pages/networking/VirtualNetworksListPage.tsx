@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import {
   Content,
   SearchInput,
@@ -9,13 +9,11 @@ import {
 } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
-import { ExternalIPs, type NATGateway, NATGateways } from '@osac/types';
 import CreateButton from '@osac/ui-components/components/Primitives/CreateButton.tsx';
 import ResourceNameField from '@osac/ui-components/components/Resource/ResourceNameField.tsx';
 import { SEARCH_PARAM, usePageFilter } from '@osac/ui-components/hooks/use-page-filter.ts';
 
-import { useListResource } from '../../api/use-resource';
-import { useSubnets, useVirtualNetworks } from '../../api/v1/networking';
+import { useNatGateways, useSubnets, useVirtualNetworks } from '../../api/v1/networking';
 import { CidrDisplay } from '../../components/networking/CidrDisplay';
 import { VirtualNetworkCreateModal } from '../../components/networking/VirtualNetworkCreateModal';
 import { VirtualNetworkStatusLabel } from '../../components/networking/VirtualNetworkStatusLabel';
@@ -31,8 +29,7 @@ export const VirtualNetworksListPage = () => {
 
   const { data: virtualNetworks = [], isLoading, error } = useVirtualNetworks();
   const { data: allSubnets = [] } = useSubnets();
-  const { data: natGatewaysResponse } = useListResource(NATGateways);
-  const { data: externalIpsResponse } = useListResource(ExternalIPs);
+  const { addressByExternalIpId, natGatewayByVnId } = useNatGateways();
 
   const subnetCountByVN = allSubnets.reduce(
     (acc, subnet) => {
@@ -44,27 +41,6 @@ export const VirtualNetworksListPage = () => {
     },
     {} as Record<string, number>,
   );
-
-  const natGatewayByVnId = useMemo(() => {
-    const byVnId: Record<string, NATGateway> = {};
-    for (const gateway of natGatewaysResponse?.items ?? []) {
-      const vnId = gateway.spec?.virtualNetwork?.id;
-      if (vnId && !byVnId[vnId]) {
-        byVnId[vnId] = gateway;
-      }
-    }
-    return byVnId;
-  }, [natGatewaysResponse?.items]);
-
-  const addressByExternalIpId = useMemo(() => {
-    const byId: Record<string, string> = {};
-    for (const ip of externalIpsResponse?.items ?? []) {
-      if (ip.id && ip.status?.address) {
-        byId[ip.id] = ip.status.address;
-      }
-    }
-    return byId;
-  }, [externalIpsResponse?.items]);
 
   const filteredVNs = virtualNetworks.filter((vn) => {
     const name = vn.metadata?.name ?? '';

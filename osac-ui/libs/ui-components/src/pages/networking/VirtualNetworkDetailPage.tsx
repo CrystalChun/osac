@@ -24,12 +24,12 @@ import {
   Title,
 } from '@patternfly/react-core';
 
-import { ExternalIPs, type NATGateway, NATGateways, VirtualNetworkState } from '@osac/types';
+import { type NATGateway, VirtualNetworkState } from '@osac/types';
 import CreateButton from '@osac/ui-components/components/Primitives/CreateButton.tsx';
 import ResourceNameField from '@osac/ui-components/components/Resource/ResourceNameField.tsx';
 
-import { useListResource } from '../../api/use-resource';
 import {
+  useNatGateway,
   useSecurityGroups,
   useSubnets,
   useVirtualNetwork,
@@ -72,18 +72,7 @@ export const VirtualNetworkDetailPage = () => {
   } = useSecurityGroups({
     filter: virtualNetworkScopeFilter(id),
   });
-  const { data: natGatewaysResponse } = useListResource(NATGateways, {
-    filter: virtualNetworkScopeFilter(id),
-  });
-  const natGateway = natGatewaysResponse?.items?.[0];
-  const { data: externalIpsResponse } = useListResource(
-    ExternalIPs,
-    {},
-    { enabled: Boolean(natGateway?.spec?.externalIp?.id) },
-  );
-  const natAddress = externalIpsResponse?.items?.find(
-    (ip) => ip.id === natGateway?.spec?.externalIp?.id,
-  )?.status?.address;
+  const { natGateway, natAddress } = useNatGateway(id);
 
   const vnName = vn?.metadata?.name ?? id;
   const isFailed = vn?.status?.state === VirtualNetworkState.FAILED;
