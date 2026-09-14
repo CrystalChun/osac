@@ -2,7 +2,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Alert, Bullseye, Spinner } from '@patternfly/react-core';
 
 import { useVirtualNetwork } from '../../api/v1/networking';
-import { AttachNatGatewayModal as AttachNatGatewayWizard } from '../../components/networking/AttachNatGatewayModal';
+import { AttachNatGatewayWizard } from '../../components/networking/AttachNatGatewayWizard';
 import { useTranslation } from '../../hooks/useTranslation';
 import { getErrorMessage } from '../../utils/error';
 

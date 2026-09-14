@@ -44,7 +44,7 @@ import OsacForm from '../Form/OsacForm';
 import { SelectField } from '../Form/SelectField';
 import { OSACWizardFooter } from '../Wizard/OSACWizardFooter';
 
-export interface AttachNatGatewayModalProps {
+export interface AttachNatGatewayWizardProps {
   virtualNetwork: Pick<VirtualNetwork, 'id'> & {
     metadata?: { name?: string };
     spec?: { ipv4Cidr?: string };
@@ -78,7 +78,10 @@ const validationSchema = (t: TFunction) =>
     externalIpId: Yup.string().required(t('An external IP is required')),
   });
 
-export const AttachNatGatewayModal = ({ virtualNetwork, onClose }: AttachNatGatewayModalProps) => {
+export const AttachNatGatewayWizard = ({
+  virtualNetwork,
+  onClose,
+}: AttachNatGatewayWizardProps) => {
   const { t } = useTranslation();
   const [currentStep, setCurrentStep] = useState('nat-gateway');
   const queryClient = useApiQueryClient();
@@ -92,7 +95,7 @@ export const AttachNatGatewayModal = ({ virtualNetwork, onClose }: AttachNatGate
   const createNatGateway = useCreateResource(NATGateways, {
     onSuccess: async () => {
       await invalidateService(ExternalIPs);
-      await invalidateVirtualNetworksQueries(queryClient);      
+      await invalidateVirtualNetworksQueries(queryClient);
     },
   });
   const usedExternalIpIds = useMemo(

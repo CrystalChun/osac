@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from 'vitest';
 import type { ExternalIP, NATGateway, NATGatewaysCreateRequest, VirtualNetwork } from '@osac/types';
 import { ExternalIPState } from '@osac/types';
 
-import { AttachNatGatewayModal } from './AttachNatGatewayModal';
+import { AttachNatGatewayWizard } from './AttachNatGatewayWizard';
 import type { MockTransportOverrides } from '../../test-utils/createMockConnectTransport';
 import { renderWithProviders } from '../../test-utils/TestProviders';
 
@@ -78,7 +78,7 @@ const renderModal = ({
   natGateway?: NATGateway;
 } = {}) =>
   renderWithProviders(
-    <AttachNatGatewayModal
+    <AttachNatGatewayWizard
       natGateway={natGateway}
       virtualNetwork={virtualNetwork}
       onClose={onClose}
@@ -89,7 +89,7 @@ const renderModal = ({
     },
   );
 
-describe('AttachNatGatewayModal', () => {
+describe('AttachNatGatewayWizard', () => {
   it('renders the lede and read-only virtual network fields', async () => {
     renderModal();
 
