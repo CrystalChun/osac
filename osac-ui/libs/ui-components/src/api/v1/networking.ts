@@ -32,6 +32,11 @@ type NetworkingQueryOptions = {
   enabled?: boolean;
 };
 
+export interface NatGatewayWithAddress {
+  natGateway: NATGateway;
+  address?: string;
+}
+
 export const useVirtualNetworks = (
   params: ListParams = {},
   options: NetworkingQueryOptions = {},
@@ -111,18 +116,18 @@ const buildExternalIpAddressById = (externalIps: readonly ExternalIP[]) => {
   return byId;
 };
 
-const buildNatGatewayTuples = (
+const buildNatGatewaysWithAddresses = (
   natGateways: readonly NATGateway[],
   externalIps: readonly ExternalIP[],
-): Array<[NATGateway, string | undefined]> => {
+): NatGatewayWithAddress[] => {
   const addressByExternalIpId = buildExternalIpAddressById(externalIps);
 
-  return natGateways.map((natGateway) => [
+  return natGateways.map((natGateway) => ({
     natGateway,
-    natGateway.spec?.externalIp?.id
+    address: natGateway.spec?.externalIp?.id
       ? addressByExternalIpId[natGateway.spec.externalIp.id]
       : undefined,
-  ]);
+  }));
 };
 
 export const useNatGateway = (virtualNetworkId: string) => {
@@ -147,7 +152,11 @@ export const useNatGateways = () => {
   const { data: externalIpsResponse } = useListResource(ExternalIPs);
 
   return useMemo(
-    () => buildNatGatewayTuples(natGatewaysResponse?.items ?? [], externalIpsResponse?.items ?? []),
+    () =>
+      buildNatGatewaysWithAddresses(
+        natGatewaysResponse?.items ?? [],
+        externalIpsResponse?.items ?? [],
+      ),
     [natGatewaysResponse?.items, externalIpsResponse?.items],
   );
 };

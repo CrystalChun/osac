@@ -94,11 +94,11 @@ export const VirtualNetworksListPage = () => {
               <Tbody>
                 {filteredVNs.map((vn) => {
                   const subnetCount = subnetCountByVN[vn.id] || 0;
-                  const natGatewayTuple = natGateways.find(
-                    ([natGateway]) => natGateway.spec?.virtualNetwork?.id === vn.id,
+                  const natGatewayWithAddress = natGateways.find(
+                    ({ natGateway }) => natGateway.spec?.virtualNetwork?.id === vn.id,
                   );
-                  const natGateway = natGatewayTuple?.[0];
-                  const address = natGatewayTuple?.[1];
+                  const natGateway = natGatewayWithAddress?.natGateway;
+                  const address = natGatewayWithAddress?.address;
 
                   return (
                     <Tr key={vn.id}>
