@@ -1,9 +1,10 @@
 import { Code, ConnectError } from '@connectrpc/connect';
+import { create } from '@bufbuild/protobuf';
 import { screen, waitFor, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 import type { ExternalIP, NATGateway, NATGatewaysCreateRequest, VirtualNetwork } from '@osac/types';
-import { ExternalIPState } from '@osac/types';
+import { ExternalIPState, NATGatewaysCreateResponseSchema } from '@osac/types';
 
 import { AttachNatGatewayWizard } from './AttachNatGatewayWizard';
 import type { MockTransportOverrides } from '../../test-utils/createMockConnectTransport';
@@ -69,20 +70,14 @@ const renderModal = ({
   externalIps = mixedIps,
   natGateways = [existingNat],
   transportOverrides,
-  natGateway,
 }: {
   onClose?: () => void;
   externalIps?: ExternalIP[];
   natGateways?: NATGateway[];
   transportOverrides?: MockTransportOverrides;
-  natGateway?: NATGateway;
 } = {}) =>
   renderWithProviders(
-    <AttachNatGatewayWizard
-      natGateway={natGateway}
-      virtualNetwork={virtualNetwork}
-      onClose={onClose}
-    />,
+    <AttachNatGatewayWizard virtualNetwork={virtualNetwork} onClose={onClose} />,
     {
       apiFixtures: { externalIps, natGateways },
       transportOverrides,
@@ -140,7 +135,9 @@ describe('AttachNatGatewayWizard', () => {
       transportOverrides: {
         onNatGatewayCreate: (req) => {
           createRequest = req;
-          return { object: { ...req.object, id: 'nat-created' } as NATGateway };
+          return create(NATGatewaysCreateResponseSchema, {
+            object: { ...req.object, id: 'nat-created' } as NATGateway,
+          });
         },
       },
     });

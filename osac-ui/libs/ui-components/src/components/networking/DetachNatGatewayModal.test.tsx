@@ -1,8 +1,10 @@
 import { Code, ConnectError } from '@connectrpc/connect';
+import { create } from '@bufbuild/protobuf';
 import { screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 import type { NATGateway, NATGatewaysDeleteRequest } from '@osac/types';
+import { NATGatewaysDeleteResponseSchema } from '@osac/types';
 
 import { DetachNatGatewayModal } from './DetachNatGatewayModal';
 import type { MockTransportOverrides } from '../../test-utils/createMockConnectTransport';
@@ -34,7 +36,7 @@ describe('DetachNatGatewayModal', () => {
       transportOverrides: {
         onNatGatewayDelete: (req) => {
           deleteRequest = req;
-          return {};
+          return create(NATGatewaysDeleteResponseSchema);
         },
       },
     });

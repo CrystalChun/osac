@@ -7,6 +7,7 @@ import type { ExternalIP, NATGateway, SecurityGroup, Subnet, VirtualNetwork } fr
 import {
   ExternalIPState,
   NATGatewayState,
+  NATGatewayStatusSchema,
   Protocol,
   SecurityGroupState,
   SubnetState,
@@ -164,7 +165,9 @@ describe('VirtualNetworkDetailPage', () => {
       natGateways: [
         {
           ...attachedNat,
-          status: { state: NATGatewayState.NAT_GATEWAY_STATE_DELETING },
+          status: create(NATGatewayStatusSchema, {
+            state: NATGatewayState.NAT_GATEWAY_STATE_DELETING,
+          }),
         },
       ],
       externalIps: [attachedIp],
