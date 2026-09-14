@@ -30,6 +30,7 @@ import ResourceNameField from '@osac/ui-components/components/Resource/ResourceN
 
 import { useListResource } from '../../api/use-resource';
 import {
+  externalIpTenantFilter,
   useSecurityGroups,
   useSubnets,
   useVirtualNetwork,
@@ -46,11 +47,13 @@ import ListPage from '../../components/Page/ListPage';
 import ListPageBody from '../../components/Page/ListPageBody';
 import { Timestamp } from '../../components/Primitives/Timestamp';
 import { SubtleContent } from '../../components/SubtleContent/SubtleContent';
+import { useSession } from '../../hooks/use-session';
 import { useTranslation } from '../../hooks/useTranslation';
 import { getErrorMessage } from '../../utils/error';
 
 export const VirtualNetworkDetailPage = () => {
   const { t } = useTranslation();
+  const { tenantId } = useSession();
   const navigate = useNavigate();
   const { id = '' } = useParams<{ id: string }>();
   const [isSubnetModalOpen, setIsSubnetModalOpen] = useState(false);
@@ -78,8 +81,8 @@ export const VirtualNetworkDetailPage = () => {
   const natGateway = natGatewaysResponse?.items?.[0];
   const { data: externalIpsResponse } = useListResource(
     ExternalIPs,
-    {},
-    { enabled: Boolean(natGateway?.spec?.externalIp?.id) },
+    { filter: externalIpTenantFilter(tenantId) },
+    { enabled: Boolean(natGateway?.spec?.externalIp?.id && tenantId) },
   );
   const natAddress = externalIpsResponse?.items?.find(
     (ip) => ip.id === natGateway?.spec?.externalIp?.id,
