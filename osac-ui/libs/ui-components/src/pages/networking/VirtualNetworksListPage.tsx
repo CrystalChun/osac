@@ -29,7 +29,11 @@ export const VirtualNetworksListPage = () => {
 
   const { data: virtualNetworks = [], isLoading, error } = useVirtualNetworks();
   const { data: allSubnets = [] } = useSubnets();
-  const natGateways = useNatGateways();
+  const {
+    natGateways,
+    isLoading: isLoadingNatGateways,
+    error: natGatewaysError,
+  } = useNatGateways();
 
   const subnetCountByVN = allSubnets.reduce(
     (acc, subnet) => {
@@ -59,7 +63,10 @@ export const VirtualNetworksListPage = () => {
           </CreateButton>
         }
       >
-        <ListPageBody isLoading={isLoading} error={error}>
+        <ListPageBody
+          isLoading={isLoading || isLoadingNatGateways}
+          error={error ?? natGatewaysError}
+        >
           <Toolbar>
             <ToolbarContent>
               <ToolbarGroup>

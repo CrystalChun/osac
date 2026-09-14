@@ -66,7 +66,12 @@ export const VirtualNetworkDetailPage = () => {
   } = useSecurityGroups({
     filter: virtualNetworkScopeFilter(id),
   });
-  const { natGateway, natAddress } = useNatGateway(id);
+  const {
+    natGateway,
+    natAddress,
+    isLoading: isLoadingNatGateway,
+    error: natGatewayError,
+  } = useNatGateway(id);
 
   const vnName = vn?.metadata?.name ?? id;
   const isFailed = vn?.status?.state === VirtualNetworkState.FAILED;
@@ -91,7 +96,7 @@ export const VirtualNetworkDetailPage = () => {
           </Breadcrumb>
         }
       >
-        <ListPageBody isLoading={isLoading} error={error}>
+        <ListPageBody isLoading={isLoading || isLoadingNatGateway} error={error ?? natGatewayError}>
           {isFailed && vn?.status?.message && (
             <Alert variant="danger" title={t('Provisioning failed')} isInline>
               {vn.status.message}

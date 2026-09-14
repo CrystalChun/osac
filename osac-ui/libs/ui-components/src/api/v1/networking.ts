@@ -131,34 +131,43 @@ const buildNatGatewaysWithAddresses = (
 };
 
 export const useNatGateway = (virtualNetworkId: string) => {
-  const { data: natGatewaysResponse } = useListResource(NATGateways, {
+  const natGatewaysQuery = useListResource(NATGateways, {
     filter: virtualNetworkScopeFilter(virtualNetworkId),
   });
+  const { data: natGatewaysResponse } = natGatewaysQuery;
   const natGateway = natGatewaysResponse?.items?.[0];
   const externalIpId = natGateway?.spec?.externalIp?.id;
-  const { data: externalIpsResponse } = useListResource(
-    ExternalIPs,
-    {},
-    { enabled: Boolean(externalIpId) },
-  );
+  const externalIpsQuery = useListResource(ExternalIPs, {}, { enabled: Boolean(externalIpId) });
+  const { data: externalIpsResponse } = externalIpsQuery;
   const natAddress = externalIpsResponse?.items?.find((ip) => ip.id === externalIpId)?.status
     ?.address;
 
-  return { natGateway, natAddress };
+  return {
+    natGateway,
+    natAddress,
+    isLoading: natGatewaysQuery.isLoading || externalIpsQuery.isLoading,
+    error: natGatewaysQuery.error ?? externalIpsQuery.error,
+  };
 };
 
 export const useNatGateways = () => {
-  const { data: natGatewaysResponse } = useListResource(NATGateways);
-  const { data: externalIpsResponse } = useListResource(ExternalIPs);
+  const natGatewaysQuery = useListResource(NATGateways);
+  const externalIpsQuery = useListResource(ExternalIPs);
+  const { data: natGatewaysResponse } = natGatewaysQuery;
+  const { data: externalIpsResponse } = externalIpsQuery;
 
-  return useMemo(
-    () =>
-      buildNatGatewaysWithAddresses(
-        natGatewaysResponse?.items ?? [],
-        externalIpsResponse?.items ?? [],
-      ),
-    [natGatewaysResponse?.items, externalIpsResponse?.items],
-  );
+  return {
+    natGateways: useMemo(
+      () =>
+        buildNatGatewaysWithAddresses(
+          natGatewaysResponse?.items ?? [],
+          externalIpsResponse?.items ?? [],
+        ),
+      [natGatewaysResponse?.items, externalIpsResponse?.items],
+    ),
+    isLoading: natGatewaysQuery.isLoading || externalIpsQuery.isLoading,
+    error: natGatewaysQuery.error ?? externalIpsQuery.error,
+  };
 };
 
 export const resourceDisplayName = (metadata?: { name?: string }, id?: string): string =>
