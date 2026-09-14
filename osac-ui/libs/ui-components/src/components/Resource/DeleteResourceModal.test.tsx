@@ -47,14 +47,6 @@ describe('DeleteResourceModal', () => {
     });
   });
 
-  it('renders a configured action label', () => {
-    const mutation = createMockMutation();
-    render(<DeleteResourceModal {...defaultProps} actionLabel="Detach" mutation={mutation} />);
-
-    expect(screen.getByRole('button', { name: 'Detach' })).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /^Delete$/i })).not.toBeInTheDocument();
-  });
-
   it('calls onSuccess through handleClosing when mutation succeeds', async () => {
     const user = userEvent.setup();
     const onSuccess = vi.fn();

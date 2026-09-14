@@ -28,7 +28,7 @@ const renderModal = ({
   });
 
 describe('DetachNatGatewayModal', () => {
-  it('confirms detach by NAT gateway id', async () => {
+  it('confirms delete by NAT gateway id', async () => {
     const onClose = vi.fn();
     let deleteRequest: NATGatewaysDeleteRequest | undefined;
     const { user } = renderModal({
@@ -42,7 +42,7 @@ describe('DetachNatGatewayModal', () => {
     });
 
     expect(screen.getByRole('heading', { name: /Delete nat-egress\?/ })).toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: 'Detach' }));
+    await user.click(screen.getByRole('button', { name: 'Delete' }));
 
     await waitFor(() => {
       expect(deleteRequest?.id).toBe('nat-1');
@@ -50,24 +50,24 @@ describe('DetachNatGatewayModal', () => {
     await waitFor(() => expect(onClose).toHaveBeenCalled());
   });
 
-  it('shows an inline error and keeps the modal open when detach fails', async () => {
+  it('shows an inline error and keeps the modal open when delete fails', async () => {
     const onClose = vi.fn();
     const { user } = renderModal({
       onClose,
       transportOverrides: {
         onNatGatewayDelete: () => {
-          throw new ConnectError('cannot detach while provisioning', Code.FailedPrecondition);
+          throw new ConnectError('cannot delete while provisioning', Code.FailedPrecondition);
         },
       },
     });
 
-    await user.click(screen.getByRole('button', { name: 'Detach' }));
+    await user.click(screen.getByRole('button', { name: 'Delete' }));
 
-    expect(await screen.findByText('Failed to detach NAT gateway')).toBeInTheDocument();
-    expect(screen.getByText('cannot detach while provisioning')).toBeInTheDocument();
+    expect(await screen.findByText('Failed to delete NAT gateway')).toBeInTheDocument();
+    expect(screen.getByText('cannot delete while provisioning')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /Delete nat-egress\?/ })).toBeInTheDocument();
     expect(onClose).not.toHaveBeenCalled();
-    expect(screen.getByRole('button', { name: 'Detach' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Delete' })).toBeEnabled();
   });
 
   it('does not delete when Cancel is clicked', async () => {

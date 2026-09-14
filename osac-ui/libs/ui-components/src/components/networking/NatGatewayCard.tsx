@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   Bullseye,
   Button,
@@ -11,8 +12,13 @@ import {
   DescriptionListGroup,
   DescriptionListTerm,
   Divider,
+  Dropdown,
+  DropdownItem,
+  DropdownList,
+  MenuToggle,
   Spinner,
 } from '@patternfly/react-core';
+import { EllipsisVIcon } from '@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon';
 import { PlusCircleIcon } from '@patternfly/react-icons/dist/esm/icons/plus-circle-icon';
 
 import { type NATGateway, NATGatewayState } from '@osac/types';
@@ -40,6 +46,7 @@ const NatGatewayCard = ({
   onDetach,
 }: NatGatewayCardProps) => {
   const { t } = useTranslation();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const isDeleting = natGateway?.status?.state === NATGatewayState.NAT_GATEWAY_STATE_DELETING;
 
   return (
@@ -47,22 +54,44 @@ const NatGatewayCard = ({
       <CardHeader
         actions={{
           actions: natGateway ? (
-            <Button
-              variant="link"
-              isInline
-              onClick={() => onDetach(natGateway)}
-              isDisabled={isDeleting}
+            <Dropdown
+              isOpen={isMenuOpen}
+              onOpenChange={setIsMenuOpen}
+              toggle={(ref) => (
+                <MenuToggle
+                  ref={ref}
+                  variant="plain"
+                  onClick={() => setIsMenuOpen((open) => !open)}
+                  isExpanded={isMenuOpen}
+                  aria-label={t('Actions for NAT gateway attachment')}
+                >
+                  <EllipsisVIcon />
+                </MenuToggle>
+              )}
+              popperProps={{ position: 'right' }}
             >
-              {t('Detach')}
-            </Button>
+              <DropdownList>
+                <DropdownItem
+                  value="delete"
+                  isDanger
+                  isDisabled={isDeleting}
+                  onClick={() => {
+                    onDetach(natGateway);
+                    setIsMenuOpen(false);
+                  }}
+                >
+                  {t('Delete')}
+                </DropdownItem>
+              </DropdownList>
+            </Dropdown>
           ) : !isLoading && !error ? (
             <Button variant="link" isInline icon={<PlusCircleIcon />} onClick={onAttach}>
-              {t('Attach')}
+              {t('Create')}
             </Button>
           ) : undefined,
         }}
       >
-        <CardTitle>{t('NAT gateway')}</CardTitle>
+        <CardTitle>{t('NAT gateway attachment')}</CardTitle>
       </CardHeader>
       <Divider />
       <CardBody>
@@ -100,7 +129,9 @@ const NatGatewayCard = ({
             </DescriptionListGroup>
           </DescriptionList>
         ) : (
-          <Content component="p">{t('No NAT gateway attached to this virtual network.')}</Content>
+          <Content component="p">
+            {t('No NAT gateway attachment associated with this virtual network.')}
+          </Content>
         )}
       </CardBody>
     </Card>

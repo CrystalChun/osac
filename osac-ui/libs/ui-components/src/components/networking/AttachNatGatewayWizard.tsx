@@ -153,12 +153,12 @@ export const AttachNatGatewayWizard = ({
                       {t('Virtual networks')}
                     </Button>
                   </BreadcrumbItem>
-                  <BreadcrumbItem isActive>{t('Attach NAT gateway')}</BreadcrumbItem>
+                  <BreadcrumbItem isActive>{t('NAT gateway attachment')}</BreadcrumbItem>
                 </Breadcrumb>
               </StackItem>
               <StackItem>
                 <Title headingLevel="h1" size="3xl">
-                  {t('Attach NAT gateway')}
+                  {t('NAT gateway attachment')}
                 </Title>
               </StackItem>
             </Stack>
@@ -167,10 +167,10 @@ export const AttachNatGatewayWizard = ({
             hasBodyWrapper={false}
             isFilled
             type={PageSectionTypes.wizard}
-            aria-label={t('Attach NAT gateway wizard')}
+            aria-label={t('NAT gateway attachment wizard')}
           >
             <Wizard
-              navAriaLabel={t('Attach NAT gateway steps')}
+              navAriaLabel={t('NAT gateway attachment steps')}
               isVisitRequired
               footer={
                 <OSACWizardFooter
@@ -183,8 +183,8 @@ export const AttachNatGatewayWizard = ({
                     noExternalIpsAvailable ||
                     Boolean(externalIpsError)
                   }
-                  submitLabel={t('Attach')}
-                  errorTitle={t('Failed to attach NAT gateway')}
+                  submitLabel={t('Create')}
+                  errorTitle={t('Failed to create NAT gateway attachment')}
                 />
               }
               onStepChange={(_, step) => setCurrentStep(step.id as string)}

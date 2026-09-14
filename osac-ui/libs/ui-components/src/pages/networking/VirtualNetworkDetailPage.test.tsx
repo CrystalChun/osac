@@ -134,34 +134,37 @@ describe('VirtualNetworkDetailPage', () => {
     expect(vnField.closest('button')).toBeDisabled();
   });
 
-  it('shows an empty NAT gateway section with Attach', async () => {
+  it('shows an empty NAT gateway section with Create', async () => {
     const { user } = renderPage();
 
     expect(
-      await screen.findByText('No NAT gateway attached to this virtual network.'),
+      await screen.findByText('No NAT gateway attachment associated with this virtual network.'),
     ).toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: 'Attach' }));
-    expect(screen.getByRole('heading', { name: 'Attach NAT gateway' })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Create' }));
+    expect(screen.getByRole('heading', { name: 'NAT gateway attachment' })).toBeInTheDocument();
   });
 
-  it('shows attached NAT gateway name, address, status, and detach', async () => {
+  it('shows attached NAT gateway name, address, status, and delete', async () => {
     const { user } = renderPage({
       natGateways: [attachedNat],
       externalIps: [attachedIp],
     });
 
     expect(await screen.findByText('nat-egress')).toBeInTheDocument();
-    expect(screen.getByText('NAT gateway').closest('.pf-m-secondary')).toBeInTheDocument();
+    expect(
+      screen.getByText('NAT gateway attachment').closest('.pf-m-secondary'),
+    ).toBeInTheDocument();
     expect(screen.getByText('203.0.113.10')).toBeInTheDocument();
     expect(screen.getAllByText('Ready').length).toBeGreaterThan(0);
     expect(screen.getByText('203.0.113.10').closest('code')).toBeInTheDocument();
 
-    await user.click(screen.getByRole('button', { name: 'Detach' }));
+    await user.click(screen.getByRole('button', { name: 'Actions for NAT gateway attachment' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Delete' }));
     expect(screen.getByRole('heading', { name: /Delete nat-egress\?/ })).toBeInTheDocument();
   });
 
-  it('disables Detach while the NAT gateway is deleting', async () => {
-    renderPage({
+  it('disables Delete while the NAT gateway is deleting', async () => {
+    const { user } = renderPage({
       natGateways: [
         {
           ...attachedNat,
@@ -174,6 +177,7 @@ describe('VirtualNetworkDetailPage', () => {
     });
 
     await screen.findByText('nat-egress');
-    expect(screen.getByRole('button', { name: 'Detach' })).toBeDisabled();
+    await user.click(screen.getByRole('button', { name: 'Actions for NAT gateway attachment' }));
+    expect(screen.getByRole('menuitem', { name: 'Delete' })).toBeDisabled();
   });
 });

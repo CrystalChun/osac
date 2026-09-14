@@ -25,8 +25,7 @@ export const DetachNatGatewayModal = ({ natGateway, onClose }: DetachNatGatewayM
         'This removes outbound internet access provided by {{name}} from the virtual network.',
         { name: natGateway.metadata?.name ?? natGateway.id },
       )}
-      errorLabel={t('Failed to detach NAT gateway')}
-      actionLabel={t('Detach')}
+      errorLabel={t('Failed to delete NAT gateway')}
       onClose={onClose}
       onSuccess={onClose}
       mutation={deleteNatGateway}

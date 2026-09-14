@@ -88,7 +88,7 @@ describe('AttachNatGatewayWizard', () => {
   it('renders the lede and read-only virtual network fields', async () => {
     renderModal();
 
-    expect(screen.getByRole('heading', { name: 'Attach NAT gateway' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'NAT gateway attachment' })).toBeInTheDocument();
     expect(
       screen.getByText('Provides outbound internet access for workloads in this virtual network.'),
     ).toBeInTheDocument();
@@ -162,8 +162,8 @@ describe('AttachNatGatewayWizard', () => {
       expect(screen.getByLabelText(/^External IP/)).toHaveTextContent('eip-free · 203.0.113.10');
     });
     await user.click(screen.getByRole('button', { name: 'Next' }));
-    expect(screen.getByRole('button', { name: 'Attach' })).toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: 'Attach' }));
+    expect(screen.getByRole('button', { name: 'Create' })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Create' }));
 
     await waitFor(() => {
       expect(createRequest?.object?.metadata?.name).toBe('nat-egress');
@@ -189,11 +189,11 @@ describe('AttachNatGatewayWizard', () => {
       expect(screen.getByLabelText(/^External IP/)).toHaveTextContent('eip-free · 203.0.113.10');
     });
     await user.click(screen.getByRole('button', { name: 'Next' }));
-    await user.click(screen.getByRole('button', { name: 'Attach' }));
+    await user.click(screen.getByRole('button', { name: 'Create' }));
 
-    expect(await screen.findByText('Failed to attach NAT gateway')).toBeInTheDocument();
+    expect(await screen.findByText('Failed to create NAT gateway attachment')).toBeInTheDocument();
     expect(screen.getByText('external IP already in use')).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Attach NAT gateway' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'NAT gateway attachment' })).toBeInTheDocument();
     expect(onClose).not.toHaveBeenCalled();
   });
 
