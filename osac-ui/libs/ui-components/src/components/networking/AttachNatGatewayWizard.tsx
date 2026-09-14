@@ -25,16 +25,12 @@ import * as Yup from 'yup';
 
 import { ExternalIPState, ExternalIPs, NATGateways, type VirtualNetwork } from '@osac/types';
 
-import { useApiQueryClient } from '../../api/use-api-query';
 import {
   useCreateResource,
   useInvalidateServiceQueries,
   useListResource,
 } from '../../api/use-resource';
-import {
-  invalidateVirtualNetworksQueries,
-  unallocatedExternalIpFilter,
-} from '../../api/v1/networking';
+import { unallocatedExternalIpFilter } from '../../api/v1/networking';
 import { useTranslation } from '../../hooks/useTranslation';
 import { getErrorMessage } from '../../utils/error';
 import { resourceNameSchema } from '../../validation/resource-name';
@@ -84,7 +80,6 @@ export const AttachNatGatewayWizard = ({
 }: AttachNatGatewayWizardProps) => {
   const { t } = useTranslation();
   const [currentStep, setCurrentStep] = useState('nat-gateway');
-  const queryClient = useApiQueryClient();
   const invalidateService = useInvalidateServiceQueries();
   const {
     data: externalIpResponse,
@@ -95,7 +90,6 @@ export const AttachNatGatewayWizard = ({
   const createNatGateway = useCreateResource(NATGateways, {
     onSuccess: async () => {
       await invalidateService(ExternalIPs);
-      await invalidateVirtualNetworksQueries(queryClient);
     },
   });
   const usedExternalIpIds = useMemo(

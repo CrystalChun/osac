@@ -96,7 +96,7 @@ export const VirtualNetworkDetailPage = () => {
           </Breadcrumb>
         }
       >
-        <ListPageBody isLoading={isLoading || isLoadingNatGateway} error={error ?? natGatewayError}>
+        <ListPageBody isLoading={isLoading} error={error}>
           {isFailed && vn?.status?.message && (
             <Alert variant="danger" title={t('Provisioning failed')} isInline>
               {vn.status.message}
@@ -264,6 +264,8 @@ export const VirtualNetworkDetailPage = () => {
               <NatGatewayCard
                 natAddress={natAddress}
                 natGateway={natGateway}
+                isLoading={isLoadingNatGateway}
+                error={natGatewayError}
                 onAttach={() => navigate(`/networking/virtual-networks/${id}/nat-gateway/attach`)}
                 onDetach={setDetachTarget}
               />

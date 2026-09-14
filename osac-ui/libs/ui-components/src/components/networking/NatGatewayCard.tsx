@@ -1,4 +1,5 @@
 import {
+  Bullseye,
   Button,
   Card,
   CardBody,
@@ -10,6 +11,7 @@ import {
   DescriptionListGroup,
   DescriptionListTerm,
   Divider,
+  Spinner,
 } from '@patternfly/react-core';
 import { PlusCircleIcon } from '@patternfly/react-icons/dist/esm/icons/plus-circle-icon';
 
@@ -18,15 +20,25 @@ import { type NATGateway, NATGatewayState } from '@osac/types';
 import { NatGatewayStatusLabel } from './NatGatewayStatusLabel';
 import { useTranslation } from '../../hooks/useTranslation';
 import { Timestamp } from '../Primitives/Timestamp';
+import QueryErrorState from '../Resource/QueryErrorState';
 
 export interface NatGatewayCardProps {
   natAddress?: string;
   natGateway?: NATGateway;
+  isLoading?: boolean;
+  error?: unknown;
   onAttach: () => void;
   onDetach: (natGateway: NATGateway) => void;
 }
 
-const NatGatewayCard = ({ natAddress, natGateway, onAttach, onDetach }: NatGatewayCardProps) => {
+const NatGatewayCard = ({
+  natAddress,
+  natGateway,
+  isLoading = false,
+  error,
+  onAttach,
+  onDetach,
+}: NatGatewayCardProps) => {
   const { t } = useTranslation();
   const isDeleting = natGateway?.status?.state === NATGatewayState.NAT_GATEWAY_STATE_DELETING;
 
@@ -43,18 +55,24 @@ const NatGatewayCard = ({ natAddress, natGateway, onAttach, onDetach }: NatGatew
             >
               {t('Detach')}
             </Button>
-          ) : (
+          ) : !isLoading && !error ? (
             <Button variant="link" isInline icon={<PlusCircleIcon />} onClick={onAttach}>
               {t('Attach')}
             </Button>
-          ),
+          ) : undefined,
         }}
       >
         <CardTitle>{t('NAT gateway')}</CardTitle>
       </CardHeader>
       <Divider />
       <CardBody>
-        {natGateway ? (
+        {isLoading ? (
+          <Bullseye>
+            <Spinner aria-label={t('Loading NAT gateway')} />
+          </Bullseye>
+        ) : error ? (
+          <QueryErrorState error={error} title={t('Failed to load NAT gateway')} />
+        ) : natGateway ? (
           <DescriptionList isCompact aria-label={t('Attached NAT gateway')}>
             <DescriptionListGroup>
               <DescriptionListTerm>{t('Status')}</DescriptionListTerm>
