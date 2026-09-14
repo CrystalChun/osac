@@ -41,13 +41,13 @@ describe('DetachNatGatewayModal', () => {
       },
     });
 
-    expect(screen.getByRole('heading', { name: /Detach NAT gateway/ })).toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: 'Detach' }));
+    expect(screen.getByRole('heading', { name: /Delete nat-egress\?/ })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Delete' }));
 
     await waitFor(() => {
       expect(deleteRequest?.id).toBe('nat-1');
     });
-    expect(onClose).toHaveBeenCalled();
+    await waitFor(() => expect(onClose).toHaveBeenCalled());
   });
 
   it('shows an inline error and keeps the modal open when detach fails', async () => {
@@ -61,13 +61,13 @@ describe('DetachNatGatewayModal', () => {
       },
     });
 
-    await user.click(screen.getByRole('button', { name: 'Detach' }));
+    await user.click(screen.getByRole('button', { name: 'Delete' }));
 
     expect(await screen.findByText('Failed to detach NAT gateway')).toBeInTheDocument();
     expect(screen.getByText('cannot detach while provisioning')).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: /Detach NAT gateway/ })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /Delete nat-egress\?/ })).toBeInTheDocument();
     expect(onClose).not.toHaveBeenCalled();
-    expect(screen.getByRole('button', { name: 'Detach' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Delete' })).toBeEnabled();
   });
 
   it('does not delete when Cancel is clicked', async () => {

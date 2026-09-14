@@ -240,7 +240,6 @@
   "Description": "Description",
   "Destination CIDR": "Destination CIDR",
   "Detach": "Detach",
-  "Detach NAT gateway?": "Detach NAT gateway?",
   "Details": "Details",
   "Disable": "Disable",
   "Disable {{idpName}}?": "Disable {{idpName}}?",

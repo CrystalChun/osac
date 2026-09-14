@@ -1,15 +1,8 @@
 import { useMemo, useState } from 'react';
 import {
-  Alert,
   Breadcrumb,
   BreadcrumbItem,
   Button,
-  Content,
-  DescriptionList,
-  DescriptionListDescription,
-  DescriptionListGroup,
-  DescriptionListTerm,
-  FormGroup,
   PageSection,
   PageSectionTypes,
   Stack,
@@ -23,8 +16,14 @@ import type { FormikErrors } from 'formik';
 import type { TFunction } from 'i18next';
 import * as Yup from 'yup';
 
-import { ExternalIPState, ExternalIPs, NATGateways, type VirtualNetwork } from '@osac/types';
+import { ExternalIPState, ExternalIPs, NATGateways } from '@osac/types';
 
+import AttachNatGatewayReviewStep from './AttachNatGatewayReviewStep';
+import AttachNatGatewayStep from './AttachNatGatewayStep';
+import type {
+  AttachNatGatewayFormValues,
+  AttachNatGatewayVirtualNetwork,
+} from './AttachNatGatewayWizard.types';
 import {
   useCreateResource,
   useInvalidateServiceQueries,
@@ -32,27 +31,13 @@ import {
 } from '../../api/use-resource';
 import { unallocatedExternalIpFilter } from '../../api/v1/networking';
 import { useTranslation } from '../../hooks/useTranslation';
-import { getErrorMessage } from '../../utils/error';
 import { resourceNameSchema } from '../../validation/resource-name';
-import NameField from '../catalogProvision/wizard/fields/NameField';
 import { FieldValidationProvider } from '../Form/FieldValidationContext';
-import OsacForm from '../Form/OsacForm';
-import { SelectField } from '../Form/SelectField';
 import { OSACWizardFooter } from '../Wizard/OSACWizardFooter';
 
 export interface AttachNatGatewayWizardProps {
-  virtualNetwork: Pick<VirtualNetwork, 'id'> & {
-    metadata?: { name?: string };
-    spec?: { ipv4Cidr?: string };
-  };
+  virtualNetwork: AttachNatGatewayVirtualNetwork;
   onClose: () => void;
-}
-
-interface AttachNatGatewayFormValues {
-  metadata: {
-    name: string;
-  };
-  externalIpId: string;
 }
 
 export const attachNatGatewayStepHasErrors = (
@@ -150,7 +135,7 @@ export const AttachNatGatewayWizard = ({
         }
       }}
     >
-      {({ isSubmitting, values }) => (
+      {() => (
         <FieldValidationProvider>
           <PageSection hasBodyWrapper={false}>
             <Stack hasGutter>
@@ -194,88 +179,21 @@ export const AttachNatGatewayWizard = ({
             >
               <WizardStep id="nat-gateway" name={t('NAT gateway')}>
                 {currentStep === 'nat-gateway' && (
-                  <Stack hasGutter>
-                    <StackItem>
-                      <Content component="p">
-                        {t(
-                          'Provides outbound internet access for workloads in this virtual network.',
-                        )}
-                      </Content>
-                    </StackItem>
-                    {noExternalIpsAvailable && (
-                      <StackItem>
-                        <Alert variant="warning" title={t('No unallocated external IPs')} isInline>
-                          {t(
-                            'Allocate an External IP that is not in use, or contact your administrator.',
-                          )}
-                        </Alert>
-                      </StackItem>
-                    )}
-                    {!!externalIpsError && (
-                      <StackItem>
-                        <Alert variant="danger" title={t('Error loading external IPs')} isInline>
-                          {getErrorMessage(externalIpsError)}
-                        </Alert>
-                      </StackItem>
-                    )}
-                    <StackItem>
-                      <OsacForm>
-                        <FormGroup
-                          label={t('Virtual network')}
-                          fieldId="attach-nat-gateway-network"
-                        >
-                          {virtualNetwork.metadata?.name ?? virtualNetwork.id}
-                        </FormGroup>
-                        <FormGroup label={t('IPv4 CIDR')} fieldId="attach-nat-gateway-cidr">
-                          <code>{virtualNetwork.spec?.ipv4Cidr ?? '—'}</code>
-                        </FormGroup>
-                        <NameField isDisabled={isSubmitting} />
-                        <SelectField
-                          name="externalIpId"
-                          label={t('External IP')}
-                          fieldId="attach-nat-gateway-external-ip"
-                          isRequired
-                          isLoading={isLoadingExternalIps}
-                          isDisabled={noExternalIpsAvailable || Boolean(externalIpsError)}
-                          placeholder={t('Select an external IP')}
-                          helperText={t('Standard edge NAT for outbound internet access.')}
-                          options={externalIpOptions}
-                          autoSelectSingleOption
-                        />
-                      </OsacForm>
-                    </StackItem>
-                  </Stack>
+                  <AttachNatGatewayStep
+                    virtualNetwork={virtualNetwork}
+                    isLoadingExternalIps={isLoadingExternalIps}
+                    externalIpsError={externalIpsError}
+                    noExternalIpsAvailable={noExternalIpsAvailable}
+                    externalIpOptions={externalIpOptions}
+                  />
                 )}
               </WizardStep>
               <WizardStep id="review" name={t('Review')}>
                 {currentStep === 'review' && (
-                  <DescriptionList isCompact aria-label={t('Review')}>
-                    <DescriptionListGroup>
-                      <DescriptionListTerm>{t('Virtual network')}</DescriptionListTerm>
-                      <DescriptionListDescription>
-                        {virtualNetwork.metadata?.name ?? virtualNetwork.id}
-                      </DescriptionListDescription>
-                    </DescriptionListGroup>
-                    <DescriptionListGroup>
-                      <DescriptionListTerm>{t('IPv4 CIDR')}</DescriptionListTerm>
-                      <DescriptionListDescription>
-                        <code>{virtualNetwork.spec?.ipv4Cidr ?? '—'}</code>
-                      </DescriptionListDescription>
-                    </DescriptionListGroup>
-                    <DescriptionListGroup>
-                      <DescriptionListTerm>{t('Name')}</DescriptionListTerm>
-                      <DescriptionListDescription>
-                        {values.metadata.name || '—'}
-                      </DescriptionListDescription>
-                    </DescriptionListGroup>
-                    <DescriptionListGroup>
-                      <DescriptionListTerm>{t('External IP')}</DescriptionListTerm>
-                      <DescriptionListDescription>
-                        {externalIpOptions.find((option) => option.value === values.externalIpId)
-                          ?.label ?? '—'}
-                      </DescriptionListDescription>
-                    </DescriptionListGroup>
-                  </DescriptionList>
+                  <AttachNatGatewayReviewStep
+                    virtualNetwork={virtualNetwork}
+                    externalIpOptions={externalIpOptions}
+                  />
                 )}
               </WizardStep>
             </Wizard>

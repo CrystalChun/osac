@@ -157,7 +157,7 @@ describe('VirtualNetworkDetailPage', () => {
     expect(screen.getByText('203.0.113.10').closest('code')).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Detach' }));
-    expect(screen.getByRole('heading', { name: /Detach NAT gateway/ })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /Delete nat-egress\?/ })).toBeInTheDocument();
   });
 
   it('disables Detach while the NAT gateway is deleting', async () => {
