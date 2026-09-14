@@ -430,7 +430,6 @@
   "Identity provider create wizard": "Identity provider create wizard",
   "Identity providers": "Identity providers",
   "IdP manager": "IdP manager",
-  "In: {{ingress}} · Out: {{egress}}": "In: {{ingress}} · Out: {{egress}}",
   "Inbound Rules": "Inbound Rules",
   "Infrastructure": "Infrastructure",
   "Instance type": "Instance type",
