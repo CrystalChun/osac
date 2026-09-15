@@ -50,6 +50,11 @@ export interface BareMetalInstanceWizardValues {
   };
 }
 
+export const hasBareMetalAuthentication = (
+  sshKey: string | undefined,
+  userData: string | undefined,
+): boolean => Boolean(sshKey?.trim() || userData?.trim());
+
 let nextAttachmentId = 1;
 
 export const createNetworkAttachmentRowId = (): string => {

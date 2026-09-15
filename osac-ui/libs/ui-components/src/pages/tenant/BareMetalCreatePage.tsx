@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import type { MessageInitShape } from '@bufbuild/protobuf';
 import {
@@ -18,6 +18,7 @@ import {
   CatalogProvisionWizard,
   type CatalogProvisionWizardCloseHandler,
 } from '@osac/ui-components/components/catalogProvision/CatalogProvisionWizard';
+import { hasBareMetalAuthentication } from '@osac/ui-components/components/catalogProvision/wizard/adapters/bareMetalInstance/fields';
 import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
 
 export const BareMetalCreatePage = () => {
@@ -26,6 +27,7 @@ export const BareMetalCreatePage = () => {
   const { catalogItemId } = useParams<{ catalogItemId?: string }>();
   const createBareMetalInstance = useCreateBareMetalInstance();
   const [closeHandler, setCloseHandler] = useState<CatalogProvisionWizardCloseHandler | null>(null);
+  const provisionInFlightRef = useRef<Promise<void> | null>(null);
 
   const handleCloseHandlerChange = useCallback((handler: CatalogProvisionWizardCloseHandler) => {
     setCloseHandler(handler);
@@ -37,15 +39,39 @@ export const BareMetalCreatePage = () => {
 
   const handleWizardProvision = useCallback(
     async (payload: CatalogProvisionPayload) => {
-      const instance = await createBareMetalInstance.mutateAsync(
-        payload as MessageInitShape<typeof BareMetalInstanceSchema>,
-      );
-      if (!instance) {
-        throw new Error('Create response missing instance');
+      if (provisionInFlightRef.current) {
+        return provisionInFlightRef.current;
       }
-      navigate(`/bare-metal/${instance.id}`);
+
+      const provisionPromise = (async () => {
+        const bareMetalPayload = payload as MessageInitShape<typeof BareMetalInstanceSchema>;
+        if (
+          !hasBareMetalAuthentication(
+            bareMetalPayload.spec?.sshPublicKey,
+            bareMetalPayload.spec?.userData,
+          )
+        ) {
+          throw new Error(
+            t('Provide either an SSH public key or user data containing access credentials.'),
+          );
+        }
+
+        const instance = await createBareMetalInstance.mutateAsync(bareMetalPayload);
+        if (!instance) {
+          throw new Error('Create response missing instance');
+        }
+        navigate(`/bare-metal/${instance.id}`);
+      })();
+      provisionInFlightRef.current = provisionPromise;
+      try {
+        await provisionPromise;
+      } finally {
+        if (provisionInFlightRef.current === provisionPromise) {
+          provisionInFlightRef.current = null;
+        }
+      }
     },
-    [createBareMetalInstance, navigate],
+    [createBareMetalInstance, navigate, t],
   );
 
   return (

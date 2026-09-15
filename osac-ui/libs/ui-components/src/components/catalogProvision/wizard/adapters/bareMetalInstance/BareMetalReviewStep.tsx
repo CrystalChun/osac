@@ -22,7 +22,7 @@ import {
 } from '@osac/ui-components/components/Project/utils';
 import { getErrorMessage } from '@osac/ui-components/utils/error';
 
-import { BareMetalInstanceWizardValues } from './fields';
+import { type BareMetalInstanceWizardValues, hasBareMetalAuthentication } from './fields';
 import {
   formatResourceIdsForReview,
   resourceDisplayName,
@@ -39,7 +39,8 @@ interface Props {
 
 export const BareMetalReviewStep = ({ catalogItem }: Props) => {
   const { t } = useTranslation();
-  const { values, errors } = useFormikContext<BareMetalInstanceWizardValues>();
+  const { values } = useFormikContext<BareMetalInstanceWizardValues>();
+  const hasAuthentication = hasBareMetalAuthentication(values.spec.sshKey, values.spec.userData);
 
   const { data, isLoading, error } = useProjects({
     filter: fullProjectPathToQueryFilter(values.metadata.project),
@@ -86,9 +87,15 @@ export const BareMetalReviewStep = ({ catalogItem }: Props) => {
 
   return (
     <Stack hasGutter>
-      {!!errors.spec?.sshKey && (
+      {!hasAuthentication && (
         <StackItem>
-          <Alert variant="danger" isInline title={errors.spec.sshKey} />
+          <Alert
+            variant="danger"
+            isInline
+            title={t(
+              'Provide either an SSH public key or user data containing access credentials.',
+            )}
+          />
         </StackItem>
       )}
       {!!error && (

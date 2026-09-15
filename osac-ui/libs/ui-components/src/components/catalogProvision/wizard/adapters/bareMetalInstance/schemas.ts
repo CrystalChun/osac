@@ -5,7 +5,7 @@ import { BareMetalInstanceCatalogItem } from '@osac/types';
 import { resourceNameSchema } from '@osac/ui-components/validation/resource-name';
 import { userDataSchema } from '@osac/ui-components/validation/user-data';
 
-import { BM_SSH_KEY_WIRE_PATH, BM_USER_DATA_WIRE_PATH } from './fields';
+import { BM_SSH_KEY_WIRE_PATH, BM_USER_DATA_WIRE_PATH, hasBareMetalAuthentication } from './fields';
 import {
   getCatalogFieldOverlay,
   hasCatalogFieldDefinition,
@@ -86,7 +86,7 @@ export const buildBareMetalInstanceStepSchema = (
         'authentication-method',
         t('Provide either an SSH public key or user data containing access credentials.'),
         function (values) {
-          if (values?.spec?.sshKey?.trim() || values?.spec?.userData?.trim()) {
+          if (hasBareMetalAuthentication(values?.spec?.sshKey, values?.spec?.userData)) {
             return true;
           }
           return this.createError({ path: 'spec.sshKey' });
