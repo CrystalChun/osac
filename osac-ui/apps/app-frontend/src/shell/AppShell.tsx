@@ -13,6 +13,7 @@ import SecretRoutes from '@osac/ui-components/components/Secret/SecretRoutes';
 import { VmDetailsPage } from '@osac/ui-components/components/vm/VmDetailsPage';
 import { useSession } from '@osac/ui-components/hooks/use-session';
 import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
+import AttachNatGatewayWizardPage from '@osac/ui-components/pages/networking/AttachNatGatewayWizardPage';
 import { SecurityGroupDetailPage } from '@osac/ui-components/pages/networking/SecurityGroupDetailPage';
 import { SecurityGroupsListPage } from '@osac/ui-components/pages/networking/SecurityGroupsListPage';
 import { VirtualNetworkDetailPage } from '@osac/ui-components/pages/networking/VirtualNetworkDetailPage';
@@ -198,6 +199,14 @@ export const AppShell = ({ logout }: { logout: () => Promise<void> }) => {
           element={
             <ShellRoute>
               <VirtualNetworksListPage />
+            </ShellRoute>
+          }
+        />
+        <Route
+          path="/networking/virtual-networks/:id/nat-gateway/attach"
+          element={
+            <ShellRoute>
+              <AttachNatGatewayWizardPage />
             </ShellRoute>
           }
         />

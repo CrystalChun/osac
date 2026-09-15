@@ -11,7 +11,7 @@ import { useField } from 'formik';
 
 import { getVisibleFieldError } from './fieldError';
 import { useShowFieldValidationErrors } from './FieldValidationContext';
-import { FormFieldHelper } from './FormFieldHelper';
+import { FormFieldHelper, getFormFieldHelperDescribedBy } from './FormFieldHelper';
 
 export interface SelectFieldOption {
   value: string | number;
@@ -32,6 +32,7 @@ export interface SelectFieldProps {
   loadingPlaceholder?: string;
   /** When true, commits the sole option to Formik once loading finishes and exactly one option exists. */
   autoSelectSingleOption?: boolean;
+  helperText?: string;
   onSelect?: (value: string | number) => void;
 }
 
@@ -46,6 +47,7 @@ export const SelectField = ({
   placeholder = '',
   loadingPlaceholder = 'Loading...',
   autoSelectSingleOption = false,
+  helperText,
   onSelect: onSelectProp,
 }: SelectFieldProps) => {
   const [field, meta, helpers] = useField<string | number>(name);
@@ -53,6 +55,7 @@ export const SelectField = ({
   const showValidationErrors = useShowFieldValidationErrors();
   const error = getVisibleFieldError(meta, showValidationErrors);
   const validated = error ? 'error' : 'default';
+  const helperDescribedBy = getFormFieldHelperDescribedBy(fieldId, error, helperText);
   const effectivePlaceholder = isLoading ? loadingPlaceholder : placeholder;
   const controlDisabled = isDisabled || isLoading;
 
@@ -90,7 +93,7 @@ export const SelectField = ({
       isFullWidth
       status={validated === 'error' ? 'danger' : undefined}
       aria-invalid={error ? true : undefined}
-      aria-describedby={error ? `${fieldId}-helper-error` : undefined}
+      aria-describedby={helperDescribedBy}
       aria-busy={isLoading || undefined}
     >
       {toggleLabel}
@@ -121,7 +124,7 @@ export const SelectField = ({
           ))}
         </SelectList>
       </Select>
-      <FormFieldHelper error={error} fieldId={fieldId} />
+      <FormFieldHelper error={error} description={helperText} fieldId={fieldId} />
     </FormGroup>
   );
 };

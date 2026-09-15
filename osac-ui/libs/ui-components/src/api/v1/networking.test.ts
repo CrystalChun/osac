@@ -1,15 +1,17 @@
 import { QueryClient } from '@tanstack/react-query';
 import { describe, expect, it } from 'vitest';
 
-import { SecurityGroupState, SubnetState, VirtualNetworkState } from '@osac/types';
+import { ExternalIPState, SecurityGroupState, SubnetState, VirtualNetworkState } from '@osac/types';
 
 import {
   VIRTUAL_NETWORK_READY_LIST_FILTER,
+  externalIpIdsFilter,
   invalidateSecurityGroupsQueries,
   invalidateSubnetsQueries,
   invalidateVirtualNetworksQueries,
   securityGroupFilterForVirtualNetwork,
   securityGroupFilterForVirtualNetworkList,
+  unallocatedExternalIpFilter,
   virtualNetworkFilterForSubnetList,
   virtualNetworkScopeFilter,
 } from './networking';
@@ -20,6 +22,16 @@ describe('networking list filters', () => {
     expect(VIRTUAL_NETWORK_READY_LIST_FILTER).toBe(
       `this.status.state == ${VirtualNetworkState.READY}`,
     );
+  });
+
+  it('filters external IPs to allocated and unattached', () => {
+    expect(unallocatedExternalIpFilter()).toBe(
+      `this.status.state == ${ExternalIPState.EXTERNAL_IP_STATE_ALLOCATED} && this.status.attached == false`,
+    );
+  });
+
+  it('filters external IPs by referenced IDs', () => {
+    expect(externalIpIdsFilter(['ip-aaa', 'ip-bbb'])).toBe('this.id in ["ip-aaa", "ip-bbb"]');
   });
 
   it('escapes embedded quotes for CEL string literals', () => {

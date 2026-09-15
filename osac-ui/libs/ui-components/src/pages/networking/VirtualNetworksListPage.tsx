@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import {
+  Content,
   SearchInput,
   Toolbar,
   ToolbarContent,
@@ -12,7 +13,7 @@ import CreateButton from '@osac/ui-components/components/Primitives/CreateButton
 import ResourceNameField from '@osac/ui-components/components/Resource/ResourceNameField.tsx';
 import { SEARCH_PARAM, usePageFilter } from '@osac/ui-components/hooks/use-page-filter.ts';
 
-import { useSubnets, useVirtualNetworks } from '../../api/v1/networking';
+import { useNatGateways, useSubnets, useVirtualNetworks } from '../../api/v1/networking';
 import { CidrDisplay } from '../../components/networking/CidrDisplay';
 import { VirtualNetworkCreateModal } from '../../components/networking/VirtualNetworkCreateModal';
 import { VirtualNetworkStatusLabel } from '../../components/networking/VirtualNetworkStatusLabel';
@@ -28,8 +29,12 @@ export const VirtualNetworksListPage = () => {
 
   const { data: virtualNetworks = [], isLoading, error } = useVirtualNetworks();
   const { data: allSubnets = [] } = useSubnets();
+  const {
+    natGatewaysByVirtualNetworkId,
+    isLoading: isLoadingNatGateways,
+    error: natGatewaysError,
+  } = useNatGateways();
 
-  // Count subnets per VN
   const subnetCountByVN = allSubnets.reduce(
     (acc, subnet) => {
       const vnId = subnet.spec?.virtualNetwork?.id;
@@ -58,7 +63,10 @@ export const VirtualNetworksListPage = () => {
           </CreateButton>
         }
       >
-        <ListPageBody isLoading={isLoading} error={error}>
+        <ListPageBody
+          isLoading={isLoading || isLoadingNatGateways}
+          error={error ?? natGatewaysError}
+        >
           <Toolbar>
             <ToolbarContent>
               <ToolbarGroup>
@@ -87,11 +95,15 @@ export const VirtualNetworksListPage = () => {
                   <Th>{t('Status')}</Th>
                   <Th>{t('CIDR')}</Th>
                   <Th>{t('Subnets')}</Th>
+                  <Th>{t('NAT gateway')}</Th>
                 </Tr>
               </Thead>
               <Tbody>
                 {filteredVNs.map((vn) => {
                   const subnetCount = subnetCountByVN[vn.id] || 0;
+                  const natGatewayWithAddress = natGatewaysByVirtualNetworkId[vn.id];
+                  const natGateway = natGatewayWithAddress?.natGateway;
+                  const address = natGatewayWithAddress?.address;
 
                   return (
                     <Tr key={vn.id}>
@@ -108,6 +120,20 @@ export const VirtualNetworksListPage = () => {
                         <CidrDisplay ipv4Cidr={vn.spec?.ipv4Cidr} ipv6Cidr={vn.spec?.ipv6Cidr} />
                       </Td>
                       <Td dataLabel={t('Subnets')}>{subnetCount}</Td>
+                      <Td dataLabel={t('NAT gateway')}>
+                        {natGateway ? (
+                          <>
+                            <Content component="p">
+                              {natGateway.metadata?.name ?? natGateway.id}
+                            </Content>
+                            <Content component="p">
+                              <code>{address ?? '—'}</code>
+                            </Content>
+                          </>
+                        ) : (
+                          <Content component="p">—</Content>
+                        )}
+                      </Td>
                     </Tr>
                   );
                 })}

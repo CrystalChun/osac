@@ -24,6 +24,9 @@ interface OSACWizardFooterProps {
   isEdit?: boolean;
   error: unknown;
   onErrorReset?: () => void;
+  isNextDisabled?: boolean;
+  submitLabel?: string;
+  errorTitle?: string;
 }
 
 export const OSACWizardFooter = ({
@@ -32,6 +35,9 @@ export const OSACWizardFooter = ({
   isEdit,
   error,
   onErrorReset,
+  isNextDisabled = false,
+  submitLabel,
+  errorTitle,
 }: OSACWizardFooterProps) => {
   const { t } = useTranslation();
   const { activeStep, goToStepByIndex, steps } = useWizardContext();
@@ -92,7 +98,7 @@ export const OSACWizardFooter = ({
     stepIndex,
   ]);
 
-  const createBtn = isEdit ? t('Edit') : t('Create');
+  const submitButtonLabel = submitLabel ?? (isEdit ? t('Edit') : t('Create'));
 
   return (
     <WizardFooterWrapper>
@@ -111,7 +117,10 @@ export const OSACWizardFooter = ({
             <Alert
               variant="danger"
               isInline
-              title={isEdit ? t('Failed to edit resource') : t('Failed to create resource')}
+              title={
+                errorTitle ??
+                (isEdit ? t('Failed to edit resource') : t('Failed to create resource'))
+              }
             >
               {getErrorMessage(error)}
             </Alert>
@@ -135,10 +144,10 @@ export const OSACWizardFooter = ({
                   type="button"
                   variant="primary"
                   onClick={() => void handleNextOrCreate()}
-                  isDisabled={isSubmitting}
+                  isDisabled={isSubmitting || isNextDisabled}
                   isLoading={isSubmitting}
                 >
-                  {isLast ? createBtn : t('Next')}
+                  {isLast ? submitButtonLabel : t('Next')}
                 </Button>
               </ActionListItem>
               <ActionListItem>
