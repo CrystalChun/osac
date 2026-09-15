@@ -71,8 +71,11 @@ export const AttachNatGatewayWizard = ({
     isLoading: isLoadingExternalIps,
     error: externalIpsError,
   } = useListResource(ExternalIPs, { filter: unallocatedExternalIpFilter() });
-  const { data: natGatewayResponse, isLoading: isLoadingNatGateways } =
-    useListResource(NATGateways);
+  const {
+    data: natGatewayResponse,
+    isLoading: isLoadingNatGateways,
+    error: natGatewayError,
+  } = useListResource(NATGateways);
   const createNatGateway = useCreateResource(NATGateways, {
     onSuccess: async () => {
       await invalidateService(ExternalIPs);
@@ -179,6 +182,7 @@ export const AttachNatGatewayWizard = ({
                   error={createNatGateway.error}
                   isNextDisabled={
                     isLoadingNatGateways ||
+                    Boolean(natGatewayError) ||
                     hasNatGateway ||
                     noExternalIpsAvailable ||
                     Boolean(externalIpsError)
@@ -195,6 +199,7 @@ export const AttachNatGatewayWizard = ({
                     virtualNetwork={virtualNetwork}
                     isLoadingExternalIps={isLoadingExternalIps}
                     externalIpsError={externalIpsError}
+                    natGatewayError={natGatewayError}
                     noExternalIpsAvailable={noExternalIpsAvailable}
                     hasNatGateway={hasNatGateway}
                     externalIpOptions={externalIpOptions}

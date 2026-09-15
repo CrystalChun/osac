@@ -130,7 +130,7 @@ const NatGatewayCard = ({
           </DescriptionList>
         ) : (
           <Content component="p">
-            {t('No NAT gateway attachment associated with this virtual network.')}
+            {t('No NAT gateway associated with this virtual network.')}
           </Content>
         )}
       </CardBody>

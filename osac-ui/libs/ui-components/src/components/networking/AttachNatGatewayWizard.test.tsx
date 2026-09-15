@@ -142,6 +142,20 @@ describe('AttachNatGatewayWizard', () => {
     expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled();
   });
 
+  it('blocks attachment when NAT gateways cannot be loaded', async () => {
+    renderModal({
+      transportOverrides: {
+        onNatGatewayList: () => {
+          throw new ConnectError('NAT gateways unavailable', Code.Unavailable);
+        },
+      },
+    });
+
+    expect(await screen.findByText('Error loading NAT gateways')).toBeInTheDocument();
+    expect(screen.getByText('NAT gateways unavailable')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled();
+  });
+
   it('submits the NAT gateway name, virtual network id, and selected External IP', async () => {
     const onClose = vi.fn();
     let createRequest: NATGatewaysCreateRequest | undefined;

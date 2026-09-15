@@ -16,6 +16,7 @@ export interface AttachNatGatewayStepProps {
   virtualNetwork: AttachNatGatewayVirtualNetwork;
   isLoadingExternalIps: boolean;
   externalIpsError: unknown;
+  natGatewayError: unknown;
   noExternalIpsAvailable: boolean;
   hasNatGateway: boolean;
   externalIpOptions: AttachNatGatewayExternalIpOption[];
@@ -25,6 +26,7 @@ const AttachNatGatewayStep = ({
   virtualNetwork,
   isLoadingExternalIps,
   externalIpsError,
+  natGatewayError,
   noExternalIpsAvailable,
   hasNatGateway,
   externalIpOptions,
@@ -57,6 +59,13 @@ const AttachNatGatewayStep = ({
         <StackItem>
           <Alert variant="danger" title={t('Error loading external IPs')} isInline>
             {getErrorMessage(externalIpsError)}
+          </Alert>
+        </StackItem>
+      )}
+      {!!natGatewayError && (
+        <StackItem>
+          <Alert variant="danger" title={t('Error loading NAT gateways')} isInline>
+            {getErrorMessage(natGatewayError)}
           </Alert>
         </StackItem>
       )}

@@ -138,7 +138,7 @@ describe('VirtualNetworkDetailPage', () => {
     const { user } = renderPage();
 
     expect(
-      await screen.findByText('No NAT gateway attachment associated with this virtual network.'),
+      await screen.findByText('No NAT gateway associated with this virtual network.'),
     ).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Create' }));
     expect(screen.getByRole('heading', { name: 'NAT gateway attachment' })).toBeInTheDocument();
