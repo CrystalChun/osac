@@ -12,10 +12,11 @@ import PlusCircleIcon from '@patternfly/react-icons/dist/esm/icons/plus-circle-i
 import { useFormikContext } from 'formik';
 
 import type { ClusterWizardValues } from './fields';
-import { createEmptyNodeSetRow, createNodeSetId } from './fields';
+import { createEmptyNodeSetRow } from './fields';
 import { hostTypeDisplayName, useHostTypes } from '../../../../../api/v1/host-types';
 import { useTranslation } from '../../../../../hooks/useTranslation';
 import { getErrorMessage } from '../../../../../utils/error';
+import { InputField } from '../../../../Form/InputField';
 import { SelectField } from '../../../../Form/SelectField';
 import ClusterPoolSizeField from '../../fields/ClusterPoolSizeField';
 
@@ -82,6 +83,12 @@ const ClusterNodeSetsArrayField = () => {
               />
             }
           >
+            <InputField
+              name={`spec.nodeSetRows.${rowIndex}.name`}
+              label={t('Name')}
+              fieldId={`cluster-node-set-name-${row.rowId}`}
+              isRequired
+            />
             <SelectField
               name={`spec.nodeSetRows.${rowIndex}.hostType`}
               label={t('Host type')}
@@ -90,12 +97,6 @@ const ClusterNodeSetsArrayField = () => {
               isRequired
               isLoading={hostTypesLoading}
               placeholder={t('Select host type')}
-              onSelect={(hostType) => {
-                void setFieldValue(
-                  `spec.nodeSetRows.${rowIndex}.id`,
-                  createNodeSetId(String(hostType), values.spec.nodeSetRows, rowIndex),
-                );
-              }}
             />
             <ClusterPoolSizeField rowIndex={rowIndex} isRequired />
           </FormFieldGroup>

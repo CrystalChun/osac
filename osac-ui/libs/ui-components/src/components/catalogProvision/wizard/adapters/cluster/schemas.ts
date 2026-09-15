@@ -28,7 +28,7 @@ import type { WizardStepId } from '../../stepIds';
 const nodeSetRowSchema = (t: TFunction) =>
   yup.object({
     rowId: yup.string().required(),
-    id: yup.string().trim().required(t('Node set configuration is invalid')),
+    name: yup.string().trim().required(t('Node set name is required')),
     hostType: yup.string().required(t('Host type is required')),
     size: yup
       .string()
@@ -93,9 +93,9 @@ const buildClusterFieldDefinitions = (catalogItem: unknown, t: TFunction) => {
       .array()
       .of(rowSchema)
       .min(1, t('At least one node set is required'))
-      .test('unique-node-set-ids', t('Node set configuration is invalid'), (rows) => {
-        const nodeSetIds = (rows ?? []).map((row) => row?.id?.trim() ?? '').filter(Boolean);
-        return new Set(nodeSetIds).size === nodeSetIds.length;
+      .test('unique-node-set-names', t('Node set names must be unique'), (rows) => {
+        const nodeSetNames = (rows ?? []).map((row) => row?.name?.trim() ?? '').filter(Boolean);
+        return new Set(nodeSetNames).size === nodeSetNames.length;
       }),
     specNetwork: yup.object({
       podCidr: mergeCatalogValidation(

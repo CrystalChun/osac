@@ -57,7 +57,7 @@ describe('buildClusterCreatePayload', () => {
         nodeSetRows: [
           {
             ...row,
-            id: 'production',
+            name: 'production',
             hostType: 'acme_1tb',
             size: '3',
           },
@@ -121,11 +121,11 @@ describe('buildClusterCreatePayload', () => {
         pullSecretSecret: { name: 'secret' },
         versionName: '4-17-0',
         nodeSetRows: [
-          { ...row, id: 'empty-host-type', hostType: '', size: '3' },
-          { ...row, id: 'zero-size', hostType: 'acme_1tb', size: '0' },
-          { ...row, id: 'invalid-size', hostType: 'acme_2tb', size: 'not-a-number' },
-          { ...row, id: 'production', hostType: 'acme_1tb', size: '3' },
-          { ...row, id: 'development', hostType: 'acme_1tb', size: '2' },
+          { ...row, name: 'empty-host-type', hostType: '', size: '3' },
+          { ...row, name: 'zero-size', hostType: 'acme_1tb', size: '0' },
+          { ...row, name: 'invalid-size', hostType: 'acme_2tb', size: 'not-a-number' },
+          { ...row, name: 'production', hostType: 'acme_1tb', size: '3' },
+          { ...row, name: 'development', hostType: 'acme_1tb', size: '2' },
         ],
         network: { podCidr: '', serviceCidr: '' },
       },

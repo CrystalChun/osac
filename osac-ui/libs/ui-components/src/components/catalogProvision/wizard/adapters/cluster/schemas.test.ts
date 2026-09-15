@@ -190,7 +190,7 @@ describe('buildClusterStepSchema', () => {
             name: 'foo',
           },
           versionName: '',
-          nodeSetRows: [{ ...row, id: 'workers', hostType: 'acme_1tb', size: '3' }],
+          nodeSetRows: [{ ...row, name: 'workers', hostType: 'acme_1tb', size: '3' }],
         },
       },
       clusterCatalogItem,
@@ -240,7 +240,7 @@ describe('buildClusterStepSchema', () => {
           nodeSetRows: [
             {
               ...row,
-              id: 'workers',
+              name: 'workers',
               hostType: 'acme_1tb',
               size: '0',
             },
@@ -274,14 +274,14 @@ describe('buildClusterStepSchema', () => {
             {
               ...row,
               rowId: 'row-1',
-              id: 'production',
+              name: 'production',
               hostType: 'acme_1tb',
               size: '3',
             },
             {
               ...row,
               rowId: 'row-2',
-              id: 'development',
+              name: 'development',
               hostType: 'acme_1tb',
               size: '2',
             },
@@ -306,8 +306,8 @@ describe('buildClusterStepSchema', () => {
           pullSecretSecret: { name: 'foo' },
           versionName: '4-17-0',
           nodeSetRows: [
-            { ...row, rowId: 'row-1', id: 'production', hostType: 'acme_1tb', size: '3' },
-            { ...row, rowId: 'row-2', id: 'production', hostType: 'acme_1tb', size: '2' },
+            { ...row, rowId: 'row-1', name: 'production', hostType: 'acme_1tb', size: '3' },
+            { ...row, rowId: 'row-2', name: 'production', hostType: 'acme_1tb', size: '2' },
           ],
         },
       },
@@ -315,7 +315,7 @@ describe('buildClusterStepSchema', () => {
     );
 
     expect(errors).toEqual({
-      spec: { nodeSetRows: 'Node set configuration is invalid' },
+      spec: { nodeSetRows: 'Node set names must be unique' },
     });
   });
 
@@ -331,7 +331,7 @@ describe('buildClusterStepSchema', () => {
           ...emptyValues.spec,
           pullSecretSecret: { name: 'foo' },
           versionName: '4-17-0',
-          nodeSetRows: [{ ...row, id: '', hostType: 'acme_1tb', size: '3' }],
+          nodeSetRows: [{ ...row, name: '', hostType: 'acme_1tb', size: '3' }],
         },
       },
       clusterCatalogItem,
@@ -339,7 +339,7 @@ describe('buildClusterStepSchema', () => {
 
     expect(errors).toEqual({
       spec: {
-        'nodeSetRows[0]': { id: 'Node set configuration is invalid' },
+        'nodeSetRows[0]': { name: 'Node set name is required' },
       },
     });
   });

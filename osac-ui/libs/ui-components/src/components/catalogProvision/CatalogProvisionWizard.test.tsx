@@ -52,6 +52,7 @@ const fillClusterNodeSetRow = async (user: UserEvent, hostTypeLabel = 'ACME 1TB'
   await waitFor(() => {
     expect(screen.getByText('Node set 1')).toBeInTheDocument();
   });
+  await user.type(screen.getByLabelText(/^Name/), 'workers');
   await user.click(screen.getByLabelText(/^Host type/));
   await user.click(screen.getByRole('option', { name: hostTypeLabel }));
   const sizeInput = screen.getByRole('spinbutton', { name: /^Nodes/ });
@@ -1170,7 +1171,7 @@ describe('CatalogProvisionWizard', () => {
       },
     });
     expect(onProvision.mock.calls[0][0]).toHaveProperty('spec.nodeSets', {
-      'acme_1tb-1': { hostType: { id: 'acme_1tb' }, size: 3 },
+      workers: { hostType: { id: 'acme_1tb' }, size: 3 },
     });
   });
 });
