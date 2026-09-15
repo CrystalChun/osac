@@ -22,7 +22,7 @@ import {
 } from '@osac/ui-components/components/Project/utils';
 import { getErrorMessage } from '@osac/ui-components/utils/error';
 
-import { BareMetalInstanceWizardValues } from './fields';
+import { type BareMetalInstanceWizardValues, hasBareMetalAuthentication } from './fields';
 import {
   formatResourceIdsForReview,
   resourceDisplayName,
@@ -40,6 +40,7 @@ interface Props {
 export const BareMetalReviewStep = ({ catalogItem }: Props) => {
   const { t } = useTranslation();
   const { values } = useFormikContext<BareMetalInstanceWizardValues>();
+  const hasAuthentication = hasBareMetalAuthentication(values.spec.sshKey, values.spec.userData);
 
   const { data, isLoading, error } = useProjects({
     filter: fullProjectPathToQueryFilter(values.metadata.project),
@@ -86,6 +87,17 @@ export const BareMetalReviewStep = ({ catalogItem }: Props) => {
 
   return (
     <Stack hasGutter>
+      {!hasAuthentication && (
+        <StackItem>
+          <Alert
+            variant="danger"
+            isInline
+            title={t(
+              'Provide either an SSH public key or user data containing access credentials.',
+            )}
+          />
+        </StackItem>
+      )}
       {!!error && (
         <StackItem>
           <Alert variant="warning" isInline title={t('Failed to fetch project')}>

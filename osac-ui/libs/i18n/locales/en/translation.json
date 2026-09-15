@@ -607,6 +607,7 @@
   "Projects": "Projects",
   "Protocol": "Protocol",
   "Protocol is required": "Protocol is required",
+  "Provide either an SSH public key or user data containing access credentials.": "Provide either an SSH public key or user data containing access credentials.",
   "Provider": "Provider",
   "Provider is required": "Provider is required",
   "Provides outbound internet access for workloads in this virtual network.": "Provides outbound internet access for workloads in this virtual network.",
