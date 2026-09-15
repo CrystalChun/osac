@@ -44,7 +44,10 @@ export const buildClusterCreatePayload = (
     spec.version = { name: values.spec.versionName };
   }
 
-  const nodeSets: Record<string, { hostType: { id: string }; size: number }> = {};
+  const nodeSets = Object.create(null) as Record<
+    string,
+    { hostType: { id: string }; size: number }
+  >;
   for (const row of values.spec.nodeSetRows) {
     const nodeSetId = row.name.trim();
     const hostTypeId = row.hostType;

@@ -138,6 +138,27 @@ describe('buildClusterCreatePayload', () => {
     });
   });
 
+  it('preserves __proto__ as a node set name in the payload', () => {
+    const values = {
+      ...createEmptyClusterValues(),
+      catalogItemId: clusterCatalogItem.id,
+      metadata: { name: 'proto-pool', project: '' },
+      spec: {
+        ...createEmptyClusterValues().spec,
+        pullSecretSecret: { name: 'secret' },
+        versionName: '4-17-0',
+        nodeSetRows: [
+          { ...createEmptyNodeSetRow(), name: '__proto__', hostType: 'acme_1tb', size: '3' },
+        ],
+        network: { podCidr: '', serviceCidr: '' },
+      },
+    };
+
+    const nodeSets = buildClusterCreatePayload(values, clusterCatalogItem).spec?.nodeSets;
+    expect(Object.keys(nodeSets ?? {})).toContain('__proto__');
+    expect(nodeSets?.['__proto__']).toEqual({ hostType: { id: 'acme_1tb' }, size: 3 });
+  });
+
   it.each([
     ['default (no project)', ''],
     ['top-level project', 'my-project'],
