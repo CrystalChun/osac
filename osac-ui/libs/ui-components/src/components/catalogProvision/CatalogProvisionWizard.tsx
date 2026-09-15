@@ -141,21 +141,27 @@ const CatalogProvisionWizardFooter = ({
         return;
       }
 
-      setPending(true);
-      setProvisionError(undefined);
-      const payload = buildCreatePayload(values, catalogItem);
-      void Promise.resolve(onProvision(payload))
-        .then(() => {
-          close({ notifyClosed: false });
-        })
-        .catch((error) => {
-          setProvisionError(
-            error instanceof Error ? error.message : t('catalogProvision.errors.provisionFailed'),
-          );
-        })
-        .finally(() => {
-          setPending(false);
-        });
+      void validateCurrentStep().then((isValid) => {
+        if (!isValid) {
+          return;
+        }
+
+        setPending(true);
+        setProvisionError(undefined);
+        const payload = buildCreatePayload(values, catalogItem);
+        void Promise.resolve(onProvision(payload))
+          .then(() => {
+            close({ notifyClosed: false });
+          })
+          .catch((error) => {
+            setProvisionError(
+              error instanceof Error ? error.message : t('catalogProvision.errors.provisionFailed'),
+            );
+          })
+          .finally(() => {
+            setPending(false);
+          });
+      });
       return;
     }
 

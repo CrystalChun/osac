@@ -75,7 +75,23 @@ export const buildBareMetalInstanceStepSchema = (
   t: TFunction,
 ): yup.AnyObjectSchema | undefined => {
   if (stepId === 'review') {
-    return undefined;
+    return yup
+      .object({
+        spec: yup.object({
+          sshKey: yup.string(),
+          userData: yup.string(),
+        }),
+      })
+      .test(
+        'authentication-method',
+        t('Provide either an SSH public key or user data containing access credentials.'),
+        function (values) {
+          if (values?.spec?.sshKey?.trim() || values?.spec?.userData?.trim()) {
+            return true;
+          }
+          return this.createError({ path: 'spec.sshKey' });
+        },
+      );
   }
 
   const fields = buildBareMetalInstanceFieldDefinitions(catalogItem, t);

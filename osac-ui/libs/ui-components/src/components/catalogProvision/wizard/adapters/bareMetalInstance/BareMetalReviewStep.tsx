@@ -39,7 +39,7 @@ interface Props {
 
 export const BareMetalReviewStep = ({ catalogItem }: Props) => {
   const { t } = useTranslation();
-  const { values } = useFormikContext<BareMetalInstanceWizardValues>();
+  const { values, errors } = useFormikContext<BareMetalInstanceWizardValues>();
 
   const { data, isLoading, error } = useProjects({
     filter: fullProjectPathToQueryFilter(values.metadata.project),
@@ -86,6 +86,11 @@ export const BareMetalReviewStep = ({ catalogItem }: Props) => {
 
   return (
     <Stack hasGutter>
+      {!!errors.spec?.sshKey && (
+        <StackItem>
+          <Alert variant="danger" isInline title={errors.spec.sshKey} />
+        </StackItem>
+      )}
       {!!error && (
         <StackItem>
           <Alert variant="warning" isInline title={t('Failed to fetch project')}>

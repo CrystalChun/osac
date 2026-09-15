@@ -588,6 +588,7 @@
   "Projects": "Projects",
   "Protocol": "Protocol",
   "Protocol is required": "Protocol is required",
+  "Provide either an SSH public key or user data containing access credentials.": "Provide either an SSH public key or user data containing access credentials.",
   "Provider": "Provider",
   "Provider is required": "Provider is required",
   "Provision a bare metal instance from a catalog item.": "Provision a bare metal instance from a catalog item.",
