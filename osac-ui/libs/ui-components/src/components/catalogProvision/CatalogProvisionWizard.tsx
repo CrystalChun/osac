@@ -107,6 +107,7 @@ const CatalogProvisionWizardFooter = ({
   const stepIndex = activeStep?.index ?? 1;
   const isFirst = stepIndex <= 1;
   const isReview = activeStepId === 'review';
+  const createInFlightRef = useRef(false);
 
   const handleBack = useCallback(() => {
     if (isFirst || pending) {
@@ -131,7 +132,7 @@ const CatalogProvisionWizardFooter = ({
   }, [formik, setValidationAlert]);
 
   const handleNextOrCreate = useCallback(() => {
-    if (pending) {
+    if (pending || createInFlightRef.current) {
       return;
     }
 
@@ -141,27 +142,27 @@ const CatalogProvisionWizardFooter = ({
         return;
       }
 
-      void validateCurrentStep().then((isValid) => {
-        if (!isValid) {
-          return;
-        }
+      createInFlightRef.current = true;
+      void (async () => {
+        try {
+          if (!(await validateCurrentStep())) {
+            return;
+          }
 
-        setPending(true);
-        setProvisionError(undefined);
-        const payload = buildCreatePayload(values, catalogItem);
-        void Promise.resolve(onProvision(payload))
-          .then(() => {
-            close({ notifyClosed: false });
-          })
-          .catch((error) => {
-            setProvisionError(
-              error instanceof Error ? error.message : t('catalogProvision.errors.provisionFailed'),
-            );
-          })
-          .finally(() => {
-            setPending(false);
-          });
-      });
+          setPending(true);
+          setProvisionError(undefined);
+          const payload = buildCreatePayload(values, catalogItem);
+          await onProvision(payload);
+          close({ notifyClosed: false });
+        } catch (error) {
+          setProvisionError(
+            error instanceof Error ? error.message : t('catalogProvision.errors.provisionFailed'),
+          );
+        } finally {
+          setPending(false);
+          createInFlightRef.current = false;
+        }
+      })();
       return;
     }
 

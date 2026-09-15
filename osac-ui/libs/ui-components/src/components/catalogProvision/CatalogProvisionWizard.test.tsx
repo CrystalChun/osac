@@ -1,7 +1,7 @@
 import { create } from '@bufbuild/protobuf';
 import type { Transport } from '@connectrpc/connect';
 import type { RenderOptions } from '@testing-library/react';
-import { screen, waitFor, within } from '@testing-library/react';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { UserEvent } from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -1061,6 +1061,21 @@ describe('CatalogProvisionWizard', () => {
     expect(onProvision.mock.calls[0][0]).toHaveProperty('spec.networkAttachments', [
       { subnet: { id: 'subnet-1' }, securityGroups: [{ id: 'sg-1' }] },
     ]);
+  });
+
+  it('submits only once when Create is clicked twice before validation completes', async () => {
+    const onProvision = vi.fn().mockResolvedValue(undefined);
+    const { user } = renderWizard({ onProvision });
+
+    await advanceToReviewStep(user, vmCatalogItem.title);
+
+    const createButton = screen.getByRole('button', { name: 'Create' });
+    fireEvent.click(createButton);
+    fireEvent.click(createButton);
+
+    await waitFor(() => {
+      expect(onProvision).toHaveBeenCalledTimes(1);
+    });
   });
 
   it('surfaces provision errors on review without clearing form values', async () => {

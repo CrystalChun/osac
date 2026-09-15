@@ -76,7 +76,7 @@ describe('Bare Metal review validation', () => {
           ? [{ path: 'user_data', default: userData, editable: true }]
           : []),
       ],
-    } as BareMetalInstanceCatalogItem;
+    } as unknown as BareMetalInstanceCatalogItem;
     const appliedValues = { ...values, spec: { ...values.spec } };
     const helpers = {
       setFieldValue: (path: string, value: unknown) => {
