@@ -341,7 +341,34 @@ describe('buildClusterStepSchema', () => {
 
     expect(errors).toEqual({
       spec: {
-        'nodeSetRows[0]': { name: 'Node set name is required' },
+        'nodeSetRows[0]': { name: 'Name is required' },
+      },
+    });
+  });
+
+  it('rejects invalid node set names on configuration step', async () => {
+    const row = createEmptyNodeSetRow();
+    const errors = await validateStep(
+      'configuration',
+      {
+        ...emptyValues,
+        catalogItemId: clusterCatalogItem.id,
+        metadata: { name: 'my-cluster', project: '' },
+        spec: {
+          ...emptyValues.spec,
+          pullSecretSecret: { name: 'foo' },
+          versionName: '4-17-0',
+          nodeSetRows: [{ ...row, name: 'Workers_1', hostType: 'acme_1tb', size: '3' }],
+        },
+      },
+      clusterCatalogItem,
+    );
+
+    expect(errors).toEqual({
+      spec: {
+        'nodeSetRows[0]': {
+          name: 'Name must only contain lowercase letters (a-z), digits (0-9), and hyphens (-)',
+        },
       },
     });
   });

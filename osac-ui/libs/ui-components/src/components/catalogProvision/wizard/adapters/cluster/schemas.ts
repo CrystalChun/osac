@@ -28,7 +28,7 @@ import type { WizardStepId } from '../../stepIds';
 const nodeSetRowSchema = (t: TFunction) =>
   yup.object({
     rowId: yup.string().required(),
-    name: yup.string().trim().required(t('Node set name is required')),
+    name: resourceNameSchema(t),
     hostType: yup.string().required(t('Host type is required')),
     size: yup
       .string()

@@ -16,9 +16,9 @@ import { createEmptyNodeSetRow } from './fields';
 import { hostTypeDisplayName, useHostTypes } from '../../../../../api/v1/host-types';
 import { useTranslation } from '../../../../../hooks/useTranslation';
 import { getErrorMessage } from '../../../../../utils/error';
-import { InputField } from '../../../../Form/InputField';
 import { SelectField } from '../../../../Form/SelectField';
 import ClusterPoolSizeField from '../../fields/ClusterPoolSizeField';
+import NameField from '../../fields/NameField';
 
 const ClusterNodeSetsArrayField = () => {
   const { t } = useTranslation();
@@ -83,11 +83,9 @@ const ClusterNodeSetsArrayField = () => {
               />
             }
           >
-            <InputField
+            <NameField
               name={`spec.nodeSetRows.${rowIndex}.name`}
-              label={t('Name')}
               fieldId={`cluster-node-set-name-${row.rowId}`}
-              isRequired
             />
             <SelectField
               name={`spec.nodeSetRows.${rowIndex}.hostType`}
