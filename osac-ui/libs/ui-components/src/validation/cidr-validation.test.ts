@@ -69,6 +69,7 @@ describe('isValidCidr (ipv6)', () => {
     ['', true],
     ['   ', true],
     ['2001:db8::/32', true],
+    ['2001:db8:0000:0000::/64', true],
     ['fd01::/48', true],
     ['not-a-cidr', false],
     ['10.128.0.0/14', false],
@@ -144,6 +145,10 @@ describe('isSubnetWithinVN', () => {
   it('returns false when subnet starts in range but extends beyond', () => {
     expect(isSubnetWithinVN('192.168.1.128/24', '192.168.1.0/25')).toBe(false);
   });
+
+  it('accepts non-canonical IPv6 notation within the parent range', () => {
+    expect(isSubnetWithinVN('2001:db8:0000:0000::/64', '2001:db8::/32')).toBe(true);
+  });
 });
 
 describe('hasSubnetOverlap', () => {
@@ -177,5 +182,9 @@ describe('hasSubnetOverlap', () => {
 
   it('returns true when at least one of multiple subnets overlaps', () => {
     expect(hasSubnetOverlap('192.168.1.64/26', ['192.168.1.0/26', '192.168.1.64/26'])).toBe(true);
+  });
+
+  it('accepts non-canonical IPv6 notation when checking overlap', () => {
+    expect(hasSubnetOverlap('2001:db8:0000:0000::/64', ['2001:db8::/64'])).toBe(true);
   });
 });
