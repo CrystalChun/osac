@@ -24,11 +24,7 @@ export const isValidCidr = (value: string, ipFamily: CidrIpFamily): boolean => {
     }
   }
 
-  try {
-    return new Address6(trimmed).isCorrect();
-  } catch {
-    return false;
-  }
+  return Address6.isValid(trimmed);
 };
 
 /**
@@ -92,7 +88,7 @@ export const isSubnetWithinVN = (subnetCidr: string, vnCidr: string): boolean =>
       const subnet = new Address6(subnetCidr);
       const vn = new Address6(vnCidr);
 
-      if (!subnet.isCorrect() || !vn.isCorrect()) {
+      if (!Address6.isValid(subnetCidr) || !Address6.isValid(vnCidr)) {
         return false;
       }
 
@@ -157,7 +153,7 @@ export const hasSubnetOverlap = (newCidr: string, existingCidrs: string[]): bool
     // Try IPv6
     try {
       const newSubnet = new Address6(newCidr);
-      if (!newSubnet.isCorrect()) {
+      if (!Address6.isValid(newCidr)) {
         return false;
       }
 
@@ -167,7 +163,7 @@ export const hasSubnetOverlap = (newCidr: string, existingCidrs: string[]): bool
       for (const existingCidr of existingCidrs) {
         try {
           const existing = new Address6(existingCidr);
-          if (!existing.isCorrect()) {
+          if (!Address6.isValid(existingCidr)) {
             continue;
           }
 
