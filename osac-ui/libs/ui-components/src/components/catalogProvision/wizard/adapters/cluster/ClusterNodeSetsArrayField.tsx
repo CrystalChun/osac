@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import {
   ActionGroup,
   Alert,
@@ -19,6 +18,7 @@ import { useTranslation } from '../../../../../hooks/useTranslation';
 import { getErrorMessage } from '../../../../../utils/error';
 import { SelectField } from '../../../../Form/SelectField';
 import ClusterPoolSizeField from '../../fields/ClusterPoolSizeField';
+import NameField from '../../fields/NameField';
 
 const ClusterNodeSetsArrayField = () => {
   const { t } = useTranslation();
@@ -30,24 +30,10 @@ const ClusterNodeSetsArrayField = () => {
     refetch: refetchHostTypes,
   } = useHostTypes();
 
-  const selectedHostTypeIds = useMemo(
-    () =>
-      new Set(
-        values.spec.nodeSetRows
-          .map((row) => row.hostType.trim())
-          .filter((hostTypeId) => hostTypeId.length > 0),
-      ),
-    [values.spec.nodeSetRows],
-  );
-
-  const hostTypeOptionsForRow = (rowIndex: number) => {
-    const currentHostTypeId = values.spec.nodeSetRows[rowIndex]?.hostType.trim() ?? '';
-    return hostTypes.map((hostType) => ({
-      value: hostType.id,
-      label: hostTypeDisplayName(hostType),
-      isDisabled: selectedHostTypeIds.has(hostType.id) && hostType.id !== currentHostTypeId,
-    }));
-  };
+  const hostTypeOptions = hostTypes.map((hostType) => ({
+    value: hostType.id,
+    label: hostTypeDisplayName(hostType),
+  }));
 
   const addRow = () => {
     void setFieldValue('spec.nodeSetRows', [...values.spec.nodeSetRows, createEmptyNodeSetRow()]);
@@ -97,11 +83,15 @@ const ClusterNodeSetsArrayField = () => {
               />
             }
           >
+            <NameField
+              name={`spec.nodeSetRows.${rowIndex}.name`}
+              fieldId={`cluster-node-set-name-${row.rowId}`}
+            />
             <SelectField
               name={`spec.nodeSetRows.${rowIndex}.hostType`}
               label={t('Host type')}
               fieldId={`cluster-host-type-${row.rowId}`}
-              options={hostTypeOptionsForRow(rowIndex)}
+              options={hostTypeOptions}
               isRequired
               isLoading={hostTypesLoading}
               placeholder={t('Select host type')}

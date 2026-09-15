@@ -28,6 +28,7 @@ import type { WizardStepId } from '../../stepIds';
 const nodeSetRowSchema = (t: TFunction) =>
   yup.object({
     rowId: yup.string().required(),
+    name: resourceNameSchema(t),
     hostType: yup.string().required(t('Host type is required')),
     size: yup
       .string()
@@ -92,9 +93,22 @@ const buildClusterFieldDefinitions = (catalogItem: unknown, t: TFunction) => {
       .array()
       .of(rowSchema)
       .min(1, t('At least one node set is required'))
-      .test('unique-host-types', t('Each host type can only be selected once'), (rows) => {
-        const hostTypeIds = (rows ?? []).map((row) => row?.hostType?.trim() ?? '').filter(Boolean);
-        return new Set(hostTypeIds).size === hostTypeIds.length;
+      .test('unique-node-set-names', function (rows) {
+        const seenNames = new Set<string>();
+        for (const [rowIndex, row] of (rows ?? []).entries()) {
+          const name = row?.name?.trim() ?? '';
+          if (!name) {
+            continue;
+          }
+          if (seenNames.has(name)) {
+            return this.createError({
+              path: `${this.path}[${rowIndex}].name`,
+              message: t('Node set names must be unique'),
+            });
+          }
+          seenNames.add(name);
+        }
+        return true;
       }),
     specNetwork: yup.object({
       podCidr: mergeCatalogValidation(

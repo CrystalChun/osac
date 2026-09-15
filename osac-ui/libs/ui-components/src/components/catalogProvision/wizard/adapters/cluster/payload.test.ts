@@ -43,7 +43,7 @@ const clusterCatalogItem: ClusterCatalogItem = {
 };
 
 describe('buildClusterCreatePayload', () => {
-  it('builds catalog-item create payload with node sets keyed by host type id', () => {
+  it('builds catalog-item create payload with node sets keyed by user-defined IDs', () => {
     const row = createEmptyNodeSetRow();
     const values = {
       ...createEmptyClusterValues(),
@@ -57,6 +57,7 @@ describe('buildClusterCreatePayload', () => {
         nodeSetRows: [
           {
             ...row,
+            name: 'production',
             hostType: 'acme_1tb',
             size: '3',
           },
@@ -76,7 +77,7 @@ describe('buildClusterCreatePayload', () => {
         pullSecretSecret: { name: 'pull-secret' },
         version: { name: '4-17-0' },
         nodeSets: {
-          acme_1tb: { hostType: { id: 'acme_1tb' }, size: 3 },
+          production: { hostType: { id: 'acme_1tb' }, size: 3 },
         },
         network: {
           podCidr: '10.128.0.0/14',
@@ -120,10 +121,11 @@ describe('buildClusterCreatePayload', () => {
         pullSecretSecret: { name: 'secret' },
         versionName: '4-17-0',
         nodeSetRows: [
-          { ...row, hostType: '', size: '3' },
-          { ...row, hostType: 'acme_1tb', size: '0' },
-          { ...row, hostType: 'acme_2tb', size: 'not-a-number' },
-          { ...row, hostType: 'acme_1tb', size: '3' },
+          { ...row, name: 'empty-host-type', hostType: '', size: '3' },
+          { ...row, name: 'zero-size', hostType: 'acme_1tb', size: '0' },
+          { ...row, name: 'invalid-size', hostType: 'acme_2tb', size: 'not-a-number' },
+          { ...row, name: 'production', hostType: 'acme_1tb', size: '3' },
+          { ...row, name: 'development', hostType: 'acme_1tb', size: '2' },
         ],
         network: { podCidr: '', serviceCidr: '' },
       },
@@ -131,8 +133,30 @@ describe('buildClusterCreatePayload', () => {
 
     const payload = buildClusterCreatePayload(values, clusterCatalogItem);
     expect(payload.spec?.nodeSets).toEqual({
-      acme_1tb: { hostType: { id: 'acme_1tb' }, size: 3 },
+      production: { hostType: { id: 'acme_1tb' }, size: 3 },
+      development: { hostType: { id: 'acme_1tb' }, size: 2 },
     });
+  });
+
+  it('preserves __proto__ as a node set name in the payload', () => {
+    const values = {
+      ...createEmptyClusterValues(),
+      catalogItemId: clusterCatalogItem.id,
+      metadata: { name: 'proto-pool', project: '' },
+      spec: {
+        ...createEmptyClusterValues().spec,
+        pullSecretSecret: { name: 'secret' },
+        versionName: '4-17-0',
+        nodeSetRows: [
+          { ...createEmptyNodeSetRow(), name: '__proto__', hostType: 'acme_1tb', size: '3' },
+        ],
+        network: { podCidr: '', serviceCidr: '' },
+      },
+    };
+
+    const nodeSets = buildClusterCreatePayload(values, clusterCatalogItem).spec?.nodeSets;
+    expect(Object.keys(nodeSets ?? {})).toContain('__proto__');
+    expect(nodeSets?.['__proto__']).toEqual({ hostType: { id: 'acme_1tb' }, size: 3 });
   });
 
   it.each([
