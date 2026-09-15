@@ -5,7 +5,7 @@ import { tIdentity } from '@osac/ui-components/test-utils/i18n';
 
 import { NavLink, NavSection, isNavLink, isNavSection, navRowsForRole } from './shellNav';
 
-const nonIdpRoles: UserRole[] = ['admin', 'tenant-admin', 'tenant-user'];
+const nonIdpRoles: UserRole[] = ['tenant-admin', 'tenant-user'];
 
 const findLink = (role: UserRole, linkId: string): NavLink | undefined =>
   navRowsForRole(role, tIdentity).find((row) => isNavLink(row) && row.id === linkId) as
@@ -21,7 +21,7 @@ const servicesChildren = (role: UserRole) =>
   findSection(role, 'nav-tenant-services')?.children ?? [];
 
 describe('navRowsForRole', () => {
-  it('includes Virtual Machines, Clusters, and Bare Metal under Services for all roles except IDP manager', () => {
+  it('includes Virtual Machines, Clusters, and Bare Metal under Services for tenant roles', () => {
     for (const role of nonIdpRoles) {
       expect(servicesChildren(role)).toEqual([
         { kind: 'link', id: 'bare-metal', label: 'Bare Metal', path: '/bare-metal' },
@@ -32,8 +32,12 @@ describe('navRowsForRole', () => {
     expect(servicesChildren('tenant-idp-manager')).toEqual([]);
   });
 
-  it('includes Catalog and Projects for all roles except IDP manager', () => {
-    for (const role of nonIdpRoles) {
+  it('excludes Services section for admin (cloud-provider-admin) role', () => {
+    expect(findSection('admin', 'nav-tenant-services')).toBeUndefined();
+  });
+
+  it('includes Catalog and Projects for admin and tenant roles but not IDP manager', () => {
+    for (const role of [...nonIdpRoles, 'admin'] as UserRole[]) {
       expect(findLink(role, 'catalog')).toBeDefined();
       expect(findLink(role, 'projects')).toBeDefined();
     }
@@ -42,7 +46,7 @@ describe('navRowsForRole', () => {
   });
 
   it('includes Networking section for all roles except IDP manager', () => {
-    for (const role of nonIdpRoles) {
+    for (const role of [...nonIdpRoles, 'admin'] as UserRole[]) {
       const networking = findSection(role, 'nav-tenant-networking');
       expect(networking).toBeDefined();
       expect(networking?.children).toEqual([

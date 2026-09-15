@@ -10,7 +10,6 @@ import ProjectRoutes from '@osac/ui-components/components/Project/ProjectRoutes'
 import ProjectMembershipRoutes from '@osac/ui-components/components/ProjectMembership/ProjectMembershipRoutes';
 import RoleBindingRoutes from '@osac/ui-components/components/RoleBinding/RoleBindingRoutes';
 import SecretRoutes from '@osac/ui-components/components/Secret/SecretRoutes';
-import { VmDetailsPage } from '@osac/ui-components/components/vm/VmDetailsPage';
 import { useSession } from '@osac/ui-components/hooks/use-session';
 import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
 import AttachNatGatewayWizardPage from '@osac/ui-components/pages/networking/AttachNatGatewayWizardPage';
@@ -21,8 +20,7 @@ import { VirtualNetworksListPage } from '@osac/ui-components/pages/networking/Vi
 import { BareMetalRoutes } from '@osac/ui-components/pages/tenant/BareMetalRoutes';
 import CatalogPage from '@osac/ui-components/pages/tenant/CatalogPage';
 import { ClusterRoutes } from '@osac/ui-components/pages/tenant/ClusterRoutes';
-import { VmCreatePage } from '@osac/ui-components/pages/tenant/VmCreatePage';
-import { VmListPage } from '@osac/ui-components/pages/tenant/VmListPage';
+import { VmRoutes } from '@osac/ui-components/pages/tenant/VmRoutes';
 
 import { BareMetalInstanceTypeRoutes } from './BareMetalInstanceTypeRoutes';
 import { DiskImageRoutes } from './DiskImageRoutes';
@@ -155,26 +153,10 @@ export const AppShell = ({ logout }: { logout: () => Promise<void> }) => {
           }
         />
         <Route
-          path="/vms"
+          path="/vms/*"
           element={
             <ShellRoute>
-              <VmListPage />
-            </ShellRoute>
-          }
-        />
-        <Route
-          path="/vms/create/:catalogItemId?"
-          element={
-            <ShellRoute>
-              <VmCreatePage />
-            </ShellRoute>
-          }
-        />
-        <Route
-          path="/vms/:id"
-          element={
-            <ShellRoute>
-              <VmDetailsPage />
+              <VmRoutes />
             </ShellRoute>
           }
         />
