@@ -93,9 +93,22 @@ const buildClusterFieldDefinitions = (catalogItem: unknown, t: TFunction) => {
       .array()
       .of(rowSchema)
       .min(1, t('At least one node set is required'))
-      .test('unique-node-set-names', t('Node set names must be unique'), (rows) => {
-        const nodeSetNames = (rows ?? []).map((row) => row?.name?.trim() ?? '').filter(Boolean);
-        return new Set(nodeSetNames).size === nodeSetNames.length;
+      .test('unique-node-set-names', function (rows) {
+        const seenNames = new Set<string>();
+        for (const [rowIndex, row] of (rows ?? []).entries()) {
+          const name = row?.name?.trim() ?? '';
+          if (!name) {
+            continue;
+          }
+          if (seenNames.has(name)) {
+            return this.createError({
+              path: `${this.path}[${rowIndex}].name`,
+              message: t('Node set names must be unique'),
+            });
+          }
+          seenNames.add(name);
+        }
+        return true;
       }),
     specNetwork: yup.object({
       podCidr: mergeCatalogValidation(

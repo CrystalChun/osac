@@ -315,7 +315,9 @@ describe('buildClusterStepSchema', () => {
     );
 
     expect(errors).toEqual({
-      spec: { nodeSetRows: 'Node set names must be unique' },
+      spec: {
+        'nodeSetRows[1]': { name: 'Node set names must be unique' },
+      },
     });
   });
 

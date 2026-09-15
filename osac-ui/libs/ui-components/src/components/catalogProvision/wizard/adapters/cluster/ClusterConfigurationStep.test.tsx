@@ -220,4 +220,37 @@ describe('ClusterConfigurationStep', () => {
       expect(screen.getByText('Pool size must be greater than zero')).toBeInTheDocument();
     });
   });
+
+  it('shows duplicate node set name validation on the offending field', async () => {
+    const emptyValues = createEmptyClusterValues();
+    renderWithProviders(
+      <FieldValidationProvider showErrors>
+        <Formik
+          initialValues={{
+            ...emptyValues,
+            catalogItemId: clusterCatalogItem.id,
+            spec: {
+              ...emptyValues.spec,
+              versionName: '4-17-0',
+              nodeSetRows: [
+                { ...createEmptyNodeSetRow(), name: 'workers', hostType: 'acme_1tb', size: '3' },
+                { ...createEmptyNodeSetRow(), name: 'workers', hostType: 'acme_1tb', size: '2' },
+              ],
+            },
+          }}
+          validationSchema={buildClusterStepSchema(clusterCatalogItem, 'configuration', tIdentity)}
+          validateOnMount
+          onSubmit={() => undefined}
+        >
+          <ClusterConfigurationStep catalogItem={clusterCatalogItem} />
+        </Formik>
+      </FieldValidationProvider>,
+      { apiFixtures: { clusterVersions } },
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Node set names must be unique')).toBeInTheDocument();
+    });
+    expect(screen.getAllByLabelText(/^Name/)[1]).toHaveAttribute('aria-invalid', 'true');
+  });
 });
