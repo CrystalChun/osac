@@ -23,11 +23,11 @@ documentation:
   fulfillment service.
 
 See each subdirectory's `README.md` (and `docs/`, where present) for setup, build, test, and
-deployment instructions specific to that component. This repo's own top-level
-**[docs/](docs/README.md)** holds hand-trimmed cross-component architecture and
-conventions content that doesn't belong in any single component's docs (not to be confused
-with the external [osac-project/docs](https://github.com/osac-project/docs) repo, which
-covers broader project-level architecture guides and diagrams).
+deployment instructions specific to that component. This repo's top-level
+**[docs/](docs/README.md)** holds both hand-trimmed cross-component architecture and
+conventions content and the broader project-level documentation (features, architecture
+guides, admin/developer guides — formerly the separate `osac-project/docs` repo, merged
+in with its full commit history).
 
 ## Verifying container image signatures
 
@@ -218,7 +218,7 @@ discovery. Requires an authenticated `gh` session unless you pass `--no-fork`.
 `upstream` = osac-project; it does not change this checkout or skill vendor
 remotes. `--no-fork` wins over `--fork-name`. After `--fork-name origin`, a
 later `--no-fork` run skips updates on those origin-as-fork siblings rather
-than calling `gh`. The GitHub fork of `osac-project/docs` is `osac-docs`. This
+than calling `gh`. This
 repo is the project root. A nested `osac-workspace/osac/` checkout aborts;
 use a standalone clone or worktree instead.
 

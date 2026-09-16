@@ -18,7 +18,13 @@ repos:
     - id: check-case-conflict
     - id: check-json
     - id: check-symlinks
+    # docs/guides/admin/bcm-backend.md shows a YAML config example with a
+    # placeholder PEM block (literal "..." body between real BEGIN/END
+    # PRIVATE KEY markers, no actual key material) -- the hook only pattern-
+    # matches those markers, so it flags this documentation example every
+    # run without excluding it.
     - id: detect-private-key
+      exclude: ^docs/guides/admin/bcm-backend\.md$
 
 - repo: https://github.com/gitleaks/gitleaks
   rev: v8.30.1

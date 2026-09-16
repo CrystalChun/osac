@@ -74,9 +74,9 @@ forks writable repositories using authenticated `gh`; use
 ### External repositories
 
 - `osac-ui/` is the writable UI repository; `osac-ux/` is a read-only UX/API reference.
-- `enhancement-proposals/` is the writable PRD/design repository; `osac-docs/` is the writable project documentation repository.
+- `enhancement-proposals/` is the writable PRD/design repository. Project documentation (formerly the separate `osac-project/docs` repo, cloned as `osac-docs/`) now lives in-tree under [`docs/`](docs/README.md).
 - `osac-test-infra` is not cloned automatically. It owns infrastructure backends and reusable workflows; E2E suites remain in `tests/e2e/`.
-- After `tools/bootstrap.sh` creates sibling checkouts, read their local instructions when working there: `osac-ui/AGENTS.md`, `enhancement-proposals/AGENTS.md`, and `osac-docs/AGENTS.md`.
+- After `tools/bootstrap.sh` creates sibling checkouts, read their local instructions when working there: `osac-ui/AGENTS.md` and `enhancement-proposals/AGENTS.md`.
 - These checkouts are separate Git repositories; never include their changes in a mono-repo PR.
 - Never assume remote names. Use `~/.osac-ai-skills/tools/resolve-remotes.sh` or `.osac-ai-skills/tools/resolve-remotes.sh`; if neither exists, run `tools/bootstrap.sh`.
 
