@@ -2,6 +2,7 @@ import { screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 import { SessionProvider } from '@osac/ui-components/hooks/use-session';
+import type { UserRole } from '@osac/ui-components/shellTypes';
 import { renderWithProviders } from '@osac/ui-components/test-utils/TestProviders';
 
 vi.mock('./StorageRoutes', () => ({
@@ -10,9 +11,9 @@ vi.mock('./StorageRoutes', () => ({
 
 import { AppShell } from './AppShell';
 
-const renderAppShell = (entry: string) =>
+const renderAppShell = (entry: string, role: UserRole = 'admin') =>
   renderWithProviders(
-    <SessionProvider role="admin" username="test-admin" tenantId="tenant-1">
+    <SessionProvider role={role} username="test-user" tenantId="tenant-1">
       <AppShell logout={vi.fn().mockResolvedValue(undefined)} />
     </SessionProvider>,
     {
@@ -50,5 +51,26 @@ describe('AppShell', () => {
     await waitFor(() => {
       expect(screen.getByText('No bare metal instance types yet.')).toBeInTheDocument();
     });
+  });
+
+  it('redirects admin away from VM create to VM list', () => {
+    renderAppShell('/vms/create', 'admin');
+
+    expect(screen.queryByRole('heading', { name: /create virtual machine/i })).toBeNull();
+    expect(screen.getByRole('heading', { name: 'Virtual machines' })).toBeInTheDocument();
+  });
+
+  it('redirects admin away from cluster create to cluster list', () => {
+    renderAppShell('/clusters/create', 'admin');
+
+    expect(screen.queryByRole('heading', { name: /create cluster/i })).toBeNull();
+    expect(screen.getByRole('heading', { name: 'Clusters' })).toBeInTheDocument();
+  });
+
+  it('redirects admin away from bare metal create to bare metal list', () => {
+    renderAppShell('/bare-metal/create', 'admin');
+
+    expect(screen.queryByRole('heading', { name: /provision bare metal/i })).toBeNull();
+    expect(screen.getByRole('heading', { name: 'Bare Metal' })).toBeInTheDocument();
   });
 });

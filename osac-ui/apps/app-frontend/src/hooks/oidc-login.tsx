@@ -4,7 +4,7 @@ import type { UserRole } from '@osac/ui-components/shellTypes';
 import { getErrorMessage } from '@osac/ui-components/utils/error';
 
 export const roleFromRoles = (roles: string[] = [], groups: string[] = []): UserRole => {
-  if (groups.includes('admins')) {
+  if (groups.includes('admins') || roles.includes('cloud-provider-admin')) {
     return 'admin';
   }
   if (roles.includes('tenant-admin')) {
