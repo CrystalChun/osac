@@ -4,13 +4,13 @@
 
 ### High-Level Component Summary
 ![OSAC overview diagram](images/overview-diagram.jpg)
-The above diagram shows the components of our architecture. Two core sets of services at the bottom are: 1)  **Bare Metal Fulfillment (BM-F)**, which keeps track of hardware and is responsible for managing physical servers and network switches, and 2) **Cluster Fulfillment (C-F)**, which provisions and manages the OpenShift clusters using computers and networks from BM-F.  Both the BM-F and C-F have agents that expose the new APIs required for their services. In a large-scale environment there may be many instances of C-F and BM-F.  
+The above diagram shows the components of our architecture. Two core sets of services at the bottom are: 1)  **Bare Metal Fulfillment (BM-F)**, which keeps track of hardware and is responsible for managing physical servers and network switches, and 2) **Cluster Fulfillment (C-F)**, which provisions and manages the OpenShift clusters using computers and networks from BM-F.  Both the BM-F and C-F have agents that expose the new APIs required for their services. In a large-scale environment there may be many instances of C-F and BM-F.
 
-At the top, the **Web Interface** is an (example) UI for our service built on top of an API provided by the **Fulfillment Service**, a new component that directs requests to the appropriate BM-F or C-F agents. 
-- **Bare Metal Fulfillment (BM-F)** components are: 1) **Bare Metal Fulfillment Service**: A service that orchestrates bare metal clusters using the Bare Metal/Layer 2/Layer 3 Services. 2) **Bare Metal Service**: A service that permits operations on servers, such as power control, boot order configuration, etc. 3) **Layer 2 Service**: A service that interacts with network switches to create isolated layer 2 networks. 4) **Layer 3 Service**: A service that manages IP address allocation, DHCP services, and routing (including default gateways). 
-- **Cluster Fulfillment (C-F)** is based on Red Hat’s Advanced Cluster Management (ACM) with the associated Hosted Control Plane (HCP) services.  New functionality includes: 1) **Cluster Fulfillment Service**: Responsible for executing cluster requests on a specific ACM. Configures hardware resources via bare metal fulfillment before calling HCP; 2) **Config Management**: Centralized mechanism for further configuring an installed User Cluster; and 3) **Hotpool Service**: Responsible for maintaining a minimum number of free bare metal resources available for cluster installation by calling **Bare Metal Fulfillment**. Doing so allows for rapid responses to cluster requests. 
+At the top, the **Web Interface** is an (example) UI for our service built on top of an API provided by the **Fulfillment Service**, a new component that directs requests to the appropriate BM-F or C-F agents.
+- **Bare Metal Fulfillment (BM-F)** components are: 1) **Bare Metal Fulfillment Service**: A service that orchestrates bare metal clusters using the Bare Metal/Layer 2/Layer 3 Services. 2) **Bare Metal Service**: A service that permits operations on servers, such as power control, boot order configuration, etc. 3) **Layer 2 Service**: A service that interacts with network switches to create isolated layer 2 networks. 4) **Layer 3 Service**: A service that manages IP address allocation, DHCP services, and routing (including default gateways).
+- **Cluster Fulfillment (C-F)** is based on Red Hat’s Advanced Cluster Management (ACM) with the associated Hosted Control Plane (HCP) services.  New functionality includes: 1) **Cluster Fulfillment Service**: Responsible for executing cluster requests on a specific ACM. Configures hardware resources via bare metal fulfillment before calling HCP; 2) **Config Management**: Centralized mechanism for further configuring an installed User Cluster; and 3) **Hotpool Service**: Responsible for maintaining a minimum number of free bare metal resources available for cluster installation by calling **Bare Metal Fulfillment**. Doing so allows for rapid responses to cluster requests.
 
-Other services required for our solution include: 
+Other services required for our solution include:
 - **Observability**: A single point of access for metrics, logs, and traces for all resources managed by this solution.
 - **Identity Provider**: The identity provider provides information about people and projects and is used to support authorization for access to clusters.
 - **Quota Provider**: The quota provider populates systems and services with quota information, and also provides a mechanism to query quotas for a project.
@@ -32,7 +32,7 @@ The key requirements for the bare metal use case are:  1) allocation of compute 
 The cluster fulfillment use case requires all but the last requirement.  Requirements 1, 2, 4 and 5 are needed by any provider offering strongly isolated AI clusters.  Requirement 3 is needed in scenarios where a provider wants to enable tenants to connect their clusters to other tenant specific resources.  For example, an Equinix tenant may want to stand up a cluster that uses tenant storage in the same data center or exploit networking in the data center to stitch together different open shift clusters.   In the MOC, different institutions will need to connect clusters they stand up to institution specific resources and identify clusters as “on-premis” to institution users.  The only feature exclusive to the bare metal use case is serial console access.
 
 #### Introduction of Bare Metal Service
-The Bare Metal Service is a new component that is intended to support a minimal API for controlling servers (those being the operations required for our solution). All the required functionality is already supported by the [ESI](https://esi.readthedocs.io/en/latest/) service used at the MOC, and the Bare Metal Service will be a simple shim on top of ESI. This choice isolates our solution from ESI, enabling us to replace ESI in the future with alternative implementations.  
+The Bare Metal Service is a new component that is intended to support a minimal API for controlling servers (those being the operations required for our solution). All the required functionality is already supported by the [ESI](https://esi.readthedocs.io/en/latest/) service used at the MOC, and the Bare Metal Service will be a simple shim on top of ESI. This choice isolates our solution from ESI, enabling us to replace ESI in the future with alternative implementations.
 
 ESI is primarily just a particular configuration of OpenStack services, and there are a number of reasons why we may eventually replace it:
 - ESI is hard to deploy and configure. Red Hat’s OpenStack installers as of RHOS 17.1 have been difficult to configure and maintain, and ESI has added additional capabilities that complicate the deployment.
@@ -56,14 +56,14 @@ The process of adding new nodes into ACM is time consuming; as a result, initial
 #### Use of ACM Agents for Bare Metal Resources
 In ACM, there are two abstractions for representing bare metal resources: “BareMetalHosts” and “Agents”.
 - Agents: In the Agent model, registered hosts are booted with a discovery image that includes the agent. ACM then communicates with this software agent (rather than managing the host directly).
-- BareMetalHost: In the BareMetalHost model, ACM directly manages bare metal hosts via their BMC through Metal3, which is a thinly disguised instance of Ironic that allows ACM to perform bare metal operations such as power control and boot order configuration. This model allows us to automate the process of host discovery. However it also requires additional infrastructure support in the form of BMC proxy, since we do not want ACM to have direct knowledge of a node’s BMC credentials in the multitenant environment. 
+- BareMetalHost: In the BareMetalHost model, ACM directly manages bare metal hosts via their BMC through Metal3, which is a thinly disguised instance of Ironic that allows ACM to perform bare metal operations such as power control and boot order configuration. This model allows us to automate the process of host discovery. However it also requires additional infrastructure support in the form of BMC proxy, since we do not want ACM to have direct knowledge of a node’s BMC credentials in the multitenant environment.
 
-The MOC can automate the creation of both Agents and BareMetalHosts from our bare metal inventory by using the ESI API to boot the bare metal host using the appropriate discovery image. 
+The MOC can automate the creation of both Agents and BareMetalHosts from our bare metal inventory by using the ESI API to boot the bare metal host using the appropriate discovery image.
 
 Since the Bare Metal Service needs to talk to the BMCs, if we want ACM to interact with the BMCs we will need to modify it to invoke the Bare Metal Service or develop a BMC proxy so both talk directly to the BMC. We believe that the right long term design is to have ACM use the Bare Metal Service, and we will use the agent model in our PoC to let us make progress without potentially unnecessary work to develop a proxy and without requiring product changes.
 
 #### Config Management
-We are still exploring the right mechanism to configure OpenShift clusters. In the MOC environment today we use ArgoCD (in the form of Red Hat’s [OpenShift GitOps product](https://www.redhat.com/en/technologies/cloud-computing/openshift/gitops)).  However, this is insufficient since we need the ability to parametrize the configuration for each individual cluster.  
+We are still exploring the right mechanism to configure OpenShift clusters. In the MOC environment today we use ArgoCD (in the form of Red Hat’s [OpenShift GitOps product](https://www.redhat.com/en/technologies/cloud-computing/openshift/gitops)).  However, this is insufficient since we need the ability to parametrize the configuration for each individual cluster.
 - Mechanism for further configuring an installed User Cluster
   - installing operators, generating certificates, etc
 - Possible solutions:
@@ -94,7 +94,7 @@ Observability targets multiple personas.   Use cases and personas will be specif
 
 Decision:
 
-Implementation options for providing these functions are under discussion in the Observability Working group.   
+Implementation options for providing these functions are under discussion in the Observability Working group.
 
 Rationale:
 - The AI-in-a-box use cases require access to observability metrics be provided with different scopes (full cluster, single cluster, project-level).
@@ -107,7 +107,7 @@ We know from our experience with MOC that there is a need for project owners to 
 
 Cluster admins and end users can make more informed choices about resource usage when they have at least rough information about resource costs.  Some observability use cases require approximate cost information about resources, and access to that information should be handled with the same type of fine-grained access control described previously for other cluster metrics.
 
-While our implementation will focus on the MOC charging model, we hope that the reference implementation will enable providers to adapt the solution to their own business model and hopefully contribute changes back.   This feature should be configurable so providers, e.g. enterprises, can totally disable it. 
+While our implementation will focus on the MOC charging model, we hope that the reference implementation will enable providers to adapt the solution to their own business model and hopefully contribute changes back.   This feature should be configurable so providers, e.g. enterprises, can totally disable it.
 
 Decision:
 
@@ -148,9 +148,9 @@ Final Choice:
 See User Interface section for additional information.
 
 ### Storage support
-There are three types of storage that we need to think through, namely: 1) Volume storage that will be used by services in the cluster during the cluster lifetime, and 2) Long term storage that can be accessed by multiple clusters, and 3) Storage cache for long term storage.  In our PoCs we will provide minimal implementations for key use cases discussed below with storage available in the MOC, and over time define appropriate interfaces to enable different storage services.  
+There are three types of storage that we need to think through, namely: 1) Volume storage that will be used by services in the cluster during the cluster lifetime, and 2) Long term storage that can be accessed by multiple clusters, and 3) Storage cache for long term storage.  In our PoCs we will provide minimal implementations for key use cases discussed below with storage available in the MOC, and over time define appropriate interfaces to enable different storage services.
 
-**Volume storage**: For the first, when provisioning a new cluster, we need a way to allocate storage that can be accessed read/write from multiple containers in the OpenShift cluster.   This means, 
+**Volume storage**: For the first, when provisioning a new cluster, we need a way to allocate storage that can be accessed read/write from multiple containers in the OpenShift cluster.   This means,
 - Create credentials for the new cluster
 - Create a storage pool for the new cluster
 - Configure a CSI driver on the new cluster with credentials and connection information.
@@ -170,32 +170,32 @@ The MOC will, for the AI Hub, need to meet various compliance requirements inclu
 ### Multiple cluster & bare metal services
 For both scalability and fault tolerance, we will support an architecture where a single Fulfillment Service API endpoint can interact with several Cluster Services and Bare Metal Services, where the scale of each is independent.  For example, in a data center with 100K nodes, a bare metal service may be appropriate to handle 10K servers, and a cluster service might only handle 5K nodes, so we would deploy in the data center 10 bare metal and 20 cluster services.  Cluster services will be able to create clusters on any of the bare metal services as well as clusters that span multiple bare metal services for fault tolerance.
 
-Most of the state will be in the bare metal and cluster services that are dependent on specific implementations today (ACM & ESI).  We have not yet investigated the failure model of each of these components.  A key part of this project that we have deferred for now is defining the fault characteristics of the overall solution, and how the overall solution will orchestrate overall recovery in the presence of component failure. 
+Most of the state will be in the bare metal and cluster services that are dependent on specific implementations today (ACM & ESI).  We have not yet investigated the failure model of each of these components.  A key part of this project that we have deferred for now is defining the fault characteristics of the overall solution, and how the overall solution will orchestrate overall recovery in the presence of component failure.
 ![scalability diagram](images/scalability.jpg)
 
 ### In PoCs focus purely on Physical Servers
 Despite extensive conversations, we will for the PoCs covered in this document focus only on physical hosts.   Longer term, we will want to integrate virtual hosts directly in two use cases:
-1. Have openshift clusters where the hosts are virtual rather than physical.  This should be natural with ACM, and will enable greater elasticity and supporting clusters where we don’t have to allocate all the GPUs in a physical host to a tenant.  There may also be security reasons we want to do this; e.g., for containers where the tenant wants root access. 
-2. A simple interface where tenants can request directly from our solution a VM or container, with the GPUs they want, without creating an openshift cluster. This should support both terminal access and jupyter notebooks.  This functionality would be natural on top of what we are doing, and would be a simple way for users to get started. 
+1. Have openshift clusters where the hosts are virtual rather than physical.  This should be natural with ACM, and will enable greater elasticity and supporting clusters where we don’t have to allocate all the GPUs in a physical host to a tenant.  There may also be security reasons we want to do this; e.g., for containers where the tenant wants root access.
+2. A simple interface where tenants can request directly from our solution a VM or container, with the GPUs they want, without creating an openshift cluster. This should support both terminal access and jupyter notebooks.  This functionality would be natural on top of what we are doing, and would be a simple way for users to get started.
 
 # Proof of Concepts
 This section describes a possible series of proof-of-concepts that aims to show a steady progression of key deliverables that leads towards the final design. A feature mentioned in a particular PoC is simply the first version of that feature; we expect to continue iteration through successive development efforts. These PoCs are built towards the specific use cases outlined in the [AI-in-a-Box Use Cases](https://docs.google.com/document/d/1tMDsnHSWavdwogUTIvfvSi2W4R8HekHxVT7r9blyqdU/edit?usp=sharing) document, ensuring that they align with the real world user needs and requirements.
 
-In order to build up the elements of the AI-in-a-Box solution in stages we defined the seven PoC Demos listed in this section.   We expect to use the PoC Demos to share progress and get feedback from both the MOC Operations Engineering teams and the Red Hat product teams.  As we get feedback, and discover more through implementing functions, we expect to improve each PoC to better serve the Red Hat, MOC and future customer needs.  Functions can be added, deleted or changed in a future PoC depending on the results from the previous demo.  We will schedule PoC demos on a regular cadence (e.g. monthly) to make sure we get feedback regularly.  
+In order to build up the elements of the AI-in-a-Box solution in stages we defined the seven PoC Demos listed in this section.   We expect to use the PoC Demos to share progress and get feedback from both the MOC Operations Engineering teams and the Red Hat product teams.  As we get feedback, and discover more through implementing functions, we expect to improve each PoC to better serve the Red Hat, MOC and future customer needs.  Functions can be added, deleted or changed in a future PoC depending on the results from the previous demo.  We will schedule PoC demos on a regular cadence (e.g. monthly) to make sure we get feedback regularly.
 
 Even though the PoC demos may evolve over time, it is important to have a clear common understanding of the functions to be implemented for each PoC stage before that stage begins.   This description is the basis for plans and estimates for tasks at each stage.  This document includes a draft description of the purpose and expected functions for each proposed PoC, as a baseline for review.  We expect to complete more detailed PoC demo descriptions as the project continues.
 
 ## PoC 1: Initial Proof-of-Concept
 This initial PoC will demonstrate a first example of the expected end-user functionality for tenants deploying OpenShift AI clusters on top of a greatly simplified service that merges many of the fulfillment components described above. We will make many design compromises for the sake of a quick turnaround (full details can be found in a future Demo 1 Design Document).
 
-This simple demo will create an initial graphical user interface, implement a trivial API and first version of fulfillment service, and instantiate new OpenShift clusters using nodes pre-allocated from ESI. These OpenShift clusters will be attached to the Observability cluster. 
+This simple demo will create an initial graphical user interface, implement a trivial API and first version of fulfillment service, and instantiate new OpenShift clusters using nodes pre-allocated from ESI. These OpenShift clusters will be attached to the Observability cluster.
 - The Fulfillment Service, Cluster Service, and Bare Metal Service will be combined into a single Fulfillment Service. Later PoCs will separate these services.
 - ACM will not automatically pull nodes from ESI. We will create a project to represent ACM and lease a number of nodes to this project, and then boot the nodes off an appropriate discovery ISO from the InfraEnv in order to register them with ACM.
 - We will not demonstrate dynamic network isolation. We will use ESI to pre-configure node networking as needed for cluster operation.
 - The operations we will demonstrate are limited to cluster creation and teardown.
 - In the user cluster, all per-cluster storage will be provided by the local hard drives on their systems in the cluster.  (If this storage is insufficient, standalone storage service may be needed.
 
-This will be reviewed with the MOC operations team to collect feedback and requirements to be integrated into future PoCs. 
+This will be reviewed with the MOC operations team to collect feedback and requirements to be integrated into future PoCs.
 
 ## PoC 2: Fulfillment Service Re-Architecture & Observability
 This PoC will focus on re-factoring the Fulfillment Service to separate out the Fulfillment Service, Cluster Service, and Bare Metal Service.
@@ -217,7 +217,7 @@ This PoC focuses on enabling and enforcing tenant resource quotas, allowing infr
 - ESI lease quotas
 - Cluster quotas
 - Improvements to the User GUI, appropriate dashboards and Observability to provide information on existing quotas in the MOC (which are set in ColdFront), and to allow a project leader or administrator to change quotas, with an appropriate update to ColdFront.  (Note that this is the first PoC to require specific implementation of functionality that is only for the project leader persona.  This persona has not yet been implemented in MOC Observability or any existing Red Hat production functionality.)
-- Hotpool Service 
+- Hotpool Service
 
 ## PoC 5: Bare Metal Fulfillment and Resource Usage Tracking
 This PoC exposes bare metal fulfillment to users, giving them bare metal access to resources that are not necessarily in an OpenShift cluster. It also ensures that we expose resource usage tracking to administrators, allowing them to track tenant resource usage and integrate that information with their own billing systems.

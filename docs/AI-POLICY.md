@@ -134,4 +134,3 @@ When using AI tools:
 - **Create a two-tier review process** - all code meets the same quality bar
 - **Require specific AI tools** - use whatever tools work for you
 - **Block external contributors** - all essential workflows work without Red Hat-internal tooling
-

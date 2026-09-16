@@ -50,7 +50,7 @@ When you create a network, you create a VLAN that will provide your nodes with a
 
 ## Register nodes with ACM
 
-In order to register the nodes with ACM, we need to boot them using the discovery image provided by our target infrastructure environment. 
+In order to register the nodes with ACM, we need to boot them using the discovery image provided by our target infrastructure environment.
 
 1. Get the URL for the discovery image:
 

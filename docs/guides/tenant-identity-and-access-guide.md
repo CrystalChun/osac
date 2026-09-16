@@ -1,7 +1,7 @@
 # Tenant Identity and Access Guide (Fulfillment API / CLI)
 
-**Last Updated**: 2026-07-28  
-**Audience**: Cloud provider administrators, tenant administrators, developers validating fulfillment-service  
+**Last Updated**: 2026-07-28
+**Audience**: Cloud provider administrators, tenant administrators, developers validating fulfillment-service
 **Status**: Draft
 
 ## Contents

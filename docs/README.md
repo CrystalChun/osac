@@ -67,12 +67,12 @@ Bare Metal-aaS, under development, will allow tenants to allocate isolated
 groups of computers, place those computers on networks, and manage/configure
 those computers themselves. This service is needed, for example, by tenants that
 want to install their own cluster software (e.g., SLURM) and developers that
-are, for example, working on upstream k8s. 
+are, for example, working on upstream k8s.
 
 Most of the development has so far focused on the lower layer services as a
 basis for a rich set of higher level services that are in plan. The one higher
 level service that is today under development, VM-aaS, will allow users to spin
-up their own individual VMs. 
+up their own individual VMs.
 
 O-SAC is being developed and continuously deployed at the [Mass Open
 Cloud](https://massopen.cloud/) (MOC) to take advantage of the MOC’s scale, to
@@ -101,7 +101,7 @@ Tenant Cluster: An running OpenShift cluster requested by a tenant.
 HCP: (HyperShift) Hosted Control Plane refers to an architecture where the
 control plane of a Kubernetes cluster is decoupled from the worker nodes and
 hosted separately, often on a different infrastructure managed by a cloud
-provider or a separate cluster. 
+provider or a separate cluster.
 
 ACM: Advanced Cluster Management (ACM) is a Red Hat product that simplifies the
 provisioning and management of multiple Kubernetes (OpenShift) clusters.
