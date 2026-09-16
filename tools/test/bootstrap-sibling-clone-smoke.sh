@@ -22,7 +22,6 @@ EXPECTED_DIRS=(
   enhancement-proposals
   osac-ux
   osac-ui
-  osac-docs
 )
 
 OSAC_AI_SKILLS_NAME=".osac-ai-skills"
@@ -345,20 +344,15 @@ assert_expected_clones() {
     && fail "osac-test-infra must not be cloned (e2e is tests/e2e/): $(cat "$log")"
   [[ ! -d "${root}/osac-test-infra" ]] \
     || fail "osac-test-infra/ must not exist after bootstrap"
-  grep -q 'osac-project/docs' "$log" || fail "clone log missing osac-project/docs: $(cat "$log")"
-  grep -q "${root}/osac-docs" "$log" || fail "docs repo dest must be osac-docs: $(cat "$log")"
-  if grep -F "osac-project/docs.git ${root}/docs" "$log"; then
-    fail "docs repo cloned to docs/ rather than osac-docs/: $(cat "$log")"
-  fi
 }
 
-test_clones_all_four_into_project_root() {
+test_clones_all_three_into_project_root() {
   local home root bin home_skills home_workflows repo_skills clone_log out
-  prepare_fixture four
+  prepare_fixture three
 
   out=$(run_bootstrap "$root" "$home" "$bin" 2>&1) || fail "bootstrap failed: $out"
   assert_expected_clones "$root" "$clone_log"
-  pass "clones all four sibling repos under PROJECT_ROOT, not into docs/"
+  pass "clones all three sibling repos under PROJECT_ROOT, not into docs/"
 }
 
 test_rerun_updates_expected_clone() {
@@ -393,8 +387,6 @@ test_skips_unrelated_existing_dir() {
   [[ ! -d "${ux}/.git" ]] || fail "skip path must not init a git repo"
   [[ -d "${root}/osac-ui/.git" ]] \
     || fail "skip of osac-ux must still clone later siblings (osac-ui)"
-  [[ -d "${root}/osac-docs/.git" ]] \
-    || fail "skip of osac-ux must still clone later siblings (osac-docs)"
   if [[ -f "${home}/hooks.log" ]] && grep -Fq "${ux}|install" "${home}/hooks.log"; then
     fail "unrelated osac-ux must not receive hooks: $(cat "${home}/hooks.log")"
   fi
@@ -489,8 +481,6 @@ test_nested_abort_skips_sibling_clones() {
   local out rc=0
   out=$(HOME="${empty_home}" bash "${nest}/osac/tools/bootstrap.sh" 2>&1) || rc=$?
   [[ "$rc" -eq 1 ]] || fail "nested bootstrap expected exit 1, got $rc: $out"
-  [[ ! -d "${nest}/osac/osac-docs" ]] \
-    || fail "nested abort must not clone osac-docs"
   [[ ! -d "${nest}/osac/enhancement-proposals" ]] \
     || fail "nested abort must not clone enhancement-proposals"
   pass "nested workspace abort happens before sibling clones"
@@ -518,21 +508,21 @@ test_failed_clone_cleans_dest() {
 }
 
 test_expected_sibling_requires_org_boundary() {
-  local home root bin home_skills home_workflows repo_skills clone_log out docs_dest ep
+  local home root bin home_skills home_workflows repo_skills clone_log out ui_dest ep
   prepare_fixture boundary
-  docs_dest="${root}/osac-docs"
+  ui_dest="${root}/osac-ui"
   ep="${root}/enhancement-proposals"
 
   run_bootstrap "$root" "$home" "$bin" >/dev/null
-  "$REAL_GIT" -C "$docs_dest" remote set-url origin \
-    "https://github.com/evil-osac-project/docs.git"
-  echo keep > "${docs_dest}/keep-me"
+  "$REAL_GIT" -C "$ui_dest" remote set-url origin \
+    "https://github.com/evil-osac-project/osac-ui.git"
+  echo keep > "${ui_dest}/keep-me"
 
   out=$(run_bootstrap "$root" "$home" "$bin" 2>&1) || fail "bootstrap failed: $out"
   echo "$out" | grep -qi 'skip' \
-    || fail "evil-osac-project/docs must not count as osac-project/docs: $out"
-  grep -q keep "${docs_dest}/keep-me" \
-    || fail "unrelated osac-docs/ dir was overwritten"
+    || fail "evil-osac-project/osac-ui must not count as osac-project/osac-ui: $out"
+  grep -q keep "${ui_dest}/keep-me" \
+    || fail "unrelated osac-ui/ dir was overwritten"
 
   "$REAL_GIT" -C "$ep" remote set-url origin \
     "git@github.com:osac-project/enhancement-proposals.git"
@@ -672,7 +662,6 @@ test_no_fork_leaves_writeable_without_fork_remote() {
   assert_expected_clones "$root" "$clone_log"
   assert_no_fork_remote "${root}/enhancement-proposals" "enhancement-proposals"
   assert_no_fork_remote "${root}/osac-ui" "osac-ui"
-  assert_no_fork_remote "${root}/osac-docs" "osac-docs"
   assert_no_fork_remote "${root}/osac-ux" "osac-ux"
   [[ ! -s "${home}/gh.log" ]] || fail "--no-fork must not invoke gh: $(cat "${home}/gh.log")"
   pass "--no-fork clones siblings without fork remotes even if gh is on PATH"
@@ -690,16 +679,11 @@ test_forks_writeable_siblings_not_osac_ux_or_vendors() {
   assert_expected_clones "$root" "$clone_log"
   assert_fork_remote "${root}/enhancement-proposals" "enhancement-proposals"
   assert_fork_remote "${root}/osac-ui" "osac-ui"
-  assert_fork_remote "${root}/osac-docs" "osac-docs"
   assert_no_fork_remote "${root}/osac-ux" "osac-ux"
   assert_no_fork_remote "$home_skills" "osac-ai-skills vendor"
   assert_no_fork_remote "$home_workflows" "ai-workflows vendor"
   grep -q 'repo fork osac-project/enhancement-proposals' "$gh_log" \
     || fail "expected gh repo fork for enhancement-proposals: $(cat "$gh_log")"
-  grep -q 'repo fork osac-project/docs' "$gh_log" \
-    || fail "docs fork must use GitHub repo name docs: $(cat "$gh_log")"
-  grep -q 'fork-name osac-docs' "$gh_log" \
-    || fail "docs fork must pass --fork-name osac-docs: $(cat "$gh_log")"
   if grep -q 'repo fork osac-project/osac-ux' "$gh_log"; then
     fail "must not gh fork osac-ux: $(cat "$gh_log")"
   fi
@@ -723,7 +707,6 @@ test_rerun_adds_fork_remote_to_existing_clone() {
   : > "${home}/gh.log"
   out=$(run_bootstrap_fork "$root" "$home" "$bin" 2>&1) || fail "fork re-run failed: $out"
   assert_fork_remote "$ep" "enhancement-proposals"
-  assert_fork_remote "${root}/osac-docs" "osac-docs"
   assert_no_fork_remote "${root}/osac-ux" "osac-ux"
   echo "$out" | grep -q 'Adding fork remote for enhancement-proposals' \
     || fail "re-run should add missing fork remotes: $out"
@@ -735,13 +718,13 @@ test_unrelated_same_name_github_repo_is_not_used_as_fork() {
   prepare_fixture fork-collision
   write_gh_wrapper "${bin}/gh"
 
-  out=$(OSAC_SMOKE_FORK_COLLISION=docs run_bootstrap_fork "$root" "$home" "$bin" 2>&1) \
-    || fail "bootstrap should continue when docs fork collides: $out"
-  echo "$out" | grep -qi 'Failed to fork osac-project/docs' \
-    || fail "expected skip for unrelated github.com/smokeuser/docs: $out"
-  grep -q 'repo view smokeuser/osac-docs' "${home}/gh.log" \
-    || fail "parent check must view smokeuser/osac-docs: $(cat "${home}/gh.log")"
-  assert_no_fork_remote "${root}/osac-docs" "osac-docs after docs name collision"
+  out=$(OSAC_SMOKE_FORK_COLLISION=osac-ui run_bootstrap_fork "$root" "$home" "$bin" 2>&1) \
+    || fail "bootstrap should continue when osac-ui fork collides: $out"
+  echo "$out" | grep -qi 'Failed to fork osac-project/osac-ui' \
+    || fail "expected skip for unrelated github.com/smokeuser/osac-ui: $out"
+  grep -q 'repo view smokeuser/osac-ui' "${home}/gh.log" \
+    || fail "parent check must view smokeuser/osac-ui: $(cat "${home}/gh.log")"
+  assert_no_fork_remote "${root}/osac-ui" "osac-ui after fork name collision"
   assert_fork_remote "${root}/enhancement-proposals" "enhancement-proposals"
   pass "does not point fork at an unrelated same-name GitHub repo"
 }
@@ -792,20 +775,20 @@ test_skips_update_when_sibling_not_on_main() {
 }
 
 test_fork_remote_match_requires_user_boundary() {
-  local home root bin home_skills home_workflows repo_skills clone_log out url docs_dest
+  local home root bin home_skills home_workflows repo_skills clone_log out url ui_dest
   prepare_fixture fork-boundary
   write_gh_wrapper "${bin}/gh"
-  docs_dest="${root}/osac-docs"
+  ui_dest="${root}/osac-ui"
 
   run_bootstrap "$root" "$home" "$bin" >/dev/null
-  "$REAL_GIT" -C "$docs_dest" remote add fork \
-    "https://github.com/evilsmokeuser/osac-docs.git"
+  "$REAL_GIT" -C "$ui_dest" remote add fork \
+    "https://github.com/evilsmokeuser/osac-ui.git"
 
   out=$(run_bootstrap_fork "$root" "$home" "$bin" 2>&1) || fail "bootstrap failed: $out"
   echo "$out" | grep -q 'already exists with a different URL' \
-    || fail "evilsmokeuser/osac-docs must not count as smokeuser/osac-docs: $out"
-  url=$(git -C "$docs_dest" remote get-url fork)
-  [[ "$url" == *evilsmokeuser/osac-docs* ]] \
+    || fail "evilsmokeuser/osac-ui must not count as smokeuser/osac-ui: $out"
+  url=$(git -C "$ui_dest" remote get-url fork)
+  [[ "$url" == *evilsmokeuser/osac-ui* ]] \
     || fail "must not overwrite an existing mismatched fork remote: $url"
   pass "fork-remote match requires / or : before \$GH_USER/repo"
 }
@@ -861,9 +844,6 @@ test_fork_name_origin_renames_org_origin() {
 
   assert_origin_layout_writeable "${root}/enhancement-proposals" "enhancement-proposals"
   assert_origin_layout_writeable "${root}/osac-ui" "osac-ui"
-  assert_remote_url "${root}/osac-docs" origin "smokeuser/osac-docs"
-  assert_remote_url "${root}/osac-docs" upstream "osac-project/docs"
-  assert_no_named_remote "${root}/osac-docs" fork "osac-docs"
   assert_remote_url "${root}/osac-ux" origin "osac-project/osac-ux"
   assert_no_named_remote "${root}/osac-ux" fork "osac-ux"
   assert_no_named_remote "${root}/osac-ux" upstream "osac-ux"
@@ -900,13 +880,6 @@ test_fork_name_origin_rerun_is_idempotent() {
     || fail "re-run must rebase onto upstream/main: $(cat "$git_log")"
   assert_origin_layout_writeable "$ep" "enhancement-proposals"
   assert_no_named_remote "$ep" osac-upstream "enhancement-proposals"
-  echo "$out" | grep -q 'Updating osac-docs' \
-    || fail "re-run should update origin-as-fork osac-docs: $out"
-  echo "$out" | grep -qi 'skipping osac-docs' \
-    && fail "must not skip osac-docs on --fork-name origin re-run: $out"
-  assert_remote_url "${root}/osac-docs" origin "smokeuser/osac-docs"
-  assert_remote_url "${root}/osac-docs" upstream "osac-project/docs"
-  assert_no_named_remote "${root}/osac-docs" fork "osac-docs"
   pass "--fork-name origin re-run updates via upstream and does not rename again"
 }
 
@@ -985,43 +958,6 @@ test_no_fork_with_fork_name_origin_is_read_only() {
   assert_osac_root_untouched "$root"
   [[ ! -s "${home}/gh.log" ]] || fail "--no-fork --fork-name origin must not invoke gh: $(cat "${home}/gh.log")"
   pass "--no-fork wins over --fork-name origin"
-}
-
-test_docs_fork_uses_osac_docs_github_name() {
-  local home root bin home_skills home_workflows repo_skills clone_log out gh_log
-  local skills_origin
-  prepare_fixture docs-fork-name
-  write_gh_wrapper "${bin}/gh"
-  gh_log="${home}/gh.log"
-  skills_origin=$(git -C "$home_skills" remote get-url origin)
-
-  out=$(run_bootstrap_fork "$root" "$home" "$bin" 2>&1) || fail "bootstrap failed: $out"
-  assert_fork_remote "${root}/osac-docs" "osac-docs"
-  grep -q 'fork-name osac-docs' "$gh_log" \
-    || fail "expected gh repo fork --fork-name osac-docs: $(cat "$gh_log")"
-  assert_vendor_untouched "$home_skills" "osac-ai-skills vendor" "$skills_origin"
-  assert_no_fork_remote "${root}/osac-ux" "osac-ux"
-  pass "docs GitHub fork name is osac-docs, not docs"
-}
-
-test_fork_overrides_file_can_remap_docs() {
-  local home root bin home_skills home_workflows repo_skills clone_log out
-  local skills_origin
-  prepare_fixture docs-override
-  write_gh_wrapper "${bin}/gh"
-  skills_origin=$(git -C "$home_skills" remote get-url origin)
-  cat > "${root}/tools/fork-overrides.sh" <<'EOF'
-FORK_OVERRIDE_PAIRS=("docs:custom-docs")
-EOF
-
-  out=$(run_bootstrap_fork "$root" "$home" "$bin" 2>&1) || fail "bootstrap failed: $out"
-  assert_fork_remote "${root}/osac-docs" "custom-docs"
-  grep -q 'fork-name custom-docs' "${home}/gh.log" \
-    || fail "override must pass --fork-name custom-docs: $(cat "${home}/gh.log")"
-  assert_fork_remote "${root}/osac-ui" "osac-ui"
-  assert_vendor_untouched "$home_skills" "osac-ai-skills vendor" "$skills_origin"
-  assert_no_fork_remote "${root}/osac-ux" "osac-ux"
-  pass "tools/fork-overrides.sh can remap docs without affecting ux/vendors"
 }
 
 test_home_git_subdir_skills_falls_back_to_repo_local() {
@@ -1147,7 +1083,7 @@ test_hook_install_prefers_rh_and_requires_config() {
     || fail "configured osac-ux rh hook install missing: $(cat "$hook_log")"
   grep -q '^upstream|' "$hook_log" \
     && fail "standard pre-commit must not run when rh installer exists: $(cat "$hook_log")"
-  grep -q 'osac-ui\|osac-docs' "$hook_log" \
+  grep -q 'osac-ui' "$hook_log" \
     && fail "config-less siblings must be skipped: $(cat "$hook_log")"
   grep -q "${OSAC_AI_SKILLS_NAME}\|${AI_WORKFLOWS_NAME}" "$hook_log" \
     && fail "vendor checkouts must not receive hooks: $(cat "$hook_log")"
@@ -1165,7 +1101,6 @@ test_hook_install_falls_back_to_pre_commit_and_is_repeatable() {
   run_bootstrap_isolated "$root" "$home" "$bin" >/dev/null
   seed_pre_commit_config "${root}/enhancement-proposals"
   seed_pre_commit_config "${root}/osac-ui"
-  seed_pre_commit_config "${root}/osac-docs"
   : > "${home}/hooks.log"
 
   out=$(run_bootstrap_isolated "$root" "$home" "$bin" 2>&1) || fail "fallback hook bootstrap failed: $out"
@@ -1177,8 +1112,6 @@ test_hook_install_falls_back_to_pre_commit_and_is_repeatable() {
     || fail "enhancement-proposals pre-commit should run once per bootstrap: $(cat "$hook_log")"
   [[ "$(grep -Fc "upstream|${root}/osac-ui|install" "$hook_log")" -eq 2 ]] \
     || fail "configured osac-ui pre-commit should run once per bootstrap: $(cat "$hook_log")"
-  [[ "$(grep -Fc "upstream|${root}/osac-docs|install" "$hook_log")" -eq 2 ]] \
-    || fail "configured osac-docs pre-commit should run once per bootstrap: $(cat "$hook_log")"
   grep -q 'osac-ux' "$hook_log" \
     && fail "config-less siblings must be skipped by fallback: $(cat "$hook_log")"
   pass "falls back to pre-commit and repeats installation safely"
@@ -1229,7 +1162,7 @@ test_hook_installer_failure_warns_and_continues() {
   pass "warns and continues after a hook installer failure"
 }
 
-test_clones_all_four_into_project_root
+test_clones_all_three_into_project_root
 test_rerun_updates_expected_clone
 test_skips_unrelated_existing_dir
 test_extra_list_entry_clones_without_other_edits
@@ -1259,8 +1192,6 @@ test_fork_name_origin_uses_osac_upstream_when_upstream_taken
 test_fork_name_origin_renames_when_only_pushurl_is_fork
 test_fork_name_origin_rename_does_not_log_remote_url
 test_no_fork_with_fork_name_origin_is_read_only
-test_docs_fork_uses_osac_docs_github_name
-test_fork_overrides_file_can_remap_docs
 test_home_git_subdir_skills_falls_back_to_repo_local
 test_repo_local_leftover_ai_workflows_errors_without_updating
 test_repo_local_leftover_osac_ai_skills_errors_without_updating
