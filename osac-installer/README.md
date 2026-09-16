@@ -14,8 +14,8 @@ framework for provisioning and managing OpenShift clusters and virtual machines.
 installer repository contains the Kubernetes/OpenShift deployment configurations needed
 to deploy OSAC components on your infrastructure.
 
-For detailed architecture, workflows, and design documentation, please refer to the
-[OSAC documentation repository](https://github.com/osac-project/docs).
+For detailed architecture, workflows, and design documentation, please refer to
+[`docs/`](../docs/README.md) at the root of this repository.
 
 The OSAC platform provides:
 - **Self-service provisioning** for clusters and virtual machines through a governed API

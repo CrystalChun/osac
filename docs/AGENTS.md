@@ -1,6 +1,16 @@
 # AGENTS.md — docs
 
-Documentation-only repository containing architecture guides, feature documentation, and developer guides for the OSAC project. No application code, no build system, no tests — pure Markdown content with PlantUML diagrams.
+Documentation content for the OSAC project: architecture guides, feature documentation, and developer guides. No application code, no build system, no tests — pure Markdown content with PlantUML diagrams.
+
+This directory is part of the `osac-project/osac` mono-repo (formerly the
+separate `osac-project/docs` repository, merged in with its full commit
+history). It follows the mono-repo's own contribution workflow, described in
+the repository root [`AGENTS.md`](../AGENTS.md) — fork/branch/commit/PR
+conventions below are superseded by that file where they conflict. The
+sections below describing this content's own organization and conventions
+(file layout, PlantUML generation, Markdown style) remain accurate and
+predate the merge; a follow-up will reorganize/update them for their new
+location.
 
 ## What This Repo Contains
 
@@ -70,20 +80,14 @@ docs/
 
 ### Setup
 
-Clone via fork-based workflow:
-```bash
-git clone git@github.com:<your-username>/docs.git
-cd docs
-git remote add origin git@github.com:osac-project/docs.git
-```
-
-**Note**: The fork-based workflow uses `fork` remote for your fork and `origin` remote for the upstream osac-project/docs repository.
-
-No dependencies to install, no services to run. Use any Markdown editor.
+Clone and set up remotes per the mono-repo root [`AGENTS.md`](../AGENTS.md)'s
+"Mandatory Git and contribution workflow" (fork as `origin`, base off
+`upstream/main`). No dependencies to install for docs content itself, no
+services to run — use any Markdown editor.
 
 ### Editing Documentation
 
-1. **Find or create an issue** at https://github.com/osac-project/docs/issues
+1. **Find or create a Jira issue** (see root `AGENTS.md`) or use a `NO-ISSUE:` commit/PR prefix.
 2. **Get stakeholder feedback** on proposed changes before starting
 3. **Create a feature branch** with descriptive name (e.g., `feat/update-vm-fulfillment-guide`)
 4. **Edit Markdown files** directly
@@ -139,23 +143,13 @@ See existing `.puml` files in `architecture/aap-provisioning/diagrams/` for exam
 
 ### PR Process
 
-1. **Push to your fork** (never push to `origin` upstream):
-   ```bash
-   git push fork <branch-name>
-   ```
-
-2. **Open PR** against `origin/main` (the upstream osac-project/docs repository)
-   - Link the issue (e.g., "Closes #123")
-   - Summarize documentation changes
-   - Call out any new sections or restructuring
-
-3. **Approval**: PR requires approval from `OWNERS` file reviewers:
-   - **Approvers**: 22 total (9 architects + 6 leads + 7 managers)
-   - **Reviewers**: 27 total (includes all 22 approvers + 5 additional contributors)
-   - Need LGTM from at least one reviewer
-   - Need `/approve` from at least one approver
-
-4. **Merge** when all Prow checks pass and approvers sign off
+Follow the mono-repo root [`AGENTS.md`](../AGENTS.md)'s git and contribution
+workflow: push to your fork (never to `upstream`), open the PR against
+`osac-project/osac:main` with an `OSAC-XXXX:`/`NO-ISSUE:`-prefixed title,
+link the issue, and summarize the documentation changes. This directory's own
+`OWNERS` file no longer gates review directly (approval follows the
+mono-repo's own review process); reconciling or retiring it is part of the
+follow-up reorg.
 
 ## Documentation Conventions
 
@@ -282,15 +276,10 @@ podman pull docker.io/plantuml/plantuml:latest
 
 ### Merge Conflicts
 
-When updating documentation that others have modified:
-```bash
-git fetch origin
-git rebase origin/main
-# Resolve conflicts in Markdown files
-git add <resolved-files>
-git rebase --continue
-git push fork <branch-name> --force-with-lease
-```
+When updating documentation that others have modified, rebase onto
+`upstream/main` per the root `AGENTS.md` workflow, resolve conflicts in the
+Markdown files, and force-push your branch to your fork (`origin`) with
+`--force-with-lease`.
 
 ### DCO Sign-Off
 
@@ -334,33 +323,25 @@ When documenting new features, verify implementation details in the relevant com
 ## Quick Reference
 
 ```bash
-# Clone your fork
-git clone git@github.com:<username>/docs.git
-cd docs
-git remote add origin git@github.com:osac-project/docs.git
-
-# Create feature branch
-git checkout -b feat/update-architecture-docs
+# From an osac mono-repo checkout, on a branch based on upstream/main
+git checkout -b feat/update-architecture-docs upstream/main
 
 # Edit Markdown files
-vim architecture/cluster-fulfillment.md
+vim docs/architecture/cluster-fulfillment.md
 
 # Regenerate diagrams (if needed)
-cd architecture/aap-provisioning/
+cd docs/architecture/aap-provisioning/
 ./generate_images.sh
-cd ../..
+cd -
 
 # Commit with DCO and AI attribution
-git add .
-git commit -s -m "Update cluster fulfillment architecture
+git add docs/
+git commit -s -m "NO-ISSUE: update cluster fulfillment architecture
 
 Document new HostedControlPlane integration patterns.
 
 Assisted-by: Claude Code <noreply@anthropic.com>"
 
-# Push to fork
-git push fork feat/update-architecture-docs
-
-# Open PR via GitHub UI
-# Link issue, summarize changes, wait for review
+# Push to your fork (origin) and open a PR against osac-project/osac:main
+git push origin feat/update-architecture-docs
 ```
