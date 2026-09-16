@@ -152,30 +152,34 @@ export const AppShell = ({ logout }: { logout: () => Promise<void> }) => {
             </ShellRoute>
           }
         />
-        <Route
-          path="/vms/*"
-          element={
-            <ShellRoute>
-              <VmRoutes />
-            </ShellRoute>
-          }
-        />
-        <Route
-          path="/clusters/*"
-          element={
-            <ShellRoute>
-              <ClusterRoutes />
-            </ShellRoute>
-          }
-        />
-        <Route
-          path="/bare-metal/*"
-          element={
-            <ShellRoute>
-              <BareMetalRoutes />
-            </ShellRoute>
-          }
-        />
+        {role !== 'admin' && (
+          <>
+            <Route
+              path="/vms/*"
+              element={
+                <ShellRoute>
+                  <VmRoutes />
+                </ShellRoute>
+              }
+            />
+            <Route
+              path="/clusters/*"
+              element={
+                <ShellRoute>
+                  <ClusterRoutes />
+                </ShellRoute>
+              }
+            />
+            <Route
+              path="/bare-metal/*"
+              element={
+                <ShellRoute>
+                  <BareMetalRoutes />
+                </ShellRoute>
+              }
+            />
+          </>
+        )}
         <Route
           path="/networking/virtual-networks"
           element={

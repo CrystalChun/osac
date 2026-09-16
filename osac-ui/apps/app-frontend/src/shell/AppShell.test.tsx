@@ -53,24 +53,24 @@ describe('AppShell', () => {
     });
   });
 
-  it('redirects admin away from VM create to VM list', () => {
-    renderAppShell('/vms/create', 'admin');
+  it('does not render VM routes for admin — falls through to default', () => {
+    renderAppShell('/vms', 'admin');
 
-    expect(screen.queryByRole('heading', { name: /create virtual machine/i })).toBeNull();
-    expect(screen.getByRole('heading', { name: 'Virtual machines' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: /virtual machines/i })).toBeNull();
+    expect(screen.getByRole('heading', { name: 'Tenants' })).toBeInTheDocument();
   });
 
-  it('redirects admin away from cluster create to cluster list', () => {
-    renderAppShell('/clusters/create', 'admin');
+  it('does not render cluster routes for admin — falls through to default', () => {
+    renderAppShell('/clusters', 'admin');
 
-    expect(screen.queryByRole('heading', { name: /create cluster/i })).toBeNull();
-    expect(screen.getByRole('heading', { name: 'Clusters' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: /clusters/i })).toBeNull();
+    expect(screen.getByRole('heading', { name: 'Tenants' })).toBeInTheDocument();
   });
 
-  it('redirects admin away from bare metal create to bare metal list', () => {
-    renderAppShell('/bare-metal/create', 'admin');
+  it('does not render bare metal routes for admin — falls through to default', () => {
+    renderAppShell('/bare-metal', 'admin');
 
-    expect(screen.queryByRole('heading', { name: /provision bare metal/i })).toBeNull();
-    expect(screen.getByRole('heading', { name: 'Bare Metal' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: /bare metal/i })).toBeNull();
+    expect(screen.getByRole('heading', { name: 'Tenants' })).toBeInTheDocument();
   });
 });
