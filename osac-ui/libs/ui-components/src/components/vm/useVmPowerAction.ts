@@ -30,7 +30,7 @@ export const useVmPowerAction = () => {
         onError: (error) => {
           addToast({
             variant: 'danger',
-            title: getPowerActionErrorTitle(t, powerAction),
+            title: getPowerActionErrorTitle(t, powerAction, vmName),
             description: getErrorMessage(error),
           });
         },

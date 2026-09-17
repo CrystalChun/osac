@@ -122,7 +122,7 @@ describe('useVmPowerAction', () => {
     );
   });
 
-  it('shows a danger toast when a power action fails', async () => {
+  it('shows a danger toast with instance name when a power action fails', async () => {
     const { result } = renderWithTransport(createFailureTransport());
 
     act(() => {
@@ -133,7 +133,7 @@ describe('useVmPowerAction', () => {
     expect(mockAddToast).toHaveBeenCalledWith(
       expect.objectContaining({
         variant: 'danger',
-        title: expect.stringContaining('Failed'),
+        title: expect.stringContaining('my-vm'),
       }),
     );
   });

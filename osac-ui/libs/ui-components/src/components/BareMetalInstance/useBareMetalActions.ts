@@ -23,14 +23,14 @@ const getBmActionSuccessTitle = (t: TFunction, action: BareMetalPowerAction, nam
   }
 };
 
-const getBmActionErrorTitle = (t: TFunction, action: BareMetalPowerAction) => {
+const getBmActionErrorTitle = (t: TFunction, action: BareMetalPowerAction, name: string) => {
   switch (action) {
     case 'start':
-      return t('Failed to start bare metal instance');
+      return t('Failed to start bare metal instance {{name}}', { name });
     case 'stop':
-      return t('Failed to stop bare metal instance');
+      return t('Failed to stop bare metal instance {{name}}', { name });
     case 'restart':
-      return t('Failed to restart bare metal instance');
+      return t('Failed to restart bare metal instance {{name}}', { name });
   }
 };
 
@@ -57,7 +57,7 @@ export const useBareMetalActions = (instance: BareMetalInstance) => {
       onError: (error) => {
         addToast({
           variant: 'danger',
-          title: getBmActionErrorTitle(t, input.action),
+          title: getBmActionErrorTitle(t, input.action, name),
           description: getErrorMessage(error),
         });
       },

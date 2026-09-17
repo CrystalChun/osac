@@ -138,7 +138,7 @@ describe('useBareMetalActions', () => {
     );
   });
 
-  it('shows a danger toast when a power action fails', async () => {
+  it('shows a danger toast with instance name when a power action fails', async () => {
     const instance = makeBmi('bmi-1', BareMetalInstanceState.RUNNING);
     const { result } = renderWithTransport(createFailureTransport(), instance);
 
@@ -150,7 +150,7 @@ describe('useBareMetalActions', () => {
     expect(mockAddToast).toHaveBeenCalledWith(
       expect.objectContaining({
         variant: 'danger',
-        title: expect.stringContaining('Failed'),
+        title: expect.stringContaining('bmi-bmi-1'),
       }),
     );
   });
