@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { Skeleton } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
-import type { Cluster } from '@osac/types';
+import { type Cluster, ClusterState } from '@osac/types';
 import ResourceNameField from '@osac/ui-components/components/Resource/ResourceNameField.tsx';
 
 import ClusterActionsMenu from './ClusterActionsMenu';
@@ -58,6 +58,7 @@ export const ClustersTable = ({ clusters }: ClustersTableProps) => {
       </Thead>
       <Tbody>
         {clusters.map((cluster) => {
+          const locked = cluster.status?.state === ClusterState.DELETING;
           const apiUrl = cluster.status?.apiUrl;
           const versionRef = cluster.spec?.version;
           const clusterVersion = versionRef?.name
@@ -69,7 +70,7 @@ export const ClustersTable = ({ clusters }: ClustersTableProps) => {
               <Td dataLabel={t('Name')}>
                 <ResourceNameField
                   resource={cluster}
-                  detailsUrl={`/clusters/${encodeURIComponent(cluster.id)}`}
+                  detailsUrl={locked ? undefined : `/clusters/${encodeURIComponent(cluster.id)}`}
                 />
               </Td>
               <Td dataLabel={t('Status')}>
@@ -90,13 +91,13 @@ export const ClustersTable = ({ clusters }: ClustersTableProps) => {
                 ) : null}
               </Td>
               <Td dataLabel={t('API URL')}>
-                <ExternalLink href={apiUrl} showUnsafeAsText />
+                {locked ? '—' : <ExternalLink href={apiUrl} showUnsafeAsText />}
               </Td>
               <Td dataLabel={t('Created')}>
                 <Timestamp value={cluster.metadata?.creationTimestamp} />
               </Td>
               <Td dataLabel={t('Actions')} isActionCell>
-                <ClusterActionsMenu cluster={cluster} />
+                {locked ? null : <ClusterActionsMenu cluster={cluster} />}
               </Td>
             </Tr>
           );

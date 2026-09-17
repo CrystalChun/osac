@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Dropdown, DropdownItem, DropdownList, MenuToggle } from '@patternfly/react-core';
 import { EllipsisVIcon } from '@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon';
 
-import type { Cluster } from '@osac/types';
+import { type Cluster, ClusterState } from '@osac/types';
 
 import ClusterDeleteConfirmModal from './ClusterDeleteConfirmModal';
 import { useTranslation } from '../../hooks/useTranslation';
@@ -15,6 +15,8 @@ const ClusterActionsMenu = ({ cluster }: ClusterActionsMenuProps) => {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+
+  const canDelete = cluster.status?.state !== ClusterState.DELETING;
 
   return (
     <>
@@ -43,7 +45,11 @@ const ClusterActionsMenu = ({ cluster }: ClusterActionsMenuProps) => {
         <DropdownList>
           <DropdownItem
             value="delete"
+            isDisabled={!canDelete}
             onClick={() => {
+              if (!canDelete) {
+                return;
+              }
               setDeleteOpen(true);
               setOpen(false);
             }}
