@@ -85,6 +85,34 @@ func newTaskForDelete(volumeID, hubID string, hubCache controllers.HubCache) *ta
 }
 
 var _ = Describe("buildSpec", func() {
+	It("maps CSI topology segments", func() {
+		t := &task{
+			volume: privatev1.Volume_builder{
+				Id: "vol-buildspec-topology",
+				Spec: privatev1.VolumeSpec_builder{
+					StorageTier: "gold",
+					SizeGib:     100,
+					AccessMode:  privatev1.VolumeAccessMode_VOLUME_ACCESS_MODE_READ_WRITE_ONCE,
+					Topology: privatev1.VolumeTopology_builder{
+						Segments: map[string]string{
+							"osac.io/node":                "worker-1",
+							"topology.kubernetes.io/zone": "zone-a",
+						},
+					}.Build(),
+				}.Build(),
+			}.Build(),
+		}
+
+		spec := t.buildSpec()
+
+		Expect(spec.Topology).To(Equal(&osacv1alpha1.VolumeTopology{
+			Segments: map[string]string{
+				"osac.io/node":                "worker-1",
+				"topology.kubernetes.io/zone": "zone-a",
+			},
+		}))
+	})
+
 	It("maps all spec fields including access mode enum", func() {
 		t := &task{
 			volume: privatev1.Volume_builder{
@@ -1082,6 +1110,7 @@ var _ = Describe("create status population", func() {
 				State:    privatev1.VolumeState_VOLUME_STATE_CREATING,
 				Hub:      "hub-1",
 				Backend:  "vast",
+				Provider: "vast",
 				Protocol: privatev1.StorageProtocol_STORAGE_PROTOCOL_BLOCK,
 			}.Build(),
 		}.Build()
@@ -1096,6 +1125,7 @@ var _ = Describe("create status population", func() {
 		Expect(f.run(ctx, volume)).To(Succeed())
 		Expect(capturedStatus).ToNot(BeNil())
 		Expect(capturedStatus.Status.Backend).To(Equal("vast"))
+		Expect(capturedStatus.Status.Provider).To(Equal("vast"))
 		Expect(capturedStatus.Status.Protocol).To(Equal(osacv1alpha1.VolumeProtocolBlock))
 	})
 
@@ -1159,6 +1189,7 @@ var _ = Describe("create status population", func() {
 				State:    privatev1.VolumeState_VOLUME_STATE_CREATING,
 				Hub:      "hub-1",
 				Backend:  "vast",
+				Provider: "vast",
 				Protocol: privatev1.StorageProtocol_STORAGE_PROTOCOL_BLOCK,
 			}.Build(),
 		}.Build()
@@ -1174,6 +1205,7 @@ var _ = Describe("create status population", func() {
 		Expect(conflictCount).To(Equal(3))
 		Expect(capturedStatus).ToNot(BeNil())
 		Expect(capturedStatus.Status.Backend).To(Equal("vast"))
+		Expect(capturedStatus.Status.Provider).To(Equal("vast"))
 		Expect(capturedStatus.Status.Protocol).To(Equal(osacv1alpha1.VolumeProtocolBlock))
 	})
 
@@ -1244,6 +1276,7 @@ var _ = Describe("create status population", func() {
 				State:    privatev1.VolumeState_VOLUME_STATE_CREATING,
 				Hub:      "hub-1",
 				Backend:  "vast",
+				Provider: "vast",
 				Protocol: privatev1.StorageProtocol_STORAGE_PROTOCOL_BLOCK,
 			}.Build(),
 		}.Build()
@@ -1258,6 +1291,7 @@ var _ = Describe("create status population", func() {
 		Expect(f.run(ctx, volume)).To(Succeed())
 		Expect(capturedStatus).ToNot(BeNil())
 		Expect(capturedStatus.Status.Backend).To(Equal("vast"))
+		Expect(capturedStatus.Status.Provider).To(Equal("vast"))
 		Expect(capturedStatus.Status.Protocol).To(Equal(osacv1alpha1.VolumeProtocolBlock))
 	})
 
