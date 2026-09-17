@@ -148,7 +148,7 @@ var _ = Describe("Compute instances server", func() {
 						Tenant: testTenant,
 					}.Build(),
 					Spec: privatev1.InstanceTypeSpec_builder{
-						Cores:     4,
+						Vcpus:     4,
 						MemoryGib: 16,
 						State:     privatev1.InstanceTypeState_INSTANCE_TYPE_STATE_ACTIVE,
 					}.Build(),
@@ -233,7 +233,7 @@ var _ = Describe("Compute instances server", func() {
 					{
 						Name:        "cpu_count",
 						Title:       "CPU Count",
-						Description: "Number of CPU cores",
+						Description: "Number of vCPUs",
 						Required:    false,
 						Type:        "type.googleapis.com/google.protobuf.Int32Value",
 						Default:     cpuDefault,

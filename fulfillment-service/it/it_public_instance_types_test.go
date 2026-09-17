@@ -43,7 +43,7 @@ var _ = Describe("Public instance types", func() {
 
 	// createViaPrivate creates an instance type through the private API and returns its ID.
 	// Registers a DeferCleanup to delete the instance type when the test completes.
-	createViaPrivate := func(suffix string, cores int32, memoryGib int32) string {
+	createViaPrivate := func(suffix string, vcpus int32, memoryGib int32) string {
 		name := fmt.Sprintf("it-pub-%s-%s", suffix, uuid.New())
 		_, err := privateClient.Create(ctx, privatev1.InstanceTypesCreateRequest_builder{
 			Object: privatev1.InstanceType_builder{
@@ -51,7 +51,7 @@ var _ = Describe("Public instance types", func() {
 					Name: name,
 				}.Build(),
 				Spec: privatev1.InstanceTypeSpec_builder{
-					Cores:       cores,
+					Vcpus:       vcpus,
 					MemoryGib:   memoryGib,
 					Description: "Public IT test type.",
 				}.Build(),
@@ -86,7 +86,7 @@ var _ = Describe("Public instance types", func() {
 		object := response.GetObject()
 		Expect(object).ToNot(BeNil())
 		Expect(object.GetId()).To(Equal(id))
-		Expect(object.GetSpec().GetCores()).To(Equal(int32(4)))
+		Expect(object.GetSpec().GetVcpus()).To(Equal(int32(4)))
 		Expect(object.GetSpec().GetMemoryGib()).To(Equal(int32(16)))
 	})
 

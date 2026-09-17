@@ -69,7 +69,7 @@ var _ = Describe("ComputeInstance CEL Validation", func() {
 					SourceType: osacv1alpha1.ImageSourceTypeRegistry,
 					SourceRef:  "quay.io/test/test-image:latest",
 				},
-				Cores:       2,
+				VCPUs:       2,
 				MemoryGiB:   4,
 				BootDisk:    osacv1alpha1.DiskSpec{SizeGiB: 20, StorageTier: "standard"},
 				RunStrategy: osacv1alpha1.RunStrategyAlways,
@@ -318,7 +318,7 @@ var _ = Describe("ComputeInstance CEL Validation", func() {
 			//
 			// To prevent nil-to-value transitions would require parent-level validation using has() checks,
 			// or a validating webhook. For the current use case, this limitation is acceptable since:
-			// 1. Most immutable fields are required (cores, memory, etc.)
+			// 1. Most immutable fields are required (vCPUs, memory, etc.)
 			// 2. Optional immutable fields (userDataSecretRef, sshKey) are typically set at creation
 			// 3. Changing a set value IS prevented by the validation
 			instance := createValidInstance("test-add-userdata")
@@ -354,33 +354,33 @@ var _ = Describe("ComputeInstance CEL Validation", func() {
 	})
 
 	Describe("Mutable fields", func() {
-		It("should allow changing cores", func() {
-			instance := createValidInstance("test-cores-mutable")
+		It("should allow changing vCPUs", func() {
+			instance := createValidInstance("test-vcpus-mutable")
 			Expect(k8sClient.Create(ctx, instance)).To(Succeed())
 
 			// Fetch latest version
 			Expect(k8sClient.Get(ctx, client.ObjectKeyFromObject(instance), instance)).To(Succeed())
 
-			// Change cores - should succeed
-			instance.Spec.Cores = 4
+			// Change vCPUs - should succeed
+			instance.Spec.VCPUs = 4
 			Expect(k8sClient.Update(ctx, instance)).To(Succeed())
 
 			// Verify the change persisted
 			Expect(k8sClient.Get(ctx, client.ObjectKeyFromObject(instance), instance)).To(Succeed())
-			Expect(instance.Spec.Cores).To(Equal(int32(4)))
+			Expect(instance.Spec.VCPUs).To(Equal(int32(4)))
 		})
 
-		It("should reject updating cores outside the allowed range", func() {
-			instance := createValidInstance("test-cores-bounds")
+		It("should reject updating vCPUs outside the allowed range", func() {
+			instance := createValidInstance("test-vcpus-bounds")
 			Expect(k8sClient.Create(ctx, instance)).To(Succeed())
 
 			Expect(k8sClient.Get(ctx, client.ObjectKeyFromObject(instance), instance)).To(Succeed())
-			instance.Spec.Cores = 0
+			instance.Spec.VCPUs = 0
 			err := k8sClient.Update(ctx, instance)
 			Expect(err).To(HaveOccurred())
 			Expect(apierrors.IsInvalid(err)).To(BeTrue())
 
-			instance.Spec.Cores = 129
+			instance.Spec.VCPUs = 129
 			err = k8sClient.Update(ctx, instance)
 			Expect(err).To(HaveOccurred())
 			Expect(apierrors.IsInvalid(err)).To(BeTrue())
