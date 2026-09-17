@@ -17,6 +17,7 @@ export const VmActionsMenu = ({ vm }: VmActionsMenuProps) => {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const { runPowerAction } = useVmPowerAction();
 
+  const name = vm.metadata?.name ?? vm.id;
   const state = vm.status?.state;
   const canStart = state === ComputeInstanceState.STOPPED;
   const canStop = state === ComputeInstanceState.RUNNING || state === ComputeInstanceState.PAUSED;
@@ -41,7 +42,7 @@ export const VmActionsMenu = ({ vm }: VmActionsMenuProps) => {
             ref={ref}
             variant="plain"
             onClick={() => setOpen((o) => !o)}
-            aria-label={`Actions for ${vm.metadata?.name ?? vm.id}`}
+            aria-label={`Actions for ${name}`}
           >
             <EllipsisVIcon />
           </MenuToggle>
@@ -56,7 +57,7 @@ export const VmActionsMenu = ({ vm }: VmActionsMenuProps) => {
               if (!canStart) {
                 return;
               }
-              runPowerAction(vm.id, 'start');
+              runPowerAction(vm.id, name, 'start');
               setOpen(false);
             }}
           >
@@ -69,7 +70,7 @@ export const VmActionsMenu = ({ vm }: VmActionsMenuProps) => {
               if (!canStop) {
                 return;
               }
-              runPowerAction(vm.id, 'stop');
+              runPowerAction(vm.id, name, 'stop');
               setOpen(false);
             }}
           >
@@ -82,7 +83,7 @@ export const VmActionsMenu = ({ vm }: VmActionsMenuProps) => {
               if (!canRestart) {
                 return;
               }
-              runPowerAction(vm.id, 'restart');
+              runPowerAction(vm.id, name, 'restart');
               setOpen(false);
             }}
           >
