@@ -105,7 +105,6 @@ export const buildBareMetalInstanceStepSchema = (
       return yup.object({
         metadata: yup.object({
           name: fields.metadataName,
-          project: yup.string().required(t('Project is required')),
         }),
         spec: yup.object({
           sshKey: fields.specSshKey,

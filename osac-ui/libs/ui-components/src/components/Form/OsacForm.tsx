@@ -18,7 +18,7 @@ const widthToSpan = (width: number = 0): gridItemSpanValueShape => {
   if (width < globalWidthBreakpoints.lg) {
     return 8;
   }
-  return 6;
+  return 12;
 };
 
 const useContainerWidth = () => {
@@ -50,7 +50,7 @@ const useContainerWidth = () => {
 const OsacForm = ({
   className,
   children,
-  isResponsive = true,
+  isResponsive = false,
 }: React.PropsWithChildren<{ className?: string; isResponsive?: boolean }>) => {
   const [ref, width] = useContainerWidth();
 

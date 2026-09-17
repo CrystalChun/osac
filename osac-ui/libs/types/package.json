@@ -8,7 +8,7 @@
     "./private": "./src/index-private.ts"
   },
   "scripts": {
-    "gen-types": "buf generate",
+    "gen-types": "node scripts/gen-types.mjs",
     "lint": "echo 'no lint target'"
   },
   "dependencies": {
