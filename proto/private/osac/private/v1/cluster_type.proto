@@ -51,7 +51,8 @@ message ClusterSpec {
 
   // Reference to the cluster template. Either `template` or `catalog_item` is required on create.
   //
-  // Mutually exclusive with `catalog_item`.
+  // Mutually exclusive with `catalog_item` on Create. For catalog-created clusters, the server
+  // populates this reference from the catalog item.
   //
   // This can't be modified after the cluster is created.
   ClusterTemplateReference template = 1;
@@ -159,7 +160,7 @@ message ClusterSpec {
   // The version is resolved with the following precedence:
   //
   //   1. Explicit `spec.version` provided by the user.
-  //   2. Template `spec_defaults.version` (template path) or catalog item field definition default (catalog-item path).
+  //   2. Template `spec_defaults.version` (template path) or catalog item policy default (catalog-item path).
   //   3. System default (`is_default = true`).
   //
   // The referenced ClusterVersion must exist, be enabled, and not be in `OBSOLETE` state.
@@ -168,8 +169,8 @@ message ClusterSpec {
   // Cluster networking configuration.
   optional ClusterNetwork network = 7;
 
-  // Reference to a cluster catalog item. Mutually exclusive with template during the migration period.
-  // When set, the server fetches the catalog item and applies its field definitions.
+  // Reference to a cluster catalog item. Mutually exclusive with template on Create; retained as immutable provenance afterward.
+  // When set, the server fetches the catalog item and applies its typed field policies.
   ClusterCatalogItemReference catalog_item = 8;
 
   // Network attachment connecting this cluster to a tenant subnet.

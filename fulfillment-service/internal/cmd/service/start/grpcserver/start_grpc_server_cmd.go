@@ -51,7 +51,6 @@ import (
 	"github.com/osac-project/osac/fulfillment-service/internal/network"
 	"github.com/osac-project/osac/fulfillment-service/internal/provisioners"
 	"github.com/osac-project/osac/fulfillment-service/internal/recovery"
-	"github.com/osac-project/osac/fulfillment-service/internal/references"
 	"github.com/osac-project/osac/fulfillment-service/internal/servers"
 	"github.com/osac-project/osac/fulfillment-service/internal/services"
 	shtdwn "github.com/osac-project/osac/fulfillment-service/internal/shutdown"
@@ -452,19 +451,9 @@ func (c *runnerContext) run(cmd *cobra.Command, argv []string) error { //nolint:
 
 	// Prepare the reference validation interceptor:
 	c.logger.InfoContext(ctx, "Creating reference validation interceptor")
-	referenceValidator, err := references.NewReferenceValidator().
-		SetLogger(c.logger).
-		SetMetricsRegisterer(metricsRegisterer).
-		Build()
+	referenceValidator, err := newReferenceValidator(c.logger, tenancyLogic, metricsRegisterer)
 	if err != nil {
-		return fmt.Errorf("failed to create reference validation interceptor: %w", err)
-	}
-
-	// Register reference lookup functions for all resource types:
-	c.logger.InfoContext(ctx, "Registering reference lookup functions")
-	err = registerReferenceLookups(referenceValidator, c.logger, tenancyLogic, metricsRegisterer)
-	if err != nil {
-		return fmt.Errorf("failed to register reference lookups: %w", err)
+		return err
 	}
 
 	// Prepare the transactions manager:
