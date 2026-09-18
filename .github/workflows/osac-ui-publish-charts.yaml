@@ -1,9 +1,27 @@
 name: Publish charts
 
+# Carried over from osac-ui's own standalone repo at merge time, relocated
+# (osac-ui/-prefixed paths). NOT yet wired into this repo's own release
+# conventions -- see osac-ui-publish-image.yaml's header for why its
+# `tags: ['v*']` trigger (and so this workflow_run chain) has no real
+# trigger path today. Two things here specifically still assume the
+# standalone repo and need phase-2 redesign, not just a path fix:
+#   1. REPO is hardcoded to osac-project/osac-ui (matching
+#      osac-ui-publish-image.yaml's IMAGE_NAME) so the chart's pinned image
+#      reference stays correct -- but ${{ github.repository }} used to
+#      double as "which repo do I push this chart/release to", and that
+#      repo is now archived and read-only.
+#   2. The final `gh release create --repo` step will fail outright once
+#      osac-ui is archived -- releases need to move to osac-project/osac
+#      with a component-prefixed tag (osac-ui/vX.Y.Z), matching how every
+#      other mono-repo component's release is tagged and recorded.
 on:
   workflow_run:
     workflows: ["Publish container image"]
     types: [completed]
+
+env:
+  REPO: osac-project/osac-ui
 
 jobs:
 
@@ -63,15 +81,14 @@ jobs:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         TAG: ${{ needs.guard.outputs.tag }}
         GUARDED_SHA: ${{ needs.guard.outputs.sha }}
-        REPO: ${{ github.repository }}
-      run: .github/scripts/verify-tag-matches-sha.sh
+      run: osac-ui/.github/scripts/verify-tag-matches-sha.sh
 
     - id: run
       env:
         TAG: ${{ needs.guard.outputs.tag }}
         REGISTRY_USERNAME: ${{ github.actor }}
         REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
-        REPO: ${{ github.repository }}
+      working-directory: osac-ui
       run: |
         # Login to the registry:
         export registry="ghcr.io"
@@ -107,8 +124,7 @@ jobs:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         TAG: ${{ needs.guard.outputs.tag }}
         GUARDED_SHA: ${{ needs.guard.outputs.sha }}
-        REPO: ${{ github.repository }}
-      run: .github/scripts/verify-tag-matches-sha.sh
+      run: osac-ui/.github/scripts/verify-tag-matches-sha.sh
 
     - name: Create GitHub Release
       run: |
@@ -123,4 +139,3 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         TAG: ${{ needs.guard.outputs.tag }}
-        REPO: ${{ github.repository }}

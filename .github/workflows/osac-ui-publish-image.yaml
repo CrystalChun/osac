@@ -1,9 +1,27 @@
 name: Publish container image
 
+# Carried over from osac-ui's own standalone repo at merge time, relocated
+# (osac-ui/-prefixed paths) and path-scoped to osac-ui/** so a mono-repo
+# push touching unrelated components doesn't trigger it. NOT yet wired
+# into this repo's own tag/release conventions (every other mono-repo
+# component publishes via osac-build-and-publish.yaml and tags as
+# <component>/vX.Y.Z, not a bare vX.Y.Z push) -- that redesign is a
+# deliberate follow-up, not part of this move. Until it lands, the
+# `tags: ['v*']` branch below has no real trigger path (nothing pushes a
+# bare vX.Y.Z tag to this repo), so only the branch-push path is live,
+# same as it always was for this workflow.
+#
+# IMAGE_NAME is hardcoded rather than derived from ${{ github.repository }}
+# (which now resolves to osac-project/osac, not osac-project/osac-ui) --
+# every existing chart/values reference still points at
+# ghcr.io/osac-project/osac-ui, so the published image name must not
+# change as a side effect of where the source code happens to live.
 on:
   push:
     branches:
       - main
+    paths:
+      - 'osac-ui/**'
     tags:
       - 'v*'
 
@@ -21,7 +39,7 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: osac-project/osac-ui
 
 jobs:
   publish:
@@ -57,8 +75,8 @@ jobs:
         id: build
         uses: docker/build-push-action@v7
         with:
-          context: .
-          file: Containerfile
+          context: osac-ui
+          file: osac-ui/Containerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
