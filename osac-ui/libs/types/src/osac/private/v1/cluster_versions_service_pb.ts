@@ -379,4 +379,3 @@ export const ClusterVersions: GenService<{
   },
 }> = /*@__PURE__*/
   serviceDesc(file_osac_private_v1_cluster_versions_service, 0);
-

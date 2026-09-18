@@ -642,4 +642,3 @@ export enum ComputeInstanceConditionType {
  */
 export const ComputeInstanceConditionTypeSchema: GenEnum<ComputeInstanceConditionType> = /*@__PURE__*/
   enumDesc(file_osac_private_v1_compute_instance_type, 1);
-

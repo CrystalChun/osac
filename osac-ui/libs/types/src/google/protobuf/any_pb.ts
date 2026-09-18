@@ -182,4 +182,3 @@ export type Any = Message<"google.protobuf.Any"> & {
  */
 export const AnySchema: GenMessage<Any> = /*@__PURE__*/
   messageDesc(file_google_protobuf_any, 0);
-

@@ -282,4 +282,3 @@ export enum PublicIPPoolState {
  */
 export const PublicIPPoolStateSchema: GenEnum<PublicIPPoolState> = /*@__PURE__*/
   enumDesc(file_osac_private_v1_public_ip_pool_type, 0);
-

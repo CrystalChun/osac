@@ -951,4 +951,3 @@ export type EditableTemplateParameter = Message<"osac.private.v1.EditableTemplat
  */
 export const EditableTemplateParameterSchema: GenMessage<EditableTemplateParameter> = /*@__PURE__*/
   messageDesc(file_osac_private_v1_field_policy_type, 36);
-

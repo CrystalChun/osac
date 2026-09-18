@@ -234,4 +234,3 @@ export enum StorageTierState {
  */
 export const StorageTierStateSchema: GenEnum<StorageTierState> = /*@__PURE__*/
   enumDesc(file_osac_private_v1_storage_tier_type, 0);
-

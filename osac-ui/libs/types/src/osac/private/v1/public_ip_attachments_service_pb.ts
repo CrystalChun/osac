@@ -365,4 +365,3 @@ export const PublicIPAttachments: GenService<{
   },
 }> = /*@__PURE__*/
   serviceDesc(file_osac_private_v1_public_ip_attachments_service, 0);
-

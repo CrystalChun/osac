@@ -320,4 +320,3 @@ export enum ExternalIPPoolState {
  */
 export const ExternalIPPoolStateSchema: GenEnum<ExternalIPPoolState> = /*@__PURE__*/
   enumDesc(file_osac_private_v1_external_ip_pool_type, 0);
-

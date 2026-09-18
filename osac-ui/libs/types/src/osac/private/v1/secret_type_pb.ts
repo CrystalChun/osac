@@ -145,4 +145,3 @@ export enum SecretBackend {
  */
 export const SecretBackendSchema: GenEnum<SecretBackend> = /*@__PURE__*/
   enumDesc(file_osac_private_v1_secret_type, 0);
-

@@ -168,4 +168,3 @@ export enum Protocol {
  */
 export const ProtocolSchema: GenEnum<Protocol> = /*@__PURE__*/
   enumDesc(file_osac_private_v1_security_rule_type, 0);
-

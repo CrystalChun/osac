@@ -232,4 +232,3 @@ export type ClusterCatalogItemReference = Message<"osac.private.v1.ClusterCatalo
  */
 export const ClusterCatalogItemReferenceSchema: GenMessage<ClusterCatalogItemReference> = /*@__PURE__*/
   messageDesc(file_osac_private_v1_cluster_catalog_item_type, 3);
-

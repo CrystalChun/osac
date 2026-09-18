@@ -239,4 +239,3 @@ export type ComputeInstanceCatalogItemReference = Message<"osac.private.v1.Compu
  */
 export const ComputeInstanceCatalogItemReferenceSchema: GenMessage<ComputeInstanceCatalogItemReference> = /*@__PURE__*/
   messageDesc(file_osac_private_v1_compute_instance_catalog_item_type, 3);
-

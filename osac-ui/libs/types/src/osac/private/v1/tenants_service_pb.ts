@@ -359,4 +359,3 @@ export const Tenants: GenService<{
   },
 }> = /*@__PURE__*/
   serviceDesc(file_osac_private_v1_tenants_service, 0);
-

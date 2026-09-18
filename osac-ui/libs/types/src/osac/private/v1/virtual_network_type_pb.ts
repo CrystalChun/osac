@@ -294,4 +294,3 @@ export enum VirtualNetworkState {
  */
 export const VirtualNetworkStateSchema: GenEnum<VirtualNetworkState> = /*@__PURE__*/
   enumDesc(file_osac_private_v1_virtual_network_type, 0);
-

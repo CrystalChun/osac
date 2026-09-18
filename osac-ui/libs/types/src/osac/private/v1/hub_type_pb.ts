@@ -126,4 +126,3 @@ export type HubStatus = Message<"osac.private.v1.HubStatus"> & {
  */
 export const HubStatusSchema: GenMessage<HubStatus> = /*@__PURE__*/
   messageDesc(file_osac_private_v1_hub_type, 2);
-

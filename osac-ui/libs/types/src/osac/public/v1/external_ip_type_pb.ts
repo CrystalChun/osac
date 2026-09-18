@@ -264,4 +264,3 @@ export enum ExternalIPState {
  */
 export const ExternalIPStateSchema: GenEnum<ExternalIPState> = /*@__PURE__*/
   enumDesc(file_osac_public_v1_external_ip_type, 0);
-

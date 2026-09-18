@@ -381,4 +381,3 @@ export enum NetworkClassState {
  */
 export const NetworkClassStateSchema: GenEnum<NetworkClassState> = /*@__PURE__*/
   enumDesc(file_osac_public_v1_network_class_type, 0);
-

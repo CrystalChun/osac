@@ -206,4 +206,3 @@ export type BareMetalInstanceCatalogItemReference = Message<"osac.public.v1.Bare
  */
 export const BareMetalInstanceCatalogItemReferenceSchema: GenMessage<BareMetalInstanceCatalogItemReference> = /*@__PURE__*/
   messageDesc(file_osac_public_v1_baremetal_instance_catalog_item_type, 2);
-

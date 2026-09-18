@@ -313,4 +313,3 @@ export const ComputeInstanceCatalogItems: GenService<{
   },
 }> = /*@__PURE__*/
   serviceDesc(file_osac_public_v1_compute_instance_catalog_items_service, 0);
-

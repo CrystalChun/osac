@@ -202,4 +202,3 @@ export enum ProjectMembershipState {
  */
 export const ProjectMembershipStateSchema: GenEnum<ProjectMembershipState> = /*@__PURE__*/
   enumDesc(file_osac_public_v1_project_membership_type, 1);
-

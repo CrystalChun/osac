@@ -364,4 +364,3 @@ export const ExternalIPPools: GenService<{
   },
 }> = /*@__PURE__*/
   serviceDesc(file_osac_private_v1_external_ip_pools_service, 0);
-

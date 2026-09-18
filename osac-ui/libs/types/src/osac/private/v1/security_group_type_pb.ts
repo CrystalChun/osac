@@ -308,4 +308,3 @@ export enum SecurityGroupState {
  */
 export const SecurityGroupStateSchema: GenEnum<SecurityGroupState> = /*@__PURE__*/
   enumDesc(file_osac_private_v1_security_group_type, 0);
-

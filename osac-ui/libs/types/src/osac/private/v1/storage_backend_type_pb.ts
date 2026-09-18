@@ -217,4 +217,3 @@ export enum StorageBackendState {
  */
 export const StorageBackendStateSchema: GenEnum<StorageBackendState> = /*@__PURE__*/
   enumDesc(file_osac_private_v1_storage_backend_type, 0);
-

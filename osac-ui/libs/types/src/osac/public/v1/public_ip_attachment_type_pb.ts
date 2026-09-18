@@ -239,4 +239,3 @@ export enum PublicIPAttachmentState {
  */
 export const PublicIPAttachmentStateSchema: GenEnum<PublicIPAttachmentState> = /*@__PURE__*/
   enumDesc(file_osac_public_v1_public_ip_attachment_type, 0);
-

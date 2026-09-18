@@ -263,4 +263,3 @@ export enum PublicIPState {
  */
 export const PublicIPStateSchema: GenEnum<PublicIPState> = /*@__PURE__*/
   enumDesc(file_osac_private_v1_public_ip_type, 0);
-

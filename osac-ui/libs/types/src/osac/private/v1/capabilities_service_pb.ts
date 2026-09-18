@@ -85,4 +85,3 @@ export const Capabilities: GenService<{
   },
 }> = /*@__PURE__*/
   serviceDesc(file_osac_private_v1_capabilities_service, 0);
-

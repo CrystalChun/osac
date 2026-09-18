@@ -320,4 +320,3 @@ export const Organizations: GenService<{
   },
 }> = /*@__PURE__*/
   serviceDesc(file_osac_public_v1_organizations_service, 0);
-

@@ -370,4 +370,3 @@ export const NATGateways: GenService<{
   },
 }> = /*@__PURE__*/
   serviceDesc(file_osac_private_v1_nat_gateways_service, 0);
-

@@ -393,4 +393,3 @@ export type BareMetalNetworkPortSpec = Message<"osac.private.v1.BareMetalNetwork
  */
 export const BareMetalNetworkPortSpecSchema: GenMessage<BareMetalNetworkPortSpec> = /*@__PURE__*/
   messageDesc(file_osac_private_v1_bare_metal_instance_type_type, 9);
-

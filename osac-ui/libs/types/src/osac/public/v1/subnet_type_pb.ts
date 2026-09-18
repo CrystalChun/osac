@@ -316,4 +316,3 @@ export enum SubnetState {
  */
 export const SubnetStateSchema: GenEnum<SubnetState> = /*@__PURE__*/
   enumDesc(file_osac_public_v1_subnet_type, 0);
-

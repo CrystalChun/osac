@@ -171,4 +171,3 @@ export type ExternalIPPoolReference = Message<"osac.public.v1.ExternalIPPoolRefe
  */
 export const ExternalIPPoolReferenceSchema: GenMessage<ExternalIPPoolReference> = /*@__PURE__*/
   messageDesc(file_osac_public_v1_external_ip_pool_type, 3);
-

@@ -135,4 +135,3 @@ export enum BareMetalInstanceRunStrategy {
  */
 export const BareMetalInstanceRunStrategySchema: GenEnum<BareMetalInstanceRunStrategy> = /*@__PURE__*/
   enumDesc(file_osac_public_v1_baremetal_instance_common_type, 0);
-

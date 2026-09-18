@@ -370,4 +370,3 @@ export const VirtualNetworks: GenService<{
   },
 }> = /*@__PURE__*/
   serviceDesc(file_osac_private_v1_virtual_networks_service, 0);
-

@@ -56,4 +56,3 @@ export type AuthnCapabilities = Message<"osac.public.v1.AuthnCapabilities"> & {
  */
 export const AuthnCapabilitiesSchema: GenMessage<AuthnCapabilities> = /*@__PURE__*/
   messageDesc(file_osac_public_v1_authn_capabilities_type, 0);
-

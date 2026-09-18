@@ -335,4 +335,3 @@ export const Secrets: GenService<{
   },
 }> = /*@__PURE__*/
   serviceDesc(file_osac_public_v1_secrets_service, 0);
-

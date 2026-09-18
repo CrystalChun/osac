@@ -95,4 +95,3 @@ export type SecretLocalReference = Message<"osac.public.v1.SecretLocalReference"
  */
 export const SecretLocalReferenceSchema: GenMessage<SecretLocalReference> = /*@__PURE__*/
   messageDesc(file_osac_public_v1_secret_type, 1);
-

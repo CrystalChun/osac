@@ -74,4 +74,3 @@ export type OrganizationSpec = Message<"osac.public.v1.OrganizationSpec"> & {
  */
 export const OrganizationSpecSchema: GenMessage<OrganizationSpec> = /*@__PURE__*/
   messageDesc(file_osac_public_v1_organization_type, 1);
-

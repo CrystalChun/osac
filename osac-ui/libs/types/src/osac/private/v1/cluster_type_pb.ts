@@ -695,4 +695,3 @@ export enum ClusterConditionType {
  */
 export const ClusterConditionTypeSchema: GenEnum<ClusterConditionType> = /*@__PURE__*/
   enumDesc(file_osac_private_v1_cluster_type, 1);
-

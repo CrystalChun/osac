@@ -223,4 +223,3 @@ export const service: GenExtension<ServiceOptions$1, ServiceOptions> = /*@__PURE
  */
 export const method: GenExtension<MethodOptions$1, MethodOptions> = /*@__PURE__*/
   extDesc(file_cleanapi_cleanapi, 6);
-

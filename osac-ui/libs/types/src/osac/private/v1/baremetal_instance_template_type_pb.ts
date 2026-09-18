@@ -236,4 +236,3 @@ export type BareMetalInstanceTemplateReference = Message<"osac.private.v1.BareMe
  */
 export const BareMetalInstanceTemplateReferenceSchema: GenMessage<BareMetalInstanceTemplateReference> = /*@__PURE__*/
   messageDesc(file_osac_private_v1_baremetal_instance_template_type, 3);
-

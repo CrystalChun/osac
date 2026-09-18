@@ -161,4 +161,3 @@ export const PublicIPPools: GenService<{
   },
 }> = /*@__PURE__*/
   serviceDesc(file_osac_public_v1_public_ip_pools_service, 0);
-

@@ -117,4 +117,3 @@ export type PublicIPPoolStatus = Message<"osac.public.v1.PublicIPPoolStatus"> & 
  */
 export const PublicIPPoolStatusSchema: GenMessage<PublicIPPoolStatus> = /*@__PURE__*/
   messageDesc(file_osac_public_v1_public_ip_pool_type, 2);
-

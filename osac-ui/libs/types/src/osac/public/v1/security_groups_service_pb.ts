@@ -329,4 +329,3 @@ export const SecurityGroups: GenService<{
   },
 }> = /*@__PURE__*/
   serviceDesc(file_osac_public_v1_security_groups_service, 0);
-

@@ -335,4 +335,3 @@ export enum ExternalIPAttachmentState {
  */
 export const ExternalIPAttachmentStateSchema: GenEnum<ExternalIPAttachmentState> = /*@__PURE__*/
   enumDesc(file_osac_private_v1_external_ip_attachment_type, 1);
-

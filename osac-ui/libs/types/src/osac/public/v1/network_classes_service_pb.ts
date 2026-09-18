@@ -335,4 +335,3 @@ export const NetworkClasses: GenService<{
   },
 }> = /*@__PURE__*/
   serviceDesc(file_osac_public_v1_network_classes_service, 0);
-

@@ -378,4 +378,3 @@ export const ProjectMemberships: GenService<{
   },
 }> = /*@__PURE__*/
   serviceDesc(file_osac_public_v1_project_memberships_service, 0);
-
