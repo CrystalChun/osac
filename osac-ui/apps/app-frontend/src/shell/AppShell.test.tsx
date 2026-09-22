@@ -9,6 +9,10 @@ vi.mock('./StorageRoutes', () => ({
   StorageRoutes: () => <h1>Storage routes</h1>,
 }));
 
+vi.mock('react-svg', () => ({
+  ReactSVG: () => <svg aria-hidden="true" />,
+}));
+
 import { AppShell } from './AppShell';
 
 const renderAppShell = (entry: string, role: UserRole = 'admin') =>

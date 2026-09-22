@@ -107,7 +107,8 @@ describe('getInstanceTypeCreateSchema', () => {
       ['zero', '0'],
       ['negative', '-1'],
       ['decimal', '1.5'],
-    ])('rejects an out-of-range gpu count of %s', async (_label, count) => {
+      ['non-numeric', 'abc'],
+    ])('rejects an invalid gpu count of %s', async (_label, count) => {
       await expect(
         schema.isValid({
           ...validValues,
