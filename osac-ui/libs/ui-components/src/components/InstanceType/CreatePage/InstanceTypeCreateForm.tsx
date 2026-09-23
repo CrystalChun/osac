@@ -37,7 +37,7 @@ const InstanceTypeCreateForm = () => {
         metadata: { name: values.metadata.name },
         spec: {
           description: values.spec.description,
-          cores: Number(values.spec.cores),
+          vcpus: Number(values.spec.vcpus),
           memoryGib: Number(values.spec.memoryGib),
           ...(hasGpu
             ? {
@@ -76,9 +76,9 @@ const InstanceTypeCreateForm = () => {
                   multiline
                 />
                 <InputField
-                  name="spec.cores"
-                  label={t('CPU cores')}
-                  fieldId="instance-type-cores"
+                  name="spec.vcpus"
+                  label={t('vCPUs')}
+                  fieldId="instance-type-vcpus"
                   type="number"
                   isRequired
                 />

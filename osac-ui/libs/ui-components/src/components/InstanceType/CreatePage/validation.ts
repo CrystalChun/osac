@@ -55,7 +55,7 @@ export const getInstanceTypeCreateSchema = (t: TFunction) =>
     }),
     spec: Yup.object({
       description: Yup.string(),
-      cores: positiveIntegerSchema(t).required(t('Cores are required')),
+      vcpus: positiveIntegerSchema(t).required(t('vCPUs are required')),
       memoryGib: positiveIntegerSchema(t).required(t('Memory is required')),
       gpu: gpuValidationSchema(t),
     }),

@@ -546,7 +546,7 @@ const apiFixtures: MockApiFixtures = {
       },
       spec: {
         $typeName: 'osac.public.v1.InstanceTypeSpec',
-        cores: 4,
+        vcpus: 4,
         memoryGib: 8,
         state: InstanceTypeState.ACTIVE,
         description: '',
@@ -844,7 +844,7 @@ describe('CatalogProvisionWizard', () => {
             },
             spec: {
               $typeName: 'osac.public.v1.InstanceTypeSpec',
-              cores: 4,
+              vcpus: 4,
               memoryGib: 8,
               state: InstanceTypeState.DEPRECATED,
               description: '',
@@ -867,7 +867,7 @@ describe('CatalogProvisionWizard', () => {
             },
             spec: {
               $typeName: 'osac.public.v1.InstanceTypeSpec',
-              cores: 4,
+              vcpus: 4,
               memoryGib: 8,
               state: InstanceTypeState.ACTIVE,
               description: '',
@@ -1035,7 +1035,7 @@ describe('CatalogProvisionWizard', () => {
     await advanceToReviewStep(user, vmCatalogItem.title);
 
     await waitFor(() => {
-      expect(screen.getByText('standard-4-8 — 4 vCPU, 8 GiB')).toBeInTheDocument();
+      expect(screen.getByText('standard-4-8 — 4 vCPUs, 8 GiB')).toBeInTheDocument();
     });
   });
 
@@ -1057,7 +1057,7 @@ describe('CatalogProvisionWizard', () => {
         instanceType: { id: 'standard-4-8' },
       },
     });
-    expect(onProvision.mock.calls[0][0]).not.toHaveProperty('spec.cores');
+    expect(onProvision.mock.calls[0][0]).not.toHaveProperty('spec.vcpus');
     expect(onProvision.mock.calls[0][0]).not.toHaveProperty('spec.memoryGib');
     expect(onProvision.mock.calls[0][0]).toHaveProperty('spec.networkAttachments', [
       { subnet: { id: 'subnet-1' }, securityGroups: [{ id: 'sg-1' }] },

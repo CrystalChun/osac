@@ -9,7 +9,7 @@ plugins:
 inputs:
   - git_repo: https://github.com/osac-project/osac.git
     branch: main
-    subdir: fulfillment-service/proto/public
+    subdir: proto/public
   - git_repo: https://github.com/osac-project/osac.git
     branch: main
-    subdir: fulfillment-service/proto/private
+    subdir: proto/private

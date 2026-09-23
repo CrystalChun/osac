@@ -29,7 +29,7 @@ const getNumericInput = (name: string) => screen.getByRole('spinbutton', { name 
 
 const fillValidForm = async (user: ReturnType<typeof renderForm>['user']) => {
   await user.type(screen.getByRole('textbox', { name: 'Name' }), 'gp-small');
-  fireEvent.change(getNumericInput('CPU cores'), {
+  fireEvent.change(getNumericInput('vCPUs'), {
     target: { value: '4' },
   });
   fireEvent.change(getNumericInput('Memory (GiB)'), {
@@ -47,7 +47,7 @@ describe('InstanceTypeCreateForm', () => {
 
     expect(screen.getByRole('textbox', { name: 'Name' })).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: 'Description' })).toBeInTheDocument();
-    expect(getNumericInput('CPU cores')).toHaveAttribute('type', 'number');
+    expect(getNumericInput('vCPUs')).toHaveAttribute('type', 'number');
     expect(getNumericInput('Memory (GiB)')).toHaveAttribute('type', 'number');
     expect(screen.getByText('GPU')).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: 'PCI device selector' })).toBeInTheDocument();
@@ -77,16 +77,16 @@ describe('InstanceTypeCreateForm', () => {
   });
 
   it.each([
-    ['blank', '', 'Cores are required'],
+    ['blank', '', 'vCPUs are required'],
     ['decimal', '1.5', 'Must be a whole number'],
     ['zero', '0', 'Must be greater than zero'],
     ['negative', '-1', 'Must be greater than zero'],
-  ])('shows a validation error for %s CPU cores', async (_label, cores, expectedMessage) => {
+  ])('shows a validation error for %s vcpus', async (_label, vcpus, expectedMessage) => {
     const { user } = renderForm();
 
     await user.type(screen.getByRole('textbox', { name: 'Name' }), 'gp-small');
-    fireEvent.change(getNumericInput('CPU cores'), {
-      target: { value: cores },
+    fireEvent.change(getNumericInput('vCPUs'), {
+      target: { value: vcpus },
     });
     fireEvent.change(getNumericInput('Memory (GiB)'), {
       target: { value: '16' },
@@ -107,7 +107,7 @@ describe('InstanceTypeCreateForm', () => {
     const { user } = renderForm();
 
     await user.type(screen.getByRole('textbox', { name: 'Name' }), 'gp-small');
-    fireEvent.change(getNumericInput('CPU cores'), {
+    fireEvent.change(getNumericInput('vCPUs'), {
       target: { value: '4' },
     });
     fireEvent.change(getNumericInput('Memory (GiB)'), {
@@ -141,7 +141,7 @@ describe('InstanceTypeCreateForm', () => {
     });
   });
 
-  it.each(['CPU cores', 'Memory (GiB)', 'GPU count'])(
+  it.each(['vCPUs', 'Memory (GiB)', 'GPU count'])(
     'ignores non-numeric input for %s',
     async (fieldLabel) => {
       const { user } = renderForm();
@@ -185,7 +185,7 @@ describe('InstanceTypeCreateForm', () => {
   describe('submission', () => {
     const CREATED_ID = 'instance-type-created-1';
 
-    it('creates the instance type with integer-converted cores/memory and navigates to its detail page', async () => {
+    it('creates the instance type with integer-converted vcpus/memory and navigates to its detail page', async () => {
       let captured: Record<string, unknown> | undefined;
       const { user } = renderForm({
         onInstanceTypeCreate: (req) => {
@@ -202,8 +202,8 @@ describe('InstanceTypeCreateForm', () => {
       await waitFor(() => {
         expect(mockNavigate).toHaveBeenCalledWith(`${LIST_ROUTE}/${CREATED_ID}`);
       });
-      const spec = (captured?.object as { spec?: { cores?: number; memoryGib?: number } })?.spec;
-      expect(spec?.cores).toBe(4);
+      const spec = (captured?.object as { spec?: { vcpus?: number; memoryGib?: number } })?.spec;
+      expect(spec?.vcpus).toBe(4);
       expect(spec?.memoryGib).toBe(16);
     });
 
@@ -278,7 +278,7 @@ describe('InstanceTypeCreateForm', () => {
       const { user } = renderForm({
         onInstanceTypeCreate: () => {
           throw new ConnectError(
-            "field 'spec.cores' must be greater than zero",
+            "field 'spec.vcpus' must be greater than zero",
             Code.InvalidArgument,
           );
         },
@@ -290,7 +290,7 @@ describe('InstanceTypeCreateForm', () => {
       await waitFor(() => {
         expect(screen.getByText('Failed to create instance type')).toBeInTheDocument();
       });
-      expect(screen.getByText("field 'spec.cores' must be greater than zero")).toBeInTheDocument();
+      expect(screen.getByText("field 'spec.vcpus' must be greater than zero")).toBeInTheDocument();
     });
   });
 });

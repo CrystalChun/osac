@@ -77,7 +77,7 @@ export const catalogFieldDefinitionForPath = (
 };
 
 const FALLBACK_RESOURCE_LABELS: Record<CatalogItemResourceFieldPath, string> = {
-  cores: 'vCPU',
+  cores: 'vCPUs',
   memory_gib: 'Memory',
   'boot_disk.size_gib': 'Boot disk',
 };

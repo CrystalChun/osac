@@ -31,7 +31,7 @@ const makeInstanceType = (
     metadata: { name: `instance-type-${id}` },
     spec: {
       description: `${id} description`,
-      cores: 4,
+      vcpus: 4,
       memoryGib: 16,
       state,
     },
@@ -99,7 +99,7 @@ describe('useCreateInstanceType', () => {
     act(() => {
       result.current.mutate({
         metadata: { name: 'new-it' },
-        spec: { cores: 4, memoryGib: 16, description: 'new-it description' },
+        spec: { vcpus: 4, memoryGib: 16, description: 'new-it description' },
       });
     });
 
@@ -122,7 +122,7 @@ describe('useCreateInstanceType', () => {
     act(() => {
       result.current.mutate({
         metadata: { name: 'new-it' },
-        spec: { cores: 4, memoryGib: 16 },
+        spec: { vcpus: 4, memoryGib: 16 },
       });
     });
 

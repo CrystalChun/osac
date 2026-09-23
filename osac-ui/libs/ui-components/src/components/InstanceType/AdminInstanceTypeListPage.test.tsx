@@ -39,7 +39,7 @@ const makeInstanceType = (
       creationTimestamp: { seconds: BigInt(1717000000), nanos: 0 },
     },
     spec: {
-      cores: 4,
+      vcpus: 4,
       memoryGib: 16,
       description: `${id} description`,
       state,
@@ -88,7 +88,7 @@ describe('AdminInstanceTypeListPage', () => {
     expect(screen.getAllByRole('columnheader').map((header) => header.textContent)).toEqual([
       'Name',
       'Lifecycle state',
-      'CPU cores',
+      'vCPUs',
       'Memory (GiB)',
       'GPUs',
       'Created',

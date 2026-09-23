@@ -152,9 +152,9 @@ const AdminInstanceTypeDetailPage = () => {
                   </DescriptionListGroup>
 
                   <DescriptionListGroup>
-                    <DescriptionListTerm>{t('CPU cores')}</DescriptionListTerm>
+                    <DescriptionListTerm>{t('vCPUs')}</DescriptionListTerm>
                     <DescriptionListDescription>
-                      {instanceType?.spec?.cores ?? '—'}
+                      {instanceType?.spec?.vcpus ?? '—'}
                     </DescriptionListDescription>
                   </DescriptionListGroup>
 

@@ -46,7 +46,7 @@ const makeInstanceType = (
       creationTimestamp: { seconds: BigInt(1717000000), nanos: 0 },
     },
     spec: {
-      cores: 4,
+      vcpus: 4,
       memoryGib: 16,
       description: 'General purpose instance type',
       state,
