@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"net"
 	"sync"
+	"time"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -29,6 +30,8 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	grpcstatus "google.golang.org/grpc/status"
 	"google.golang.org/grpc/test/bufconn"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
@@ -131,6 +134,20 @@ var _ = Describe("VolumeFeedbackController", func() {
 			Expect(controllerutil.ContainsFinalizer(updatedCR, osacVolumeFeedbackFinalizer)).To(BeTrue())
 		})
 
+		It("should reject Phase=Ready without a vendor volume ID", func() {
+			mockServer.addVolume(newRemoteVolume(volID, privatev1.VolumeState_VOLUME_STATE_CREATING))
+
+			cr := newVolumeFeedbackCR(volName, volNamespace, volID, v1alpha1.VolumePhaseReady, nil)
+			cr.Status.Protocol = v1alpha1.VolumeProtocolBlock
+			Expect(fakeK8s.Create(ctx, cr)).To(Succeed())
+
+			_, err := reconciler.Reconcile(ctx, reconcile.Request{
+				NamespacedName: types.NamespacedName{Name: volName, Namespace: volNamespace},
+			})
+			Expect(err).To(MatchError(ContainSubstring("cannot report AVAILABLE without vendor volume ID")))
+			Expect(mockServer.updates).To(BeEmpty())
+		})
+
 		It("should sync Phase=Progressing to state=CREATING", func() {
 			mockServer.addVolume(newRemoteVolume(volID, privatev1.VolumeState_VOLUME_STATE_AVAILABLE))
 
@@ -161,6 +178,18 @@ var _ = Describe("VolumeFeedbackController", func() {
 			Expect(mockServer.updates).To(HaveLen(1))
 			Expect(mockServer.updates[0].GetStatus().GetState()).To(Equal(privatev1.VolumeState_VOLUME_STATE_FAILED))
 			Expect(mockServer.signals).To(BeEmpty())
+		})
+
+		It("should sync Phase=Deleted to state=DELETED", func() {
+			mockServer.addVolume(newRemoteVolume(volID, privatev1.VolumeState_VOLUME_STATE_DELETING))
+
+			cr := newVolumeFeedbackCR(volName, volNamespace, volID, v1alpha1.VolumePhaseDeleted, nil)
+			Expect(fakeK8s.Create(ctx, cr)).To(Succeed())
+
+			_, err := reconciler.Reconcile(ctx, reconcile.Request{NamespacedName: types.NamespacedName{Name: volName, Namespace: volNamespace}})
+			Expect(err).NotTo(HaveOccurred())
+			Expect(mockServer.updates).To(HaveLen(1))
+			Expect(mockServer.updates[0].GetStatus().GetState()).To(Equal(privatev1.VolumeState_VOLUME_STATE_DELETED))
 		})
 	})
 
@@ -424,7 +453,7 @@ var _ = Describe("syncVolumeVendorFields", func() {
 		obj := &v1alpha1.Volume{}
 		obj.Status.Protocol = v1alpha1.VolumeProtocol("iSCSI") // not known to the switch
 
-		syncVolumeVendorFields(context.Background(), obj, remote)
+		Expect(syncVolumeVendorFields(obj, remote)).To(HaveOccurred())
 
 		// The previously recorded protocol must be preserved, not clobbered.
 		Expect(remote.GetStatus().GetProtocol()).To(Equal(privatev1.StorageProtocol_STORAGE_PROTOCOL_BLOCK))
@@ -436,9 +465,28 @@ var _ = Describe("syncVolumeVendorFields", func() {
 		obj := &v1alpha1.Volume{}
 		obj.Status.Protocol = v1alpha1.VolumeProtocolNFS
 
-		syncVolumeVendorFields(context.Background(), obj, remote)
+		Expect(syncVolumeVendorFields(obj, remote)).To(Succeed())
 
 		Expect(remote.GetStatus().GetProtocol()).To(Equal(privatev1.StorageProtocol_STORAGE_PROTOCOL_NFS))
+	})
+})
+
+var _ = Describe("syncVolumeStateTransitionTime", func() {
+	It("preserves the authoritative remote timestamp when CR status is absent", func() {
+		remote := newRemoteVolume("vol-timestamp", privatev1.VolumeState_VOLUME_STATE_AVAILABLE)
+		original := timestamppb.Now()
+		remote.GetStatus().SetStateTransitionTime(original)
+
+		Expect(syncVolumeStateTransitionTime(&v1alpha1.Volume{}, remote)).To(Succeed())
+
+		Expect(proto.Equal(remote.GetStatus().GetStateTransitionTime(), original)).To(BeTrue())
+	})
+
+	It("rejects a missing CR and remote timestamp", func() {
+		remote := newRemoteVolume("vol-missing-timestamp", privatev1.VolumeState_VOLUME_STATE_AVAILABLE)
+		remote.GetStatus().StateTransitionTime = nil
+
+		Expect(syncVolumeStateTransitionTime(&v1alpha1.Volume{}, remote)).To(MatchError(ContainSubstring("no state transition time")))
 	})
 })
 
@@ -480,7 +528,8 @@ func newRemoteVolume(id string, state privatev1.VolumeState) *privatev1.Volume {
 			AccessMode:  privatev1.VolumeAccessMode_VOLUME_ACCESS_MODE_READ_WRITE_ONCE,
 		}.Build(),
 		Status: privatev1.VolumeStatus_builder{
-			State: state,
+			State:               state,
+			StateTransitionTime: timestamppb.New(time.Unix(0, 0)),
 		}.Build(),
 	}.Build()
 }

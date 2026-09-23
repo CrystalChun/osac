@@ -58,6 +58,12 @@ type mockEventsClient struct {
 	calls   []*privatev1.EventsWatchRequest
 }
 
+type mockExternalIPPoolClient struct{}
+
+func (mockExternalIPPoolClient) Get(context.Context, *privatev1.ExternalIPPoolsGetRequest, ...grpc.CallOption) (*privatev1.ExternalIPPoolsGetResponse, error) {
+	return nil, errors.New("unexpected ExternalIP pool lookup")
+}
+
 func (m *mockEventsClient) Watch(ctx context.Context, req *privatev1.EventsWatchRequest, _ ...grpc.CallOption) (privatev1.Events_WatchClient, error) {
 	m.mu.Lock()
 	m.calls = append(m.calls, req)
@@ -105,12 +111,16 @@ func (m *mockPublisher) Publish(_ context.Context, event cloudevents.Event) erro
 }
 
 type mockStore struct {
-	mu     sync.Mutex
-	states map[string]projection.ResourceState
+	mu         sync.Mutex
+	states     map[string]projection.ResourceState
+	upsertErrs map[string]error
 }
 
 func newMockStore() *mockStore {
-	return &mockStore{states: map[string]projection.ResourceState{}}
+	return &mockStore{
+		states:     map[string]projection.ResourceState{},
+		upsertErrs: map[string]error{},
+	}
 }
 
 func (s *mockStore) Get(_ context.Context, resourceID string) (*projection.ResourceState, error) {
@@ -126,6 +136,9 @@ func (s *mockStore) Get(_ context.Context, resourceID string) (*projection.Resou
 func (s *mockStore) Upsert(_ context.Context, state projection.ResourceState) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	if err, ok := s.upsertErrs[state.ResourceID]; ok {
+		return err
+	}
 	if existing, ok := s.states[state.ResourceID]; ok {
 		if existing.FulfillmentVersion > state.FulfillmentVersion {
 			return projection.ErrStaleVersion
@@ -234,20 +247,318 @@ var _ = Describe("Consumer", func() {
 	})
 
 	newConsumer := func(pub *mockPublisher) *watch.Consumer {
-		c := watch.NewConsumer(client, pub, newMockStore(), logr.Discard())
+		mapperFactory, err := watch.NewMapperFactory(mockExternalIPPoolClient{}, "deployment-1", map[string]string{})
+		Expect(err).NotTo(HaveOccurred())
+		c, err := watch.NewConsumer(client, pub, newMockStore(), logr.Discard(), mapperFactory)
+		Expect(err).NotTo(HaveOccurred())
 		c.InitialDelay = time.Millisecond
 		c.MaxDelay = time.Millisecond
 		return c
 	}
 
 	newConsumerWithStore := func(pub *mockPublisher, store *mockStore) *watch.Consumer {
-		c := watch.NewConsumer(client, pub, store, logr.Discard())
+		mapperFactory, err := watch.NewMapperFactory(mockExternalIPPoolClient{}, "deployment-1", map[string]string{})
+		Expect(err).NotTo(HaveOccurred())
+		c, err := watch.NewConsumer(client, pub, store, logr.Discard(), mapperFactory)
+		Expect(err).NotTo(HaveOccurred())
 		c.InitialDelay = time.Millisecond
 		c.MaxDelay = time.Millisecond
 		return c
 	}
 
 	Describe("Run", func() {
+		It("meters a block Volume from creation through availability", func() {
+			creationTime := time.Date(2026, 1, 1, 10, 0, 0, 0, time.UTC)
+			availableTime := creationTime.Add(time.Minute)
+			volume := func(state privatev1.VolumeState, version int32, transition time.Time, vendorID string) *privatev1.Volume {
+				return &privatev1.Volume{
+					Id: "volume-1",
+					Metadata: &privatev1.Metadata{
+						Tenant:            "tenant-1",
+						Project:           "project-1",
+						Version:           version,
+						CreationTimestamp: timestamppb.New(creationTime),
+					},
+					Spec: &privatev1.VolumeSpec{StorageTier: "gold", SizeGib: 100},
+					Status: &privatev1.VolumeStatus{
+						State:          state,
+						VendorVolumeId: vendorID,
+						Protocol:       privatev1.StorageProtocol_STORAGE_PROTOCOL_BLOCK,
+						ProvisionedSizeGib: func() int64 {
+							if state == privatev1.VolumeState_VOLUME_STATE_AVAILABLE {
+								return 100
+							}
+							return 0
+						}(),
+						StateTransitionTime: timestamppb.New(transition),
+					},
+				}
+			}
+			creating := volume(privatev1.VolumeState_VOLUME_STATE_CREATING, 1, creationTime, "")
+			available := volume(privatev1.VolumeState_VOLUME_STATE_AVAILABLE, 2, availableTime, "vendor-1")
+
+			client.results = []mockStreamResult{{stream: &mockWatchStream{
+				responses: []*privatev1.EventsWatchResponse{
+					makeResponse(&privatev1.Event{
+						Id:      "volume-created",
+						Type:    privatev1.EventType_EVENT_TYPE_OBJECT_CREATED,
+						Payload: &privatev1.Event_Volume{Volume: creating},
+					}),
+					makeResponse(&privatev1.Event{
+						Id:      "volume-available",
+						Type:    privatev1.EventType_EVENT_TYPE_OBJECT_UPDATED,
+						Payload: &privatev1.Event_Volume{Volume: available},
+					}),
+				},
+			}}}
+
+			pub := &mockPublisher{published: make([]cloudevents.Event, 0, 2), cancelFunc: cancel}
+			consumer := newConsumer(pub)
+			Expect(consumer.Run(ctx)).To(Succeed())
+
+			pub.mu.Lock()
+			defer pub.mu.Unlock()
+			Expect(pub.published).To(HaveLen(2))
+			Expect(pub.published[0].Type()).To(Equal(events.EventCreated))
+			Expect(pub.published[1].Type()).To(Equal(events.EventStarted))
+			Expect(pub.published[1].Time()).To(Equal(availableTime))
+		})
+
+		It("publishes a same-version deletion boundary", func() {
+			deletionTime := time.Date(2026, 1, 1, 11, 0, 0, 0, time.UTC)
+			volume := &privatev1.Volume{
+				Id: "volume-delete",
+				Metadata: &privatev1.Metadata{
+					Tenant:            "tenant-1",
+					Project:           "project-1",
+					Version:           7,
+					CreationTimestamp: timestamppb.New(deletionTime.Add(-time.Hour)),
+					DeletionTimestamp: timestamppb.New(deletionTime),
+				},
+				Spec: &privatev1.VolumeSpec{StorageTier: "gold", SizeGib: 100},
+				Status: &privatev1.VolumeStatus{
+					State:               privatev1.VolumeState_VOLUME_STATE_AVAILABLE,
+					VendorVolumeId:      "vendor-1",
+					Protocol:            privatev1.StorageProtocol_STORAGE_PROTOCOL_BLOCK,
+					ProvisionedSizeGib:  100,
+					StateTransitionTime: timestamppb.New(deletionTime.Add(-time.Hour)),
+				},
+			}
+			store := newMockStore()
+			billableSince := deletionTime.Add(-30 * time.Minute)
+			store.states[volume.GetId()] = projection.ResourceState{
+				ResourceID:         volume.GetId(),
+				ResourceType:       events.ResourceTypeVolume,
+				TenantID:           "tenant-1",
+				ProjectID:          "project-1",
+				CurrentState:       events.VolumeStateAvailable,
+				IsBillable:         true,
+				BillableSince:      &billableSince,
+				FulfillmentVersion: 7,
+				BillingDimensions: map[string]any{
+					"volume_id": volume.GetId(), "tenant_id": "tenant-1", "project_id": "project-1",
+					"storage_tier": "gold", "size_gib": int64(100),
+				},
+			}
+			client.results = []mockStreamResult{{stream: &mockWatchStream{responses: []*privatev1.EventsWatchResponse{
+				makeResponse(&privatev1.Event{
+					Id:        "volume-delete",
+					Type:      privatev1.EventType_EVENT_TYPE_OBJECT_UPDATED,
+					Timestamp: timestamppb.New(deletionTime),
+					Payload:   &privatev1.Event_Volume{Volume: volume},
+				}),
+			}}}}
+
+			pub := &mockPublisher{published: make([]cloudevents.Event, 0, 1), cancelFunc: cancel}
+			consumer := newConsumerWithStore(pub, store)
+			Expect(consumer.Run(ctx)).To(Succeed())
+
+			pub.mu.Lock()
+			defer pub.mu.Unlock()
+			Expect(pub.published).To(HaveLen(1))
+			Expect(pub.published[0].Type()).To(Equal(events.EventSuspended))
+			Expect(pub.published[0].Time()).To(Equal(deletionTime))
+		})
+
+		It("meters expansion from committed capacity at the feedback event time", func() {
+			creationTime := time.Date(2026, 1, 1, 10, 0, 0, 0, time.UTC)
+			availableTime := creationTime.Add(time.Minute)
+			capacityTime := availableTime.Add(time.Minute)
+			volume := func(size, committed int64, version int32) *privatev1.Volume {
+				return &privatev1.Volume{
+					Id: "volume-resize",
+					Metadata: &privatev1.Metadata{
+						Tenant:            "tenant-1",
+						Project:           "project-1",
+						Version:           version,
+						CreationTimestamp: timestamppb.New(creationTime),
+					},
+					Spec: &privatev1.VolumeSpec{StorageTier: "gold", SizeGib: size},
+					Status: &privatev1.VolumeStatus{
+						State:               privatev1.VolumeState_VOLUME_STATE_AVAILABLE,
+						VendorVolumeId:      "vendor-1",
+						Protocol:            privatev1.StorageProtocol_STORAGE_PROTOCOL_BLOCK,
+						ProvisionedSizeGib:  committed,
+						StateTransitionTime: timestamppb.New(availableTime),
+					},
+				}
+			}
+			creating := &privatev1.Volume{
+				Id: "volume-resize",
+				Metadata: &privatev1.Metadata{
+					Tenant:            "tenant-1",
+					Project:           "project-1",
+					Version:           1,
+					CreationTimestamp: timestamppb.New(creationTime),
+				},
+				Spec: &privatev1.VolumeSpec{StorageTier: "gold", SizeGib: 100},
+				Status: &privatev1.VolumeStatus{
+					State:               privatev1.VolumeState_VOLUME_STATE_CREATING,
+					Protocol:            privatev1.StorageProtocol_STORAGE_PROTOCOL_BLOCK,
+					StateTransitionTime: timestamppb.New(creationTime),
+				},
+			}
+			available := volume(100, 100, 2)
+			requested := volume(200, 100, 3)
+			committed := volume(200, 200, 4)
+
+			client.results = []mockStreamResult{{stream: &mockWatchStream{
+				responses: []*privatev1.EventsWatchResponse{
+					makeResponse(&privatev1.Event{Id: "resize-created", Type: privatev1.EventType_EVENT_TYPE_OBJECT_CREATED, Payload: &privatev1.Event_Volume{Volume: creating}}),
+					makeResponse(&privatev1.Event{Id: "resize-available", Type: privatev1.EventType_EVENT_TYPE_OBJECT_UPDATED, Payload: &privatev1.Event_Volume{Volume: available}}),
+					makeResponse(&privatev1.Event{Id: "resize-requested", Type: privatev1.EventType_EVENT_TYPE_OBJECT_UPDATED, Timestamp: timestamppb.New(availableTime), Payload: &privatev1.Event_Volume{Volume: requested}}),
+					makeResponse(&privatev1.Event{Id: "resize-committed", Type: privatev1.EventType_EVENT_TYPE_OBJECT_UPDATED, Timestamp: timestamppb.New(capacityTime), Payload: &privatev1.Event_Volume{Volume: committed}}),
+				},
+			}}}
+
+			store := newMockStore()
+			pub := &mockPublisher{published: make([]cloudevents.Event, 0, 3), cancelFunc: cancel}
+			consumer := newConsumerWithStore(pub, store)
+			Expect(consumer.Run(ctx)).To(Succeed())
+
+			pub.mu.Lock()
+			Expect(pub.published).To(HaveLen(3))
+			Expect(pub.published[2].Type()).To(Equal(events.EventUpdated))
+			Expect(pub.published[2].Time()).To(Equal(capacityTime))
+			pub.mu.Unlock()
+
+			projected, err := store.Get(ctx, "volume-resize")
+			Expect(err).ToNot(HaveOccurred())
+			Expect(projected.BillableSince).ToNot(BeNil())
+			Expect(projected.BillableSince.Equal(capacityTime)).To(BeTrue())
+			Expect(projected.BillingDimensions["size_gib"]).To(Equal(int64(200)))
+		})
+
+		It("fails fast on a same-state capacity change without its boundary timestamp", func() {
+			availableTime := time.Date(2026, 1, 1, 10, 0, 0, 0, time.UTC)
+			store := newMockStore()
+			billableSince := availableTime.Add(-time.Hour)
+			store.states["volume-resize-untimed"] = projection.ResourceState{
+				ResourceID:         "volume-resize-untimed",
+				ResourceType:       events.ResourceTypeVolume,
+				TenantID:           "tenant-1",
+				ProjectID:          "project-1",
+				CurrentState:       events.VolumeStateAvailable,
+				IsBillable:         true,
+				BillableSince:      &billableSince,
+				FulfillmentVersion: 1,
+				TransitionTime:     availableTime,
+				BillingDimensions: map[string]any{
+					"volume_id": "volume-resize-untimed", "tenant_id": "tenant-1", "project_id": "project-1",
+					"storage_tier": "gold", "size_gib": int64(100),
+				},
+			}
+
+			resized := &privatev1.Volume{
+				Id: "volume-resize-untimed",
+				Metadata: &privatev1.Metadata{
+					Tenant:            "tenant-1",
+					Project:           "project-1",
+					Version:           2,
+					CreationTimestamp: timestamppb.New(availableTime.Add(-time.Hour)),
+				},
+				Spec: &privatev1.VolumeSpec{StorageTier: "gold", SizeGib: 200},
+				Status: &privatev1.VolumeStatus{
+					State:               privatev1.VolumeState_VOLUME_STATE_AVAILABLE,
+					VendorVolumeId:      "vendor-1",
+					Protocol:            privatev1.StorageProtocol_STORAGE_PROTOCOL_BLOCK,
+					ProvisionedSizeGib:  200,
+					StateTransitionTime: timestamppb.New(availableTime),
+				},
+			}
+			unreachableEvent := makeEvent("evt-before-volume-boundary", privatev1.EventType_EVENT_TYPE_OBJECT_CREATED)
+			goodEvent := makeEvent("evt-after-volume-boundary", privatev1.EventType_EVENT_TYPE_OBJECT_CREATED)
+			client.results = []mockStreamResult{
+				{stream: &mockWatchStream{responses: []*privatev1.EventsWatchResponse{
+					makeResponse(&privatev1.Event{
+						Id:      "evt-volume-resize-no-boundary",
+						Type:    privatev1.EventType_EVENT_TYPE_OBJECT_UPDATED,
+						Payload: &privatev1.Event_Volume{Volume: resized},
+					}),
+					makeResponse(unreachableEvent),
+				}}},
+				{stream: &mockWatchStream{responses: []*privatev1.EventsWatchResponse{
+					makeResponse(goodEvent),
+				}}},
+			}
+
+			pub := &mockPublisher{published: make([]cloudevents.Event, 0, 1), cancelFunc: cancel}
+			consumer := newConsumerWithStore(pub, store)
+			Expect(consumer.Run(ctx)).To(Succeed())
+			Expect(client.watchCallCount()).To(Equal(2))
+
+			pub.mu.Lock()
+			defer pub.mu.Unlock()
+			Expect(pub.published).To(HaveLen(1))
+			Expect(pub.published[0].ID()).To(Equal(goodEvent.GetId()))
+
+			projected, err := store.Get(ctx, "volume-resize-untimed")
+			Expect(err).ToNot(HaveOccurred())
+			Expect(projected.FulfillmentVersion).To(Equal(int32(1)))
+			Expect(projected.BillingDimensions["size_gib"]).To(Equal(int64(100)))
+		})
+
+		It("meters an ExternalIP through the resource mapper factory", func() {
+			creationTime := time.Date(2026, 1, 1, 10, 0, 0, 0, time.UTC)
+			allocatedTime := creationTime.Add(time.Minute)
+			poolClient := &poolGetter{response: &privatev1.ExternalIPPoolsGetResponse{Object: &privatev1.ExternalIPPool{
+				Id:   "pool-1",
+				Spec: &privatev1.ExternalIPPoolSpec{IpFamily: privatev1.IPFamily_IP_FAMILY_IPV4},
+			}}}
+			mapperFactory, err := watch.NewMapperFactory(poolClient, "deployment-1", map[string]string{})
+			Expect(err).NotTo(HaveOccurred())
+
+			externalIP := func(version int32, state privatev1.ExternalIPState, stateTime time.Time) *privatev1.ExternalIP {
+				return &privatev1.ExternalIP{
+					Id: "ip-1",
+					Metadata: &privatev1.Metadata{
+						Tenant:            "tenant-1",
+						Project:           "project-1",
+						Version:           version,
+						CreationTimestamp: timestamppb.New(creationTime),
+					},
+					Spec: &privatev1.ExternalIPSpec{Pool: &privatev1.ExternalIPPoolReference{Id: "pool-1"}},
+					Status: &privatev1.ExternalIPStatus{
+						State:               state,
+						StateTransitionTime: timestamppb.New(stateTime),
+					},
+				}
+			}
+			pending := externalIP(1, privatev1.ExternalIPState_EXTERNAL_IP_STATE_PENDING, creationTime)
+			allocated := externalIP(2, privatev1.ExternalIPState_EXTERNAL_IP_STATE_ALLOCATED, allocatedTime)
+
+			client.results = []mockStreamResult{{stream: &mockWatchStream{responses: []*privatev1.EventsWatchResponse{
+				makeResponse(&privatev1.Event{Id: "ip-created", Type: privatev1.EventType_EVENT_TYPE_OBJECT_CREATED, Payload: &privatev1.Event_ExternalIp{ExternalIp: pending}}),
+				makeResponse(&privatev1.Event{Id: "ip-allocated", Type: privatev1.EventType_EVENT_TYPE_OBJECT_UPDATED, Payload: &privatev1.Event_ExternalIp{ExternalIp: allocated}}),
+			}}}}
+
+			consumer, err := watch.NewConsumer(client, &mockPublisher{published: make([]cloudevents.Event, 0, 2), cancelFunc: cancel}, newMockStore(), logr.Discard(), mapperFactory)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(consumer.Run(ctx)).To(Succeed())
+
+			Expect(poolClient.calls).To(Equal(1))
+		})
+
 		It("meters a NATGateway lifecycle without a network provider", func() {
 			creationTime := time.Date(2026, 1, 1, 10, 0, 0, 0, time.UTC)
 			readyTime := creationTime.Add(time.Minute)
@@ -310,8 +621,6 @@ var _ = Describe("Consumer", func() {
 
 			pub := &mockPublisher{published: make([]cloudevents.Event, 0, 4), cancelFunc: cancel}
 			consumer := newConsumer(pub)
-			consumer.DeploymentID = "deployment-1"
-
 			Expect(consumer.Run(ctx)).To(Succeed())
 
 			pub.mu.Lock()
@@ -446,21 +755,15 @@ var _ = Describe("Consumer", func() {
 				Type: privatev1.EventType_EVENT_TYPE_OBJECT_CREATED,
 			}
 			goodEvent := makeEvent("good-evt", privatev1.EventType_EVENT_TYPE_OBJECT_CREATED)
-
 			stream1 := &mockWatchStream{
 				responses: []*privatev1.EventsWatchResponse{
 					makeResponse(badEvent),
 				},
 			}
 			stream2 := &mockWatchStream{
-				responses: []*privatev1.EventsWatchResponse{
-					makeResponse(goodEvent),
-				},
+				responses: []*privatev1.EventsWatchResponse{makeResponse(goodEvent)},
 			}
-			client.results = []mockStreamResult{
-				{stream: stream1},
-				{stream: stream2},
-			}
+			client.results = []mockStreamResult{{stream: stream1}, {stream: stream2}}
 
 			pub := &mockPublisher{published: make([]cloudevents.Event, 0, 1), cancelFunc: cancel}
 			consumer := newConsumer(pub)
@@ -497,7 +800,7 @@ var _ = Describe("Consumer", func() {
 			client.mu.Lock()
 			defer client.mu.Unlock()
 			Expect(client.calls).ToNot(BeEmpty())
-			Expect(client.calls[0].GetFilter()).To(Equal("has(event.compute_instance) || has(event.cluster) || has(event.bare_metal_instance) || has(event.external_ip) || has(event.nat_gateway)"))
+			Expect(client.calls[0].GetFilter()).To(Equal("has(event.compute_instance) || has(event.cluster) || has(event.external_ip) || has(event.nat_gateway) || has(event.volume) || has(event.bare_metal_instance)"))
 		})
 
 		It("fails fast on unknown payload type and reconnects", func() {
@@ -507,17 +810,13 @@ var _ = Describe("Consumer", func() {
 				Payload: &privatev1.Event_Cluster{Cluster: &privatev1.Cluster{}},
 			}
 			goodEvent := makeEvent("good-evt", privatev1.EventType_EVENT_TYPE_OBJECT_CREATED)
-
 			stream1 := &mockWatchStream{
 				responses: []*privatev1.EventsWatchResponse{makeResponse(unknownPayload)},
 			}
 			stream2 := &mockWatchStream{
 				responses: []*privatev1.EventsWatchResponse{makeResponse(goodEvent)},
 			}
-			client.results = []mockStreamResult{
-				{stream: stream1},
-				{stream: stream2},
-			}
+			client.results = []mockStreamResult{{stream: stream1}, {stream: stream2}}
 
 			pub := &mockPublisher{published: make([]cloudevents.Event, 0, 1), cancelFunc: cancel}
 			consumer := newConsumer(pub)
@@ -542,17 +841,13 @@ var _ = Describe("Consumer", func() {
 				Payload: &privatev1.Event_ComputeInstance{ComputeInstance: ci},
 			}
 			goodEvent := makeEvent("good-evt", privatev1.EventType_EVENT_TYPE_OBJECT_CREATED)
-
 			stream1 := &mockWatchStream{
 				responses: []*privatev1.EventsWatchResponse{makeResponse(badEvent)},
 			}
 			stream2 := &mockWatchStream{
 				responses: []*privatev1.EventsWatchResponse{makeResponse(goodEvent)},
 			}
-			client.results = []mockStreamResult{
-				{stream: stream1},
-				{stream: stream2},
-			}
+			client.results = []mockStreamResult{{stream: stream1}, {stream: stream2}}
 
 			pub := &mockPublisher{published: make([]cloudevents.Event, 0, 1), cancelFunc: cancel}
 			consumer := newConsumer(pub)
@@ -571,17 +866,13 @@ var _ = Describe("Consumer", func() {
 				Payload: &privatev1.Event_ComputeInstance{ComputeInstance: ci},
 			}
 			goodEvent := makeEvent("good-evt", privatev1.EventType_EVENT_TYPE_OBJECT_CREATED)
-
 			stream1 := &mockWatchStream{
 				responses: []*privatev1.EventsWatchResponse{makeResponse(badEvent)},
 			}
 			stream2 := &mockWatchStream{
 				responses: []*privatev1.EventsWatchResponse{makeResponse(goodEvent)},
 			}
-			client.results = []mockStreamResult{
-				{stream: stream1},
-				{stream: stream2},
-			}
+			client.results = []mockStreamResult{{stream: stream1}, {stream: stream2}}
 
 			pub := &mockPublisher{published: make([]cloudevents.Event, 0, 1), cancelFunc: cancel}
 			consumer := newConsumer(pub)
@@ -622,35 +913,41 @@ var _ = Describe("Consumer", func() {
 			Expect(pub.published[0].Type()).To(Equal("osac.resource.created.v1"))
 		})
 
-		It("skips metadata-only update with no state_transition_time without killing the stream", func() {
+		It("skips an untimed no-op update and continues the Watch stream", func() {
 			store := newMockStore()
-			store.states["vm-meta"] = projection.ResourceState{
-				ResourceID:   "vm-meta",
-				ResourceType: "compute_instance",
-				TenantID:     "tenant-1",
-				CurrentState: "STARTING",
+			previousTransition := time.Date(2026, 9, 22, 20, 0, 0, 0, time.UTC)
+			store.states["cluster-meta"] = projection.ResourceState{
+				ResourceID:         "cluster-meta",
+				ResourceType:       events.ResourceTypeClusterOrder,
+				TenantID:           "tenant-1",
+				CurrentState:       events.ClusterStateUnspecified,
+				FulfillmentVersion: 1,
+				TransitionTime:     previousTransition,
+				BillingDimensions:  map[string]any{},
 			}
 
-			ciNoTimestamp := makeComputeInstance("vm-meta", "tenant-1")
-			ciNoTimestamp.Status.State = privatev1.ComputeInstanceState_COMPUTE_INSTANCE_STATE_STARTING
-			ciNoTimestamp.Status.StateTransitionTime = nil
+			clusterNoTimestamp := &privatev1.Cluster{
+				Id: "cluster-meta",
+				Metadata: &privatev1.Metadata{
+					Tenant:            "tenant-1",
+					Version:           2,
+					CreationTimestamp: timestamppb.New(previousTransition.Add(-time.Hour)),
+					DeletionTimestamp: timestamppb.New(previousTransition.Add(time.Minute)),
+				},
+				Status: &privatev1.ClusterStatus{
+					State: privatev1.ClusterState_CLUSTER_STATE_UNSPECIFIED,
+				},
+			}
 
-			ciRunning := makeComputeInstance("vm-meta", "tenant-1")
-			ciRunning.Status.State = privatev1.ComputeInstanceState_COMPUTE_INSTANCE_STATE_RUNNING
-			ciRunning.Metadata.Version = 2
-
+			goodEvent := makeEvent("evt-after-noop", privatev1.EventType_EVENT_TYPE_OBJECT_CREATED)
 			stream := &mockWatchStream{
 				responses: []*privatev1.EventsWatchResponse{
 					makeResponse(&privatev1.Event{
 						Id:      "evt-meta-update",
 						Type:    privatev1.EventType_EVENT_TYPE_OBJECT_UPDATED,
-						Payload: &privatev1.Event_ComputeInstance{ComputeInstance: ciNoTimestamp},
+						Payload: &privatev1.Event_Cluster{Cluster: clusterNoTimestamp},
 					}),
-					makeResponse(&privatev1.Event{
-						Id:      "evt-running",
-						Type:    privatev1.EventType_EVENT_TYPE_OBJECT_UPDATED,
-						Payload: &privatev1.Event_ComputeInstance{ComputeInstance: ciRunning},
-					}),
+					makeResponse(goodEvent),
 				},
 			}
 			client.results = []mockStreamResult{{stream: stream}}
@@ -658,20 +955,19 @@ var _ = Describe("Consumer", func() {
 			pub := &mockPublisher{published: make([]cloudevents.Event, 0, 1), cancelFunc: cancel}
 			consumer := newConsumerWithStore(pub, store)
 
-			err := consumer.Run(ctx)
-			Expect(err).ToNot(HaveOccurred())
-
-			// Single stream — no reconnect
+			Expect(consumer.Run(ctx)).To(Succeed())
 			Expect(client.watchCallCount()).To(Equal(1))
 
 			pub.mu.Lock()
 			defer pub.mu.Unlock()
 			Expect(pub.published).To(HaveLen(1))
-			// Fixture has no recorded billing history (EverBillable defaults
-			// false) -- this is genuinely vm-meta's first activation, so
-			// started.v1 is correct. The type isn't this test's focus (see
-			// name), but it should still be right.
-			Expect(pub.published[0].Type()).To(Equal("osac.resource.started.v1"))
+			Expect(pub.published[0].ID()).To(Equal(goodEvent.GetId()))
+
+			projected, err := store.Get(ctx, "cluster-meta")
+			Expect(err).ToNot(HaveOccurred())
+			Expect(projected.FulfillmentVersion).To(Equal(int32(2)))
+			Expect(projected.TransitionTime).To(Equal(previousTransition),
+				"an untimed metadata update must not move the last lifecycle boundary")
 		})
 
 		It("fails fast on data quality error when state actually changed", func() {
@@ -688,7 +984,6 @@ var _ = Describe("Consumer", func() {
 			ciStopped.Status.StateTransitionTime = nil
 
 			goodEvent := makeEvent("evt-after", privatev1.EventType_EVENT_TYPE_OBJECT_CREATED)
-
 			stream1 := &mockWatchStream{
 				responses: []*privatev1.EventsWatchResponse{
 					makeResponse(&privatev1.Event{
@@ -701,10 +996,7 @@ var _ = Describe("Consumer", func() {
 			stream2 := &mockWatchStream{
 				responses: []*privatev1.EventsWatchResponse{makeResponse(goodEvent)},
 			}
-			client.results = []mockStreamResult{
-				{stream: stream1},
-				{stream: stream2},
-			}
+			client.results = []mockStreamResult{{stream: stream1}, {stream: stream2}}
 
 			pub := &mockPublisher{published: make([]cloudevents.Event, 0, 1), cancelFunc: cancel}
 			consumer := newConsumerWithStore(pub, store)
@@ -713,6 +1005,36 @@ var _ = Describe("Consumer", func() {
 			Expect(err).ToNot(HaveOccurred())
 
 			// Stream reconnected — real data quality issue, fail fast
+			Expect(client.watchCallCount()).To(BeNumerically(">=", 2))
+		})
+
+		It("fails fast on invalid Volume billing dimensions", func() {
+			volume := &privatev1.Volume{
+				Id:       "volume-invalid-dimensions",
+				Metadata: &privatev1.Metadata{Tenant: ""},
+				Spec:     &privatev1.VolumeSpec{StorageTier: "gold", SizeGib: 100},
+				Status: &privatev1.VolumeStatus{
+					State:               privatev1.VolumeState_VOLUME_STATE_AVAILABLE,
+					Protocol:            privatev1.StorageProtocol_STORAGE_PROTOCOL_BLOCK,
+					VendorVolumeId:      "vendor-1",
+					ProvisionedSizeGib:  100,
+					StateTransitionTime: timestamppb.Now(),
+				},
+			}
+			stream1 := &mockWatchStream{responses: []*privatev1.EventsWatchResponse{
+				makeResponse(&privatev1.Event{
+					Id:      "volume-invalid-dimensions",
+					Type:    privatev1.EventType_EVENT_TYPE_OBJECT_UPDATED,
+					Payload: &privatev1.Event_Volume{Volume: volume},
+				}),
+			}}
+			stream2 := &mockWatchStream{responses: []*privatev1.EventsWatchResponse{makeResponse(makeEvent("evt-after-volume-dq", privatev1.EventType_EVENT_TYPE_OBJECT_CREATED))}}
+			client.results = []mockStreamResult{{stream: stream1}, {stream: stream2}}
+
+			pub := &mockPublisher{published: make([]cloudevents.Event, 0, 1), cancelFunc: cancel}
+			consumer := newConsumerWithStore(pub, newMockStore())
+
+			Expect(consumer.Run(ctx)).To(Succeed())
 			Expect(client.watchCallCount()).To(BeNumerically(">=", 2))
 		})
 
@@ -750,6 +1072,48 @@ var _ = Describe("Consumer", func() {
 			pub.mu.Lock()
 			defer pub.mu.Unlock()
 			Expect(pub.published).To(BeEmpty())
+		})
+
+		It("reconnects when advancing a skipped projection update fails", func() {
+			store := newMockStore()
+			now := time.Now().UTC().Truncate(time.Microsecond)
+			store.states["vm-upsert-error"] = projection.ResourceState{
+				ResourceID:         "vm-upsert-error",
+				ResourceType:       events.ResourceTypeComputeInstance,
+				TenantID:           "tenant-1",
+				CurrentState:       "RUNNING",
+				IsBillable:         true,
+				BillableSince:      &now,
+				FulfillmentVersion: 1,
+				BillingDimensions:  map[string]any{},
+			}
+			store.upsertErrs["vm-upsert-error"] = errors.New("database unavailable")
+
+			failed := makeComputeInstance("vm-upsert-error", "tenant-1")
+			failed.Metadata.Version = 2
+			failed.Status.StateTransitionTime = timestamppb.New(now.Add(time.Second))
+			client.results = []mockStreamResult{
+				{stream: &mockWatchStream{responses: []*privatev1.EventsWatchResponse{
+					makeResponse(&privatev1.Event{
+						Id:      "vm-upsert-error-update",
+						Type:    privatev1.EventType_EVENT_TYPE_OBJECT_UPDATED,
+						Payload: &privatev1.Event_ComputeInstance{ComputeInstance: failed},
+					}),
+				}}},
+				{stream: &mockWatchStream{responses: []*privatev1.EventsWatchResponse{
+					makeResponse(makeEvent("after-reconnect", privatev1.EventType_EVENT_TYPE_OBJECT_CREATED)),
+				}}},
+			}
+
+			pub := &mockPublisher{published: make([]cloudevents.Event, 0, 1), cancelFunc: cancel}
+			consumer := newConsumerWithStore(pub, store)
+			Expect(consumer.Run(ctx)).To(Succeed())
+			Expect(client.watchCallCount()).To(BeNumerically(">=", 2))
+
+			pub.mu.Lock()
+			defer pub.mu.Unlock()
+			Expect(pub.published).To(HaveLen(1))
+			Expect(pub.published[0].ID()).To(Equal("after-reconnect"))
 		})
 
 		It("emits resumed.v1 for STOPPED to RUNNING transition", func() {
@@ -2280,7 +2644,7 @@ var _ = Describe("Consumer", func() {
 			Expect(state.BillableSince).ToNot(BeNil())
 		})
 
-		It("skips a BMaaS deletion with a missing event timestamp without disrupting later Watch events", func() {
+		It("fails fast on a BMaaS deletion with a missing event timestamp", func() {
 			store := newMockStore()
 			startedAt := time.Date(2026, 9, 14, 11, 0, 0, 0, time.UTC)
 			store.states["bmi-delete-missing-timestamp"] = projection.ResourceState{
@@ -2312,14 +2676,15 @@ var _ = Describe("Consumer", func() {
 				Payload: &privatev1.Event_BareMetalInstance{BareMetalInstance: bmi},
 			}
 			goodEvent := makeEvent("evt-vm-after-delete", privatev1.EventType_EVENT_TYPE_OBJECT_CREATED)
-			client.results = []mockStreamResult{{stream: &mockWatchStream{
-				responses: []*privatev1.EventsWatchResponse{makeResponse(badDelete), makeResponse(goodEvent)},
-			}}}
+			client.results = []mockStreamResult{
+				{stream: &mockWatchStream{responses: []*privatev1.EventsWatchResponse{makeResponse(badDelete)}}},
+				{stream: &mockWatchStream{responses: []*privatev1.EventsWatchResponse{makeResponse(goodEvent)}}},
+			}
 
 			pub := &mockPublisher{published: make([]cloudevents.Event, 0, 1), cancelFunc: cancel}
 			consumer := newConsumerWithStore(pub, store)
 			Expect(consumer.Run(ctx)).To(Succeed())
-			Expect(client.watchCallCount()).To(Equal(1))
+			Expect(client.watchCallCount()).To(BeNumerically(">=", 2))
 
 			pub.mu.Lock()
 			Expect(pub.published).To(HaveLen(1))
@@ -2341,7 +2706,7 @@ var _ = Describe("Consumer", func() {
 			goodEvent := makeEvent("evt-vm-after-bmi", privatev1.EventType_EVENT_TYPE_OBJECT_CREATED)
 			client.results = []mockStreamResult{
 				{stream: &mockWatchStream{
-					responses: []*privatev1.EventsWatchResponse{makeResponse(badEvent), makeResponse(goodEvent)},
+					responses: []*privatev1.EventsWatchResponse{makeResponse(badEvent)},
 				}},
 				{stream: &mockWatchStream{
 					responses: []*privatev1.EventsWatchResponse{makeResponse(goodEvent)},
@@ -2352,7 +2717,7 @@ var _ = Describe("Consumer", func() {
 			consumer := newConsumerWithStore(pub, store)
 
 			Expect(consumer.Run(ctx)).To(Succeed())
-			Expect(client.watchCallCount()).To(Equal(1))
+			Expect(client.watchCallCount()).To(BeNumerically(">=", 2))
 
 			pub.mu.Lock()
 			Expect(pub.published).To(HaveLen(1))

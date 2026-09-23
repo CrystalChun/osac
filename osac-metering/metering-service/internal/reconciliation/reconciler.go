@@ -73,17 +73,24 @@ type ExternalIPPoolsClient interface {
 	List(ctx context.Context, in *privatev1.ExternalIPPoolsListRequest, opts ...grpc.CallOption) (*privatev1.ExternalIPPoolsListResponse, error)
 }
 
+type VolumesClient interface {
+	List(ctx context.Context, in *privatev1.VolumesListRequest, opts ...grpc.CallOption) (*privatev1.VolumesListResponse, error)
+	Get(ctx context.Context, in *privatev1.VolumesGetRequest, opts ...grpc.CallOption) (*privatev1.VolumesGetResponse, error)
+}
+
 type Reconciler struct {
 	computeClient        ComputeInstancesClient
 	clusterClient        ClustersClient
 	externalIPClient     ExternalIPsClient
 	natGatewayClient     NATGatewaysClient
 	externalIPPoolClient ExternalIPPoolsClient
+	volumeClient         VolumesClient
 	deploymentID         string
 	store                projection.Store
 	publisher            kafkapub.EventPublisher
 	logger               logr.Logger
 	heartbeatInterval    time.Duration
+	unavailableTypes     map[string]struct{}
 }
 
 var correctionResourceTypes = map[string]struct{}{
@@ -91,43 +98,46 @@ var correctionResourceTypes = map[string]struct{}{
 	events.ResourceTypeClusterOrder:    {},
 	events.ResourceTypeExternalIP:      {},
 	events.ResourceTypeNATGateway:      {},
+	events.ResourceTypeVolume:          {},
 }
 
-// SetNetworkingClients configures the networking List clients and the
-// deployment identity used by networking billing dimensions.
-func (r *Reconciler) SetNetworkingClients(
-	externalIPClient ExternalIPsClient,
-	natGatewayClient NATGatewaysClient,
-	externalIPPoolClient ExternalIPPoolsClient,
-	deploymentID string,
-) {
-	r.externalIPClient = externalIPClient
-	r.natGatewayClient = natGatewayClient
-	r.externalIPPoolClient = externalIPPoolClient
-	r.deploymentID = deploymentID
+func isUnavailable(err error) bool {
+	return status.Code(err) == codes.Unavailable
 }
 
 func NewReconciler(
 	computeClient ComputeInstancesClient,
 	clusterClient ClustersClient,
+	externalIPClient ExternalIPsClient,
+	natGatewayClient NATGatewaysClient,
+	externalIPPoolClient ExternalIPPoolsClient,
+	volumeClient VolumesClient,
 	store projection.Store,
 	publisher kafkapub.EventPublisher,
 	logger logr.Logger,
 	heartbeatInterval time.Duration,
+	deploymentID string,
 ) *Reconciler {
 	return &Reconciler{
-		computeClient:     computeClient,
-		clusterClient:     clusterClient,
-		store:             store,
-		publisher:         publisher,
-		logger:            logger,
-		heartbeatInterval: heartbeatInterval,
+		computeClient:        computeClient,
+		clusterClient:        clusterClient,
+		externalIPClient:     externalIPClient,
+		natGatewayClient:     natGatewayClient,
+		externalIPPoolClient: externalIPPoolClient,
+		volumeClient:         volumeClient,
+		store:                store,
+		publisher:            publisher,
+		logger:               logger,
+		heartbeatInterval:    heartbeatInterval,
+		deploymentID:         deploymentID,
+		unavailableTypes:     make(map[string]struct{}),
 	}
 }
 
 func (r *Reconciler) Reconcile(ctx context.Context) error {
 	start := time.Now()
 	now := start.UTC()
+	r.unavailableTypes = make(map[string]struct{})
 	r.logger.Info("starting reconciliation")
 
 	fulfillmentState, err := r.loadFulfillmentState(ctx)
@@ -201,15 +211,15 @@ func (r *Reconciler) reconcileFulfillmentResources(ctx context.Context, fulfillm
 
 	for id, fs := range fulfillmentState {
 		ps, exists := projMap[id]
-		if events.IsNetworkingResourceType(fs.resourceType) && fs.transitionTime.IsZero() {
-			sourceBillable, billErr := isBillableForType(fs.resourceType, fs.state)
+		if (events.IsNetworkingResourceType(fs.resourceType) || events.IsVolumeResourceType(fs.resourceType)) && fs.transitionTime.IsZero() {
+			sourceBillable, billErr := fulfillmentResourceBillable(fs)
 			if billErr != nil {
 				return corrections, fmt.Errorf("checking billability for %s: %w", id, billErr)
 			}
 			if sourceBillable || (exists && ps.IsBillable) {
-				return corrections, fmt.Errorf("networking resource %s has no authoritative transition time", id)
+				return corrections, fmt.Errorf("resource %s (%s) has no authoritative transition time", id, fs.resourceType)
 			}
-			r.logger.Info("skipping non-billable networking resource without authoritative transition time",
+			r.logger.Info("skipping non-billable resource without authoritative transition time",
 				"resource_id", id,
 				"resource_type", fs.resourceType,
 				"state", fs.state)
@@ -236,7 +246,7 @@ func (r *Reconciler) reconcileFulfillmentResources(ctx context.Context, fulfillm
 			}
 			corrections++
 
-			isBillable, billErr := isBillableForType(fs.resourceType, fs.state)
+			isBillable, billErr := fulfillmentResourceBillable(fs)
 			if billErr != nil {
 				return corrections, fmt.Errorf("checking billability for %s: %w", id, billErr)
 			}
@@ -277,6 +287,9 @@ func (r *Reconciler) reconcileFulfillmentResources(ctx context.Context, fulfillm
 		if fs.version > ps.FulfillmentVersion &&
 			ps.CurrentState == fs.state &&
 			events.DimensionsEqual(ps.BillingDimensions, fs.billingDimensions) {
+			if events.IsVolumeResourceType(fs.resourceType) && ps.IsBillable != fs.isBillable {
+				return corrections, fmt.Errorf("volume %s changed billability without an authoritative transition", id)
+			}
 			ps.FulfillmentVersion = fs.version
 			if err := r.store.Upsert(ctx, ps); err != nil && !errors.Is(err, projection.ErrStaleVersion) {
 				return corrections, fmt.Errorf("advancing fulfillment version for %s: %w", id, err)
@@ -305,7 +318,7 @@ func (r *Reconciler) reconcileFulfillmentResources(ctx context.Context, fulfillm
 			}
 			corrections++
 
-			isBillable, billErr := isBillableForType(fs.resourceType, fs.state)
+			isBillable, billErr := fulfillmentResourceBillable(fs)
 			if billErr != nil {
 				return corrections, fmt.Errorf("checking billability for %s: %w", id, billErr)
 			}
@@ -336,6 +349,9 @@ func (r *Reconciler) reconcileFulfillmentResources(ctx context.Context, fulfillm
 				}
 			}
 		} else if !events.DimensionsEqual(ps.BillingDimensions, fs.billingDimensions) {
+			if events.IsVolumeResourceType(fs.resourceType) {
+				return corrections, fmt.Errorf("volume %s has an unobserved billing-dimension change; refusing to emit a correction without an authoritative capacity boundary", id)
+			}
 			if err := r.publishCorrections(ctx, id, fs.resourceType, fs.tenantID, fs.projectID,
 				BillingDimensionsDrift, ps.CurrentState, fs.state, fs.billingDimensions, now); err != nil {
 				return corrections, err
@@ -369,6 +385,9 @@ func (r *Reconciler) reconcileMissedDeletions(ctx context.Context, fulfillmentSt
 
 	for id, ps := range projMap {
 		if _, exists := fulfillmentState[id]; !exists {
+			if _, unavailable := r.unavailableTypes[ps.ResourceType]; unavailable {
+				continue
+			}
 			if ps.ResourceType == events.ResourceTypeComputeInstance && r.computeClient == nil {
 				if !computeSkipLogged {
 					r.logger.Info("skipping compute_instance missed deletion checks, no compute client configured")
@@ -398,9 +417,16 @@ func (r *Reconciler) reconcileMissedDeletions(ctx context.Context, fulfillmentSt
 				r.logger.Info("skipping nat_gateway missed deletion checks, no NAT gateway client configured")
 				continue
 			}
+			if ps.ResourceType == events.ResourceTypeVolume && r.volumeClient == nil {
+				r.logger.Info("skipping volume missed deletion checks, no volume client configured")
+				continue
+			}
 			if ps.ResourceType == events.ResourceTypeExternalIP {
 				response, err := r.externalIPClient.Get(ctx, &privatev1.ExternalIPsGetRequest{Id: id})
 				if err == nil && response.GetObject() != nil {
+					continue
+				}
+				if isUnavailable(err) {
 					continue
 				}
 				if status.Code(err) != codes.NotFound {
@@ -412,8 +438,23 @@ func (r *Reconciler) reconcileMissedDeletions(ctx context.Context, fulfillmentSt
 				if err == nil && response.GetObject() != nil {
 					continue
 				}
+				if isUnavailable(err) {
+					continue
+				}
 				if status.Code(err) != codes.NotFound {
 					return corrections, fmt.Errorf("confirming NATGateway %s absence: %w", id, err)
+				}
+			}
+			if ps.ResourceType == events.ResourceTypeVolume {
+				response, err := r.volumeClient.Get(ctx, &privatev1.VolumesGetRequest{Id: id})
+				if err == nil && response.GetObject() != nil {
+					continue
+				}
+				if isUnavailable(err) {
+					continue
+				}
+				if status.Code(err) != codes.NotFound {
+					return corrections, fmt.Errorf("confirming Volume %s absence: %w", id, err)
 				}
 			}
 			if err := r.publishCorrections(ctx, id, ps.ResourceType, ps.TenantID, ps.ProjectID,
@@ -496,6 +537,7 @@ func (r *Reconciler) RunPeriodic(ctx context.Context, interval time.Duration) {
 type fulfillmentResource struct {
 	resourceType        string
 	state               string
+	isBillable          bool
 	version             int32
 	tenantID            string
 	projectID           string
@@ -509,6 +551,7 @@ var billabilityCheckers = map[string]func(string) bool{
 	events.ResourceTypeClusterOrder:    events.IsClusterBillableState,
 	events.ResourceTypeExternalIP:      events.IsExternalIPBillableState,
 	events.ResourceTypeNATGateway:      events.IsNATGatewayBillableState,
+	events.ResourceTypeVolume:          events.IsVolumeBillableState,
 }
 
 var transientCheckers = map[string]func(string) bool{
@@ -516,6 +559,7 @@ var transientCheckers = map[string]func(string) bool{
 	events.ResourceTypeClusterOrder:    events.IsClusterTransientState,
 	events.ResourceTypeExternalIP:      events.IsExternalIPTransientState,
 	events.ResourceTypeNATGateway:      events.IsNATGatewayTransientState,
+	events.ResourceTypeVolume:          events.IsVolumeTransientState,
 }
 
 // isTransientForType reports whether the given state is transient for the
@@ -533,37 +577,35 @@ func isBillableForType(resourceType, state string) (bool, error) {
 	return checker(state), nil
 }
 
+func fulfillmentResourceBillable(resource fulfillmentResource) (bool, error) {
+	if events.IsVolumeResourceType(resource.resourceType) {
+		return resource.isBillable, nil
+	}
+	return isBillableForType(resource.resourceType, resource.state)
+}
+
 func (r *Reconciler) loadFulfillmentState(ctx context.Context) (map[string]fulfillmentResource, error) {
 	result := make(map[string]fulfillmentResource)
 
-	if r.computeClient != nil {
-		if err := r.loadComputeInstances(ctx, result); err != nil {
-			return nil, err
-		}
+	if err := r.loadComputeInstances(ctx, result); err != nil {
+		return nil, err
 	}
-	if r.clusterClient != nil {
-		if err := r.loadClusters(ctx, result); err != nil {
-			return nil, err
-		}
+	if err := r.loadClusters(ctx, result); err != nil {
+		return nil, err
 	}
-	if r.externalIPClient != nil {
-		if r.externalIPPoolClient == nil {
-			return nil, fmt.Errorf("external IP client requires external IP pool client")
-		}
-		pools, err := LoadExternalIPPools(ctx, r.externalIPPoolClient)
-		if err != nil {
-			return nil, err
-		}
-		if err := r.loadExternalIPs(ctx, result, pools); err != nil {
-			return nil, err
-		}
+	pools, err := LoadExternalIPPools(ctx, r.externalIPPoolClient)
+	if err != nil {
+		return nil, err
 	}
-	if r.natGatewayClient != nil {
-		if err := r.loadNATGateways(ctx, result); err != nil {
-			return nil, err
-		}
+	if err := r.loadExternalIPs(ctx, result, pools); err != nil {
+		return nil, err
 	}
-
+	if err := r.loadNATGateways(ctx, result); err != nil {
+		return nil, err
+	}
+	if err := r.loadVolumes(ctx, result); err != nil {
+		return nil, err
+	}
 	return result, nil
 }
 
@@ -577,6 +619,9 @@ func LoadExternalIPPools(ctx context.Context, client ExternalIPPoolsClient) (map
 			Limit:  &limit,
 		})
 		if err != nil {
+			if isUnavailable(err) {
+				return map[string]string{}, nil
+			}
 			return nil, fmt.Errorf("listing external IP pools (offset=%d): %w", offset, err)
 		}
 		total := resp.GetTotal()
@@ -608,6 +653,10 @@ func (r *Reconciler) loadComputeInstances(ctx context.Context, result map[string
 			Limit:  &limit,
 		})
 		if err != nil {
+			if isUnavailable(err) {
+				r.unavailableTypes[events.ResourceTypeComputeInstance] = struct{}{}
+				return nil
+			}
 			return fmt.Errorf("listing compute instances (offset=%d): %w", offset, err)
 		}
 
@@ -652,6 +701,10 @@ func (r *Reconciler) loadClusters(ctx context.Context, result map[string]fulfill
 			Limit:  &limit,
 		})
 		if err != nil {
+			if isUnavailable(err) {
+				r.unavailableTypes[events.ResourceTypeClusterOrder] = struct{}{}
+				return nil
+			}
 			return fmt.Errorf("listing clusters (offset=%d): %w", offset, err)
 		}
 
@@ -696,6 +749,10 @@ func (r *Reconciler) loadExternalIPs(ctx context.Context, result map[string]fulf
 			Limit:  &limit,
 		})
 		if err != nil {
+			if isUnavailable(err) {
+				r.unavailableTypes[events.ResourceTypeExternalIP] = struct{}{}
+				return nil
+			}
 			return fmt.Errorf("listing external IPs (offset=%d): %w", offset, err)
 		}
 		items := resp.GetItems()
@@ -747,6 +804,10 @@ func (r *Reconciler) loadNATGateways(ctx context.Context, result map[string]fulf
 			Limit:  &limit,
 		})
 		if err != nil {
+			if isUnavailable(err) {
+				r.unavailableTypes[events.ResourceTypeNATGateway] = struct{}{}
+				return nil
+			}
 			return fmt.Errorf("listing NAT gateways (offset=%d): %w", offset, err)
 		}
 		items := resp.GetItems()
@@ -789,12 +850,63 @@ func (r *Reconciler) loadNATGateways(ctx context.Context, result map[string]fulf
 	return nil
 }
 
+func (r *Reconciler) loadVolumes(ctx context.Context, result map[string]fulfillmentResource) error {
+	var offset int32
+	for {
+		limit := int32(defaultPageSize)
+		resp, err := r.volumeClient.List(ctx, &privatev1.VolumesListRequest{Offset: &offset, Limit: &limit})
+		if err != nil {
+			if isUnavailable(err) {
+				r.unavailableTypes[events.ResourceTypeVolume] = struct{}{}
+				return nil
+			}
+			return fmt.Errorf("listing volumes (offset=%d): %w", offset, err)
+		}
+		items := resp.GetItems()
+		for _, volume := range items {
+			dimensions, dimErr := events.VolumeBillingDimensions(volume)
+			if dimErr != nil {
+				return fmt.Errorf("mapping volume %s: %w", volume.GetId(), dimErr)
+			}
+			transitionTime := time.Time{}
+			stateTransitionTime := time.Time{}
+			if volume.GetMetadata().GetDeletionTimestamp() != nil {
+				transitionTime = volume.GetMetadata().GetDeletionTimestamp().AsTime()
+			} else if volume.GetStatus().GetStateTransitionTime() != nil {
+				transitionTime = volume.GetStatus().GetStateTransitionTime().AsTime()
+			}
+			if volume.GetStatus().GetStateTransitionTime() != nil {
+				stateTransitionTime = volume.GetStatus().GetStateTransitionTime().AsTime()
+			}
+			result[volume.GetId()] = fulfillmentResource{
+				resourceType:        events.ResourceTypeVolume,
+				state:               events.VolumeCurrentState(volume),
+				isBillable:          events.IsVolumeBillable(volume),
+				version:             volume.GetMetadata().GetVersion(),
+				tenantID:            volume.GetMetadata().GetTenant(),
+				projectID:           volume.GetMetadata().GetProject(),
+				transitionTime:      transitionTime,
+				stateTransitionTime: stateTransitionTime,
+				billingDimensions:   dimensions,
+			}
+		}
+		if offset >= resp.GetTotal() {
+			break
+		}
+		if len(items) == 0 {
+			return fmt.Errorf("listing volumes made no progress at offset %d", offset)
+		}
+		offset += int32(len(items))
+	}
+	return nil
+}
+
 func buildSyntheticHeartbeats(ps projection.ResourceState, now time.Time) ([]cloudevents.Event, error) {
 	if err := events.ValidateBillingDimensions(ps.ResourceType, ps.BillingDimensions); err != nil {
 		return nil, err
 	}
 	baseID := fmt.Sprintf("synthetic-hb/%s/%d", ps.ResourceID, staleReferencePoint(ps, now).Unix())
-	if events.IsNetworkingResourceType(ps.ResourceType) {
+	if events.IsNetworkingResourceType(ps.ResourceType) || events.IsVolumeResourceType(ps.ResourceType) {
 		identity, err := events.HeartbeatIdentity(ps.ResourceType, ps.BillingDimensions, ps.BillableSince)
 		if err != nil {
 			return nil, err
@@ -805,7 +917,7 @@ func buildSyntheticHeartbeats(ps projection.ResourceState, now time.Time) ([]clo
 }
 
 func reconciliationTransitionTime(resource fulfillmentResource, now time.Time) (time.Time, error) {
-	if events.IsNetworkingResourceType(resource.resourceType) {
+	if events.IsNetworkingResourceType(resource.resourceType) || events.IsVolumeResourceType(resource.resourceType) {
 		if resource.transitionTime.IsZero() {
 			return time.Time{}, fmt.Errorf("networking resource %s has no authoritative transition time", resource.resourceType)
 		}
@@ -815,7 +927,7 @@ func reconciliationTransitionTime(resource fulfillmentResource, now time.Time) (
 }
 
 func reconciliationStateEntryTime(resource fulfillmentResource, current time.Time) (time.Time, error) {
-	billable, err := isBillableForType(resource.resourceType, resource.state)
+	billable, err := fulfillmentResourceBillable(resource)
 	if err != nil {
 		return time.Time{}, fmt.Errorf("checking billability for %s: %w", resource.resourceType, err)
 	}
