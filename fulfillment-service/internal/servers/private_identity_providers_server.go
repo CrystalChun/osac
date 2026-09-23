@@ -17,6 +17,7 @@ import (
 	"context"
 	"errors"
 	"log/slog"
+	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
 	grpccodes "google.golang.org/grpc/codes"
@@ -175,6 +176,27 @@ func (s *PrivateIdentityProvidersServer) Update(ctx context.Context,
 	request *privatev1.IdentityProvidersUpdateRequest) (response *privatev1.IdentityProvidersUpdateResponse, err error) {
 	if err = s.validateClientSecretSecret(ctx, request.GetObject()); err != nil {
 		return
+	}
+	// Only reset phase when the client is changing spec fields (user-initiated intent change).
+	// Do NOT reset when the reconciler is writing status back (would cause infinite reconcile loop).
+	hasSpecUpdate := false
+	for _, path := range request.GetUpdateMask().GetPaths() {
+		if strings.HasPrefix(path, "spec.") || path == "spec" {
+			hasSpecUpdate = true
+			break
+		}
+	}
+	if hasSpecUpdate {
+		obj := request.GetObject()
+		if !obj.HasStatus() {
+			obj.SetStatus(&privatev1.IdentityProviderStatus{})
+		}
+		obj.GetStatus().SetPhase(privatev1.IdentityProviderPhase_IDENTITY_PROVIDER_PHASE_UNKNOWN)
+		// generic.Update strictly honours the update mask: only masked paths are
+		// copied from the request object to the stored clone. Without this, the
+		// phase reset above would be silently dropped.
+		mask := request.GetUpdateMask()
+		mask.Paths = append(mask.GetPaths(), "status.phase")
 	}
 	err = s.generic.Update(ctx, request, &response)
 	return
