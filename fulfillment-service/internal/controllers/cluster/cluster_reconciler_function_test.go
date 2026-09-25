@@ -1087,6 +1087,15 @@ var _ = Describe("delete", func() {
 		DeferCleanup(ctrl.Finish)
 	})
 
+	It("should remove finalizer when no hub was assigned", func() {
+		t := newTaskForDelete(clusterID, "", nil)
+		Expect(hasFinalizer(t.cluster)).To(BeTrue())
+
+		err := t.delete(ctx)
+		Expect(err).ToNot(HaveOccurred())
+		Expect(hasFinalizer(t.cluster)).To(BeFalse())
+	})
+
 	It("should remove finalizer when hub cache returns ErrHubNotFound", func() {
 		// This test verifies the core behavior: when a hub is decommissioned/deleted,
 		// the reconciler removes its finalizer to allow the cluster to be archived.

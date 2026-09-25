@@ -516,9 +516,11 @@ func (t *task) prepareNodeRequest(nodeSet *privatev1.ClusterNodeSet) osacv1alpha
 }
 
 func (t *task) delete(ctx context.Context) (err error) {
-	// Do nothing if we don't know the hub yet:
+	// If no hub was assigned, no Kubernetes resources or hub secrets could have
+	// been created, so there is nothing external to clean up.
 	t.hubId = t.cluster.GetStatus().GetHub()
 	if t.hubId == "" {
+		t.removeFinalizer()
 		return
 	}
 

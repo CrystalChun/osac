@@ -970,6 +970,8 @@ func (p *EventPublisher) convertChangeOpToEventType(op string) (result privatev1
 		result = privatev1.EventType_EVENT_TYPE_OBJECT_UPDATED
 	case eventPublisherOpDelete:
 		result = privatev1.EventType_EVENT_TYPE_OBJECT_DELETED
+	case eventPublisherOpSignal:
+		result = privatev1.EventType_EVENT_TYPE_OBJECT_SIGNALED
 	default:
 		err = fmt.Errorf("unknown change operation '%s'", op)
 	}
@@ -1185,4 +1187,5 @@ const (
 	eventPublisherOpInsert = "INSERT"
 	eventPublisherOpUpdate = "UPDATE"
 	eventPublisherOpDelete = "DELETE"
+	eventPublisherOpSignal = "SIGNAL"
 )

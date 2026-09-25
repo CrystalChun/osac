@@ -412,6 +412,35 @@ var _ = Describe("Event publisher", Ordered, func() {
 			Expect(events[0].event.GetProject().GetSpec().GetTitle()).To(Equal("Acme"))
 		})
 
+		It("Publishes a signal change from an object row", func() {
+			tenant := "signal-" + uuid.New()
+			topic := DefaultEventTopicPrefix + tenant
+			var changeID string
+			err := pool.QueryRow(encodeCtx, `
+				insert into changes ("table", op, data)
+				values ('projects', $1, $2::jsonb)
+				returning id
+			`, eventPublisherOpSignal, fmt.Sprintf(`{
+				"id": "p-signal",
+				"name": "p-signal",
+				"tenant": %q,
+				"version": 1,
+				"data": {"spec":{"title":"Signaled"}}
+			}`, tenant)).Scan(&changeID)
+			Expect(err).ToNot(HaveOccurred())
+
+			cancel, done := startPublisher(pub)
+			defer stopPublisher(cancel, done)
+
+			events := collectKafkaEvents(client, topic, 1)
+			Expect(events[0].key).To(Equal("p-signal"))
+			Expect(events[0].event.GetId()).To(Equal(changeID))
+			Expect(events[0].event.GetType()).To(Equal(privatev1.EventType_EVENT_TYPE_OBJECT_SIGNALED))
+			Expect(events[0].event.GetProject().GetId()).To(Equal("p-signal"))
+			Expect(events[0].event.GetProject().GetMetadata().GetVersion()).To(Equal(int32(1)))
+			Expect(events[0].event.GetProject().GetSpec().GetTitle()).To(Equal("Signaled"))
+		})
+
 		It("Redacts secret data before publishing", func() {
 			tenant := "secret-" + uuid.New()
 			topic := DefaultEventTopicPrefix + tenant
@@ -1114,7 +1143,7 @@ var _ = Describe("Event publisher", Ordered, func() {
 			Expect(events[0].key).To(Equal("obj-1"))
 		})
 
-		It("Publishes trigger-written insert, update, and delete events", func() {
+		It("Publishes trigger-written insert, signal, update, and delete events", func() {
 			tenant := "acme-" + uuid.New()
 			objectID := "p-1"
 			topic := DefaultEventTopicPrefix + tenant
@@ -1122,7 +1151,19 @@ var _ = Describe("Event publisher", Ordered, func() {
 			insertTenant(tenant)
 			insertProject(objectID, tenant, "Acme")
 
-			_, err := pool.Exec(drainCtx, `
+			tx, err := pool.Begin(drainCtx)
+			Expect(err).ToNot(HaveOccurred())
+			_, err = tx.Exec(drainCtx, `set local osac.signal = 'on'`)
+			Expect(err).ToNot(HaveOccurred())
+			_, err = tx.Exec(drainCtx, `
+				update projects
+				set version = version
+				where id = $1
+			`, objectID)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(tx.Commit(drainCtx)).To(Succeed())
+
+			_, err = pool.Exec(drainCtx, `
 				update projects
 				set data = '{"spec":{"title":"Updated"}}'
 				where id = $1
@@ -1141,7 +1182,7 @@ var _ = Describe("Event publisher", Ordered, func() {
 
 			// Inserting a tenant also creates the empty default project, and that trigger runs
 			// before enqueue_change on tenants, so the default project is published first.
-			events := collectKafkaEvents(client, topic, 5)
+			events := collectKafkaEvents(client, topic, 6)
 			Expect(events[0].topic).To(Equal(topic))
 			Expect(events[0].headers).To(BeEmpty())
 			Expect(events[0].event.GetId()).ToNot(BeEmpty())
@@ -1162,12 +1203,17 @@ var _ = Describe("Event publisher", Ordered, func() {
 			Expect(events[2].event.GetProject().GetSpec().GetTitle()).To(Equal("Acme"))
 
 			Expect(events[3].key).To(Equal(objectID))
-			Expect(events[3].event.GetType()).To(Equal(privatev1.EventType_EVENT_TYPE_OBJECT_UPDATED))
-			Expect(events[3].event.GetProject().GetSpec().GetTitle()).To(Equal("Updated"))
+			Expect(events[3].event.GetType()).To(Equal(privatev1.EventType_EVENT_TYPE_OBJECT_SIGNALED))
+			Expect(events[3].event.GetProject().GetMetadata().GetVersion()).To(Equal(int32(0)))
+			Expect(events[3].event.GetProject().GetSpec().GetTitle()).To(Equal("Acme"))
 
 			Expect(events[4].key).To(Equal(objectID))
-			Expect(events[4].event.GetType()).To(Equal(privatev1.EventType_EVENT_TYPE_OBJECT_DELETED))
+			Expect(events[4].event.GetType()).To(Equal(privatev1.EventType_EVENT_TYPE_OBJECT_UPDATED))
 			Expect(events[4].event.GetProject().GetSpec().GetTitle()).To(Equal("Updated"))
+
+			Expect(events[5].key).To(Equal(objectID))
+			Expect(events[5].event.GetType()).To(Equal(privatev1.EventType_EVENT_TYPE_OBJECT_DELETED))
+			Expect(events[5].event.GetProject().GetSpec().GetTitle()).To(Equal("Updated"))
 		})
 
 		It("Publishes object changes through the listener loop", func() {

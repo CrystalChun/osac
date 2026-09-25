@@ -26,14 +26,12 @@ import (
 
 	"github.com/osac-project/osac/fulfillment-service/internal/auth"
 	"github.com/osac-project/osac/fulfillment-service/internal/database"
-	"github.com/osac-project/osac/fulfillment-service/internal/events"
 	"github.com/osac-project/osac/fulfillment-service/internal/vault"
 	privatev1 "github.com/osac-project/osac/proto/gen/osac/private/v1"
 )
 
 type PrivateSecretsServerBuilder struct {
 	logger            *slog.Logger
-	notifier          events.Notifier
 	attributionLogic  auth.AttributionLogic
 	tenancyLogic      auth.TenancyLogic
 	metricsRegisterer prometheus.Registerer
@@ -60,11 +58,6 @@ func NewPrivateSecretsServer() *PrivateSecretsServerBuilder {
 
 func (b *PrivateSecretsServerBuilder) SetLogger(value *slog.Logger) *PrivateSecretsServerBuilder {
 	b.logger = value
-	return b
-}
-
-func (b *PrivateSecretsServerBuilder) SetNotifier(value events.Notifier) *PrivateSecretsServerBuilder {
-	b.notifier = value
 	return b
 }
 
@@ -122,8 +115,6 @@ func (b *PrivateSecretsServerBuilder) Build() (result *PrivateSecretsServer, err
 	s.generic, err = NewGenericServer[*privatev1.Secret]().
 		SetLogger(b.logger).
 		SetService(privatev1.Secrets_ServiceDesc.ServiceName).
-		SetNotifier(b.notifier).
-		SetRedactFunc(s.redact).
 		SetAttributionLogic(b.attributionLogic).
 		SetTenancyLogic(b.tenancyLogic).
 		SetMetricsRegisterer(b.metricsRegisterer).
@@ -136,11 +127,6 @@ func (b *PrivateSecretsServerBuilder) Build() (result *PrivateSecretsServer, err
 
 	result = s
 	return
-}
-
-func (s *PrivateSecretsServer) redact(object *privatev1.Secret) *privatev1.Secret {
-	object.SetData(nil)
-	return object
 }
 
 // List fetches a list of secret objects from postgres.
