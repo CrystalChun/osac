@@ -96,6 +96,14 @@ type GenericServer[O dao.Object] struct {
 	validator        protovalidate.Validator
 }
 
+type objectIface interface {
+	proto.Message
+	GetId() string
+	SetId(string)
+	GetMetadata() *privatev1.Metadata
+	SetMetadata(*privatev1.Metadata)
+}
+
 type metadataIface interface {
 	proto.Message
 	GetName() string

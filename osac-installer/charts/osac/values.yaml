@@ -67,7 +67,8 @@ cliImage: quay.io/openshift/origin-cli:4.20.0
 dbInit:
   host: "postgres.osac-infra.svc.cluster.local"
 
-# Kafka cluster coordinates for per-instance topic/user creation.
+# Kafka cluster coordinates for per-instance topic/user creation. Set enabled
+# to false when service.kafka.connection targets an external Kafka cluster.
 kafka:
   enabled: true
   clusterName: osac-kafka
@@ -193,6 +194,24 @@ service:
     caBundle:
       configMap: ""
     credentials: []
+  # Kafka connection used by the fulfillment service. The defaults target the
+  # in-cluster cluster named by kafka.clusterName in kafka.clusterNamespace
+  # and the Secret copied from the fulfillment KafkaUser. To use an external
+  # Kafka cluster, set the top-level kafka.enabled to false and override
+  # service.kafka.connection with sources for that cluster. TLS trust uses
+  # service.certs.caBundle; include the broker CA in that bundle when it is not
+  # already trusted.
+  kafka:
+    connection:
+    - secret:
+        name: fulfillment-service-kafka
+        items:
+        - key: brokers
+          param: brokers
+        - key: user
+          param: user
+        - key: password
+          param: password
 
 # --- AAP ---
 aap:

@@ -141,6 +141,11 @@
       "type": "object",
       "description": "Kafka cluster coordinates for per-instance topic/user creation",
       "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Create Strimzi KafkaUser resources against the in-cluster Kafka named by clusterName",
+          "default": true
+        },
         "clusterName": {
           "type": "string",
           "description": "Strimzi Kafka cluster name",
@@ -638,6 +643,16 @@
             "credentials": {
               "type": "array",
               "description": "Volume sources for the Keycloak client secret used for Vault authentication"
+            }
+          }
+        },
+        "kafka": {
+          "type": "object",
+          "description": "Kafka connection used by the fulfillment service",
+          "properties": {
+            "connection": {
+              "type": "array",
+              "description": "Kafka connection volume sources (secret or configMap references). Each item maps keys to Kafka properties named brokers, user, and password."
             }
           }
         }

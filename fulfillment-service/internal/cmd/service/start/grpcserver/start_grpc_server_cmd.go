@@ -54,6 +54,7 @@ import (
 	"github.com/osac-project/osac/fulfillment-service/internal/servers"
 	"github.com/osac-project/osac/fulfillment-service/internal/services"
 	shtdwn "github.com/osac-project/osac/fulfillment-service/internal/shutdown"
+	"github.com/osac-project/osac/fulfillment-service/internal/trust"
 	"github.com/osac-project/osac/fulfillment-service/internal/validation"
 	"github.com/osac-project/osac/fulfillment-service/internal/vault"
 	_ "github.com/osac-project/osac/proto/gen/cleanapi"
@@ -253,7 +254,7 @@ func (c *runnerContext) run(cmd *cobra.Command, argv []string) error { //nolint:
 	}
 
 	// Load the trusted CA certificates:
-	caPool, err := network.NewCertPool().
+	caPool, err := trust.NewCertPool().
 		SetLogger(c.logger).
 		AddSystemFiles(true).
 		AddKubernetesFiles(true).
@@ -628,19 +629,15 @@ func (c *runnerContext) run(cmd *cobra.Command, argv []string) error { //nolint:
 		c.logger.InfoContext(ctx, "Performing vault health check")
 		vaultCaPool := caPool
 		if c.args.vaultBase.CaCertFile != "" {
-			certPEM, readErr := os.ReadFile(c.args.vaultBase.CaCertFile)
-			if readErr != nil {
-				return fmt.Errorf(
-					"failed to read vault CA cert from file '%s': %w",
-					c.args.vaultBase.CaCertFile, readErr,
-				)
-			}
-			vaultCaPool = caPool.Clone()
-			if !vaultCaPool.AppendCertsFromPEM(certPEM) {
-				return fmt.Errorf(
-					"vault CA cert file '%s' contains no valid certificates",
-					c.args.vaultBase.CaCertFile,
-				)
+			vaultCaPool, err = trust.NewCertPool().
+				SetLogger(c.logger).
+				AddSystemFiles(true).
+				AddKubernetesFiles(true).
+				AddFiles(c.args.caFiles...).
+				AddFile(c.args.vaultBase.CaCertFile).
+				Build()
+			if err != nil {
+				return fmt.Errorf("failed to load vault CA certificates: %w", err)
 			}
 		}
 		healthChecker, healthErr := vault.NewHealthChecker().
