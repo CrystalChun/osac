@@ -75,6 +75,9 @@ export const ClusterReviewStep = ({ catalogItem }: Props) => {
     error: projectsError,
   } = useProjects({ filter: fullProjectPathToQueryFilter(values.metadata.project) });
 
+  const isCustomNetwork =
+    !values.spec.useDefaultNetwork && Boolean(values.spec.networkAttachment.subnet.id.trim());
+
   const versionDisplay = versionDisplayName(
     findVersionByName(versions, values.spec.versionName),
     values.spec.versionName,
@@ -152,6 +155,53 @@ export const ClusterReviewStep = ({ catalogItem }: Props) => {
             <DescriptionListTerm>{t('Node sets')}</DescriptionListTerm>
             <DescriptionListDescription>
               {formatNodeSetsForReview(data, values.spec.nodeSetRows)}
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+
+          <DescriptionListGroup>
+            <DescriptionListTerm>{t('Network')}</DescriptionListTerm>
+            <DescriptionListDescription>
+              {isCustomNetwork ? t('Custom') : t('Tenant default')}
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+
+          {isCustomNetwork && (
+            <>
+              <DescriptionListGroup>
+                <DescriptionListTerm>{t('Virtual network')}</DescriptionListTerm>
+                <DescriptionListDescription>
+                  {formatReviewScalar(
+                    values.spec.networkAttachment.virtualNetwork.name ||
+                      values.spec.networkAttachment.virtualNetwork.id,
+                  )}
+                </DescriptionListDescription>
+              </DescriptionListGroup>
+              <DescriptionListGroup>
+                <DescriptionListTerm>{t('Subnet')}</DescriptionListTerm>
+                <DescriptionListDescription>
+                  {formatReviewScalar(
+                    values.spec.networkAttachment.subnet.name ||
+                      values.spec.networkAttachment.subnet.id,
+                  )}
+                </DescriptionListDescription>
+              </DescriptionListGroup>
+              <DescriptionListGroup>
+                <DescriptionListTerm>{t('Security groups')}</DescriptionListTerm>
+                <DescriptionListDescription>
+                  {values.spec.networkAttachment.securityGroups.length > 0
+                    ? values.spec.networkAttachment.securityGroups
+                        .map((sg) => sg.name || sg.id)
+                        .join(', ')
+                    : '—'}
+                </DescriptionListDescription>
+              </DescriptionListGroup>
+            </>
+          )}
+
+          <DescriptionListGroup>
+            <DescriptionListTerm>{t('Auto attach external IP')}</DescriptionListTerm>
+            <DescriptionListDescription>
+              {values.spec.autoExternalIpAttachment ? t('Yes') : t('No')}
             </DescriptionListDescription>
           </DescriptionListGroup>
 
