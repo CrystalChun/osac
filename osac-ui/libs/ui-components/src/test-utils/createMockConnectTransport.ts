@@ -1,7 +1,7 @@
 import type { MessageInitShape } from '@bufbuild/protobuf';
 import { Code, ConnectError, type Transport, createRouterTransport } from '@connectrpc/connect';
 
-import type {
+import {
   Cluster,
   ClusterCatalogItem,
   ClusterTemplate,
@@ -50,11 +50,13 @@ import type {
   RoleBinding,
   Secret,
   SecurityGroup,
+  ServiceTier,
   Subnet,
   User,
   VirtualNetwork,
 } from '@osac/types';
 import {
+  Capabilities,
   ClusterCatalogItems,
   ClusterTemplates,
   ClusterVersionState,
@@ -155,6 +157,7 @@ import {
 import { UnauthorizedError } from '../utils/unauthorizedError';
 
 export type MockApiFixtures = {
+  enabledServices?: ServiceTier[];
   catalogItems?: ComputeInstanceCatalogItem[];
   clusters?: Cluster[];
   clusterCatalogItems?: ClusterCatalogItem[];
@@ -441,6 +444,11 @@ export const createMockConnectTransport = (
   fixtures: MockApiFixtures = {},
   overrides: MockTransportOverrides = {},
 ) => {
+  const enabledServices = fixtures.enabledServices ?? [
+    ServiceTier.CAAS,
+    ServiceTier.VMAAS,
+    ServiceTier.BMAAS,
+  ];
   const catalogItems = fixtures.catalogItems ?? [];
   const clusters = fixtures.clusters ?? [];
   const clusterCatalogItems = fixtures.clusterCatalogItems ?? [];
@@ -473,6 +481,10 @@ export const createMockConnectTransport = (
 
   return wrapWithAuthInterceptor(
     createRouterTransport((router) => {
+      router.service(Capabilities, {
+        get: () => ({ enabledServices }),
+      });
+
       router.service(ComputeInstanceCatalogItems, {
         list: () => ({ items: catalogItems }),
         get: (req) => ({
