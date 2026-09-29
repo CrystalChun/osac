@@ -291,3 +291,15 @@ There is no component-level suite that runs the full fulfillment Watch → Kafka
 → CloudEvents pipeline. Changes to that path must not claim integration
 coverage from mock-based tests; add or extend the real-Kafka coverage under
 [OSAC-4846](https://redhat.atlassian.net/browse/OSAC-4846).
+
+## tests/e2e
+
+Touched-area requirements: [component guide](../tests/e2e/AGENTS.md#touched-area-map).
+
+| Tier | Location / command | Exercises for real | Faked or omitted |
+|---|---|---|---|
+| E2E (VMaaS regression) | From the repository root: `uv run pytest tests/e2e/vmaas/regression/test_compute_instance_instance_type.py` | InstanceType resize through CLI/API, CatalogItem provisioning, and Kubernetes/KubeVirt resources | Requires a configured single-node VMaaS environment; no services are mocked. |
+
+Resize lifecycle tests expect `RestartRequired`. Multi-node live hot-plug
+coverage is tracked under
+[OSAC-5335](https://redhat.atlassian.net/browse/OSAC-5335).

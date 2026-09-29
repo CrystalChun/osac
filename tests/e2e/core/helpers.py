@@ -123,6 +123,19 @@ def wait_for_restart(*, k8s: K8sClient, name: str, initial: str, restart_ts: str
     )
 
 
+def wait_for_new_vmi(*, k8s: K8sClient, vmi_namespace: str, compute_instance_name: str, initial_timestamp: str) -> str:
+    return poll_until(
+        fn=lambda: k8s.get_vmi_creation_timestamp(
+            vmi_namespace=vmi_namespace, compute_instance_name=compute_instance_name
+        ),
+        until=lambda timestamp: timestamp != "" and timestamp != initial_timestamp,
+        retries=60,
+        delay=5,
+        description=f"{compute_instance_name} VMI recreation",
+        retry_on_error=True,
+    )
+
+
 def wait_for_deletion(*, k8s: K8sClient, name: str) -> None:
     poll_until(
         fn=lambda: not k8s.is_present(resource="computeinstance", name=name),
@@ -141,6 +154,16 @@ def wait_for_grpc_removal(*, grpc: GRPCClient, uuid: str) -> None:
         delay=2,
         description=f"{uuid} removed from gRPC list",
     )
+
+
+def delete_instance_type_if_present(*, grpc: GRPCClient, name: str) -> None:
+    """Delete a test InstanceType, tolerating cleanup after an earlier delete."""
+    try:
+        grpc.delete_instance_type(name=name)
+    except subprocess.CalledProcessError as exc:
+        output = ((exc.stdout or "") + (exc.stderr or "")).lower()
+        if "not found" not in output:
+            raise
 
 
 def wait_for_virtual_network_cr(*, k8s: K8sClient, uuid: str) -> str:
