@@ -987,20 +987,9 @@ $ sudo mv osac /usr/local/bin/
 
 ### 8.3 Registering the hub
 
-> **TBD**
->
-> Whether multi-cluster hub topologies are actually supported is disputed in
-> the open PR discussion — this section's cross-reference and
-> [Section 9.3](#93-not-covered-by-this-guide)'s "not covered" claim
-> contradict each other. Needs a decision before this is accurate either way.
-
 The hub is the OpenShift Container Platform cluster that the OSAC Operator
 and AAP run on and that provisions resources. This procedure applies when the
-Fulfillment Service and the hub run on the same cluster. For multi-cluster
-hub topologies, see
-[`osac-installer/README.md`](https://github.com/osac-project/osac/blob/main/osac-installer/README.md)
-and
-[`OSAC-CLI-HOWTO.md`](https://github.com/osac-project/osac/blob/main/osac-installer/OSAC-CLI-HOWTO.md).
+Fulfillment Service and the hub run on the same cluster.
 
 **Procedure**
 
@@ -1032,6 +1021,8 @@ the self-signed `default-ca`, add `--ca-file default-ca.crt` to the
 [Section 7](#7-verifying-the-installation) for how to extract it). Use
 `--insecure` instead only for evaluation, never in production. Add
 `--as system:admin` only when your `oc` context cannot mint the token.
+
+Multi-hub environments are currently unsupported, and support may be added in future releases.
 
 ### 8.4 Installing without DNS management
 
