@@ -78,6 +78,7 @@ import {
   NATGateways,
   ProjectMemberships,
   Projects,
+  BareMetalInstanceTypes as PublicBareMetalInstanceTypes,
   ExternalIPPools as PublicExternalIPPools,
   StorageTiers as PublicStorageTiers,
   StorageTiersGetResponseSchema as PublicStorageTiersGetResponseSchema,
@@ -860,6 +861,11 @@ export const createMockConnectTransport = (
           }
           return {};
         },
+      });
+
+      router.service(PublicBareMetalInstanceTypes, {
+        list: () => ({ items: [], size: 0, total: 0 }),
+        get: () => ({}),
       });
 
       router.service(PrivateBareMetalInstanceTypes, {
