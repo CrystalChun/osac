@@ -9,7 +9,7 @@ import pytest
 
 from tests.e2e.core.grpc_client import PUBLIC_API, GRPCClient
 
-pytestmark = pytest.mark.sanity
+pytestmark = pytest.mark.regression
 
 logger = logging.getLogger(__name__)
 

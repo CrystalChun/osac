@@ -8,6 +8,7 @@ from tests.e2e.core.grpc_client import GRPCClient
 from tests.e2e.core.helpers import assert_grpc_rejected
 from tests.e2e.core.keycloak_admin import wait_for_project_not_in_keycloak
 
+pytestmark = pytest.mark.regression
 
 def test_project_full_lifecycle(
     jwt_grpc_tenant1_admin: GRPCClient,
