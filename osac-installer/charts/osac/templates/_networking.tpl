@@ -82,8 +82,8 @@ Returns a dict with:
   {{- $defaultTitle = "Netris Network Implementation" -}}
   {{- $defaultDescription = "Provisions networking resources using Netris Controller API." -}}
 {{- else if eq $fabricManager "agentless_net" -}}
-  {{- $defaultTitle = "AgentlessNet networking stub" -}}
-  {{- $defaultDescription = "Registers AgentlessNet for unified networking. Available resource operations return NotImplemented." -}}
+  {{- $defaultTitle = "AgentlessNet VirtualNetwork baseline" -}}
+  {{- $defaultDescription = "Implements UID-keyed VirtualNetwork namespaces and /31 transit links. Other networking resource operations remain NotImplemented." -}}
 {{- else if and (eq $fabricManager "") (eq $k8sManager "") -}}
   {{- $defaultTitle = "Custom Network Implementation" -}}
   {{- $defaultDescription = "NetworkClass managers are supplied via networkClass overrides." -}}
