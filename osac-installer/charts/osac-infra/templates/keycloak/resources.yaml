@@ -136,6 +136,21 @@ data:
 {{ $.Files.Get "files/hooks/resolve-realm-secrets.sh" | indent 4 }}
 ---
 apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: keycloak-custom-theme
+  namespace: keycloak
+  labels:
+    {{- include "osac-infra.labels" . | nindent 4 }}
+data:
+  theme.properties: |
+{{ $.Files.Get "files/themes/osac/login/theme.properties" | indent 4 }}
+  messages_en.properties: |
+{{ $.Files.Get "files/themes/osac/login/messages/messages_en.properties" | indent 4 }}
+  error.ftl: |
+{{ $.Files.Get "files/themes/osac/login/error.ftl" | indent 4 }}
+---
+apiVersion: v1
 kind: Secret
 metadata:
   name: keycloak-admin-credentials
@@ -361,6 +376,9 @@ spec:
         configMap:
           name: keycloak-init-scripts
           defaultMode: 0755
+      - name: custom-theme
+        configMap:
+          name: keycloak-custom-theme
       - name: database-client-cert
         secret:
           secretName: keycloak-database-client-cert
@@ -416,6 +434,9 @@ spec:
         volumeMounts:
         - name: realm
           mountPath: /opt/keycloak/data/import
+          readOnly: true
+        - name: custom-theme
+          mountPath: /opt/keycloak/themes/osac/login
           readOnly: true
         - name: database-client-cert
           mountPath: /secrets/database-client
