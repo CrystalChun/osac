@@ -69,7 +69,7 @@ var _ = Describe("Cluster Catalog Items", Label("catalog-items"), func() {
 						DefaultValue: publicv1.ClusterNodeSetMap_builder{
 							Items: map[string]*publicv1.ClusterCatalogNodeSet{
 								"workers": publicv1.ClusterCatalogNodeSet_builder{Size: 4,
-									BaremetalInstanceType: publicv1.BareMetalInstanceTypeReference_builder{Id: bmit}.Build(),
+									BaremetalInstanceType: publicv1.BareMetalInstanceTypeReference_builder{Id: bmit, Shared: true}.Build(),
 								}.Build(),
 							},
 						}.Build(),
@@ -96,7 +96,7 @@ var _ = Describe("Cluster Catalog Items", Label("catalog-items"), func() {
 				Network:     publicv1.ClusterNetwork_builder{ServiceCidr: new("172.32.0.0/16")}.Build(),
 				NodeSets: map[string]*publicv1.ClusterNodeSet{
 					"extra": publicv1.ClusterNodeSet_builder{
-						BaremetalInstanceType: publicv1.BareMetalInstanceTypeReference_builder{Id: extraBmit}.Build(),
+						BaremetalInstanceType: publicv1.BareMetalInstanceTypeReference_builder{Id: extraBmit, Shared: true}.Build(),
 						Size:                  new(int32(3)),
 					}.Build(),
 				},
@@ -203,7 +203,7 @@ var _ = Describe("Cluster Catalog Items", Label("catalog-items"), func() {
 			locked := publicv1.ClusterNodeSetMap_builder{
 				Items: map[string]*publicv1.ClusterCatalogNodeSet{
 					"workers": publicv1.ClusterCatalogNodeSet_builder{Size: 4,
-						BaremetalInstanceType: publicv1.BareMetalInstanceTypeReference_builder{Id: bmit}.Build(),
+						BaremetalInstanceType: publicv1.BareMetalInstanceTypeReference_builder{Id: bmit, Shared: true}.Build(),
 					}.Build(),
 				},
 			}.Build()
@@ -280,7 +280,7 @@ var _ = Describe("Cluster Catalog Items", Label("catalog-items"), func() {
 				CatalogItem:       publicv1.ClusterCatalogItemReference_builder{Id: item.GetId()}.Build(),
 				NetworkAttachment: network.clusterAttachment(),
 				NodeSets: map[string]*publicv1.ClusterNodeSet{"workers": publicv1.ClusterNodeSet_builder{
-					Size: new(int32(2)), BaremetalInstanceType: publicv1.BareMetalInstanceTypeReference_builder{Id: bmit}.Build(),
+					Size: new(int32(2)), BaremetalInstanceType: publicv1.BareMetalInstanceTypeReference_builder{Id: bmit, Shared: true}.Build(),
 				}.Build()},
 			}.Build())
 			Expect(err).NotTo(HaveOccurred())
@@ -343,7 +343,7 @@ var _ = Describe("Cluster Catalog Items", Label("catalog-items"), func() {
 						CatalogItem:      publicv1.ClusterCatalogItemReference_builder{Id: item.GetId()}.Build(),
 						PullSecretSecret: publicv1.SecretLocalReference_builder{Id: secret}.Build(),
 						NodeSets: map[string]*publicv1.ClusterNodeSet{"workers": publicv1.ClusterNodeSet_builder{
-							Size: new(int32(2)), BaremetalInstanceType: publicv1.BareMetalInstanceTypeReference_builder{Id: bmit}.Build(),
+							Size: new(int32(2)), BaremetalInstanceType: publicv1.BareMetalInstanceTypeReference_builder{Id: bmit, Shared: true}.Build(),
 						}.Build()},
 					}.Build(),
 				}.Build(),
@@ -387,7 +387,7 @@ var _ = Describe("Cluster Catalog Items", Label("catalog-items"), func() {
 				Template:          publicv1.ClusterTemplateReference_builder{Id: template}.Build(),
 				NetworkAttachment: network.clusterAttachment(),
 				NodeSets: map[string]*publicv1.ClusterNodeSet{"workers": publicv1.ClusterNodeSet_builder{
-					Size: new(int32(2)), BaremetalInstanceType: publicv1.BareMetalInstanceTypeReference_builder{Id: bmit}.Build(),
+					Size: new(int32(2)), BaremetalInstanceType: publicv1.BareMetalInstanceTypeReference_builder{Id: bmit, Shared: true}.Build(),
 				}.Build()},
 			}.Build())
 			Expect(e).NotTo(HaveOccurred())
@@ -399,7 +399,7 @@ var _ = Describe("Cluster Catalog Items", Label("catalog-items"), func() {
 				Template:          publicv1.ClusterTemplateReference_builder{Id: systemTemplate}.Build(),
 				NetworkAttachment: network.clusterAttachment(),
 				NodeSets: map[string]*publicv1.ClusterNodeSet{"workers": publicv1.ClusterNodeSet_builder{
-					Size: new(int32(2)), BaremetalInstanceType: publicv1.BareMetalInstanceTypeReference_builder{Id: bmit}.Build(),
+					Size: new(int32(2)), BaremetalInstanceType: publicv1.BareMetalInstanceTypeReference_builder{Id: bmit, Shared: true}.Build(),
 				}.Build()},
 			}.Build())
 			Expect(e).NotTo(HaveOccurred())
@@ -433,7 +433,7 @@ var _ = Describe("Cluster Catalog Items", Label("catalog-items"), func() {
 						CatalogItem:       publicv1.ClusterCatalogItemReference_builder{Id: item.GetId()}.Build(),
 						NetworkAttachment: bad,
 						NodeSets: map[string]*publicv1.ClusterNodeSet{"workers": publicv1.ClusterNodeSet_builder{
-							Size: new(int32(2)), BaremetalInstanceType: publicv1.BareMetalInstanceTypeReference_builder{Id: bmit}.Build(),
+							Size: new(int32(2)), BaremetalInstanceType: publicv1.BareMetalInstanceTypeReference_builder{Id: bmit, Shared: true}.Build(),
 						}.Build()},
 					}.Build(),
 				}.Build(),
@@ -474,7 +474,7 @@ var _ = Describe("Cluster Catalog Items", Label("catalog-items"), func() {
 						CatalogItem:       publicv1.ClusterCatalogItemReference_builder{Id: item.GetId()}.Build(),
 						NetworkAttachment: network.clusterAttachment(),
 						NodeSets: map[string]*publicv1.ClusterNodeSet{"workers": publicv1.ClusterNodeSet_builder{
-							Size: new(int32(2)), BaremetalInstanceType: publicv1.BareMetalInstanceTypeReference_builder{Id: bmit}.Build(),
+							Size: new(int32(2)), BaremetalInstanceType: publicv1.BareMetalInstanceTypeReference_builder{Id: bmit, Shared: true}.Build(),
 						}.Build()},
 					}.Build(),
 				}.Build(),
@@ -563,7 +563,7 @@ var _ = Describe("Cluster Catalog Items", Label("catalog-items"), func() {
 				SshPublicKey:      new(catalogItemFixtureSSHPublicKey + " member"),
 				NetworkAttachment: network.clusterAttachment(),
 				NodeSets: map[string]*publicv1.ClusterNodeSet{"workers": publicv1.ClusterNodeSet_builder{
-					Size: new(int32(2)), BaremetalInstanceType: publicv1.BareMetalInstanceTypeReference_builder{Id: bmit}.Build(),
+					Size: new(int32(2)), BaremetalInstanceType: publicv1.BareMetalInstanceTypeReference_builder{Id: bmit, Shared: true}.Build(),
 				}.Build()},
 			}.Build()
 			created, err := createClusterFixture(ctx, memberConn, spec)
@@ -753,7 +753,7 @@ var _ = Describe("Cluster Catalog Items", Label("catalog-items"), func() {
 						Locked: publicv1.ClusterNodeSetMap_builder{
 							Items: map[string]*publicv1.ClusterCatalogNodeSet{
 								"workers": publicv1.ClusterCatalogNodeSet_builder{Size: 4,
-									BaremetalInstanceType: publicv1.BareMetalInstanceTypeReference_builder{Id: bmit}.Build(),
+									BaremetalInstanceType: publicv1.BareMetalInstanceTypeReference_builder{Id: bmit, Shared: true}.Build(),
 								}.Build(),
 							},
 						}.Build(),
@@ -798,7 +798,7 @@ var _ = Describe("Cluster Catalog Items", Label("catalog-items"), func() {
 						Items: map[string]*publicv1.ClusterCatalogNodeSet{
 							"workers": publicv1.ClusterCatalogNodeSet_builder{
 								Size:                  3,
-								BaremetalInstanceType: publicv1.BareMetalInstanceTypeReference_builder{Name: "missing-type"}.Build(),
+								BaremetalInstanceType: publicv1.BareMetalInstanceTypeReference_builder{Name: "missing-type", Shared: true}.Build(),
 							}.Build(),
 						},
 					}.Build(),
@@ -923,7 +923,7 @@ var _ = Describe("Cluster Catalog Items", Label("catalog-items"), func() {
 					NodeSets: publicv1.ClusterNodeSetMapPolicy_builder{Locked: publicv1.ClusterNodeSetMap_builder{
 						Items: map[string]*publicv1.ClusterCatalogNodeSet{
 							"extra": publicv1.ClusterCatalogNodeSet_builder{Size: 3,
-								BaremetalInstanceType: publicv1.BareMetalInstanceTypeReference_builder{Id: catalogType}.Build(),
+								BaremetalInstanceType: publicv1.BareMetalInstanceTypeReference_builder{Id: catalogType, Shared: true}.Build(),
 							}.Build(),
 						},
 					}.Build()}.Build(),
@@ -972,7 +972,7 @@ var _ = Describe("Cluster Catalog Items", Label("catalog-items"), func() {
 				CatalogItem:       publicv1.ClusterCatalogItemReference_builder{Id: item.GetId()}.Build(),
 				NetworkAttachment: network.clusterAttachment(),
 				NodeSets: map[string]*publicv1.ClusterNodeSet{"workers": publicv1.ClusterNodeSet_builder{
-					Size: new(int32(2)), BaremetalInstanceType: publicv1.BareMetalInstanceTypeReference_builder{Id: bmit}.Build(),
+					Size: new(int32(2)), BaremetalInstanceType: publicv1.BareMetalInstanceTypeReference_builder{Id: bmit, Shared: true}.Build(),
 				}.Build()},
 			}.Build()
 			first, e := createClusterFixture(ctx, tool.ExternalView().UserConn(), request)
