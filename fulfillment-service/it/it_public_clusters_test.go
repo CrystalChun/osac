@@ -34,6 +34,7 @@ var _ = Describe("Public clusters", func() {
 		clustersClient      publicv1.ClustersClient
 		instanceTypesClient privatev1.BareMetalInstanceTypesClient
 		templatesClient     privatev1.ClusterTemplatesClient
+		networkClassID      string
 		bmitName            string
 		templateId          string
 	)
@@ -41,6 +42,9 @@ var _ = Describe("Public clusters", func() {
 	BeforeEach(func() {
 		// Create a context:
 		ctx = context.Background()
+		// Public cluster requests validate the canonical networking Hub even when
+		// the request does not specify a subnet or SecurityGroup.
+		networkClassID = getOrCreateTenantDefaultNetworkClassFixture(ctx)
 
 		// Create the clients:
 		clustersClient = publicv1.NewClustersClient(tool.ExternalView().UserConn())
@@ -264,7 +268,8 @@ var _ = Describe("Public clusters", func() {
 	})
 
 	It("rejects public updates that change the network attachment", func() {
-		network := createCatalogItemNetworkFixture(ctx, usersGroup, "")
+		// Reuse the deployment's singleton NetworkClass from BeforeEach.
+		network := createCatalogItemNetworkInClassFixture(ctx, usersGroup, "", networkClassID)
 		createResponse, err := clustersClient.Create(ctx, publicv1.ClustersCreateRequest_builder{
 			Object: publicv1.Cluster_builder{
 				Metadata: publicv1.Metadata_builder{
