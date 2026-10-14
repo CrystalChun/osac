@@ -112,6 +112,19 @@ var _ = Describe("ComputeInstance CEL Validation", func() {
 		Expect(k8sClient.Create(ctx, instance)).To(Succeed())
 	})
 
+	It("should reject multiple networkAttachments", func() {
+		instance := createValidInstance("test-multiple-network-attachments")
+		instance.Spec.NetworkAttachments = []osacv1alpha1.ComputeNetworkAttachment{
+			{SubnetRef: "subnet-a"},
+			{SubnetRef: "subnet-b"},
+		}
+
+		err := k8sClient.Create(ctx, instance)
+		Expect(err).To(HaveOccurred())
+		Expect(apierrors.IsInvalid(err)).To(BeTrue())
+		Expect(err.Error()).To(ContainSubstring("at most one network attachment is supported"))
+	})
+
 	Describe("NetworkAttachment immutability", func() {
 		It("should reject replacing a subnetRef", func() {
 			instance := createValidInstance("test-subnet-replacement")
@@ -657,21 +670,6 @@ var _ = Describe("ComputeInstance CEL Validation", func() {
 			Expect(err.Error()).To(ContainSubstring("Too many"))
 		})
 
-		It("should allow creating ComputeInstance with exactly 8 networkAttachments", func() {
-			instance := createValidInstance("test-exactly-8-attachments")
-			instance.Spec.NetworkAttachments = []osacv1alpha1.ComputeNetworkAttachment{
-				{SubnetRef: "subnet-1"},
-				{SubnetRef: "subnet-2"},
-				{SubnetRef: "subnet-3"},
-				{SubnetRef: "subnet-4"},
-				{SubnetRef: "subnet-5"},
-				{SubnetRef: "subnet-6"},
-				{SubnetRef: "subnet-7"},
-				{SubnetRef: "subnet-8"},
-			}
-
-			Expect(k8sClient.Create(ctx, instance)).To(Succeed())
-		})
 	})
 
 	Describe("StorageTier validation", func() {
