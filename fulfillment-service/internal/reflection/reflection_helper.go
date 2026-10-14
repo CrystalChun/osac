@@ -82,6 +82,9 @@ type ObjectHelper interface {
 	SetTenant(object proto.Message, tenant string)
 	GetTenant(object proto.Message) string
 	IsTenantScoped() bool
+	SetProject(object proto.Message, project string)
+	GetProject(object proto.Message) string
+	IsProjectScoped() bool
 	UseGetForStructuredOutput() bool
 }
 
@@ -93,6 +96,7 @@ type HelperBuilder struct {
 	connection                  *grpc.ClientConn
 	packages                    map[string]int
 	tenantFunc                  any
+	projectFunc                 any
 	getForStructuredOutputTypes map[protoreflect.Name]bool
 }
 
@@ -104,6 +108,7 @@ type helper struct {
 	scanOnce                    *sync.Once
 	helpers                     []objectHelper
 	tenantFunc                  func(context.Context) (string, error)
+	projectFunc                 func(context.Context) (string, error)
 	getForStructuredOutputTypes map[protoreflect.Name]bool
 }
 
@@ -161,6 +166,21 @@ func (b *HelperBuilder) SetTenantFunc(value any) *HelperBuilder {
 	return b
 }
 
+// SetProjectFunc sets the function that returns the project. When this is set the helper will call the function to
+// obtain the project, and if it isn't empty, it will use it to automatically filter the results by project, as well
+// as to set the project on new objects. The function can be of the following types:
+//
+//   - func() string
+//   - func(context.Context) string
+//   - func() (string, error)
+//   - func(context.Context) (string, error)
+//
+// The Build method will verify that the function matches one of these signatures.
+func (b *HelperBuilder) SetProjectFunc(value any) *HelperBuilder {
+	b.projectFunc = value
+	return b
+}
+
 // UseGetForStructuredOutput marks the given proto message types as requiring the Get RPC instead
 // of List when fetching specific objects for structured output (yaml/json). Callers pass generated
 // proto message pointers so that a proto rename produces a compile error rather than a silent
@@ -200,6 +220,15 @@ func (b *HelperBuilder) Build() (result Helper, err error) {
 		}
 	}
 
+	// Normalize the project function to a canonical signature:
+	var projectFunc func(context.Context) (string, error)
+	if b.projectFunc != nil {
+		projectFunc, err = NormalizeFunc[string](b.projectFunc)
+		if err != nil {
+			return
+		}
+	}
+
 	// Prepare the set of packages:
 	packages := make(map[protoreflect.FullName]int, len(b.packages))
 	for name, order := range b.packages {
@@ -214,6 +243,7 @@ func (b *HelperBuilder) Build() (result Helper, err error) {
 		scanOnce:                    &sync.Once{},
 		helpers:                     []objectHelper{},
 		tenantFunc:                  tenantFunc,
+		projectFunc:                 projectFunc,
 		getForStructuredOutputTypes: b.getForStructuredOutputTypes,
 	}
 	return
@@ -384,6 +414,18 @@ func (h *helper) scanService(serviceDesc protoreflect.ServiceDescriptor) {
 	idFieldDesc := objectFields.ByName(idFieldName)
 	metadataFieldDesc := objectFields.ByName(metadataFieldName)
 
+	// Determine if the object is project-scoped by checking if its metadata has a "project" field.
+	// Platform-scoped types (e.g. Tenant, Role) share the same Metadata message but are not
+	// conceptually project-scoped — exclude them so that List does not inject a project filter
+	// that would hide these resources when a project is selected.
+	projectScoped := false
+	if metadataFieldDesc != nil && !platformScopedTypes[objectDesc.Name()] {
+		metadataMsg := metadataFieldDesc.Message()
+		if metadataMsg != nil && metadataMsg.Fields().ByName(projectFieldName) != nil {
+			projectScoped = true
+		}
+	}
+
 	// This is a supported object type:
 	helper := objectHelper{
 		parent:                    h,
@@ -393,6 +435,7 @@ func (h *helper) scanService(serviceDesc protoreflect.ServiceDescriptor) {
 		singular:                  objectNameSingular,
 		plural:                    objectNamePlural,
 		tenantScoped:              !platformScopedTypes[objectDesc.Name()],
+		projectScoped:             projectScoped,
 		useGetForStructuredOutput: h.getForStructuredOutputTypes[objectDesc.Name()],
 		template:                  objectTemplate,
 		get: getInfo{
@@ -604,6 +647,7 @@ type objectHelper struct {
 	singular                  string
 	plural                    string
 	tenantScoped              bool
+	projectScoped             bool
 	useGetForStructuredOutput bool
 	template                  proto.Message
 	list                      listInfo
@@ -707,6 +751,23 @@ func (h *objectHelper) List(ctx context.Context, options ListOptions) (result Li
 				filter = fmt.Sprintf("%s && (%s)", tenantFilter, filter)
 			} else {
 				filter = tenantFilter
+			}
+		}
+	}
+
+	// Inject project filter from project function if needed:
+	if h.IsProjectScoped() && h.parent.projectFunc != nil {
+		var project string
+		project, err = h.parent.projectFunc(ctx)
+		if err != nil {
+			return
+		}
+		if project != "" {
+			projectFilter := fmt.Sprintf("this.metadata.project == %q", project)
+			if filter != "" {
+				filter = fmt.Sprintf("%s && (%s)", projectFilter, filter)
+			} else {
+				filter = projectFilter
 			}
 		}
 	}
@@ -859,6 +920,29 @@ func (h *objectHelper) GetTenant(object proto.Message) string {
 // IsTenantScoped returns true if this resource type is scoped to a tenant.
 func (h *objectHelper) IsTenantScoped() bool {
 	return h.tenantScoped
+}
+
+// projectFieldName is the name of the project field in the metadata message.
+const projectFieldName = protoreflect.Name("project")
+
+// SetProject sets the project field on the object's metadata. If the metadata submessage does not
+// exist it is created.
+func (h *objectHelper) SetProject(object proto.Message, project string) {
+	metadata := object.ProtoReflect().Mutable(h.metadataField).Message()
+	field := metadata.Descriptor().Fields().ByName(projectFieldName)
+	if field != nil {
+		metadata.Set(field, protoreflect.ValueOfString(project))
+	}
+}
+
+// GetProject returns the project field from the object's metadata.
+func (h *objectHelper) GetProject(object proto.Message) string {
+	return ResolveFieldPathOr(object, "metadata.project", "")
+}
+
+// IsProjectScoped returns true if this resource type has a project field in its metadata.
+func (h *objectHelper) IsProjectScoped() bool {
+	return h.projectScoped
 }
 
 // UseGetForStructuredOutput returns true if the Get RPC should be used instead of List when
