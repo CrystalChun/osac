@@ -214,6 +214,24 @@ explicit disabled-state suppression, enabled empty-override behavior, and the
 CaaS profile's explicit enablement with inherited defaults. It does not install
 MCE or call an Operator catalog or cluster API.
 
+The `make -C osac-installer kind-runtime-test` unit suite is owned by installer
+implementation work. It uses command stubs to check runtime selection, sudo
+authentication and credential expiry, Makefile/host setup routing, safe
+credential reset, resuming stopped nodes after storage preparation and waiting
+for API readiness, Helm 3/4 apply flags for devstack and OSAC releases,
+image loading without virtualization prerequisites or
+non-portable temporary-file patterns,
+TopoLVM chart download when the locked archive is missing, reuse when present,
+exclusion from general chart dependency builds,
+and install failure before cluster setup when the download fails, and
+device-mapper major detection in the selected engine, refusal of failed or
+invalid probes, replacement of stale helper permissions or images, and cleanup
+capabilities and ordering without running a container engine or
+modifying host privileges. It does not exercise real password entry, TopoLVM
+devices, or a deployed KubeVirt installation.
+The chart dependency cases stub Helm; upstream chart downloads are not
+exercised by this unit suite.
+
 The `make fulfillment-trust-render-test` Helm contract renders the production
 umbrella chart with trust enabled and disabled. It asserts the operator trust
 reconciler gate and checks that CA mounts and verified
