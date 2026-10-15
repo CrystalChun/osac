@@ -158,7 +158,34 @@ make install-osac  PLATFORM=openshift PROFILE=<profile> NS=<namespace>   # OSAC 
 | `PLATFORM` | `kind` or `openshift` (required) |
 | `PROFILE` | `dev`, `dev-full`, `vmaas-ci`, `bmaas-ci`, `caas-ci`, `full-ci`, or `cudn-evpn-netris-test` (required; `dev-full` is kind only) |
 | `NS` | Target namespace (required) |
-| `EXTRA_HELM_ARGS` | Extra `--set`/`--set-string` args appended to helm commands |
+| `EXTRA_HELM_ARGS` | Extra `--set`/`--set-string` args for the OSAC chart only |
+| `DRY_RUN=1` | Render all releases from `make install` with `helm template`; no cluster connections or cluster commands are used |
+| `DRY_RUN_CLUSTER_DOMAIN` | Cluster ingress domain required for an OpenShift dry run |
+| `DRY_RUN_OCP_VERSION` | OpenShift major.minor version required for an OpenShift dry run, e.g. `4.20` |
+
+To preview the full Kind install and enable the CSI driver without making cluster
+changes:
+
+```bash
+make install PLATFORM=kind PROFILE=dev NS=osac DRY_RUN=1 \
+  EXTRA_HELM_ARGS='--set csiDriver.enabled=true'
+```
+
+For OpenShift, provide the cluster-specific values explicitly because dry-run
+mode does not query the cluster:
+
+```bash
+make install PLATFORM=openshift PROFILE=vmaas-ci NS=osac DRY_RUN=1 \
+  DRY_RUN_CLUSTER_DOMAIN=apps.example.com DRY_RUN_OCP_VERSION=4.20 \
+  EXTRA_HELM_ARGS='--set csiDriver.enabled=true'
+```
+
+`DRY_RUN=1` routes the composite target through `helm template` for every
+release. It skips Kind cluster creation, `oc`/`kubectl` operations, and the
+dev-full host setup script. Since `helm template` does not connect to a cluster,
+no Kubernetes resources are changed. The generated manifests are printed to
+the terminal; `EXTRA_HELM_ARGS` still applies to the OSAC chart. Do not include a
+Helm `--dry-run` flag in `EXTRA_HELM_ARGS`; rendering is intrinsic to this mode.
 
 #### Full local dev environment (`PROFILE=dev-full`, kind only)
 
@@ -199,6 +226,9 @@ make -C ../fulfillment-service image-build \
 make -C ../osac-operator image-build \
   IMG=ghcr.io/osac-project/osac-operator:latest \
   CONTAINER_TOOL="$CONTAINER_TOOL"
+make -C ../osac-aap execution-environment-build \
+  IMG=ghcr.io/osac-project/osac-aap:latest \
+  CONTAINER_TOOL="$CONTAINER_TOOL"
 "$CONTAINER_TOOL" build -t ghcr.io/osac-project/osac-ui:latest \
   -f ../osac-ui/Containerfile ../osac-ui
 
@@ -209,6 +239,10 @@ make install-devstack PLATFORM=kind PROFILE=dev-full NS=osac
 ```
 
 `kind-load-images` only loads already-built images; it does not rebuild them.
+On Apple Silicon, the OSAC AAP execution environment builds natively as
+`linux/arm64`; use `EE_CONTAINER_PLATFORM=linux/amd64,linux/arm64` when a
+multi-architecture image is required. Kubernetes images remain Linux images;
+Kind selects the image matching the node architecture.
 After changing source code, rerun the relevant component `image-build` target
 and then `kind-load-images`. Loaded images are restarted only for workloads that
 use one of the local image references. Each Go component also exposes a
@@ -244,17 +278,22 @@ make install PLATFORM=openshift PROFILE=cudn-evpn-netris-test NS=osac \
   INSTANCE_VALUES_EXTRA="-f cudn-evpn-netris-test-secrets.local.yaml"
 ```
 
-On top of `dev`, `dev-full` adds (via `scripts/dev-full/`, orchestrated by the
-`install-devstack` target):
+On top of `dev`, `dev-full` adds virtualization, AWX, and seeded test data using
+the `osac` and `osac-devstack` releases plus `scripts/dev-full/`:
 
 - **Virtualization** — Multus CNI + bridge plugin, KubeVirt (operator + CR, `l2bridge`
   binding), CDI
 - **AWX** — the open-source AAP backend the operator drives: awx-operator + instance,
   configured with an inventory, a project (`github.com/osac-project/osac.git`,
-  playbooks under `osac-aap/`), job templates, a Kubernetes credential, and the
-  `awx-token` secret the operator reads
-- **OSAC UI** — deployed directly (the chart's `ui.enabled` uses an OpenShift Route,
-  unusable on kind) and routed through the shared Envoy Gateway
+  playbooks under `osac-aap/`), all 35 production job templates assigned to the
+  OSAC AAP execution environment, production-named inventory groups backed by
+  localhost on Kind, a Kubernetes credential, and the `awx-token` secret the operator reads.
+  That execution environment is built from `osac-aap/collections/requirements.yml`,
+  including `vastdata.vms`; dev-full pulls `ghcr.io/osac-project/osac-aap:latest`
+  unless a locally built image with that tag has been loaded into Kind.
+- **OSAC UI** — deployed by the tracked `osac-ui` chart dependency in the
+  `osac-devstack` release; the release adds a Kind-only Gateway API `HTTPRoute`
+  to the shared Envoy Gateway and disables the OpenShift Route.
 - **Seeded catalog** — a `fedora` disk image, `u1-small/medium/large` instance types,
   the `osac.templates.ocp_virt_vm` template, and a `linux-vm` catalog item (shared/global
   objects; networking is per-tenant and auto-provisioned, see below)

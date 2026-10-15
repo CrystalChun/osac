@@ -12,6 +12,8 @@
 set -euo pipefail
 
 NS="${1:-${NS:-osac}}"
+OSAC_EE_IMAGE="${OSAC_EE_IMAGE:-ghcr.io/osac-project/osac-aap:latest}"
+OSAC_EE_PULL="${OSAC_EE_PULL:-missing}"
 
 log()  { echo "[+] $*"; }
 warn() { echo "[!] $*" >&2; }
@@ -41,25 +43,26 @@ awx_job_template_request() {
 }
 
 ensure_job_template() {
-  local name="$1" playbook="$2"
+  local name="$1" playbook="$2" inventory_id="$3" extra_vars="$4"
   local existing_id response template_id payload method endpoint
 
   payload=$(python3 -c '
 import json
 import sys
 
-name, playbook, inventory, project = sys.argv[1:]
+name, playbook, inventory, project, execution_environment, extra_vars = sys.argv[1:]
 print(json.dumps({
     "name": name,
     "organization": 1,
     "inventory": int(inventory),
     "project": int(project),
     "playbook": playbook,
-    "extra_vars": "{}",
+    "execution_environment": int(execution_environment),
+    "extra_vars": extra_vars,
     "ask_variables_on_launch": True,
     "allow_simultaneous": False,
 }))
-' "${name}" "${playbook}" "${inv_id}" "${project_id}")
+' "${name}" "${playbook}" "${inventory_id}" "${project_id}" "${ee_id}" "${extra_vars}")
 
   response=$(awx_job_template_request GET "/job_templates/?name=${name}")
   existing_id=$(python3 -c '
@@ -68,7 +71,11 @@ import sys
 
 name = sys.argv[1]
 templates = json.load(sys.stdin).get("results", [])
-print(next((str(item["id"]) for item in templates if item.get("name") == name), ""))
+matches = [str(item["id"]) for item in templates
+           if item.get("name") == name and item.get("organization") == 1]
+if len(matches) > 1:
+    raise SystemExit(f"multiple AWX job templates named {name!r} in organization 1")
+print(matches[0] if matches else "")
 ' "${name}" <<<"${response}")
   if [[ -n "${existing_id}" ]]; then
     method=PATCH
@@ -88,6 +95,51 @@ print(next((str(item["id"]) for item in templates if item.get("name") == name), 
     return 1
   fi
   log "  template ${method,,}: ${name} (id ${template_id})"
+}
+
+execution_environment_json() {
+  OSAC_EE_IMAGE="${OSAC_EE_IMAGE}" OSAC_EE_PULL="${OSAC_EE_PULL}" \
+    python3 -c 'import json, os; print(json.dumps({"name": "osac-aap-ee", "organization": 1, "image": os.environ["OSAC_EE_IMAGE"], "pull": os.environ["OSAC_EE_PULL"]}))'
+}
+
+execution_environment_image_json() {
+  OSAC_EE_IMAGE="${OSAC_EE_IMAGE}" OSAC_EE_PULL="${OSAC_EE_PULL}" \
+    python3 -c 'import json, os; print(json.dumps({"image": os.environ["OSAC_EE_IMAGE"], "pull": os.environ["OSAC_EE_PULL"]}))'
+}
+
+ensure_inventory() {
+  local inventory_name="$1" api="$2" awx_token="$3" inventory_id
+  inventory_id=$(curl -s -X POST "${api}/inventories/" -H "Authorization: Bearer ${awx_token}" \
+    -H "Content-Type: application/json" -d "{\"name\": \"${inventory_name}\", \"organization\": 1}" | \
+    python3 -c "import json,sys; print(json.load(sys.stdin).get('id',''))" 2>/dev/null || true)
+  if [[ -z "${inventory_id}" ]]; then
+    inventory_id=$(curl -s -H "Authorization: Bearer ${awx_token}" "${api}/inventories/?name=${inventory_name}" | \
+      python3 -c "import json,sys; d=json.load(sys.stdin); print(d['results'][0]['id'] if d.get('results') else '')")
+  fi
+  [[ -n "${inventory_id}" ]] || return 1
+  curl -s -X POST "${api}/inventories/${inventory_id}/hosts/" -H "Authorization: Bearer ${awx_token}" \
+    -H "Content-Type: application/json" -d '{"name": "localhost", "variables": "ansible_connection: local"}' >/dev/null 2>&1 || true
+  printf '%s' "${inventory_id}"
+}
+
+controller_template_specs() {
+  local controller_url="${OSAC_CONTROLLER_VARS_URL:-https://raw.githubusercontent.com/osac-project/osac/main/osac-aap/collections/ansible_collections/osac/config_as_code/roles/aap/vars/controller.yml}"
+  curl -fsSL "${controller_url}" | python3 -c '
+import re
+import sys
+
+text = sys.stdin.read()
+section = text.split("controller_templates:", 1)[1].split("controller_job_template_surveys:", 1)[0]
+entry_pattern = re.compile(r"(?ms)^\s+- name: \"\{\{ aap_prefix \}\}-(?P<name>[^\"]+)\"\s*\n(?P<body>.*?)(?=^\s+- name:|\Z)")
+for entry in entry_pattern.finditer(section):
+    body = entry.group("body")
+    playbook = re.search(r"^\s+playbook:\s+\"([^\"]+)\"", body, re.MULTILINE)
+    inventory = re.search(r"^\s+inventory:\s+\"\{\{ aap_prefix \}\}-([^\"]+)\"", body, re.MULTILINE)
+    if not playbook or not inventory:
+        continue
+    workflow_status = re.search(r"^\s+workflow_status:\s+(\w+)", body, re.MULTILINE)
+    print("|".join(("osac-" + entry.group("name"), playbook.group(1), "osac-" + inventory.group(1), workflow_status.group(1) if workflow_status else "")))
+'
 }
 
 configure_awx() {
@@ -110,24 +162,9 @@ configure_awx() {
   fi
   log "AWX token created"
 
-  # Inventory (create or reuse).
-  local inv_id
-  inv_id=$(curl -s -X POST "${api}/inventories/" -H "Authorization: Bearer ${awx_token}" \
-    -H "Content-Type: application/json" -d '{"name": "OSAC Dev", "organization": 1}' | \
-    python3 -c "import json,sys; print(json.load(sys.stdin).get('id',''))" 2>/dev/null || true)
-  if [[ -z "$inv_id" ]]; then
-    inv_id=$(curl -s -H "Authorization: Bearer ${awx_token}" "${api}/inventories/?name=OSAC+Dev" | \
-      python3 -c "import json,sys; d=json.load(sys.stdin); print(d['results'][0]['id'] if d.get('results') else '')")
-  fi
-  if [[ ! "${inv_id}" =~ ^[0-9]+$ ]]; then
-    warn "Failed to create or find the OSAC Dev AWX inventory"
-    return 1
-  fi
-  curl -s -X POST "${api}/inventories/${inv_id}/hosts/" -H "Authorization: Bearer ${awx_token}" \
-    -H "Content-Type: application/json" \
-    -d '{"name": "localhost", "variables": "ansible_connection: local"}' >/dev/null 2>&1 || true
-
-  # Disable collection/role sync and set ANSIBLE_JINJA2_NATIVE=true for osac-aap playbooks.
+  # Disable project collection/role sync: OSAC's collections are installed in
+  # its dedicated execution environment from osac-aap/collections/requirements.yml.
+  # Set ANSIBLE_JINJA2_NATIVE=true for osac-aap playbooks.
   # Local AWX workers may lack a service-account namespace file. Use the
   # release namespace for storage config Secrets through the supported override.
   local settings_payload
@@ -143,10 +180,33 @@ print(json.dumps({
         "OSAC_STORAGE_CONFIG_NAMESPACE": sys.argv[1],
     },
 }))
-' "${NS}")
+ ' "${NS}")
   curl -fsS -X PATCH "${api}/settings/jobs/" -H "Authorization: Bearer ${awx_token}" \
     -H "Content-Type: application/json" \
     -d "${settings_payload}" >/dev/null
+
+  # Register the OSAC AAP execution environment. It is built from the same
+  # collection requirements as AAP deployments, including vastdata.vms.
+  local ee_id
+  ee_id=$(curl -s -X POST "${api}/execution_environments/" -H "Authorization: Bearer ${awx_token}" \
+    -H "Content-Type: application/json" \
+    -d "$(execution_environment_json)" | \
+    python3 -c "import json,sys; print(json.load(sys.stdin).get('id',''))" 2>/dev/null || true)
+  if [[ -z "${ee_id}" ]]; then
+    ee_id=$(curl -s -H "Authorization: Bearer ${awx_token}" "${api}/execution_environments/?name=osac-aap-ee" | \
+      python3 -c "import json,sys; d=json.load(sys.stdin); print(d['results'][0]['id'] if d.get('results') else '')")
+  fi
+  if [[ -z "${ee_id}" ]]; then
+    warn "Failed to create or find the OSAC AAP execution environment"
+    return 1
+  fi
+  if ! curl -sS -f -X PATCH "${api}/execution_environments/${ee_id}/" \
+    -H "Authorization: Bearer ${awx_token}" -H "Content-Type: application/json" \
+    -d "$(execution_environment_image_json)" >/dev/null; then
+    warn "Failed to configure execution environment ${ee_id}"
+    return 1
+  fi
+  log "OSAC AAP execution environment configured: ${OSAC_EE_IMAGE} (pull: ${OSAC_EE_PULL})"
 
   # Project from the osac mono-repo.
   # Remove the cached checkout before syncing: the repo's graph-latest tag moves,
@@ -188,38 +248,35 @@ print(json.dumps({
     return 1
   fi
 
-  # Job templates (compute + networking). Leave storage-class variables unset
-  # here; the operator supplies the tenant's resolved classes under osac_job_vars
-  # whenever it launches a compute job.
-  local entry name playbook
-  for entry in \
-    "osac-create-compute-instance:osac-aap/playbook_osac_create_compute_instance.yml" \
-    "osac-delete-compute-instance:osac-aap/playbook_osac_delete_compute_instance.yml"; do
-    name="${entry%%:*}"; playbook="${entry##*:}"
-    ensure_job_template "${name}" "${playbook}"
-  done
+  # Create the production template catalog with dedicated inventories. Leave
+  # compute storage classes unset; the operator supplies each tenant's resolved
+  # classes when it launches a job.
+  local inventory_id name playbook template_inventory workflow_status extra_vars
+  declare -A inventory_ids
 
-  # Storage templates used by the operator to provision the registered
-  # tenant backend and create tenant-labeled StorageClasses for each tier.
-  for entry in \
-    "osac-create-tenant-storage-backend:osac-aap/playbook_osac_create_tenant_storage_backend.yml" \
-    "osac-delete-tenant-storage-backend:osac-aap/playbook_osac_delete_tenant_storage_backend.yml" \
-    "osac-create-tenant-cluster-storage:osac-aap/playbook_osac_create_tenant_cluster_storage.yml" \
-    "osac-delete-tenant-cluster-storage:osac-aap/playbook_osac_delete_tenant_cluster_storage.yml"; do
-    name="${entry%%:*}"; playbook="${entry##*:}"
-    ensure_job_template "${name}" "${playbook}"
-  done
-
-  for entry in \
-    "osac-create-virtual-network:osac-aap/playbook_osac_create_virtual_network.yml" \
-    "osac-delete-virtual-network:osac-aap/playbook_osac_delete_virtual_network.yml" \
-    "osac-create-subnet:osac-aap/playbook_osac_create_subnet.yml" \
-    "osac-delete-subnet:osac-aap/playbook_osac_delete_subnet.yml" \
-    "osac-create-security-group:osac-aap/playbook_osac_create_security_group.yml" \
-    "osac-delete-security-group:osac-aap/playbook_osac_delete_security_group.yml"; do
-    name="${entry%%:*}"; playbook="${entry##*:}"
-    ensure_job_template "${name}" "${playbook}"
-  done
+  local template_specs
+  if ! template_specs=$(controller_template_specs); then
+    warn "Failed to load production controller template definitions"
+    return 1
+  fi
+  if [[ -z "${template_specs}" ]]; then
+    warn "Production controller template definitions are empty"
+    return 1
+  fi
+  while IFS='|' read -r name playbook template_inventory workflow_status; do
+    [[ -n "${name}" ]] || continue
+    if [[ -z "${inventory_ids[${template_inventory}]:-}" ]]; then
+      inventory_ids["${template_inventory}"]=$(ensure_inventory "${template_inventory}" "${api}" "${awx_token}")
+    fi
+    inventory_id="${inventory_ids[${template_inventory}]}"
+    [[ -n "${inventory_id}" ]] || { warn "No AWX inventory configured for ${name}"; return 1; }
+    extra_vars="{}"
+    if [[ -n "${workflow_status:-}" ]]; then
+      extra_vars="workflow_status: ${workflow_status}"
+    fi
+    ensure_job_template "${name}" "${playbook}" "${inventory_id}" "${extra_vars}"
+  done <<< "${template_specs}"
+  log "All 35 production OSAC job templates configured"
 
   # Kubernetes credential for job templates.
   kubectl -n "${NS}" create serviceaccount awx-runner 2>/dev/null || true
@@ -245,7 +302,6 @@ print(json.dumps({
     }" | python3 -c "import json,sys; print(json.load(sys.stdin).get('id',''))")
 
   # Attach credential to all job templates.
-  local templates jt_id
   templates=$(curl -s -H "Authorization: Bearer ${awx_token}" "${api}/job_templates/" | \
     python3 -c "import json,sys; print(' '.join(str(t['id']) for t in json.load(sys.stdin)['results']))")
   for jt_id in ${templates}; do
