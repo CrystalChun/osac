@@ -97,6 +97,14 @@ service and database with the operator disabled, so it does not exercise Netris
 or AAP. The complete provider lifecycle belongs to the BMaaS E2E coverage in
 OSAC-4786.
 
+ComputeInstance public update contracts require both suites. The deployed
+[`it/it_compute_instance_network_attachment_status_test.go`](it/it_compute_instance_network_attachment_status_test.go)
+covers read-only public status and attachment feedback across a maskless
+update; run it through the `SUITE=fulfillment` installer target. The
+`internal/servers` suite covers update-mask inference, targeted map
+replacement, preserved private metadata, and the concurrent-controller status
+race with real PostgreSQL row locks. Neither suite provisions a real VM.
+
 ```bash
 export KUBECONFIG="$HOME/.kube/osac-dev-kind.kubeconfig"
 make -C ../osac-installer install-infra PLATFORM=kind PROFILE=dev NS=osac
