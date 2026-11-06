@@ -1368,6 +1368,7 @@ var _ = Describe("Deletion Cleanup", func() {
 			List(gomock.Any(), gomock.Any()).
 			Return(&privatev1.ProjectMembershipsListResponse{
 				Total: 2,
+				Size:  2,
 				Items: []*privatev1.ProjectMembership{
 					privatev1.ProjectMembership_builder{
 						Id: "membership-1",
@@ -1691,7 +1692,58 @@ var _ = Describe("Deletion Cleanup", func() {
 		Expect(project.GetMetadata().GetFinalizers()).To(ContainElement(finalizers.Controller))
 	})
 
-	Context("Cascade deletion of ProjectMemberships", func() {
+	Context("Cascade deletion of project-scoped resources", func() {
+		It("should delete secrets scoped to the project before removing its finalizer", func() {
+			project := privatev1.Project_builder{
+				Id: "project-root",
+				Metadata: privatev1.Metadata_builder{
+					Tenant:     "acme",
+					Finalizers: []string{finalizers.Controller},
+				}.Build(),
+			}.Build()
+			secret := privatev1.Secret_builder{
+				Id: "secret-1",
+				Metadata: privatev1.Metadata_builder{
+					Tenant:  "acme",
+					Project: "",
+				}.Build(),
+			}.Build()
+			secretsClient := NewMockSecretsClient(ctrl)
+			reconciler := *functionObj
+			reconciler.secretsClient = secretsClient
+
+			mockClient.EXPECT().
+				List(gomock.Any(), gomock.Any()).
+				Return(&privatev1.ProjectsListResponse{Size: 0}, nil)
+			mockProjectMembershipsClient.EXPECT().
+				List(gomock.Any(), gomock.Any()).
+				Return(&privatev1.ProjectMembershipsListResponse{}, nil)
+			secretsClient.EXPECT().
+				List(gomock.Any(), gomock.Any()).
+				DoAndReturn(func(_ context.Context, req *privatev1.SecretsListRequest, _ ...grpc.CallOption) (*privatev1.SecretsListResponse, error) {
+					Expect(req.GetFilter()).To(ContainSubstring(`this.metadata.tenant == "acme" && this.metadata.project == ""`))
+					return &privatev1.SecretsListResponse{Items: []*privatev1.Secret{secret}, Total: 1, Size: 1}, nil
+				})
+			secretsClient.EXPECT().
+				Delete(gomock.Any(), gomock.Any()).
+				DoAndReturn(func(_ context.Context, req *privatev1.SecretsDeleteRequest, _ ...grpc.CallOption) (*privatev1.SecretsDeleteResponse, error) {
+					Expect(req.GetId()).To(Equal("secret-1"))
+					return &privatev1.SecretsDeleteResponse{}, nil
+				})
+
+			// Default project groups live at /system:viewers and /system:managers.
+			mockIdpClient.EXPECT().
+				GetGroupIDByPath(gomock.Any(), "acme", "/system:viewers").
+				Return("", &idp.ErrNotFound{Kind: "group", Name: "system:viewers"})
+			mockIdpClient.EXPECT().
+				GetGroupIDByPath(gomock.Any(), "acme", "/system:managers").
+				Return("", &idp.ErrNotFound{Kind: "group", Name: "system:managers"})
+
+			task := &task{r: &reconciler, project: project}
+			Expect(task.delete(ctx)).To(Succeed())
+			Expect(project.GetMetadata().GetFinalizers()).ToNot(ContainElement(finalizers.Controller))
+		})
+
 		It("should cascade-delete memberships and wait for removal", func() {
 			project := privatev1.Project_builder{
 				Id: "project-1",
