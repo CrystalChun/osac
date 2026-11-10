@@ -559,15 +559,29 @@ func (t *task) delete(ctx context.Context) error {
 	// Users are tenant-owned and reference their project, including the root
 	// project. Remove them before requesting project deletion so they cannot
 	// block the project foreign key.
-	if err := t.deleteTenantUsers(ctx); err != nil {
+	pendingUsers, err := t.deleteTenantUsers(ctx)
+	if err != nil {
 		return err
+	}
+	if pendingUsers {
+		return controllers.RequeueAtInterval(
+			errors.New("tenant users are still pending deletion"),
+			tenantDeletionRetryInterval,
+		)
 	}
 
 	// Delete every project in the tenant. Project controllers enforce child-first
 	// archival, while this reconciler signals deleting projects again on each
 	// retry so parents continue after their children have been archived.
-	if err := t.deleteTenantProjects(ctx); err != nil {
+	pendingProjects, err := t.deleteTenantProjects(ctx)
+	if err != nil {
 		return err
+	}
+	if pendingProjects {
+		return controllers.RequeueAtInterval(
+			errors.New("tenant projects are still pending deletion"),
+			tenantDeletionRetryInterval,
+		)
 	}
 
 	// Keep the tenant and its IDP organization until all projects are archived.
@@ -685,9 +699,9 @@ func (t *task) countRemainingProjects(ctx context.Context) (int32, error) {
 // deleteTenantUsers requests deletion of every user in the tenant. Users are
 // paginated because tenants may have many users; existing deletion requests are
 // signaled again on retries so their finalizers can make progress.
-func (t *task) deleteTenantUsers(ctx context.Context) error {
+func (t *task) deleteTenantUsers(ctx context.Context) (bool, error) {
 	if t.r.usersClient == nil {
-		return nil
+		return false, nil
 	}
 
 	tenantName := t.tenant.GetMetadata().GetName()
@@ -705,37 +719,34 @@ func (t *task) deleteTenantUsers(ctx context.Context) error {
 			Offset: &offset,
 		}.Build())
 		if err != nil {
-			return fmt.Errorf("failed to list users for tenant deletion: %w", err)
+			return false, fmt.Errorf("failed to list users for tenant deletion: %w", err)
 		}
 		if listResp == nil || listResp.GetSize() < 0 ||
 			int64(listResp.GetSize()) != int64(len(listResp.GetItems())) ||
 			listResp.GetTotal() < 0 {
-			return errors.New("user listing returned an invalid page")
+			return false, errors.New("user listing returned an invalid page")
 		}
 		pageTotal := listResp.GetTotal()
 		if total == nil {
 			total = &pageTotal
 		} else if *total != pageTotal {
-			return errors.New("user listing total changed during tenant deletion")
+			return false, errors.New("user listing total changed during tenant deletion")
 		}
 		users = append(users, listResp.GetItems()...)
 		if int64(len(users)) > int64(*total) {
-			return errors.New("user listing returned more items than its total")
+			return false, errors.New("user listing returned more items than its total")
 		}
 		if int64(len(users)) == int64(*total) {
 			break
 		}
 		if listResp.GetSize() == 0 {
-			return errors.New("user listing returned an incomplete page")
+			return false, errors.New("user listing returned an incomplete page")
 		}
 		offset += listResp.GetSize()
 	}
 
-	_, err := controllers.CascadeDeleteItems(ctx, controllers.CascadeDeleteItemsOptions[*privatev1.User]{
-		Resource:        "user",
-		Items:           users,
-		SignalContext:   " for tenant deletion",
-		ContinueOnError: true,
+	return controllers.CascadeDeleteItems(ctx, controllers.CascadeDeleteItemsOptions[*privatev1.User]{
+		Items: users,
 		Delete: func(ctx context.Context, id string) error {
 			_, err := t.r.usersClient.Delete(ctx, privatev1.UsersDeleteRequest_builder{Id: id}.Build())
 			return err
@@ -744,20 +755,13 @@ func (t *task) deleteTenantUsers(ctx context.Context) error {
 			_, err := t.r.usersClient.Signal(ctx, privatev1.UsersSignalRequest_builder{Id: id}.Build())
 			return err
 		},
-		OnDelete: func(ctx context.Context, id string) {
-			t.r.logger.DebugContext(ctx, "Requested user deletion for tenant",
-				slog.String("tenant_id", t.tenant.GetId()),
-				slog.String("user_id", id),
-			)
-		},
 	})
-	return err
 }
 
 // deleteTenantProjects requests deletion of every project in the tenant. Existing
 // deletion requests are signaled again so projects blocked on children or external
 // references retry as the tenant deletion makes progress.
-func (t *task) deleteTenantProjects(ctx context.Context) error {
+func (t *task) deleteTenantProjects(ctx context.Context) (bool, error) {
 	tenantName := t.tenant.GetMetadata().GetName()
 	filter := fmt.Sprintf("this.metadata.tenant == %q", tenantName)
 	limit := int32(100)
@@ -765,7 +769,6 @@ func (t *task) deleteTenantProjects(ctx context.Context) error {
 		offset   int32
 		projects []*privatev1.Project
 		total    *int32
-		err      error
 	)
 	for {
 		listResp, err := t.r.projectsClient.List(ctx, privatev1.ProjectsListRequest_builder{
@@ -774,37 +777,34 @@ func (t *task) deleteTenantProjects(ctx context.Context) error {
 			Offset: &offset,
 		}.Build())
 		if err != nil {
-			return fmt.Errorf("failed to list projects for tenant deletion: %w", err)
+			return false, fmt.Errorf("failed to list projects for tenant deletion: %w", err)
 		}
 		if listResp == nil || listResp.GetSize() < 0 ||
 			int64(listResp.GetSize()) != int64(len(listResp.GetItems())) ||
 			listResp.GetTotal() < 0 {
-			return errors.New("project listing returned an invalid page")
+			return false, errors.New("project listing returned an invalid page")
 		}
 		pageTotal := listResp.GetTotal()
 		if total == nil {
 			total = &pageTotal
 		} else if *total != pageTotal {
-			return errors.New("project listing total changed during tenant deletion")
+			return false, errors.New("project listing total changed during tenant deletion")
 		}
 		projects = append(projects, listResp.GetItems()...)
 		if int64(len(projects)) > int64(*total) {
-			return errors.New("project listing returned more items than its total")
+			return false, errors.New("project listing returned more items than its total")
 		}
 		if int64(len(projects)) == int64(*total) {
 			break
 		}
 		if listResp.GetSize() == 0 {
-			return errors.New("project listing returned an incomplete page")
+			return false, errors.New("project listing returned an incomplete page")
 		}
 		offset += listResp.GetSize()
 	}
 
-	_, err = controllers.CascadeDeleteItems(ctx, controllers.CascadeDeleteItemsOptions[*privatev1.Project]{
-		Resource:        "project",
-		Items:           projects,
-		SignalContext:   " for tenant deletion",
-		ContinueOnError: true,
+	return controllers.CascadeDeleteItems(ctx, controllers.CascadeDeleteItemsOptions[*privatev1.Project]{
+		Items: projects,
 		Delete: func(ctx context.Context, id string) error {
 			_, err := t.r.projectsClient.Delete(ctx, privatev1.ProjectsDeleteRequest_builder{Id: id}.Build())
 			return err
@@ -813,14 +813,7 @@ func (t *task) deleteTenantProjects(ctx context.Context) error {
 			_, err := t.r.projectsClient.Signal(ctx, privatev1.ProjectsSignalRequest_builder{Id: id}.Build())
 			return err
 		},
-		OnDelete: func(ctx context.Context, id string) {
-			t.r.logger.DebugContext(ctx, "Requested project deletion for tenant",
-				slog.String("tenant_id", t.tenant.GetId()),
-				slog.String("project_id", id),
-			)
-		},
 	})
-	return err
 }
 
 var tenantConditionTypes = []privatev1.TenantConditionType{

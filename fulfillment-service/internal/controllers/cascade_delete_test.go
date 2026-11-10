@@ -17,113 +17,121 @@ package controllers
 import (
 	"context"
 	"errors"
-	"fmt"
-	"testing"
 
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 	privatev1 "github.com/osac-project/osac/proto/gen/osac/private/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-type cascadeTestItem struct {
-	id       string
-	deleting bool
-}
-
-func (item cascadeTestItem) GetId() string { return item.id }
-
-func (item cascadeTestItem) GetMetadata() *privatev1.Metadata {
-	if item.deleting {
-		return privatev1.Metadata_builder{DeletionTimestamp: timestamppb.Now()}.Build()
+func cascadeTestProject(id string, deleting bool) *privatev1.Project {
+	metadata := privatev1.Metadata_builder{}.Build()
+	if deleting {
+		metadata.SetDeletionTimestamp(timestamppb.Now())
 	}
-	return nil
+	return privatev1.Project_builder{Id: id, Metadata: metadata}.Build()
 }
 
-func TestCascadeDeleteProcessesListedChildren(t *testing.T) {
-	items := []cascadeTestItem{{id: "one"}, {id: "two", deleting: true}, {id: "three"}}
-	var deleted, signaled []string
-	pending, err := CascadeDeleteItems(context.Background(), CascadeDeleteItemsOptions[cascadeTestItem]{
-		Resource: "child",
-		Items:    items,
-		Delete: func(_ context.Context, id string) error {
-			deleted = append(deleted, id)
-			return nil
-		},
-		Signal: func(_ context.Context, id string) error {
-			signaled = append(signaled, id)
-			return nil
-		},
+var _ = Describe("CascadeDeleteItems", func() {
+	It("deletes active children and signals children already deleting", func() {
+		items := []*privatev1.Project{
+			cascadeTestProject("one", false),
+			cascadeTestProject("two", true),
+			cascadeTestProject("three", false),
+		}
+		var deleted, signaled []string
+
+		pending, err := CascadeDeleteItems(context.Background(), CascadeDeleteItemsOptions[*privatev1.Project]{
+			Items: items,
+			Delete: func(_ context.Context, id string) error {
+				deleted = append(deleted, id)
+				return nil
+			},
+			Signal: func(_ context.Context, id string) error {
+				signaled = append(signaled, id)
+				return nil
+			},
+		})
+
+		Expect(err).ToNot(HaveOccurred())
+		Expect(pending).To(BeTrue())
+		Expect(deleted).To(Equal([]string{"one", "three"}))
+		Expect(signaled).To(Equal([]string{"two"}))
 	})
-	if err != nil {
-		t.Fatalf("CascadeDeleteItems() error = %v", err)
-	}
-	if !pending {
-		t.Fatal("CascadeDeleteItems() pending = false, want true")
-	}
-	if fmt.Sprint(deleted) != "[one three]" {
-		t.Fatalf("deleted = %v, want [one three]", deleted)
-	}
-	if fmt.Sprint(signaled) != "[two]" {
-		t.Fatalf("signaled = %v, want [two]", signaled)
-	}
-}
 
-func TestCascadeDeleteIgnoresNotFound(t *testing.T) {
-	pending, err := CascadeDeleteItems(context.Background(), CascadeDeleteItemsOptions[cascadeTestItem]{
-		Resource: "child",
-		Items:    []cascadeTestItem{{id: "gone"}},
-		Delete: func(context.Context, string) error {
-			return status.Error(codes.NotFound, "already gone")
-		},
-	})
-	if err != nil {
-		t.Fatalf("CascadeDeleteItems() error = %v", err)
-	}
-	if pending {
-		t.Fatal("CascadeDeleteItems() pending = true, want false after NotFound")
-	}
-}
+	It("treats NotFound from Delete as already gone", func() {
+		pending, err := CascadeDeleteItems(context.Background(), CascadeDeleteItemsOptions[*privatev1.Project]{
+			Items: []*privatev1.Project{cascadeTestProject("gone", false)},
+			Delete: func(context.Context, string) error {
+				return status.Error(codes.NotFound, "already gone")
+			},
+		})
 
-func TestCascadeDeleteAggregatesErrorsAndKeepsPending(t *testing.T) {
-	wantErr := errors.New("delete failed")
-	pending, err := CascadeDeleteItems(context.Background(), CascadeDeleteItemsOptions[cascadeTestItem]{
-		Resource:        "child",
-		Items:           []cascadeTestItem{{id: "one"}, {id: "two"}},
-		ContinueOnError: true,
-		Delete: func(_ context.Context, id string) error {
-			if id == "one" {
-				return wantErr
-			}
-			return nil
-		},
+		Expect(err).ToNot(HaveOccurred())
+		Expect(pending).To(BeFalse())
 	})
-	if !pending {
-		t.Fatal("CascadeDeleteItems() pending = false, want true")
-	}
-	if !errors.Is(err, wantErr) {
-		t.Fatalf("CascadeDeleteItems() error = %v, want wrapped delete error", err)
-	}
-}
 
-func TestCascadeDeleteStopsOnFirstErrorByDefault(t *testing.T) {
-	wantErr := errors.New("delete failed")
-	var deleted []string
-	_, err := CascadeDeleteItems(context.Background(), CascadeDeleteItemsOptions[cascadeTestItem]{
-		Resource: "child",
-		Items:    []cascadeTestItem{{id: "one"}, {id: "two"}},
-		Delete: func(_ context.Context, id string) error {
-			deleted = append(deleted, id)
-			if id == "one" {
-				return wantErr
-			}
-			return nil
-		},
+	It("does not wait for a child that is gone when signaled", func() {
+		pending, err := CascadeDeleteItems(context.Background(), CascadeDeleteItemsOptions[*privatev1.Project]{
+			Items: []*privatev1.Project{cascadeTestProject("gone", true)},
+			Delete: func(context.Context, string) error {
+				Fail("Delete called for a child already being deleted")
+				return nil
+			},
+			Signal: func(context.Context, string) error {
+				return status.Error(codes.NotFound, "already gone")
+			},
+		})
+
+		Expect(err).ToNot(HaveOccurred())
+		Expect(pending).To(BeFalse())
 	})
-	if !errors.Is(err, wantErr) {
-		t.Fatalf("CascadeDeleteItems() error = %v, want wrapped delete error", err)
-	}
-	if fmt.Sprint(deleted) != "[one]" {
-		t.Fatalf("deleted = %v, want only the first child", deleted)
-	}
-}
+
+	It("joins child errors and keeps deletion pending", func() {
+		wantErr := errors.New("delete failed")
+		pending, err := CascadeDeleteItems(context.Background(), CascadeDeleteItemsOptions[*privatev1.Project]{
+			Items: []*privatev1.Project{cascadeTestProject("one", false), cascadeTestProject("two", false)},
+			Delete: func(_ context.Context, id string) error {
+				if id == "one" {
+					return wantErr
+				}
+				return nil
+			},
+		})
+
+		Expect(pending).To(BeTrue())
+		Expect(errors.Is(err, wantErr)).To(BeTrue())
+	})
+
+	It("continues processing siblings after a failure", func() {
+		wantErr := errors.New("delete failed")
+		var deleted []string
+		_, err := CascadeDeleteItems(context.Background(), CascadeDeleteItemsOptions[*privatev1.Project]{
+			Items: []*privatev1.Project{cascadeTestProject("one", false), cascadeTestProject("two", false)},
+			Delete: func(_ context.Context, id string) error {
+				deleted = append(deleted, id)
+				if id == "one" {
+					return wantErr
+				}
+				return nil
+			},
+		})
+
+		Expect(errors.Is(err, wantErr)).To(BeTrue())
+		Expect(deleted).To(Equal([]string{"one", "two"}))
+	})
+
+	It("uses the protobuf descriptor for the resource name in errors", func() {
+		resource := privatev1.ProjectMembership_builder{Id: "membership-1"}.Build()
+		_, err := CascadeDeleteItems(context.Background(), CascadeDeleteItemsOptions[*privatev1.ProjectMembership]{
+			Items: []*privatev1.ProjectMembership{resource},
+			Delete: func(context.Context, string) error {
+				return errors.New("delete failed")
+			},
+		})
+
+		Expect(err).To(MatchError(ContainSubstring("failed to delete project membership membership-1")))
+	})
+})

@@ -45,6 +45,7 @@ import (
 
 const (
 	defaultNetworkingDeleteRetryDelay = time.Second
+	projectChildDeleteRetryDelay      = time.Second
 	projectGroupRetryDelay            = 10 * time.Second
 )
 
@@ -506,8 +507,15 @@ func (t *task) delete(ctx context.Context) error {
 	// Delete them before removing the project finalizer so this project's secrets
 	// cannot prevent it from being archived.
 	if t.r.secretsClient != nil {
-		if err := t.deleteProjectSecrets(ctx); err != nil {
+		pendingSecrets, err := t.deleteProjectSecrets(ctx)
+		if err != nil {
 			return fmt.Errorf("failed to delete project secrets: %w", err)
+		}
+		if pendingSecrets {
+			return controllers.RequeueAtInterval(
+				errors.New("project secrets are still pending deletion"),
+				projectChildDeleteRetryDelay,
+			)
 		}
 	}
 
@@ -547,7 +555,7 @@ func (t *task) delete(ctx context.Context) error {
 
 // deleteProjectSecrets lists and deletes all Secrets scoped to this project.
 // Secret deletion archives synchronously unless the Secret has a finalizer.
-func (t *task) deleteProjectSecrets(ctx context.Context) error {
+func (t *task) deleteProjectSecrets(ctx context.Context) (bool, error) {
 	projectName := t.project.GetMetadata().GetName()
 	tenant := t.project.GetMetadata().GetTenant()
 	secretFilter := fmt.Sprintf(
@@ -558,33 +566,21 @@ func (t *task) deleteProjectSecrets(ctx context.Context) error {
 		Filter: &secretFilter,
 	}.Build())
 	if err != nil {
-		return fmt.Errorf("failed to query for project secrets: %w", err)
+		return false, fmt.Errorf("failed to query for project secrets: %w", err)
 	}
 	if listResp == nil {
-		return errors.New("secret list returned no response")
+		return false, errors.New("secret list returned no response")
 	}
 
-	_, err = controllers.CascadeDeleteItems(ctx, controllers.CascadeDeleteItemsOptions[*privatev1.Secret]{
-		Resource: "secret",
-		Items:    listResp.GetItems(),
+	return controllers.CascadeDeleteItems(ctx, controllers.CascadeDeleteItemsOptions[*privatev1.Secret]{
+		Items: listResp.GetItems(),
 		Delete: func(ctx context.Context, id string) error {
 			_, err := t.r.secretsClient.Delete(ctx, privatev1.SecretsDeleteRequest_builder{
 				Id: id,
 			}.Build())
 			return err
 		},
-		OnDelete: func(ctx context.Context, id string) {
-			t.r.logger.InfoContext(ctx, "Cascade-deleted project secret",
-				slog.String("project_id", t.project.GetId()),
-				slog.String("secret_id", id),
-			)
-		},
 	})
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 // deleteProjectMemberships lists all ProjectMemberships scoped to this project, marks each for
@@ -612,20 +608,12 @@ func (t *task) deleteProjectMemberships(ctx context.Context) (bool, error) {
 	}
 
 	return controllers.CascadeDeleteItems(ctx, controllers.CascadeDeleteItemsOptions[*privatev1.ProjectMembership]{
-		Resource:          "project membership",
-		Items:             listResp.GetItems(),
-		PendingOnNotFound: true,
+		Items: listResp.GetItems(),
 		Delete: func(ctx context.Context, id string) error {
 			_, err := t.r.projectMembershipsClient.Delete(ctx, privatev1.ProjectMembershipsDeleteRequest_builder{
 				Id: id,
 			}.Build())
 			return err
-		},
-		OnDelete: func(ctx context.Context, id string) {
-			t.r.logger.InfoContext(ctx, "Cascade-deleting project membership",
-				slog.String("project_id", t.project.GetId()),
-				slog.String("membership_id", id),
-			)
 		},
 	})
 }

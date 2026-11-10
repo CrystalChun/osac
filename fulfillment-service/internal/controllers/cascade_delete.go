@@ -18,14 +18,18 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 
+	"github.com/gobuffalo/flect"
 	privatev1 "github.com/osac-project/osac/proto/gen/osac/private/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/proto"
 )
 
 // CascadeResource is a fulfillment resource with an ID and deletion metadata.
 type CascadeResource interface {
+	proto.Message
 	GetId() string
 	GetMetadata() *privatev1.Metadata
 }
@@ -34,66 +38,58 @@ type CascadeResource interface {
 // Listing stays with the caller because each controller has resource-specific filtering,
 // pagination, and consistency requirements.
 type CascadeDeleteItemsOptions[T CascadeResource] struct {
-	Resource          string
-	Items             []T
-	Delete            func(context.Context, string) error
-	Signal            func(context.Context, string) error
-	SignalContext     string
-	PendingOnNotFound bool
-	ContinueOnError   bool // Continue processing siblings and join errors after a failure.
-	OnDelete          func(context.Context, string)
+	Items  []T
+	Delete func(context.Context, string) error
+	Signal func(context.Context, string) error
 }
 
 // CascadeDeleteItems processes each listed child. It treats NotFound as success, signals
-// children already deleting when requested, and optionally joins independent action errors.
-// pending reports whether this pass requested a deletion, signaled an existing deletion,
-// or encountered NotFound with PendingOnNotFound enabled.
+// children already deleting when requested, and joins independent action errors.
+// pending reports whether this pass requested or signaled a deletion.
 func CascadeDeleteItems[T CascadeResource](ctx context.Context, options CascadeDeleteItemsOptions[T]) (pending bool, err error) {
-	if options.Resource == "" || options.Delete == nil {
-		return false, errors.New("cascade deletion requires a resource name and delete function")
+	if options.Delete == nil {
+		return false, errors.New("cascade deletion requires a delete function")
 	}
 
 	var actionErrors []error
 	for _, item := range options.Items {
 		id := item.GetId()
+		resource := cascadeResourceName(item)
 		metadata := item.GetMetadata()
 		if metadata != nil && metadata.HasDeletionTimestamp() {
 			if options.Signal == nil {
+				pending = true
 				continue
 			}
-			pending = true
 			if signalErr := options.Signal(ctx, id); signalErr != nil {
 				if status.Code(signalErr) == codes.NotFound {
 					continue
 				}
-				if !options.ContinueOnError {
-					return true, fmt.Errorf("failed to signal %s %s%s: %w", options.Resource, id, options.SignalContext, signalErr)
-				}
+				pending = true
 				actionErrors = append(actionErrors,
-					fmt.Errorf("failed to signal %s %s%s: %w", options.Resource, id, options.SignalContext, signalErr))
+					fmt.Errorf("failed to signal %s %s: %w", resource, id, signalErr))
 				continue
 			}
+			pending = true
 			continue
 		}
 
 		if deleteErr := options.Delete(ctx, id); deleteErr != nil {
 			if status.Code(deleteErr) == codes.NotFound {
-				pending = pending || options.PendingOnNotFound
 				continue
 			}
 			pending = true
-			if !options.ContinueOnError {
-				return true, fmt.Errorf("failed to delete %s %s: %w", options.Resource, id, deleteErr)
-			}
 			actionErrors = append(actionErrors,
-				fmt.Errorf("failed to delete %s %s: %w", options.Resource, id, deleteErr))
+				fmt.Errorf("failed to delete %s %s: %w", resource, id, deleteErr))
 			continue
 		}
 		pending = true
-		if options.OnDelete != nil {
-			options.OnDelete(ctx, id)
-		}
 	}
 
 	return pending, errors.Join(actionErrors...)
+}
+
+func cascadeResourceName(resource CascadeResource) string {
+	name := string(resource.ProtoReflect().Descriptor().Name())
+	return strings.ReplaceAll(flect.Underscore(name), "_", " ")
 }
