@@ -19,103 +19,59 @@ import (
 	"errors"
 	"fmt"
 
+	privatev1 "github.com/osac-project/osac/proto/gen/osac/private/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
-// CascadePage is one page of child resources returned by a cascade delete list function.
-type CascadePage[T any] struct {
-	Items []T
-	Size  int32
-	Total int32
+// CascadeResource is a fulfillment resource with an ID and deletion metadata.
+type CascadeResource interface {
+	GetId() string
+	GetMetadata() *privatev1.Metadata
 }
 
-// CascadeDeleteOptions describes how to list and delete one kind of child resource.
-// Signal is optional; when provided, it is called for children already being deleted so
-// their reconciler can make progress on the next pass.
-type CascadeDeleteOptions[T any] struct {
+// CascadeDeleteItemsOptions describes how to process already-listed child resources.
+// Listing stays with the caller because each controller has resource-specific filtering,
+// pagination, and consistency requirements.
+type CascadeDeleteItemsOptions[T CascadeResource] struct {
 	Resource          string
-	ListName          string
-	ActionContext     string
-	PageSize          int32
-	WaitForDeleting   bool
-	PendingOnNotFound bool
-	List              func(context.Context, int32, int32) (*CascadePage[T], error)
-	ID                func(T) string
-	IsDeleting        func(T) bool
+	Items             []T
 	Delete            func(context.Context, string) error
 	Signal            func(context.Context, string) error
+	SignalContext     string
+	PendingOnNotFound bool
+	ContinueOnError   bool // Continue processing siblings and join errors after a failure.
 	OnDelete          func(context.Context, string)
-	OnSignal          func(context.Context, string)
 }
 
-// CascadeDelete requests deletion of every listed child resource. It returns pending
-// when it requests a deletion, signals an existing deletion, or WaitForDeleting is set
-// for a child already being deleted. Callers decide whether to wait, requeue, or continue
-// with other cleanup while child deletion proceeds.
-func CascadeDelete[T any](ctx context.Context, options CascadeDeleteOptions[T]) (pending bool, err error) {
-	if options.Resource == "" {
-		return false, errors.New("cascade resource name is required")
-	}
-	if options.List == nil || options.ID == nil || options.Delete == nil {
-		return false, fmt.Errorf("cascade %s requires list, ID, and delete functions", options.Resource)
-	}
-	if options.PageSize <= 0 {
-		options.PageSize = 100
-	}
-	listName := options.ListName
-	if listName == "" {
-		listName = options.Resource
+// CascadeDeleteItems processes each listed child. It treats NotFound as success, signals
+// children already deleting when requested, and optionally joins independent action errors.
+// pending reports whether this pass requested a deletion, signaled an existing deletion,
+// or encountered NotFound with PendingOnNotFound enabled.
+func CascadeDeleteItems[T CascadeResource](ctx context.Context, options CascadeDeleteItemsOptions[T]) (pending bool, err error) {
+	if options.Resource == "" || options.Delete == nil {
+		return false, errors.New("cascade deletion requires a resource name and delete function")
 	}
 
-	var (
-		offset int32
-		total  *int32
-		items  []T
-	)
-	for {
-		page, listErr := options.List(ctx, offset, options.PageSize)
-		if listErr != nil {
-			return false, fmt.Errorf("failed to list %s: %w", listName, listErr)
-		}
-		if page == nil || page.Size < 0 || int64(page.Size) != int64(len(page.Items)) || page.Total < 0 {
-			return false, fmt.Errorf("%s listing returned an invalid page", options.Resource)
-		}
-		if total == nil {
-			pageTotal := page.Total
-			total = &pageTotal
-		} else if *total != page.Total {
-			return false, fmt.Errorf("%s listing total changed during cascade deletion", options.Resource)
-		}
-		items = append(items, page.Items...)
-		if int64(len(items)) > int64(*total) {
-			return false, fmt.Errorf("%s listing returned more items than its total", options.Resource)
-		}
-		if int64(len(items)) == int64(*total) {
-			break
-		}
-		if page.Size == 0 {
-			return false, fmt.Errorf("%s listing returned an incomplete page", options.Resource)
-		}
-		offset += page.Size
-	}
-
-	var deletionErrors []error
-	for _, item := range items {
-		id := options.ID(item)
-		if options.IsDeleting != nil && options.IsDeleting(item) {
+	var actionErrors []error
+	for _, item := range options.Items {
+		id := item.GetId()
+		metadata := item.GetMetadata()
+		if metadata != nil && metadata.HasDeletionTimestamp() {
 			if options.Signal == nil {
-				pending = pending || options.WaitForDeleting
 				continue
 			}
 			pending = true
-			if signalErr := options.Signal(ctx, id); signalErr != nil && status.Code(signalErr) != codes.NotFound {
-				deletionErrors = append(deletionErrors,
-					fmt.Errorf("failed to signal %s %s%s: %w", options.Resource, id, options.ActionContext, signalErr))
+			if signalErr := options.Signal(ctx, id); signalErr != nil {
+				if status.Code(signalErr) == codes.NotFound {
+					continue
+				}
+				if !options.ContinueOnError {
+					return true, fmt.Errorf("failed to signal %s %s%s: %w", options.Resource, id, options.SignalContext, signalErr)
+				}
+				actionErrors = append(actionErrors,
+					fmt.Errorf("failed to signal %s %s%s: %w", options.Resource, id, options.SignalContext, signalErr))
 				continue
-			}
-			if options.OnSignal != nil {
-				options.OnSignal(ctx, id)
 			}
 			continue
 		}
@@ -126,8 +82,11 @@ func CascadeDelete[T any](ctx context.Context, options CascadeDeleteOptions[T]) 
 				continue
 			}
 			pending = true
-			deletionErrors = append(deletionErrors,
-				fmt.Errorf("failed to delete %s %s%s: %w", options.Resource, id, options.ActionContext, deleteErr))
+			if !options.ContinueOnError {
+				return true, fmt.Errorf("failed to delete %s %s: %w", options.Resource, id, deleteErr)
+			}
+			actionErrors = append(actionErrors,
+				fmt.Errorf("failed to delete %s %s: %w", options.Resource, id, deleteErr))
 			continue
 		}
 		pending = true
@@ -136,5 +95,5 @@ func CascadeDelete[T any](ctx context.Context, options CascadeDeleteOptions[T]) 
 		}
 	}
 
-	return pending, errors.Join(deletionErrors...)
+	return pending, errors.Join(actionErrors...)
 }

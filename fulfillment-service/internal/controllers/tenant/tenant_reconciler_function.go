@@ -692,27 +692,50 @@ func (t *task) deleteTenantUsers(ctx context.Context) error {
 
 	tenantName := t.tenant.GetMetadata().GetName()
 	filter := fmt.Sprintf("this.metadata.tenant == %q", tenantName)
-	_, err := controllers.CascadeDelete(ctx, controllers.CascadeDeleteOptions[*privatev1.User]{
-		Resource:      "user",
-		ListName:      "users for tenant deletion",
-		ActionContext: " for tenant deletion",
-		List: func(ctx context.Context, offset, limit int32) (*controllers.CascadePage[*privatev1.User], error) {
-			response, err := t.r.usersClient.List(ctx, privatev1.UsersListRequest_builder{
-				Filter: &filter,
-				Limit:  &limit,
-				Offset: &offset,
-			}.Build())
-			if err != nil || response == nil {
-				return nil, err
-			}
-			return &controllers.CascadePage[*privatev1.User]{
-				Items: response.GetItems(),
-				Size:  response.GetSize(),
-				Total: response.GetTotal(),
-			}, nil
-		},
-		ID:         func(user *privatev1.User) string { return user.GetId() },
-		IsDeleting: func(user *privatev1.User) bool { return user.GetMetadata().HasDeletionTimestamp() },
+	limit := int32(100)
+	var (
+		offset int32
+		users  []*privatev1.User
+		total  *int32
+	)
+	for {
+		listResp, err := t.r.usersClient.List(ctx, privatev1.UsersListRequest_builder{
+			Filter: &filter,
+			Limit:  &limit,
+			Offset: &offset,
+		}.Build())
+		if err != nil {
+			return fmt.Errorf("failed to list users for tenant deletion: %w", err)
+		}
+		if listResp == nil || listResp.GetSize() < 0 ||
+			int64(listResp.GetSize()) != int64(len(listResp.GetItems())) ||
+			listResp.GetTotal() < 0 {
+			return errors.New("user listing returned an invalid page")
+		}
+		pageTotal := listResp.GetTotal()
+		if total == nil {
+			total = &pageTotal
+		} else if *total != pageTotal {
+			return errors.New("user listing total changed during tenant deletion")
+		}
+		users = append(users, listResp.GetItems()...)
+		if int64(len(users)) > int64(*total) {
+			return errors.New("user listing returned more items than its total")
+		}
+		if int64(len(users)) == int64(*total) {
+			break
+		}
+		if listResp.GetSize() == 0 {
+			return errors.New("user listing returned an incomplete page")
+		}
+		offset += listResp.GetSize()
+	}
+
+	_, err := controllers.CascadeDeleteItems(ctx, controllers.CascadeDeleteItemsOptions[*privatev1.User]{
+		Resource:        "user",
+		Items:           users,
+		SignalContext:   " for tenant deletion",
+		ContinueOnError: true,
 		Delete: func(ctx context.Context, id string) error {
 			_, err := t.r.usersClient.Delete(ctx, privatev1.UsersDeleteRequest_builder{Id: id}.Build())
 			return err
@@ -737,27 +760,51 @@ func (t *task) deleteTenantUsers(ctx context.Context) error {
 func (t *task) deleteTenantProjects(ctx context.Context) error {
 	tenantName := t.tenant.GetMetadata().GetName()
 	filter := fmt.Sprintf("this.metadata.tenant == %q", tenantName)
-	_, err := controllers.CascadeDelete(ctx, controllers.CascadeDeleteOptions[*privatev1.Project]{
-		Resource:      "project",
-		ListName:      "projects for tenant deletion",
-		ActionContext: " for tenant deletion",
-		List: func(ctx context.Context, offset, limit int32) (*controllers.CascadePage[*privatev1.Project], error) {
-			response, err := t.r.projectsClient.List(ctx, privatev1.ProjectsListRequest_builder{
-				Filter: &filter,
-				Limit:  &limit,
-				Offset: &offset,
-			}.Build())
-			if err != nil || response == nil {
-				return nil, err
-			}
-			return &controllers.CascadePage[*privatev1.Project]{
-				Items: response.GetItems(),
-				Size:  response.GetSize(),
-				Total: response.GetTotal(),
-			}, nil
-		},
-		ID:         func(project *privatev1.Project) string { return project.GetId() },
-		IsDeleting: func(project *privatev1.Project) bool { return project.GetMetadata().HasDeletionTimestamp() },
+	limit := int32(100)
+	var (
+		offset   int32
+		projects []*privatev1.Project
+		total    *int32
+		err      error
+	)
+	for {
+		listResp, err := t.r.projectsClient.List(ctx, privatev1.ProjectsListRequest_builder{
+			Filter: &filter,
+			Limit:  &limit,
+			Offset: &offset,
+		}.Build())
+		if err != nil {
+			return fmt.Errorf("failed to list projects for tenant deletion: %w", err)
+		}
+		if listResp == nil || listResp.GetSize() < 0 ||
+			int64(listResp.GetSize()) != int64(len(listResp.GetItems())) ||
+			listResp.GetTotal() < 0 {
+			return errors.New("project listing returned an invalid page")
+		}
+		pageTotal := listResp.GetTotal()
+		if total == nil {
+			total = &pageTotal
+		} else if *total != pageTotal {
+			return errors.New("project listing total changed during tenant deletion")
+		}
+		projects = append(projects, listResp.GetItems()...)
+		if int64(len(projects)) > int64(*total) {
+			return errors.New("project listing returned more items than its total")
+		}
+		if int64(len(projects)) == int64(*total) {
+			break
+		}
+		if listResp.GetSize() == 0 {
+			return errors.New("project listing returned an incomplete page")
+		}
+		offset += listResp.GetSize()
+	}
+
+	_, err = controllers.CascadeDeleteItems(ctx, controllers.CascadeDeleteItemsOptions[*privatev1.Project]{
+		Resource:        "project",
+		Items:           projects,
+		SignalContext:   " for tenant deletion",
+		ContinueOnError: true,
 		Delete: func(ctx context.Context, id string) error {
 			_, err := t.r.projectsClient.Delete(ctx, privatev1.ProjectsDeleteRequest_builder{Id: id}.Build())
 			return err

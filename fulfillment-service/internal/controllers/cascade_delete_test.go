@@ -20,8 +20,10 @@ import (
 	"fmt"
 	"testing"
 
+	privatev1 "github.com/osac-project/osac/proto/gen/osac/private/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type cascadeTestItem struct {
@@ -29,29 +31,21 @@ type cascadeTestItem struct {
 	deleting bool
 }
 
-func TestCascadeDeleteDeletesAcrossPagesAndSignalsPendingChildren(t *testing.T) {
-	ctx := context.Background()
+func (item cascadeTestItem) GetId() string { return item.id }
+
+func (item cascadeTestItem) GetMetadata() *privatev1.Metadata {
+	if item.deleting {
+		return privatev1.Metadata_builder{DeletionTimestamp: timestamppb.Now()}.Build()
+	}
+	return nil
+}
+
+func TestCascadeDeleteProcessesListedChildren(t *testing.T) {
 	items := []cascadeTestItem{{id: "one"}, {id: "two", deleting: true}, {id: "three"}}
 	var deleted, signaled []string
-	listCalls := 0
-	pending, err := CascadeDelete(ctx, CascadeDeleteOptions[cascadeTestItem]{
+	pending, err := CascadeDeleteItems(context.Background(), CascadeDeleteItemsOptions[cascadeTestItem]{
 		Resource: "child",
-		PageSize: 2,
-		List: func(_ context.Context, offset, limit int32) (*CascadePage[cascadeTestItem], error) {
-			listCalls++
-			if limit != 2 {
-				t.Fatalf("list limit = %d, want 2", limit)
-			}
-			start := int(offset)
-			end := start + int(limit)
-			if end > len(items) {
-				end = len(items)
-			}
-			pageItems := append([]cascadeTestItem(nil), items[start:end]...)
-			return &CascadePage[cascadeTestItem]{Items: pageItems, Size: int32(len(pageItems)), Total: int32(len(items))}, nil
-		},
-		ID:         func(item cascadeTestItem) string { return item.id },
-		IsDeleting: func(item cascadeTestItem) bool { return item.deleting },
+		Items:    items,
 		Delete: func(_ context.Context, id string) error {
 			deleted = append(deleted, id)
 			return nil
@@ -62,13 +56,10 @@ func TestCascadeDeleteDeletesAcrossPagesAndSignalsPendingChildren(t *testing.T) 
 		},
 	})
 	if err != nil {
-		t.Fatalf("CascadeDelete() error = %v", err)
+		t.Fatalf("CascadeDeleteItems() error = %v", err)
 	}
 	if !pending {
-		t.Fatal("CascadeDelete() pending = false, want true")
-	}
-	if listCalls != 2 {
-		t.Fatalf("list calls = %d, want 2", listCalls)
+		t.Fatal("CascadeDeleteItems() pending = false, want true")
 	}
 	if fmt.Sprint(deleted) != "[one three]" {
 		t.Fatalf("deleted = %v, want [one three]", deleted)
@@ -79,30 +70,27 @@ func TestCascadeDeleteDeletesAcrossPagesAndSignalsPendingChildren(t *testing.T) 
 }
 
 func TestCascadeDeleteIgnoresNotFound(t *testing.T) {
-	pending, err := CascadeDelete(context.Background(), CascadeDeleteOptions[string]{
+	pending, err := CascadeDeleteItems(context.Background(), CascadeDeleteItemsOptions[cascadeTestItem]{
 		Resource: "child",
-		List: func(context.Context, int32, int32) (*CascadePage[string], error) {
-			return &CascadePage[string]{Items: []string{"gone"}, Size: 1, Total: 1}, nil
+		Items:    []cascadeTestItem{{id: "gone"}},
+		Delete: func(context.Context, string) error {
+			return status.Error(codes.NotFound, "already gone")
 		},
-		ID:     func(item string) string { return item },
-		Delete: func(context.Context, string) error { return status.Error(codes.NotFound, "already gone") },
 	})
 	if err != nil {
-		t.Fatalf("CascadeDelete() error = %v", err)
+		t.Fatalf("CascadeDeleteItems() error = %v", err)
 	}
 	if pending {
-		t.Fatal("CascadeDelete() pending = true, want false after NotFound")
+		t.Fatal("CascadeDeleteItems() pending = true, want false after NotFound")
 	}
 }
 
 func TestCascadeDeleteAggregatesErrorsAndKeepsPending(t *testing.T) {
 	wantErr := errors.New("delete failed")
-	pending, err := CascadeDelete(context.Background(), CascadeDeleteOptions[string]{
-		Resource: "child",
-		List: func(context.Context, int32, int32) (*CascadePage[string], error) {
-			return &CascadePage[string]{Items: []string{"one", "two"}, Size: 2, Total: 2}, nil
-		},
-		ID: func(item string) string { return item },
+	pending, err := CascadeDeleteItems(context.Background(), CascadeDeleteItemsOptions[cascadeTestItem]{
+		Resource:        "child",
+		Items:           []cascadeTestItem{{id: "one"}, {id: "two"}},
+		ContinueOnError: true,
 		Delete: func(_ context.Context, id string) error {
 			if id == "one" {
 				return wantErr
@@ -111,9 +99,31 @@ func TestCascadeDeleteAggregatesErrorsAndKeepsPending(t *testing.T) {
 		},
 	})
 	if !pending {
-		t.Fatal("CascadeDelete() pending = false, want true")
+		t.Fatal("CascadeDeleteItems() pending = false, want true")
 	}
 	if !errors.Is(err, wantErr) {
-		t.Fatalf("CascadeDelete() error = %v, want wrapped delete error", err)
+		t.Fatalf("CascadeDeleteItems() error = %v, want wrapped delete error", err)
+	}
+}
+
+func TestCascadeDeleteStopsOnFirstErrorByDefault(t *testing.T) {
+	wantErr := errors.New("delete failed")
+	var deleted []string
+	_, err := CascadeDeleteItems(context.Background(), CascadeDeleteItemsOptions[cascadeTestItem]{
+		Resource: "child",
+		Items:    []cascadeTestItem{{id: "one"}, {id: "two"}},
+		Delete: func(_ context.Context, id string) error {
+			deleted = append(deleted, id)
+			if id == "one" {
+				return wantErr
+			}
+			return nil
+		},
+	})
+	if !errors.Is(err, wantErr) {
+		t.Fatalf("CascadeDeleteItems() error = %v, want wrapped delete error", err)
+	}
+	if fmt.Sprint(deleted) != "[one]" {
+		t.Fatalf("deleted = %v, want only the first child", deleted)
 	}
 }
