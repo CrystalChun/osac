@@ -93,6 +93,33 @@ var _ = Describe("Private projects server", func() {
 		Expect(response.Object.Spec.Description).To(HaveValue(Equal("Test project")))
 	})
 
+	It("rejects creating a project when its tenant is being deleted", func() {
+		markTenantDeleting("my-tenant")
+
+		_, err := privateServer.Create(ctx, privatev1.ProjectsCreateRequest_builder{
+			Object: privatev1.Project_builder{
+				Metadata: privatev1.Metadata_builder{Name: "late-project", Tenant: "my-tenant"}.Build(),
+			}.Build(),
+		}.Build())
+
+		Expect(grpcstatus.Code(err)).To(Equal(grpccodes.FailedPrecondition))
+		Expect(err).To(MatchError(ContainSubstring("tenant 'my-tenant' is being deleted")))
+	})
+
+	It("rejects creating a child project when its parent is being deleted", func() {
+		seedTenantProject("my-tenant", "parent")
+		markProjectDeleting("my-tenant", "parent")
+
+		_, err := privateServer.Create(ctx, privatev1.ProjectsCreateRequest_builder{
+			Object: privatev1.Project_builder{
+				Metadata: privatev1.Metadata_builder{Name: "parent.child", Tenant: "my-tenant"}.Build(),
+			}.Build(),
+		}.Build())
+
+		Expect(grpcstatus.Code(err)).To(Equal(grpccodes.FailedPrecondition))
+		Expect(err).To(MatchError(ContainSubstring("project 'my-tenant/parent' is being deleted")))
+	})
+
 	It("Lists projects", func() {
 		// Create a project first:
 		createReq := privatev1.ProjectsCreateRequest_builder{

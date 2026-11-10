@@ -235,6 +235,13 @@ func (s *PrivateSecretsServer) Create(ctx context.Context,
 	}
 
 	prepareCandidate := func(candidateCtx context.Context, _ *privatev1.Secret, candidate *privatev1.Secret) error {
+		metadata := candidate.GetMetadata()
+		if lockErr := lockTenantForCreate(candidateCtx, metadata.GetTenant()); lockErr != nil {
+			return lockErr
+		}
+		if lockErr := lockProjectForCreate(candidateCtx, metadata.GetTenant(), metadata.GetProject()); lockErr != nil {
+			return lockErr
+		}
 		if candidate.GetMetadata().GetTenant() != auth.SharedTenant ||
 			candidate.GetType() != privatev1.SecretType_SECRET_TYPE_SSH_PUBLIC_KEY {
 			return nil

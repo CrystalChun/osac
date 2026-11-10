@@ -174,8 +174,18 @@ func (s *PrivateProjectsServer) Create(ctx context.Context,
 	}
 	metadata.SetProject(project)
 
-	// Call the generic server to create the project:
-	err = s.generic.Create(ctx, request, &response)
+	// Serialize project creation with tenant and parent-project deletion.
+	err = s.generic.CreateWithCandidatePreparation(ctx, request, &response,
+		func(ctx context.Context, _, candidate *privatev1.Project) error {
+			candidateMetadata := candidate.GetMetadata()
+			if err := lockTenantForCreate(ctx, candidateMetadata.GetTenant()); err != nil {
+				return err
+			}
+			if candidateMetadata.GetName() == "" {
+				return nil
+			}
+			return lockProjectForCreate(ctx, candidateMetadata.GetTenant(), candidateMetadata.GetProject())
+		})
 	return
 }
 

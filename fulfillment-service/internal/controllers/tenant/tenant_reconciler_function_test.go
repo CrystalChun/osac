@@ -1072,9 +1072,7 @@ var _ = Describe("Deletion", func() {
 
 		mockProjectsClient.EXPECT().
 			List(gomock.Any(), gomock.Any()).
-			Return(privatev1.ProjectsListResponse_builder{Total: 0}.Build(), nil).
-			Times(2)
-
+			Return(privatev1.ProjectsListResponse_builder{Total: 0}.Build(), nil)
 		mockClient.EXPECT().
 			DeleteTenant(gomock.Any(), "test-org").
 			Return(nil).
@@ -1121,7 +1119,7 @@ var _ = Describe("Deletion", func() {
 					return privatev1.ProjectsListResponse_builder{Total: 0}.Build(), nil
 				})
 		}
-		gomock.InOrder(projectList(), projectList())
+		gomock.InOrder(projectList())
 		mockClient.EXPECT().DeleteTenant(gomock.Any(), "test-org").Return(nil)
 
 		task := &task{r: reconciler, tenant: tenant}
@@ -1205,9 +1203,7 @@ var _ = Describe("Deletion", func() {
 
 		mockProjectsClient.EXPECT().
 			List(gomock.Any(), gomock.Any()).
-			Return(privatev1.ProjectsListResponse_builder{Total: 0}.Build(), nil).
-			Times(2)
-
+			Return(privatev1.ProjectsListResponse_builder{Total: 0}.Build(), nil)
 		mockClient.EXPECT().
 			DeleteTenant(gomock.Any(), "test-org").
 			Return(nil).
@@ -1240,9 +1236,7 @@ var _ = Describe("Deletion", func() {
 
 		mockProjectsClient.EXPECT().
 			List(gomock.Any(), gomock.Any()).
-			Return(privatev1.ProjectsListResponse_builder{Total: 0}.Build(), nil).
-			Times(2)
-
+			Return(privatev1.ProjectsListResponse_builder{Total: 0}.Build(), nil)
 		mockClient.EXPECT().
 			DeleteTenant(gomock.Any(), "test-org").
 			Return(nil).
@@ -1258,7 +1252,7 @@ var _ = Describe("Deletion", func() {
 		Expect(tenant.GetMetadata().GetFinalizers()).ToNot(ContainElement(finalizers.TenantLifecycle))
 	})
 
-	It("should delete the break-glass secret before waiting for remaining projects", func() {
+	It("should delete the break-glass secret before listing projects", func() {
 		deletionTimestamp := timestamppb.New(time.Now())
 		tenant := privatev1.Tenant_builder{
 			Id: "org-123",
@@ -1290,18 +1284,13 @@ var _ = Describe("Deletion", func() {
 		}
 		reconciler.secretsClient = secrets
 
-		// Tenant project listing (no projects found).
 		mockProjectsClient.EXPECT().
 			List(gomock.Any(), gomock.Any()).
-			Return(privatev1.ProjectsListResponse_builder{}.Build(), nil).
-			Times(1)
-		// countRemainingProjects List call
-		mockProjectsClient.EXPECT().
-			List(gomock.Any(), gomock.Any()).
-			Return(privatev1.ProjectsListResponse_builder{
-				Total: 1,
-			}.Build(), nil).
-			Times(1)
+			DoAndReturn(func(context.Context, *privatev1.ProjectsListRequest, ...grpc.CallOption) (*privatev1.ProjectsListResponse, error) {
+				Expect(deleted).To(BeTrue())
+				return privatev1.ProjectsListResponse_builder{}.Build(), nil
+			})
+		mockClient.EXPECT().DeleteTenant(gomock.Any(), "test-org").Return(nil)
 
 		task := &task{
 			r:      reconciler,
@@ -1309,11 +1298,10 @@ var _ = Describe("Deletion", func() {
 		}
 
 		err := task.delete(ctx)
-		Expect(err).To(HaveOccurred())
-		Expect(err.Error()).To(ContainSubstring("project(s) pending deletion"))
+		Expect(err).ToNot(HaveOccurred())
 		Expect(deleted).To(BeTrue())
 		Expect(tenant.GetSpec().GetBreakGlassCredentialsSecret()).To(BeNil())
-		Expect(tenant.GetMetadata().GetFinalizers()).To(ContainElement(finalizers.TenantLifecycle))
+		Expect(tenant.GetMetadata().GetFinalizers()).ToNot(ContainElement(finalizers.TenantLifecycle))
 	})
 
 	It("should clear the break-glass secret ref so finalizer removal can persist", func() {
@@ -1346,15 +1334,9 @@ var _ = Describe("Deletion", func() {
 		}
 		reconciler.secretsClient = secrets
 
-		// Tenant project listing (no projects found).
 		mockProjectsClient.EXPECT().
 			List(gomock.Any(), gomock.Any()).
 			Return(privatev1.ProjectsListResponse_builder{}.Build(), nil).
-			Times(1)
-		// countRemainingProjects List call
-		mockProjectsClient.EXPECT().
-			List(gomock.Any(), gomock.Any()).
-			Return(privatev1.ProjectsListResponse_builder{Total: 0}.Build(), nil).
 			Times(1)
 
 		mockClient.EXPECT().
@@ -1391,9 +1373,7 @@ var _ = Describe("Deletion", func() {
 
 		mockProjectsClient.EXPECT().
 			List(gomock.Any(), gomock.Any()).
-			Return(privatev1.ProjectsListResponse_builder{Total: 0}.Build(), nil).
-			Times(2)
-
+			Return(privatev1.ProjectsListResponse_builder{Total: 0}.Build(), nil)
 		mockClient.EXPECT().
 			DeleteTenant(gomock.Any(), "test-org").
 			Return(fmt.Errorf("IDP connection timeout")).
@@ -1411,7 +1391,7 @@ var _ = Describe("Deletion", func() {
 		Expect(tenant.GetMetadata().GetFinalizers()).To(ContainElement(finalizers.TenantLifecycle))
 	})
 
-	It("should block deletion when projects remain", func() {
+	It("requeues after requesting deletion of tenant projects", func() {
 		deletionTimestamp := timestamppb.New(time.Now())
 		tenant := privatev1.Tenant_builder{
 			Id: "org-123",
@@ -1427,16 +1407,27 @@ var _ = Describe("Deletion", func() {
 			}.Build(),
 		}.Build()
 
-		gomock.InOrder(
-			mockProjectsClient.EXPECT().
-				List(gomock.Any(), gomock.Any()).
-				Return(privatev1.ProjectsListResponse_builder{}.Build(), nil),
-			mockProjectsClient.EXPECT().
-				List(gomock.Any(), gomock.Any()).
-				Return(privatev1.ProjectsListResponse_builder{
-					Total: 2,
-				}.Build(), nil),
-		)
+		project := privatev1.Project_builder{
+			Id: "project-1",
+			Metadata: privatev1.Metadata_builder{
+				Name:   "team-a",
+				Tenant: "test-org",
+			}.Build(),
+		}.Build()
+		mockProjectsClient.EXPECT().
+			List(gomock.Any(), gomock.Any()).
+			Return(privatev1.ProjectsListResponse_builder{
+				Size:  1,
+				Total: 1,
+				Items: []*privatev1.Project{project},
+			}.Build(), nil)
+		mockProjectsClient.EXPECT().
+			Delete(gomock.Any(), gomock.Any()).
+			DoAndReturn(func(_ context.Context, request *privatev1.ProjectsDeleteRequest,
+				_ ...grpc.CallOption) (*privatev1.ProjectsDeleteResponse, error) {
+				Expect(request.GetId()).To(Equal("project-1"))
+				return privatev1.ProjectsDeleteResponse_builder{}.Build(), nil
+			})
 
 		task := &task{
 			r:      reconciler,
@@ -1445,7 +1436,7 @@ var _ = Describe("Deletion", func() {
 
 		err := task.delete(ctx)
 		Expect(err).To(HaveOccurred())
-		Expect(err.Error()).To(ContainSubstring("project(s) pending deletion"))
+		Expect(err.Error()).To(ContainSubstring("tenant projects are still pending deletion"))
 		retryable, ok := err.(interface{ RequeueAfter() time.Duration })
 		Expect(ok).To(BeTrue(), "pending project deletion must trigger a tenant retry")
 		Expect(retryable.RequeueAfter()).To(Equal(time.Second))
@@ -1471,9 +1462,6 @@ var _ = Describe("Deletion", func() {
 		gomock.InOrder(
 			mockProjectsClient.EXPECT().
 				List(gomock.Any(), gomock.Any()).
-				Return(privatev1.ProjectsListResponse_builder{}.Build(), nil),
-			mockProjectsClient.EXPECT().
-				List(gomock.Any(), gomock.Any()).
 				Return(nil, fmt.Errorf("connection refused")),
 		)
 
@@ -1484,7 +1472,7 @@ var _ = Describe("Deletion", func() {
 
 		err := task.delete(ctx)
 		Expect(err).To(HaveOccurred())
-		Expect(err.Error()).To(ContainSubstring("failed to query remaining projects"))
+		Expect(err.Error()).To(ContainSubstring("failed to list projects for tenant deletion"))
 		Expect(tenant.GetMetadata().GetFinalizers()).To(ContainElement(finalizers.TenantLifecycle))
 	})
 
@@ -1610,7 +1598,7 @@ var _ = Describe("Project deletion during tenant deletion", func() {
 		Expect(tenant.GetMetadata().GetFinalizers()).To(ContainElement(finalizers.TenantLifecycle))
 	})
 
-	It("should signal a project that already has a deletion timestamp", func() {
+	It("should tolerate a project disappearing while it is signaled", func() {
 		tenant := privatev1.Tenant_builder{
 			Id: "org-root-deleting",
 			Metadata: privatev1.Metadata_builder{
@@ -1648,18 +1636,13 @@ var _ = Describe("Project deletion during tenant deletion", func() {
 					Expect(request.GetId()).To(Equal("root-proj-id"))
 					return nil, grpcstatus.Error(grpccodes.NotFound, "project not found")
 				}),
-			mockProjectsClient.EXPECT().
-				List(gomock.Any(), gomock.Any()).
-				DoAndReturn(func(_ context.Context, request *privatev1.ProjectsListRequest, _ ...grpc.CallOption) (*privatev1.ProjectsListResponse, error) {
-					Expect(request.GetFilter()).To(Equal(`this.metadata.tenant == "test-org"`))
-					return privatev1.ProjectsListResponse_builder{Total: 1}.Build(), nil
-				}),
 		)
+		mockClient.EXPECT().DeleteTenant(gomock.Any(), "test-org").Return(nil)
 
 		t := &task{r: reconciler, tenant: tenant}
 		err := t.delete(ctx)
-		Expect(err).To(HaveOccurred())
-		Expect(err.Error()).To(ContainSubstring("project(s) pending deletion"))
+		Expect(err).ToNot(HaveOccurred())
+		Expect(tenant.GetMetadata().GetFinalizers()).ToNot(ContainElement(finalizers.TenantLifecycle))
 	})
 
 	It("should attempt all projects and join pending deletion errors", func() {
@@ -1840,9 +1823,6 @@ var _ = Describe("Project deletion during tenant deletion", func() {
 			mockProjectsClient.EXPECT().
 				Delete(gomock.Any(), gomock.Any()).
 				Return(nil, grpcstatus.Error(grpccodes.NotFound, "project not found")),
-			mockProjectsClient.EXPECT().
-				List(gomock.Any(), gomock.Any()).
-				Return(privatev1.ProjectsListResponse_builder{Total: 0}.Build(), nil),
 		)
 
 		mockClient.EXPECT().
@@ -2604,9 +2584,7 @@ var _ = Describe("Vault namespace cleanup during deletion", func() {
 
 		mockProjectsClient.EXPECT().
 			List(gomock.Any(), gomock.Any()).
-			Return(privatev1.ProjectsListResponse_builder{Total: 0}.Build(), nil).
-			Times(2)
-
+			Return(privatev1.ProjectsListResponse_builder{Total: 0}.Build(), nil)
 		mockIDPClient.EXPECT().
 			DeleteTenant(gomock.Any(), "vault-org").
 			Return(nil)
@@ -2644,9 +2622,7 @@ var _ = Describe("Vault namespace cleanup during deletion", func() {
 
 		mockProjectsClient.EXPECT().
 			List(gomock.Any(), gomock.Any()).
-			Return(privatev1.ProjectsListResponse_builder{Total: 0}.Build(), nil).
-			Times(2)
-
+			Return(privatev1.ProjectsListResponse_builder{Total: 0}.Build(), nil)
 		mockVaultClient.EXPECT().
 			DeleteTenantNamespace(gomock.Any(), "vault-fail-org").
 			Return(fmt.Errorf("vault unavailable"))
@@ -2681,9 +2657,7 @@ var _ = Describe("Vault namespace cleanup during deletion", func() {
 
 		mockProjectsClient.EXPECT().
 			List(gomock.Any(), gomock.Any()).
-			Return(privatev1.ProjectsListResponse_builder{Total: 0}.Build(), nil).
-			Times(2)
-
+			Return(privatev1.ProjectsListResponse_builder{Total: 0}.Build(), nil)
 		mockIDPClient.EXPECT().
 			DeleteTenant(gomock.Any(), "no-vault-ns-org").
 			Return(nil)
@@ -2720,9 +2694,7 @@ var _ = Describe("Vault namespace cleanup during deletion", func() {
 
 		mockProjectsClient.EXPECT().
 			List(gomock.Any(), gomock.Any()).
-			Return(privatev1.ProjectsListResponse_builder{Total: 0}.Build(), nil).
-			Times(2)
-
+			Return(privatev1.ProjectsListResponse_builder{Total: 0}.Build(), nil)
 		mockIDPClient.EXPECT().
 			DeleteTenant(gomock.Any(), "nil-vault-org").
 			Return(nil)
@@ -2755,9 +2727,7 @@ var _ = Describe("Vault namespace cleanup during deletion", func() {
 
 		mockProjectsClient.EXPECT().
 			List(gomock.Any(), gomock.Any()).
-			Return(privatev1.ProjectsListResponse_builder{Total: 0}.Build(), nil).
-			Times(2)
-
+			Return(privatev1.ProjectsListResponse_builder{Total: 0}.Build(), nil)
 		mockIDPClient.EXPECT().
 			DeleteTenant(gomock.Any(), "vault-only-org").
 			Return(nil)
@@ -2794,9 +2764,7 @@ var _ = Describe("Vault namespace cleanup during deletion", func() {
 
 		mockProjectsClient.EXPECT().
 			List(gomock.Any(), gomock.Any()).
-			Return(privatev1.ProjectsListResponse_builder{Total: 0}.Build(), nil).
-			Times(2)
-
+			Return(privatev1.ProjectsListResponse_builder{Total: 0}.Build(), nil)
 		mockIDPClient.EXPECT().
 			DeleteTenant(gomock.Any(), "failed-org").
 			Return(nil)

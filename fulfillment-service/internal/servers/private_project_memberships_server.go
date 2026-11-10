@@ -126,7 +126,14 @@ func (s *PrivateProjectMembershipsServer) Get(ctx context.Context,
 
 func (s *PrivateProjectMembershipsServer) Create(ctx context.Context,
 	request *privatev1.ProjectMembershipsCreateRequest) (response *privatev1.ProjectMembershipsCreateResponse, err error) {
-	err = s.generic.Create(ctx, request, &response)
+	err = s.generic.CreateWithCandidatePreparation(ctx, request, &response,
+		func(ctx context.Context, _, candidate *privatev1.ProjectMembership) error {
+			metadata := candidate.GetMetadata()
+			if err := lockTenantForCreate(ctx, metadata.GetTenant()); err != nil {
+				return err
+			}
+			return lockProjectForCreate(ctx, metadata.GetTenant(), metadata.GetProject())
+		})
 	return
 }
 

@@ -203,6 +203,21 @@ func markTenantDeleting(id string) {
 	ExpectWithOffset(1, err).ToNot(HaveOccurred())
 }
 
+// markProjectDeleting gives a project a finalizer and deletes it, so it remains with a deletion timestamp.
+func markProjectDeleting(tenant, name string) {
+	projects := fixtureDAO[*privatev1.Project]()
+	response, err := projects.List().SetFilter(fmt.Sprintf(
+		"this.metadata.tenant == %q && this.metadata.name == %q", tenant, name)).Do(ctx)
+	ExpectWithOffset(1, err).ToNot(HaveOccurred())
+	ExpectWithOffset(1, response.GetItems()).To(HaveLen(1))
+	project := response.GetItems()[0]
+	project.GetMetadata().SetFinalizers([]string{"test"})
+	_, err = projects.Update().SetObject(project).Do(ctx)
+	ExpectWithOffset(1, err).ToNot(HaveOccurred())
+	_, err = projects.Delete().SetId(project.GetId()).Do(ctx)
+	ExpectWithOffset(1, err).ToNot(HaveOccurred())
+}
+
 // defaultNetworkingFixture holds the IDs of the default networking that seedReadyDefaultNetworking creates.
 type defaultNetworkingFixture struct {
 	networkClassID   string

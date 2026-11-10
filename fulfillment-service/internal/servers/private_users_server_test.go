@@ -74,6 +74,34 @@ var _ = Describe("Users Server", func() {
 		Expect(err).To(MatchError("rpc error: code = InvalidArgument desc = field 'metadata.project' must be empty"))
 	})
 
+	It("rejects creating a user when its tenant is being deleted", func() {
+		markTenantDeleting(testTenant)
+
+		_, err := privateServer.Create(ctx, &privatev1.UsersCreateRequest{
+			Object: &privatev1.User{
+				Metadata: &privatev1.Metadata{Name: "tenant-deleting-user"},
+				Spec:     &privatev1.UserSpec{Username: "tenant-deleting-user"},
+			},
+		})
+
+		Expect(status.Code(err)).To(Equal(codes.FailedPrecondition))
+		Expect(err).To(MatchError(ContainSubstring("tenant 'test-tenant' is being deleted")))
+	})
+
+	It("rejects creating a user when the default project is being deleted", func() {
+		markProjectDeleting(testTenant, "")
+
+		_, err := privateServer.Create(ctx, &privatev1.UsersCreateRequest{
+			Object: &privatev1.User{
+				Metadata: &privatev1.Metadata{Name: "project-deleting-user"},
+				Spec:     &privatev1.UserSpec{Username: "project-deleting-user"},
+			},
+		})
+
+		Expect(status.Code(err)).To(Equal(codes.FailedPrecondition))
+		Expect(err).To(MatchError(ContainSubstring("project 'test-tenant/' is being deleted")))
+	})
+
 	It("Lists users", func() {
 		// Create a user first:
 		createReq := &privatev1.UsersCreateRequest{

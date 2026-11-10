@@ -143,16 +143,47 @@ func rejectDeleteIfReferenced[O lifecycleResource](
 		parentKind, parentName, dependentCount, dependentKind, dependentName)
 }
 
-// Lock order (UN, fulfillment service concurrency). Every create, update and delete takes its row locks in this
-// order, so concurrent requests can't deadlock:
+// lockProjectForCreate locks a parent Project during child creation and rejects a create when that Project is
+// being deleted. Missing Projects are rejected here because not every project-scoped table has a database FK.
+func lockProjectForCreate(ctx context.Context, tenant, project string) error {
+	if tenant == "" || tenant == auth.SystemTenant || tenant == auth.SharedTenant {
+		return nil
+	}
+	tx, err := database.TxFromContext(ctx)
+	if err != nil {
+		return err
+	}
+	var deleting bool
+	err = tx.QueryRow(ctx,
+		`select deletion_timestamp <> 'epoch' from projects where tenant = $1 and name = $2 for update`,
+		tenant, project,
+	).Scan(&deleting)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return grpcstatus.Errorf(grpccodes.NotFound, "project '%s/%s' not found", tenant, project)
+	}
+	if err != nil {
+		if pgErr, ok := errors.AsType[*pgconn.PgError](err); ok && pgErr.Code == pgerrcode.DeadlockDetected {
+			return grpcstatus.Error(grpccodes.Aborted, "concurrent modification detected, please retry")
+		}
+		return grpcstatus.Errorf(grpccodes.Internal, "failed to lock project '%s/%s'", tenant, project)
+	}
+	if deleting {
+		return grpcstatus.Errorf(grpccodes.FailedPrecondition, "project '%s/%s' is being deleted", tenant, project)
+	}
+	return nil
+}
+
+// Lock order for lifecycle guards that acquire multiple parent locks. Callers must use this order so concurrent
+// lifecycle requests don't deadlock:
 //
 //  1. Tenant (lockTenantForCreate).
-//  2. NetworkClass (lockNetworkClass): shared for VirtualNetwork and Cluster creates, exclusive for ExternalIPPool
+//  2. Parent Project (lockProjectForCreate).
+//  3. NetworkClass (lockNetworkClass): shared for VirtualNetwork and Cluster creates, exclusive for ExternalIPPool
 //     creates and address plan writes.
-//  3. Parent VirtualNetwork, then the child record.
-//  4. ExternalIPPool, then ExternalIP.
-//  5. Target workload, then ExternalIP, then ExternalIPAttachment.
-//  6. Records of one kind by ID ascending.
+//  4. Parent VirtualNetwork, then the child record.
+//  5. ExternalIPPool, then ExternalIP.
+//  6. Target workload, then ExternalIP, then ExternalIPAttachment.
+//  7. Records of one kind by ID ascending.
 //
 // A deadlock that the database still detects fails the request with ABORTED.
 

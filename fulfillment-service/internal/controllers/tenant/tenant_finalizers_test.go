@@ -107,7 +107,7 @@ func TestTenantCleanupBarriers(t *testing.T) {
 				if failure {
 					projects.EXPECT().List(gomock.Any(), gomock.Any()).Return(nil, errors.New("cleanup failed"))
 				} else {
-					projects.EXPECT().List(gomock.Any(), gomock.Any()).Return(privatev1.ProjectsListResponse_builder{}.Build(), nil).Times(2)
+					projects.EXPECT().List(gomock.Any(), gomock.Any()).Return(privatev1.ProjectsListResponse_builder{}.Build(), nil)
 				}
 
 				list := []string{finalizers.TenantLifecycle, "unrelated"}

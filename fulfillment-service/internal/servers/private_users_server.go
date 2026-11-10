@@ -133,7 +133,14 @@ func (s *PrivateUsersServer) Create(ctx context.Context,
 	if err = validateDefaultProjectForCreate(request.GetObject().GetMetadata()); err != nil {
 		return
 	}
-	err = s.generic.Create(ctx, request, &response)
+	err = s.generic.CreateWithCandidatePreparation(ctx, request, &response,
+		func(ctx context.Context, _, candidate *privatev1.User) error {
+			metadata := candidate.GetMetadata()
+			if err := lockTenantForCreate(ctx, metadata.GetTenant()); err != nil {
+				return err
+			}
+			return lockProjectForCreate(ctx, metadata.GetTenant(), metadata.GetProject())
+		})
 	return
 }
 

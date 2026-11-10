@@ -572,7 +572,9 @@ func (t *task) delete(ctx context.Context) error {
 
 	// Delete every project in the tenant. Project controllers enforce child-first
 	// archival, while this reconciler signals deleting projects again on each
-	// retry so parents continue after their children have been archived.
+	// retry so parents continue after their children have been archived. Project
+	// creates lock this tenant row and are rejected once deletion starts, so an
+	// empty cascade list is the completion check.
 	pendingProjects, err := t.deleteTenantProjects(ctx)
 	if err != nil {
 		return err
@@ -580,22 +582,6 @@ func (t *task) delete(ctx context.Context) error {
 	if pendingProjects {
 		return controllers.RequeueAtInterval(
 			errors.New("tenant projects are still pending deletion"),
-			tenantDeletionRetryInterval,
-		)
-	}
-
-	// Keep the tenant and its IDP organization until all projects are archived.
-	remaining, err := t.countRemainingProjects(ctx)
-	if err != nil {
-		return fmt.Errorf("failed to query remaining projects: %w", err)
-	}
-	if remaining > 0 {
-		t.r.logger.InfoContext(ctx, "Waiting for projects to be deleted before tenant can be removed",
-			slog.String("tenant_id", t.tenant.GetId()),
-			slog.Int("remaining_projects", int(remaining)),
-		)
-		return controllers.RequeueAtInterval(
-			fmt.Errorf("tenant still has %d project(s) pending deletion", remaining),
 			tenantDeletionRetryInterval,
 		)
 	}
@@ -678,22 +664,6 @@ func (t *task) breakGlassSecretIDs(ctx context.Context) ([]string, error) {
 		ids = append(ids, item.GetId())
 	}
 	return ids, nil
-}
-
-// countRemainingProjects returns the number of project rows that still belong
-// to this tenant, including projects whose deletion is still in progress. The
-// tenant reconciler must retain the IdP organization until those projects are
-// archived because their controllers may still need it to remove project groups.
-func (t *task) countRemainingProjects(ctx context.Context) (int32, error) {
-	listFilter := fmt.Sprintf("this.metadata.tenant == %q", t.tenant.GetMetadata().GetName())
-	listResp, err := t.r.projectsClient.List(ctx, privatev1.ProjectsListRequest_builder{
-		Filter: new(listFilter),
-		Limit:  new(int32(0)),
-	}.Build())
-	if err != nil {
-		return 0, err
-	}
-	return listResp.GetTotal(), nil
 }
 
 // deleteTenantUsers requests deletion of every user in the tenant. Users are

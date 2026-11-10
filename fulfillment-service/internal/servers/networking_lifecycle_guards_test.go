@@ -21,9 +21,20 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	privatev1 "github.com/osac-project/osac/proto/gen/osac/private/v1"
+	grpccodes "google.golang.org/grpc/codes"
+	grpcstatus "google.golang.org/grpc/status"
 )
 
 var _ = Describe("Paged networking lifecycle guards", func() {
+	It("rejects creates in a project that is being deleted", func() {
+		seedTenantProject(testTenant, "project-being-deleted")
+		markProjectDeleting(testTenant, "project-being-deleted")
+
+		err := lockProjectForCreate(ctx, testTenant, "project-being-deleted")
+		Expect(grpcstatus.Code(err)).To(Equal(grpccodes.FailedPrecondition))
+		Expect(err).To(MatchError(ContainSubstring("project 'test-tenant/project-being-deleted' is being deleted")))
+	})
+
 	It("keeps contextual logging and the public Internal message for DAO failures", func() {
 		var output bytes.Buffer
 		log := slog.New(slog.NewTextHandler(&output, nil))

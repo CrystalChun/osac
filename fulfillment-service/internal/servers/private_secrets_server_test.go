@@ -125,6 +125,26 @@ var _ = Describe("Private secrets server", func() {
 			Expect(err).ToNot(HaveOccurred())
 		})
 
+		It("rejects creating a secret when its project is being deleted", func() {
+			seedTenantProject(testTenant, "secret-project")
+			markProjectDeleting(testTenant, "secret-project")
+
+			_, err := server.Create(ctx, privatev1.SecretsCreateRequest_builder{
+				Object: privatev1.Secret_builder{
+					Metadata: privatev1.Metadata_builder{
+						Name:    "late-secret",
+						Tenant:  testTenant,
+						Project: "secret-project",
+					}.Build(),
+					Type: privatev1.SecretType_SECRET_TYPE_OPAQUE,
+					Data: map[string][]byte{"key": []byte("value")},
+				}.Build(),
+			}.Build())
+
+			Expect(status.Code(err)).To(Equal(codes.FailedPrecondition))
+			Expect(err).To(MatchError(ContainSubstring("project 'test-tenant/secret-project' is being deleted")))
+		})
+
 		createVaultSecret := func() *privatev1.Secret {
 			response, err := server.Create(ctx, privatev1.SecretsCreateRequest_builder{
 				Object: privatev1.Secret_builder{
