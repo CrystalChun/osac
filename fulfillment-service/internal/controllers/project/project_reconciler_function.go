@@ -554,29 +554,39 @@ func (t *task) deleteProjectSecrets(ctx context.Context) error {
 		"this.metadata.tenant == %q && this.metadata.project == %q",
 		tenant, projectName,
 	)
-	listResp, err := t.r.secretsClient.List(ctx, privatev1.SecretsListRequest_builder{
-		Filter: &secretFilter,
-	}.Build())
+	_, err := controllers.CascadeDelete(ctx, controllers.CascadeDeleteOptions[*privatev1.Secret]{
+		Resource: "project secret",
+		ListName: "project secrets",
+		List: func(ctx context.Context, offset, limit int32) (*controllers.CascadePage[*privatev1.Secret], error) {
+			response, err := t.r.secretsClient.List(ctx, privatev1.SecretsListRequest_builder{
+				Filter: &secretFilter,
+				Limit:  &limit,
+				Offset: &offset,
+			}.Build())
+			if err != nil || response == nil {
+				return nil, err
+			}
+			return &controllers.CascadePage[*privatev1.Secret]{
+				Items: response.GetItems(),
+				Size:  int32(len(response.GetItems())),
+				Total: response.GetTotal(),
+			}, nil
+		},
+		ID: func(secret *privatev1.Secret) string { return secret.GetId() },
+		Delete: func(ctx context.Context, id string) error {
+			_, err := t.r.secretsClient.Delete(ctx, privatev1.SecretsDeleteRequest_builder{Id: id}.Build())
+			return err
+		},
+		OnDelete: func(ctx context.Context, id string) {
+			t.r.logger.InfoContext(ctx, "Cascade-deleted project secret",
+				slog.String("project_id", t.project.GetId()),
+				slog.String("secret_id", id),
+			)
+		},
+	})
 	if err != nil {
 		return fmt.Errorf("failed to query for project secrets: %w", err)
 	}
-	if listResp == nil {
-		return errors.New("secret list returned no response")
-	}
-
-	for _, secret := range listResp.GetItems() {
-		_, err := t.r.secretsClient.Delete(ctx, privatev1.SecretsDeleteRequest_builder{
-			Id: secret.GetId(),
-		}.Build())
-		if err != nil && status.Code(err) != codes.NotFound {
-			return fmt.Errorf("failed to delete secret %s: %w", secret.GetId(), err)
-		}
-		t.r.logger.InfoContext(ctx, "Cascade-deleted project secret",
-			slog.String("project_id", t.project.GetId()),
-			slog.String("secret_id", secret.GetId()),
-		)
-	}
-
 	return nil
 }
 
@@ -591,39 +601,44 @@ func (t *task) deleteProjectMemberships(ctx context.Context) (bool, error) {
 		"this.metadata.tenant == %q && this.metadata.project == %q",
 		tenant, projectName,
 	)
-	listResp, err := t.r.projectMembershipsClient.List(ctx, privatev1.ProjectMembershipsListRequest_builder{
-		Filter: new(membershipFilter),
-	}.Build())
+	pending, err := controllers.CascadeDelete(ctx, controllers.CascadeDeleteOptions[*privatev1.ProjectMembership]{
+		Resource:          "project membership",
+		ListName:          "project memberships",
+		PendingOnNotFound: true,
+		List: func(ctx context.Context, offset, limit int32) (*controllers.CascadePage[*privatev1.ProjectMembership], error) {
+			response, err := t.r.projectMembershipsClient.List(ctx, privatev1.ProjectMembershipsListRequest_builder{
+				Filter: &membershipFilter,
+				Limit:  &limit,
+				Offset: &offset,
+			}.Build())
+			if err != nil || response == nil {
+				return nil, err
+			}
+			return &controllers.CascadePage[*privatev1.ProjectMembership]{
+				Items: response.GetItems(),
+				Size:  int32(len(response.GetItems())),
+				Total: response.GetTotal(),
+			}, nil
+		},
+		ID: func(membership *privatev1.ProjectMembership) string { return membership.GetId() },
+		IsDeleting: func(membership *privatev1.ProjectMembership) bool {
+			return membership.HasMetadata() && membership.GetMetadata().HasDeletionTimestamp()
+		},
+		Delete: func(ctx context.Context, id string) error {
+			_, err := t.r.projectMembershipsClient.Delete(ctx, privatev1.ProjectMembershipsDeleteRequest_builder{Id: id}.Build())
+			return err
+		},
+		OnDelete: func(ctx context.Context, id string) {
+			t.r.logger.InfoContext(ctx, "Cascade-deleting project membership",
+				slog.String("project_id", t.project.GetId()),
+				slog.String("membership_id", id),
+			)
+		},
+	})
 	if err != nil {
 		return false, fmt.Errorf("failed to query for project memberships: %w", err)
 	}
-	if listResp == nil {
-		return false, errors.New("project membership list returned no response")
-	}
-	if listResp.GetTotal() == 0 {
-		return false, nil
-	}
-
-	var deletedAny bool
-	for _, membership := range listResp.GetItems() {
-		if membership.HasMetadata() && membership.GetMetadata().HasDeletionTimestamp() {
-			// The membership reconciler signals this project when deletion completes.
-			continue
-		}
-		t.r.logger.InfoContext(ctx, "Cascade-deleting project membership",
-			slog.String("project_id", t.project.GetId()),
-			slog.String("membership_id", membership.GetId()),
-		)
-		_, err := t.r.projectMembershipsClient.Delete(ctx, privatev1.ProjectMembershipsDeleteRequest_builder{
-			Id: membership.GetId(),
-		}.Build())
-		if err != nil && status.Code(err) != codes.NotFound {
-			return true, fmt.Errorf("failed to delete project membership %s: %w", membership.GetId(), err)
-		}
-		deletedAny = true
-	}
-
-	return deletedAny, nil
+	return pending, nil
 }
 
 // setDefaults sets default values for the project.

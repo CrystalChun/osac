@@ -692,74 +692,43 @@ func (t *task) deleteTenantUsers(ctx context.Context) error {
 
 	tenantName := t.tenant.GetMetadata().GetName()
 	filter := fmt.Sprintf("this.metadata.tenant == %q", tenantName)
-	limit := int32(100)
-	var (
-		offset int32
-		users  []*privatev1.User
-		total  *int32
-	)
-	for {
-		listResp, err := t.r.usersClient.List(ctx, privatev1.UsersListRequest_builder{
-			Filter: &filter,
-			Limit:  &limit,
-			Offset: &offset,
-		}.Build())
-		if err != nil {
-			return fmt.Errorf("failed to list users for tenant deletion: %w", err)
-		}
-		if listResp == nil || listResp.GetSize() < 0 ||
-			int64(listResp.GetSize()) != int64(len(listResp.GetItems())) ||
-			listResp.GetTotal() < 0 {
-			return errors.New("user listing returned an invalid page")
-		}
-		pageTotal := listResp.GetTotal()
-		if total == nil {
-			total = &pageTotal
-		} else if *total != pageTotal {
-			return errors.New("user listing total changed during tenant deletion")
-		}
-		users = append(users, listResp.GetItems()...)
-		if int64(len(users)) > int64(*total) {
-			return errors.New("user listing returned more items than its total")
-		}
-		if int64(len(users)) == int64(*total) {
-			break
-		}
-		if listResp.GetSize() == 0 {
-			return errors.New("user listing returned an incomplete page")
-		}
-		offset += listResp.GetSize()
-	}
-
-	var deletionErrors []error
-	for _, user := range users {
-		if user.GetMetadata().HasDeletionTimestamp() {
-			_, err := t.r.usersClient.Signal(ctx, privatev1.UsersSignalRequest_builder{
-				Id: user.GetId(),
+	_, err := controllers.CascadeDelete(ctx, controllers.CascadeDeleteOptions[*privatev1.User]{
+		Resource:      "user",
+		ListName:      "users for tenant deletion",
+		ActionContext: " for tenant deletion",
+		List: func(ctx context.Context, offset, limit int32) (*controllers.CascadePage[*privatev1.User], error) {
+			response, err := t.r.usersClient.List(ctx, privatev1.UsersListRequest_builder{
+				Filter: &filter,
+				Limit:  &limit,
+				Offset: &offset,
 			}.Build())
-			if err != nil && grpcstatus.Code(err) != grpccodes.NotFound {
-				deletionErrors = append(deletionErrors,
-					fmt.Errorf("failed to signal user %s for tenant deletion: %w", user.GetId(), err))
+			if err != nil || response == nil {
+				return nil, err
 			}
-			continue
-		}
-		_, err := t.r.usersClient.Delete(ctx, privatev1.UsersDeleteRequest_builder{
-			Id: user.GetId(),
-		}.Build())
-		if err != nil {
-			if grpcstatus.Code(err) == grpccodes.NotFound {
-				continue
-			}
-			deletionErrors = append(deletionErrors,
-				fmt.Errorf("failed to delete user %s: %w", user.GetId(), err))
-			continue
-		}
-		t.r.logger.DebugContext(ctx, "Requested user deletion for tenant",
-			slog.String("tenant_id", t.tenant.GetId()),
-			slog.String("user_id", user.GetId()),
-		)
-	}
-	return errors.Join(deletionErrors...)
+			return &controllers.CascadePage[*privatev1.User]{
+				Items: response.GetItems(),
+				Size:  response.GetSize(),
+				Total: response.GetTotal(),
+			}, nil
+		},
+		ID:         func(user *privatev1.User) string { return user.GetId() },
+		IsDeleting: func(user *privatev1.User) bool { return user.GetMetadata().HasDeletionTimestamp() },
+		Delete: func(ctx context.Context, id string) error {
+			_, err := t.r.usersClient.Delete(ctx, privatev1.UsersDeleteRequest_builder{Id: id}.Build())
+			return err
+		},
+		Signal: func(ctx context.Context, id string) error {
+			_, err := t.r.usersClient.Signal(ctx, privatev1.UsersSignalRequest_builder{Id: id}.Build())
+			return err
+		},
+		OnDelete: func(ctx context.Context, id string) {
+			t.r.logger.DebugContext(ctx, "Requested user deletion for tenant",
+				slog.String("tenant_id", t.tenant.GetId()),
+				slog.String("user_id", id),
+			)
+		},
+	})
+	return err
 }
 
 // deleteTenantProjects requests deletion of every project in the tenant. Existing
@@ -768,74 +737,43 @@ func (t *task) deleteTenantUsers(ctx context.Context) error {
 func (t *task) deleteTenantProjects(ctx context.Context) error {
 	tenantName := t.tenant.GetMetadata().GetName()
 	filter := fmt.Sprintf("this.metadata.tenant == %q", tenantName)
-	limit := int32(100)
-	var (
-		offset   int32
-		projects []*privatev1.Project
-		total    *int32
-		err      error
-	)
-	for {
-		listResp, err := t.r.projectsClient.List(ctx, privatev1.ProjectsListRequest_builder{
-			Filter: &filter,
-			Limit:  &limit,
-			Offset: &offset,
-		}.Build())
-		if err != nil {
-			return fmt.Errorf("failed to list projects for tenant deletion: %w", err)
-		}
-		if listResp == nil || listResp.GetSize() < 0 ||
-			int64(listResp.GetSize()) != int64(len(listResp.GetItems())) ||
-			listResp.GetTotal() < 0 {
-			return errors.New("project listing returned an invalid page")
-		}
-		pageTotal := listResp.GetTotal()
-		if total == nil {
-			total = &pageTotal
-		} else if *total != pageTotal {
-			return errors.New("project listing total changed during tenant deletion")
-		}
-		projects = append(projects, listResp.GetItems()...)
-		if int64(len(projects)) > int64(*total) {
-			return errors.New("project listing returned more items than its total")
-		}
-		if int64(len(projects)) == int64(*total) {
-			break
-		}
-		if listResp.GetSize() == 0 {
-			return errors.New("project listing returned an incomplete page")
-		}
-		offset += listResp.GetSize()
-	}
-
-	var deletionErrors []error
-	for _, project := range projects {
-		if project.GetMetadata().HasDeletionTimestamp() {
-			_, err = t.r.projectsClient.Signal(ctx, privatev1.ProjectsSignalRequest_builder{
-				Id: project.GetId(),
+	_, err := controllers.CascadeDelete(ctx, controllers.CascadeDeleteOptions[*privatev1.Project]{
+		Resource:      "project",
+		ListName:      "projects for tenant deletion",
+		ActionContext: " for tenant deletion",
+		List: func(ctx context.Context, offset, limit int32) (*controllers.CascadePage[*privatev1.Project], error) {
+			response, err := t.r.projectsClient.List(ctx, privatev1.ProjectsListRequest_builder{
+				Filter: &filter,
+				Limit:  &limit,
+				Offset: &offset,
 			}.Build())
-			if err != nil && grpcstatus.Code(err) != grpccodes.NotFound {
-				deletionErrors = append(deletionErrors,
-					fmt.Errorf("failed to signal project %s for tenant deletion: %w", project.GetId(), err))
+			if err != nil || response == nil {
+				return nil, err
 			}
-			continue
-		}
-		_, err = t.r.projectsClient.Delete(ctx, privatev1.ProjectsDeleteRequest_builder{
-			Id: project.GetId(),
-		}.Build())
-		if err != nil {
-			if grpcstatus.Code(err) == grpccodes.NotFound {
-				continue
-			}
-			deletionErrors = append(deletionErrors, fmt.Errorf("failed to delete project %s: %w", project.GetId(), err))
-			continue
-		}
-		t.r.logger.DebugContext(ctx, "Requested project deletion for tenant",
-			slog.String("tenant_id", t.tenant.GetId()),
-			slog.String("project_id", project.GetId()),
-		)
-	}
-	return errors.Join(deletionErrors...)
+			return &controllers.CascadePage[*privatev1.Project]{
+				Items: response.GetItems(),
+				Size:  response.GetSize(),
+				Total: response.GetTotal(),
+			}, nil
+		},
+		ID:         func(project *privatev1.Project) string { return project.GetId() },
+		IsDeleting: func(project *privatev1.Project) bool { return project.GetMetadata().HasDeletionTimestamp() },
+		Delete: func(ctx context.Context, id string) error {
+			_, err := t.r.projectsClient.Delete(ctx, privatev1.ProjectsDeleteRequest_builder{Id: id}.Build())
+			return err
+		},
+		Signal: func(ctx context.Context, id string) error {
+			_, err := t.r.projectsClient.Signal(ctx, privatev1.ProjectsSignalRequest_builder{Id: id}.Build())
+			return err
+		},
+		OnDelete: func(ctx context.Context, id string) {
+			t.r.logger.DebugContext(ctx, "Requested project deletion for tenant",
+				slog.String("tenant_id", t.tenant.GetId()),
+				slog.String("project_id", id),
+			)
+		},
+	})
+	return err
 }
 
 var tenantConditionTypes = []privatev1.TenantConditionType{
