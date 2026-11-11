@@ -700,6 +700,10 @@ var _ = Describe("Break-glass credentials secret resolution", func() {
 					}.Build(),
 				}.Build(), nil
 			},
+			listFunc: func(_ context.Context, req *privatev1.SecretsListRequest) (*privatev1.SecretsListResponse, error) {
+				Expect(req.GetFilter()).To(ContainSubstring(breakGlassSecretName))
+				return privatev1.SecretsListResponse_builder{}.Build(), nil
+			},
 		}
 		reconciler = &function{
 			logger:        logger,
@@ -717,7 +721,7 @@ var _ = Describe("Break-glass credentials secret resolution", func() {
 			Spec: privatev1.TenantSpec_builder{
 				BreakGlassCredentialsSecret: privatev1.SecretLocalReference_builder{
 					Id:   "secret-id",
-					Name: "break-glass-credentials",
+					Name: "bootstrap-password",
 				}.Build(),
 			}.Build(),
 		}.Build()
@@ -750,6 +754,9 @@ var _ = Describe("Break-glass credentials secret resolution", func() {
 				getFunc: func(context.Context, *privatev1.SecretsGetRequest) (*privatev1.SecretsGetResponse, error) {
 					Fail("Secrets.Get should not be called when status credentials are present")
 					return nil, nil
+				},
+				listFunc: func(context.Context, *privatev1.SecretsListRequest) (*privatev1.SecretsListResponse, error) {
+					return privatev1.SecretsListResponse_builder{}.Build(), nil
 				},
 			},
 		}
@@ -827,16 +834,13 @@ var _ = Describe("Break-glass credentials secret resolution", func() {
 		Expect(err.Error()).To(ContainSubstring(`missing data["password"]`))
 	})
 
-	It("should store generated credentials as a Secret after IDP sync", func() {
+	It("should not persist generated credentials after IDP sync", func() {
 		secrets := &mockSecretsClient{
-			createFunc: func(_ context.Context, req *privatev1.SecretsCreateRequest) (*privatev1.SecretsCreateResponse, error) {
-				secret := req.GetObject()
-				Expect(secret.GetMetadata().GetName()).To(Equal("break-glass-credentials"))
-				Expect(secret.GetMetadata().GetTenant()).To(Equal("test-org"))
-				Expect(secret.GetType()).To(Equal(privatev1.SecretType_SECRET_TYPE_OPAQUE))
-				Expect(secret.GetData()).To(HaveKeyWithValue("password", []byte(testPreGeneratedPassword)))
-				secret.SetId("created-secret-id")
-				return privatev1.SecretsCreateResponse_builder{Object: secret}.Build(), nil
+			createFunc: func(context.Context, *privatev1.SecretsCreateRequest) (*privatev1.SecretsCreateResponse, error) {
+				return nil, fmt.Errorf("unexpected Secret creation for generated credentials")
+			},
+			listFunc: func(context.Context, *privatev1.SecretsListRequest) (*privatev1.SecretsListResponse, error) {
+				return privatev1.SecretsListResponse_builder{}.Build(), nil
 			},
 		}
 		reconciler = &function{
@@ -875,18 +879,15 @@ var _ = Describe("Break-glass credentials secret resolution", func() {
 
 		task := &task{r: reconciler, tenant: tenant}
 		Expect(task.update(ctx)).To(Succeed())
-		ref := tenant.GetSpec().GetBreakGlassCredentialsSecret()
-		Expect(ref).ToNot(BeNil())
-		Expect(ref.GetId()).To(Equal("created-secret-id"))
-		Expect(ref.GetName()).To(Equal("break-glass-credentials"))
+		Expect(tenant.GetSpec().GetBreakGlassCredentialsSecret()).To(BeNil())
 		Expect(tenant.GetStatus().HasBreakGlassCredentials()).To(BeFalse())
+		Expect(tenant.GetStatus().GetState()).To(Equal(privatev1.TenantState_TENANT_STATE_SYNCED))
 	})
 
-	It("should adopt an existing Secret when Create returns AlreadyExists", func() {
+	It("should remove a legacy generated Secret after setup", func() {
 		secrets := &mockSecretsClient{
 			createFunc: func(context.Context, *privatev1.SecretsCreateRequest) (*privatev1.SecretsCreateResponse, error) {
-				return nil, grpcstatus.Error(grpccodes.AlreadyExists,
-					"secret with name 'break-glass-credentials' already exists")
+				return nil, fmt.Errorf("unexpected Secret creation for generated credentials")
 			},
 			listFunc: func(_ context.Context, req *privatev1.SecretsListRequest) (*privatev1.SecretsListResponse, error) {
 				Expect(req.GetFilter()).To(ContainSubstring("break-glass-credentials"))
@@ -903,6 +904,10 @@ var _ = Describe("Break-glass credentials secret resolution", func() {
 					},
 				}.Build(), nil
 			},
+			deleteFunc: func(_ context.Context, req *privatev1.SecretsDeleteRequest) (*privatev1.SecretsDeleteResponse, error) {
+				Expect(req.GetId()).To(Equal("existing-secret-id"))
+				return privatev1.SecretsDeleteResponse_builder{}.Build(), nil
+			},
 		}
 		reconciler = &function{
 			logger:        logger,
@@ -916,6 +921,12 @@ var _ = Describe("Break-glass credentials secret resolution", func() {
 				Name:       "test-org",
 				Finalizers: []string{finalizers.TenantLifecycle, finalizers.TenantOnboarding},
 				Tenant:     "tenant-1",
+			}.Build(),
+			Spec: privatev1.TenantSpec_builder{
+				BreakGlassCredentialsSecret: privatev1.SecretLocalReference_builder{
+					Id:   "existing-secret-id",
+					Name: breakGlassSecretName,
+				}.Build(),
 			}.Build(),
 			Status: privatev1.TenantStatus_builder{
 				BreakGlassCredentials: privatev1.BreakGlassCredentials_builder{
@@ -940,24 +951,15 @@ var _ = Describe("Break-glass credentials secret resolution", func() {
 
 		task := &task{r: reconciler, tenant: tenant}
 		Expect(task.update(ctx)).To(Succeed())
-		ref := tenant.GetSpec().GetBreakGlassCredentialsSecret()
-		Expect(ref).ToNot(BeNil())
-		Expect(ref.GetId()).To(Equal("existing-secret-id"))
-		Expect(ref.GetName()).To(Equal("break-glass-credentials"))
+		Expect(tenant.GetSpec().GetBreakGlassCredentialsSecret()).To(BeNil())
 		Expect(tenant.GetStatus().GetIdpTenantName()).To(Equal("test-org"))
 		Expect(tenant.GetStatus().GetState()).To(Equal(privatev1.TenantState_TENANT_STATE_SYNCED))
 	})
 
-	It("should keep idpTenantName when persist fails so CreateTenant is not retried", func() {
-		secrets := &mockSecretsClient{
-			createFunc: func(context.Context, *privatev1.SecretsCreateRequest) (*privatev1.SecretsCreateResponse, error) {
-				return nil, fmt.Errorf("secrets service unavailable")
-			},
-		}
+	It("should sync generated credentials without a Secrets client", func() {
 		reconciler = &function{
-			logger:        logger,
-			idpManager:    idpManager,
-			secretsClient: secrets,
+			logger:     logger,
+			idpManager: idpManager,
 		}
 
 		tenant := privatev1.Tenant_builder{
@@ -992,8 +994,9 @@ var _ = Describe("Break-glass credentials secret resolution", func() {
 		Expect(task.update(ctx)).To(Succeed())
 		Expect(tenant.GetStatus().GetIdpTenantName()).To(Equal("test-org"))
 		Expect(tenant.GetStatus().GetBreakGlassUserId()).To(Equal("user-123"))
-		Expect(tenant.GetStatus().GetState()).To(Equal(privatev1.TenantState_TENANT_STATE_PENDING))
+		Expect(tenant.GetStatus().GetState()).To(Equal(privatev1.TenantState_TENANT_STATE_SYNCED))
 		Expect(tenant.GetSpec().GetBreakGlassCredentialsSecret()).To(BeNil())
+		Expect(tenant.GetStatus().HasBreakGlassCredentials()).To(BeFalse())
 	})
 })
 

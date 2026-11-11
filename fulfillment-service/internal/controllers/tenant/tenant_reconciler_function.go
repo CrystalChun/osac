@@ -266,6 +266,9 @@ func (t *task) updateLifecycle(ctx context.Context) error {
 
 	// For synced tenants, update IDP, ensure vault namespace, and check default networking readiness.
 	if state == privatev1.TenantState_TENANT_STATE_SYNCED {
+		if err := t.deleteLegacyBreakGlassSecret(ctx); err != nil {
+			return err
+		}
 		if err := t.updateIDP(ctx); err != nil {
 			return err
 		}
@@ -312,33 +315,25 @@ func (t *task) syncToIDP(ctx context.Context) error {
 			return nil
 		}
 
-		// Record IDP identity before persisting the secret so a later persist
-		// failure does not retry CreateTenant (the IDP tenant already exists).
+		// Record IDP identity so later reconciliation does not retry CreateTenant
+		// while it waits for Vault readiness.
 		t.tenant.GetStatus().SetIdpTenantName(config.Name)
 		t.tenant.GetStatus().SetBreakGlassUserId(credentials.UserID)
 	}
 
-	// Ensure the Vault namespace exists before attempting to persist the break-glass secret.
-	// The secret will be stored in Vault under the tenant's namespace, so the namespace
-	// must be provisioned first.
+	// Ensure the Vault namespace exists before completing tenant setup.
 	if err := t.ensureVaultNamespace(ctx); err != nil {
 		return err
 	}
 	// If vault is enabled and provisioning failed, the condition is FALSE and status will be persisted.
-	// Skip break-glass secret persistence since it requires vault.
+	// Hold the tenant pending until Vault is ready, then clear credentials from
+	// status once initial IDP setup is complete.
 	if t.r.vaultLifecycle != nil && !t.isConditionTrue(privatev1.TenantConditionType_TENANT_CONDITION_TYPE_VAULT_READY) {
 		return nil
 	}
 
-	if err := t.persistBreakGlassSecret(ctx); err != nil {
-		t.r.logger.ErrorContext(ctx, "Failed to persist break-glass credentials secret",
-			slog.String("tenant_id", t.tenant.GetId()),
-			slog.Any("error", err),
-		)
-		// Stay PENDING with idpTenantName set so the next reconcile retries
-		// persist without calling CreateTenant again.
-		t.tenant.GetStatus().SetState(privatev1.TenantState_TENANT_STATE_PENDING)
-		return nil
+	if err := t.deleteLegacyBreakGlassSecret(ctx); err != nil {
+		return err
 	}
 
 	t.tenant.GetStatus().SetState(privatev1.TenantState_TENANT_STATE_SYNCED)
@@ -385,75 +380,44 @@ func (t *task) resolveBreakGlassPassword(ctx context.Context) (string, error) {
 
 const breakGlassSecretName = "break-glass-credentials"
 
-// persistBreakGlassSecret stores generated break-glass credentials as a Secret and records the
-// reference on the tenant spec. No-op when a reference is already set or no secrets client is
-// configured (unit tests). If the Secret already exists (retry after a failed status save),
-// the existing object is adopted instead of failing.
-func (t *task) persistBreakGlassSecret(ctx context.Context) error {
-	if t.tenant.GetSpec().GetBreakGlassCredentialsSecret() != nil {
-		return nil
-	}
+// deleteLegacyBreakGlassSecret removes generated credentials retained by older
+// versions. Credentials are needed only during initial IDP setup; synced tenants
+// can use the one-time Create response as the durable handoff to the caller.
+func (t *task) deleteLegacyBreakGlassSecret(ctx context.Context) error {
 	if t.r.secretsClient == nil {
 		return nil
 	}
-	creds := t.tenant.GetStatus().GetBreakGlassCredentials()
-	if creds.GetPassword() == "" {
+	tenantName := t.tenant.GetMetadata().GetName()
+	if tenantName == "" {
 		return nil
 	}
-	tenantName := t.tenant.GetMetadata().GetName()
-	response, err := t.r.secretsClient.Create(ctx, privatev1.SecretsCreateRequest_builder{
-		Object: privatev1.Secret_builder{
-			Metadata: privatev1.Metadata_builder{
-				Name:   breakGlassSecretName,
-				Tenant: tenantName,
-			}.Build(),
-			Type: privatev1.SecretType_SECRET_TYPE_OPAQUE,
-			Data: map[string][]byte{
-				"username": []byte(creds.GetUsername()),
-				"password": []byte(creds.GetPassword()),
-			},
-		}.Build(),
-	}.Build())
-	if err != nil {
-		if grpcstatus.Code(err) == grpccodes.AlreadyExists {
-			return t.adoptExistingBreakGlassSecret(ctx, tenantName)
-		}
-		return fmt.Errorf("failed to store break-glass credentials secret: %w", err)
-	}
-	created := response.GetObject()
-	t.setBreakGlassSecretRef(created.GetId(), created.GetMetadata().GetName())
-	return nil
-}
-
-func (t *task) adoptExistingBreakGlassSecret(ctx context.Context, tenantName string) error {
 	filter := fmt.Sprintf(
 		"this.metadata.name == %s && this.metadata.tenant == %s",
 		strconv.Quote(breakGlassSecretName), strconv.Quote(tenantName),
 	)
 	listResp, err := t.r.secretsClient.List(ctx, privatev1.SecretsListRequest_builder{
 		Filter: new(filter),
-		Limit:  new(int32(1)),
 	}.Build())
 	if err != nil {
-		return fmt.Errorf("failed to look up existing break-glass credentials secret: %w", err)
+		return fmt.Errorf("failed to look up legacy break-glass credentials Secret: %w", err)
 	}
-	items := listResp.GetItems()
-	if len(items) == 0 {
-		return fmt.Errorf("break-glass credentials secret already exists but could not be found")
-	}
-	existing := items[0]
-	t.setBreakGlassSecretRef(existing.GetId(), existing.GetMetadata().GetName())
-	return nil
-}
 
-func (t *task) setBreakGlassSecretRef(id, name string) {
-	ref := &privatev1.SecretLocalReference{}
-	ref.SetId(id)
-	ref.SetName(name)
-	if !t.tenant.HasSpec() {
-		t.tenant.SetSpec(&privatev1.TenantSpec{})
+	ref := t.tenant.GetSpec().GetBreakGlassCredentialsSecret()
+	for _, item := range listResp.GetItems() {
+		if _, err := t.r.secretsClient.Delete(ctx, privatev1.SecretsDeleteRequest_builder{
+			Id: item.GetId(),
+		}.Build()); err != nil && grpcstatus.Code(err) != grpccodes.NotFound {
+			return fmt.Errorf("failed to delete legacy break-glass credentials Secret: %w", err)
+		}
+		if ref != nil && ref.GetId() == item.GetId() {
+			t.clearBreakGlassSecretRef()
+			ref = nil
+		}
 	}
-	t.tenant.GetSpec().SetBreakGlassCredentialsSecret(ref)
+	if ref != nil && ref.GetName() == breakGlassSecretName {
+		t.clearBreakGlassSecretRef()
+	}
+	return nil
 }
 
 // updateIDP updates the tenant in the identity provider with the current spec values.

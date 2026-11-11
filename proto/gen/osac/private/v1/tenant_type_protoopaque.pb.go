@@ -443,12 +443,12 @@ type TenantSpec_builder struct {
 	//
 	// - No duplicate domains in the list
 	Domains []string
-	// Reference to a Secret resource containing break-glass account credentials.
+	// Optional reference to an existing Secret used as the break-glass password input.
 	//
-	// On Create the system generates break-glass credentials and returns them in status. The
-	// reconciler then stores them as a Secret and sets this field. Callers may also set it to an
-	// existing Secret; the referenced Secret must exist. The secret data must contain `username` and
-	// `password` entries.
+	// If omitted, the system generates credentials. The private Create response returns them once;
+	// subsequent Get and List responses omit them. OSAC does not create a Secret to retain generated
+	// credentials. A supplied Secret must exist and contain `username` and `password` entries; the
+	// reconciler reads it only during the initial identity-provider setup.
 	BreakGlassCredentialsSecret *SecretLocalReference
 	// Opaque identifier for this tenant's account in the external billing
 	// system. Optional. Provider-controlled. Omitted from the public API.
@@ -610,9 +610,10 @@ type TenantStatus_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
 	// Break-glass account credentials.
-	// Only populated on successful creation. These credentials must be stored securely.
-	// This field is not persisted; Get and List responses omit it. The durable copy is the
-	// Secret referenced by spec.break_glass_credentials_secret.
+	// Populated on Create when credentials are generated. The private Create response returns them
+	// once; subsequent Get and List responses omit them. The reconciler uses the credentials during
+	// initial identity-provider setup and clears this field after setup succeeds. OSAC does not
+	// retain a generated Secret copy.
 	BreakGlassCredentials *BreakGlassCredentials
 	// Current lifecycle state of the tenant's IDP synchronization.
 	State TenantState

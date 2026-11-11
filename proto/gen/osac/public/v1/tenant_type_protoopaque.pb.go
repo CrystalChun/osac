@@ -233,12 +233,12 @@ type TenantSpec_builder struct {
 	//
 	// - No duplicate domains in the list
 	Domains []string
-	// Reference to a Secret resource containing break-glass account credentials.
+	// Optional reference to an existing Secret used as the break-glass password input.
 	//
-	// On Create the system generates break-glass credentials and returns them in status. The
-	// reconciler then stores them as a Secret and sets this field. Callers may also set it to an
-	// existing Secret; the referenced Secret must exist. The secret data must contain `username` and
-	// `password` entries.
+	// If omitted, the system generates credentials. The private Create response returns them once;
+	// subsequent Get and List responses omit them. OSAC does not create a Secret to retain generated
+	// credentials. A supplied Secret must exist and contain `username` and `password` entries; the
+	// reconciler reads it only during the initial identity-provider setup.
 	BreakGlassCredentialsSecret *SecretLocalReference
 }
 

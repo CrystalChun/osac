@@ -1175,19 +1175,17 @@ TENANT_ID=$(curl -s --cacert <cluster-ca> -H "Authorization: Bearer ${ADMIN_TOKE
   -d "{\"metadata\":{\"name\":\"$NAME\"},\"spec\":{\"domains\":[\"$NAME.example.org\"]}}" \
   https://<api-route>/api/fulfillment/v1/tenants \
   | python3 -c "import sys,json; print(json.load(sys.stdin)['id'])")
-# the reconciler signals completion by setting the tenant's
-# spec.break_glass_credentials_secret — poll the tenant API for it
-# (it names a Secret in OSAC's own API, not a Kubernetes Secret, so
-# `oc get secret -w` never sees it):
+# the private tenant API exposes reconciliation status to administrators:
 for i in $(seq 1 60); do
-  BG=$(curl -s --cacert <cluster-ca> -H "Authorization: Bearer ${ADMIN_TOKEN}" \
-    https://<api-route>/api/fulfillment/v1/tenants/$TENANT_ID \
+  READY=$(curl -s --cacert <cluster-ca> -H "Authorization: Bearer ${ADMIN_TOKEN}" \
+    https://<api-route>/api/private/v1/tenants/$TENANT_ID \
     | python3 -c "import sys,json; \
-print(json.load(sys.stdin).get('spec',{}).get('break_glass_credentials_secret',{}).get('name',''))" 2>/dev/null)
-  [ -n "$BG" ] && break
+tenant=json.load(sys.stdin); status=tenant.get('status',{}); \
+print(status.get('state') == 'TENANT_STATE_SYNCED' and bool(status.get('break_glass_user_id')))" 2>/dev/null)
+  [ "$READY" = "True" ] && break
   sleep 5
 done
-[ -n "$BG" ] || { echo "break-glass Secret never appeared for $NAME" >&2; exit 1; }
+[ "$READY" = "True" ] || { echo "tenant did not reach SYNCED for $NAME" >&2; exit 1; }
 curl -s --cacert <cluster-ca> -H "Authorization: Bearer ${ADMIN_TOKEN}" \
   https://<api-route>/api/fulfillment/v1/tenants/$TENANT_ID    # the object
 curl -s --cacert <cluster-ca> -X DELETE -H "Authorization: Bearer ${ADMIN_TOKEN}" \

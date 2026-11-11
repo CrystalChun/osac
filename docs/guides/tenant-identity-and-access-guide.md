@@ -271,8 +271,9 @@ PROJECT  DELETING  ID         NAME       STATE
 ## Flow 2 — Break-glass created automatically
 
 **What this flow does:** Confirms the tenant is `SYNCED` and that a break-glass user id
-exists. The password is intentionally **not** stored on the tenant object after create
-(it was shown in Flow 1 only).
+exists. The password is returned only once by Create. While initial IDP setup is pending,
+fulfillment holds it in private tenant status; after setup succeeds, it clears that field.
+Later `get` calls omit the password.
 
 ```bash
 osac login --address "$OSAC" --insecure --private \

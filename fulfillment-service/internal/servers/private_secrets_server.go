@@ -18,6 +18,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
 	grpccodes "google.golang.org/grpc/codes"
@@ -145,13 +146,25 @@ func (s *PrivateSecretsServer) List(ctx context.Context,
 	if err != nil {
 		return nil, err
 	}
-	if !canReadCredentials {
+	canReadBreakGlassCredentials, err := s.canReadBreakGlassCredentials(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if !canReadCredentials || !canReadBreakGlassCredentials {
 		request = proto.Clone(request).(*privatev1.SecretsListRequest)
-		credentialFilter := fmt.Sprintf("this.type != %d", privatev1.SecretType_SECRET_TYPE_SERVICE_ACCOUNT_CREDENTIAL)
-		if filter := request.GetFilter(); filter != "" {
-			credentialFilter = fmt.Sprintf("(%s) && (%s)", filter, credentialFilter)
+		filters := make([]string, 0, 2)
+		if !canReadCredentials {
+			filters = append(filters, fmt.Sprintf("this.type != %d",
+				privatev1.SecretType_SECRET_TYPE_SERVICE_ACCOUNT_CREDENTIAL))
 		}
-		request.SetFilter(credentialFilter)
+		if !canReadBreakGlassCredentials {
+			filters = append(filters, fmt.Sprintf("this.metadata.name != %q", breakGlassCredentialsSecretName))
+		}
+		filter := strings.Join(filters, " && ")
+		if request.GetFilter() != "" {
+			filter = fmt.Sprintf("(%s) && (%s)", request.GetFilter(), filter)
+		}
+		request.SetFilter(filter)
 	}
 	err = s.generic.List(ctx, request, &response)
 	return
@@ -166,6 +179,9 @@ func (s *PrivateSecretsServer) Get(ctx context.Context,
 
 	obj := response.GetObject()
 	if err = s.authorizePlatformSecretManagement(ctx, obj); err != nil {
+		return
+	}
+	if err = s.authorizeBreakGlassCredentials(ctx, obj); err != nil {
 		return
 	}
 	if err = s.authorizeServiceAccountCredential(ctx, obj, false); err != nil {
@@ -217,6 +233,9 @@ func (s *PrivateSecretsServer) Create(ctx context.Context,
 		return
 	}
 	if err = s.authorizeServiceAccountCredential(ctx, secret, true); err != nil {
+		return
+	}
+	if err = s.authorizeBreakGlassCredentials(ctx, secret); err != nil {
 		return
 	}
 
@@ -302,6 +321,9 @@ func (s *PrivateSecretsServer) Update(ctx context.Context,
 	if err = s.authorizeServiceAccountCredential(ctx, existingSecret, true); err != nil {
 		return
 	}
+	if err = s.authorizeBreakGlassCredentials(ctx, existingSecret); err != nil {
+		return
+	}
 
 	err = s.validateSecretUpdate(ctx, request.GetObject(), request.GetUpdateMask(), existingSecret)
 	if err != nil {
@@ -360,6 +382,9 @@ func (s *PrivateSecretsServer) Delete(ctx context.Context,
 		return
 	}
 	if err = s.authorizeServiceAccountCredential(ctx, obj, true); err != nil {
+		return
+	}
+	if err = s.authorizeBreakGlassCredentials(ctx, obj); err != nil {
 		return
 	}
 
@@ -422,6 +447,30 @@ func (s *PrivateSecretsServer) canReadServiceAccountCredentials(ctx context.Cont
 	return s.canManagePlatformSecrets(ctx)
 }
 
+func (s *PrivateSecretsServer) canReadBreakGlassCredentials(ctx context.Context) (bool, error) {
+	if auth.IsControllerServiceAccount(ctx) {
+		return true, nil
+	}
+	return s.canManagePlatformSecrets(ctx)
+}
+
+// authorizeBreakGlassCredentials protects credentials left by older versions
+// while tenant reconciliation removes the persisted Secret.
+func (s *PrivateSecretsServer) authorizeBreakGlassCredentials(ctx context.Context, secret *privatev1.Secret) error {
+	if secret == nil || secret.GetMetadata().GetName() != breakGlassCredentialsSecretName {
+		return nil
+	}
+	allowed, err := s.canReadBreakGlassCredentials(ctx)
+	if err != nil {
+		return err
+	}
+	if !allowed {
+		return grpcstatus.Error(grpccodes.PermissionDenied,
+			"break-glass credential Secrets can only be read or managed by controllers and platform administrators")
+	}
+	return nil
+}
+
 func (s *PrivateSecretsServer) authorizeServiceAccountCredential(ctx context.Context,
 	secret *privatev1.Secret, mutate bool) error {
 	if secret == nil || secret.GetType() != privatev1.SecretType_SECRET_TYPE_SERVICE_ACCOUNT_CREDENTIAL {
@@ -473,6 +522,9 @@ func (s *PrivateSecretsServer) Signal(ctx context.Context,
 		return
 	}
 	if err = s.authorizeServiceAccountCredential(ctx, getResponse.GetObject(), true); err != nil {
+		return
+	}
+	if err = s.authorizeBreakGlassCredentials(ctx, getResponse.GetObject()); err != nil {
 		return
 	}
 	err = s.generic.Signal(ctx, request, &response)
