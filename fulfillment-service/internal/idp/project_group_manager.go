@@ -212,6 +212,25 @@ func (m *ProjectGroupManager) CreateProjectGroups(ctx context.Context, tenant, p
 	return managersGroupID, nil
 }
 
+// VerifyProjectGroups checks that both authorization groups for a project exist.
+func (m *ProjectGroupManager) VerifyProjectGroups(ctx context.Context, tenant, projectPath string) error {
+	if tenant == "" {
+		return fmt.Errorf("tenant is required")
+	}
+	if strings.Contains(projectPath, "..") {
+		return fmt.Errorf("project path cannot contain '..' sequence")
+	}
+
+	for _, groupType := range []string{GroupNameViewers, GroupNameManagers} {
+		groupPath := path.Join("/", projectPath, groupType)
+		if _, err := m.getGroupIDByPath(ctx, tenant, groupPath); err != nil {
+			return fmt.Errorf("failed to verify project group %s: %w", groupPath, err)
+		}
+	}
+
+	return nil
+}
+
 // AddUserToProjectGroup adds a user to a project group (system:viewers or system:managers).
 func (m *ProjectGroupManager) AddUserToProjectGroup(ctx context.Context, tenant, projectPath, username, groupType string) error {
 	if tenant == "" {

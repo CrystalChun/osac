@@ -320,6 +320,64 @@ var _ = Describe("ProjectGroupManager", func() {
 		})
 	})
 
+	Describe("VerifyProjectGroups", func() {
+		var manager *ProjectGroupManager
+
+		BeforeEach(func() {
+			var err error
+			manager, err = NewProjectGroupManager().
+				SetLogger(logger).
+				SetClient(mockClient).
+				Build()
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		It("should verify both groups for a nested project", func() {
+			mockClient.EXPECT().
+				GetGroupIDByPath(gomock.Any(), "test-org", "/parent/child/system:viewers").
+				Return("viewers-group-id", nil)
+			mockClient.EXPECT().
+				GetGroupIDByPath(gomock.Any(), "test-org", "/parent/child/system:managers").
+				Return("managers-group-id", nil)
+
+			Expect(manager.VerifyProjectGroups(ctx, "test-org", "parent/child")).To(Succeed())
+		})
+
+		It("should verify tenant-root groups for the default project", func() {
+			mockClient.EXPECT().
+				GetGroupIDByPath(gomock.Any(), "test-org", "/system:viewers").
+				Return("viewers-group-id", nil)
+			mockClient.EXPECT().
+				GetGroupIDByPath(gomock.Any(), "test-org", "/system:managers").
+				Return("managers-group-id", nil)
+
+			Expect(manager.VerifyProjectGroups(ctx, "test-org", "")).To(Succeed())
+		})
+
+		It("should report when either project group is missing", func() {
+			mockClient.EXPECT().
+				GetGroupIDByPath(gomock.Any(), "test-org", "/test-project/system:viewers").
+				Return("viewers-group-id", nil)
+			mockClient.EXPECT().
+				GetGroupIDByPath(gomock.Any(), "test-org", "/test-project/system:managers").
+				Return("", &ErrNotFound{Kind: "group", Name: "system:managers"})
+
+			err := manager.VerifyProjectGroups(ctx, "test-org", "test-project")
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("/test-project/system:managers"))
+		})
+
+		It("should propagate group lookup errors", func() {
+			mockClient.EXPECT().
+				GetGroupIDByPath(gomock.Any(), "test-org", "/test-project/system:viewers").
+				Return("", errors.New("Keycloak unavailable"))
+
+			err := manager.VerifyProjectGroups(ctx, "test-org", "test-project")
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("Keycloak unavailable"))
+		})
+	})
+
 	Describe("AddUserToProjectGroup", func() {
 		var manager *ProjectGroupManager
 

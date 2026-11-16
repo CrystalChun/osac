@@ -27,6 +27,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/osac-project/osac/fulfillment-service/internal/controllers/defaultnetworking"
@@ -371,6 +372,80 @@ var _ = Describe("Validation and Activation", func() {
 				}, Equal("GroupsCreated")),
 			))
 		})
+
+		It("should return active projects to pending and retry when a Keycloak group is missing", func() {
+			project := privatev1.Project_builder{
+				Id: "project-1",
+				Metadata: privatev1.Metadata_builder{
+					Name:       "test-project",
+					Tenant:     "acme",
+					Finalizers: []string{finalizers.Controller},
+				}.Build(),
+				Status: privatev1.ProjectStatus_builder{
+					State: privatev1.ProjectState_PROJECT_STATE_ACTIVE,
+					Conditions: []*privatev1.ProjectCondition{
+						privatev1.ProjectCondition_builder{
+							Type:   privatev1.ProjectConditionType_PROJECT_CONDITION_TYPE_KEYCLOAK_SYNC,
+							Status: privatev1.ConditionStatus_CONDITION_STATUS_TRUE,
+							Reason: proto.String("GroupsCreated"),
+						}.Build(),
+					},
+				}.Build(),
+			}.Build()
+			functionObj.maskCalculator = masks.NewCalculator().Build()
+
+			mockIdpClient.EXPECT().
+				GetGroupIDByPath(gomock.Any(), "acme", "/test-project/system:viewers").
+				Return("", &idp.ErrNotFound{Kind: "group", Name: "system:viewers"})
+			mockClient.EXPECT().
+				Update(gomock.Any(), gomock.Any()).
+				DoAndReturn(func(_ context.Context, req *privatev1.ProjectsUpdateRequest,
+					_ ...grpc.CallOption) (*privatev1.ProjectsUpdateResponse, error) {
+					status := req.GetObject().GetStatus()
+					Expect(status.GetState()).To(Equal(privatev1.ProjectState_PROJECT_STATE_PENDING))
+					Expect(status.GetConditions()).To(ContainElement(
+						WithTransform(func(condition *privatev1.ProjectCondition) string {
+							return condition.GetReason()
+						}, Equal("GroupVerificationFailed")),
+					))
+					return privatev1.ProjectsUpdateResponse_builder{}.Build(), nil
+				})
+
+			firstErr := functionObj.Run(ctx, project)
+			Expect(firstErr).To(HaveOccurred())
+			var retryable interface{ RequeueAfter() time.Duration }
+			Expect(errors.As(firstErr, &retryable)).To(BeTrue())
+			Expect(retryable.RequeueAfter()).To(Equal(projectGroupRetryDelay))
+			Expect(project.GetStatus().GetState()).To(Equal(privatev1.ProjectState_PROJECT_STATE_PENDING))
+			Expect(project.GetStatus().GetConditions()).To(ContainElement(
+				WithTransform(func(condition *privatev1.ProjectCondition) privatev1.ConditionStatus {
+					return condition.GetStatus()
+				}, Equal(privatev1.ConditionStatus_CONDITION_STATUS_FALSE)),
+			))
+
+			mockIdpClient.EXPECT().
+				CreateGroup(gomock.Any(), "acme", "/test-project/system:viewers").
+				Return("viewers-id", nil)
+			mockIdpClient.EXPECT().
+				CreateGroup(gomock.Any(), "acme", "/test-project/system:managers").
+				Return("managers-id", nil)
+			mockClient.EXPECT().
+				Update(gomock.Any(), gomock.Any()).
+				DoAndReturn(func(_ context.Context, req *privatev1.ProjectsUpdateRequest,
+					_ ...grpc.CallOption) (*privatev1.ProjectsUpdateResponse, error) {
+					status := req.GetObject().GetStatus()
+					Expect(status.GetState()).To(Equal(privatev1.ProjectState_PROJECT_STATE_ACTIVE))
+					Expect(status.GetConditions()).To(ContainElement(
+						WithTransform(func(condition *privatev1.ProjectCondition) string {
+							return condition.GetReason()
+						}, Equal("GroupsCreated")),
+					))
+					return privatev1.ProjectsUpdateResponse_builder{}.Build(), nil
+				})
+
+			Expect(functionObj.Run(ctx, project)).To(Succeed())
+			Expect(project.GetStatus().GetState()).To(Equal(privatev1.ProjectState_PROJECT_STATE_ACTIVE))
+		})
 	})
 
 	Context("Projects with valid parent", func() {
@@ -630,11 +705,13 @@ var _ = Describe("Validation and Activation", func() {
 		})
 	})
 
-	Context("Update skips validation", func() {
-		It("should skip validation when project is already ACTIVE", func() {
+	Context("Update validation", func() {
+		It("should verify Keycloak groups when project is already ACTIVE", func() {
 			project := privatev1.Project_builder{
 				Id: "project-1",
 				Metadata: privatev1.Metadata_builder{
+					Name:       "active-project",
+					Tenant:     "acme",
 					Finalizers: []string{finalizers.Controller},
 				}.Build(),
 				Status: privatev1.ProjectStatus_builder{
@@ -650,7 +727,13 @@ var _ = Describe("Validation and Activation", func() {
 				project: project,
 			}
 
-			// Should not call any client methods since validation is skipped
+			mockIdpClient.EXPECT().
+				GetGroupIDByPath(gomock.Any(), "acme", "/active-project/system:viewers").
+				Return("viewers-group-id", nil)
+			mockIdpClient.EXPECT().
+				GetGroupIDByPath(gomock.Any(), "acme", "/active-project/system:managers").
+				Return("managers-group-id", nil)
+
 			err := task.update(ctx)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(project.GetStatus().GetState()).To(Equal(privatev1.ProjectState_PROJECT_STATE_ACTIVE))

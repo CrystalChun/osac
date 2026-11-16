@@ -223,9 +223,19 @@ func (t *task) update(ctx context.Context) error {
 		return nil
 	}
 
-	// For active projects, no re-validation needed (the parent project relationship, stored in
-	// metadata.project, is immutable).
+	// Parent project metadata is immutable, but Keycloak groups can be removed
+	// independently, so verify them during the controller's periodic sync.
 	if state == privatev1.ProjectState_PROJECT_STATE_ACTIVE {
+		projectTenant := t.project.GetMetadata().GetTenant()
+		projectPath := strings.ReplaceAll(t.project.GetMetadata().GetName(), ".", "/")
+		if err := t.r.projectGroupManager.VerifyProjectGroups(ctx, projectTenant, projectPath); err != nil {
+			return t.recordKeycloakSyncFailure(
+				ctx,
+				"GroupVerificationFailed",
+				"Failed to verify Keycloak groups",
+				err,
+			)
+		}
 		return nil
 	}
 
@@ -275,30 +285,7 @@ func (t *task) validateAndActivate(ctx context.Context) error {
 	// Create Keycloak groups for project authorization
 	_, err := t.r.projectGroupManager.CreateProjectGroups(ctx, projectTenant, projectPath)
 	if err != nil {
-		t.updateCondition(
-			privatev1.ProjectConditionType_PROJECT_CONDITION_TYPE_KEYCLOAK_SYNC,
-			privatev1.ConditionStatus_CONDITION_STATUS_FALSE,
-			"GroupCreationFailed",
-			fmt.Sprintf("Failed to create Keycloak groups: %v", err),
-		)
-		// Persist the condition update before returning the error
-		updateMask := t.r.maskCalculator.Calculate(&privatev1.Project{}, t.project)
-		if len(updateMask.GetPaths()) > 0 {
-			if _, updateErr := t.r.projectsClient.Update(ctx, privatev1.ProjectsUpdateRequest_builder{
-				Object:     t.project,
-				UpdateMask: updateMask,
-			}.Build()); updateErr != nil {
-				// Log update error but return the original group creation error
-				t.r.logger.ErrorContext(ctx, "Failed to persist Keycloak sync condition",
-					slog.String("project", t.project.GetMetadata().GetName()),
-					slog.Any("update_error", updateErr),
-				)
-			}
-		}
-		return controllers.RequeueAfter(
-			fmt.Errorf("failed to create Keycloak groups: %w", err),
-			projectGroupRetryDelay,
-		)
+		return t.recordKeycloakSyncFailure(ctx, "GroupCreationFailed", "Failed to create Keycloak groups", err)
 	}
 
 	// Create a ProjectMembership for the project creator with manager role.
@@ -328,6 +315,34 @@ func (t *task) validateAndActivate(ctx context.Context) error {
 	)
 
 	return nil
+}
+
+func (t *task) recordKeycloakSyncFailure(ctx context.Context, reason, message string, cause error) error {
+	t.project.GetStatus().SetState(privatev1.ProjectState_PROJECT_STATE_PENDING)
+	t.updateCondition(
+		privatev1.ProjectConditionType_PROJECT_CONDITION_TYPE_KEYCLOAK_SYNC,
+		privatev1.ConditionStatus_CONDITION_STATUS_FALSE,
+		reason,
+		fmt.Sprintf("%s: %v", message, cause),
+	)
+
+	// Persist the pending state and sync condition before returning the retryable error.
+	updateMask := t.r.maskCalculator.Calculate(&privatev1.Project{}, t.project)
+	if len(updateMask.GetPaths()) > 0 {
+		if _, updateErr := t.r.projectsClient.Update(ctx, privatev1.ProjectsUpdateRequest_builder{
+			Object:     t.project,
+			UpdateMask: updateMask,
+		}.Build()); updateErr != nil {
+			// Keep the original Keycloak error as the retry cause; the next reconciliation
+			// will re-read the project and try to persist its status again.
+			t.r.logger.ErrorContext(ctx, "Failed to persist Keycloak sync condition",
+				slog.String("project", t.project.GetMetadata().GetName()),
+				slog.Any("update_error", updateErr),
+			)
+		}
+	}
+
+	return controllers.RequeueAfter(fmt.Errorf("%s: %w", message, cause), projectGroupRetryDelay)
 }
 
 // findProjectByName looks up a project by its metadata.name. Returns nil if not found.
